@@ -39,7 +39,7 @@
   "preparation_baseline": "b0e4339d57bf15bc6e6a6f21fbdd5edc73006e38",
   "implementation_branch": "codex/armageddon-completion-phase1",
   "authorised_scope": "Complete plan in coherent stages; local commits; no publication, merge, deploy or shared/production DB",
-  "selected_stage": "Phase3A legacy positive-ID remains P2 correction implemented and verified; original provenance P2 closed; parent legacy rereview pending; no next slice started",
+  "selected_stage": "Phase3A unresolved-remains runtime boundary correction implemented and verified; prior provenance and component P2s closed; parent runtime rereview pending; no next slice started",
   "phase1_remaining": [
     "Stock installer selects and qualifies the mental/spiritual native attribute, capacity expression/basis and authored energy coefficients.",
     "Complete installed source/support/crafting/chargen wiring and gathering restrictions/environmental accounting remain later stock/native gates.",
@@ -2389,7 +2389,7 @@
     },
     {
       "id": "phase3A_legacy_remains_P2",
-      "status": "passed_bounded_managed_and_controlled_native_parent_rereview_pending",
+      "status": "closed_by_parent_independent_rereview",
       "focused_core": "20261003T000051Z-621b96dce00e",
       "aggregate": "20261003T000230Z-0e6db335ad67",
       "counts": {
@@ -2407,7 +2407,35 @@
       "owned_processes_remaining": 0,
       "frozen_inputs_matching": 152,
       "binary_fingerprints": 14,
-      "receipt": "Armageddon_Stage3A_LegacyRemains_Verification.json"
+      "receipt": "Armageddon_Stage3A_LegacyRemains_Verification.json",
+      "followup": "Unresolved-remains runtime compatibility boundary corrected separately; immutable component receipt unchanged"
+    },
+    {
+      "id": "phase3A_runtime_remains_P2",
+      "status": "passed_bounded_managed_and_controlled_native_parent_rereview_pending",
+      "focused_core": "20261003T010951Z-affd7622eef4",
+      "aggregate": "20261003T011057Z-53fe87e20274",
+      "counts": {
+        "core": 4440,
+        "library": 568,
+        "database": 65,
+        "aggregate": 5073
+      },
+      "new_regressions": {
+        "core": 42,
+        "library": 7,
+        "total": 49
+      },
+      "executed_pre_repair_run": "20261003T004050Z-8c8001016ac4",
+      "native_markers": 151,
+      "runtime_markers": 11,
+      "legacy_markers": 13,
+      "separate_process_readers": 11,
+      "owned_databases_cleaned": 10,
+      "owned_processes_remaining": 0,
+      "frozen_inputs_matching": 171,
+      "binary_fingerprints": 14,
+      "receipt": "Armageddon_Stage3A_RuntimeRemains_Verification.json"
     }
   ],
   "implementation_commits": [
@@ -2478,14 +2506,18 @@
     {
       "sha": "7e6f180365e1dfb64b81fe31c54735463b62bce0",
       "subject": "Restore safe legacy remains references without cleanup authority"
+    },
+    {
+      "sha": "18252348ab3cc8b6753fc022886100045212390b",
+      "subject": "Guard unresolved remains across runtime consumers and custody"
     }
   ],
   "next_checkpoint": {
-    "status": "awaiting_parent_phase3A_legacy_remains_rereview",
-    "base": "ed686eb5feb21db7a0c728ef9614c8649ade45fe",
-    "scope": "Phase3A P2 legacy positive-ID remains compatibility correction",
-    "implementation_head": "7e6f180365e1dfb64b81fe31c54735463b62bce0",
-    "receipt": "Armageddon_Stage3A_LegacyRemains_Verification.json",
+    "status": "awaiting_parent_phase3A_runtime_remains_rereview",
+    "base": "f320f08bcf11b991a8418036a128bdefa421abf4",
+    "scope": "Phase3A P2 unresolved-remains runtime compatibility boundary",
+    "implementation_head": "18252348ab3cc8b6753fc022886100045212390b",
+    "receipt": "Armageddon_Stage3A_RuntimeRemains_Verification.json",
     "implementation_verified": true,
     "no_next_slice_started": true,
     "next_stage_after_review": "Parent review of this immutable checkpoint, then bounded canonical NPC compaction/archival and native creation/post-death/remains-release adapters before the eight larger features and full N14-N16.",

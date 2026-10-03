@@ -1,0 +1,1050 @@
+{
+  "schema_version": 1,
+  "stage": "Phase3A P2 unresolved-remains runtime compatibility boundary",
+  "status": "implemented_and_verified_parent_rereview_pending",
+  "base_commit": "f320f08bcf11b991a8418036a128bdefa421abf4",
+  "implementation_commit": "18252348ab3cc8b6753fc022886100045212390b",
+  "branch": "codex/armageddon-completion-phase1",
+  "recorded_utc": "2026-10-03T01:28:24.226976+00:00",
+  "source_authority": {
+    "library_file_id": "libfile_a4606cd0097081918d6c9d9e220e6da0",
+    "file_id": "file_00000000273481fab2e542daf8801228",
+    "reported_version": 0,
+    "read_version_id": null,
+    "size_bytes": 131071,
+    "total_lines": 905,
+    "windows": [
+      [
+        1,
+        300
+      ],
+      [
+        301,
+        450
+      ],
+      [
+        451,
+        600
+      ],
+      [
+        601,
+        750
+      ],
+      [
+        751,
+        905
+      ]
+    ],
+    "has_more": false,
+    "complete_content_read": true,
+    "access_route": "Library read; full contiguous windows; no materialized substitute",
+    "read_complete_at_utc": "2026-10-02T07:41:07.312Z",
+    "rendered_content_utf8_bytes": 131070
+  },
+  "prior_checkpoints": [
+    {
+      "implementation": "65c41a99d8a6c296311bbaaf47149cf8e38a7163",
+      "handoff": "a059338c9d15a8c7135c5192509f28e3c0f7a5ee",
+      "receipt": "Armageddon_Stage3A_Verification.json",
+      "receipt_sha256": "06d591e0476e07539e4da37cd008d796f0df36d49d0d9fc7c58cd85e96694246",
+      "unchanged": true,
+      "actual_result": "5002 composite project passes, retained two TEMP failures and subsequent DB64 pass; native123/eight owned databases cleaned"
+    },
+    {
+      "implementation": "8ab37546b050d895a31d3d3097e818da0a987d9b",
+      "handoff": "ed686eb5feb21db7a0c728ef9614c8649ade45fe",
+      "receipt": "Armageddon_Stage3A_OrdinaryRetirement_Verification.json",
+      "receipt_sha256": "d913428f07ecca840d7be633c6a9fded3ff12ec62e273e38a844352e373392c3",
+      "unchanged": true,
+      "parent_rereview": "Original ownership P2 closed; new legacy compatibility P2 requested before phase clearance",
+      "actual_result": "5006 single aggregate passes plus Core85/database2 focused; native127/nine owned databases cleaned"
+    },
+    {
+      "implementation": "7e6f180365e1dfb64b81fe31c54735463b62bce0",
+      "handoff": "f320f08bcf11b991a8418036a128bdefa421abf4",
+      "receipt": "Armageddon_Stage3A_LegacyRemains_Verification.json",
+      "receipt_sha256": "1581e08e8db6670511d1c24f85be7c6961aa71454ec7261aae25bde5a8f1716a",
+      "unchanged": true,
+      "parent_rereview": "Component-level legacy P2 closed; runtime consumers require this separate correction",
+      "actual_result": "5024 aggregate,104 focused,136 native;152 inputs,14 assembly fingerprints,10 owned databases cleaned"
+    }
+  ],
+  "parent_review_finding": "New unresolved anatomy state crashes exposure registration/refresh, permits scavenger eating before a late null dereference, and mutates morgue custody/estate state before body dereference. Audit remaining nullable consumers.",
+  "executed_pre_repair_reproduction": {
+    "run": "20261003T004050Z-8c8001016ac4",
+    "passed": 104,
+    "failed": 8,
+    "paths": "Exposure Track/Refresh ArgumentNullException, corpse/part CanEat wrongly true, corpse/part Eat NullReferenceException at332/380 after consumption/events, morgue missing body relocated and added effect before NullReferenceException; missing owner NullReferenceException.",
+    "summary_path": ".artifacts/test-runs/20261003T004050Z-8c8001016ac4/summary.json",
+    "summary_sha256": "b5eca13343411f30abd01acfd0b6106ceaa2c4cca717979b5183814f8656bc31",
+    "failures_path": ".artifacts/test-runs/20261003T004050Z-8c8001016ac4/failures.json",
+    "failures_sha256": "f466d82a02331105d5b439d5d9bfcd2a7399d46d75ac3b1048f9c1def6ebba31"
+  },
+  "implemented": [
+    "Skip only absent corpse-body exposure registration; retain ordinary item tracking and resolved-body registration.",
+    "Reject unresolved corpse/part anatomy before scavenger eligibility, consumption, nutrition, events, weight or deletion.",
+    "Morgue validates final context and resolved matching owner body before estate or custody mutations. Explicit TryIntakeCorpse success remains distinct from a null estate; recovery preserves assigned state on refusal.",
+    "Physical body-target helper rejects unresolved corpses before staff implant/item removal. Legacy actor-target helper, dress, staff and spell resurrection require resolved final current-body match; independent live actors remain targetable.",
+    "Item/currency gifting refuses before transfer/preparation; resolved physical remains retain gifts while character receiver events require a matching final body.",
+    "Global staff resurrection and arena scans skip unrelated missing-owner remains safely.",
+    "Persisted bleeding part wound inspection tolerates missing owner/body, omits survivor activity and reads treatment indicators only from exact part anatomy.",
+    "Preserve exact body loading, positive IDs, all ownership/proof separation, retirement atomicity and existing cleanup guards; no schema/model changes.",
+    "42 new core plus7 shared regressions; eleven separate-process persisted native readers exercise runtime paths with explicit coverage flags."
+  ],
+  "managed": {
+    "focused_core": {
+      "run_id": "20261003T010951Z-affd7622eef4",
+      "head": "f320f08bcf11b991a8418036a128bdefa421abf4",
+      "status": "PASS",
+      "counts": {
+        "executed": 146,
+        "passed": 146,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 146
+      },
+      "filter": "FullyQualifiedName~RemainsRuntimeBoundaryTests|FullyQualifiedName~RemainsReferenceCompatibilityTests|FullyQualifiedName~StandardCorpseModelTests|FullyQualifiedName~RetiredBodyCleanupTests|FullyQualifiedName~BodyFormLifecyclePolicyTests|FullyQualifiedName~BodyFormLifecycleGuardTests|FullyQualifiedName~CharacterInstance",
+      "configuration": "Debug",
+      "sdk": "10.0.401",
+      "started_utc": "2026-10-03T01:09:51.5590587+00:00",
+      "ended_utc": "2026-10-03T01:10:01.2775663+00:00",
+      "source_start": "b7f9044306a188f4b39e2c325d8e85d77c3e226ec87c2add58d3eb4af9498cc3",
+      "source_end": "b7f9044306a188f4b39e2c325d8e85d77c3e226ec87c2add58d3eb4af9498cc3",
+      "source_stable": true,
+      "execution_complete": true,
+      "counts_complete": true,
+      "projects": [
+        "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+      ],
+      "issues": [],
+      "summary_path": ".artifacts/test-runs/20261003T010951Z-affd7622eef4/summary.json",
+      "summary_sha256": "44f90fa80dba34567e154337c15d6dd9c808d43040971bb45589c62827ed535f",
+      "failures_path": ".artifacts/test-runs/20261003T010951Z-affd7622eef4/failures.json",
+      "failures_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "project_counts": [
+        {
+          "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+          "counts": {
+            "executed": 146,
+            "passed": 146,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 146
+          }
+        }
+      ]
+    },
+    "aggregate": {
+      "run_id": "20261003T011057Z-53fe87e20274",
+      "head": "f320f08bcf11b991a8418036a128bdefa421abf4",
+      "status": "PASS",
+      "counts": {
+        "executed": 5073,
+        "passed": 5073,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 5073
+      },
+      "filter": null,
+      "configuration": "Debug",
+      "sdk": "10.0.401",
+      "started_utc": "2026-10-03T01:10:57.7708203+00:00",
+      "ended_utc": "2026-10-03T01:11:59.3767924+00:00",
+      "source_start": "eeb333ac548aaa694bb2c110ee2b1d5a8c15f2bbe5cdf5599559c1db1b8692fc",
+      "source_end": "eeb333ac548aaa694bb2c110ee2b1d5a8c15f2bbe5cdf5599559c1db1b8692fc",
+      "source_stable": true,
+      "execution_complete": true,
+      "counts_complete": true,
+      "projects": [
+        "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+        "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+        "MudsharpDatabaseLibrary Unit Tests/MudsharpDatabaseLibrary Unit Tests.csproj"
+      ],
+      "issues": [],
+      "summary_path": ".artifacts/test-runs/20261003T011057Z-53fe87e20274/summary.json",
+      "summary_sha256": "d23db2b5865a7b5f3b5ed05c0511b2d1807271d2bbcc46de7944ef1628c34a11",
+      "failures_path": ".artifacts/test-runs/20261003T011057Z-53fe87e20274/failures.json",
+      "failures_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "project_counts": [
+        {
+          "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+          "counts": {
+            "executed": 4440,
+            "passed": 4440,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 4440
+          }
+        },
+        {
+          "project": "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+          "counts": {
+            "executed": 568,
+            "passed": 568,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 568
+          }
+        },
+        {
+          "project": "MudsharpDatabaseLibrary Unit Tests/MudsharpDatabaseLibrary Unit Tests.csproj",
+          "counts": {
+            "executed": 65,
+            "passed": 65,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 65
+          }
+        }
+      ]
+    },
+    "single_combined_run_passed": true,
+    "project_counts": {
+      "core": 4440,
+      "library": 568,
+      "database": 65,
+      "aggregate": 5073
+    },
+    "new_regressions": {
+      "core": 42,
+      "library": 7,
+      "total": 49
+    },
+    "environment": "Repository compact wrapper; owned unique process-local TEMP/TMP and exact process-local Git trust restored afterward; no global changes."
+  },
+  "native": {
+    "schema_version": 1,
+    "status": "PASS",
+    "base": "f320f08bcf11b991a8418036a128bdefa421abf4",
+    "mode": "CastingOnly+LifecycleOnly+BodyRetirementOnly+LegacyRemainsOnly",
+    "started_utc": "2026-10-03T01:17:10.338527+00:00",
+    "ended_utc": "2026-10-03T01:25:55.8486198Z",
+    "exit_code": 0,
+    "configuration": "Debug",
+    "mysql": "8.0.45",
+    "log": ".artifacts/test-runs/native-armageddon-20261003-stage3A-runtime-review/final-native.log",
+    "log_sha256": "3ba9f4d9056f08c5faa36bf584dd48eaae08d06b9ded3a687b046a5672e5ae0c",
+    "input_manifest": ".artifacts/test-runs/native-armageddon-20261003-stage3A-runtime-review/final-inputs.json",
+    "input_manifest_sha256": "095d01563476825c7df813f1b8232d06a10f6a7b59492b21538cfaf4aa3b74d1",
+    "marker_count": 151,
+    "group_marker_counts": {
+      "ordinary": 4,
+      "legacy": 13,
+      "runtime": 11,
+      "lifecycle": 16
+    },
+    "prior_casting_marker_count": 107,
+    "owned_databases_cleaned": 10,
+    "temporary_mysql_cleanup_verified": true,
+    "owned_processes_remaining": 0,
+    "passed_markers": [
+      "ARM02-schema=passed blank-snapshot-import empty-casting-tables generated-migration-and-model-parity",
+      "ARM02-receipt=passed operation:74f2cce1-b755-4683-a1c7-c5a97df5b21c character:1 actor:1 body:1 capability:1 spell:1 trait:1 reserve:1 stage:Completed",
+      "ARM02-reader=passed grade:3 balance:77.5 unresolved:0 operation:none process:31828",
+      "ARM02-native-cast=passed non-admin-command real-Skill real-Body payment:22.5 grade:3 separate-process-reload",
+      "ARM02-sorcerer=passed second-non-admin distinct-reserve:77.5 agility:-3 armour:92 gathering-only",
+      "ARM02-reader=passed grade:3 balance:77.5 unresolved:0 operation:none process:88776",
+      "ARM02-second-body=passed focus detach restore single-passive-tick grade-one-cost:5 shared-opportunity native-gathering-canonical-credit-physical-costs",
+      "ARM02-reader=passed grade:3 balance:77.5 unresolved:0 operation:none process:51904",
+      "ARM02-second-body-restart=passed persisted-instance-effects shared-skill shared-deadlines shared-reserve",
+      "ARM02-reader=passed grade:3 balance:72.5 unresolved:0 operation:none process:50104",
+      "ARM02-reader=passed grade:2 balance:100 unresolved:0 operation:none process:91492",
+      "ARM02-fault=passed stage:BeforePayment status:Refused operation:none no-replay-no-refund-no-reroll",
+      "ARM02-quarantine-restart=passed alternate-route shared-trait shared-reserve untouched-route",
+      "ARM02-reader=passed grade:2 balance:77.5 unresolved:1 operation:669aeab3-0951-4ebc-847b-a382b63a63a9 process:91596",
+      "ARM02-fault=passed stage:PaymentMutated status:NeedsReview operation:669aeab3-0951-4ebc-847b-a382b63a63a9 no-replay-no-refund-no-reroll",
+      "ARM02-quarantine-restart=passed alternate-route shared-trait shared-reserve untouched-route",
+      "ARM02-reader=passed grade:2 balance:77.5 unresolved:1 operation:09f74703-0d3b-4803-81f3-c6977e16b4c7 process:45388",
+      "ARM02-fault=passed stage:EffectsExecuted status:NeedsReview operation:09f74703-0d3b-4803-81f3-c6977e16b4c7 no-replay-no-refund-no-reroll",
+      "ARM02-quarantine-restart=passed alternate-route shared-trait shared-reserve untouched-route",
+      "ARM02-reader=passed grade:2 balance:77.5 unresolved:1 operation:b23bc081-37fb-45a0-b107-09046df5781c process:45064",
+      "ARM02-fault=passed stage:MasterySampledBeforeWrite status:NeedsReview operation:b23bc081-37fb-45a0-b107-09046df5781c no-replay-no-refund-no-reroll",
+      "ARM02-quarantine-restart=passed alternate-route shared-trait shared-reserve untouched-route",
+      "ARM02-reader=passed grade:2 balance:77.5 unresolved:1 operation:082ac462-c09e-4384-a4d1-6bf4866f22c0 process:27436",
+      "ARM02-fault=passed stage:MasterySampleRecorded status:NeedsReview operation:082ac462-c09e-4384-a4d1-6bf4866f22c0 no-replay-no-refund-no-reroll",
+      "ARM02-provider=passed operation:67df7407-78b2-46cd-b162-cfbd6524e503 At SamplingMastery: An error occurred while saving the entity changes. See the inner exception for details. (ARM02 controlled provider sample failure)",
+      "ARM02-quarantine-restart=passed alternate-route shared-trait shared-reserve untouched-route",
+      "ARM02-reader=passed grade:2 balance:77.5 unresolved:1 operation:67df7407-78b2-46cd-b162-cfbd6524e503 process:16212",
+      "ARM02-auxiliary=passed Ember-Lance-native-wounds Wardcraft-native-tag-ward per-spell-trait shared-trait-edge native-school-preserved",
+      "ARM02-native=passed",
+      "ARM-COMP-opening-cap=passed native-Skill opening:30/60 cap:60 route-loss-history-preserved",
+      "ARM-COMP-efficiency=passed mastery:1 requested:1 cost:50 non-admin-command",
+      "ARM-COMP-efficiency=passed mastery:2 requested:1 cost:25 non-admin-command",
+      "ARM-COMP-cap-loss-reload=passed removed-admission cap:0 history:60 independent-process",
+      "ARM02-reader=passed grade:7 balance:18 unresolved:0 operation:none process:25368",
+      "ARM-COMP-native=passed cap:60 max-grade:7 efficiency:50/25/7 overreach-cost:75 balance:18 receipts:4 separate-process-reload practice:NOT_RUN",
+      "ARM-SUPPORT-cap-adoption=passed uncapped-original-grant same-policy-and-key cap:90 native-opening:30 separate-terminal-marker",
+      "ARM-SUPPORT-reload=passed native-Skill raw:90 cap:90 Identify-grade:1 balance:17 immutable-uncapped-grant cap-adoption-history removed:False",
+      "ARM02-reader=passed grade:1 balance:17 unresolved:0 operation:none process:77332",
+      "ARM-SUPPORT-reload=passed native-Skill raw:90 cap:0 Identify-grade:1 balance:17 immutable-uncapped-grant cap-adoption-history removed:True",
+      "ARM02-reader=passed grade:1 balance:17 unresolved:0 operation:none process:73040",
+      "ARM-SUPPORT-native=passed authored-enrolment parent-native-use:30-to-80 second-focused-body-support-native-use:30-to-80-to-90 Identify-grade:1 cap:90 no-dummy-spell no-refill terminal-immutable separate-process-reload craft-command:NOT_RUN",
+      "ARM-CAPACITY-matrix=passed rows:16728 spells:82 normal-pairs:28 overreach-pairs:6 profiles:2 scenarios:3 advanced-unaffordable:0 provisional-mapping-and-coefficients energy-envelope-only",
+      "ARM-CAPACITY-reload=passed persisted-explicit-raw-attribute-expression max:118 balance:17 enrolment-no-refill attribute-rise-max:121-balance:17 grade7-insufficient-spent-balance",
+      "ARM02-reader=passed grade:7 balance:17 unresolved:0 operation:none process:38308",
+      "ARM-CAPACITY-compound=passed both-child-orders normal-command-casts:4 prepared-targets:4 combined-target-caster:4 complete-removals:14 neutral-90-preserved final-application-decrease:70 final-removal-decrease:100 no-refill native-resource-delta:17-to-24 mixed-native-deltas:30 neutral-credit:97 final-decrease:70 final-increase-credit:140 negative-delta:83 large-debit:30 command-cost:25",
+      "ARM-CAPACITY-effective-reload=passed service-before-balance-inventory-effects-load persisted-bonuses:3+7 raw:10 max:200 saved-balance:150 preserved-until-complete bonus-removal-max:100-balance:100 production-restoration-scope full-character-login:NOT_RUN",
+      "ARM02-reader=passed grade:7 balance:150 unresolved:0 operation:none process:91028",
+      "ARM-CAPACITY-native=passed production-attribute-evaluator raw-and-effective immediate-clamp no-refill invalid-cap-payment-refusal canonical-focus owner-body-fixture-replacement grade7-normal:25 grade7-overreach:56.25 pairs:34 balance:17 max:118 separate-process-reload full-body-form-and-backup-command:NOT_RUN stock-mapping:PROVISIONAL",
+      "ARM-PRACTICE-grade=passed grade:1 raw:40 cap:60 balance:50 samples:0 duration:30 accelerated-clock",
+      "ARM-PRACTICE-grade=passed grade:2 raw:50 cap:60 balance:25 samples:1 duration:30 accelerated-clock",
+      "ARM-PRACTICE-grade=passed grade:3 raw:60 cap:60 balance:25 samples:2 duration:30 accelerated-clock",
+      "ARM-PRACTICE-grade=passed grade:4 raw:60 cap:60 balance:25 samples:3 duration:30 accelerated-clock",
+      "ARM-PRACTICE-grade=passed grade:5 raw:60 cap:60 balance:25 samples:4 duration:30 accelerated-clock",
+      "ARM-PRACTICE-grade=passed grade:6 raw:60 cap:60 balance:25 samples:5 duration:30 accelerated-clock",
+      "ARM-PRACTICE-grade=passed grade:7 raw:60 cap:60 balance:25 samples:6 duration:30 accelerated-clock",
+      "ARM-PRACTICE-restrictions=passed native-interval:1-blocks/20-improves maximum:6-refuses7 disabled:refuses",
+      "ARM-PRACTICE-interrupt=passed signal:stop balance:93 no-progress no-refund no-replay",
+      "ARM-PRACTICE-interrupt=passed signal:focus balance:93 no-progress no-refund no-replay",
+      "ARM-PRACTICE-interrupt=passed signal:speech balance:93 no-progress no-refund no-replay",
+      "ARM-PRACTICE-interrupt=passed signal:capability balance:93 no-progress no-refund no-replay",
+      "ARM-PRACTICE-interrupt=passed signal:quit balance:93 no-progress no-refund no-replay",
+      "ARM-PRACTICE-native-silence=passed speech-required:True owner:body removal:expiry between-heartbeats checks:0 balance:93 deadlines-preserved",
+      "ARM-PRACTICE-native-silence=passed speech-required:True owner:body removal:remove between-heartbeats checks:0 balance:93 deadlines-preserved",
+      "ARM-PRACTICE-native-silence=passed speech-required:True owner:actor removal:expiry between-heartbeats checks:0 balance:93 deadlines-preserved",
+      "ARM-PRACTICE-native-silence=passed speech-required:True owner:actor removal:remove between-heartbeats checks:0 balance:93 deadlines-preserved",
+      "ARM-PRACTICE-native-silence=passed speech-required:False owner:body removal:expiry between-heartbeats checks:1 balance:93 deadlines-preserved",
+      "ARM-PRACTICE-native-silence=passed speech-required:False owner:body removal:remove between-heartbeats checks:1 balance:93 deadlines-preserved",
+      "ARM-PRACTICE-native-silence=passed speech-required:False owner:actor removal:expiry between-heartbeats checks:1 balance:93 deadlines-preserved",
+      "ARM-PRACTICE-native-silence=passed speech-required:False owner:actor removal:remove between-heartbeats checks:1 balance:93 deadlines-preserved",
+      "ARM-PRACTICE-native-manipulation=passed hand-required:True between-heartbeats checks:0 balance:93 deadlines-preserved",
+      "ARM-PRACTICE-native-manipulation=passed hand-required:False between-heartbeats checks:1 balance:93 deadlines-preserved",
+      "ARM-PRACTICE-native-paralysis=passed owner:body before-health-refresh checks:0 balance:93 deadlines-preserved",
+      "ARM-PRACTICE-native-paralysis=passed owner:actor before-health-refresh checks:0 balance:93 deadlines-preserved",
+      "ARM-PRACTICE-reader=passed process:85496 operation:ffac4a37-2022-4e07-8a49-004109a19e88 raw:60 grade:7 balance:93 deadline:2026-10-02T04:59:00.0000000Z no-resume/refund/reroll",
+      "ARM-PRACTICE-native=passed raw:30-to-60 controlled:1-to-7 actual-ClassicImprovement shared-deadlines target/caster/resistance/ward-purity separate-process-recovery stale-action-terminal-preserved stock-installed-world:NOT_RUN material-plan:explicit-empty",
+      "ARM-SPEECH-named=passed kral:grade3 native-language-output one-utterance one-check one-operation balance:85 ward-bonus:-3",
+      "ARM-SPEECH-formula=passed unordered-five-category-command same-grade/payment/effect single-generated-utterance",
+      "ARM-SPEECH-native=passed loopback-TCP queue original-utterance empty-second-dispatch duplicate-origin-refused one-check one-operation",
+      "ARM-SPEECH-alias=passed native-dot-command concise-POWER/spell-token single-original-utterance",
+      "ARM-SPEECH-quiet=passed native-whisper energy:x2 difficulty:+1 balance:70 visible-gesture ward-bonus:-3",
+      "ARM-SPEECH-whisper=passed player-origin quiet parity no-second-utterance",
+      "ARM-SPEECH-configured-volume=passed native-Whisper energy:x1.25 difficulty:+2 actual-check:VeryHard balance:81.25 restored-fixture",
+      "ARM-SPEECH-invalid=passed ordinary-native-utterances unknown-vocabulary target-tail-refused no-payment/check/operation",
+      "ARM-SPEECH-scripted=passed native-character-out-of-context speech remains ordinary no-cast",
+      "ARM-SPEECH-silence=passed owner:actor quiet-refused no-utterance/payment/check",
+      "ARM-SPEECH-silence=passed owner:body quiet-refused no-utterance/payment/check",
+      "ARM-SPEECH-anatomy=passed actual-mouth/tongue/trachea native-part-ineffective both-volumes-refused restoration",
+      "ARM-SPEECH-manipulation=passed native-hand-restrictions ordinary-whisper remains audible no-cast/payment/check restoration",
+      "ARM-SPEECH-mute=passed concrete-MuteMerit both-volumes-refused no-utterance/payment/check",
+      "ARM-SPEECH-volume=passed actual-synthesizer cached-native-function:0.4 normal-refused whisper-eligible",
+      "ARM-SPEECH-listeners=passed two-eligible-observers no-observer-cast unknown-language-no-formula/knowledge own-repeat-separate-payment",
+      "ARM-SPEECH-hearing=passed native-deafness receiver-language-parser no-formula-words no-listener-cast",
+      "ARM-SPEECH-callbacks=passed adapter:named self-output-nested-command native-witness-effect-Body.Say no-recast one-payment/check/operation",
+      "ARM-SPEECH-callbacks=passed adapter:speech self-output-nested-command native-witness-effect-Body.Say no-recast one-payment/check/operation",
+      "ARM-SPEECH-relay=passed native-recitation-effect witness/output callback eligible-proxy no-recast/payment",
+      "ARM-SPEECH-deadspeak-forwarding=passed concrete-DeadSpeak-InitialEffect recite-installation no-proxy-cast/payment corpse-lifecycle-not-qualified",
+      "ARM-SPEECH-reader=passed process:65240 native-XML profile/language costs knowledge immutable-origin:0528453d-041d-4ce1-bc97-502d1d54a8e6 no-replay",
+      "ARM-SPEECH-acceptance=passed native-anatomy language communication commands quiet guarded-casting persistence-reader",
+      "ARM-AREA-earthquake=passed concrete-Cell native-wounds caster:4 ally:12 protected/flying/layer/staff/plane:0 ward:0 physical-dedup one-payment/check/mastery",
+      "ARM-AREA-chain=passed caster:3 ally:24 repeat-body-twice random-at-commit:3 journal-selected-order one-payment/check/mastery provisional-three-hit-count",
+      "ARM-AREA-fireball=passed room-variant caster:0 native-ally:12 staff/plane:0 independent-of-selected-character-trigger",
+      "ARM-AREA-second-body=passed shared-canonical-identity distinct-instance/body caster:0 sibling:12 duplicate-sibling-once canonical-payment:15",
+      "ARM-AREA-dynamic=passed paid-snapshot removed:0 new-arrival:0 explicit-ally-exclusion:0 concrete-cell-list-mutation-bounded",
+      "ARM-AREA-all-rejected=passed native-reflect-ward-becomes-fail depth:0 three-selected-hits cost:30 lockout-retained no-native-wound/mastery",
+      "ARM-AREA-empty=passed no-payment/check/operation for caster-excluding-empty-room",
+      "ARM-AREA-reader=passed process:90928 concrete-cell native-bodies:11 immutable-completed-origins:6 no-selection/replay",
+      "ARM-AREA-persistence=passed native-damage/pain/stun independently-read all-completed-application-journals immutable-paid-origin-restart",
+      "ARM03-schema=passed generated-EF9-migration-from-maintained-snapshot two-empty-tables model-parity",
+      "ARM03-borrowed=passed existing-body-refused no-ownership-or-entity-change",
+      "ARM03-rollback=passed callback-and-post-save-provider-fault atomic-entity-plus-ownership caller-context-restored",
+      "ARM03-primary=passed new-primary-instance-refused canonical-character-and-wound-preserved",
+      "ARM03-generated=passed exact-added-item-claim explicit-generated-possession-role live-row-blocks-completion",
+      "ARM03-canonical-pointer=passed stale-persisted-pointer-moved-to-current-body-before-retirement canonical-identity-survives-cascade-boundary",
+      "ARM03-permanent=passed no-expiry released-as-ordinary-durable-creation body-survives",
+      "ARM03-intent=passed immutable-creation-key absolute-deadline durable-retiring stale-version-and-live-completion-refused",
+      "ARM03-suppression=passed sandbox-create-update-and-body-retirement-refused readonly-nested-lookup-restores-suppressed-caller no-persistent-state-change",
+      "ARM03-possession=passed native-character-and-body unloaded-foreign-join-refuses-cleanup intact-item explicitly-rehomed-to-existing-cell",
+      "ARM03-references=passed unloaded-secondary-effect-and-serialized-remains retain-body-with-durable-hold",
+      "ARM03-death-journal=passed persisted-secondary-dead-state-correlated early-death-cancels-later-death-intent idempotent-observation canonical-identity-survives",
+      "ARM03-missing-death=passed absent-owned-rows-cannot-complete-unobserved-native-death recoverable-diagnostic",
+      "ARM03-steady-state=passed 16-native-body-create-retire-complete-cycles only-permanent-and-reference-held-physical-rows-retained lightweight-ownership-receipts",
+      "ARM03-reader=passed separate-process reconstructs-intent-ownership-permanent-policy-and-missing-death-hold no-recreation preserves-reference-until-release anatomy-collision-safe idempotent-completion",
+      "ARM03-row-counts=passed characters:1 bodies:2 instances:0 items:1 wounds:1 lifecycles:22 claims:24 pending:1",
+      "ARM03-ordinary-rollback=passed forced-provider-insert-refusal ordinary-provenance-form-source-canonical-body-and-remains-save-atomic retryable",
+      "ARM03-ordinary-save=passed native-backup-death-and-form-save canonical-body-moved ordinary-provenance-persisted retired-form-and-source-mappings-pruned no-spell-ownership",
+      "ARM03-ordinary-guards=passed separate-process-real-corpse-reload resolves-exact-retired-body-without-preload unloaded-foreign-item-and-other-reference-refuse intact-possession explicitly-rehomed",
+      "ARM03-ordinary-release=passed native-CorpseGameItemComponent.Delete reference-free-ordinary-body-retired canonical-current-body-history-and-foreign-goods-preserved no-spell-ownership",
+      "ARM03-legacy-seed=passed persisted-positive-body-IDs existing-missing-and-current-body cases no-old-body-form-source-retirement-or-spell-ownership",
+      "ARM03-runtime-corpse=passed exposure-refresh-registration eating:not-run physical-and-actor-targets:checked gift-and-implant-conservation:not-run morgue-recovery-refusal:not-run persisted-part-wound-inspection:not-applicable",
+      "ARM03-legacy-corpse=passed separate-process-reload description-weight-buoyancy-race-and-Delete-callback safe corpse-item-illumination-and-unresolved-damage exact-positive-ID-kept canonical-current-body-and-history-preserved no-cleanup-authority-inferred",
+      "ARM03-runtime-part=passed exposure-refresh-registration eating:not-run physical-and-actor-targets:not-applicable gift-and-implant-conservation:not-run morgue-recovery-refusal:not-run persisted-part-wound-inspection:checked",
+      "ARM03-legacy-part=passed separate-process-reload description-weight-buoyancy-race-and-Delete-callback safe corpse-item-illumination-and-unresolved-damage exact-positive-ID-kept canonical-current-body-and-history-preserved no-cleanup-authority-inferred",
+      "ARM03-runtime-missing-corpse=passed exposure-refresh-registration eating:refused physical-and-actor-targets:checked gift-and-implant-conservation:checked morgue-recovery-refusal:checked persisted-part-wound-inspection:not-applicable",
+      "ARM03-legacy-missing-corpse=passed separate-process-reload description-weight-buoyancy-race-and-Delete-callback safe corpse-item-illumination-and-unresolved-damage exact-positive-ID-kept canonical-current-body-and-history-preserved no-cleanup-authority-inferred",
+      "ARM03-runtime-missing-part=passed exposure-refresh-registration eating:refused physical-and-actor-targets:not-applicable gift-and-implant-conservation:not-run morgue-recovery-refusal:not-run persisted-part-wound-inspection:checked",
+      "ARM03-legacy-missing-part=passed separate-process-reload description-weight-buoyancy-race-and-Delete-callback safe corpse-item-illumination-and-unresolved-damage exact-positive-ID-kept canonical-current-body-and-history-preserved no-cleanup-authority-inferred",
+      "ARM03-runtime-current-corpse=passed exposure-refresh-registration eating:refused physical-and-actor-targets:checked gift-and-implant-conservation:checked morgue-recovery-refusal:checked persisted-part-wound-inspection:not-applicable",
+      "ARM03-legacy-current-corpse=passed separate-process-reload description-weight-buoyancy-race-and-Delete-callback safe corpse-item-illumination-and-unresolved-damage exact-positive-ID-kept canonical-current-body-and-history-preserved no-cleanup-authority-inferred",
+      "ARM03-runtime-current-part=passed exposure-refresh-registration eating:not-run physical-and-actor-targets:not-applicable gift-and-implant-conservation:not-run morgue-recovery-refusal:not-run persisted-part-wound-inspection:checked",
+      "ARM03-legacy-current-part=passed separate-process-reload description-weight-buoyancy-race-and-Delete-callback safe corpse-item-illumination-and-unresolved-damage exact-positive-ID-kept canonical-current-body-and-history-preserved no-cleanup-authority-inferred",
+      "ARM03-runtime-final-current-corpse=passed exposure-refresh-registration eating:not-run physical-and-actor-targets:checked gift-and-implant-conservation:not-run morgue-recovery-refusal:not-run persisted-part-wound-inspection:not-applicable",
+      "ARM03-legacy-final-current-corpse=passed separate-process-reload description-weight-buoyancy-race-and-Delete-callback safe corpse-item-illumination-and-unresolved-damage exact-positive-ID-kept canonical-current-body-and-history-preserved no-cleanup-authority-inferred",
+      "ARM03-runtime-missing-final-corpse=passed exposure-refresh-registration eating:refused physical-and-actor-targets:checked gift-and-implant-conservation:checked morgue-recovery-refusal:checked persisted-part-wound-inspection:not-applicable",
+      "ARM03-legacy-missing-final-corpse=passed separate-process-reload description-weight-buoyancy-race-and-Delete-callback safe corpse-item-illumination-and-unresolved-damage exact-positive-ID-kept canonical-current-body-and-history-preserved no-cleanup-authority-inferred",
+      "ARM03-runtime-missing-owner-corpse=passed exposure-refresh-registration eating:refused physical-and-actor-targets:checked gift-and-implant-conservation:checked morgue-recovery-refusal:checked persisted-part-wound-inspection:not-applicable",
+      "ARM03-legacy-missing-owner-corpse=passed separate-process-reload description-weight-buoyancy-race-and-Delete-callback safe corpse-item-illumination-and-unresolved-damage exact-positive-ID-kept canonical-current-body-and-history-preserved no-cleanup-authority-inferred",
+      "ARM03-runtime-missing-owner-part=passed exposure-refresh-registration eating:refused physical-and-actor-targets:not-applicable gift-and-implant-conservation:not-run morgue-recovery-refusal:not-run persisted-part-wound-inspection:checked",
+      "ARM03-legacy-missing-owner-part=passed separate-process-reload description-weight-buoyancy-race-and-Delete-callback safe corpse-item-illumination-and-unresolved-damage exact-positive-ID-kept canonical-current-body-and-history-preserved no-cleanup-authority-inferred",
+      "ARM03-runtime-final-inactive-corpse=passed exposure-refresh-registration eating:not-run physical-and-actor-targets:checked gift-and-implant-conservation:not-run morgue-recovery-refusal:checked persisted-part-wound-inspection:not-applicable",
+      "ARM03-legacy-final-inactive-corpse=passed separate-process-reload description-weight-buoyancy-race-and-Delete-callback safe corpse-item-illumination-and-unresolved-damage exact-positive-ID-kept canonical-current-body-and-history-preserved no-cleanup-authority-inferred",
+      "ARM03-legacy-acceptance=passed eleven-separate-process-readers exact-read-without-cleanup-authority safe-unresolved-body context-specific-current-body-validation runtime-consumer-boundaries"
+    ],
+    "runtime_acceptance": [
+      "Eleven separate-process readers load persisted remains and real Character/Body graphs without old-body preload or manufactured retirement/form/source/spell proof.",
+      "All readers exercise real exposure Track and Refresh. Unresolved corpses and severed parts retain ordinary item thermal tracking; resolved corpses retain exact body registration.",
+      "Six unresolved readers execute real loaded Body CanEat and Eat refusal without changing eaten weight.",
+      "Four unresolved corpse readers execute real Body item/currency gift refusal and actual InstallImplant dispatch with held-item conservation.",
+      "Physical and legacy actor helpers check all seven corpse readers; current final bodies remain valid and inactive final bodies do not select the survivor.",
+      "Four unresolved corpse readers plus a resolved inactive final corpse invoke morgue and recovery refusal: no estate access, source extraction, layer/effects or assigned report/completion change.",
+      "Four part readers load persisted bleeding organic wounds and execute real Body LookWoundsText, wound description and admin treatment inspection; own wound cleanup preserves unrelated historical attribution.",
+      "Every component Delete preserves current canonical body, original historical wound attribution and absence of fabricated metadata."
+    ],
+    "qualification_limits": [
+      "Real EF/MySQL persistence, independent runtime body/component loads and real service/command methods use controlled item hosts, world/material services, implant actor and recovery report/patrol interfaces.",
+      "Missing-owner cases simulate unresolved owner lookup through the controlled world; the owned fixture retains its database character row.",
+      "Resolved corpse exposure qualifies body registration, not thermal eligibility of the loaded body; unresolved/part ordinary item eligibility is asserted.",
+      "Positive eating and no-estate custody/recovery are managed checks; full native AnimalAI, estate asset capture/probate, staff resurrection and arena sessions are not run.",
+      "Component Delete plus explicit fixture parent-row teardown does not qualify full GameItem.Delete, timed decay, native Character.Die/remains creation or automatic foreign-goods evacuation.",
+      "Full N14/N15/N16, canonical compaction/archival and later plan phases remain not_run or pending."
+    ]
+  },
+  "schema": {
+    "new_model_or_migration_changes": false,
+    "ordinary_retirement_schema_preserved": true,
+    "model_parity_this_correction": "not_run; no schema/model/migration edits",
+    "migration_application": "Existing EF9.0.11 schema applied only on owned disposable native MySQL databases; database suite65 passes."
+  },
+  "preserved_history": {
+    "managed_attempts": [
+      {
+        "label": "phase3a-review-runtime-final-focused",
+        "log": ".artifacts/phase3a-review-runtime-final-focused.log",
+        "log_sha256": "f6a0857f31469ddf61f6bed1152049af7bd58b04e943e53b31b33f917fdb1e43",
+        "run_id": "20261003T010023Z-7ae3c158e97e",
+        "head": "f320f08bcf11b991a8418036a128bdefa421abf4",
+        "status": "PASS",
+        "counts": {
+          "executed": 144,
+          "passed": 144,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 144
+        },
+        "filter": "FullyQualifiedName~RemainsRuntimeBoundaryTests|FullyQualifiedName~RemainsReferenceCompatibilityTests|FullyQualifiedName~StandardCorpseModelTests|FullyQualifiedName~RetiredBodyCleanupTests|FullyQualifiedName~BodyFormLifecyclePolicyTests|FullyQualifiedName~BodyFormLifecycleGuardTests|FullyQualifiedName~CharacterInstance",
+        "configuration": "Debug",
+        "sdk": "10.0.401",
+        "started_utc": "2026-10-03T01:00:23.7363556+00:00",
+        "ended_utc": "2026-10-03T01:00:45.0344966+00:00",
+        "source_start": "fdbde26ec51e113234d46075e3d8419b38823be68feaaa42f05f8025df3fbbea",
+        "source_end": "fdbde26ec51e113234d46075e3d8419b38823be68feaaa42f05f8025df3fbbea",
+        "source_stable": true,
+        "execution_complete": true,
+        "counts_complete": true,
+        "projects": [
+          "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+        ],
+        "issues": [],
+        "summary_path": ".artifacts/test-runs/20261003T010023Z-7ae3c158e97e/summary.json",
+        "summary_sha256": "3a69f52236db4debff61f664a74b4cf5cc8fb42b98246c9a3978821476a6243e",
+        "failures_path": ".artifacts/test-runs/20261003T010023Z-7ae3c158e97e/failures.json",
+        "failures_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "project_counts": [
+          {
+            "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+            "counts": {
+              "executed": 144,
+              "passed": 144,
+              "failed": 0,
+              "skipped": 0,
+              "inconclusive": 0,
+              "other": 0,
+              "total": 144
+            }
+          }
+        ]
+      },
+      {
+        "label": "phase3a-review-runtime-guards1",
+        "log": ".artifacts/phase3a-review-runtime-guards1.log",
+        "log_sha256": "44c7d6a0d5d1fdcb1cba282fbe425afee9120b6c9136fc1c3980f849a5f15c57",
+        "run_id": "20261003T004807Z-d4cdab96ed23",
+        "head": "f320f08bcf11b991a8418036a128bdefa421abf4",
+        "status": "FAIL",
+        "counts": null,
+        "filter": "FullyQualifiedName~RemainsRuntimeBoundaryTests|FullyQualifiedName~RemainsReferenceCompatibilityTests|FullyQualifiedName~StandardCorpseModelTests|FullyQualifiedName~RetiredBodyCleanupTests|FullyQualifiedName~BodyFormLifecyclePolicyTests|FullyQualifiedName~BodyFormLifecycleGuardTests|FullyQualifiedName~CharacterInstance",
+        "configuration": "Debug",
+        "sdk": "10.0.401",
+        "started_utc": "2026-10-03T00:48:07.6747456+00:00",
+        "ended_utc": "2026-10-03T00:48:15.5896251+00:00",
+        "source_start": "49c2dbf202f54b81f686a53b18171ea7c84b9246be78006cc959ab0b8b43a012",
+        "source_end": "49c2dbf202f54b81f686a53b18171ea7c84b9246be78006cc959ab0b8b43a012",
+        "source_stable": true,
+        "execution_complete": false,
+        "counts_complete": false,
+        "projects": [
+          "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+        ],
+        "issues": [
+          {
+            "kind": "BUILD_FAILED",
+            "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+            "detail": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\MudSharpCore\\Economy\\Estates\\MorgueService.cs(80,36): error CS1628: Cannot use ref, out, or in parameter 'estate' inside an anonymous method, lambda expression, query expression, or local funct…"
+          }
+        ],
+        "summary_path": ".artifacts/test-runs/20261003T004807Z-d4cdab96ed23/summary.json",
+        "summary_sha256": "7e88e0efb6788781fd4ed17f1f8245f3463ba1c925127d82cf8adf82932fc688",
+        "failures_path": ".artifacts/test-runs/20261003T004807Z-d4cdab96ed23/failures.json",
+        "failures_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "project_counts": [
+          {
+            "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+            "counts": null
+          }
+        ]
+      },
+      {
+        "label": "phase3a-review-runtime-guards2",
+        "log": ".artifacts/phase3a-review-runtime-guards2.log",
+        "log_sha256": "c7d647f1ef78e099e8942c1fc5a865c8e88be21aecf91ca660b056c60df84ae7",
+        "run_id": "20261003T004919Z-45c718570ab7",
+        "head": "f320f08bcf11b991a8418036a128bdefa421abf4",
+        "status": "FAIL",
+        "counts": null,
+        "filter": "FullyQualifiedName~RemainsRuntimeBoundaryTests|FullyQualifiedName~RemainsReferenceCompatibilityTests|FullyQualifiedName~StandardCorpseModelTests|FullyQualifiedName~RetiredBodyCleanupTests|FullyQualifiedName~BodyFormLifecyclePolicyTests|FullyQualifiedName~BodyFormLifecycleGuardTests|FullyQualifiedName~CharacterInstance",
+        "configuration": "Debug",
+        "sdk": "10.0.401",
+        "started_utc": "2026-10-03T00:49:19.3911604+00:00",
+        "ended_utc": "2026-10-03T00:49:33.1416385+00:00",
+        "source_start": "edcf3f11965773d623d0b85dbed6cf70e243d830a8041209924b6509cb3341a9",
+        "source_end": "edcf3f11965773d623d0b85dbed6cf70e243d830a8041209924b6509cb3341a9",
+        "source_stable": true,
+        "execution_complete": false,
+        "counts_complete": false,
+        "projects": [
+          "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+        ],
+        "issues": [
+          {
+            "kind": "BUILD_FAILED",
+            "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+            "detail": "  Determining projects to restore...\r"
+          }
+        ],
+        "summary_path": ".artifacts/test-runs/20261003T004919Z-45c718570ab7/summary.json",
+        "summary_sha256": "9124021ec458e73d01b502c57553febffc7b5cdbda24b15db2885580f9283dac",
+        "failures_path": ".artifacts/test-runs/20261003T004919Z-45c718570ab7/failures.json",
+        "failures_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "project_counts": [
+          {
+            "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+            "counts": null
+          }
+        ]
+      },
+      {
+        "label": "phase3a-review-runtime-guards3",
+        "log": ".artifacts/phase3a-review-runtime-guards3.log",
+        "log_sha256": "64b636d15dfb59a3ae4f51a5460984195a30240eee3efa23d8127e3bdcd1ef65",
+        "run_id": "20261003T005006Z-6d6c86fdb41d",
+        "head": "f320f08bcf11b991a8418036a128bdefa421abf4",
+        "status": "FAIL",
+        "counts": null,
+        "filter": "FullyQualifiedName~RemainsRuntimeBoundaryTests|FullyQualifiedName~RemainsReferenceCompatibilityTests|FullyQualifiedName~StandardCorpseModelTests|FullyQualifiedName~RetiredBodyCleanupTests|FullyQualifiedName~BodyFormLifecyclePolicyTests|FullyQualifiedName~BodyFormLifecycleGuardTests|FullyQualifiedName~CharacterInstance",
+        "configuration": "Debug",
+        "sdk": "10.0.401",
+        "started_utc": "2026-10-03T00:50:06.7777852+00:00",
+        "ended_utc": "2026-10-03T00:50:09.1639372+00:00",
+        "source_start": "d7c416b26f82f0704f267ff5c574736f9ab8c2f1a672e3f5c00726096f6703da",
+        "source_end": "d7c416b26f82f0704f267ff5c574736f9ab8c2f1a672e3f5c00726096f6703da",
+        "source_stable": true,
+        "execution_complete": false,
+        "counts_complete": false,
+        "projects": [
+          "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+        ],
+        "issues": [
+          {
+            "kind": "BUILD_FAILED",
+            "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+            "detail": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\MudSharpCore Unit Tests\\RemainsRuntimeConsumerTests.cs(12,23): error CS0234: The type or namespace name 'Core' does not exist in the namespace 'MudSharp.Arenas' (are you missing an assembly ref…"
+          }
+        ],
+        "summary_path": ".artifacts/test-runs/20261003T005006Z-6d6c86fdb41d/summary.json",
+        "summary_sha256": "b20d4d51a5176a76ba98f6368a2e9bb38ea4abcc2265eaaf86e07ede5fee2a8a",
+        "failures_path": ".artifacts/test-runs/20261003T005006Z-6d6c86fdb41d/failures.json",
+        "failures_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "project_counts": [
+          {
+            "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+            "counts": null
+          }
+        ]
+      },
+      {
+        "label": "phase3a-review-runtime-guards4",
+        "log": ".artifacts/phase3a-review-runtime-guards4.log",
+        "log_sha256": "0a01587022c890fe5ad7cc6479f27495904793f021cd808b81db8e0edb170bec",
+        "run_id": "20261003T005149Z-bbac53db0b8c",
+        "head": "f320f08bcf11b991a8418036a128bdefa421abf4",
+        "status": "FAIL",
+        "counts": null,
+        "filter": "FullyQualifiedName~RemainsRuntimeBoundaryTests|FullyQualifiedName~RemainsReferenceCompatibilityTests|FullyQualifiedName~StandardCorpseModelTests|FullyQualifiedName~RetiredBodyCleanupTests|FullyQualifiedName~BodyFormLifecyclePolicyTests|FullyQualifiedName~BodyFormLifecycleGuardTests|FullyQualifiedName~CharacterInstance",
+        "configuration": "Debug",
+        "sdk": "10.0.401",
+        "started_utc": "2026-10-03T00:51:49.0867793+00:00",
+        "ended_utc": "2026-10-03T00:51:53.5312044+00:00",
+        "source_start": "9efda822d4fc305f4c03b9c380342fa126dbe9c8fd700970d6ac44a1e64fdb6d",
+        "source_end": "9efda822d4fc305f4c03b9c380342fa126dbe9c8fd700970d6ac44a1e64fdb6d",
+        "source_stable": true,
+        "execution_complete": false,
+        "counts_complete": false,
+        "projects": [
+          "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+        ],
+        "issues": [
+          {
+            "kind": "BUILD_FAILED",
+            "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+            "detail": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\MudSharpCore Unit Tests\\RemainsRuntimeConsumerTests.cs(151,84): error CS0246: The type or namespace name 'IMagicSpellEffectParent' could not be found (are you missing a using directive or an as…"
+          }
+        ],
+        "summary_path": ".artifacts/test-runs/20261003T005149Z-bbac53db0b8c/summary.json",
+        "summary_sha256": "0de78fcbbe5bd9fbc9644805bc444ea2809ecc3cc378ee4d2a344a20daf20ef3",
+        "failures_path": ".artifacts/test-runs/20261003T005149Z-bbac53db0b8c/failures.json",
+        "failures_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "project_counts": [
+          {
+            "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+            "counts": null
+          }
+        ]
+      },
+      {
+        "label": "phase3a-review-runtime-guards5",
+        "log": ".artifacts/phase3a-review-runtime-guards5.log",
+        "log_sha256": "f703c56c5513c0b5ca9907069c44ddbbdb5d100ed83f5cc32d5cd26e746a21d8",
+        "run_id": "20261003T005332Z-51be69bc8e66",
+        "head": "f320f08bcf11b991a8418036a128bdefa421abf4",
+        "status": "FAIL",
+        "counts": {
+          "executed": 143,
+          "passed": 135,
+          "failed": 8,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 143
+        },
+        "filter": "FullyQualifiedName~RemainsRuntimeBoundaryTests|FullyQualifiedName~RemainsReferenceCompatibilityTests|FullyQualifiedName~StandardCorpseModelTests|FullyQualifiedName~RetiredBodyCleanupTests|FullyQualifiedName~BodyFormLifecyclePolicyTests|FullyQualifiedName~BodyFormLifecycleGuardTests|FullyQualifiedName~CharacterInstance",
+        "configuration": "Debug",
+        "sdk": "10.0.401",
+        "started_utc": "2026-10-03T00:53:32.0590530+00:00",
+        "ended_utc": "2026-10-03T00:53:42.4531408+00:00",
+        "source_start": "0019b7f32fe9e50fd68e14018d091ba22a252c09cd528a09f808da735161b39c",
+        "source_end": "0019b7f32fe9e50fd68e14018d091ba22a252c09cd528a09f808da735161b39c",
+        "source_stable": true,
+        "execution_complete": true,
+        "counts_complete": true,
+        "projects": [
+          "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+        ],
+        "issues": [
+          {
+            "kind": "TEST_FAILED",
+            "project": null,
+            "detail": "8 failing test records"
+          }
+        ],
+        "summary_path": ".artifacts/test-runs/20261003T005332Z-51be69bc8e66/summary.json",
+        "summary_sha256": "e50edba951ad5cea8f13f2818aa44088efa2300702369662325e81b549ef032c",
+        "failures_path": ".artifacts/test-runs/20261003T005332Z-51be69bc8e66/failures.json",
+        "failures_sha256": "00128cfa47e94bb65557d869f0f2d39d98366a550b08b35df46d6853d7fe51ba",
+        "project_counts": [
+          {
+            "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+            "counts": {
+              "executed": 143,
+              "passed": 135,
+              "failed": 8,
+              "skipped": 0,
+              "inconclusive": 0,
+              "other": 0,
+              "total": 143
+            }
+          }
+        ]
+      },
+      {
+        "label": "phase3a-review-runtime-guards6",
+        "log": ".artifacts/phase3a-review-runtime-guards6.log",
+        "log_sha256": "4c6a6339fddc7b2d1382dce8ebf57fc86088976c06323c07218043f7045bafda",
+        "run_id": "20261003T005508Z-f32d2dde820b",
+        "head": "f320f08bcf11b991a8418036a128bdefa421abf4",
+        "status": "PASS",
+        "counts": {
+          "executed": 143,
+          "passed": 143,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 143
+        },
+        "filter": "FullyQualifiedName~RemainsRuntimeBoundaryTests|FullyQualifiedName~RemainsReferenceCompatibilityTests|FullyQualifiedName~StandardCorpseModelTests|FullyQualifiedName~RetiredBodyCleanupTests|FullyQualifiedName~BodyFormLifecyclePolicyTests|FullyQualifiedName~BodyFormLifecycleGuardTests|FullyQualifiedName~CharacterInstance",
+        "configuration": "Debug",
+        "sdk": "10.0.401",
+        "started_utc": "2026-10-03T00:55:08.6834962+00:00",
+        "ended_utc": "2026-10-03T00:55:16.6113714+00:00",
+        "source_start": "d95e26745ff9967382eb2497f1b1d60f039fe4b63b7d787f32f2a1fd778a5568",
+        "source_end": "d95e26745ff9967382eb2497f1b1d60f039fe4b63b7d787f32f2a1fd778a5568",
+        "source_stable": true,
+        "execution_complete": true,
+        "counts_complete": true,
+        "projects": [
+          "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+        ],
+        "issues": [],
+        "summary_path": ".artifacts/test-runs/20261003T005508Z-f32d2dde820b/summary.json",
+        "summary_sha256": "f5c5da73a4099091d736dcf80b56091d4aa9149d0457691c0f9b128ca5490f68",
+        "failures_path": ".artifacts/test-runs/20261003T005508Z-f32d2dde820b/failures.json",
+        "failures_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "project_counts": [
+          {
+            "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+            "counts": {
+              "executed": 143,
+              "passed": 143,
+              "failed": 0,
+              "skipped": 0,
+              "inconclusive": 0,
+              "other": 0,
+              "total": 143
+            }
+          }
+        ]
+      },
+      {
+        "label": "phase3a-review-runtime-repro",
+        "log": ".artifacts/phase3a-review-runtime-repro.log",
+        "log_sha256": "7e2174241c20ec5e72b2ecdedbd2ef964d6a2d77a8694e2c242c088ce773e551",
+        "run_id": "20261003T003427Z-7890123d8336",
+        "head": "f320f08bcf11b991a8418036a128bdefa421abf4",
+        "status": "FAIL",
+        "counts": null,
+        "filter": "FullyQualifiedName~RemainsRuntimeBoundaryTests|FullyQualifiedName~RemainsReferenceCompatibilityTests|FullyQualifiedName~StandardCorpseModelTests|FullyQualifiedName~RetiredBodyCleanupTests|FullyQualifiedName~BodyFormLifecyclePolicyTests|FullyQualifiedName~BodyFormLifecycleGuardTests|FullyQualifiedName~CharacterInstance",
+        "configuration": "Debug",
+        "sdk": "10.0.401",
+        "started_utc": "2026-10-03T00:34:27.0781389+00:00",
+        "ended_utc": "2026-10-03T00:35:37.0797858+00:00",
+        "source_start": "28d0f70c2303ad93110b26fef99df48f1c13e9b78b78e8f6a1faefadf9f2ef24",
+        "source_end": "28d0f70c2303ad93110b26fef99df48f1c13e9b78b78e8f6a1faefadf9f2ef24",
+        "source_stable": true,
+        "execution_complete": false,
+        "counts_complete": false,
+        "projects": [
+          "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+        ],
+        "issues": [
+          {
+            "kind": "BUILD_FAILED",
+            "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+            "detail": "  Determining projects to restore...\r"
+          }
+        ],
+        "summary_path": ".artifacts/test-runs/20261003T003427Z-7890123d8336/summary.json",
+        "summary_sha256": "42c65e5c1bc9e42e6accfcf11af634d05caebdda573e6243fcf96f0ad3d55738",
+        "failures_path": ".artifacts/test-runs/20261003T003427Z-7890123d8336/failures.json",
+        "failures_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "project_counts": [
+          {
+            "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+            "counts": null
+          }
+        ]
+      },
+      {
+        "label": "phase3a-review-runtime-repro2",
+        "log": ".artifacts/phase3a-review-runtime-repro2.log",
+        "log_sha256": "95be405353b126fcf58bd53a83920b5cbe4f693ea4fca482f997c5ad377c2641",
+        "run_id": "20261003T003918Z-6671f3fa4ba6",
+        "head": "f320f08bcf11b991a8418036a128bdefa421abf4",
+        "status": "FAIL",
+        "counts": {
+          "executed": 112,
+          "passed": 104,
+          "failed": 8,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 112
+        },
+        "filter": "FullyQualifiedName~RemainsRuntimeBoundaryTests|FullyQualifiedName~RemainsReferenceCompatibilityTests|FullyQualifiedName~StandardCorpseModelTests|FullyQualifiedName~RetiredBodyCleanupTests|FullyQualifiedName~BodyFormLifecyclePolicyTests|FullyQualifiedName~BodyFormLifecycleGuardTests|FullyQualifiedName~CharacterInstance",
+        "configuration": "Debug",
+        "sdk": "10.0.401",
+        "started_utc": "2026-10-03T00:39:18.2587713+00:00",
+        "ended_utc": "2026-10-03T00:39:30.7207276+00:00",
+        "source_start": "9bd64291064ece5c647bf623577b039035862fa64c5319e0286072e05e6412c9",
+        "source_end": "9bd64291064ece5c647bf623577b039035862fa64c5319e0286072e05e6412c9",
+        "source_stable": true,
+        "execution_complete": true,
+        "counts_complete": true,
+        "projects": [
+          "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+        ],
+        "issues": [
+          {
+            "kind": "TEST_FAILED",
+            "project": null,
+            "detail": "8 failing test records"
+          }
+        ],
+        "summary_path": ".artifacts/test-runs/20261003T003918Z-6671f3fa4ba6/summary.json",
+        "summary_sha256": "367da475af9e485610ee8d0a6ef4d0e3a33eefc889ed355ae10588368c792740",
+        "failures_path": ".artifacts/test-runs/20261003T003918Z-6671f3fa4ba6/failures.json",
+        "failures_sha256": "adf1cf61983696f1a4c5917bd6793f3fc9f3c9bf14d1bee164cfa1a776c466f4",
+        "project_counts": [
+          {
+            "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+            "counts": {
+              "executed": 112,
+              "passed": 104,
+              "failed": 8,
+              "skipped": 0,
+              "inconclusive": 0,
+              "other": 0,
+              "total": 112
+            }
+          }
+        ]
+      },
+      {
+        "label": "phase3a-review-runtime-repro3",
+        "log": ".artifacts/phase3a-review-runtime-repro3.log",
+        "log_sha256": "fcb3603e46524502564af7212e513ca84f3e9b2b652170f3437cc0f482e1e496",
+        "run_id": "20261003T004050Z-8c8001016ac4",
+        "head": "f320f08bcf11b991a8418036a128bdefa421abf4",
+        "status": "FAIL",
+        "counts": {
+          "executed": 112,
+          "passed": 104,
+          "failed": 8,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 112
+        },
+        "filter": "FullyQualifiedName~RemainsRuntimeBoundaryTests|FullyQualifiedName~RemainsReferenceCompatibilityTests|FullyQualifiedName~StandardCorpseModelTests|FullyQualifiedName~RetiredBodyCleanupTests|FullyQualifiedName~BodyFormLifecyclePolicyTests|FullyQualifiedName~BodyFormLifecycleGuardTests|FullyQualifiedName~CharacterInstance",
+        "configuration": "Debug",
+        "sdk": "10.0.401",
+        "started_utc": "2026-10-03T00:40:50.5891047+00:00",
+        "ended_utc": "2026-10-03T00:40:58.2114346+00:00",
+        "source_start": "a332675e0182e1c3ed423ecd1f697a346fbccc18d6bd8736f46726e3007e3232",
+        "source_end": "a332675e0182e1c3ed423ecd1f697a346fbccc18d6bd8736f46726e3007e3232",
+        "source_stable": true,
+        "execution_complete": true,
+        "counts_complete": true,
+        "projects": [
+          "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+        ],
+        "issues": [
+          {
+            "kind": "TEST_FAILED",
+            "project": null,
+            "detail": "8 failing test records"
+          }
+        ],
+        "summary_path": ".artifacts/test-runs/20261003T004050Z-8c8001016ac4/summary.json",
+        "summary_sha256": "b5eca13343411f30abd01acfd0b6106ceaa2c4cca717979b5183814f8656bc31",
+        "failures_path": ".artifacts/test-runs/20261003T004050Z-8c8001016ac4/failures.json",
+        "failures_sha256": "f466d82a02331105d5b439d5d9bfcd2a7399d46d75ac3b1048f9c1def6ebba31",
+        "project_counts": [
+          {
+            "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+            "counts": {
+              "executed": 112,
+              "passed": 104,
+              "failed": 8,
+              "skipped": 0,
+              "inconclusive": 0,
+              "other": 0,
+              "total": 112
+            }
+          }
+        ]
+      }
+    ],
+    "native_attempts": [
+      {
+        "exit_code": 1,
+        "mode": "LegacyRemainsOnly",
+        "ended_utc": "2026-10-03T01:07:38.5534489Z",
+        "attempt": 1,
+        "status": "FAIL",
+        "log": ".artifacts/test-runs/native-armageddon-20261003-stage3A-runtime-review/runtime-attempt1.log",
+        "log_sha256": "b54fbc6565dc178a6ce3e58d90ef82245cc9e0a669ab34e90add7d2d6bca33bd",
+        "input_manifest": ".artifacts/test-runs/native-armageddon-20261003-stage3A-runtime-review/runtime-attempt1-inputs.json",
+        "input_manifest_sha256": "4b651397a0b4f2c292a4586930e1a78974726c04a528739a7a57fca93f02f7b5",
+        "reader_failures": 7,
+        "passed_markers": [
+          "ARM03-legacy-seed=passed persisted-positive-body-IDs existing-missing-and-current-body cases no-old-body-form-source-retirement-or-spell-ownership",
+          "ARM03-runtime-missing-corpse=passed persisted-component-independent-reload exposure-refresh-registration ordinary-item-tracking anatomy-gates exact-body-targeting custody-status-and-item-conservation persisted-part-wound-inspection",
+          "ARM03-legacy-missing-corpse=passed separate-process-reload description-weight-buoyancy-race-and-Delete-callback safe corpse-item-illumination-and-unresolved-damage exact-positive-ID-kept canonical-current-body-and-history-preserved no-cleanup-authority-inferred",
+          "ARM03-runtime-current-corpse=passed persisted-component-independent-reload exposure-refresh-registration ordinary-item-tracking anatomy-gates exact-body-targeting custody-status-and-item-conservation persisted-part-wound-inspection",
+          "ARM03-legacy-current-corpse=passed separate-process-reload description-weight-buoyancy-race-and-Delete-callback safe corpse-item-illumination-and-unresolved-damage exact-positive-ID-kept canonical-current-body-and-history-preserved no-cleanup-authority-inferred",
+          "ARM03-runtime-missing-final-corpse=passed persisted-component-independent-reload exposure-refresh-registration ordinary-item-tracking anatomy-gates exact-body-targeting custody-status-and-item-conservation persisted-part-wound-inspection",
+          "ARM03-legacy-missing-final-corpse=passed separate-process-reload description-weight-buoyancy-race-and-Delete-callback safe corpse-item-illumination-and-unresolved-damage exact-positive-ID-kept canonical-current-body-and-history-preserved no-cleanup-authority-inferred",
+          "ARM03-runtime-missing-owner-corpse=passed persisted-component-independent-reload exposure-refresh-registration ordinary-item-tracking anatomy-gates exact-body-targeting custody-status-and-item-conservation persisted-part-wound-inspection",
+          "ARM03-legacy-missing-owner-corpse=passed separate-process-reload description-weight-buoyancy-race-and-Delete-callback safe corpse-item-illumination-and-unresolved-damage exact-positive-ID-kept canonical-current-body-and-history-preserved no-cleanup-authority-inferred"
+        ],
+        "owned_databases_cleaned": 1,
+        "temporary_mysql_cleanup_verified": true
+      },
+      {
+        "exit_code": 0,
+        "mode": "LegacyRemainsOnly",
+        "ended_utc": "2026-10-03T01:15:03.4181760Z",
+        "attempt": 2,
+        "status": "PASS",
+        "log": ".artifacts/test-runs/native-armageddon-20261003-stage3A-runtime-review/runtime-attempt2.log",
+        "log_sha256": "858fd0901a99978e72ea64d70a1fa97ab6c26d87760fec0b9b198f880553970f",
+        "input_manifest": ".artifacts/test-runs/native-armageddon-20261003-stage3A-runtime-review/runtime-attempt2-inputs.json",
+        "input_manifest_sha256": "5ce195f3e2b74e1f046fc0d2cbad5a9f92fbe30f083f7d64c3c0180de5048f7f",
+        "reader_failures": 0,
+        "passed_markers": [
+          "ARM03-legacy-seed=passed persisted-positive-body-IDs existing-missing-and-current-body cases no-old-body-form-source-retirement-or-spell-ownership",
+          "ARM03-runtime-corpse=passed exposure-refresh-registration eating:not-run physical-and-actor-targets:checked gift-and-implant-conservation:not-run morgue-recovery-refusal:not-run persisted-part-wound-inspection:not-applicable",
+          "ARM03-legacy-corpse=passed separate-process-reload description-weight-buoyancy-race-and-Delete-callback safe corpse-item-illumination-and-unresolved-damage exact-positive-ID-kept canonical-current-body-and-history-preserved no-cleanup-authority-inferred",
+          "ARM03-runtime-part=passed exposure-refresh-registration eating:not-run physical-and-actor-targets:not-applicable gift-and-implant-conservation:not-run morgue-recovery-refusal:not-run persisted-part-wound-inspection:checked",
+          "ARM03-legacy-part=passed separate-process-reload description-weight-buoyancy-race-and-Delete-callback safe corpse-item-illumination-and-unresolved-damage exact-positive-ID-kept canonical-current-body-and-history-preserved no-cleanup-authority-inferred",
+          "ARM03-runtime-missing-corpse=passed exposure-refresh-registration eating:refused physical-and-actor-targets:checked gift-and-implant-conservation:checked morgue-recovery-refusal:checked persisted-part-wound-inspection:not-applicable",
+          "ARM03-legacy-missing-corpse=passed separate-process-reload description-weight-buoyancy-race-and-Delete-callback safe corpse-item-illumination-and-unresolved-damage exact-positive-ID-kept canonical-current-body-and-history-preserved no-cleanup-authority-inferred",
+          "ARM03-runtime-missing-part=passed exposure-refresh-registration eating:refused physical-and-actor-targets:not-applicable gift-and-implant-conservation:not-run morgue-recovery-refusal:not-run persisted-part-wound-inspection:checked",
+          "ARM03-legacy-missing-part=passed separate-process-reload description-weight-buoyancy-race-and-Delete-callback safe corpse-item-illumination-and-unresolved-damage exact-positive-ID-kept canonical-current-body-and-history-preserved no-cleanup-authority-inferred",
+          "ARM03-runtime-current-corpse=passed exposure-refresh-registration eating:refused physical-and-actor-targets:checked gift-and-implant-conservation:checked morgue-recovery-refusal:checked persisted-part-wound-inspection:not-applicable",
+          "ARM03-legacy-current-corpse=passed separate-process-reload description-weight-buoyancy-race-and-Delete-callback safe corpse-item-illumination-and-unresolved-damage exact-positive-ID-kept canonical-current-body-and-history-preserved no-cleanup-authority-inferred",
+          "ARM03-runtime-current-part=passed exposure-refresh-registration eating:not-run physical-and-actor-targets:not-applicable gift-and-implant-conservation:not-run morgue-recovery-refusal:not-run persisted-part-wound-inspection:checked",
+          "ARM03-legacy-current-part=passed separate-process-reload description-weight-buoyancy-race-and-Delete-callback safe corpse-item-illumination-and-unresolved-damage exact-positive-ID-kept canonical-current-body-and-history-preserved no-cleanup-authority-inferred",
+          "ARM03-runtime-final-current-corpse=passed exposure-refresh-registration eating:not-run physical-and-actor-targets:checked gift-and-implant-conservation:not-run morgue-recovery-refusal:not-run persisted-part-wound-inspection:not-applicable",
+          "ARM03-legacy-final-current-corpse=passed separate-process-reload description-weight-buoyancy-race-and-Delete-callback safe corpse-item-illumination-and-unresolved-damage exact-positive-ID-kept canonical-current-body-and-history-preserved no-cleanup-authority-inferred",
+          "ARM03-runtime-missing-final-corpse=passed exposure-refresh-registration eating:refused physical-and-actor-targets:checked gift-and-implant-conservation:checked morgue-recovery-refusal:checked persisted-part-wound-inspection:not-applicable",
+          "ARM03-legacy-missing-final-corpse=passed separate-process-reload description-weight-buoyancy-race-and-Delete-callback safe corpse-item-illumination-and-unresolved-damage exact-positive-ID-kept canonical-current-body-and-history-preserved no-cleanup-authority-inferred",
+          "ARM03-runtime-missing-owner-corpse=passed exposure-refresh-registration eating:refused physical-and-actor-targets:checked gift-and-implant-conservation:checked morgue-recovery-refusal:checked persisted-part-wound-inspection:not-applicable",
+          "ARM03-legacy-missing-owner-corpse=passed separate-process-reload description-weight-buoyancy-race-and-Delete-callback safe corpse-item-illumination-and-unresolved-damage exact-positive-ID-kept canonical-current-body-and-history-preserved no-cleanup-authority-inferred",
+          "ARM03-runtime-missing-owner-part=passed exposure-refresh-registration eating:refused physical-and-actor-targets:not-applicable gift-and-implant-conservation:not-run morgue-recovery-refusal:not-run persisted-part-wound-inspection:checked",
+          "ARM03-legacy-missing-owner-part=passed separate-process-reload description-weight-buoyancy-race-and-Delete-callback safe corpse-item-illumination-and-unresolved-damage exact-positive-ID-kept canonical-current-body-and-history-preserved no-cleanup-authority-inferred",
+          "ARM03-runtime-final-inactive-corpse=passed exposure-refresh-registration eating:not-run physical-and-actor-targets:checked gift-and-implant-conservation:not-run morgue-recovery-refusal:checked persisted-part-wound-inspection:not-applicable",
+          "ARM03-legacy-final-inactive-corpse=passed separate-process-reload description-weight-buoyancy-race-and-Delete-callback safe corpse-item-illumination-and-unresolved-damage exact-positive-ID-kept canonical-current-body-and-history-preserved no-cleanup-authority-inferred",
+          "ARM03-legacy-acceptance=passed eleven-separate-process-readers exact-read-without-cleanup-authority safe-unresolved-body context-specific-current-body-validation runtime-consumer-boundaries"
+        ],
+        "owned_databases_cleaned": 1,
+        "temporary_mysql_cleanup_verified": true
+      }
+    ],
+    "managed_failure_causes": [
+      "Initial fixture imports and interface assumptions caused compile failure; first eating fixture failed before the reported path until planar-body setup was corrected.",
+      "Production compile failure from capturing new out estate parameter in a lambda was repaired with a local estate ID; test syntax/import failures retained.",
+      "Positive keyword fixture and patrol constructor fixtures failed before target/recovery paths; fixed fixture selection/bootstrap without weakening conservation assertions."
+    ],
+    "native_fixture_failure_causes": [
+      "Native compile initially used internal HealthModule directly; changed to ordinary reflection lookup.",
+      "Trial1: four part readers hit Moq generic component matching and three resolved-corpse readers hit an incorrect ordinary ActiveCount assumption. Explicit null corpse lookup and exact body-registration assertions corrected. Unresolved ordinary tracking remains asserted."
+    ],
+    "native_build_logs": [
+      {
+        "path": ".artifacts/phase3a-runtime-native-build1.log",
+        "sha256": "205deb740978539b20b95deef65b40007019071ba048f4ee40789ac9cacfb634",
+        "status": "FAIL"
+      },
+      {
+        "path": ".artifacts/phase3a-runtime-native-build2.log",
+        "sha256": "6a3366ee8499de701ac94df6fc178f14329f2c7d6544e99e0a3282783088cd52",
+        "status": "PASS"
+      },
+      {
+        "path": ".artifacts/phase3a-runtime-native-build3.log",
+        "sha256": "fa4152442aa38b0e133fa69ec8256f121ea5a3ae5a57f15726a4199694cd216a",
+        "status": "PASS"
+      },
+      {
+        "path": ".artifacts/phase3a-runtime-native-build4.log",
+        "sha256": "0f6440a837d0f9903723a88e6edcea4f70259587685f24c4bfeccb06a68da7d1",
+        "status": "PASS"
+      }
+    ],
+    "prior_checkpoint_receipts_and_failure_history_unchanged": true
+  },
+  "fingerprints": {
+    "manifest": ".artifacts/test-runs/native-armageddon-20261003-stage3A-runtime-review/final-inputs.json",
+    "manifest_sha256": "095d01563476825c7df813f1b8232d06a10f6a7b59492b21538cfaf4aa3b74d1",
+    "verification": ".artifacts/test-runs/native-armageddon-20261003-stage3A-runtime-review/final-fingerprint-verification.json",
+    "verification_sha256": "f61b22655d37b98e6b87f7bf89cf7816f3fb134f1c2a72b9d7bca89ee1e688ce",
+    "frozen_source_inputs": 171,
+    "frozen_native_assemblies": 5,
+    "unit_native_dependency_and_test_assemblies": 14,
+    "all_sources_and_binaries_match": true
+  },
+  "independent_source_review": {
+    "agent": "fm_reviewer",
+    "audit_families": 7,
+    "scope": "Physical/legacy targeting, item/currency gifting, dressing, staff/spell resurrection, arena scan and organic wound inspection; root owns exposure/eating/morgue/recovery.",
+    "additional_finding": "Resolved inactive final corpse could create/open probate for surviving current body; matching-body morgue guard and managed/native custody regressions added.",
+    "rereview": "All established paths repaired; no further actionable defect found. Reviewer inspected source only, did not run checks."
+  },
+  "preservation": {
+    "checked_utc": "2026-10-03T01:27:05.8131015Z",
+    "primary_path": "C:\\Users\\Luke\\source\\repos\\FutureMUD",
+    "primary_expected_head": "aca21bfc39298199291933375226d8982352420d",
+    "primary_head": "aca21bfc39298199291933375226d8982352420d",
+    "primary_branch": "codex/monster-ai-v1",
+    "primary_status": [
+      "?? .artifacts/"
+    ],
+    "primary_head_unchanged": true,
+    "primary_only_preexisting_artifacts": true,
+    "publication_merge_deployment_actions": [],
+    "production_or_shared_database_actions": [],
+    "settings_usage_reset_actions": [],
+    "primary_mutations": []
+  },
+  "qualification_limits": [
+    "Real EF/MySQL persistence, independent runtime body/component loads and real service/command methods use controlled item hosts, world/material services, implant actor and recovery report/patrol interfaces.",
+    "Missing-owner cases simulate unresolved owner lookup through the controlled world; the owned fixture retains its database character row.",
+    "Resolved corpse exposure qualifies body registration, not thermal eligibility of the loaded body; unresolved/part ordinary item eligibility is asserted.",
+    "Positive eating and no-estate custody/recovery are managed checks; full native AnimalAI, estate asset capture/probate, staff resurrection and arena sessions are not run.",
+    "Component Delete plus explicit fixture parent-row teardown does not qualify full GameItem.Delete, timed decay, native Character.Die/remains creation or automatic foreign-goods evacuation.",
+    "Full N14/N15/N16, canonical compaction/archival and later plan phases remain not_run or pending.",
+    "Shared body-helper consumers are statically audited; actual implant command is executed. Other staff body commands are not all separately run.",
+    "Legacy bodies lacking proven retirement/spell ownership remain retained intentionally.",
+    "Parent independent rereview remains the gate; no later implementation slice started."
+  ],
+  "whole_plan_inventory": {
+    "phases": 7,
+    "decisions": 16,
+    "candidate_entries": 154,
+    "native_scenarios": 25,
+    "source_spells": 82,
+    "support_skills": 12
+  },
+  "full_N14_N15_N16": "not_run",
+  "next_work": "Parent review of this immutable checkpoint, then bounded canonical NPC compaction/archival and native creation/post-death/remains-release adapters before the eight larger features and full N14-N16.",
+  "post_suite_source_changes": [
+    "Only the new receipt and whole-plan progress JSON/Markdown are written after verification; all171 frozen implementation/document inputs and14 assemblies remain matched."
+  ],
+  "publication_merge_deployment_actions": [],
+  "production_or_shared_database_actions": []
+}

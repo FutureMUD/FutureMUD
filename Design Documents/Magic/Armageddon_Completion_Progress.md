@@ -558,7 +558,7 @@ and their original failures/counts are unchanged; guarded ordinary cleanup is re
 - [x] Pass one stable aggregate: Core4,398 + library561 + database65 = 5,024, zero failures/skips.
 - [x] Pass combined native136: casting107 + lifecycle16 + ordinary4 + legacy9; ten owned DBs and temporary instance cleaned, zero owned processes.
 - [x] Match152 frozen inputs, five native assemblies and14 dependency/test fingerprints; update owning lifecycle/body/item docs.
-- [ ] Parent independently rereviews this compatibility checkpoint before the next slice.
+- [x] Parent component-level rereview closed this P2; the separate runtime boundary correction is recorded below.
 
 Legacy reads intentionally retain bodies lacking cleanup proof. Native checks use real
 EF/MySQL, runtime Character/Body loads and component callbacks with controlled world,
@@ -569,3 +569,29 @@ evacuation remain unqualified. **Full N14-N16 remain not run.** Canonical NPC ar
 compaction and native creation/death/remains/AI/restart adapters remain next dependencies;
 all whole-plan inventories and previously recorded gaps persist. No later slice,
 publication, merge, deployment or shared/production database action occurred.
+
+
+## Phase3A unresolved-remains runtime boundary P2 correction
+
+Implementation `18252348ab3cc8b6753fc022886100045212390b` on `f320f08bcf11b991a8418036a128bdefa421abf4`
+guards exposure registration, scavenger eating, morgue/recovery custody, physical and
+legacy character targeting, item/currency gifts, dressing, staff/spell resurrection,
+arena scans and persisted severed-part wound inspection. Exact physical body reads remain
+separate from cleanup authority. Character operations and probate require a matching
+resolved final body; independent live actors remain targetable. Refused recovery retains
+its assigned report, item location, effects and estate state. Valid no-estate custody
+still completes. See [the immutable runtime receipt](Armageddon_Stage3A_RuntimeRemains_Verification.json).
+
+- [x] Execute the pre-repair exposure, eating and morgue failures: 104 prior passes and 8 failures; retain fixture/build failures separately.
+- [x] Pass 42 new core plus 7 shared regressions; focused core 146, including actual implant/dress/resurrection dispatch, both targeting branches, conservation and positive controls.
+- [x] Pass one stable aggregate: core 4,440 + library 568 + database 65 = 5,073; zero failures/skips.
+- [x] Pass combined native 151: casting 107 + lifecycle 16 + ordinary 4 + legacy 13 + runtime 11; eleven independent persisted readers.
+- [x] Verify ten owned databases and TEMP MySQL cleanup, zero owned processes, 171 frozen inputs and 14 assembly fingerprints.
+- [x] Preserve all three prior immutable receipts, whole-plan inventories, retirement/proof guards and the unrelated primary checkout.
+- [ ] Parent independently rereviews this runtime correction before the next slice.
+
+Native item/custody/report/world services are controlled. Positive nutrition/recovery and
+staff resurrection/arena cases are managed checks; complete AnimalAI, estate capture,
+NPC death, corpse creation/decay, automatic foreign-goods evacuation and full N14-N16
+remain unrun or pending. No next phase, publication, merge, deployment or shared/production
+database action occurred.

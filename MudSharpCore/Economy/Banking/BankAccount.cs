@@ -15,6 +15,8 @@ namespace MudSharp.Economy.Banking;
 
 public class BankAccount : SaveableItem, IBankAccount, ILazyLoadDuringIdleTime
 {
+	public const int MaximumTransactionDescriptionLength = 255;
+
     public BankAccount(Models.BankAccount dbitem, IBank bank)
     {
         Bank = bank;
@@ -439,12 +441,23 @@ public class BankAccount : SaveableItem, IBankAccount, ILazyLoadDuringIdleTime
         Changed = true;
     }
 
+	public static string DescribeWithdrawalFromTransaction(ICurrency currency, decimal amount, string transactionReference)
+	{
+		return $"Withdraw {currency.Describe(amount, CurrencyDescriptionPatternType.ShortDecimal)} from transaction{(!string.IsNullOrEmpty(transactionReference) ? $" - {transactionReference}" : "")}";
+	}
+
     public void WithdrawFromTransaction(decimal amount, string transactionReference)
+    {
+		WithdrawFromTransaction(amount, transactionReference,
+			DescribeWithdrawalFromTransaction(Currency, amount, transactionReference));
+    }
+
+	public void WithdrawFromTransaction(decimal amount, string transactionReference, string transactionDescription)
     {
         MudDateTime time = Bank.EconomicZone.ZoneForTimePurposes.DateTime(Bank.EconomicZone.FinancialPeriodReferenceCalendar);
         RecordTransaction(new BankAccountTransaction(this, BankTransactionType.WithdrawalFromTransaction, amount,
             CurrentBalance - amount, time,
-            $"Withdraw {Currency.Describe(amount, CurrencyDescriptionPatternType.ShortDecimal)} from transaction{(!string.IsNullOrEmpty(transactionReference) ? $" - {transactionReference}" : "")}"));
+            transactionDescription));
         if (CurrentBalance < amount)
         {
             CurrentBalance -= amount;

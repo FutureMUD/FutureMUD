@@ -9,6 +9,8 @@ namespace MudSharp.Community;
 
 public class ClanBudgetTransaction : IClanBudgetTransaction
 {
+	public const int MaximumReasonLength = 1000;
+
 	private readonly long _actorId;
 	private readonly long? _bankAccountId;
 	private ICharacter? _actor;
@@ -38,6 +40,11 @@ public class ClanBudgetTransaction : IClanBudgetTransaction
 
 	public ClanBudgetTransaction(IClanBudget budget, ICharacter actor, decimal amount, string reason)
 	{
+		if (reason.Length > MaximumReasonLength)
+		{
+			throw new ArgumentException($"Budget drawdown reasons must be no longer than {MaximumReasonLength} characters.", nameof(reason));
+		}
+
 		Budget = budget;
 		_actor = actor;
 		_actorId = CharacterInstanceIdentityComparer.IdentityId(actor);

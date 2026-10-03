@@ -338,7 +338,8 @@ public static class VirtualCashLedger
 		MudDateTime? mudDateTime,
 		out string error,
 		IFrameworkItem? reference = null,
-		string? referenceText = null)
+		string? referenceText = null,
+		string? bankTransactionDescription = null)
 	{
 		if (!CanDebit(owner, currency, amount, bankAccount, out error))
 		{
@@ -435,7 +436,14 @@ public static class VirtualCashLedger
 			return true;
 		}
 
-		bankAccount.WithdrawFromTransaction(bankAmount, reason);
+		if (bankTransactionDescription is null)
+		{
+			bankAccount.WithdrawFromTransaction(bankAmount, reason);
+		}
+		else
+		{
+			bankAccount.WithdrawFromTransaction(bankAmount, reason, bankTransactionDescription);
+		}
 		bankAccount.Bank.CurrencyReserves[currency] -= bankAmount;
 		bankAccount.Bank.Changed = true;
 		return true;

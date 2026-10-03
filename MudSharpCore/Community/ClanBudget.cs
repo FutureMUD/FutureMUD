@@ -11,6 +11,8 @@ namespace MudSharp.Community;
 
 public class ClanBudget : SaveableItem, IClanBudget
 {
+	public const int MaximumNameLength = 200;
+
 	private MudDateTime _currentPeriodStart;
 	private MudDateTime _currentPeriodEnd;
 	private decimal _currentPeriodDrawdown;
@@ -52,6 +54,11 @@ public class ClanBudget : SaveableItem, IClanBudget
 	public ClanBudget(Clan clan, IAppointment appointment, IBankAccount? bankAccount, ICurrency currency, string name,
 		decimal amount, RecurringInterval interval)
 	{
+		if (name.Length > MaximumNameLength)
+		{
+			throw new ArgumentException($"Budget names must be no longer than {MaximumNameLength} characters.", nameof(name));
+		}
+
 		Gameworld = clan.Gameworld;
 		Clan = clan;
 		Appointment = appointment;

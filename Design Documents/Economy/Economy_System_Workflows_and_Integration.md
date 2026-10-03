@@ -179,6 +179,7 @@ Practical note:
 - appointment budgets are recurring-period allowances, not separate bank accounts
 - a drawdown issues cash to the actor and funds it from the clan virtual treasury first, then the default clan bank account when present
 - every drawdown stores an audit reason, actor, period window, amount, and balance after withdrawal, and also writes a virtual treasury ledger row
+- names must fit 200 characters and audit reasons 1000; bank-funded drawdowns additionally require the complete withdrawal description to fit 255 characters, with all length failures rejected before any debit or period rollover and no truncation
 - payroll history is clan payroll audit data, while the broader employment/job subsystem remains separate
 
 ### Markets, Categories, Influences, Populations, and Shoppers

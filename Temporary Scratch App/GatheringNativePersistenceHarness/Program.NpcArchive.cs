@@ -38,7 +38,7 @@ namespace FutureMUD.GatheringNativePersistenceHarness;
 internal static partial class GNHProgram
 {
 	private sealed record ArchiveReader(string Database, long Character, long Body, Guid Lifecycle,
-		long History, long ForeignWound, long ForeignItem, long Crime, int Archives);
+		long History, long ForeignWound, long ForeignItem, long Crime, int Archives, long Writing, long Drawing);
 	private sealed record ArchiveControllerReceipt(NPCController Controller, List<IMonitorable> Observees);
 
 	private static int RunNpcArchiveAcceptanceChecks()
@@ -160,21 +160,18 @@ internal static partial class GNHProgram
 			db.GameItemComponents.Single(x => x.GameItemId == foreignItem).Definition = "<malformed"; db.SaveChanges();
 		}
 		MustHold("serialized");
+		long drawingId;
 		using (var db = NewIndependentContext(database.ConnectionString))
 		{
 			db.GameItemComponents.RemoveRange(db.GameItemComponents.Where(x => x.GameItemId == foreignItem));
-			db.Drawings.Add(new() { AuthorId = characterId, ShortDescription = "archive hold drawing", FullDescription = "A retained drawing." }); db.SaveChanges();
+			var drawing = new Db.Drawing { AuthorId = characterId, ShortDescription = "historical drawing", FullDescription = "A retained drawing." };
+			db.Drawings.Add(drawing); db.SaveChanges(); drawingId = drawing.Id;
 		}
-		MustHold("Drawing");
-		using (var db = NewIndependentContext(database.ConnectionString)) { db.Drawings.RemoveRange(db.Drawings.Where(x => x.AuthorId == characterId)); db.SaveChanges(); }
 		var writingId = CreateArchiveWriting(database, characterId);
-		MustHold("Writing");
 		using (var db = NewIndependentContext(database.ConnectionString))
 		{
-			var writing = db.Writings.Find(writingId)!; writing.AuthorId = null; writing.TrueAuthorId = characterId; db.SaveChanges();
+			db.Writings.Find(writingId)!.TrueAuthorId = characterId; db.SaveChanges();
 		}
-		MustHold("Writing");
-		using (var db = NewIndependentContext(database.ConnectionString)) { db.Writings.Remove(db.Writings.Find(writingId)!); db.SaveChanges(); }
 		var groups = (All<IGroupAI>)native.World.GroupAIs; var group = new Mock<IGroupAI>();
 		group.SetupGet(x => x.Id).Returns(77); group.SetupGet(x => x.GroupMembers).Returns(Array.Empty<ICharacter>());
 		group.SetupGet(x => x.GroupRoles).Returns(new Dictionary<ICharacter, GroupRole> { [npc] = GroupRole.Adult }); groups.Add(group.Object);
@@ -204,7 +201,7 @@ internal static partial class GNHProgram
 			db.CharacterBodyRetirements.RemoveRange(db.CharacterBodyRetirements.Where(x => x.BodyId == bodyId)); db.SaveChanges();
 		}
 		Console.WriteLine("ARM03B-foreign-ownership=passed independently-unloaded-form-source-retirement-mismatch durable-hold foreign-rows-and-heavy-NPC-preserved");
-		Console.WriteLine("ARM03B-holds=passed foreign-custody serialized-remains-reference malformed-serialization writing-author-and-trueauthor drawing-history runtime-role-root durable-diagnostic no-graph-or-foreign-mutation");
+		Console.WriteLine("ARM03B-holds=passed foreign-custody serialized-remains-reference malformed-serialization runtime-role-root durable-diagnostic no-graph-or-foreign-mutation historical-writing-and-drawing-retained-through-holds");
 		using (var db = NewIndependentContext(database.ConnectionString))
 			db.Database.ExecuteSqlRaw("CREATE TRIGGER arm03b_reject_archive BEFORE INSERT ON CharacterArchives FOR EACH ROW SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT='ARM03B archive rollback fixture'");
 		lifetime = store.Find(lifetime.Origin.Id)!;
@@ -250,6 +247,9 @@ internal static partial class GNHProgram
 		Console.WriteLine("ARM03B-compaction=passed exact-archive canonical-ID-retained body-NPC-instance-released caller-restored stale-save-refused queued-saves-aborted real-cache-loader-no-materialization idempotent-retry");
 		using (var read = NewIndependentContext(database.ConnectionString))
 		{
+			Require(read.Writings.Find(writingId) is { AuthorId: var author, TrueAuthorId: var trueAuthor } && author == characterId && trueAuthor == characterId &&
+				read.Drawings.Find(drawingId) is { AuthorId: var drawingAuthor, FullDescription: "A retained drawing." } && drawingAuthor == characterId,
+				"Archival changed or removed historical writing/drawing attribution.");
 			using var wounds = JsonDocument.Parse(read.CharacterArchives.Find(characterId)!.WoundHistory);
 			Require(wounds.RootElement.GetArrayLength() == 1 && wounds.RootElement[0].GetProperty("Id").GetInt64() == ownedWoundId &&
 				!read.Wounds.Any(x => x.Id == ownedWoundId), "Owned wound state was not boundedly archived before removing the physical wound.");
@@ -282,7 +282,7 @@ internal static partial class GNHProgram
 		}
 		Console.WriteLine("ARM03B-steady-state=passed four-repeated-native-deaths heavy-body-NPC-instance-rows-at-baseline bounded-archives weak-actor-graphs-collected foreign-wound-and-item-preserved");
 		Console.WriteLine("ARM03B-controller-release=passed monitored-native-death-and-persisted-dead-reload retained-controller-context-and-output-detached weak-actor-graphs-collected");
-		var input = new ArchiveReader(database.Name, characterId, bodyId, lifetime.Origin.Id, historyId, fixture.ExistingWoundId!.Value, foreignItem, historicalCrime.Id, 5);
+		var input = new ArchiveReader(database.Name, characterId, bodyId, lifetime.Origin.Id, historyId, fixture.ExistingWoundId!.Value, foreignItem, historicalCrime.Id, 5, writingId, drawingId);
 		var start = new ProcessStartInfo("dotnet") { UseShellExecute = false, RedirectStandardOutput = true, RedirectStandardError = true, CreateNoWindow = true };
 		start.ArgumentList.Add(Assembly.GetExecutingAssembly().Location); start.ArgumentList.Add("--npc-archive-reader");
 		start.ArgumentList.Add(Convert.ToBase64String(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(input))));
@@ -396,7 +396,7 @@ internal static partial class GNHProgram
 	private static long CreateArchiveWriting(TestDatabase database, long characterId)
 	{
 		using var db = NewIndependentContext(database.ConnectionString);
-		var writing = new Db.Writing { AuthorId = characterId, WritingType = "composite", Definition = "<Definition />",
+		var writing = new Db.Writing { AuthorId = characterId, WritingType = "composite", Definition = "<Definition><Text>Retained historical text.</Text><DrawingSize>0</DrawingSize><DrawingSkill>35</DrawingSkill><ShortDescription>historical graffiti</ShortDescription></Definition>",
 			Language = new Db.Language { Name = "Archive writing language", LinkedTraitId = db.TraitDefinitions.First().Id,
 				UnknownLanguageDescription = "unknown", DifficultyModelNavigation = new Db.LanguageDifficultyModels { Name = "Archive writing model", Type = "WordList", Definition = "<Definition />" } },
 			Script = new Db.Script { Name = "Archive writing script", KnownScriptDescription = "known", UnknownScriptDescription = "unknown",
@@ -470,6 +470,9 @@ internal static partial class GNHProgram
 			read.GameItems.Any(x => x.Id == input.ForeignItem) && read.Crimes.Find(input.Crime) is { CriminalId: var criminal, IsFinalised: true } &&
 			criminal == input.Character && roots.TryGetCharacter(input.Character, true) is null,
 			"Independent restart lost archive, history or foreign state, or materialized a physical actor.");
+		Require(read.Writings.Find(input.Writing) is { AuthorId: var author, TrueAuthorId: var trueAuthor } && author == input.Character && trueAuthor == input.Character &&
+			read.Drawings.Find(input.Drawing) is { AuthorId: var drawingAuthor, FullDescription: "A retained drawing." } && drawingAuthor == input.Character,
+			"Independent restart lost historical authorship or drawing content.");
 		var store = new SpellOwnedLifecycleStore(); var life = store.Find(input.Lifecycle)!;
 		Require(store.Complete(input.Lifecycle, life.Version, life.UpdatedUtc).Version == life.Version && !store.Pending(life.UpdatedUtc).Any(),
 			"Restart completion reopened or advanced the archive lifetime.");

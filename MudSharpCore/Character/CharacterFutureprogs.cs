@@ -263,7 +263,7 @@ public partial class Character
             case "scripts":
                 return new CollectionVariable(Scripts.ToList(), ProgVariableTypes.Script);
             case "writings":
-                return new CollectionVariable(Gameworld.Writings.Where(x => x.Author == this || x.TrueAuthor == this).ToList(), ProgVariableTypes.Writing);
+                return new CollectionVariable(Gameworld.Writings.Where(x => x.AuthorId == Id || x.TrueAuthorId == Id).ToList(), ProgVariableTypes.Writing);
             case "mount":
                 return RidingMount;
             case "riders":

@@ -15,6 +15,8 @@ namespace MudSharp.Communication
     {
         int DocumentLength { get; }
         ICharacter Author { get; }
+        long? AuthorId => Author?.Id;
+        ArchivedCharacterIdentity ArchivedAuthor => null;
         WritingImplementType ImplementType { get; }
         string ParseFor(ICharacter voyeur);
         string DescribeInLook(ICharacter voyeur);
@@ -41,6 +43,16 @@ namespace MudSharp.Communication
 
     public static class ReadableExtensions
     {
+        public static string AuthorName(this ICanBeRead readable,
+            MudSharp.Character.Name.NameStyle style = MudSharp.Character.Name.NameStyle.FullName)
+        {
+            var author = readable.Author;
+            if (author is not null) return author.PersonalName?.GetName(style) ?? author.Name;
+            var archived = readable.ArchivedAuthor;
+            return (style == MudSharp.Character.Name.NameStyle.FullName ? archived?.FullName : null) ?? archived?.DisplayName ??
+                (readable.AuthorId is > 0 ? $"Unknown author #{readable.AuthorId}" : "Printed/Anonymous");
+        }
+
         public static ICanBeRead CopyReadable(this ICanBeRead readable)
         {
             return readable ?? throw new ArgumentNullException(nameof(readable));

@@ -197,9 +197,24 @@ persist a bounded diagnostic and leave physical state, saves and foreign goods u
 Metadata-driven FK checks allow removal only of audited directly owned NPC/body state.
 Canonical command logs, finalized crime attribution and external wound-origin IDs
 survive. Every unfinished criminal crime holds, including stale crimes that a witness could
-report again. Writing (including composite/graffiti author caches), drawings,
-hospital/bank/estate/clan/track and other unsupported relationships hold until their own
+report again. Writing's `AuthorId`/`TrueAuthorId` and drawing's `AuthorId` are historical
+canonical references: their rows survive compaction. Hospital/bank/estate/clan/track
+and other unsupported relationships hold until their own
 history/runtime adapters are reviewed. Inventory reachability does not establish ownership.
+
+Simple and composite/graffiti writing and drawings retain raw canonical author IDs and
+weak live caches. `Author`/`TrueAuthor` return null for archived identities;
+`ArchivedAuthor`/`ArchivedTrueAuthor` supply immutable attribution without loading a physical
+actor. Every live-author lookup checks the durable archive first, including when another
+process commits archival before this host releases its cached actor. Copying preserves
+IDs and content without resolving the author; ordinary insertion/save retains those IDs.
+Historical artifacts cannot keep a physical Character/Body/controller graph alive.
+Staff lists, author-ID filters, `character.writings` and book prototype descriptions use
+canonical IDs or archived display names. Archived handwriting retains its handwriting
+header. Full-name filters use the retained canonical full name independently of the
+nickname-inclusive archive display name. Anonymous/printed writing keeps its configured
+provenance. Accountless live NPC
+authors display without requiring an account.
 
 The bounded serialized scan covers definitions, effects, data/value fields, route motion,
 computer process state/result/wait arguments, tattoos, injury extras, procedure parameters,
@@ -374,16 +389,19 @@ the assigned recovery report unchanged. These guards create no retirement or spe
 ## Remaining acceptance and integration
 
 Full summon retirement still needs additional native creation/materialization adapters,
-generated-possession and occupant/topology conservation, safe destination fallback,
+generated-possession and occupant/topology conservation, qualified safe destinations,
 count/control policy and economy/salvage guards. The simple-NPC adapter conserves proven
 foreign custody before owned corpse deletion. Ordinary corpses without removal-authorized
 spell ownership retain their existing component deletion behavior.
+The approved brief permits a configured safe fallback or recoverable holding with
+diagnostics when no destination is safe; automatic fallback selection is not mandatory.
 
 Canonical NPC deletion remains unsafe: crime/log history and serialized corpse, witness,
 dub and effect identities can outlive physical graphs. The archival boundary above keeps
 canonical identity and restricts body deletion; no maintenance caller may bypass it with
-a body-only or cascading canonical delete. Additional creation/remains/restart integration and
-historical author adapters remain pending. A retained full Character/Body graph is a
+a body-only or cascading canonical delete. Writing/drawing authorship has a bounded native
+retirement/copy/restart adapter; other creation/remains/restart integration and unsupported
+historical-reference adapters remain pending. A retained full Character/Body graph is a
 conservative hold, not final high-volume retirement acceptance.
 The lightweight lifecycle/claim journal deliberately has no entity FKs and does not authorize
 canonical deletion. Bounded journal retention/archival is a later explicit policy; these

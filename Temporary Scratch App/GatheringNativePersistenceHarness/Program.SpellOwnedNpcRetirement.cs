@@ -246,6 +246,7 @@ internal static partial class GNHProgram
 		expiryCorpse.Delete(); host.Service.ReconcileRetirements(RuntimeClock.UtcNow); Completed(expiry);
 		host.Service.ReconcileRetirements(RuntimeClock.UtcNow); Require(deaths[expiry.Id] == 1 && deaths[temporary.Id] == 1, "Retry repeated native death.");
 		Console.WriteLine("ARM03B2B-three-modes=passed actual-same-SimpleNPCTemplate permanent-durable-no-expiry default-no-corpse-dissipation death-on-expiry-native-corpse actual-GameItem-Delete actual-Character-Quit archival one-terminal-death-each no-replay");
+		RunHistoricalAuthorshipChecks(database, fixture, host, Create(SpellLifecycleMode.TemporaryCleanup), Completed);
 		var suppressed = Create(SpellLifecycleMode.DeathOnExpiry); var suppressedDeaths = 0; suppressed.OnDeath += _ => suppressedDeaths++;
 		clock.Advance(TimeSpan.FromSeconds(61)); var suppressedLife = Life(suppressed);
 		suppressedLife = host.Store.BeginRetirement(suppressedLife.Origin.Id, suppressedLife.Version, SpellRetirementReason.Expiry, RuntimeClock.UtcNow);
@@ -669,6 +670,7 @@ internal static partial class GNHProgram
 		using var database = TestDatabase.OpenExistingOwned(input.Database); ConfigureNativeDatabase(database.ConnectionString);
 		var clock = new HarnessClock(); clock.Advance(input.Now - clock.GetUtcNow().UtcDateTime); using var time = RuntimeClock.Push(clock);
 		var host = PrepareRetirementHost(database, input.Fixture, clock); var life = host.Store.Find(input.Lifecycle)!;
+		if (input.Action.StartsWith("authorship-", StringComparison.Ordinal)) return RunHistoricalAuthorshipReader(database, host, input, life);
 		var npc = (RuntimeNpc)host.Native.World.TryGetCharacter(life.Entities.Single(x => x.Kind == SpellOwnedEntityKind.AutonomousCharacter).Id, true);
 		if (input.Action == "dirty-custody")
 		{

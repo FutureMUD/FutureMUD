@@ -40,8 +40,11 @@ public sealed class CharacterArchiveService : ICharacterArchiveService
 		if (characterId <= 0) return null;
 		using var isolated = FMDB.BeginIndependentScope();
 		using var db = new FMDB();
-		var archive = FMDB.Context.CharacterArchives.AsNoTracking().SingleOrDefault(x => x.CharacterId == characterId);
-		return archive is null ? null : Read(archive);
+		var row = (from archive in FMDB.Context.CharacterArchives.AsNoTracking()
+			join identity in FMDB.Context.Characters.AsNoTracking() on archive.CharacterId equals identity.Id
+			where archive.CharacterId == characterId
+			select new { Archive = archive, identity.NameInfo }).SingleOrDefault();
+		return row is null ? null : Read(row.Archive) with { NameInfo = row.NameInfo };
 	}
 
 	public bool TryArchiveNpc(Guid lifecycleId, long expectedVersion, ICharacter character, DateTime nowUtc,
@@ -180,7 +183,9 @@ public sealed class CharacterArchiveService : ICharacterArchiveService
 						    matches.All(x => ((Db.Character)x).Id == character.Id)) continue;
 						if (principal.Item1 == typeof(Db.Character) &&
 						    (type is "Crime" or "CharacterLog" ||
-						     type == "Wound" && property == "ActorOriginId")) continue;
+						     type == "Wound" && property == "ActorOriginId" ||
+						     type == "Writing" && property is "AuthorId" or "TrueAuthorId" ||
+						     type == "Drawing" && property == "AuthorId")) continue;
 						var removable = principal.Item1 == typeof(Db.Character)
 							? CharacterStateRows.Contains(type) && property == "CharacterId" || type == "Npc" && property == "CharacterId" ||
 							  type == "CharacterInstance" && property == "CharacterId"

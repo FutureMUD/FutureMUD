@@ -39,7 +39,7 @@
   "preparation_baseline": "b0e4339d57bf15bc6e6a6f21fbdd5edc73006e38",
   "implementation_branch": "codex/armageddon-completion-phase1",
   "authorised_scope": "Complete plan in coherent stages; local commits; no publication, merge, deploy or shared/production DB",
-  "selected_stage": "Phase3B2A native NPC creation and persisted death/remains correlation implemented and verified; independent parent review pending before dependent custody/remains adapters",
+  "selected_stage": "Phase3B2A admission P2 corrected and verified; independent parent rereview pending before dependent custody/remains work",
   "phase1_remaining": [
     "Stock installer selects and qualifies the mental/spiritual native attribute, capacity expression/basis and authored energy coefficients.",
     "Complete installed source/support/crafting/chargen wiring and gathering restrictions/environmental accounting remain later stock/native gates.",
@@ -2543,7 +2543,7 @@
     },
     {
       "id": "phase3B2A_native_creation_death",
-      "status": "implemented_and_verified_parent_independent_review_pending",
+      "status": "parent_independent_review_found_admission_P2_corrected_rereview_pending",
       "implementation": "af044cb81bb724948cfe1bddd683a41a970871a4",
       "base": "90bd869fe26e102afeeb94b1c56a0170d77f4ee7",
       "receipt": "Armageddon_Stage3B_NativeNpc_Verification.json",
@@ -2563,6 +2563,41 @@
       "frozen_inputs_matching": 217,
       "binary_fingerprints": 19,
       "prior_six_receipts_unchanged": true,
+      "full_N14_N15_N16": "not_run",
+      "admission_correction_followup": "Armageddon_Stage3B_NpcAdmission_Verification.json",
+      "parent_review_evidence_verified": {
+        "focused": 63,
+        "fast": 6800,
+        "native": 184,
+        "sources": 217,
+        "assemblies": 19,
+        "artifacts": 222,
+        "cleanup": 13
+      }
+    },
+    {
+      "id": "phase3B2A_admission_P2",
+      "status": "implemented_verified_parent_independent_rereview_pending",
+      "implementation": "ce2a8a45c0de44b07b642fb30fc9e40429ff7ee9",
+      "base": "2338ab8825d765b5e79b29254ae818acb0d8904c",
+      "receipt": "Armageddon_Stage3B_NpcAdmission_Verification.json",
+      "focused_core": "20261003T105928Z-dbdfb6a21143",
+      "fast_all_ten_projects": "20261003T110002Z-19ae6ddcb1d0",
+      "counts": {
+        "focused_core": 429,
+        "fast": 6813,
+        "failed": 0,
+        "skipped": 0
+      },
+      "new_core_cases": 13,
+      "native_markers": 192,
+      "adapter_markers": 22,
+      "admission_markers": 8,
+      "owned_databases_cleaned": 13,
+      "owned_processes_remaining": 0,
+      "frozen_inputs_matching": 221,
+      "binary_fingerprints": 19,
+      "prior_seven_receipts_unchanged": true,
       "full_N14_N15_N16": "not_run"
     }
   ],
@@ -2650,14 +2685,19 @@
     {
       "sha": "af044cb81bb724948cfe1bddd683a41a970871a4",
       "subject": "Connect native spell NPC creation and persisted death recovery"
+    },
+    {
+      "sha": "ce2a8a45c0de44b07b642fb30fc9e40429ff7ee9",
+      "subject": "Reject unsupported native NPC merits before casting payment"
     }
   ],
   "next_checkpoint": {
-    "status": "awaiting_parent_phase3B2A_native_adapter_independent_review",
-    "base": "90bd869fe26e102afeeb94b1c56a0170d77f4ee7",
-    "scope": "Phase3B2A native NPC creation and persisted death/remains correlation",
-    "implementation_head": "af044cb81bb724948cfe1bddd683a41a970871a4",
-    "receipt": "Armageddon_Stage3B_NativeNpc_Verification.json",
+    "status": "awaiting_parent_phase3B2A_admission_correction_independent_rereview",
+    "base": "2338ab8825d765b5e79b29254ae818acb0d8904c",
+    "scope": "Known unsupported effective-merit admission before casting payment",
+    "implementation_head": "ce2a8a45c0de44b07b642fb30fc9e40429ff7ee9",
+    "receipt": "Armageddon_Stage3B_NpcAdmission_Verification.json",
+    "previous_native_adapter_receipt": "Armageddon_Stage3B_NativeNpc_Verification.json",
     "implementation_verified": true,
     "no_dependent_retirement_slice_started": true,
     "full_N14_N15_N16": "not_run",
@@ -2684,14 +2724,16 @@
     "Extend atomic before-exposure provenance to variable/prosthetic/role-trait-adjustment/extra-body NPCs and native item/instance/topology creation. Complete remains-release and expiry/restart/heartbeat exactly-once death/dissipation adapters; simple NPC creation and persisted early-death correlation are verified at this checkpoint.",
     "Implement automatic foreign goods/container/occupant evacuation with validated fallback and generated-possession economy/salvage policy; extend verified bounded actor/controller/queue/subscription release to complete native lifecycle adapters.",
     "Qualify exact full N14/N15/N16 on actual NPC death, corpse decay/default dissipation, all three same-template modes, restart and heavy-row/runtime steady state.",
-    "Implement remaining reusable effects and all eight approved larger features; later charm work must preserve the per-spell PC toggle and resolved-executable whitelist/deferred authority."
+    "Implement remaining reusable effects and all eight approved larger features; later charm work must preserve the per-spell PC toggle and resolved-executable whitelist/deferred authority.",
+    "Admission audit: resolved lifetime (including known constant-zero invalid lifetime) and dynamic spawn validation remain post-check application refusals. Qualify their prepayment treatment without changing opposed-outcome semantics in a separate boundary."
   ],
   "phase3_dependency_checklist": [
     {
       "id": "simple_npc_creation",
-      "status": "implemented_verified_parent_review_pending",
-      "receipt": "Armageddon_Stage3B_NativeNpc_Verification.json",
-      "acceptance": "Production creation graph/exact claims before runtime exposure; activation rollback/quarantine, raw skills and selected-grade absolute lifetime; stable replay refusal."
+      "status": "native_admission_corrected_verified_parent_rereview_pending",
+      "receipt": "Armageddon_Stage3B_NpcAdmission_Verification.json",
+      "acceptance": "Production creation graph/exact claims before runtime exposure; activation rollback/quarantine, raw skills and selected-grade absolute lifetime; stable replay refusal.",
+      "prior_creation_receipt": "Armageddon_Stage3B_NativeNpc_Verification.json"
     },
     {
       "id": "persisted_npc_death_recovery",

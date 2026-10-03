@@ -710,7 +710,7 @@ See [the immutable native adapter receipt](Armageddon_Stage3B_NativeNpc_Verifica
 - [x] Pass 184 combined native checks: casting 107, lifecycle 16, ordinary 4, legacy 13, runtime 11, archival 11, maintenance 8 and adapter 14.
 - [x] Match 217 sources and 19 assemblies; clean 13 owned databases/TEMP MySQL and verify zero owned processes and the untouched primary checkout.
 - [x] Preserve six prior immutable receipts and all seven phases, 16 decisions, 154 candidates, 25 scenarios and 82+12 source rows.
-- [ ] Parent independently reviews this exact checkpoint before dependent custody/remains work.
+- [x] Parent independently reviewed this checkpoint and found the paid additional-body merit admission P2; correction and rereview are recorded below.
 - [ ] Implement foreign-goods/container/occupant evacuation with exact safe destinations/holds and actual GameItem.Delete/decay integration.
 - [ ] Implement expiry death/dissipation and remaining creation/history/count/control/economy adapters; qualify full N14/N15/N16 and later stock/release phases.
 
@@ -721,3 +721,42 @@ and **full N14-N16 remain not run**. Temporary and dead owned graphs remain cons
 held until their retirement adapters exist. Earlier compile and fixture failures are retained.
 No dependent feature slice, publication, merge, deployment or shared/production DB mutation
 occurred; existing phase1/2 stock gaps and phases4-6 remain pending.
+
+
+## Phase3B2A additional-body admission P2 correction
+
+Parent review of af044cb8 / 2338ab88 found that a known unsupported effective
+additional-body merit passed configured admission, spent resources/materials and
+then threw in native construction, producing NeedsReview and shared-route quarantine.
+Correction ce2a8a45c0de44b07b642fb30fc9e40429ff7ee9 shares native Character/Body merit composition with
+admission and native-service revalidation while retaining the deferred constructor
+guard. Selected merits, role additions, body deduplication and one-level combo
+contents preserve ordinary construction timing. Withdrawn approval, template-world
+mismatch and unavailable service also refuse in existing grade validation.
+See [the immutable admission receipt](Armageddon_Stage3B_NpcAdmission_Verification.json).
+
+- [x] Reproduce paid NeedsReview for direct, role, selected combo and role combo; retain all earlier fixture/build failures.
+- [x] Prove configured refusal before payment, unchanged resources/materials/acquisitions/opportunities, no operation/quarantine and identical owned database rows.
+- [x] Prove each real save queue retains order, multiplicity and reference identity with an unrelated pending save sentinel; revalidate direct native creation.
+- [x] Prove a reporting-effect control on the same trait/reserve pays 22.5 and one material and retains progression.
+- [x] Pass 13 new regressions, focused core 429 and all ten fast projects 6,813, zero failures/skips.
+- [x] Pass combined native 192: casting 107, lifecycle 16, ordinary 4, legacy 13, runtime 11, archival 11, maintenance 8 and adapter 22 including eight admission/control checks.
+- [x] Match 221 source inputs and 19 assemblies; clean 13 owned databases/TEMP MySQL, zero owned processes and unchanged primary checkout.
+- [x] Preserve all seven prior immutable receipts and every whole-plan requirement: seven phases, 16 decisions, 154 candidates, 25 scenarios and 82+12 source rows.
+- [ ] Parent independently rereviews this exact correction before any dependent feature slice.
+- [ ] Finish custody conservation, actual remains deletion/decay, expiry/death/dissipation, other creation/history/policy adapters and full N14/N15/N16; later stock/release phases remain pending.
+
+The native material identity is persisted; its held-item/stack and world hosts are
+controlled. All mapped fixture tables and real save queues are compared. Earlier role
+fixtures lacked dictionaries and are retained as superseded setup failures. The first
+paid control used a legacy non-reporting boost; a reporting armour control repairs the
+fixture without weakening its payment/progression assertions. Lifetime/spawn validation
+remains the existing post-check contract, including the known invalid constant-zero
+lifetime case; outcome-dependent formulas are not reinterpreted by this correction.
+The first final combined attempt failed in the unchanged capacity case with a MySQL
+connection error at ImprovingSkill; its four owned databases and TEMP instance were
+cleaned and end fingerprints matched. One retry of the identical frozen inputs passed
+the full combined suite. The initial connection failure's cause remains unconfirmed;
+the source-only audit found no automatic fallback to a shared/default endpoint.
+No extra-body support, full installed session or full N14-N16 is qualified. No next
+slice, publication, merge, deployment or shared/production DB access occurred.

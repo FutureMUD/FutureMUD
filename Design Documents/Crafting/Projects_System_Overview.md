@@ -207,6 +207,8 @@ Looping requires every entry to use a repeatable mode. Completed looping entries
 
 Labour names are preferences rather than permanent phase ids. `automatic` is used when no preference is set and activates only when exactly one qualified, joinable role exists. A missing preference falls back only to that same unambiguous case after a phase changes.
 
+Labour preferences are limited to 100 characters to match `ProjectLabourQueues.LabourPreference`. Queue commands reject longer preferences before mutation, and queue-entry construction and updates enforce the same invariant without truncation.
+
 Queue activation is re-evaluated when it matters, including:
 - after `project quit`
 - after labour completion clears the worker's active role

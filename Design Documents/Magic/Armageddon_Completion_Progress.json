@@ -39,7 +39,7 @@
   "preparation_baseline": "b0e4339d57bf15bc6e6a6f21fbdd5edc73006e38",
   "implementation_branch": "codex/armageddon-completion-phase1",
   "authorised_scope": "Complete plan in coherent stages; local commits; no publication, merge, deploy or shared/production DB",
-  "selected_stage": "Phase3B2D retirement dirty-state P2 correction implemented/verified; parent independent review pending",
+  "selected_stage": "Phase3B3 historical authorship implemented/verified; parent independent review pending",
   "phase1_remaining": [
     "Stock installer selects and qualifies the mental/spiritual native attribute, capacity expression/basis and authored energy coefficients.",
     "Complete installed source/support/crafting/chargen wiring and gathering restrictions/environmental accounting remain later stock/native gates.",
@@ -355,7 +355,8 @@
       "evidence": [
         "Armageddon_Stage3B_NpcRetirement_Verification.json",
         "Armageddon_Stage3B_NpcRetirement_P2_Verification.json",
-        "Armageddon_Stage3B_NpcRetirement_DirtyState_P2_Verification.json"
+        "Armageddon_Stage3B_NpcRetirement_DirtyState_P2_Verification.json",
+        "Armageddon_Stage3B_HistoricalAuthorship_Verification.json"
       ],
       "foundation_support": {
         "receipt": "Armageddon_Stage3A_Verification.json",
@@ -390,7 +391,8 @@
       "evidence": [
         "Armageddon_Stage3B_NpcRetirement_Verification.json",
         "Armageddon_Stage3B_NpcRetirement_P2_Verification.json",
-        "Armageddon_Stage3B_NpcRetirement_DirtyState_P2_Verification.json"
+        "Armageddon_Stage3B_NpcRetirement_DirtyState_P2_Verification.json",
+        "Armageddon_Stage3B_HistoricalAuthorship_Verification.json"
       ],
       "foundation_support": {
         "receipt": "Armageddon_Stage3A_Verification.json",
@@ -425,7 +427,8 @@
       "evidence": [
         "Armageddon_Stage3B_NpcRetirement_Verification.json",
         "Armageddon_Stage3B_NpcRetirement_P2_Verification.json",
-        "Armageddon_Stage3B_NpcRetirement_DirtyState_P2_Verification.json"
+        "Armageddon_Stage3B_NpcRetirement_DirtyState_P2_Verification.json",
+        "Armageddon_Stage3B_HistoricalAuthorship_Verification.json"
       ],
       "foundation_support": {
         "receipt": "Armageddon_Stage3A_Verification.json",
@@ -2723,7 +2726,7 @@
     },
     {
       "id": "phase3B2D_retirement_dirty_state_P2",
-      "status": "implemented_verified_parent_independent_review_pending",
+      "status": "implemented_verified_parent_independently_accepted_bounded_retirement",
       "implementation": "6d794bc17adfd1cec560e4d45ced6f33310386f3",
       "base": "c622611630f02e0640ce92327272dcfe6d6b235d",
       "receipt": "Armageddon_Stage3B_NpcRetirement_DirtyState_P2_Verification.json",
@@ -2796,6 +2799,80 @@
       "all_thirteen_body_and_five_item_dirty_flags_rearmed": true,
       "needs_counter_and_later_live_progress_preserved": true,
       "prior_ten_receipts_744_artifacts_eighteen_helpers_unchanged": true,
+      "installed_world_high_volume_every_cycle_restart_not_qualified": true,
+      "followup": "Parent independently cleared dirty-state P2 at6d794bc1/1e3d6771 and authorized next bounded lifecycle slice; immutable original receipt retained."
+    },
+    {
+      "id": "phase3B3_historical_authorship",
+      "status": "implemented_verified_parent_independent_review_pending",
+      "implementation": "88cf4d4a73b669cc4c90b7a2f3d1ce20edcb824a",
+      "base": "1e3d6771f2a3771591268557d44c072d4e0c9d59",
+      "receipt": "Armageddon_Stage3B_HistoricalAuthorship_Verification.json",
+      "authorship_focused": "20261003T205923Z-f83b65863611",
+      "focused_core": "20261003T210113Z-84554d0d4ce5",
+      "focused_database": "20261003T210146Z-8472ad0e1c70",
+      "installer_snapshot_focused": "20261003T210211Z-c33ddd5b5628",
+      "fast_all_ten_projects": "20261003T210240Z-475c03c676c3",
+      "counts": {
+        "authorship_focused": {
+          "executed": 10,
+          "passed": 10,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 10
+        },
+        "focused_core": {
+          "executed": 471,
+          "passed": 471,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 471
+        },
+        "focused_database": {
+          "executed": 3,
+          "passed": 3,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 3
+        },
+        "installer_snapshot_focused": {
+          "executed": 9,
+          "passed": 9,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 9
+        },
+        "fast_all_ten_projects": {
+          "executed": 6849,
+          "passed": 6849,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 6849
+        }
+      },
+      "new_core_cases": 10,
+      "native_markers": 229,
+      "authorship_markers": 4,
+      "owned_databases_cleaned": 14,
+      "owned_processes_remaining": 0,
+      "frozen_inputs_matching": 261,
+      "binary_fingerprints": 19,
+      "stale_cross_process_cached_author_durable_gate": true,
+      "archived_copy_preserves_author_and_trueauthor_and_drawing_metadata": true,
+      "given_full_and_nickname_names_distinct_actual_provider_verified": true,
+      "weak_authorship_does_not_retain_actor": true,
+      "parent_accepted_retirement_P2_protocols_preserved": true,
+      "prior_eleven_receipts_909_artifacts_twentyfour_helpers_unchanged": true,
       "installed_world_high_volume_every_cycle_restart_not_qualified": true
     }
   ],
@@ -2899,22 +2976,27 @@
     {
       "sha": "6d794bc17adfd1cec560e4d45ced6f33310386f3",
       "subject": "Preserve pending save state after rejected foreign custody transfer"
+    },
+    {
+      "sha": "88cf4d4a73b669cc4c90b7a2f3d1ce20edcb824a",
+      "subject": "Preserve historical writing and drawing authorship through NPC archival"
     }
   ],
   "next_checkpoint": {
-    "status": "awaiting_parent_phase3B2D_independent_review",
-    "base": "c622611630f02e0640ce92327272dcfe6d6b235d",
-    "implementation_head": "6d794bc17adfd1cec560e4d45ced6f33310386f3",
-    "receipt": "Armageddon_Stage3B_NpcRetirement_DirtyState_P2_Verification.json",
+    "status": "awaiting_parent_phase3B3_independent_review",
+    "base": "1e3d6771f2a3771591268557d44c072d4e0c9d59",
+    "implementation_head": "88cf4d4a73b669cc4c90b7a2f3d1ce20edcb824a",
+    "receipt": "Armageddon_Stage3B_HistoricalAuthorship_Verification.json",
     "implementation_verified": true,
     "previous_admission_parent_accepted": true,
-    "scope": "Corrective pending save-state journal across native custody save graph; preserve accepted durable remains-removal protocol; no new feature slice",
+    "scope": "Classified writing/drawing historical canonical references, weak runtime caches, archive-aware reading/filtering/copying and native lifecycle acceptance",
     "required_connection_ownership": "Explicit owned MySQL server/database validation at every native process/service boundary before use; no shared/default database; sanitized evidence",
     "N14_N15": "controlled_native_pass_full_installed_stock_pending",
     "N16": "partial_high_volume_pending",
     "independent_checkpoint_review_before_further_features": true,
-    "next_stage_after_review": "Extend approved creation/topology/history/policy adapters and full installed/high-volume acceptance; then remaining reusable effects/eight larger features and later stock/release phases.",
-    "parent_accepted_durable_removal_P2_preserved": true
+    "next_stage_after_review": "Select the next finite stock-required item, corpse-animation, projection, riding/guarding/control or topology adapter from the ledger; full installed/high-volume acceptance and later phases remain mandatory.",
+    "parent_accepted_durable_removal_P2_preserved": true,
+    "parent_accepted_retirement_P2_protocols_preserved": true
   },
   "deferred_consultation": {
     "source_task": "01a0fc1f-ccd4-7359-95f2-f8c03724b0b1",
@@ -2933,9 +3015,9 @@
     ]
   },
   "phase3_remaining": [
-    "Extend canonical history to Writing/Drawings author adapters before releasing their durable physical holds; preserve unknown-reference holds and conservative ownership.",
-    "Extend before-exposure provenance and verified native retirement to variable/prosthetic/role-trait-adjustment/extra-body NPCs, item/corpse-animation/projection and connected/occupied topology creation.",
-    "Complete generated-possession economy/salvage and occupant/cross-body detachment/replacement-morph adapters, approved count/control policy and automatic validated fallback destinations; current nested foreign roots and missing-destination holds are verified.",
+    "Writing/TrueAuthor/Drawings history is boundedly verified; extend other identity-bearing histories only with native need/evidence, preserving unknown-reference holds and ownership.",
+    "Required stock: created items and consumption/water/staff durability/economy, corpse animation, canonical projections and occupied/connected topology; selected source and full candidate inventory determine exact adapters. Variable/prosthetic/role-adjusted/extra-body NPC generalization is conditional on stock choosing it.",
+    "Complete generated-possession economy/salvage and occupant/cross-body detachment/replacement-morph adapters plus approved per-cast counts, Gate follower-risk/control, Guardian guarding, Mount riding and Courier delivery. Safe destinations must use configured fallback OR recoverable holding with diagnostics (brief255); automatic fallback is not mandatory.",
     "Complete installed stock command/world N14/N15 and high-volume N16 with per-cycle restart; controlled native early death/decay/restart, same-template modes and sixteen heavy/runtime cycles are verified.",
     "Implement remaining reusable effects and all eight approved larger features; later charm must retain the per-spell PC toggle, resolved executable whitelist and queued-action provenance.",
     "Admission audit: resolved lifetime (including known constant-zero invalid lifetime) and dynamic spawn validation remain post-check application refusals. Qualify their prepayment treatment without changing opposed-outcome semantics in a separate boundary."
@@ -2956,32 +3038,38 @@
     },
     {
       "id": "foreign_custody_evacuation",
-      "status": "bounded_native_P2_correction_verified_parent_review_pending_other_adapters_full_acceptance_pending",
+      "status": "bounded_native_parent_independently_accepted_other_adapters_full_acceptance_pending",
       "acceptance": "Conserve foreign inventory/container/occupant IDs exactly once, validate safe destinations and persist no-safe-destination holds.",
       "receipt": "Armageddon_Stage3B_NpcRetirement_DirtyState_P2_Verification.json"
     },
     {
       "id": "remains_release_decay",
-      "status": "bounded_native_P2_correction_verified_parent_review_pending_other_adapters_full_acceptance_pending",
+      "status": "bounded_native_parent_independently_accepted_other_adapters_full_acceptance_pending",
       "acceptance": "Integrate and qualify actual GameItem.Delete and timed decay after custody conservation; preserve valid retained remains/body history.",
       "receipt": "Armageddon_Stage3B_NpcRetirement_DirtyState_P2_Verification.json"
     },
     {
       "id": "expiry_death_and_dissipation",
-      "status": "bounded_native_verified_parent_review_pending_other_adapters_or_full_acceptance_pending",
+      "status": "bounded_native_parent_independently_accepted_other_adapters_full_acceptance_pending",
       "acceptance": "Production expiry/restart worker with durable death-on-expiry intent and separate no-corpse cleanup mode, no repeated death/corpse/loot.",
       "receipt": "Armageddon_Stage3B_NpcRetirement_Verification.json"
     },
     {
       "id": "other_creation_history_and_policy",
       "status": "pending",
-      "acceptance": "Other native creation families, historical authors and approved count/control/economy/salvage/AI/subscription adapters."
+      "acceptance": "Required stock item/corpse-animation/canonical-projection/occupied-topology creation and approved count/control/economy/salvage/AI/subscription/riding/delivery adapters; historical authorship qualified separately. Optional NPC configuration generalization only if stock selects it."
     },
     {
       "id": "full_N14_N15_N16",
       "status": "N14_N15_controlled_native_pass_N16_partial_full_installed_high_volume_pending",
       "acceptance": "Complete exact brief scenarios: early death/foreign corpse custody/decay/restart, three same-template modes, high-volume heavy/runtime steady state.",
       "receipt": "Armageddon_Stage3B_NpcRetirement_Verification.json"
+    },
+    {
+      "id": "historical_authorship",
+      "status": "bounded_native_verified_parent_review_pending",
+      "receipt": "Armageddon_Stage3B_HistoricalAuthorship_Verification.json",
+      "acceptance": "Writing/TrueAuthor/Drawing retained canonical IDs and content, weak actor caches, durable cross-process archival precedence, archived full-name filters, actual native retirement, copy/ordinary Flush and fresh readers without physical actor materialization."
     }
   ]
 }

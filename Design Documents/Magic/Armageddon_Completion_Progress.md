@@ -847,3 +847,37 @@ Other save sections receive flag-restoration coverage, not individual native con
 qualification. N14/N15 remain controlled native; installed stock sessions, high-volume N16
 and restart on every cycle remain pending. Earlier admission failure cause/endpoint remain
 unknown. No publication, merge, deployment or shared/production database was used.
+
+
+## Phase3B3 historical authorship - parent review pending
+
+Parent independently accepted bounded retirement at `6d794bc1`/`1e3d6771`.
+Local implementation `88cf4d4a73b669cc4c90b7a2f3d1ce20edcb824a` closes the ledger's Writing/TrueAuthor/Drawing
+physical hold: canonical IDs, text and drawing metadata survive native archival, copying,
+ordinary Flush and fresh-process reads. Weak caches cannot retain the physical author;
+durable archive precedence covers a separate process committing before the old host releases
+its actor. Full-name filters derive names from retained NameInfo/culture, independently of
+given-only identity names and nickname-inclusive archive displays.
+See [Armageddon_Stage3B_HistoricalAuthorship_Verification.json](Armageddon_Stage3B_HistoricalAuthorship_Verification.json).
+
+- [x] Classify only the three historical author FKs; preserve unknown physical/reference holds.
+- [x] Pass ten authorship cases, 471 focused core cases, three database checks, nine snapshot checks and 6,849 Fast cases across ten projects; zero final failures/skips.
+- [x] Pass 229 combined native markers including four new authorship markers, 14 exact owned database cleanups and zero owned processes.
+- [x] Verify actual SimpleNPCTemplate creation, native SimpleWriting/Drawing construction, persisted CompositeWriting loading, Die/Quit/archival, original/copy rows and independent historical readers.
+- [x] Preserve eleven prior receipts, 909 old artifacts, 24 old helpers and all seven phases, 16 decisions, 154 candidates, 82+12 source rows and 25 native scenarios.
+- [ ] Parent independently reviews this exact authorship checkpoint before the next dependent feature slice.
+
+Scope reconciliation: brief251/259/263/451 require historical identity and terminal bounded
+physical state. Brief255 permits configured safe fallback **or** recoverable holding with
+diagnostics, so automatic fallback is not a new requirement. Stock item/consumption/water/
+staff economy, corpse animation, canonical projections, occupied topology, Mount riding,
+Guardian guarding, Gate risk/control/count and Courier delivery remain mandatory.
+Variable/prosthetic/role-adjusted/extra-body NPC generalization is conditional on stock
+choosing those configurations; all eight larger features remain mandatory.
+
+Composite initial authorship uses a valid persisted fixture row and actual model constructor;
+catalogues remain controlled. N14/N15 installed stock sessions, high-volume N16 and restart
+on every cycle remain pending. Arbitrary saves outside the captured custody graph and
+individual content changes in its other dirty sections remain unqualified. Prior admission
+failure cause/endpoint remain unknown. No publication, merge, deployment or shared/production
+database access occurred.

@@ -805,3 +805,23 @@ established root cause or failure-instant endpoint. Native connections now valid
 owned server UUID/datadir/port and registered database/marker before use; the provider's
 metadata-only server connection is bound to an already validated exact target. No shared
 or production database, publication, merge, deployment or next feature slice was used.
+
+
+## Phase3B2C retirement P2 correction — parent review pending
+
+Local implementation `9b05379d9194b308c2b941ae743562c1b6b9a112` restores rejected native body/item/component/location
+custody before ordinary save or gameplay continues, bounds destructive callback mutations,
+and persists exact corpse removal plus observer progress before native teardown. The generated
+EF 9 migration adds three nullable UTC columns. See [Armageddon_Stage3B_NpcRetirement_P2_Verification.json](Armageddon_Stage3B_NpcRetirement_P2_Verification.json).
+
+- [x] Preserve failing-before custody-flush and final-corpse-DELETE native reproductions.
+- [x] Pass 450 focused core cases, focused database checks, nine snapshot checks and 6,834 cases across all ten Fast projects; zero failures or skips.
+- [x] Pass 219 combined native markers, including 11 corrective markers, with 14 owned database cleanups and zero remaining owned processes.
+- [x] Verify ordinary flush/reload, outside acquisition, captured child deletion, partial stack splitting, body position and provider rollback failure.
+- [x] Verify final corpse DELETE refusal in-process and after restart without death/completed observer replay or foreign loss.
+- [x] Preserve nine immutable receipts, 528 old artifacts, twelve old helpers and all seven phases, 16 decisions, 154 candidates, 82+12 source rows and 25 native scenarios.
+- [ ] Parent independently reviews this exact corrective checkpoint before any next feature slice.
+
+N14/N15 remain controlled native qualification; full installed stock sessions, high-volume
+N16 and restart on every cycle remain pending. Earlier admission failure cause/endpoint
+remain unknown. No publication, merge, deployment or shared/production database was used.

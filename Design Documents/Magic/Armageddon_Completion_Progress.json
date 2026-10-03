@@ -39,7 +39,7 @@
   "preparation_baseline": "b0e4339d57bf15bc6e6a6f21fbdd5edc73006e38",
   "implementation_branch": "codex/armageddon-completion-phase1",
   "authorised_scope": "Complete plan in coherent stages; local commits; no publication, merge, deploy or shared/production DB",
-  "selected_stage": "Phase3B2B bounded native retirement and foreign custody implemented/verified; parent independent review pending",
+  "selected_stage": "Phase3B2C retirement P2 correction implemented/verified; parent independent review pending",
   "phase1_remaining": [
     "Stock installer selects and qualifies the mental/spiritual native attribute, capacity expression/basis and authored energy coefficients.",
     "Complete installed source/support/crafting/chargen wiring and gathering restrictions/environmental accounting remain later stock/native gates.",
@@ -353,7 +353,8 @@
       "required_result": "No resurrection/second death; foreign item conserved; temporary heavy graph eventually retired when references clear",
       "status": "controlled_native_PASS_installed_stock_session_pending",
       "evidence": [
-        "Armageddon_Stage3B_NpcRetirement_Verification.json"
+        "Armageddon_Stage3B_NpcRetirement_Verification.json",
+        "Armageddon_Stage3B_NpcRetirement_P2_Verification.json"
       ],
       "foundation_support": {
         "receipt": "Armageddon_Stage3A_Verification.json",
@@ -386,7 +387,8 @@
       "required_result": "Correct persistence/death/remains behaviour and exactly one terminal transition; permanent creation survives its no-expiry contract",
       "status": "controlled_native_same_template_PASS_installed_stock_session_pending",
       "evidence": [
-        "Armageddon_Stage3B_NpcRetirement_Verification.json"
+        "Armageddon_Stage3B_NpcRetirement_Verification.json",
+        "Armageddon_Stage3B_NpcRetirement_P2_Verification.json"
       ],
       "foundation_support": {
         "receipt": "Armageddon_Stage3A_Verification.json",
@@ -419,7 +421,8 @@
       "required_result": "Stable eligible heavy-row/timer/subscription counts after cleanup; every retained record explained",
       "status": "partial_sixteen_native_cycles_and_separate_fault_decay_restarts_high_volume_pending",
       "evidence": [
-        "Armageddon_Stage3B_NpcRetirement_Verification.json"
+        "Armageddon_Stage3B_NpcRetirement_Verification.json",
+        "Armageddon_Stage3B_NpcRetirement_P2_Verification.json"
       ],
       "foundation_support": {
         "receipt": "Armageddon_Stage3A_Verification.json",
@@ -2624,7 +2627,7 @@
     },
     {
       "id": "phase3B2B_native_retirement",
-      "status": "implemented_verified_parent_independent_review_pending",
+      "status": "parent_review_found_retirement_P2s_corrective_stage_in_progress",
       "implementation": "ec8b0f486a70f769ddb217529618173cc483f697",
       "base": "833ab5ef32ff10671a7c88d621654ecd8b440a23",
       "receipt": "Armageddon_Stage3B_NpcRetirement_Verification.json",
@@ -2647,7 +2650,72 @@
       "prior_eight_receipts_and_admission_artifacts_unchanged": true,
       "N14": "controlled_native_PASS_installed_stock_session_pending",
       "N15": "controlled_native_same_template_PASS_installed_stock_session_pending",
-      "N16": "partial_sixteen_native_cycles_and_separate_fault_decay_restarts_high_volume_pending"
+      "N16": "partial_sixteen_native_cycles_and_separate_fault_decay_restarts_high_volume_pending",
+      "followup": "Corrected separately by Phase3B2C; original immutable retirement receipt preserved. Parent independent corrective review pending."
+    },
+    {
+      "id": "phase3B2C_retirement_P2",
+      "status": "implemented_verified_parent_independent_review_pending",
+      "implementation": "9b05379d9194b308c2b941ae743562c1b6b9a112",
+      "base": "689630e8733cd0ed35500a86ae7b9838defd3749",
+      "receipt": "Armageddon_Stage3B_NpcRetirement_P2_Verification.json",
+      "focused_core": "20261003T174813Z-2ad82c48a78f",
+      "focused_database": "20261003T174911Z-9a218d400a2c",
+      "installer_snapshot_focused": "20261003T180017Z-1bf17cfbf884",
+      "fast_all_ten_projects": "20261003T180045Z-2161a3d92fc3",
+      "counts": {
+        "focused_core": {
+          "executed": 450,
+          "passed": 450,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 450
+        },
+        "focused_database": {
+          "executed": 3,
+          "passed": 3,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 3
+        },
+        "installer_snapshot_focused": {
+          "executed": 9,
+          "passed": 9,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 9
+        },
+        "fast_all_ten_projects": {
+          "executed": 6834,
+          "passed": 6834,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 6834
+        }
+      },
+      "new_core_cases": 9,
+      "native_markers": 219,
+      "correction_markers": 11,
+      "owned_databases_cleaned": 14,
+      "owned_processes_remaining": 0,
+      "frozen_inputs_matching": 246,
+      "binary_fingerprints": 19,
+      "parent_P2s": [
+        "Ordinary flush persisted rejected runtime custody",
+        "Successful corpse removal lacked durable exact intent"
+      ],
+      "failing_before_native_receipts_retained": true,
+      "native_ordinary_flush_recovery_and_same_process_restart_no_replay_verified": true,
+      "prior_nine_receipts_528_artifacts_twelve_helpers_unchanged": true,
+      "installed_world_high_volume_every_cycle_restart_not_qualified": true
     }
   ],
   "implementation_commits": [
@@ -2742,16 +2810,20 @@
     {
       "sha": "ec8b0f486a70f769ddb217529618173cc483f697",
       "subject": "Retire owned native spell NPCs while conserving foreign custody"
+    },
+    {
+      "sha": "9b05379d9194b308c2b941ae743562c1b6b9a112",
+      "subject": "Restore rejected native custody and journal exact remains removal"
     }
   ],
   "next_checkpoint": {
-    "status": "awaiting_parent_phase3B2B_independent_review",
-    "base": "833ab5ef32ff10671a7c88d621654ecd8b440a23",
-    "implementation_head": "ec8b0f486a70f769ddb217529618173cc483f697",
-    "receipt": "Armageddon_Stage3B_NpcRetirement_Verification.json",
+    "status": "awaiting_parent_phase3B2C_independent_review",
+    "base": "689630e8733cd0ed35500a86ae7b9838defd3749",
+    "implementation_head": "9b05379d9194b308c2b941ae743562c1b6b9a112",
+    "receipt": "Armageddon_Stage3B_NpcRetirement_P2_Verification.json",
     "implementation_verified": true,
     "previous_admission_parent_accepted": true,
-    "scope": "Actual simple-NPC expiry/death/Quit, remains Delete/positive decay, nested foreign custody and bounded restart/steady-state acceptance",
+    "scope": "Corrective runtime custody restoration and durable exact corpse removal intent; no new feature slice",
     "required_connection_ownership": "Explicit owned MySQL server/database validation at every native process/service boundary before use; no shared/default database; sanitized evidence",
     "N14_N15": "controlled_native_pass_full_installed_stock_pending",
     "N16": "partial_high_volume_pending",
@@ -2798,15 +2870,15 @@
     },
     {
       "id": "foreign_custody_evacuation",
-      "status": "bounded_native_verified_parent_review_pending_other_adapters_or_full_acceptance_pending",
+      "status": "bounded_native_P2_correction_verified_parent_review_pending_other_adapters_full_acceptance_pending",
       "acceptance": "Conserve foreign inventory/container/occupant IDs exactly once, validate safe destinations and persist no-safe-destination holds.",
-      "receipt": "Armageddon_Stage3B_NpcRetirement_Verification.json"
+      "receipt": "Armageddon_Stage3B_NpcRetirement_P2_Verification.json"
     },
     {
       "id": "remains_release_decay",
-      "status": "bounded_native_verified_parent_review_pending_other_adapters_or_full_acceptance_pending",
+      "status": "bounded_native_P2_correction_verified_parent_review_pending_other_adapters_full_acceptance_pending",
       "acceptance": "Integrate and qualify actual GameItem.Delete and timed decay after custody conservation; preserve valid retained remains/body history.",
-      "receipt": "Armageddon_Stage3B_NpcRetirement_Verification.json"
+      "receipt": "Armageddon_Stage3B_NpcRetirement_P2_Verification.json"
     },
     {
       "id": "expiry_death_and_dissipation",

@@ -1,4 +1,4 @@
-﻿using MudSharp.GameItems;
+using MudSharp.GameItems;
 using Microsoft.VisualBasic;
 using MudSharp.Body;
 using MudSharp.Construction;
@@ -13,6 +13,12 @@ namespace MudSharp.GameItems.Components
 {
     public class LockingContainerGameItemComponent : GameItemComponent, IContainer, IOpenable, ILockable, ILock
     {
+		internal override Action CaptureCustodyRollback()
+		{
+			var contents = _contents.ToArray(); var locks = _locks.ToArray(); var open = _isOpen; var locked = _isLocked; var pattern = _pattern;
+			return () => { _contents.Clear(); _contents.AddRange(contents); _locks.Clear(); _locks.AddRange(locks); _isOpen = open; _isLocked = locked; _pattern = pattern; };
+		}
+
         protected LockingContainerGameItemComponentProto _prototype;
         public override IGameItemComponentProto Prototype => _prototype;
 
@@ -145,6 +151,7 @@ namespace MudSharp.GameItems.Components
 
         public void Put(ICharacter? putter, IGameItem item, bool allowMerge = true)
         {
+		ForeignCustodyTransferContext.EnsurePair(Parent, item);
             if (_contents.Contains(item))
             {
 #if DEBUG
@@ -209,6 +216,7 @@ namespace MudSharp.GameItems.Components
 
         public IGameItem Take(ICharacter taker, IGameItem item, int quantity)
         {
+		ForeignCustodyTransferContext.EnsurePair(Parent, item);
             Changed = true;
             if (quantity == 0 || item.DropsWhole(quantity))
             {
@@ -384,6 +392,7 @@ namespace MudSharp.GameItems.Components
 
         public bool InstallLock(ILock theLock, ICharacter? actor = null)
         {
+		ForeignCustodyTransferContext.EnsurePair(Parent, theLock.Parent);
             _locks.Add(theLock);
             if (_noSave)
             {
@@ -400,6 +409,7 @@ namespace MudSharp.GameItems.Components
 
         public bool RemoveLock(ILock theLock)
         {
+		ForeignCustodyTransferContext.EnsurePair(Parent, theLock.Parent);
             if (_locks.Contains(theLock))
             {
                 theLock.Parent.ContainedIn = null;
@@ -644,6 +654,7 @@ namespace MudSharp.GameItems.Components
 
         public override bool Take(IGameItem item)
         {
+		ForeignCustodyTransferContext.EnsurePair(Parent, item);
             if (Contents.Contains(item))
             {
                 _contents.Remove(item);

@@ -36,6 +36,9 @@ public sealed record SpellOwnedLifecycle(SpellLifecycleOrigin Origin, IReadOnlyL
 	SpellLifecycleState State, SpellRetirementReason? Reason, DateTime? DeathObservedUtc,
 	long? RemainsItemId, DateTime UpdatedUtc, long Version, string Diagnostic)
 {
+	public DateTime? RemainsRemovalRequestedUtc { get; init; }
+	public DateTime? RemainsNotificationAttemptedUtc { get; init; }
+	public DateTime? RemainsNotificationCompletedUtc { get; init; }
 	public bool MayRemoveOwnedEntities => Origin.Mode != SpellLifecycleMode.Permanent;
 	public bool RequiresNativeDeath => State == SpellLifecycleState.Retiring &&
 		Origin.Mode == SpellLifecycleMode.DeathOnExpiry && DeathObservedUtc is null;
@@ -51,6 +54,9 @@ public interface ISpellOwnedLifecycleStore
 	IReadOnlyList<SpellOwnedLifecycle> Pending(DateTime nowUtc, int limit = 100);
 	SpellOwnedLifecycle BeginRetirement(Guid id, long expectedVersion, SpellRetirementReason reason, DateTime nowUtc);
 	SpellOwnedLifecycle ObserveDeath(Guid id, long expectedVersion, long? remainsItemId, DateTime nowUtc);
+	SpellOwnedLifecycle RequestRemainsRemoval(Guid id, long expectedVersion, long remainsItemId, DateTime nowUtc);
+	SpellOwnedLifecycle AttemptRemainsNotification(Guid id, long expectedVersion, DateTime nowUtc);
+	SpellOwnedLifecycle CompleteRemainsNotification(Guid id, long expectedVersion, DateTime nowUtc);
 	SpellOwnedLifecycle Hold(Guid id, long expectedVersion, string diagnostic, DateTime nowUtc);
 	SpellOwnedLifecycle Complete(Guid id, long expectedVersion, DateTime nowUtc);
 }

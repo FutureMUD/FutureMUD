@@ -1,5 +1,5 @@
 {
   "ProductVersion": "3.6.1.0",
-  "LatestMigrationId": "20261003023907_SpellNpcArchival",
-  "GeneratedUtc": "2026-10-03T03:18:54.0534157Z"
+  "LatestMigrationId": "20261003170627_SpellOwnedRemainsRemovalIntent",
+  "GeneratedUtc": "2026-10-03T17:59:11.833749Z"
 }

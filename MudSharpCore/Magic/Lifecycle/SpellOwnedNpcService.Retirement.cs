@@ -91,7 +91,7 @@ public sealed partial class SpellOwnedNpcService
 				}
 				if (!npc.State.HasFlag(CharacterState.Dead) || life.DeathObservedUtc is null)
 					throw new InvalidOperationException("Native death is not durably correlated; terminal work must wait.");
-				if (life.Diagnostic.StartsWith(RemovalPending, StringComparison.Ordinal) && life.RemainsItemId is { } retryRemains)
+				if ((life.RemainsRemovalRequestedUtc is not null || life.Diagnostic.StartsWith(RemovalPending, StringComparison.Ordinal)) && life.RemainsItemId is { } retryRemains)
 					world.TryGetItem(retryRemains, true)?.Delete();
 				life = _store.Find(life.Origin.Id)!;
 				using (var isolated = FMDB.BeginIndependentScope())
@@ -143,6 +143,7 @@ public sealed partial class SpellOwnedNpcService
 				!body.Actor.State.HasFlag(CharacterState.Dead))
 				throw new InvalidOperationException("Owned remains require exact persisted native death/body correlation before removal.");
 			EvacuateBody(body, life, RouteSpatialService.Instance.GetEffectiveLocation(remains.LocationLevelPerceivable));
+			_store.RequestRemainsRemoval(life.Origin.Id, life.Version, remains.Id, TransitionTime(life, RuntimeClock.UtcNow));
 			return true;
 		}
 		catch (Exception ex)
@@ -150,6 +151,34 @@ public sealed partial class SpellOwnedNpcService
 			diagnostic = ex.Message.StartsWith("Native remains morph held:", StringComparison.Ordinal) ? ex.Message : RemovalPending + ex.Message;
 			RecordRetirementHold(_store.Find(life.Origin.Id) ?? life, diagnostic, RuntimeClock.UtcNow);
 			return false;
+		}
+	}
+
+	public bool TryNotifyRemainsDeletion(IGameItem remains, Action notify)
+	{
+		using var authorization = FMDB.BeginIndependentScope(requireWrites: true);
+		SpellOwnedLifecycle? life;
+		using (var db = new FMDB())
+			life = FMDB.Context.MagicSpellLifecycles.AsNoTracking().Include(x => x.Entities)
+				.SingleOrDefault(x => x.RemainsItemId == remains.Id) is { } row ? SpellOwnedLifecycleStore.Read(row) : null;
+		if (life is null || !life.MayRemoveOwnedEntities) { notify(); return true; }
+		if (life.RemainsNotificationCompletedUtc is not null) return true;
+		if (life.RemainsRemovalRequestedUtc is null || life.RemainsNotificationAttemptedUtc is not null)
+		{
+			RecordRetirementHold(life, RemovalPending + "Deletion observers have an incomplete durable attempt; retain remains for review.", RuntimeClock.UtcNow);
+			return false;
+		}
+		life = _store.AttemptRemainsNotification(life.Origin.Id, life.Version, TransitionTime(life, RuntimeClock.UtcNow));
+		try
+		{
+			notify();
+			_store.CompleteRemainsNotification(life.Origin.Id, life.Version, TransitionTime(life, RuntimeClock.UtcNow));
+			return true;
+		}
+		catch
+		{
+			RecordRetirementHold(_store.Find(life.Origin.Id)!, RemovalPending + "Deletion observer attempt did not complete; retain remains without replay.", RuntimeClock.UtcNow);
+			throw;
 		}
 	}
 
@@ -181,6 +210,16 @@ public sealed partial class SpellOwnedNpcService
 			throw new InvalidOperationException("Installed prosthetics, implants or lodged goods require a separately verified native detachment adapter.");
 		if (roots.Any(x => x.ContainedIn is not null) || structuralComponents.Any(c => c.Changed))
 			throw new InvalidOperationException("Foreign subtree structural edits or external containment must settle before evacuation.");
+		if (body is not MudSharp.Body.Implementations.Body nativeBody || body.Effects.Any() || body.Actor.Effects.Any() ||
+			body.Actor.PositionTarget is not null || graph.Any(x => x is not GameItem || x.Effects.Any() || x.Wounds.Any() ||
+				x.PositionTarget is not null || x.PositionEmote is not null || x.TargetedBy.Any()))
+			throw new InvalidOperationException("Foreign custody requires a verified callback-free rollback adapter for its body, effects, wounds and position graph.");
+		var componentRestores = graph.SelectMany(x => x.Components).Select(x =>
+			(Component: x, Restore: (x as GameItemComponent)?.CaptureCustodyRollback())).ToArray();
+		if (componentRestores.Any(x => x.Restore is null))
+			throw new InvalidOperationException("Foreign structural custody has no verified native rollback adapter; retain the original graph.");
+		var itemRestores = graph.Cast<GameItem>().Select(x => (Item: x, Restore: x.CaptureCustodyRollback())).ToArray();
+		var restoreInventory = nativeBody.CaptureCustodyInventoryRollback();
 		using var isolated = FMDB.BeginIndependentScope(requireWrites: true); using var db = new FMDB();
 		using var transaction = FMDB.Context.Database.BeginTransaction(IsolationLevel.Serializable);
 		var context = FMDB.Context;
@@ -199,11 +238,14 @@ public sealed partial class SpellOwnedNpcService
 		if (roots.Length == 0) { transaction.Commit(); return; }
 		if (!ReferenceEquals(destination.Cell?.Gameworld, body.Gameworld) ||
 			!RouteSpatialService.Instance.TryValidateLocation(destination, out error) ||
-			!context.Cells.Any(x => x.Id == destination.Cell.Id))
+			!context.Cells.Any(x => x.Id == destination.Cell.Id) || destination.Cell is not ICustodyRollbackLocation rollbackLocation)
 			throw new InvalidOperationException("Foreign custody has no validated persisted destination; retain a recoverable holding graph.");
+		var restoreLocation = rollbackLocation.CaptureCustodyMembershipRollback(graph)
+			?? throw new InvalidOperationException("Foreign custody has no verified location rollback adapter.");
 		_evacuationRetries[body.Id] = snapshot;
 		var resumeItems = body.Actor.State.HasFlag(CharacterState.Dead);
 		IGameItemComponent[] savedComponents = [];
+		using var transfer = ForeignCustodyTransferContext.Enter(body, graph, destination.Cell);
 		try
 		{
 		foreach (var item in roots)
@@ -240,26 +282,36 @@ public sealed partial class SpellOwnedNpcService
 		context.CellsGameItems.RemoveRange(context.CellsGameItems.Where(x => rootIds.Contains(x.GameItemId)));
 		foreach (var item in roots) context.CellsGameItems.Add(new() { CellId = destination.Cell.Id, GameItemId = item.Id });
 		context.SaveChanges(); transaction.Commit();
+		}
+		catch (Exception original)
+		{
+			// Provider rollback can itself fail. Every callback-free native restore still
+			// runs independently; a secondary error must never skip the remaining graph.
+			var failures = new List<Exception> { original };
+			void Recover(Action action) { try { action(); } catch (Exception ex) { failures.Add(ex); } }
+			Recover(transaction.Rollback);
+			foreach (var entry in componentRestores) Recover(entry.Restore!);
+			foreach (var entry in itemRestores) Recover(entry.Restore);
+			Recover(restoreInventory);
+			Recover(restoreLocation);
+			foreach (var entry in componentRestores) Recover(() => entry.Component.Changed = true);
+			foreach (var item in graph) Recover(() => RouteSpatialService.Instance.TrackPerceivable(item));
+			Recover(body.RecalculateItemHelpers);
+			if (!snapshot.Matches(roots, graph) || graph.Any(x => x.Deleted) ||
+				!roots.All(x => ReferenceEquals(x.InInventoryOf, body)) || destination.Cell.GameItems.Any(graph.Contains))
+				failures.Add(new InvalidOperationException("Native custody rollback could not restore its exact captured graph."));
+			if (failures.Count > 1) throw new AggregateException("Native custody transfer and compensation failed; retain the retirement hold.", failures);
+			throw;
+		}
+		// Committed custody must never enter the compensation catch. Runtime activation
+		// failures leave the durable cut intact for reconciliation instead of rolling it back.
+		transfer.Dispose();
 		_evacuationRetries.Remove(body.Id);
 		body.Gameworld.SaveManager.Abort(body);
 		foreach (var item in roots)
 		{
 			if (!body.Gameworld.Items.Has(item.Id)) body.Gameworld.Add(item);
 			if (resumeItems) item.Login();
-		}
-		}
-		catch
-		{
-			// Native setters and Save clear dirty flags before the database commits. Restore the
-			// scoped flags on failure; never permit a false empty-inventory proof on the next pass.
-			body.InventoryChanged = true;
-			body.Changed = true;
-			foreach (var item in roots)
-			{
-				item.Changed = true;
-			}
-			foreach (var component in savedComponents) component.Changed = true;
-			throw;
 		}
 	}
 

@@ -110,19 +110,37 @@ A serializable independent transaction revalidates the exact lifecycle/version/b
 moves only foreign roots through native `Take`/`Get`/spatial insertion, rechecks callbacks,
 saves the empty body and roots, and commits exactly one cell join per root. Children,
 locks, attachments, legal ownership and foreign item identities are conserved without
-recursive deletion or subtree saves. Failed provider writes retain persisted body joins
-and retry roots/dirty flags; a restart reloads the uncommitted joins ordinarily.
+recursive deletion or subtree saves. Before transfer, verified native adapters capture
+body inventory and authoritative body position, item custody/position, structural
+component fields and exact enclosing location membership. Failed provider writes restore
+that runtime graph before ordinary gameplay or save flushing can continue. Compensation
+attempts every restore even if explicit provider rollback fails; post-commit activation
+is outside the compensation catch. A restart reloads the original joins ordinarily.
 Post-callback proof also compares exact containment pointers and typed relations by
 component, attachment slot and wound. The same item IDs cannot authorize a child moving
 between containers or between installed locks and contents. Original relations remain
-in the same-process retry snapshot, and changed structural flags are restored on refusal,
+in the same-process retry snapshot, and native fields and structural flags are restored on refusal,
 including callbacks that explicitly saved components and cleared their flags before rollback.
+The synchronous transfer scope refuses uncaptured items, bodies or cell destinations,
+destructive child deletion, merging, splitting and quantity/currency mutation before their
+native side effects. Firearm/severed-part structural custody, effects, wounds and position
+relationships without a verified rollback adapter hold before any transfer. The controlled
+native cell fixture supplies an explicit membership adapter; production cells capture
+their native cell/room/zone/shard collections while preserving unrelated pending work.
 
 Owned corpse deletion checks conservation both before and after `OnDeleted`. Observers
 are attempted once; reentrant deletion returns, and an observer exception latches a
 hold without replaying its possibly partial side effects. A failed second check keeps
 the corpse, live event subscriptions and minute decay. Event release, destructive flags,
 health tick shutdown and component deletion occur only after both checks pass.
+Before observers or runtime teardown, removal admission persists the exact correlated
+remains ID with `RemainsRemovalRequestedUtc`. Separate attempted/completed observer UTC
+markers prevent replay after a same-process or restart retry. An incomplete observer
+attempt remains held for review. A final `GameItems` DELETE refusal retains the typed
+removal intent even after native teardown has stopped decay or a diagnostic changes;
+bounded reconciliation reloads the exact remains and resumes removal without another
+death or completed notification. The generated EF 9 migration adds three nullable
+`datetime(6)` columns; existing journal rows retain null progress until removal admission.
 `MorphTargetId` exposes positive replacement targets so owned remains refuse a replacement
 morph before new-item construction, output, transfer or activation. Morph-to-nothing uses
 the conserved ordinary deletion path; replacement transfer remains an explicit adapter gap.
@@ -140,6 +158,10 @@ simple template, read-only refusal, controller/destination holds, callback conse
 replacement refusal, provider rollback and post-archive completion failure/retry.
 Same-ID reparenting with explicit native component saves is refused before custody commit
 or death; a separate owned process reloads and conserves the original persisted topology.
+The corrective fixture performs ordinary save flushing before retry or inspection,
+without manually dropping item/component save queues. It also verifies outside room-item
+acquisition, captured child deletion, partial stack splitting, native body position and
+provider rollback failure, plus final corpse DELETE refusal in-process and after restart.
 Sixteen repeated native cycles conserve the heavy-row, runtime-root, scheduler and
 heartbeat census while retaining explained permanent identity and canonical history.
 World/catalogue/cell hosts are controlled; high-volume N16, every-cycle restart,

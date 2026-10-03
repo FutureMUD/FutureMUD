@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Moq;
 using MudSharp.Accounts;
 using MudSharp.Body;
+using MudSharp.Body.Position.PositionStates;
 using MudSharp.Character;
 using MudSharp.Character.Name;
 using MudSharp.CharacterCreation;
@@ -39,7 +40,7 @@ namespace FutureMUD.GatheringNativePersistenceHarness;
 internal static partial class GNHProgram
 {
 	private sealed record RetirementReader(string Database, FixtureIds Fixture, Guid Lifecycle, DateTime Now,
-		long Corpse, long[] Foreign, string Action);
+		long Corpse, long[] Foreign, string Action, long ExternalItem = 0);
 	private sealed record RetirementHost(NativeRuntime Native, Futuremud Roots, SpellOwnedNpcService Service,
 		SpellOwnedLifecycleStore Store, Scheduler Scheduler, HeartbeatManager Heartbeats, All<IGameItem> Items,
 		Dictionary<long, GameItemProto> Prototypes);
@@ -70,12 +71,20 @@ internal static partial class GNHProgram
 		var cell = native.Actor.Location; var cellItems = new List<IGameItem>();
 		var cellMock = Mock.Get(cell);
 		cellMock.SetupGet(x => x.GameItems).Returns(cellItems);
+		cellMock.As<ICustodyRollbackLocation>().Setup(x => x.CaptureCustodyMembershipRollback(It.IsAny<IReadOnlyCollection<IGameItem>>()))
+			.Returns<IReadOnlyCollection<IGameItem>>(graph =>
+			{
+				var captured = new HashSet<IGameItem>(graph, ReferenceEqualityComparer.Instance);
+				var present = cellItems.Where(captured.Contains).ToArray();
+				return () => { cellItems.RemoveAll(captured.Contains); cellItems.AddRange(present); };
+			});
 		// A held item's Location resolves through its body to this cell. Native inventory
 		// reload consults the room's pickup/access policy even after setting HeldBy.
 		cellMock.Setup(x => x.CanGet(It.IsAny<IGameItem>(), It.IsAny<ICharacter>())).Returns(true);
 		cellMock.Setup(x => x.CanGetAccess(It.IsAny<IGameItem>(), It.IsAny<ICharacter>())).Returns(true);
 		cellMock.Setup(x => x.Insert(It.IsAny<IGameItem>(), It.IsAny<bool>())).Callback<IGameItem, bool>((item, _) =>
 		{
+			ForeignCustodyTransferContext.EnsureCell(cell, item);
 			if (!cellItems.Contains(item)) cellItems.Add(item);
 			item.Drop(cell);
 		});
@@ -104,7 +113,7 @@ internal static partial class GNHProgram
 				{
 					"Corpse" => typeof(CorpseGameItemComponentProto), "Container" => typeof(ContainerGameItemComponentProto),
 					"Holdable" => typeof(HoldableGameItemComponentProto), "Belt" => typeof(BeltGameItemComponentProto),
-					"Beltable" => typeof(BeltableGameItemComponentProto), "Simple Lock" => typeof(SimpleLockGameItemComponentProto),
+					"Beltable" => typeof(BeltableGameItemComponentProto), "Stackable" => typeof(StackableGameItemComponentProto), "Simple Lock" => typeof(SimpleLockGameItemComponentProto),
 					_ => throw new InvalidOperationException("Unknown owned fixture component")
 				};
 				componentPrototypes.Add(model.Id, (IGameItemComponentProto)type.GetConstructor(BindingFlags.NonPublic | BindingFlags.Instance,
@@ -166,6 +175,7 @@ internal static partial class GNHProgram
 		var container = Component("Container", "<Definition Weight='1000' MaxSize='3' Preposition='in' Closable='false' Transparent='true' OnceOnly='false'/>");
 		var belt = Component("Belt", "<Definition MaximumNumberOfBeltedItems='4' MaximumSize='3'/>");
 		var beltable = Component("Beltable", "<Definition/>");
+		var stackable = Component("Stackable", "<Definition Decorator='0'/>");
 		var lockXml = new XElement("Definition", new XElement("ForceDifficulty", 5), new XElement("PickDifficulty", 5), new XElement("LockType", "fixture"),
 			new[] { "LockEmote", "UnlockEmote", "LockEmoteNoActor", "UnlockEmoteNoActor", "LockEmoteOtherSide", "UnlockEmoteOtherSide" }.Select(name => new XElement(name, "$0 clicks.")));
 		var simpleLock = Component("Simple Lock", lockXml.ToString());
@@ -178,11 +188,12 @@ internal static partial class GNHProgram
 			db.GameItemProtos.Add(proto); db.SaveChanges();
 		}
 		Prototype("corpse", 240, corpse); Prototype("bag", 0, hold, container); Prototype("belt", 0, hold, belt);
-		Prototype("goods", 0, hold, beltable); Prototype("lock", 0, hold, simpleLock);
+		Prototype("goods", 0, hold, beltable); Prototype("stack", 0, hold, stackable); Prototype("lock", 0, hold, simpleLock);
 	}
 
 	private static int RunSpellOwnedNpcRetirementChecks()
 	{
+		var p2Probe = Environment.GetEnvironmentVariable("FUTUREMUD_RETIREMENT_P2_PROBE") ?? string.Empty;
 		using var database = TestDatabase.CreateFresh("futuremud_land_"); ConfigureNativeDatabase(database.ConnectionString);
 		Console.WriteLine($"ARM03B2B-created={database.Name}");
 		var fixture = FixtureSeed.Create(database, "arm03b2b_retirement", true);
@@ -332,11 +343,54 @@ internal static partial class GNHProgram
 		host.Service.ReconcileRetirements(RuntimeClock.UtcNow); Completed(noDestination);
 		Require(noDestinationDeaths == 1 && heldForeign.Location == native.Actor.Location && !heldForeign.Deleted, "A restored safe destination failed to resume conserved native retirement.");
 		Console.WriteLine("ARM03B2B-destination-hold=passed missing-safe-destination retains-live-owned-body-and-exact-persisted-foreign-custody before-Die-or-transfer explicit-location-recovery resumes-one-death-and-conserved-retirement");
+		foreach (var restartRemoval in new[] { false, true })
+		{
+			var removalNpc = Create(SpellLifecycleMode.DeathOnExpiry); var removalDeaths = 0; removalNpc.OnDeath += _ => removalDeaths++;
+			var removalForeign = New("goods"); removalNpc.Body.Get(removalForeign, silent: true); native.World.SaveManager.Flush();
+			var removalCorpse = removalNpc.Die()!; var removalNotifications = 0; removalCorpse.OnDeleted += _ => removalNotifications++;
+			var refusalSql = "CREATE TRIGGER arm03b2c_delete_refusal BEFORE DELETE ON GameItems FOR EACH ROW BEGIN IF OLD.Id=" + removalCorpse.Id.ToString(System.Globalization.CultureInfo.InvariantCulture) + " THEN SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT='ARM03B2C final corpse deletion refusal'; END IF; END";
+			using (var db = NewIndependentContext(database.ConnectionString)) db.Database.ExecuteSqlRaw(refusalSql);
+			var removalRefused = false;
+			try { removalCorpse.Delete(); }
+			catch (DbUpdateException) { removalRefused = true; }
+			finally { using var db = NewIndependentContext(database.ConnectionString); db.Database.ExecuteSqlRaw("DROP TRIGGER arm03b2c_delete_refusal"); }
+			using (var db = NewIndependentContext(database.ConnectionString))
+				Require(removalRefused && db.GameItems.Any(x => x.Id == removalCorpse.Id) && removalDeaths == 1 && removalNotifications == 1 &&
+					db.GameItems.Any(x => x.Id == removalForeign.Id), "Final corpse DELETE refusal must leave its persisted row and conserve foreign possessions.");
+			native.World.SaveManager.Flush();
+			var pendingRemoval = Life(removalNpc);
+			Require(pendingRemoval.RemainsRemovalRequestedUtc is not null && pendingRemoval.RemainsNotificationAttemptedUtc is not null &&
+				pendingRemoval.RemainsNotificationCompletedUtc is not null && pendingRemoval.RemainsItemId == removalCorpse.Id,
+				"Successful removal admission did not durably retain exact intent and completed observer progress after provider refusal.");
+			if (restartRemoval)
+			{
+				// A real restart drops the old host. Exit its exact native graph normally
+				// after the ordinary flush, before the new process completes the journal.
+				removalNpc.Quit(silent: true); native.World.SaveManager.Flush();
+				((All<ICharacter>)host.Roots.CachedActors).Remove(removalNpc); ((All<ICharacter>)host.Roots.Actors).Remove(removalNpc);
+				((All<ICharacter>)host.Roots.NPCs).Remove(removalNpc); ((All<IBody>)host.Roots.Bodies).Remove(removalNpc.Body);
+				removalForeign.Quit(); host.Items.Remove(removalForeign);
+				RunOwnedRetirementReader(new(database.Name, fixture, pendingRemoval.Origin.Id, RuntimeClock.UtcNow, removalCorpse.Id, [removalForeign.Id], "removal"));
+			}
+			host.Service.ReconcileRetirements(RuntimeClock.UtcNow);
+			using (var db = NewIndependentContext(database.ConnectionString))
+				Console.WriteLine($"ARM03B2C-removal-observed=state:{Life(removalNpc).State} remains-row:{db.GameItems.Any(x => x.Id == removalCorpse.Id)} deaths:{removalDeaths} callbacks:{removalNotifications} diagnostic:{Life(removalNpc).Diagnostic}");
+			Completed(removalNpc);
+			Require(removalDeaths == 1 && removalNotifications == 1, "Removal retry repeated native death or deletion notification.");
+			using (var db = NewIndependentContext(database.ConnectionString))
+				Require(db.GameItems.Any(x => x.Id == removalForeign.Id) && db.CellsGameItems.Count(x => x.GameItemId == removalForeign.Id) == 1 &&
+					!db.BodiesGameItems.Any(x => x.GameItemId == removalForeign.Id) && !removalForeign.Deleted,
+					"Durable removal retry lost or duplicated exact foreign custody.");
+			Console.WriteLine("ARM03B2C-removal-provider-" + (restartRemoval ? "restart" : "same-process") + "=passed final-GameItems-DELETE-provider-refusal ordinary-save-flush exact-durable-removal-and-observer-journal native-reconciliation exact-foreign-conservation no-death-or-callback-replay");
+		}
+
+		if (p2Probe == "Removal") return 0;
+
 		var topologyNpc = Create(SpellLifecycleMode.TemporaryCleanup);
 		var outerBag = New("bag"); var innerBag = New("bag"); var nestedGoods = New("goods");
 		var outerContainer = outerBag.GetItemType<IContainer>()!; var innerContainer = innerBag.GetItemType<IContainer>()!;
 		innerContainer.Put(null, nestedGoods, allowMerge: false); outerContainer.Put(null, innerBag, allowMerge: false);
-		topologyNpc.Body.Get(outerBag, silent: true); native.World.SaveManager.Flush();
+		topologyNpc.Body.Get(outerBag, silent: true); topologyNpc.PositionState = PositionStanding.Instance; native.World.SaveManager.Flush();
 		var topologyIds = new[] { outerBag.Id, innerBag.Id, nestedGoods.Id };
 		Dictionary<long, string> originalDefinitions;
 		using (var db = NewIndependentContext(database.ConnectionString)) originalDefinitions = db.GameItemComponents
@@ -347,6 +401,7 @@ internal static partial class GNHProgram
 		{
 			if (!ReferenceEquals(item, outerBag) || topologyCallbacks != 0) return;
 			topologyCallbacks++;
+			topologyNpc.PositionState = PositionSprawled.Instance;
 			innerContainer.Take(null!, nestedGoods, 0); outerContainer.Put(null, nestedGoods, allowMerge: false);
 			// Exercise a callback which explicitly saves and clears both dirty flags inside
 			// the existing evacuation transaction. Comparing item IDs or flags alone misses it.
@@ -370,18 +425,84 @@ internal static partial class GNHProgram
 				originalDefinitions.All(x => persisted.GetValueOrDefault(x.Key) == x.Value) && innerContainer.Changed && outerContainer.Changed,
 				"Same-ID native reparenting committed partial custody, entered death or lost its recoverable structural hold.");
 		}
-		// Simulate process exit without flushing the callback's rolled-back runtime graph.
-		// Remove only these exact foreign entries/ticks, preserving unrelated pending work.
-		foreach (var item in new[] { outerBag, innerBag, nestedGoods })
+		native.World.SaveManager.Flush();
+		using (var db = NewIndependentContext(database.ConnectionString))
 		{
-			native.World.SaveManager.Abort(item); foreach (var part in item.Components) native.World.SaveManager.Abort(part);
-			item.Location?.Extract(item);
-			((GameItem)item).EndHealthTick(); ((GameItem)item).EndMorphTimer(); host.Items.Remove(item);
+			var persisted = db.GameItemComponents.Where(x => topologyIds.Contains(x.GameItemId)).ToDictionary(x => x.Id, x => x.Definition);
+			Console.WriteLine($"ARM03B2C-custody-flush-observed=body-joins:{db.BodiesGameItems.Count(x => x.BodyId == topologyNpc.Body.Id)} cell-joins:{db.CellsGameItems.Count(x => x.GameItemId == outerBag.Id)} original-XML:{originalDefinitions.All(x => persisted.GetValueOrDefault(x.Key) == x.Value)} runtime-original-child:{innerContainer.Contents.Contains(nestedGoods)}");
+			Require(db.BodiesGameItems.Any(x => x.BodyId == topologyNpc.Body.Id && x.GameItemId == outerBag.Id) &&
+				!db.CellsGameItems.Any(x => x.GameItemId == outerBag.Id) && db.GameItems.Find(nestedGoods.Id)!.ContainerId == innerBag.Id &&
+				originalDefinitions.All(x => persisted.GetValueOrDefault(x.Key) == x.Value) && innerContainer.Contents.Contains(nestedGoods) && topologyNpc.PositionState == PositionStanding.Instance && topologyNpc.Body.PositionState == PositionStanding.Instance &&
+				db.Bodies.Find(topologyNpc.Body.Id)!.Position == PositionStanding.Instance.Id,
+				"Ordinary save flush persisted rejected foreign topology or runtime custody was not restored.");
 		}
+		if (p2Probe == "Custody") return 0;
 		RunOwnedRetirementReader(new(database.Name, fixture, Life(topologyNpc).Origin.Id, RuntimeClock.UtcNow, 0, topologyIds, "topology"));
 		host.Service.ReconcileRetirements(RuntimeClock.UtcNow); Completed(topologyNpc);
-		Require(topologyDeaths == 0 && topologyCallbacks == 1, "Old-host release replayed native death or a topology callback.");
-		Console.WriteLine("ARM03B2B-topology-callback=passed actual-Body-OnInventoryChange reparents-same-ID-child-between-native-containers explicit-component-Save-clears-flags typed-edges-refuse-before-custody-commit-or-Die exact-XML-and-body-join-rollback structural-flags-restored exact-foreign-old-host-queues-dropped-without-flush separate-process-original-topology-reload-and-retirement");
+		Require(topologyDeaths == 1 && topologyCallbacks == 1, "Recovered same-process custody failed one native death or replayed a topology callback.");
+		Console.WriteLine("ARM03B2B-topology-callback=passed actual-Body-OnInventoryChange reparents-same-ID-child-between-native-containers explicit-component-Save-clears-flags typed-edges-refuse-before-custody-commit-or-Die runtime-native-fields-and-XML-restored ordinary-save-flush-before-separate-process-original-topology-reload no-manual-queue-dropping same-process-conserved-retry-one-death");
+
+		foreach (var mutation in new[] { "outside-acquisition", "child-delete", "partial-stack", "rollback-failure" })
+		{
+			var guardedNpc = Create(SpellLifecycleMode.TemporaryCleanup); var guardedBag = New("bag"); var guardedChild = New(mutation == "partial-stack" ? "stack" : "goods");
+			if (mutation == "partial-stack") guardedChild.GetItemType<IStackable>()!.Quantity = 7;
+			var roomGoods = New("goods"); var guardedContainer = guardedBag.GetItemType<IContainer>()!;
+			guardedContainer.Put(null, guardedChild, allowMerge: false); guardedNpc.Body.Get(guardedBag, silent: true);
+			roomGoods.InsertAtSpatialLocation(RouteSpatialService.Instance.GetEffectiveLocation(native.Actor), newStack: true);
+			native.World.SaveManager.Flush();
+			// The controlled cell host has no EF Cell.Save. Persist its exact room fixture
+			// join explicitly before attempting the callback acquisition.
+			using (var db = NewIndependentContext(database.ConnectionString))
+			{
+				db.CellsGameItems.Add(new() { CellId = fixture.CellId, GameItemId = roomGoods.Id }); db.SaveChanges();
+				Require(db.CellsGameItems.Count(x => x.GameItemId == roomGoods.Id) == 1, "External room goods fixture was not persisted before the guarded callback.");
+			}
+			var guardedIds = new[] { guardedBag.Id, guardedChild.Id };
+			Dictionary<long, string> guardedDefinitions;
+			using (var db = NewIndependentContext(database.ConnectionString)) guardedDefinitions = db.GameItemComponents
+				.Where(x => guardedIds.Contains(x.GameItemId)).ToDictionary(x => x.Id, x => x.Definition);
+			int originalItemRows; using (var db = NewIndependentContext(database.ConnectionString)) originalItemRows = db.GameItems.Count();
+			var guardedDeaths = 0; var guardedCallbacks = 0; var childNotifications = 0;
+			guardedNpc.OnDeath += _ => guardedDeaths++; guardedChild.OnDeleted += _ => childNotifications++;
+			InventoryChangeEvent mutationCallback = (_, _, item) =>
+			{
+				if (!ReferenceEquals(item, guardedBag)) return;
+				guardedCallbacks++;
+				if (mutation == "outside-acquisition") guardedNpc.Body.Get(roomGoods, silent: true);
+				else if (mutation == "child-delete") guardedChild.Delete();
+				else if (mutation == "partial-stack") guardedChild.Get(guardedNpc.Body, 2);
+				else
+				{
+					// Closing this exact owned provider connection makes explicit rollback fail.
+					// The native restore must still run before ordinary save/gameplay resumes.
+					using var db = new FMDB(); FMDB.Context.Database.GetDbConnection().Close();
+					throw new InvalidOperationException("ARM03B2C deliberate owned transaction connection closure");
+				}
+			};
+			guardedNpc.Body.OnInventoryChange += mutationCallback;
+			clock.Advance(TimeSpan.FromSeconds(61)); host.Service.ReconcileRetirements(RuntimeClock.UtcNow);
+			guardedNpc.Body.OnInventoryChange -= mutationCallback;
+			native.World.SaveManager.Flush();
+			using (var db = NewIndependentContext(database.ConnectionString))
+			{
+				var persisted = db.GameItemComponents.Where(x => guardedIds.Contains(x.GameItemId)).ToDictionary(x => x.Id, x => x.Definition);
+				Console.WriteLine($"ARM03B2C-guard-observed={mutation} callbacks:{guardedCallbacks} deaths:{guardedDeaths} child-notifications:{childNotifications} root-held:{guardedNpc.Body.AllItems.Contains(guardedBag)} child-contained:{guardedContainer.Contents.Contains(guardedChild)} external-held:{roomGoods.InInventoryOf is not null} root-body-joins:{db.BodiesGameItems.Count(x => x.GameItemId == guardedBag.Id)} root-cell-joins:{db.CellsGameItems.Count(x => x.GameItemId == guardedBag.Id)} external-cell-joins:{db.CellsGameItems.Count(x => x.GameItemId == roomGoods.Id)} XML-original:{guardedDefinitions.All(x => persisted.GetValueOrDefault(x.Key) == x.Value)} item-rows:{db.GameItems.Count()} original-rows:{originalItemRows}");
+				Require(guardedCallbacks == 1 && guardedDeaths == 0 && childNotifications == 0 && !guardedChild.Deleted &&
+					guardedNpc.Body.AllItems.Contains(guardedBag) && guardedContainer.Contents.Contains(guardedChild) &&
+					ReferenceEquals(guardedChild.ContainedIn, guardedBag) && roomGoods.InInventoryOf is null && roomGoods.Location == native.Actor.Location &&
+					db.BodiesGameItems.Count(x => x.BodyId == guardedNpc.Body.Id && x.GameItemId == guardedBag.Id) == 1 &&
+					!db.CellsGameItems.Any(x => x.GameItemId == guardedBag.Id) && db.CellsGameItems.Count(x => x.GameItemId == roomGoods.Id) == 1 &&
+					!db.BodiesGameItems.Any(x => x.GameItemId == roomGoods.Id) && db.GameItems.Find(guardedChild.Id)!.ContainerId == guardedBag.Id &&
+					guardedDefinitions.All(x => persisted.GetValueOrDefault(x.Key) == x.Value) &&
+					(mutation != "partial-stack" || guardedChild.Quantity == 7 && db.GameItems.Count() == originalItemRows),
+					"Guarded callback or provider rollback failure lost usable native custody after ordinary flush: " + mutation + ": " + Life(guardedNpc).Diagnostic);
+			}
+			RunOwnedRetirementReader(new(database.Name, fixture, Life(guardedNpc).Origin.Id, RuntimeClock.UtcNow, 0, guardedIds, "guard-custody", roomGoods.Id));
+			host.Service.ReconcileRetirements(RuntimeClock.UtcNow); Completed(guardedNpc);
+			Require(guardedDeaths == 1 && guardedCallbacks == 1 && childNotifications == 0 && !guardedChild.Deleted && !roomGoods.Deleted,
+				"Ordinary native retry repeated a callback or lost guarded foreign items.");
+			Console.WriteLine("ARM03B2C-custody-" + mutation + "=passed actual-inventory-callback original-runtime-and-persisted-custody-conserved ordinary-flush separate-process-reload same-process-retry-one-death no-foreign-delete-or-callback-replay");
+		}
 
 		var callbackNpc = Create(SpellLifecycleMode.DeathOnExpiry); var callbackCorpse = callbackNpc.Die()!;
 		IGameItem? callbackForeign = null; var callbackCount = 0;
@@ -434,6 +555,15 @@ internal static partial class GNHProgram
 		using (var db = NewIndependentContext(database.ConnectionString))
 			Require(!faulted.State.HasFlag(CharacterState.Dead) && Life(faulted).State == SpellLifecycleState.Retiring && db.BodiesGameItems.Any(x => x.BodyId == faulted.Body.Id && x.GameItemId == faultForeign.Id) &&
 				!db.CellsGameItems.Any(x => x.GameItemId == faultForeign.Id), "Failed foreign transfer did not retain durable intent and rolled-back native custody before death.");
+		native.World.SaveManager.Flush();
+		using (var db = NewIndependentContext(database.ConnectionString))
+			Require(faulted.Body.AllItems.Contains(faultForeign) && ReferenceEquals(faultForeign.InInventoryOf, faulted.Body) &&
+				db.BodiesGameItems.Count(x => x.BodyId == faulted.Body.Id && x.GameItemId == faultForeign.Id) == 1 &&
+				!db.CellsGameItems.Any(x => x.GameItemId == faultForeign.Id), "Provider-refused evacuation leaked through an ordinary save flush.");
+		faulted.Quit(silent: true); native.World.SaveManager.Flush();
+		((All<ICharacter>)host.Roots.CachedActors).Remove(faulted); ((All<ICharacter>)host.Roots.Actors).Remove(faulted);
+		((All<ICharacter>)host.Roots.NPCs).Remove(faulted); ((All<IBody>)host.Roots.Bodies).Remove(faulted.Body);
+		faultForeign.Quit(); host.Items.Remove(faultForeign);
 		RunOwnedRetirementReader(new(database.Name, fixture, faultLife.Origin.Id, RuntimeClock.UtcNow, 0, [faultForeign.Id], "retire"));
 		host.Service.ReconcileRetirements(RuntimeClock.UtcNow); Completed(faulted);
 		Console.WriteLine("ARM03B2B-crash-retry=passed actual-provider-refused-cell-join after-native-runtime-transfer transaction-rollback original-persisted-body-join-retained no-native-death-before-commit separate-process-reload-and-expiry conservation-before-death one-cell-join canonical-completion old-process-runtime-release");
@@ -495,20 +625,43 @@ internal static partial class GNHProgram
 			var nested = root.GetItemType<IContainer>()!.Contents.Single(); var child = nested.GetItemType<IContainer>()!.Contents.Single();
 			Require(nested.Id == input.Foreign[1] && child.Id == input.Foreign[2] && ReferenceEquals(nested.ContainedIn, root) &&
 				ReferenceEquals(child.ContainedIn, nested), "Restart did not retain the original nested foreign topology after callback rollback.");
-			var deaths = 0; npc.OnDeath += _ => deaths++;
-			using (var trigger = NewIndependentContext(database.ConnectionString)) trigger.Database.ExecuteSqlRaw("CREATE TRIGGER arm03b2b_topology_completion_refusal BEFORE UPDATE ON MagicSpellLifecycles FOR EACH ROW BEGIN IF NEW.State=3 THEN SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'ARM03B2B topology completion refusal'; END IF; END");
-			try { host.Service.ReconcileRetirements(RuntimeClock.UtcNow); }
-			finally { using var trigger = NewIndependentContext(database.ConnectionString); trigger.Database.ExecuteSqlRaw("DROP TRIGGER arm03b2b_topology_completion_refusal"); }
-			using var topologyDb = NewIndependentContext(database.ConnectionString); life = host.Store.Find(input.Lifecycle)!;
-			Require(deaths == 1 && life.State == SpellLifecycleState.RemainsPending && topologyDb.CharacterArchives.Any(x => x.LifecycleId == input.Lifecycle) &&
-				input.Foreign.All(id => topologyDb.GameItems.Any(x => x.Id == id)) &&
-				topologyDb.CellsGameItems.Count(x => x.GameItemId == root.Id) == 1 && topologyDb.GameItems.Find(nested.Id)!.ContainerId == root.Id &&
-				topologyDb.GameItems.Find(child.Id)!.ContainerId == nested.Id && !topologyDb.Bodies.Any(x => x.Id == npc.Body.Id) &&
-				root.GetItemType<IContainer>()!.Contents.Single().Id == nested.Id && nested.GetItemType<IContainer>()!.Contents.Single().Id == child.Id,
-				"Restarted native topology recovery lost foreign edges, repeated death or failed exact retirement: " + life.Diagnostic);
-			Console.WriteLine("ARM03B2B-reader-topology=passed separate-owned-process original-A-to-B-to-child-loaded-after-saved-callback-rollback exact-native-edge-and-ID-conservation one-cell-join one-Die actual-Quit canonical-archive completion-provider-refused-pending-for-old-host-runtime-release");
+			using var topologyDb = NewIndependentContext(database.ConnectionString);
+			Require(input.Foreign.All(id => topologyDb.GameItems.Any(x => x.Id == id)) &&
+				topologyDb.BodiesGameItems.Count(x => x.BodyId == npc.Body.Id && x.GameItemId == root.Id) == 1 &&
+				!topologyDb.CellsGameItems.Any(x => x.GameItemId == root.Id) && !npc.State.HasFlag(CharacterState.Dead),
+				"Read-only restart inspection lost original held custody after ordinary flush.");
+			Console.WriteLine("ARM03B2B-reader-topology=passed separate-owned-process original-A-to-B-to-child-loaded-after-ordinary-save-flush exact-native-edges-and-IDs-and-original-body-join no-death-or-retirement-in-inspection-reader");
 			return 0;
 		}
+		if (input.Action == "guard-custody")
+		{
+			var root = npc.Body.AllItems.Single(x => x.Id == input.Foreign[0]); var child = root.GetItemType<IContainer>()!.Contents.Single();
+			var external = host.Native.World.TryGetItem(input.ExternalItem, true);
+			using var guardedDb = NewIndependentContext(database.ConnectionString);
+			Require(child.Id == input.Foreign[1] && !child.Deleted && ReferenceEquals(child.ContainedIn, root) &&
+				external.InInventoryOf is null && guardedDb.CellsGameItems.Count(x => x.GameItemId == input.ExternalItem) == 1 &&
+				!guardedDb.BodiesGameItems.Any(x => x.GameItemId == input.ExternalItem) &&
+				guardedDb.BodiesGameItems.Count(x => x.BodyId == npc.Body.Id && x.GameItemId == root.Id) == 1 &&
+				!guardedDb.CellsGameItems.Any(x => x.GameItemId == root.Id), "Restarted guarded custody did not retain original body, child and external room goods.");
+			Console.WriteLine("ARM03B2C-reader-guard-custody=passed separate-owned-process exact-original-body-child-and-unacquired-room-item-reloaded-after-ordinary-flush");
+			return 0;
+		}
+		if (input.Action == "removal")
+		{
+			var remains = host.Native.World.TryGetItem(input.Corpse, true); var deaths = 0; var notifications = 0;
+			npc.OnDeath += _ => deaths++; remains.OnDeleted += _ => notifications++;
+			Require(life.RemainsRemovalRequestedUtc is not null && life.RemainsNotificationCompletedUtc is not null &&
+				npc.State.HasFlag(CharacterState.Dead), "Restart did not retain exact durable removal and completed observer intent.");
+			host.Service.ReconcileRetirements(RuntimeClock.UtcNow); life = host.Store.Find(input.Lifecycle)!;
+			using var removalDb = NewIndependentContext(database.ConnectionString);
+			Require(life.State == SpellLifecycleState.Completed && deaths == 0 && notifications == 0 && !removalDb.GameItems.Any(x => x.Id == input.Corpse) &&
+				input.Foreign.All(id => removalDb.GameItems.Any(x => x.Id == id)) &&
+				removalDb.CellsGameItems.Count(x => x.GameItemId == input.Foreign[0]) == 1 && !removalDb.Bodies.Any(x => x.Id == npc.Body.Id),
+				"Restarted admitted remains removal failed idempotent completion or repeated native callbacks: " + life.Diagnostic);
+			Console.WriteLine("ARM03B2C-reader-removal=passed separate-owned-process pending-final-DELETE-durable-journal native-deletion-and-canonical-archive exact-foreign-conservation zero-native-death-and-observer-replay");
+			return 0;
+		}
+
 		if (input.Action == "retire")
 		{
 			var deaths = 0; npc.OnDeath += _ => deaths++;

@@ -110,6 +110,40 @@ public sealed class SpellOwnedLifecycleStore : ISpellOwnedLifecycleStore
 			row.State = (int)SpellLifecycleState.RemainsPending; return true;
 		});
 
+	public SpellOwnedLifecycle RequestRemainsRemoval(Guid id, long expectedVersion, long remainsItemId, DateTime nowUtc) =>
+		Update(id, expectedVersion, nowUtc, (row, current) =>
+		{
+			if (!current.MayRemoveOwnedEntities || current.DeathObservedUtc is null || current.RemainsItemId != remainsItemId)
+				throw new InvalidOperationException("Removal intent requires exact owned native remains/death correlation.");
+			if (row.RemainsRemovalRequestedUtc is not null) return false;
+			if (current.State != SpellLifecycleState.RemainsPending || current.Entities.Count != 2 ||
+				current.Entities.SingleOrDefault(x => x.Kind == SpellOwnedEntityKind.AutonomousCharacter) is not { } actor ||
+				current.Entities.SingleOrDefault(x => x.Kind == SpellOwnedEntityKind.Body) is not { } body ||
+				PersistedDeadActorBody(actor) != body.Id || !FMDB.Context.GameItemComponents.AsNoTracking()
+					.Where(x => x.GameItemId == remainsItemId).Select(x => x.Definition).AsEnumerable()
+					.Any(x => IsRemainsForBody(x, body.Id)))
+				throw new InvalidOperationException("Removal intent requires the exact persisted simple NPC/body and remains.");
+			row.RemainsRemovalRequestedUtc = nowUtc; return true;
+		});
+
+	public SpellOwnedLifecycle AttemptRemainsNotification(Guid id, long expectedVersion, DateTime nowUtc) =>
+		Update(id, expectedVersion, nowUtc, (row, current) =>
+		{
+			if (current.RemainsRemovalRequestedUtc is null || current.State != SpellLifecycleState.RemainsPending)
+				throw new InvalidOperationException("Deletion observers require durable native removal intent.");
+			if (row.RemainsNotificationAttemptedUtc is not null) return false;
+			row.RemainsNotificationAttemptedUtc = nowUtc; return true;
+		});
+
+	public SpellOwnedLifecycle CompleteRemainsNotification(Guid id, long expectedVersion, DateTime nowUtc) =>
+		Update(id, expectedVersion, nowUtc, (row, current) =>
+		{
+			if (current.RemainsNotificationAttemptedUtc is null || current.State != SpellLifecycleState.RemainsPending)
+				throw new InvalidOperationException("Deletion observer completion requires a durable attempt.");
+			if (row.RemainsNotificationCompletedUtc is not null) return false;
+			row.RemainsNotificationCompletedUtc = nowUtc; return true;
+		});
+
 	public SpellOwnedLifecycle Hold(Guid id, long expectedVersion, string diagnostic, DateTime nowUtc) =>
 		Update(id, expectedVersion, nowUtc, (row, current) =>
 		{
@@ -216,6 +250,10 @@ public sealed class SpellOwnedLifecycleStore : ISpellOwnedLifecycleStore
 		    row.Version <= 0 || claims.Count is 0 or > 256 || Utc(row.UpdatedUtc) < origin.CreatedUtc ||
 		    row.DeathObservedUtc is { } observed && Utc(observed) < origin.CreatedUtc || row.RemainsItemId is <= 0 ||
 		    row.RemainsItemId is not null && row.DeathObservedUtc is null ||
+		    row.RemainsRemovalRequestedUtc is { } requested && (origin.Mode == SpellLifecycleMode.Permanent || row.RemainsItemId is null ||
+			    row.DeathObservedUtc is null || requested < row.DeathObservedUtc || requested > row.UpdatedUtc) ||
+		    row.RemainsNotificationAttemptedUtc is { } attempted && (row.RemainsRemovalRequestedUtc is null || attempted < row.RemainsRemovalRequestedUtc || attempted > row.UpdatedUtc) ||
+		    row.RemainsNotificationCompletedUtc is { } notified && (row.RemainsNotificationAttemptedUtc is null || notified < row.RemainsNotificationAttemptedUtc || notified > row.UpdatedUtc) ||
 		    (SpellLifecycleState)row.State == SpellLifecycleState.RemainsPending && row.DeathObservedUtc is null ||
 		    (SpellLifecycleState)row.State == SpellLifecycleState.Retiring && row.Reason is null ||
 		    (SpellLifecycleState)row.State == SpellLifecycleState.Completed && origin.Mode == SpellLifecycleMode.DeathOnExpiry && row.DeathObservedUtc is null ||
@@ -224,6 +262,11 @@ public sealed class SpellOwnedLifecycleStore : ISpellOwnedLifecycleStore
 			    x.Role == SpellOwnedEntityRole.GeneratedPossession && x.Kind != SpellOwnedEntityKind.GameItem))
 			throw new InvalidOperationException($"Invalid lifecycle journal {row.Id}; retirement is blocked.");
 		return new(origin, claims, (SpellLifecycleState)row.State, (SpellRetirementReason?)row.Reason,
-			row.DeathObservedUtc is { } death ? Utc(death) : null, row.RemainsItemId, Utc(row.UpdatedUtc), row.Version, row.Diagnostic);
+			row.DeathObservedUtc is { } death ? Utc(death) : null, row.RemainsItemId, Utc(row.UpdatedUtc), row.Version, row.Diagnostic)
+		{
+			RemainsRemovalRequestedUtc = row.RemainsRemovalRequestedUtc is { } requestedUtc ? Utc(requestedUtc) : null,
+			RemainsNotificationAttemptedUtc = row.RemainsNotificationAttemptedUtc is { } attemptedUtc ? Utc(attemptedUtc) : null,
+			RemainsNotificationCompletedUtc = row.RemainsNotificationCompletedUtc is { } completedUtc ? Utc(completedUtc) : null
+		};
 	}
 }

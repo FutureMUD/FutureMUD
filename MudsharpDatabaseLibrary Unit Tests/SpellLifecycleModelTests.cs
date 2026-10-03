@@ -22,6 +22,12 @@ public class SpellLifecycleModelTests
 		Assert.AreEqual(0, lifecycle.GetForeignKeys().Count());
 		Assert.IsTrue(lifecycle.FindProperty(nameof(MagicSpellLifecycle.Version))!.IsConcurrencyToken);
 		Assert.AreEqual(2048, lifecycle.FindProperty(nameof(MagicSpellLifecycle.Provenance))!.GetMaxLength());
+		foreach (var name in new[] { nameof(MagicSpellLifecycle.RemainsRemovalRequestedUtc),
+			nameof(MagicSpellLifecycle.RemainsNotificationAttemptedUtc), nameof(MagicSpellLifecycle.RemainsNotificationCompletedUtc) })
+		{
+			var property = lifecycle.FindProperty(name)!;
+			Assert.IsTrue(property.IsNullable); Assert.AreEqual("datetime(6)", property.GetColumnType());
+		}
 		Assert.IsTrue(lifecycle.GetIndexes().Any(x => x.Properties.Select(p => p.Name)
 			.SequenceEqual([nameof(MagicSpellLifecycle.State), nameof(MagicSpellLifecycle.DeadlineUtc)])));
 		var entity = model.FindEntityType(typeof(MagicSpellOwnedEntity))!;

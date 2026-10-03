@@ -1,4 +1,4 @@
-﻿using Dapper;
+using Dapper;
 using ExpressionEngine;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
@@ -42,7 +42,7 @@ using Track = MudSharp.Models.Track;
 
 namespace MudSharp.Construction;
 
-public partial class Cell : Location, IDisposable, ICell, IRecoverableSaveFailure
+public partial class Cell : Location, IDisposable, ICell, IRecoverableSaveFailure, ICustodyRollbackLocation
 {
 	private readonly bool _isCombatSimulationCell;
 	private readonly long _combatSimulationDatabaseLocationId;
@@ -305,6 +305,7 @@ public partial class Cell : Location, IDisposable, ICell, IRecoverableSaveFailur
 
     public override void Insert(IGameItem thing, bool newStack)
     {
+		if (thing is not null) ForeignCustodyTransferContext.EnsureCell(this, thing);
         if (thing == null || _gameItems.Contains(thing))
         {
 #if DEBUG
@@ -368,6 +369,15 @@ public partial class Cell : Location, IDisposable, ICell, IRecoverableSaveFailur
         new MagicPortalTopologyService().RebuildNetworksForItem(Gameworld, thing);
     }
 
+	Action ICustodyRollbackLocation.CaptureCustodyMembershipRollback(IReadOnlyCollection<IGameItem> items)
+	{
+		if (Room is not Location room || Zone is not Location zone || Shard is not Location shard)
+			throw new InvalidOperationException("Foreign custody requires native enclosing location rollback adapters.");
+		var restores = new[] { (Location)this, room, zone, shard }.Distinct()
+			.Select(x => x.CaptureCustodyMembershipRollback(items)).ToArray();
+		return () => { foreach (var restore in restores) restore(); };
+	}
+
     private RoomLayer HandleEnterLayers(IGameItem thing)
     {
         List<RoomLayer> localLayers = Terrain(thing).TerrainLayers.ToList();
@@ -397,6 +407,7 @@ public partial class Cell : Location, IDisposable, ICell, IRecoverableSaveFailur
             return;
         }
 
+		ForeignCustodyTransferContext.EnsureCell(this, thing);
         base.Extract(thing);
 		RouteSpatialService.Instance.UntrackPerceivable(thing);
 		if (!_isCombatSimulationCell)

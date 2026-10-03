@@ -72,6 +72,19 @@ public abstract class Location : PerceivedItem, ILocation
     protected readonly List<ICharacter> _characters = new();
     protected List<IGameItem> _gameItems = new();
 
+	// Restore only the captured items, preserving unrelated location contents and saves.
+	internal Action CaptureCustodyMembershipRollback(IEnumerable<IGameItem> graph)
+	{
+		var items = new HashSet<IGameItem>(graph, ReferenceEqualityComparer.Instance);
+		var present = _gameItems.Where(items.Contains).ToArray();
+		return () =>
+		{
+			_gameItems.RemoveAll(items.Contains);
+			_gameItems.AddRange(present);
+			if (this is Cell cell) cell.ContentsChanged = true;
+		};
+	}
+
     public IEnumerable<ICharacter> Characters => _characters;
 
     public IEnumerable<ICharacter> LayerCharacters(RoomLayer layer)

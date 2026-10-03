@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.Construction;
 using MudSharp.Events;
 using MudSharp.GameItems.Prototypes;
@@ -9,6 +9,12 @@ namespace MudSharp.GameItems.Components;
 
 public class ContainerGameItemComponent : GameItemComponent, IContainer, IOpenable, ILockable
 {
+	internal override Action CaptureCustodyRollback()
+	{
+		var contents = _contents.ToArray(); var locks = _locks.ToArray(); var open = _isOpen;
+		return () => { _contents.Clear(); _contents.AddRange(contents); _locks.Clear(); _locks.AddRange(locks); _isOpen = open; };
+	}
+
 
     protected ContainerGameItemComponentProto _prototype;
     public override IGameItemComponentProto Prototype => _prototype;
@@ -45,6 +51,7 @@ public class ContainerGameItemComponent : GameItemComponent, IContainer, IOpenab
 
     public override bool Take(IGameItem item)
     {
+		ForeignCustodyTransferContext.EnsurePair(Parent, item);
         if (Contents.Contains(item))
         {
             _contents.Remove(item);
@@ -341,6 +348,7 @@ public class ContainerGameItemComponent : GameItemComponent, IContainer, IOpenab
 
     public void Put(ICharacter? putter, IGameItem item, bool allowMerge = true)
     {
+		ForeignCustodyTransferContext.EnsurePair(Parent, item);
         if (_contents.Contains(item))
         {
 #if DEBUG
@@ -420,6 +428,7 @@ public class ContainerGameItemComponent : GameItemComponent, IContainer, IOpenab
 
     public IGameItem Take(ICharacter taker, IGameItem item, int quantity)
     {
+		ForeignCustodyTransferContext.EnsurePair(Parent, item);
         Changed = true;
         if (quantity == 0 || item.DropsWhole(quantity))
         {
@@ -701,6 +710,7 @@ public class ContainerGameItemComponent : GameItemComponent, IContainer, IOpenab
 
     public bool InstallLock(ILock theLock, ICharacter? actor = null)
     {
+		ForeignCustodyTransferContext.EnsurePair(Parent, theLock.Parent);
         _locks.Add(theLock);
         if (_noSave)
         {
@@ -717,6 +727,7 @@ public class ContainerGameItemComponent : GameItemComponent, IContainer, IOpenab
 
     public bool RemoveLock(ILock theLock)
     {
+		ForeignCustodyTransferContext.EnsurePair(Parent, theLock.Parent);
         if (_locks.Contains(theLock))
         {
             theLock.Parent.ContainedIn = null;

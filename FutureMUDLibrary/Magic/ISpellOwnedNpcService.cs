@@ -17,5 +17,6 @@ public interface ISpellOwnedNpcService
 	int ReconcilePersistedDeaths(DateTime nowUtc, int limit = 100);
 	bool SuppressNativeRemains(ICharacter character);
 	bool TryPrepareRemainsRemoval(IGameItem remains, out string diagnostic, bool morphing = false);
+	bool TryNotifyRemainsDeletion(IGameItem remains, Action notify);
 	int ReconcileRetirements(DateTime nowUtc, int limit = 100);
 }

@@ -21,6 +21,9 @@ public class MagicSpellLifecycle
 	public int? Reason { get; set; }
 	public DateTime? DeathObservedUtc { get; set; }
 	public long? RemainsItemId { get; set; }
+	public DateTime? RemainsRemovalRequestedUtc { get; set; }
+	public DateTime? RemainsNotificationAttemptedUtc { get; set; }
+	public DateTime? RemainsNotificationCompletedUtc { get; set; }
 	public DateTime UpdatedUtc { get; set; }
 	public long Version { get; set; }
 	public string Diagnostic { get; set; } = "";

@@ -24,6 +24,7 @@ public class CommodityGameItemComponent : GameItemComponent, ICommodity
         get => _weight;
         set
         {
+			ForeignCustodyTransferContext.EnsureItem(Parent, destructive: true);
             _weight = value;
             Changed = true;
         }

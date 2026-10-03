@@ -1363,6 +1363,8 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
         get => _containedIn;
         set
         {
+			ForeignCustodyTransferContext.EnsureItem(this);
+			if (value is not null) ForeignCustodyTransferContext.EnsurePair(value, this);
 			using var exposureChange = EnvironmentalExposureService.Changing(this);
 			if (ReferenceEquals(_containedIn, value))
 			{
@@ -1747,6 +1749,14 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
     }
 
     public bool Deleted { get; private set; }
+	internal Action CaptureCustodyRollback()
+	{
+		var contained = _containedIn; var location = base.Location; var restorePosition = CaptureCustodyPositionRollback();
+		return () =>
+		{
+			_containedIn = contained; base.Location = location; restorePosition(); Changed = true;
+		};
+	}
 	private bool _deletionObserversNotified;
 	private bool _notifyingDeletionObservers;
 	private Exception _deletionObserverFailure;
@@ -1754,6 +1764,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 
     public void Delete()
     {
+		ForeignCustodyTransferContext.EnsureItem(this, destructive: true);
         if (Deleted || _notifyingDeletionObservers) return;
         if (_deletionObserverFailure is not null)
             throw new InvalidOperationException("Deletion observers failed; native removal remains held.", _deletionObserverFailure);
@@ -1763,9 +1774,16 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
         if (!_deletionObserversNotified)
         {
             _notifyingDeletionObservers = true;
-            _deletionObserversNotified = true;
-            try { NotifyDeletionObservers(); }
-            catch (Exception ex) { _deletionObserverFailure = ex; throw; }
+            try
+            {
+                if (GetItemType<ICorpse>() is not null && Gameworld.SpellOwnedNpcs is { } ownedNpcs)
+                {
+                    if (!ownedNpcs.TryNotifyRemainsDeletion(this, NotifyDeletionObservers)) return;
+                }
+                else NotifyDeletionObservers();
+                _deletionObserversNotified = true;
+            }
+            catch (Exception ex) { _deletionObserversNotified = true; _deletionObserverFailure = ex; throw; }
             finally { _notifyingDeletionObservers = false; }
         }
         if (GetItemType<ICorpse>() is not null && Gameworld.SpellOwnedNpcs?.TryPrepareRemainsRemoval(this, out _) == false) return;
@@ -1876,6 +1894,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 
     public void Quit()
     {
+		ForeignCustodyTransferContext.EnsureItem(this, destructive: true);
 		EndHealthTick();
         EffectsChanged = true;
         if (Changed || Components.Any(x => x.Changed))
@@ -2238,6 +2257,8 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 
     public void Merge(IGameItem otherItem)
     {
+		ForeignCustodyTransferContext.EnsureItem(this, destructive: true);
+		ForeignCustodyTransferContext.EnsureItem(otherItem, destructive: true);
         IStackable thisStackable = GetItemType<IStackable>();
         IStackable thatStackable = otherItem.GetItemType<IStackable>();
 
@@ -2387,6 +2408,8 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 
     public IGameItem Get(IBody getter)
     {
+		ForeignCustodyTransferContext.EnsureItem(this);
+		if (getter is not null) ForeignCustodyTransferContext.EnsureBody(getter, this);
 		using var proximityChange = Gameworld?.ProximityEventService?.BeginChange(ProximityChangeCause.Containment, this);
         IHoldable holdable = GetItemType<IHoldable>();
         holdable?.HeldBy = getter;
@@ -2411,6 +2434,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 
     public IGameItem Get(IBody getter, int quantity)
     {
+		ForeignCustodyTransferContext.EnsureItem(this, destructive: !DropsWhole(quantity));
         IStackable stackable = GetItemType<IStackable>();
         if (stackable is null)
         {
@@ -2427,6 +2451,8 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 
     public IGameItem Drop(ICell location)
     {
+		ForeignCustodyTransferContext.EnsureItem(this);
+		if (location is not null) ForeignCustodyTransferContext.EnsureCell(location, this);
         foreach (IGameItemComponent component in _components)
         {
             component.Taken();
@@ -2446,6 +2472,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 
     public IGameItem Drop(ICell location, int quantity)
     {
+		ForeignCustodyTransferContext.EnsureItem(this, destructive: true);
         IStackable stackable = GetItemType<IStackable>();
         IGameItem newItem = stackable.Split(quantity);
         return newItem.Drop(location);
@@ -2476,6 +2503,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 
     public IGameItem DropByWeight(ICell location, double weight)
     {
+		ForeignCustodyTransferContext.EnsureItem(this, destructive: !DropsWholeByWeight(weight));
         if (DropsWholeByWeight(weight))
         {
             return Drop(location);
@@ -2503,6 +2531,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 
     public IGameItem GetByWeight(IBody getter, double weight)
     {
+		ForeignCustodyTransferContext.EnsureItem(this, destructive: !DropsWholeByWeight(weight));
         if (DropsWholeByWeight(weight))
         {
             return Get(getter);
@@ -2871,6 +2900,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 
     private void Morph(IGameItem item)
     {
+		ForeignCustodyTransferContext.EnsureItem(this, destructive: true);
         if (GetItemType<ICorpse>() is not null && Gameworld.SpellOwnedNpcs?.TryPrepareRemainsRemoval(this, out _, morphing: true) == false) return;
         IGameItem newItem = Prototype.LoadMorphedItem(this);
         ICell location = TrueLocations.FirstOrDefault();

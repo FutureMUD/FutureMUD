@@ -16210,3 +16210,64 @@ CREATE TABLE IF NOT EXISTS `propertysalesorders` (
 
 -- Dump completed on 2026-10-03 13:18:54
 -- Total time: 0:0:0:1:914 (d:h:m:s:ms)
+
+-- EF-generated idempotent delta: 20261003170627_SpellOwnedRemainsRemovalIntent; EF/Pomelo 9.0.11; maintained dump table casing.
+START TRANSACTION;
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20261003170627_SpellOwnedRemainsRemovalIntent') THEN
+
+    ALTER TABLE `magicspelllifecycles` ADD `RemainsNotificationAttemptedUtc` datetime(6) NULL;
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20261003170627_SpellOwnedRemainsRemovalIntent') THEN
+
+    ALTER TABLE `magicspelllifecycles` ADD `RemainsNotificationCompletedUtc` datetime(6) NULL;
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20261003170627_SpellOwnedRemainsRemovalIntent') THEN
+
+    ALTER TABLE `magicspelllifecycles` ADD `RemainsRemovalRequestedUtc` datetime(6) NULL;
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20261003170627_SpellOwnedRemainsRemovalIntent') THEN
+
+    INSERT INTO `__efmigrationshistory` (`MigrationId`, `ProductVersion`)
+    VALUES ('20261003170627_SpellOwnedRemainsRemovalIntent', '9.0.11');
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+COMMIT;

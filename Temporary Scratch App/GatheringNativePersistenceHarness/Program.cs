@@ -792,6 +792,7 @@ internal static partial class GNHProgram
 		private static Mock<ICell> NewCell(long id, IFuturemud world)
 		{
 			var cell = new Mock<ICell>(MockBehavior.Loose);
+			cell.As<ICustodyRollbackLocation>();
 			cell.SetupGet(x => x.Id).Returns(id);
 			cell.SetupGet(x => x.Name).Returns("Harness cell");
 			cell.SetupGet(x => x.Gameworld).Returns(world);

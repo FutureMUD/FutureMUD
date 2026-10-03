@@ -9,6 +9,12 @@ namespace MudSharp.GameItems.Components;
 
 public class WearableGameItemComponent : GameItemComponent, IWearable
 {
+	internal override Action CaptureCustodyRollback()
+	{
+		var wornBy = WornBy; var profile = _currentProfile;
+		return () => { WornBy = wornBy; _currentProfile = profile; };
+	}
+
     protected WearableGameItemComponentProto _prototype;
     private IWearProfile _currentProfile;
 

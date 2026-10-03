@@ -21,6 +21,13 @@ namespace MudSharp.Framework;
 
 public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivable
 {
+	internal Action CaptureCustodyPositionRollback()
+	{
+		var state = _positionState; var modifier = _positionModifier; var emote = _positionEmote;
+		var layer = _roomLayer; var route = _routePositionMetres;
+		return () => { _positionState = state; _positionModifier = modifier; _positionEmote = emote; _roomLayer = layer; _routePositionMetres = route; PositionChanged = true; };
+	}
+
     //private bool _effectsChanged;
 
     protected PerceivedItem()

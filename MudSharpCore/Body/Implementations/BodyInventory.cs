@@ -515,6 +515,7 @@ public partial class Body
     public bool Wield(IGameItem item, IWield? specificHand, IEmote? playerEmote = null, bool silent = false,
         ItemCanWieldFlags flags = ItemCanWieldFlags.None)
     {
+		ForeignCustodyTransferContext.EnsureBody(this, item);
         if (specificHand == null)
         {
             return Wield(item, playerEmote, silent, flags);
@@ -601,6 +602,7 @@ public partial class Body
     public bool Wield(IGameItem item, IEmote? playerEmote = null, bool silent = false,
         ItemCanWieldFlags flags = ItemCanWieldFlags.None)
     {
+		ForeignCustodyTransferContext.EnsureBody(this, item);
         if (!CanWield(item, flags))
         {
             if (!silent)
@@ -845,6 +847,7 @@ public partial class Body
         OutputFlags additionalFlags = OutputFlags.Normal, bool silent = false,
         ItemCanWieldFlags flags = ItemCanWieldFlags.None)
     {
+		ForeignCustodyTransferContext.EnsureBody(this, item);
         if (!CanDraw(item, specificHand, flags))
         {
             OutputHandler.Send(WhyCannotDraw(item, specificHand, flags));
@@ -1144,6 +1147,8 @@ public partial class Body
     public bool Sheathe(IGameItem item, IGameItem sheath, IEmote? playerEmote = null,
         OutputFlags additionalFlags = OutputFlags.Normal, bool silent = false)
     {
+		ForeignCustodyTransferContext.EnsureBody(this, item);
+		ForeignCustodyTransferContext.EnsureBody(this, sheath);
         if (!CanSheathe(item, sheath))
         {
             OutputHandler.Send(WhyCannotSheathe(item, sheath));
@@ -1688,6 +1693,7 @@ public partial class Body
 		ItemCanGetIgnore ignoreFlags, IEnumerable<IHandleEvents> witnessHandlers, bool allowMerge,
 		bool triggerEvents = true)
     {
+		ForeignCustodyTransferContext.EnsureBody(this, item);
         if (!CanGet(item, quantity, ignoreFlags))
         {
             if (!silent)
@@ -1802,6 +1808,8 @@ public partial class Body
     public IGameItem? Get(IGameItem item, IGameItem containerItem, int quantity, IEmote? playerEmote, bool silent,
         ItemCanGetIgnore ignoreFlags, IEnumerable<IHandleEvents> witnessHandlers)
     {
+		ForeignCustodyTransferContext.EnsureBody(this, item);
+		ForeignCustodyTransferContext.EnsurePair(containerItem, item);
         if (!CanGet(item, containerItem, quantity, ignoreFlags))
         {
             if (!silent)
@@ -2262,6 +2270,7 @@ public partial class Body
     public void Drop(IGameItem item, int quantity = 0, bool newStack = false, IEmote? playerEmote = null,
         bool silent = false)
     {
+		ForeignCustodyTransferContext.EnsureBody(this, item);
         if (!CanDrop(item, quantity) && !silent)
         {
             OutputHandler.Send(WhyCannotDrop(item, quantity));
@@ -2391,6 +2400,7 @@ public partial class Body
 
     public void Give(IGameItem item, IBody target, int quantity = 0, IEmote? playerEmote = null)
     {
+		ForeignCustodyTransferContext.EnsureBody(this, item);
         if (!CanGive(item, target, quantity))
         {
             OutputHandler.Send(WhyCannotGive(item, target, quantity));
@@ -2511,6 +2521,7 @@ public partial class Body
 
     public void Give(IGameItem item, ICorpse target, int quantity = 0, IEmote? playerEmote = null)
     {
+		ForeignCustodyTransferContext.EnsureBody(this, item);
         if (!CanGive(item, target, quantity))
         {
             OutputHandler.Send(WhyCannotGive(item, target, quantity));
@@ -2571,6 +2582,7 @@ public partial class Body
 
     public void Take(IGameItem item)
     {
+		ForeignCustodyTransferContext.EnsureBody(this, item);
 		using var exposureChange = MudSharp.Form.Material.EnvironmentalExposureService.For(Gameworld).Change(this);
         InventoryState oldState = InventoryState.Held;
         if (_wieldedItems.Any(x => x.Item1 == item))
@@ -2622,6 +2634,7 @@ public partial class Body
 
     public IGameItem Take(IGameItem item, int quantity)
     {
+		ForeignCustodyTransferContext.EnsureBody(this, item);
         if (item.DropsWhole(quantity))
         {
             Take(item);
@@ -2639,6 +2652,8 @@ public partial class Body
     /// <returns>True if the swap took place</returns>
     public bool Swap(IGameItem firstItem, IGameItem secondItem)
     {
+		ForeignCustodyTransferContext.EnsureBody(this, firstItem);
+		ForeignCustodyTransferContext.EnsureBody(this, secondItem);
         if (!this.CanPerformManualAction(out var manualReason))
         {
             Actor.Send(manualReason);
@@ -2954,6 +2969,7 @@ public partial class Body
 
     public void Wear(IGameItem item, string profile, IEmote playerEmote, bool silent = false)
     {
+		ForeignCustodyTransferContext.EnsureBody(this, item);
         if (string.IsNullOrEmpty(profile))
         {
             Wear(item, playerEmote, silent);
@@ -3078,6 +3094,7 @@ public partial class Body
 
     public void Wear(IGameItem item, IEmote playerEmote, bool silent = false)
     {
+		ForeignCustodyTransferContext.EnsureBody(this, item);
         if (!CanWear(item))
         {
             if (!silent)
@@ -3156,6 +3173,7 @@ public partial class Body
 
     public void Wear(IGameItem item, IWearProfile profile, IEmote? playerEmote = null, bool silent = false)
     {
+		ForeignCustodyTransferContext.EnsureBody(this, item);
         if (!this.CanPerformManualAction(out var reason))
         {
             if (!silent) OutputHandler.Send(reason);

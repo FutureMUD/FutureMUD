@@ -1,4 +1,4 @@
-﻿using MudSharp.Economy.Currency;
+using MudSharp.Economy.Currency;
 using MudSharp.GameItems.Prototypes;
 
 namespace MudSharp.GameItems.Components;
@@ -144,6 +144,7 @@ public class CurrencyGameItemComponent : GameItemComponent, ICurrencyPile
 
     public void AddCoins(IEnumerable<Tuple<ICoin, int>> coins)
     {
+		ForeignCustodyTransferContext.EnsureItem(Parent, destructive: true);
         foreach (Tuple<ICoin, int> coin in coins)
         {
             if (_coins.ContainsKey(coin.Item1))
@@ -162,6 +163,7 @@ public class CurrencyGameItemComponent : GameItemComponent, ICurrencyPile
 
     public void AddCoins(IEnumerable<KeyValuePair<ICoin, int>> coins)
     {
+		ForeignCustodyTransferContext.EnsureItem(Parent, destructive: true);
         foreach (KeyValuePair<ICoin, int> coin in coins)
         {
             if (_coins.ContainsKey(coin.Key))
@@ -180,6 +182,7 @@ public class CurrencyGameItemComponent : GameItemComponent, ICurrencyPile
 
     public void AddCoins(IEnumerable<(ICoin, int)> coins)
     {
+		ForeignCustodyTransferContext.EnsureItem(Parent, destructive: true);
         foreach ((ICoin, int) coin in coins)
         {
             if (_coins.ContainsKey(coin.Item1))
@@ -198,6 +201,7 @@ public class CurrencyGameItemComponent : GameItemComponent, ICurrencyPile
 
     public bool RemoveCoins(IEnumerable<Tuple<ICoin, int>> coins)
     {
+		ForeignCustodyTransferContext.EnsureItem(Parent, destructive: true);
         foreach (Tuple<ICoin, int> coin in coins)
         {
             if (_coins.ContainsKey(coin.Item1))
@@ -223,6 +227,7 @@ public class CurrencyGameItemComponent : GameItemComponent, ICurrencyPile
 
     public bool RemoveCoins(IEnumerable<KeyValuePair<ICoin, int>> coins)
     {
+		ForeignCustodyTransferContext.EnsureItem(Parent, destructive: true);
         foreach (KeyValuePair<ICoin, int> coin in coins)
         {
             if (_coins.ContainsKey(coin.Key))
@@ -248,6 +253,7 @@ public class CurrencyGameItemComponent : GameItemComponent, ICurrencyPile
 
     public bool RemoveCoins(IEnumerable<(ICoin, int)> coins)
     {
+		ForeignCustodyTransferContext.EnsureItem(Parent, destructive: true);
         foreach ((ICoin, int) coin in coins)
         {
             if (_coins.ContainsKey(coin.Item1))

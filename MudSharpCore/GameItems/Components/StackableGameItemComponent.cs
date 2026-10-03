@@ -96,6 +96,7 @@ public class StackableGameItemComponent : GameItemComponent, IStackable
         get => _quantity;
         set
         {
+			ForeignCustodyTransferContext.EnsureItem(Parent, destructive: true);
             _quantity = value;
             Changed = true;
             HandleDescriptionUpdate();
@@ -119,6 +120,7 @@ public class StackableGameItemComponent : GameItemComponent, IStackable
 
     public IGameItem Split(int quantity)
     {
+		ForeignCustodyTransferContext.EnsureItem(Parent, destructive: true);
         // When splitting a stack, preserve the existing morph timer so that
         // partially purchased items do not reset their decay timers
         GameItem newItem = new((GameItem)Parent, temporary: false, preserveMorphTime: true);

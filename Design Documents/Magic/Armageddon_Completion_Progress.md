@@ -743,7 +743,7 @@ See [the immutable admission receipt](Armageddon_Stage3B_NpcAdmission_Verificati
 - [x] Pass combined native 192: casting 107, lifecycle 16, ordinary 4, legacy 13, runtime 11, archival 11, maintenance 8 and adapter 22 including eight admission/control checks.
 - [x] Match 221 source inputs and 19 assemblies; clean 13 owned databases/TEMP MySQL, zero owned processes and unchanged primary checkout.
 - [x] Preserve all seven prior immutable receipts and every whole-plan requirement: seven phases, 16 decisions, 154 candidates, 25 scenarios and 82+12 source rows.
-- [ ] Parent independently rereviews this exact correction before any dependent feature slice.
+- [x] Parent independently rereviewed ce2a8a45 / 833ab5ef and authorized the bounded retirement slice below.
 - [ ] Finish custody conservation, actual remains deletion/decay, expiry/death/dissipation, other creation/history/policy adapters and full N14/N15/N16; later stock/release phases remain pending.
 
 The native material identity is persisted; its held-item/stack and world hosts are
@@ -760,3 +760,48 @@ the full combined suite. The initial connection failure's cause remains unconfir
 the source-only audit found no automatic fallback to a shared/default endpoint.
 No extra-body support, full installed session or full N14-N16 is qualified. No next
 slice, publication, merge, deployment or shared/production DB access occurred.
+
+
+## Phase3B2B native retirement and conserved foreign custody
+
+Implementation ec8b0f486a70f769ddb217529618173cc483f697 connects exact simple-NPC ownership to bounded writable
+expiry/restart reconciliation, native death, remains deletion/positive decay, `Quit` and
+canonical archival. Permanent and death-on-expiry policies retain their defined behavior;
+cleanup mode suppresses ordinary corpses. See [the immutable retirement receipt](Armageddon_Stage3B_NpcRetirement_Verification.json).
+
+- [x] Conserve exact foreign roots and nested container/lock/belt IDs in a serializable transaction before destructive removal; retain unloaded/unsupported/destination holds.
+- [x] Check custody before and after deletion callbacks; preserve live subscriptions/decay on holds, attempt observers once and preflight positive replacement morphs.
+- [x] Refuse same-ID reparenting using retained typed/component relations and parent pointers, even after callback Save clears flags; preserve original XML/joins through rollback/restart and release old-host caches before completion.
+- [x] Refuse read-only retirement before native callbacks; controller holds precede death and stable holds cannot starve a later eligible bounded row.
+- [x] Execute actual early native death/configured corpse across original expiry, separate-process body/items restart, positive minute decay and scheduled morph-to-nothing/Delete, with separate default dissipation.
+- [x] Execute all three policies on one real simple template, provider-failed custody commit/restart and post-archive completion refusal/idempotent retry.
+- [x] Execute sixteen native terminal cycles with stable heavy rows, roots, schedules and heartbeat subscriptions; retained permanent identity/history is explained.
+- [x] Pass focused managed 441 and all ten fast projects 6,825, zero failures/skips; combined native 208 including 15 retirement and one connection refusal marker.
+- [x] Match 230 frozen source inputs and 19 aligned assemblies; clean 14 owned databases and exact TEMP MySQL, zero owned processes, unchanged primary checkout.
+- [x] Preserve all eight prior receipts/admission artifacts and every approved requirement: seven phases, 16 decisions, 154 candidates, 25 scenarios and 82+12 source rows.
+- [ ] Parent independently reviews this exact retirement checkpoint before any next feature slice.
+- [ ] Finish installed stock command/world N14/N15 and high-volume/every-cycle-restart N16; controlled native coverage does not qualify those remaining sessions.
+- [ ] Finish other creation/topology/history/destination/economy/control adapters, reusable effects/eight larger features and later stock/release phases.
+
+N14/N15 have controlled native coverage; N16 is partial at sixteen cycles plus separate
+decay/fault readers. World/catalogue/cell/effect-scheduler hosts are controlled. Positive
+replacement morphs, generated goods, connected/occupied topology and body-root implants,
+prosthetics or lodged detachment remain explicit holds. Destination and injected unloaded
+custody recovery are explicit fixture corrections, not automatic fallback behavior.
+
+Independent source review also found a same-ID callback topology P2. Its failing-before
+native run entered death and committed changed container XML. The repair compares typed
+relations/component/slot/wound identity and nested parent pointers, retains the original
+snapshot across retries and restores structural flags on refusal. The passing-after
+reader reloads original topology; an injected completion refusal leaves the committed
+archive pending until old-host runtime release is explicitly asserted. The earlier 206
+combined run and its managed packets remain superseded evidence, with frozen inputs intact.
+
+Retained setup failures include component IDs/catalogue loading, missing item health,
+accessible-cell policy and recursively mocked empty project/accents. No production Body
+loader change or dead-state workaround was made. All failed runs keep exit/log/fingerprints
+and owned cleanup evidence. The prior admission capacity connection failure still has no
+established root cause or failure-instant endpoint. Native connections now validate exact
+owned server UUID/datadir/port and registered database/marker before use; the provider's
+metadata-only server connection is bound to an already validated exact target. No shared
+or production database, publication, merge, deployment or next feature slice was used.

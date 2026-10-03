@@ -87,7 +87,13 @@ public class ImplantAVRecorderGameItemComponent : DigitalMediaRecorderGameItemCo
 				break;
 			case "stop": if (!Stop(out var stopError)) actor.Send(stopError); else actor.Send("Recording or playback stopped."); break;
 			case "list": actor.Send(MediaFiles.Any() ? MediaFiles.Select(x => x.FileName.ColourCommand()).ListToString() : "There are no stored recordings."); break;
-			case "erase": if (arguments.IsFinished || !RecordingFileSystem.DeleteFile(arguments.SafeRemainingArgument)) actor.Send("There is no such recording."); else actor.Send("Recording erased."); break;
+			case "erase":
+				var name = arguments.SafeRemainingArgument;
+				var fileSystem = RecordingFileSystem;
+				if (arguments.IsFinished || fileSystem.GetFile(name)?.Kind != ComputerFileKind.Media ||
+				    !fileSystem.DeleteFile(name)) actor.Send("There is no such recording.");
+				else actor.Send("Recording erased.");
+				break;
 			case "play":
 				if (arguments.IsFinished) { actor.Send("Name the recording."); break; }
 				if (!CanNeurallyPresent(arguments.SafeRemainingArgument, out var playError) || !StartPlayback(arguments.SafeRemainingArgument, out playError)) actor.Send(playError); else actor.Send("Neural playback started.");

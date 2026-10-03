@@ -50,6 +50,8 @@ Implanted computers use the installed neural interface as a validated data bus. 
 
 The implant recorder can write to its internal byte quota or a selected powered implant hard drive. Internal recording continues if neural control drops after the job starts; an external-drive job is interrupted when that drive or shared neural bus becomes unavailable. Captured scenes use the wearer's effective cell, layer, and plane. Neural playback requires the linked interface to permit each media capability carried by the recording.
 
+Digital and implant recorder `erase <name>` commands require an exact, case-insensitive media filename on the active recording storage. Text files, missing names, and partial or ambiguous prefixes produce the existing no-recording message without changing files or recording references. General-purpose File Manager and FTP deletion still supports text files.
+
 The neural command surface is:
 
 - `implant <terminal-alias> host <host-alias|none>`, `connect`, and `disconnect` for terminal assignment and sessions.

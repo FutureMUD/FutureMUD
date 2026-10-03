@@ -39,7 +39,7 @@
   "preparation_baseline": "b0e4339d57bf15bc6e6a6f21fbdd5edc73006e38",
   "implementation_branch": "codex/armageddon-completion-phase1",
   "authorised_scope": "Complete plan in coherent stages; local commits; no publication, merge, deploy or shared/production DB",
-  "selected_stage": "Phase3A P2 ordinary backup-body retirement correction implemented and verified; parent rereview pending; native adapters/archival and full phase3 remain partial",
+  "selected_stage": "Phase3A legacy positive-ID remains P2 correction implemented and verified; original provenance P2 closed; parent legacy rereview pending; no next slice started",
   "phase1_remaining": [
     "Stock installer selects and qualifies the mental/spiritual native attribute, capacity expression/basis and authored energy coefficients.",
     "Complete installed source/support/crafting/chargen wiring and gathering restrictions/environmental accounting remain later stock/native gates.",
@@ -2363,7 +2363,7 @@
     },
     {
       "id": "phase3A_ordinary_retirement_P2",
-      "status": "passed_bounded_automated_and_controlled_native_parent_rereview_pending",
+      "status": "closed_by_parent_independent_rereview",
       "focused_core": "20261002T225830Z-1516a1770e66",
       "focused_database": "20261002T225933Z-15a21c867a08",
       "aggregate": "20261002T230052Z-ae8dd8f99fff",
@@ -2384,7 +2384,30 @@
       "owned_processes_remaining": 0,
       "frozen_inputs_matching": 142,
       "binary_fingerprints": 14,
-      "receipt": "Armageddon_Stage3A_OrdinaryRetirement_Verification.json"
+      "receipt": "Armageddon_Stage3A_OrdinaryRetirement_Verification.json",
+      "followup": "Legacy positive-ID compatibility P2 corrected separately; original immutable receipt unchanged"
+    },
+    {
+      "id": "phase3A_legacy_remains_P2",
+      "status": "passed_bounded_managed_and_controlled_native_parent_rereview_pending",
+      "focused_core": "20261003T000051Z-621b96dce00e",
+      "aggregate": "20261003T000230Z-0e6db335ad67",
+      "counts": {
+        "core": 4398,
+        "library": 561,
+        "database": 65,
+        "aggregate": 5024
+      },
+      "failing_before_native": "legacy-attempt1",
+      "passing_after_native": "legacy-attempt2",
+      "native_markers": 136,
+      "legacy_markers": 9,
+      "legacy_separate_process_readers": 7,
+      "owned_databases_cleaned": 10,
+      "owned_processes_remaining": 0,
+      "frozen_inputs_matching": 152,
+      "binary_fingerprints": 14,
+      "receipt": "Armageddon_Stage3A_LegacyRemains_Verification.json"
     }
   ],
   "implementation_commits": [
@@ -2451,14 +2474,18 @@
     {
       "sha": "8ab37546b050d895a31d3d3097e818da0a987d9b",
       "subject": "Preserve ordinary retired-body provenance after backup death"
+    },
+    {
+      "sha": "7e6f180365e1dfb64b81fe31c54735463b62bce0",
+      "subject": "Restore safe legacy remains references without cleanup authority"
     }
   ],
   "next_checkpoint": {
-    "status": "awaiting_parent_phase3A_ordinary_retirement_rereview",
-    "base": "a059338c9d15a8c7135c5192509f28e3c0f7a5ee",
-    "scope": "Phase3A P2 ordinary backup-body retirement correction",
-    "implementation_head": "8ab37546b050d895a31d3d3097e818da0a987d9b",
-    "receipt": "Armageddon_Stage3A_OrdinaryRetirement_Verification.json",
+    "status": "awaiting_parent_phase3A_legacy_remains_rereview",
+    "base": "ed686eb5feb21db7a0c728ef9614c8649ade45fe",
+    "scope": "Phase3A P2 legacy positive-ID remains compatibility correction",
+    "implementation_head": "7e6f180365e1dfb64b81fe31c54735463b62bce0",
+    "receipt": "Armageddon_Stage3A_LegacyRemains_Verification.json",
     "implementation_verified": true,
     "no_next_slice_started": true,
     "next_stage_after_review": "Parent review of this immutable checkpoint, then bounded canonical NPC compaction/archival and native creation/post-death/remains-release adapters before the eight larger features and full N14-N16.",

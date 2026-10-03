@@ -62,7 +62,7 @@ fresh verification and keeps old PR receipts historical.
 - [x] Repair five bounded review findings for context isolation, missing death proof, unloaded effects, anatomy IDs and write suppression.
 - [x] Pass the relevant Core/shared/database suites and full prior casting plus lifecycle native acceptance; retain all earlier failures.
 - [x] Commit the foundation implementation and record immutable receipts/fingerprints with owned cleanup proof.
-- [ ] Parent rereviews phase3A after the ordinary retirement P2 correction below.
+- [ ] Parent rereviews phase3A after the legacy compatibility P2 correction below.
 
 ## Remaining work
 
@@ -524,7 +524,7 @@ and its TEMP failures/composite5,002 result remain unchanged.
 - [x] Pass focused Core85/database2 and one aggregate run: Core4,380 + library561 + database65 = 5,006; zero failures/skips, stable source.
 - [x] Pass final combined native127: prior casting107 + lifecycle16 + ordinary4; all nine owned databases and temporary instance cleaned, zero owned processes.
 - [x] Freeze142 source inputs, five native assemblies and 14 unit/native assembly fingerprints; retain every failed/reporting/build/fixture attempt.
-- [ ] Parent rereviews this immutable correction before the next implementation phase.
+- [x] Parent independent rereview closed the original provenance P2; legacy compatibility followup is recorded below.
 
 The native ordinary reader uses the real corpse component and its Delete callback with
 controlled item/world hosts. It deliberately introduces an unloaded persisted foreign
@@ -534,3 +534,38 @@ deletion, a full command/Character.Die session or timed decay. **Full N14-N16 re
 run.** Canonical NPC compaction/archival and native creation/death/remains/foreign-goods/
 AI/restart adapters remain the next dependencies; all other recorded plan gaps persist.
 No next phase, publication, merge, deployment or shared/production database work occurred.
+
+
+## Phase3A legacy positive-ID remains P2 correction
+
+Parent independent rereview closed the ordinary ownership P2, then found pre-upgrade
+positive-ID remains without retirement records could not reload. Executed native
+`legacy-attempt1` reproduced four NullReferenceException paths: existing/missing-body
+corpse and severed-part readers. All failures and cleanup evidence remain retained.
+
+Implementation `7e6f180365e1dfb64b81fe31c54735463b62bce0` on `ed686eb5feb21db7a0c728ef9614c8649ade45fe`
+separates exact body reading from cleanup authority, rejects foreign/current/embodied
+non-final references, preserves valid living-owner parts and final-context exact bodies,
+and handles unresolved remains safely across presentation, mass, damage, illumination
+and release. No positive ID redirects and no ownership/form backfill occurs. Surgery,
+resurrection, butchery and staff cleanup refuse unresolved anatomy; actual corpse-target
+surgery also rejects exact-body mismatches before selecting a surviving owner.
+See [the immutable compatibility receipt](Armageddon_Stage3A_LegacyRemains_Verification.json). Both prior receipts
+and their original failures/counts are unchanged; guarded ordinary cleanup is retained.
+
+- [x] Execute four pre-repair legacy failures and seven independent passing reload readers.
+- [x] Pass18 new managed regressions, including actual surgery command dispatch; focused104.
+- [x] Pass one stable aggregate: Core4,398 + library561 + database65 = 5,024, zero failures/skips.
+- [x] Pass combined native136: casting107 + lifecycle16 + ordinary4 + legacy9; ten owned DBs and temporary instance cleaned, zero owned processes.
+- [x] Match152 frozen inputs, five native assemblies and14 dependency/test fingerprints; update owning lifecycle/body/item docs.
+- [ ] Parent independently rereviews this compatibility checkpoint before the next slice.
+
+Legacy reads intentionally retain bodies lacking cleanup proof. Native checks use real
+EF/MySQL, runtime Character/Body loads and component callbacks with controlled world,
+model and item hosts; persisted parent rows are removed explicitly as fixture teardown.
+Old-body legacy fixtures have no inventory. Timed decay, full GameItem.Delete, real
+NPC.Die/corpse creation, native surgery/resurrection and automatic foreign-goods
+evacuation remain unqualified. **Full N14-N16 remain not run.** Canonical NPC archival/
+compaction and native creation/death/remains/AI/restart adapters remain next dependencies;
+all whole-plan inventories and previously recorded gaps persist. No later slice,
+publication, merge, deployment or shared/production database action occurred.

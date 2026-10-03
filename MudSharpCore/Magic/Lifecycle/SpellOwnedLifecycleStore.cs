@@ -12,9 +12,10 @@ namespace MudSharp.Magic.Lifecycle;
 /// <summary>Immediate optimistic journal writes, independent of deferred gameplay saves.</summary>
 public sealed class SpellOwnedLifecycleStore : ISpellOwnedLifecycleStore
 {
-	public SpellOwnedLifecycle Create(SpellLifecycleOrigin origin, Action<SpellOwnedCreation> create)
+	public SpellOwnedLifecycle Create(SpellLifecycleOrigin origin, Action<SpellOwnedCreation> create, string initialDiagnostic = "")
 	{
 		origin.Validate();
+		if (initialDiagnostic is null || initialDiagnostic.Length > 2048) throw new ArgumentException("Invalid creation diagnostic.");
 		using var isolated = FMDB.BeginIndependentScope(requireWrites: true);
 		using var db = new FMDB();
 		using var transaction = FMDB.Context.Database.BeginTransaction(IsolationLevel.Serializable);
@@ -46,7 +47,7 @@ public sealed class SpellOwnedLifecycleStore : ISpellOwnedLifecycleStore
 			Id = origin.Id, SpellId = origin.SpellId, Grade = origin.Grade, CreatorId = origin.CreatorId,
 			Family = origin.Family, Mode = (int)origin.Mode, CreatedUtc = origin.CreatedUtc,
 			DeadlineUtc = origin.DeadlineUtc, Provenance = origin.Provenance,
-			State = (int)SpellLifecycleState.Active, UpdatedUtc = origin.CreatedUtc, Version = 1
+			State = (int)SpellLifecycleState.Active, UpdatedUtc = origin.CreatedUtc, Version = 1, Diagnostic = initialDiagnostic
 		};
 		foreach (var claim in claims)
 		{

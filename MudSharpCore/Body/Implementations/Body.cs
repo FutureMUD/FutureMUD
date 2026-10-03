@@ -43,6 +43,11 @@ public partial class Body : PerceiverItem, IBody
     protected double _weight;
 
     public Body(IFuturemud gameworld, ICharacter character, ICharacterTemplate template)
+        : this(gameworld, character, template, false)
+    {
+    }
+
+	internal Body(IFuturemud gameworld, ICharacter character, ICharacterTemplate template, bool deferInitialisation)
     {
         _noSave = true;
         Gameworld = gameworld;
@@ -187,7 +192,7 @@ public partial class Body : PerceiverItem, IBody
         RecalculateItemHelpers();
 
         PositionState = PositionStanding.Instance;
-        _noSave = false;
+        _noSave = deferInitialisation;
     }
 
     public Body(MudSharp.Models.Body body, IFuturemud gameworld, ICharacter actor)

@@ -1,5 +1,5 @@
 [CmdletBinding()]
-param([switch]$LandOnly, [switch]$RejuvenationOnly, [switch]$CastingOnly, [switch]$PracticeOnly, [switch]$SpeechOnly, [switch]$AreaOnly, [switch]$LifecycleOnly, [switch]$BodyRetirementOnly, [switch]$LegacyRemainsOnly, [switch]$NpcArchiveOnly, [switch]$NpcArchiveMaintenanceOnly, [switch]$RefreshSnapshot)
+param([switch]$LandOnly, [switch]$RejuvenationOnly, [switch]$CastingOnly, [switch]$PracticeOnly, [switch]$SpeechOnly, [switch]$AreaOnly, [switch]$LifecycleOnly, [switch]$BodyRetirementOnly, [switch]$LegacyRemainsOnly, [switch]$NpcArchiveOnly, [switch]$NpcArchiveMaintenanceOnly, [switch]$SpellOwnedNpcOnly, [switch]$RefreshSnapshot)
 
 $ErrorActionPreference = 'Stop'
 
@@ -120,11 +120,11 @@ try {
 	}
 	& dotnet $harnessDll --probe
 	$runExit = $LASTEXITCODE
-	if (-not $LandOnly -and -not $RejuvenationOnly -and -not $CastingOnly -and -not $PracticeOnly -and -not $SpeechOnly -and -not $AreaOnly -and -not $LifecycleOnly -and -not $BodyRetirementOnly -and -not $LegacyRemainsOnly -and -not $NpcArchiveOnly -and -not $NpcArchiveMaintenanceOnly -and $runExit -eq 0) {
+	if (-not $LandOnly -and -not $RejuvenationOnly -and -not $CastingOnly -and -not $PracticeOnly -and -not $SpeechOnly -and -not $AreaOnly -and -not $LifecycleOnly -and -not $BodyRetirementOnly -and -not $LegacyRemainsOnly -and -not $NpcArchiveOnly -and -not $NpcArchiveMaintenanceOnly -and -not $SpellOwnedNpcOnly -and $runExit -eq 0) {
 		& dotnet $harnessDll --run
 		$runExit = $LASTEXITCODE
 	}
-	if ($runExit -eq 0 -and -not $RejuvenationOnly -and -not $CastingOnly -and -not $PracticeOnly -and -not $SpeechOnly -and -not $AreaOnly -and -not $LifecycleOnly -and -not $BodyRetirementOnly -and -not $LegacyRemainsOnly -and -not $NpcArchiveOnly -and -not $NpcArchiveMaintenanceOnly) {
+	if ($runExit -eq 0 -and -not $RejuvenationOnly -and -not $CastingOnly -and -not $PracticeOnly -and -not $SpeechOnly -and -not $AreaOnly -and -not $LifecycleOnly -and -not $BodyRetirementOnly -and -not $LegacyRemainsOnly -and -not $NpcArchiveOnly -and -not $NpcArchiveMaintenanceOnly -and -not $SpellOwnedNpcOnly) {
 		& dotnet $harnessDll --land-run
 		$runExit = $LASTEXITCODE
 	}
@@ -166,6 +166,10 @@ try {
 	}
 	if ($runExit -eq 0 -and $NpcArchiveMaintenanceOnly) {
 		& dotnet $harnessDll --npc-archive-maintenance-run
+		$runExit = $LASTEXITCODE
+	}
+	if ($runExit -eq 0 -and $SpellOwnedNpcOnly) {
+		& dotnet $harnessDll --spell-owned-npc-run
 		$runExit = $LASTEXITCODE
 	}
 	Write-Output "nativeHarnessExit=$runExit"

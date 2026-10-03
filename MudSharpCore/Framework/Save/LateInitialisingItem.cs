@@ -101,6 +101,15 @@ public abstract class LateInitialisingItem : FrameworkItem, ILateInitialisingIte
 
     public abstract void SetIDFromDatabase(object dbitem);
 
+	/// <summary>Publish identity only after a caller's atomic native insertion has committed.</summary>
+	protected void CompleteCommittedInitialisation(object dbitem)
+	{
+		if (IdInitialised) throw new InvalidOperationException("This item already has a registered identity.");
+		IdInitialised = true;
+		SetIDFromDatabase(dbitem);
+		IdRegistered?.Invoke(this);
+	}
+
     public virtual InitialisationPhase InitialisationPhase => InitialisationPhase.Second;
 
     public void SetNoSave(bool value)
@@ -240,6 +249,15 @@ public abstract class LateKeywordedInitialisingItem : KeywordedItem, ILateInitia
     public abstract object DatabaseInsert();
 
     public abstract void SetIDFromDatabase(object dbitem);
+
+	/// <summary>Publish identity only after a caller's atomic native insertion has committed.</summary>
+	protected void CompleteCommittedInitialisation(object dbitem)
+	{
+		if (IdInitialised) throw new InvalidOperationException("This item already has a registered identity.");
+		IdInitialised = true;
+		SetIDFromDatabase(dbitem);
+		IdRegistered?.Invoke(this);
+	}
 
     public virtual InitialisationPhase InitialisationPhase => InitialisationPhase.Second;
 

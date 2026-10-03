@@ -69,7 +69,9 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
 {
     private IPersonalName _currentName;
     public PlanarPresenceDefinition BasePlanarPresence => Body.BasePlanarPresence;
+    private bool _deferredNativeInitialisation;
     private bool CanRunCharacterOngoingProcesses =>
+        !_deferredNativeInitialisation &&
         !State.HasFlag(CharacterState.Dead) &&
         !State.HasFlag(CharacterState.Stasis);
 
@@ -117,7 +119,14 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
     }
 
     public Character(IFuturemud gameworld, ICharacterTemplate template)
+        : this(gameworld, template, NativeInitialisationMode.Immediate)
     {
+    }
+
+	private protected Character(IFuturemud gameworld, ICharacterTemplate template, NativeInitialisationMode initialisationMode)
+    {
+        var deferInitialisation = initialisationMode == NativeInitialisationMode.Deferred;
+        _deferredNativeInitialisation = deferInitialisation;
         _noSave = true;
         Gameworld = gameworld;
         using var capacityRestoration = DeferCastingCapacityReconciliation(false);
@@ -138,12 +147,12 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
             : PermissionLevel.Player;
         _dubs = new List<IDub>();
 
-        Body = new Body.Implementations.Body(gameworld, this, template);
+        Body = new Body.Implementations.Body(gameworld, this, template, deferInitialisation);
         Body.Handedness = _handedness;
         InitialiseDefaultForm(Body);
         InitialiseCharacterTraitsFromTemplate(template);
 
-        NeedsModel = NeedsModelFactory.LoadNeedsModel(CharacterCreation.Chargen.NeedsModelProg != null
+        NeedsModel = NeedsModelFactory.LoadNeedsModel(!deferInitialisation && CharacterCreation.Chargen.NeedsModelProg != null
             ? (string)CharacterCreation.Chargen.NeedsModelProg.Execute(template)
             : "NoNeeds", this);
 
@@ -193,7 +202,7 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
                         PersonalName = CurrentName,
                         JoinDate = clan.Key.Calendar.CurrentDate
                     };
-                    clan.Key.Memberships.Add(newMembership);
+                    if (!deferInitialisation) clan.Key.Memberships.Add(newMembership);
                     AddMembership(newMembership);
                 }
                 else
@@ -257,12 +266,13 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
             }
         }
 
+        EnsureNativeCreationHasNoAdditionalForms();
         EnsureProvisionedFormsFromMerits();
         RefreshForcedTransformationHeartbeatRegistration();
 
         foreach (IKnowledge knowledge in template.SelectedKnowledges)
         {
-            _characterKnowledges.Add(new RPG.Knowledge.CharacterKnowledge(this, knowledge, "Chargen"));
+            _characterKnowledges.Add(new RPG.Knowledge.CharacterKnowledge(this, knowledge, "Chargen", deferInitialisation));
             foreach (IScript script in Gameworld.Scripts.Where(x => x.ScriptKnowledge == knowledge))
             {
                 if (_scripts.Contains(script))
@@ -274,10 +284,10 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
             }
         }
 
-        Body.TotalBloodVolumeLitres = TotalBloodVolume(this);
+        Body.TotalBloodVolumeLitres = deferInitialisation ? 0 : TotalBloodVolume(this);
         Body.CurrentBloodVolumeLitres = Body.TotalBloodVolumeLitres;
         //Body.BaseLiverAlcoholRemovalKilogramsPerHour = LiverFunction(this);
-        InitialiseStamina();
+        if (!deferInitialisation) InitialiseStamina();
         foreach (ILanguage language in template.SkillValues.SelectMany(skill =>
                      Gameworld.Languages.Where(x => x.LinkedTrait == skill.Item1)).Distinct())
         {
@@ -311,31 +321,26 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
             trait.Initialise(this);
         }
 
-		ResolveNativeLanguage(template.SelectedNativeLanguage, template.SelectedEthnicity?.NativeLanguage, template.SelectedCulture?.NativeLanguage);
-		var selectedNativeAccent = template.SelectedAccents.Where(x => x.Language == NativeLanguage && x.Role == AccentRole.Native).OrderBy(x => x.Id).FirstOrDefault();
-		if (selectedNativeAccent is not null) _preferredAccents[NativeLanguage] = selectedNativeAccent;
-		foreach (var language in _languages) EnsureAcquisitionAccent(language, available: language.Accents.Where(x => x.IsAvailableInChargen(template)));
-		// Apply the floor to new starting familiarity; existing character loads bypass this path.
-		var startingAccents = _accents.ToList();
-		_accents.Clear();
-		foreach (var entry in startingAccents) LearnAccent(entry.Key, entry.Value);
-		_currentAccent = PreferredAccent(_currentLanguage);
+		if (!deferInitialisation) InitialiseTemplateLanguageChoices(template);
 
         Body.RecalculatePartsAndOrgans(); // Sometimes character merits can change these after the body already sets them
         Body.RecalculateItemHelpers();
-        _noSave = false;
+        _noSave = deferInitialisation;
         SetCombatSettingsProvisional(CharacterCombatSettingsResolver.ResolveProvisional(this));
 
-        List<IDefaultHook> hooks = Gameworld.DefaultHooks.Where(x => x.Applies(template, "Character")).ToList();
+        List<IDefaultHook> hooks = deferInitialisation ? [] : Gameworld.DefaultHooks.Where(x => x.Applies(template, "Character")).ToList();
         foreach (IDefaultHook hook in hooks)
         {
             InstallHook(hook.Hook);
         }
 
-        CurrentStamina = MaximumStamina;
-        Gameworld.SaveManager.AddInitialisation(this);
+        if (!deferInitialisation)
+        {
+            CurrentStamina = MaximumStamina;
+            Gameworld.SaveManager.AddInitialisation(this);
+        }
         capacityRestoration.Dispose();
-        ReconcileCastingResourceCapacities();
+        if (!deferInitialisation) ReconcileCastingResourceCapacities();
     }
 
 	internal static IReadOnlyCollection<ISignedLanguage> ResolveSignedLanguagesForTemplate(IFuturemud gameworld,
@@ -1472,9 +1477,9 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
             AccountId = Account?.Id != 0 ? Account?.Id : default,
             NameInfo = SaveNames().ToString(),
             Name = PersonalName.GetName(NameStyle.GivenOnly),
-            NeedsModel = CharacterCreation.Chargen.NeedsModelProg != null
+            NeedsModel = !_deferredNativeInitialisation && CharacterCreation.Chargen.NeedsModelProg != null
                 ? (string)CharacterCreation.Chargen.NeedsModelProg.Execute(this)
-                : "NoNeeds",
+                : NeedsModel.ModelName,
             State = (int)State,
             Status = (int)_status,
             RoomLayer = (int)RoomLayer,

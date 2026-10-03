@@ -65,6 +65,7 @@ internal static class CastingNumerics
 				if (property.GetValue(effect) is ITraitExpression expression && !bindings.Any(x => ReferenceEquals(x.Expression, expression)))
 					yield return $"{label}/{property.Name}: unsupported route-bound numerical field.";
 			if (effect is TraitBoostEffect { Trait: null }) yield return $"{label}/boost.Trait: missing trait.";
+			if (effect is CreateNPCEffect { DefinitionError: { } creationError }) yield return $"{label}/createnpc: {creationError}";
 			if (effect is SpellArmourEffect armour && (armour.ArmourConfiguration.ArmourType is null || armour.ArmourConfiguration.ArmourMaterial is null))
 				yield return $"{label}/spellarmour: missing armour type/material.";
 		}

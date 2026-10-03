@@ -36,6 +36,7 @@ public partial class Character
     public virtual IGameItem Die()
     {
         if (IsArchived) return null;
+        if (State.HasFlag(CharacterState.Dead)) return Corpse?.Parent;
         // Reasons why character can't die
         if (IsAdministrator())
         {

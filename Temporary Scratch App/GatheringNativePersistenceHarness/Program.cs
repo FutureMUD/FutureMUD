@@ -65,6 +65,8 @@ internal static partial class GNHProgram
 				["--lifecycle-run"] => RunLifecycleAcceptanceChecks(),
 				["--npc-archive-run"] => RunNpcArchiveAcceptanceChecks(),
 				["--npc-archive-maintenance-run"] => RunNpcArchiveMaintenanceChecks(),
+				["--spell-owned-npc-run"] => RunSpellOwnedNpcAcceptanceChecks(),
+				["--spell-owned-npc-reader", .. string[] nativeNpcArguments] => RunSpellOwnedNpcReader(nativeNpcArguments),
 				["--npc-archive-reader", .. string[] archiveArguments] => RunNpcArchiveReader(archiveArguments),
 				["--body-retirement-run"] => RunBodyRetirementAcceptanceChecks(),
 				["--legacy-remains-run"] => RunLegacyRemainsAcceptanceChecks(),

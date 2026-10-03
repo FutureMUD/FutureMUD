@@ -65,6 +65,9 @@ public static class ScrollSpellCompatibility
 				yield return ("Budget", x.BudgetExpression, e => x.BudgetExpression = e);
 				yield return ("Rate", x.RateExpression, e => x.RateExpression = e);
 				break;
+			case CreateNPCEffect { LifetimeExpression: { } expression } x:
+				yield return ("LifetimeSeconds", expression, e => x.LifetimeExpression = e);
+				break;
 		}
 	}
 	public static IReadOnlyList<string> Errors(IMagicSpell spell, bool requireOptIn = true)

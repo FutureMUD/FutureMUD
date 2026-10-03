@@ -1817,6 +1817,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
             {
                 return null;
             }
+			if (MudSharp.Magic.Lifecycle.SpellOwnedNpcService.IsActivationPending(FMDB.Context, id)) return null;
 
             Models.Npc dbnpc = null;
             if (dbchar.NpcsCharacter.Any())

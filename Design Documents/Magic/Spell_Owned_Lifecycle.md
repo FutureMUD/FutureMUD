@@ -1,8 +1,67 @@
 # Spell-owned lifecycle foundation
 
-Phase3B1 adds the conservative canonical NPC archival boundary described below. Native
-template creation, ordinary corpse deletion/decay, foreign-item evacuation and the scheduled
-retirement worker remain later adapter work. Full N14–N16 acceptance remains outstanding.
+Phase3B1 adds the conservative canonical NPC archival boundary described below. Phase3B2A
+connects explicit `createnpc` lifecycle provenance to native simple-template construction and
+persisted death/remains recovery. Ordinary corpse deletion/decay, foreign-item evacuation and
+the scheduled retirement worker remain later adapter work. Full N14-N16 remains outstanding.
+
+## Native NPC creation and death recovery
+
+The optional world `SpellOwnedNpcs` service and template `CreateSpellOwnedCharacter` overload
+create an accountless native NPC from an approved simple template. Legacy `createnpc` XML
+keeps its existing creation behavior. Builders opt in with `lifecycle permanent`,
+`lifecycle temporarycleanup` or `lifecycle deathonexpiry`, set `family <name>`, and give
+temporary modes a positive finite `lifetime <expression>` in real seconds. The selected
+casting grade binds that formula; this absolute lifetime is independent of spell/control
+duration. Missing grades, bad schema/mode, invalid formulas, unapproved or variable templates,
+prostheses, role trait adjustments and merit-provided extra bodies refuse until their
+creation adapters exist. Role trait adjustments currently mutate independently queued
+traits and invoke native callbacks; refusing them preserves their ordinary creation semantics.
+
+Preparation allocates a stable creation key and canonical creator ID. A fresh serializable
+transaction inserts the production NPC/Character/Body/primary instance graph and exact
+autonomous-character/body claims with UTC creation/deadline, source spell, selected grade,
+family, template/invocation provenance and an activation-pending diagnostic. The private
+graph has no queued initialization, cell/world presence, controller or hook subscriptions
+before that transaction commits. Starting CharacterKnowledge children also suppress their
+own queues and ID-triggered flush until the character graph assigns committed row IDs.
+No unrelated pending saves are flushed.
+
+The persisted actor and primary instance begin in Stasis. After the ownership commit, native
+needs/vitals/language/default hooks and controller activation run; a second atomic transaction
+saves that private graph, preserves authored raw character skills even when a dynamic cap
+exposes a lower usable value, resumes and saves starting knowledge privately, and clears
+activation-pending before returning it for world insertion,
+template additions, both on-load programs, cell login and game-load events. A failed activation
+releases partial hooks, heartbeats, controller and save roots, retains the owned inactive graph
+with a durable diagnostic, and refuses creation replay. Startup and `TryGetCharacter` exclude
+activation-pending identities. Crash recovery does not recreate the NPC or rerun activation.
+Permanent creation completes its journal after activation and becomes an ordinary durable NPC
+without a deadline. Temporary creation retains active ownership evidence.
+
+`NPC.Die` correlates only after the native method has persisted death and created its optional
+remains. Actual corpse insertion is saved before recording its ID, and the journal independently
+checks dead state and the exact body in persisted remains XML. Pre-death events are not death
+proof. An already-dead `Character.Die` returns existing remains without repeating death events
+or creating another corpse. Failed correlation retains a bounded retry diagnostic.
+
+After startup NPC load callbacks and on the minute heartbeat, a bounded persisted query finds
+unobserved dead owned NPCs, including early deaths whose original deadline is still future.
+It rotates its cursor, reads exact body ownership and correlates zero or one persisted remains
+reference without materializing a dead Character/Body/controller/AI graph. Multiple matches,
+malformed candidates, changed bodies or a census over 256 candidate component rows hold.
+The candidate census includes numeric XML character references, whose decoded body IDs must
+not be mistaken for absence merely because the raw serialized digits differ.
+Observation cancels the need for a second native death; retries do not change existing remains,
+recast, delete rows or replay callbacks. This service does not evacuate custody or retire anything.
+
+Native acceptance uses real maintained-snapshot MySQL, `SimpleNPCTemplate`, production new
+NPC/Body/primary insertion, the real SaveManager, native `NPC.Die`, `GameItemProto.CreateNew`
+and corpse factory/component persistence, plus a separate-process persisted reader. World,
+catalogue and cell hosts are controlled. It qualifies creation ordering, rollback, activation
+quarantine and early-death correlation only. Full `GameItem.Delete`, timed decay, foreign
+goods/container/occupant evacuation, actual `Character.Quit`, expiry death/dissipation,
+installed-world command sessions and full N14/N15/N16 remain not run.
 
 ## Canonical NPC archival boundary
 
@@ -68,9 +127,9 @@ recreated by the generated `Down` migration. Recover a pre-compaction backup whe
 an already-used archival schema.
 
 Phase3A supplies the shared persistence and safe body-retirement boundary for the approved
-Armageddon completion plan. It does not yet attach this contract to `createnpc`, `createitem`,
-corpse animation, projections or the game heartbeat. Their native adapters and acceptance
-remain later dependency stages. Existing spell creation behavior is unchanged in this slice.
+Armageddon completion plan. Phase3B2A attaches explicit `createnpc` creation and death
+correlation to it; `createitem`, corpse animation, projections and destructive retirement
+still need their native adapters and acceptance. Legacy spell creation behavior is retained.
 
 ### Staff corpse maintenance
 
@@ -201,7 +260,7 @@ the assigned recovery report unchanged. These guards create no retirement or spe
 
 ## Remaining acceptance and integration
 
-Full summon retirement still needs durable native creation/materialization, post-death and
+Full summon retirement still needs additional native creation/materialization adapters,
 corpse-release integration, foreign goods/container/occupant evacuation, safe destination
 fallback, AI/subscription release, count/control policy and economy/salvage guards. Current
 ordinary corpse deletion still deletes external inventory; this foundation does not qualify
@@ -210,7 +269,7 @@ temporary summon corpse behavior or change that path.
 Canonical NPC deletion remains unsafe: crime/log history and serialized corpse, witness,
 dub and effect identities can outlive physical graphs. The archival boundary above keeps
 canonical identity and restricts body deletion; no maintenance caller may bypass it with
-a body-only or cascading canonical delete. Native creation/remains/restart integration and
+a body-only or cascading canonical delete. Additional creation/remains/restart integration and
 historical author adapters remain pending. A retained full Character/Body graph is a
 conservative hold, not final high-volume retirement acceptance.
 The lightweight lifecycle/claim journal deliberately has no entity FKs and does not authorize

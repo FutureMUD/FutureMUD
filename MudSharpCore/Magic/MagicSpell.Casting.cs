@@ -8,6 +8,8 @@ namespace MudSharp.Magic;
 
 public partial class MagicSpell
 {
+	internal int? InvocationGrade { get; private set; }
+	internal Guid? InvocationOriginId { get; set; }
 	public IReadOnlyDictionary<IMagicResource, ITraitExpression> CastingCosts => _castingCosts.AsReadOnly();
 	internal MagicSpell CastingCopy(ICharacter actor, ITraitDefinition trait, int grade, SpellPower power, Difficulty difficulty, int? controlledGrade = null)
 	{
@@ -24,6 +26,7 @@ public partial class MagicSpell
 		}
 		model.Definition = definition.ToString(SaveOptions.DisableFormatting);
 		var copy = new MagicSpell(model, Gameworld);
+		copy.InvocationGrade = grade;
 		copy.SetNoSave(true);
 		foreach (var (resource, expression) in copy._castingCosts.ToArray())
 			copy._castingCosts[resource] = CastingNumerics.Bind(expression, trait, grade, power, $"cost/{resource.Id}", Gameworld, controlledGrade);

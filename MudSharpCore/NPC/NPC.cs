@@ -60,23 +60,49 @@ public class NPC : Character.Character, INPC
     }
 
     public NPC(IFuturemud gameworld, ICharacterTemplate template, INPCTemplate npcTemplate)
-        : base(gameworld, template)
+        : this(gameworld, template, npcTemplate, false)
+    {
+    }
+
+	internal NPC(IFuturemud gameworld, ICharacterTemplate template, INPCTemplate npcTemplate, bool deferInitialisation)
+        : base(gameworld, template, deferInitialisation ? NativeInitialisationMode.Deferred : NativeInitialisationMode.Immediate)
     {
         _AIs.AddRange(npcTemplate.ArtificialIntelligences);
         var enabledWildlifeNeeds = EnsureProductionWildlifeNeeds();
         Template = npcTemplate;
         SetCombatSettingsProvisional(MudSharp.Combat.CharacterCombatSettingsResolver.ResolveProvisional(this, Template));
+        if (deferInitialisation) return;
+        InitialiseNativeController();
+        if (enabledWildlifeNeeds)
+        {
+            StartNeedsHeartbeat();
+        }
+    }
+
+	private void InitialiseNativeController()
+	{
         NPCController controller = new();
         controller.UpdateControlFocus(this);
         SilentAssumeControl(controller);
         PermissionLevel = PermissionLevel.NPC;
         CommandTree = Gameworld.RetrieveAppropriateCommandTree(this);
         Register(new NonPlayerOutputHandler());
-        if (enabledWildlifeNeeds)
-        {
-            StartNeedsHeartbeat();
-        }
     }
+
+	internal void ActivateCommittedNativeNpc(ICharacterTemplate template, object model)
+	{
+		ActivateCommittedNativeCharacter(template, model);
+		EnsureProductionWildlifeNeeds();
+		InitialiseNativeController();
+		StartNeedsHeartbeat();
+	}
+
+	internal void ReleaseUnpublishedNativeNpc()
+	{
+		ReleaseEventSubscriptions();
+		ReleaseUnpublishedNativeCharacter();
+		(Controller as NPCController)?.Dispose();
+	}
 
     public INPCTemplate Template { get; private set; }
 
@@ -185,6 +211,7 @@ public class NPC : Character.Character, INPC
 		{
 			controller?.Dispose();
 		}
+		if (State.HasFlag(CharacterState.Dead)) Gameworld.SpellOwnedNpcs?.ObserveNativeDeath(this, remains);
 		return remains;
     }
 

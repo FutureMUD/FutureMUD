@@ -574,6 +574,8 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, ICombatSim
         Chargen.SetupChargen(this);
 		MudSharp.Form.Material.EnvironmentalExposureService.For(this).Refresh();
         HeartbeatManager.StartHeartbeatTick();
+		HeartbeatManager.FuzzyMinuteHeartbeat -= ReconcileSpellOwnedNpcDeaths;
+		HeartbeatManager.FuzzyMinuteHeartbeat += ReconcileSpellOwnedNpcDeaths;
         Track.CreateGlobalHeartbeatEvent();
         CommodityGameItemComponentProto.CreateGlobalHeartbeatEvent();
         EffectScheduler.SetupEffectSaver();
@@ -595,6 +597,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, ICombatSim
         {
             npc.HandleEvent(Events.EventType.NPCOnGameLoadFinished, npc);
         }
+		ReconcileSpellOwnedNpcDeaths();
 
         GameStatistics.LastStartupSpan = TimeSpan.FromMilliseconds(sw.ElapsedMilliseconds);
         ConsoleUtilities.WriteLine("\n#EAttempting to connect to Discord Server...#0");
@@ -2959,6 +2962,8 @@ For information on the syntax to use in emotes (such as those included in bracke
                                       .ThenInclude(x => x.Infections)
                           */
                           where !npc.Character.IsArchived && !((CharacterState)npc.Character.State).HasFlag(CharacterState.Dead)
+                              && !FMDB.Context.MagicSpellLifecycles.Any(life => life.Diagnostic.StartsWith(MudSharp.Magic.Lifecycle.SpellOwnedNpcService.ActivationPendingDiagnostic)
+                                  && life.Entities.Any(e => e.Kind == (int)MudSharp.Magic.SpellOwnedEntityKind.AutonomousCharacter && e.EntityId == npc.CharacterId))
                           select npc).ToList();
 #if DEBUG
         sw.Stop();

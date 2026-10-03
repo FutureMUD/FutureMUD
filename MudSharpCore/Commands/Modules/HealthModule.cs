@@ -1921,7 +1921,19 @@ The syntax is:
                     return;
                 }
 
-                target = corpse.OriginalCharacter;
+                if (corpse.OriginalCharacter is not { } originalCharacter || corpse.OriginalBody is not { } originalBody)
+                {
+                    actor.Send("The original body or owner of that corpse can no longer be identified.");
+                    return;
+                }
+
+                if (originalCharacter.Body?.Id != originalBody.Id)
+                {
+                    actor.Send("This procedure cannot operate on these remains through their surviving owner.");
+                    return;
+                }
+
+                target = originalCharacter;
             }
             else
             {

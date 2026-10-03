@@ -49,15 +49,27 @@ public partial class Character
 		}
 	}
 
-	/// <summary>Resolve a persisted ordinary retired body without redirecting remains to the current body.</summary>
-	internal IBody? LoadOwnedRetiredBody(long bodyId)
+	/// <summary>Read an exact remains body without granting retirement ownership or redirecting its ID.</summary>
+	internal IBody? LoadBodyForRemains(long bodyId, bool allowOwnedLiveBody)
 	{
-		if (bodyId <= 0 || bodyId == CurrentBody.Id) return null;
+		if (bodyId <= 0 || !allowOwnedLiveBody && bodyId == CurrentBody.Id) return null;
 		using var scope = FMDB.BeginIndependentScope();
 		using var db = new FMDB();
-		if (!FMDB.Context.CharacterBodyRetirements.Any(x => x.BodyId == bodyId && x.CharacterId == Id) ||
-		    FMDB.Context.Characters.Any(x => x.BodyId == bodyId) ||
-		    FMDB.Context.CharacterInstances.Any(x => x.BodyId == bodyId)) return null;
+		if (FMDB.Context.Characters.Any(x => x.BodyId == bodyId && x.Id != Id) ||
+		    FMDB.Context.CharacterInstances.Any(x => x.BodyId == bodyId && x.CharacterId != Id) ||
+		    FMDB.Context.CharacterBodies.Any(x => x.BodyId == bodyId && x.CharacterId != Id) ||
+		    FMDB.Context.CharacterBodySources.Any(x => x.BodyId == bodyId && x.CharacterId != Id) ||
+		    FMDB.Context.CharacterBodyRetirements.Any(x => x.BodyId == bodyId && x.CharacterId != Id) ||
+		    !allowOwnedLiveBody && (FMDB.Context.Characters.Any(x => x.BodyId == bodyId) ||
+		                          FMDB.Context.CharacterInstances.Any(x => x.BodyId == bodyId))) return null;
+		var cached = Gameworld.Bodies.Get(bodyId) ?? Bodies.FirstOrDefault(x => x.Id == bodyId) ??
+		             (CurrentBody.Id == bodyId ? CurrentBody : null);
+		if (cached is not null)
+		{
+			return cached.Actor is not null && CharacterInstanceIdentityComparer.IdentityId(cached.Actor) == Id ? cached : null;
+		}
+		// A missing runtime instance must not be reconstructed as an inactive body of the canonical actor.
+		if (FMDB.Context.CharacterInstances.Any(x => x.BodyId == bodyId)) return null;
 		var model = FMDB.Context.Bodies.Find(bodyId);
 		if (model is null) return null;
 		var body = new RuntimeBody(model, Gameworld, this);

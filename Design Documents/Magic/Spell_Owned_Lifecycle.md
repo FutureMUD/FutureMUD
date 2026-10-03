@@ -86,12 +86,26 @@ A failed save leaves those persisted mappings and pointers intact. This ordinary
 does not create a spell lifecycle or claim. Borrowed bodies and the current body cannot be
 registered merely because their `Body.Actor` points to the character.
 
-After restart, corpse and severed-part loaders can resolve that exact retired body and its
-inventory from the durable ordinary record without restoring it as a controllable form.
-Unresolved positive non-final body IDs do not fall back to the surviving current body.
-The record is removed with successful validated body cleanup; foreign possessions or any
-other physical reference keep both body and provenance intact. Existing pre-migration
-retired bodies whose mappings are already gone are not assigned speculative ownership.
+After restart, remains loaders read their exact positive body ID separately from cleanup
+authorization. A legacy body can therefore supply anatomy and inventory even when its
+form/source mappings were pruned before retirement records existed. The read rejects
+known foreign ownership and non-final corpse references to current or embodied bodies,
+including cached bodies. Severed parts may still reference their living owner's exact
+body, and final-death corpses may reference their owner's exact canonical body. Reading
+does not create a form, retirement record or spell claim. Positive IDs never redirect to
+a different body. The durable retirement record is still required for ordinary cleanup
+and is consumed with successful validated deletion; possessions and other references
+keep both body and provenance intact. Legacy reads do not backfill missing authority.
+
+If the body or owner cannot be resolved safely, remains keep their saved ID and present
+an unidentifiable corpse or part. Missing anatomy contributes zero weight, buoyancy and
+edible mass; a severed part's known contained items still contribute and release normally.
+Corpse illumination and wound/damage delegates tolerate the missing body. Butchery,
+skinning, transplantation, replantation and resurrection refuse unresolved anatomy;
+staff final-corpse cleanup skips it. Corpse-target surgery also requires a resolved owner
+whose body matches the corpse's exact body, so it cannot operate on a surviving form.
+Release does not touch a survivor's current inventory
+or authorize deletion of an unproven body.
 
 ## Remaining acceptance and integration
 

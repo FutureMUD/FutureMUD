@@ -133,7 +133,7 @@ public class ResurrectionEffect : IMagicSpellEffectTemplate
             return null;
         }
 
-        if (!corpse.RepresentsFinalCharacterDeath)
+        if (!corpse.RepresentsFinalCharacterDeath || corpse.Body is null || corpse.OriginalCharacter is null)
         {
             return null;
         }

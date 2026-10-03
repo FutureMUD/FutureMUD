@@ -246,6 +246,7 @@ public class ReplantationProcedure : BodypartSpecificSurgicalProcedure
         {
             return false;
         }
+		if (severItem.OriginalBody is null) return false;
 
         if (severItem.OriginalBody.Prototype != patient.Body.Prototype)
         {
@@ -289,6 +290,7 @@ public class ReplantationProcedure : BodypartSpecificSurgicalProcedure
         {
             return $"{item.HowSeen(surgeon, true)} is not a severed bodypart and so cannot be replanted.";
         }
+		if (severItem.OriginalBody is null) return "The original body of those remains can no longer be identified.";
 
         if (severItem.OriginalBody.Prototype != patient.Body.Prototype)
         {

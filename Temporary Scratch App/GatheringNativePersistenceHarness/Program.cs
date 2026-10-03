@@ -64,6 +64,8 @@ internal static partial class GNHProgram
 				["--area-run"] => RunAreaAcceptanceChecks(),
 				["--lifecycle-run"] => RunLifecycleAcceptanceChecks(),
 				["--body-retirement-run"] => RunBodyRetirementAcceptanceChecks(),
+				["--legacy-remains-run"] => RunLegacyRemainsAcceptanceChecks(),
+				["--legacy-remains-reader", .. string[] legacyArguments] => RunLegacyRemainsReader(legacyArguments),
 				["--body-retirement-reader", .. string[] retirementArguments] => RunBodyRetirementReader(retirementArguments),
 				["--lifecycle-reader", .. string[] lifecycleArguments] => RunLifecycleReader(lifecycleArguments),
 				["--area-reader", .. string[] areaReaderArguments] => RunAreaReader(areaReaderArguments),

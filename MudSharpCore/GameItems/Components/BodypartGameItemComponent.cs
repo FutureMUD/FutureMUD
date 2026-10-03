@@ -67,7 +67,10 @@ public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, IL
             return "a severed bodypart";
         }
 
-        return Model.DescribeSevered(type, Decay, OriginalCharacter, OriginalBody, voyeur, this,
+        var body = OriginalBody;
+        var character = OriginalCharacter;
+        if (body is null || character is null) return "an unidentifiable severed bodypart";
+        return Model.DescribeSevered(type, Decay, character, body, voyeur, this,
             EatenWeight / (Model.EdiblePercentage * BodypartWeight));
     }
 
@@ -238,8 +241,9 @@ public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, IL
 
     private void SetupBodypartWeight()
     {
-        _bodypartWeight = OriginalBody.Weight * _parts.Sum(x => x.RelativeHitChance) /
-                          (OriginalBody.Bodyparts.Sum(x => x.RelativeHitChance) +
+        if (OriginalBody is not { } body) return;
+        _bodypartWeight = body.Weight * _parts.Sum(x => x.RelativeHitChance) /
+                          (body.Bodyparts.Sum(x => x.RelativeHitChance) +
                            _parts.Sum(x => x.RelativeHitChance)) +
                           Wounds.Sum(x => x.Lodged?.Weight ?? 0.0);
     }
@@ -326,7 +330,8 @@ public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, IL
 
         _tattoos.Clear();
         ReleaseDecayListener();
-        originalCharacter.TryCleanupRetiredBody(originalBody, Parent);
+        if (originalCharacter is not null && originalBody is not null)
+            originalCharacter.TryCleanupRetiredBody(originalBody, Parent);
     }
 
     public override void Quit()
@@ -385,11 +390,13 @@ public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, IL
         }
     }
 
-    public override double ComponentWeight => Contents.Sum(x => x.Weight) + BodypartWeight - EatenWeight;
+    public override double ComponentWeight => Contents.Sum(x => x.Weight) +
+        (OriginalBody is null ? 0.0 : BodypartWeight - EatenWeight);
 
     public override double ComponentBuoyancy(double fluidDensity)
     {
-        return Contents.Sum(x => x.Buoyancy(fluidDensity)) + (BodypartWeight - EatenWeight) * (fluidDensity - 1.01);
+        return Contents.Sum(x => x.Buoyancy(fluidDensity)) +
+            (OriginalBody is null ? 0.0 : BodypartWeight - EatenWeight) * (fluidDensity - 1.01);
     }
 
     public override bool SwapInPlace(IGameItem existingItem, IGameItem newItem)
@@ -591,7 +598,7 @@ public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, IL
         }
     }
 
-    public double RemainingEdibleWeight => BodypartWeight * Model.EdiblePercentage - EatenWeight;
+    public double RemainingEdibleWeight => OriginalBody is null ? 0.0 : BodypartWeight * Model.EdiblePercentage - EatenWeight;
 
     public void SeveredBodypartWasInstalledInABody()
     {
@@ -612,9 +619,7 @@ public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, IL
     private void LoadOriginalReferences(bool viaSaveManager)
     {
         _originalCharacter = Gameworld.TryGetCharacter(OriginalCharacterId, true);
-        _originalBody = Gameworld.Bodies.Get(_originalBodyId) ??
-                        _originalCharacter?.Bodies.FirstOrDefault(x => x.Id == _originalBodyId) ??
-                        (_originalCharacter as MudSharp.Character.Character)?.LoadOwnedRetiredBody(_originalBodyId);
+        _originalBody = RemainsBodyReferenceResolver.Resolve(Gameworld, _originalCharacter, _originalBodyId, true);
         if (_originalBody == null && _originalCharacter != null && _originalBodyId == 0)
         {
             _originalBody = _originalCharacter.Body;
@@ -663,7 +668,7 @@ public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, IL
 
     public long OriginalBodyId => _originalBodyId;
 
-    public MudSharp.Character.Heritage.IRace OriginalRace => OriginalBody.Race;
+    public MudSharp.Character.Heritage.IRace OriginalRace => OriginalBody?.Race;
 
     public IBody OriginalBody
     {
@@ -729,6 +734,7 @@ public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, IL
 
     public bool Butcher(ICharacter butcher, string subcategory = null)
     {
+		if (OriginalBody is null || OriginalRace?.ButcheryProfile is null) return false;
 		if (!ItemManipulationGuard.CanManipulate(butcher, out var manipulationReason, Parent))
 		{
 			return false;
@@ -849,6 +855,7 @@ public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, IL
 
     public void Skin(ICharacter skinner)
     {
+		if (OriginalBody is null || OriginalRace?.ButcheryProfile is null) return;
 		if (!ItemManipulationGuard.CanManipulate(skinner, out var manipulationReason, Parent))
 		{
 			return;

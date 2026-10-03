@@ -435,7 +435,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
             if (IsItemType<ICorpse>())
             {
                 ICorpse corpse = GetItemType<ICorpse>();
-                total += corpse.Body.ExternalItems.Sum(x => x.IlluminationProvided);
+                total += corpse.Body?.ExternalItems.Sum(x => x.IlluminationProvided) ?? 0.0;
             }
 
             foreach (IProduceIllumination effect in EffectsOfType<IProduceIllumination>().Where(x => x.Applies()))

@@ -577,6 +577,21 @@ Read-only generated remains components such as `Corpse` and `Bodypart` now also 
 - they also persist the specific source `Body` id so anatomy, inventory, carried implants, wound routing, and surgery compatibility continue to reflect the form that actually died or was severed
 - later character form switches must not cause old corpses or severed parts to silently change shape, wearability, butchery yields, or transplant eligibility
 
+On reload, a positive source body ID is read exactly, including legacy remains whose
+form mappings were pruned before retirement records existed. This read rejects known
+foreign bodies and non-final corpses pointing at a current or embodied body; cached
+references receive the same checks. A living owner's severed part and a final-death
+corpse may retain their owner's exact current body. Reading supplies no cleanup authority
+or new ownership metadata and never substitutes a different body for a positive ID.
+
+Unresolved remains keep that ID and show an unidentifiable corpse or part. Missing anatomy
+contributes zero weight, buoyancy and edible mass, while known part contents still count
+and release normally. Corpse illumination and damage/wound delegates remain safe.
+Anatomy-dependent butchery, skinning, surgery and resurrection refuse the unresolved body;
+staff final-corpse cleanup skips it. Corpse-target surgery additionally requires the
+resolved owner's body to match the exact corpse body. Release leaves the survivor's inventory intact and
+continues to require independently proven authority before deleting a retired body.
+
 ## Real Example: Container
 `ContainerGameItemComponentProto` is a representative example of a typical editable component proto:
 - stores builder-editable values like weight limit, max size, transparency, and preposition

@@ -227,6 +227,7 @@ public class OrganTransplantProcedure : BodypartSpecificSurgicalProcedure
         IGameItem item = args[0] as IGameItem;
 
         ISeveredBodypart severItem = item?.GetItemType<ISeveredBodypart>();
+		if (severItem?.OriginalBody is null) return false;
 
         if (!(severItem?.RootPart is IOrganProto organ))
         {
@@ -277,6 +278,7 @@ public class OrganTransplantProcedure : BodypartSpecificSurgicalProcedure
         {
             return $"{item.HowSeen(surgeon, true)} is not an excised organ and so cannot be transplanted.";
         }
+		if (severItem.OriginalBody is null) return "The original body of those remains can no longer be identified.";
 
         if (severItem.RootPart is not IOrganProto organ)
         {

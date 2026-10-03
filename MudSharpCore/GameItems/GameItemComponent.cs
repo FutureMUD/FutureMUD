@@ -270,6 +270,7 @@ public abstract class GameItemComponent : LateInitialisingItem, IGameItemCompone
 
     public override void Save()
     {
+		ForeignCustodyTransferContext.RecordSave(this);
         if (_noSave)
         {
             return;

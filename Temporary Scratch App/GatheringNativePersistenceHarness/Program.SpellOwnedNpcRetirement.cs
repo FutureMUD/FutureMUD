@@ -40,7 +40,7 @@ namespace FutureMUD.GatheringNativePersistenceHarness;
 internal static partial class GNHProgram
 {
 	private sealed record RetirementReader(string Database, FixtureIds Fixture, Guid Lifecycle, DateTime Now,
-		long Corpse, long[] Foreign, string Action, long ExternalItem = 0);
+		long Corpse, long[] Foreign, string Action, long ExternalItem = 0, double ExpectedResource = 0, double ExpectedStamina = 0);
 	private sealed record RetirementHost(NativeRuntime Native, Futuremud Roots, SpellOwnedNpcService Service,
 		SpellOwnedLifecycleStore Store, Scheduler Scheduler, HeartbeatManager Heartbeats, All<IGameItem> Items,
 		Dictionary<long, GameItemProto> Prototypes);
@@ -546,27 +546,69 @@ internal static partial class GNHProgram
 		morphCorpse.Delete(); host.Service.ReconcileRetirements(RuntimeClock.UtcNow); Completed(morphNpc);
 		Console.WriteLine("ARM03B2B-replacement-morph-hold=passed actual-native-Scheduler-fired positive-target-Morph refused-before-new-item-output-transfer-or-activation exact-item-row-count-and-original-corpse-retained explicit-replacement-adapter-hold ordinary-removal-still-works");
 
-		var faulted = Create(SpellLifecycleMode.TemporaryCleanup); var faultForeign = New("goods");
-		faulted.Body.Get(faultForeign, silent: true); native.World.SaveManager.Flush(); var faultLife = Life(faulted);
-		clock.Advance(TimeSpan.FromSeconds(61));
-		using (var db = NewIndependentContext(database.ConnectionString)) db.Database.ExecuteSqlRaw("CREATE TRIGGER arm03b2b_evacuation_refusal BEFORE INSERT ON Cells_GameItems FOR EACH ROW SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'ARM03B2B evacuation rollback fixture'");
-		try { host.Service.ReconcileRetirements(RuntimeClock.UtcNow); }
-		finally { using var db = NewIndependentContext(database.ConnectionString); db.Database.ExecuteSqlRaw("DROP TRIGGER arm03b2b_evacuation_refusal"); }
-		using (var db = NewIndependentContext(database.ConnectionString))
-			Require(!faulted.State.HasFlag(CharacterState.Dead) && Life(faulted).State == SpellLifecycleState.Retiring && db.BodiesGameItems.Any(x => x.BodyId == faulted.Body.Id && x.GameItemId == faultForeign.Id) &&
-				!db.CellsGameItems.Any(x => x.GameItemId == faultForeign.Id), "Failed foreign transfer did not retain durable intent and rolled-back native custody before death.");
-		native.World.SaveManager.Flush();
-		using (var db = NewIndependentContext(database.ConnectionString))
-			Require(faulted.Body.AllItems.Contains(faultForeign) && ReferenceEquals(faultForeign.InInventoryOf, faulted.Body) &&
-				db.BodiesGameItems.Count(x => x.BodyId == faulted.Body.Id && x.GameItemId == faultForeign.Id) == 1 &&
-				!db.CellsGameItems.Any(x => x.GameItemId == faultForeign.Id), "Provider-refused evacuation leaked through an ordinary save flush.");
-		faulted.Quit(silent: true); native.World.SaveManager.Flush();
-		((All<ICharacter>)host.Roots.CachedActors).Remove(faulted); ((All<ICharacter>)host.Roots.Actors).Remove(faulted);
-		((All<ICharacter>)host.Roots.NPCs).Remove(faulted); ((All<IBody>)host.Roots.Bodies).Remove(faulted.Body);
-		faultForeign.Quit(); host.Items.Remove(faultForeign);
-		RunOwnedRetirementReader(new(database.Name, fixture, faultLife.Origin.Id, RuntimeClock.UtcNow, 0, [faultForeign.Id], "retire"));
-		host.Service.ReconcileRetirements(RuntimeClock.UtcNow); Completed(faulted);
-		Console.WriteLine("ARM03B2B-crash-retry=passed actual-provider-refused-cell-join after-native-runtime-transfer transaction-rollback original-persisted-body-join-retained no-native-death-before-commit separate-process-reload-and-expiry conservation-before-death one-cell-join canonical-completion old-process-runtime-release");
+		foreach (var callbackSaves in new[] { false, true })
+		{
+			var faulted = Create(SpellLifecycleMode.TemporaryCleanup); var faultForeign = New("goods");
+			faulted.Body.Get(faultForeign, silent: true);
+			faultForeign.AddResource(native.Resource, 80); faulted.Body.CurrentStamina = 100;
+			native.World.SaveManager.Flush(); var faultLife = Life(faulted);
+			Require(faultForeign.UseResource(native.Resource, 13), "Could not debit the foreign resource fixture.");
+			faulted.Body.CurrentStamina -= 17;
+			Require(((GameItem)faultForeign).ResourcesChanged && ((MudSharp.Body.Implementations.Body)faulted.Body).StaminaChanged &&
+				faultForeign.MagicResourceAmounts[native.Resource] == 67 && faulted.Body.CurrentStamina == 83,
+				"Foreign resource and body stamina must be pending before provider-refused evacuation.");
+			var nativeBody = (MudSharp.Body.Implementations.Body)faulted.Body;
+			var bodyFlags = new[] { "_inventoryChanged", "_staminaChanged", "_meritsChanged", "_bodypartsChanged", "_drugsChanged", "_characteristicsChanged", "_needsChanged", "_prostheticsChanged", "_implantsChanged", "_tattoosChanged", "_scarsChanged", "_effectsChanged", "_surfaceLiquidChanged" };
+			var itemFlags = new[] { "_resourcesChanged", "_effectsChanged", "_hooksChanged", "_positionChanged", "_surfaceLiquidChanged" };
+			foreach (var flag in bodyFlags) SetPrivateField(nativeBody, flag, true);
+			foreach (var flag in itemFlags) SetPrivateField(faultForeign, flag, true);
+			SetPrivateField(nativeBody, "_needsChangedCount", 4);
+			var expectedResource = callbackSaves ? 60.0 : 67.0; var expectedStamina = callbackSaves ? 73.0 : 83.0;
+			var expectedNeedsCount = 4; var callbackSavesCount = 0;
+			InventoryChangeEvent savePending = (_, _, item) =>
+			{
+				if (!callbackSaves || !ReferenceEquals(item, faultForeign) || callbackSavesCount != 0) return;
+				callbackSavesCount++;
+				Require(faultForeign.UseResource(native.Resource, 5), "Callback resource debit refused."); nativeBody.CurrentStamina -= 7;
+				faultForeign.Save(); nativeBody.Save();
+				Require(faultForeign.UseResource(native.Resource, 2), "Second callback resource debit refused."); nativeBody.CurrentStamina -= 3;
+				nativeBody.NeedsChanged = true;
+				expectedNeedsCount = (int)GetPrivateField(nativeBody, "_needsChangedCount")!;
+				((GameItem)faultForeign).SaveMagic(FMDB.Context.GameItems.Find(faultForeign.Id)!); nativeBody.Save();
+			};
+			faulted.Body.OnInventoryChange += savePending;
+			clock.Advance(TimeSpan.FromSeconds(61));
+			using (var db = NewIndependentContext(database.ConnectionString)) db.Database.ExecuteSqlRaw("CREATE TRIGGER arm03b2b_evacuation_refusal BEFORE INSERT ON Cells_GameItems FOR EACH ROW SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'ARM03B2B evacuation rollback fixture'");
+			try { host.Service.ReconcileRetirements(RuntimeClock.UtcNow); }
+			finally { faulted.Body.OnInventoryChange -= savePending; using var db = NewIndependentContext(database.ConnectionString); db.Database.ExecuteSqlRaw("DROP TRIGGER arm03b2b_evacuation_refusal"); }
+			using (var db = NewIndependentContext(database.ConnectionString))
+				Require(!faulted.State.HasFlag(CharacterState.Dead) && Life(faulted).State == SpellLifecycleState.Retiring && db.BodiesGameItems.Any(x => x.BodyId == faulted.Body.Id && x.GameItemId == faultForeign.Id) &&
+					!db.CellsGameItems.Any(x => x.GameItemId == faultForeign.Id), "Failed foreign transfer did not retain durable intent and rolled-back native custody before death.");
+			Require(bodyFlags.All(flag => (bool)GetPrivateField(nativeBody, flag)!) && itemFlags.All(flag => (bool)GetPrivateField(faultForeign, flag)!) &&
+				(int)GetPrivateField(nativeBody, "_needsChangedCount")! == expectedNeedsCount && callbackSavesCount == (callbackSaves ? 1 : 0),
+				"Provider rollback did not rearm every consumed section flag or preserve needs batching progress.");
+			native.World.SaveManager.Flush();
+			using (var db = NewIndependentContext(database.ConnectionString))
+			{
+				Require(faulted.Body.AllItems.Contains(faultForeign) && ReferenceEquals(faultForeign.InInventoryOf, faulted.Body) &&
+					db.BodiesGameItems.Count(x => x.BodyId == faulted.Body.Id && x.GameItemId == faultForeign.Id) == 1 &&
+					!db.CellsGameItems.Any(x => x.GameItemId == faultForeign.Id), "Provider-refused evacuation leaked through an ordinary save flush.");
+				var resource = db.GameItemsMagicResources.Single(x => x.GameItemId == faultForeign.Id && x.MagicResourceId == native.Resource.Id).Amount;
+				var stamina = db.Bodies.Find(faulted.Body.Id)!.CurrentStamina;
+				Console.WriteLine($"ARM03B2D-dirty-observed=runtime-resource:{faultForeign.MagicResourceAmounts[native.Resource]} persisted-resource:{resource} runtime-stamina:{faulted.Body.CurrentStamina} persisted-stamina:{stamina} original-custody:true");
+				Require(resource == expectedResource && stamina == expectedStamina, "Rolled-back full native saves consumed pending foreign resource or body stamina before ordinary Flush.");
+			}
+			RunOwnedRetirementReader(new(database.Name, fixture, faultLife.Origin.Id, RuntimeClock.UtcNow, 0, [faultForeign.Id],
+				"dirty-custody", ExpectedResource: expectedResource, ExpectedStamina: expectedStamina));
+			Console.WriteLine("ARM03B2D-provider-dirty-" + (callbackSaves ? "callback-saves" : "flush") + "=passed unflushed-foreign-resource-debit-and-body-stamina ordinary-Flush original-native-and-persisted-custody fresh-process-reload no-queue-abort");
+			faulted.Quit(silent: true); native.World.SaveManager.Flush();
+			((All<ICharacter>)host.Roots.CachedActors).Remove(faulted); ((All<ICharacter>)host.Roots.Actors).Remove(faulted);
+			((All<ICharacter>)host.Roots.NPCs).Remove(faulted); ((All<IBody>)host.Roots.Bodies).Remove(faulted.Body);
+			faultForeign.Quit(); host.Items.Remove(faultForeign);
+			RunOwnedRetirementReader(new(database.Name, fixture, faultLife.Origin.Id, RuntimeClock.UtcNow, 0, [faultForeign.Id], callbackSaves ? "retire-dirty" : "retire"));
+			host.Service.ReconcileRetirements(RuntimeClock.UtcNow); Completed(faulted);
+			Console.WriteLine((callbackSaves ? "ARM03B2D-late-dirty-crash-retry" : "ARM03B2B-crash-retry") + "=passed actual-provider-refused-cell-join after-native-runtime-transfer transaction-rollback original-persisted-body-join-retained no-native-death-before-commit separate-process-reload-and-expiry conservation-before-death one-cell-join canonical-completion old-process-runtime-release");
+		}
 
 		var baseline = RetirementRuntimeCensus(host); var bodyBaseline = HeavyCensus(database);
 		for (var i = 0; i < 16; i++)
@@ -588,6 +630,15 @@ internal static partial class GNHProgram
 	{
 		using var db = NewIndependentContext(database.ConnectionString); return (db.Bodies.Count(), db.Npcs.Count(), db.CharacterInstances.Count());
 	}
+
+	private static object? GetPrivateField(object target, string name)
+	{
+		for (var type = target.GetType(); type is not null; type = type.BaseType)
+			if (type.GetField(name, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.DeclaredOnly) is { } field)
+				return field.GetValue(target);
+		throw new InvalidOperationException("Missing native pending-state fixture field: " + name);
+	}
+
 	private static (int Actors, int Cached, int Npcs, int Bodies, int Schedules, int Subscribers) RetirementRuntimeCensus(RetirementHost host)
 	{
 		var heap = typeof(Scheduler).GetField("_schedules", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(host.Scheduler)!;
@@ -619,6 +670,19 @@ internal static partial class GNHProgram
 		var clock = new HarnessClock(); clock.Advance(input.Now - clock.GetUtcNow().UtcDateTime); using var time = RuntimeClock.Push(clock);
 		var host = PrepareRetirementHost(database, input.Fixture, clock); var life = host.Store.Find(input.Lifecycle)!;
 		var npc = (RuntimeNpc)host.Native.World.TryGetCharacter(life.Entities.Single(x => x.Kind == SpellOwnedEntityKind.AutonomousCharacter).Id, true);
+		if (input.Action == "dirty-custody")
+		{
+			var root = npc.Body.AllItems.Single(x => x.Id == input.Foreign[0]);
+			using var dirtyDb = NewIndependentContext(database.ConnectionString);
+			Require(root.MagicResourceAmounts[host.Native.Resource] == input.ExpectedResource && npc.Body.CurrentStamina == input.ExpectedStamina &&
+				dirtyDb.GameItemsMagicResources.Single(x => x.GameItemId == root.Id && x.MagicResourceId == host.Native.Resource.Id).Amount == input.ExpectedResource &&
+				dirtyDb.Bodies.Find(npc.Body.Id)!.CurrentStamina == input.ExpectedStamina && ReferenceEquals(root.InInventoryOf, npc.Body) &&
+				dirtyDb.BodiesGameItems.Count(x => x.BodyId == npc.Body.Id && x.GameItemId == root.Id) == 1 &&
+				!dirtyDb.CellsGameItems.Any(x => x.GameItemId == root.Id) && !npc.State.HasFlag(CharacterState.Dead),
+				"Fresh native process lost pending balances or restored custody after rollback and ordinary Flush.");
+			Console.WriteLine("ARM03B2D-reader-dirty-custody=passed native-item-resource-and-body-stamina-reloaded original-held-custody independent-owned-process");
+			return 0;
+		}
 		if (input.Action == "topology")
 		{
 			var root = npc.Body.AllItems.Single(x => x.Id == input.Foreign[0]);
@@ -662,7 +726,7 @@ internal static partial class GNHProgram
 			return 0;
 		}
 
-		if (input.Action == "retire")
+		if (input.Action is "retire" or "retire-dirty")
 		{
 			var deaths = 0; npc.OnDeath += _ => deaths++;
 			using (var trigger = NewIndependentContext(database.ConnectionString)) trigger.Database.ExecuteSqlRaw("CREATE TRIGGER arm03b2b_completion_refusal BEFORE UPDATE ON MagicSpellLifecycles FOR EACH ROW BEGIN IF NEW.State=3 THEN SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'ARM03B2B post-archive completion refusal'; END IF; END");
@@ -672,7 +736,7 @@ internal static partial class GNHProgram
 			Require(deaths == 1 && life.State == SpellLifecycleState.RemainsPending && completed.CharacterArchives.Any(x => x.LifecycleId == input.Lifecycle) && input.Foreign.All(id => completed.GameItems.Any(x => x.Id == id)) &&
 				completed.CellsGameItems.Count(x => x.GameItemId == input.Foreign[0]) == 1 && !completed.Bodies.Any(x => x.Id == npc.Body.Id),
 				"Restart did not resume committed retirement intent with exact conserved custody: " + life.Diagnostic);
-			Console.WriteLine("ARM03B2B-reader-retry=passed separate-owned-process actual-native-live-NPC-and-foreign-item-reload persisted-intent-resumed exact-one-Die no-corpse foreign-cell-join-once real-Quit canonical-archive committed-archive-with-completion-update-provider-refused-and-left-pending-for-crash-retry");
+			Console.WriteLine((input.Action == "retire-dirty" ? "ARM03B2D-reader-late-dirty-retry" : "ARM03B2B-reader-retry") + "=passed separate-owned-process actual-native-live-NPC-and-foreign-item-reload persisted-intent-resumed exact-one-Die no-corpse foreign-cell-join-once real-Quit canonical-archive committed-archive-with-completion-update-provider-refused-and-left-pending-for-crash-retry");
 			return 0;
 		}
 		var corpse = host.Native.World.TryGetItem(input.Corpse, true);

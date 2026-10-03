@@ -113,7 +113,15 @@ locks, attachments, legal ownership and foreign item identities are conserved wi
 recursive deletion or subtree saves. Before transfer, verified native adapters capture
 body inventory and authoritative body position, item custody/position, structural
 component fields and exact enclosing location membership. Failed provider writes restore
-that runtime graph before ordinary gameplay or save flushing can continue. Compensation
+that runtime graph before ordinary gameplay or save flushing can continue. Every captured
+full body/item/component save journals pending section flags before consuming them, including
+callback saves and direct item `SaveMagic` calls. Rollback rearms the thirteen body sections,
+item resources/surface/effects/hooks/position and whole-component definitions, preserving the
+current unflushed resource, stamina and other live values. Needs-save batching is restored
+through raw metadata and an update revision; later live batching progress is retained. The
+journal unwinds independently in reverse order and explicitly requeues missing participants
+without aborting queues. Global flush, direct initialisation and lazy queue draining are refused
+inside the custody transaction before touching unrelated participants. Compensation
 attempts every restore even if explicit provider rollback fails; post-commit activation
 is outside the compensation catch. A restart reloads the original joins ordinarily.
 Post-callback proof also compares exact containment pointers and typed relations by

@@ -907,6 +907,7 @@ public partial class Body : PerceiverItem, IBody
 
     public override void Save()
     {
+		ForeignCustodyTransferContext.RecordSave(this);
         if (Actor is MudSharp.Character.Character { IsArchived: true }) { Changed = false; return; }
         try
         {
@@ -964,6 +965,7 @@ public partial class Body : PerceiverItem, IBody
 
             if (NeedsChanged)
             {
+				ForeignCustodyTransferContext.RecordNeedsSave(this);
                 NeedsChanged = false;
             }
 

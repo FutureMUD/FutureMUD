@@ -152,6 +152,7 @@ public class SaveManager : ISaveManager
 
     public void Flush()
     {
+		ForeignCustodyTransferContext.EnsureFlushOutsideTransfer();
         if (_flushingQueue)
         {
             return;
@@ -188,6 +189,7 @@ public class SaveManager : ISaveManager
 
     public void DirectInitialise(ILateInitialisingItem item)
     {
+		ForeignCustodyTransferContext.EnsureFlushOutsideTransfer();
         if (IsNoSave(item))
         {
             Abort(item);
@@ -379,6 +381,7 @@ public class SaveManager : ISaveManager
 
     public void FlushLazyLoad(TimeSpan maximumTime)
     {
+		ForeignCustodyTransferContext.EnsureFlushOutsideTransfer();
         if (!_lazyLoaders.Any())
         {
             return;

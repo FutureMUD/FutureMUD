@@ -451,6 +451,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 
     public override void Save()
     {
+		ForeignCustodyTransferContext.RecordSave(this);
         Models.GameItem dbitem = FMDB.Context.GameItems.Find(Id);
         if (dbitem is null)
         {
@@ -1749,6 +1750,17 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
     }
 
     public bool Deleted { get; private set; }
+	internal override Action CaptureCustodySaveRollback()
+	{
+		var restoreShared = base.CaptureCustodySaveRollback();
+		var resources = _resourcesChanged; var liquid = _surfaceLiquidChanged;
+		return () =>
+		{
+			_resourcesChanged |= resources; _surfaceLiquidChanged |= liquid;
+			restoreShared();
+		};
+	}
+
 	internal Action CaptureCustodyRollback()
 	{
 		var contained = _containedIn; var location = base.Location; var restorePosition = CaptureCustodyPositionRollback();

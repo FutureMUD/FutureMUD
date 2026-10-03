@@ -294,6 +294,7 @@ public sealed partial class SpellOwnedNpcService
 			foreach (var entry in itemRestores) Recover(entry.Restore);
 			Recover(restoreInventory);
 			Recover(restoreLocation);
+			transfer.RestorePendingSaves(Recover);
 			foreach (var entry in componentRestores) Recover(() => entry.Component.Changed = true);
 			foreach (var item in graph) Recover(() => RouteSpatialService.Instance.TrackPerceivable(item));
 			Recover(body.RecalculateItemHelpers);

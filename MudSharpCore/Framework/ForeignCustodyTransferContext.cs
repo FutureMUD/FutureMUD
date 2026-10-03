@@ -17,7 +17,7 @@ internal static class ForeignCustodyTransferContext
 {
 	private static readonly AsyncLocal<Scope?> Current = new();
 
-	internal static IDisposable Enter(IBody body, IEnumerable<IGameItem> items, ICell destination)
+	internal static Scope Enter(IBody body, IEnumerable<IGameItem> items, ICell destination)
 	{
 		if (Current.Value is not null) throw new InvalidOperationException("Nested foreign custody transfers require a separate adapter.");
 		var scope = new Scope(body, new HashSet<IGameItem>(items, ReferenceEqualityComparer.Instance), destination);
@@ -51,11 +51,63 @@ internal static class ForeignCustodyTransferContext
 			throw new InvalidOperationException("A native transfer callback attempted an uncaptured cell destination.");
 	}
 
-	private sealed class Scope(IBody body, HashSet<IGameItem> items, ICell destination) : IDisposable
+	internal static void RecordSave(PerceivedItem item, long? persistedItemId = null)
+	{
+		if (Current.Value is not { } scope) return;
+		if (item is IGameItem gameItem)
+		{
+			EnsureItem(gameItem);
+			if (persistedItemId.HasValue && persistedItemId != gameItem.Id)
+				throw new InvalidOperationException("A native transfer attempted to save resources to an uncaptured item row.");
+		}
+		else if (!ReferenceEquals(scope.Body, item))
+			throw new InvalidOperationException("A native transfer attempted to save an uncaptured body.");
+		scope.SaveRollbacks.Add(item.CaptureCustodySaveRollback());
+	}
+
+	internal static void RecordSave(GameItemComponent component)
+	{
+		if (Current.Value is not { } scope) return;
+		EnsureItem(component.Parent);
+		// Native components save their whole definition and consume only Changed.
+		scope.SaveRollbacks.Add(() =>
+		{
+			component.Changed = true;
+			if (!component.Gameworld.SaveManager.IsQueued(component)) component.Gameworld.SaveManager.Add(component);
+		});
+	}
+
+	internal static void RecordNeedsSave(MudSharp.Body.Implementations.Body body)
+	{
+		if (Current.Value is not { } scope) return;
+		if (!ReferenceEquals(scope.Body, body))
+			throw new InvalidOperationException("A native transfer attempted to save uncaptured needs state.");
+		scope.SaveRollbacks.Add(body.CaptureNeedsSaveRollback());
+	}
+
+	internal static void EnsureFlushOutsideTransfer()
+	{
+		if (Current.Value is not null)
+			throw new InvalidOperationException("A native custody transaction cannot flush unrelated save queues.");
+	}
+
+	internal sealed class Scope(IBody body, HashSet<IGameItem> items, ICell destination) : IDisposable
 	{
 		internal IBody Body { get; } = body;
 		internal HashSet<IGameItem> Items { get; } = items;
 		internal ICell Destination { get; } = destination;
-		public void Dispose() { if (ReferenceEquals(Current.Value, this)) Current.Value = null; }
+		internal List<Action> SaveRollbacks { get; } = [];
+		internal void RestorePendingSaves(Action<Action> recover)
+		{
+			// A callback can save repeatedly. Undo save bookkeeping in reverse order,
+			// retaining every consumed flag and the first needs-save counter state.
+			for (var i = SaveRollbacks.Count - 1; i >= 0; i--) recover(SaveRollbacks[i]);
+			SaveRollbacks.Clear();
+		}
+		public void Dispose()
+		{
+			if (ReferenceEquals(Current.Value, this)) Current.Value = null;
+			SaveRollbacks.Clear();
+		}
 	}
 }

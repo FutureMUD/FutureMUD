@@ -789,3 +789,17 @@ Item custody and direct magic/violence impressions use a lazy `PsychometricHisto
 Liquid-instance XML preserves magical lot and charge state through splits, mixing and transfer. Substance exposure parents own persistent spell children and use the retained surface-liquid state for maintained oils. See [Magical Substances](../Magic/Magical_Substances.md).
 
 Discrete power requests retain watts as the instantaneous load. The legacy one-argument `IProducePower.DrawdownSpike(wattage)` contract represents an instantaneous spike and remains suitable for continuous producers. Consumers whose operation has a measurable duration use the duration-aware overload instead. Finite stores such as `BatteryPowered` and `PowerBank` convert watts multiplied by elapsed hours into watt-hours for availability checks and debit, while continuous producers validate the same watt load without inventing stored-energy accounting. `PowerTool` uses this duration-aware path for both preflight and consumption, so a tool rated in watts no longer passes watt-seconds into an API whose argument is watts.
+
+
+## Pending state during spell-owned custody evacuation
+
+The bounded native evacuation transaction retains pending full-save state separately from
+physical custody. Each captured item save, including direct `SaveMagic`, records resource,
+surface-liquid, effect, hook and position flags before consuming them. Provider rollback
+restores custody and rearms those flags while keeping current resource debits and other live
+values. Component saves persist whole definitions; their dirty participation is restored too.
+Rollback explicitly requeues missing participants without aborting save queues. A callback
+cannot flush global queues inside this transaction. An ordinary flush after refusal persists
+both the original custody and the pending values; independent native reload qualifies that
+behavior. Other native adapters and installed-world acceptance remain separate gates. See
+[Spell-owned lifecycle](../Magic/Spell_Owned_Lifecycle.md).

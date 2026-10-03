@@ -21,6 +21,18 @@ namespace MudSharp.Framework;
 
 public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivable
 {
+	internal virtual Action CaptureCustodySaveRollback()
+	{
+		var effects = _effectsChanged; var hooks = _hooksChanged; var position = _positionChanged; var noSave = _noSave;
+		return () =>
+		{
+			_noSave = noSave;
+			_effectsChanged |= effects; _hooksChanged |= hooks; _positionChanged |= position;
+			Changed = true;
+			if (!Gameworld.SaveManager.IsQueued(this)) Gameworld.SaveManager.Add(this);
+		};
+	}
+
 	internal Action CaptureCustodyPositionRollback()
 	{
 		var state = _positionState; var modifier = _positionModifier; var emote = _positionEmote;

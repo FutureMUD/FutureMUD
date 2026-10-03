@@ -14,6 +14,7 @@ public partial class Body : IHaveNeeds, IEat
 {
     private bool _needsChanged;
     private int _needsChangedCount;
+	private long _needsChangedRevision;
 
     public bool NeedsChanged
     {
@@ -22,6 +23,7 @@ public partial class Body : IHaveNeeds, IEat
         {
             if (!_noSave)
             {
+				_needsChangedRevision++;
                 if (_needsChangedCount < (int)(Constants.Random.NextDouble() * 5))
                 {
                     //We only save HeartBeat related needs change at random intervals of 1 to 5 minutes

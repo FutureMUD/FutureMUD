@@ -88,6 +88,7 @@ public partial class GameItem : IHaveMagicResource
 
     public void SaveMagic(MudSharp.Models.GameItem item)
     {
+		ForeignCustodyTransferContext.RecordSave(this, item.Id);
         foreach (KeyValuePair<IMagicResource, double> resource in _magicResourceAmounts)
         {
             GameItemMagicResource dbresource = item.GameItemsMagicResources.FirstOrDefault(x => x.MagicResourceId == resource.Key.Id);

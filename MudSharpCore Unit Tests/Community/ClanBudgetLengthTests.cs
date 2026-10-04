@@ -80,31 +80,39 @@ public class ClanBudgetLengthTests
 	}
 
 	[DataTestMethod]
-	[DataRow(0, 255, true)]
+	[DataRow(0, 255, false)]
 	[DataRow(0, 256, false)]
-	[DataRow(5, 255, true)]
+	[DataRow(5, 255, false)]
 	[DataRow(5, 256, false)]
-	public void BudgetDraw_CompleteBankDescriptionBoundary_RejectsBeforeAnyPartialDebit(
-		int virtualBalance, int descriptionLength, bool accepted)
+	[DataRow(0, 255, true)]
+	[DataRow(0, 256, true)]
+	[DataRow(5, 255, true)]
+	[DataRow(5, 256, true)]
+	public void BudgetDraw_CompleteBankDescriptionBoundary_TruncatesAndPreservesFullAuditReason(
+		int virtualBalance, int descriptionLength, bool databaseLedger)
 	{
 		using var fixture = new BudgetFixture();
+		fixture.UseDatabaseLedger(databaseLedger);
 		fixture.AddBudget("office budget", true, virtualBalance);
 		var bankAmount = 10M - virtualBalance;
 		var prefix = $"Withdraw {fixture.AmountDescription(bankAmount)} from transaction - Clan budget office budget: ";
 		var reason = new string('r', descriptionLength - prefix.Length);
 		fixture.Draw(reason);
-		if (!accepted) { fixture.AssertRejectedWithoutMutation(); return; }
-		Assert.AreEqual(descriptionLength, fixture.BankTransactions.Single().TransactionDescription.Length);
-		Assert.AreEqual(prefix + reason, fixture.BankTransactions.Single().TransactionDescription);
+		var expected = (prefix + reason)[..Math.Min(descriptionLength, 255)];
+		Assert.AreEqual(expected, fixture.BankTransactions.Single().TransactionDescription);
+		Assert.AreEqual(expected, fixture.PersistBankTransaction().TransactionDescription);
 		Assert.AreEqual(1000M - bankAmount, fixture.BankAccount.CurrentBalance);
 		Assert.AreEqual(0M, VirtualCashLedger.Balance(fixture.Clan, fixture.Currency.Object));
 		Assert.AreEqual(reason, fixture.Context.ClanBudgetTransactions.Single().Reason);
 	}
 
-	[TestMethod]
-	public void BudgetDraw_ChangingCurrencyFormatting_WithdrawsWithTheExactValidatedDescription()
+	[DataTestMethod]
+	[DataRow(false)]
+	[DataRow(true)]
+	public void BudgetDraw_ChangingCurrencyFormatting_FormatsOnceAndPersistsTheExactDescription(bool databaseLedger)
 	{
 		using var fixture = new BudgetFixture();
+		fixture.UseDatabaseLedger(databaseLedger);
 		var format = fixture.AmountDescription;
 		var bankFormatCount = 0;
 		fixture.AmountDescription = amount => amount == 5M && ++bankFormatCount > 1 ? new string('c', 300) : format(amount);
@@ -116,42 +124,123 @@ public class ClanBudgetLengthTests
 		Assert.AreEqual(995M, fixture.BankAccount.CurrentBalance);
 		Assert.AreEqual(0M, VirtualCashLedger.Balance(fixture.Clan, fixture.Currency.Object));
 		Assert.AreEqual("supplies", fixture.Context.ClanBudgetTransactions.Single().Reason);
+		Assert.AreEqual(fixture.BankTransactions.Single().TransactionDescription,
+			fixture.PersistBankTransaction().TransactionDescription);
 	}
 
 	[DataTestMethod]
-	[DataRow(5, false)]
-	[DataRow(10, true)]
-	public void BudgetDraw_LegacyBankContract_RequiresPreparedCapabilityOnlyForBankFunds(int virtualBalance, bool accepted)
+	[DataRow(5)]
+	[DataRow(10)]
+	public void BudgetDraw_OriginalBankContract_SupportsBankAndVirtualFunding(int virtualBalance)
 	{
 		using var fixture = new BudgetFixture();
 		fixture.AddBudget("office budget", true, virtualBalance);
 		var account = new Mock<IBankAccount>();
+		account.SetupGet(x => x.Id).Returns(12L);
 		account.SetupGet(x => x.Currency).Returns(fixture.Currency.Object);
+		account.SetupGet(x => x.Bank).Returns(fixture.BankAccount.Bank);
+		account.Setup(x => x.CanWithdraw(It.IsAny<decimal>(), false)).Returns((true, string.Empty));
 		fixture.Budget.SetupGet(x => x.BankAccount).Returns(account.Object);
-		var reason = accepted ? new string('r', 1000) : "supplies";
+		var reason = new string('r', 1000);
 		fixture.Draw(reason);
-		if (accepted)
-		{
-			Assert.AreEqual(reason, fixture.Context.ClanBudgetTransactions.Single().Reason);
-			Assert.AreEqual(0M, VirtualCashLedger.Balance(fixture.Clan, fixture.Currency.Object));
-		}
-		else
-		{
-			fixture.AssertRejectedWithoutMutation();
-			Assert.IsTrue(fixture.Messages.Single().Contains("validated withdrawal description"));
-			fixture.Currency.Verify(x => x.Describe(5M, CurrencyDescriptionPatternType.ShortDecimal), Times.Never);
-		}
-		account.Verify(x => x.WithdrawFromTransaction(It.IsAny<decimal>(), It.IsAny<string>()), Times.Never);
+		Assert.AreEqual(reason, fixture.Context.ClanBudgetTransactions.Single().Reason);
+		Assert.AreEqual(0M, VirtualCashLedger.Balance(fixture.Clan, fixture.Currency.Object));
+		account.Verify(x => x.WithdrawFromTransaction(10M - virtualBalance, "Clan budget office budget: " + reason),
+			virtualBalance < 10 ? Times.Once() : Times.Never());
 	}
 
 	[TestMethod]
-	public void BudgetDraw_LongCurrencyDescriptionAndBudgetName_CountsAllFixedAndFormattedText()
+	public void BudgetDraw_LongCurrencyDescriptionAndBudgetName_TruncatesOnlyTheBankDescription()
 	{
 		using var fixture = new BudgetFixture();
 		fixture.AmountDescription = _ => new string('c', 230);
 		fixture.AddBudget(new string('n', 200), true, 5M);
 		fixture.Draw("x");
-		fixture.AssertRejectedWithoutMutation();
+		Assert.AreEqual(255, fixture.BankTransactions.Single().TransactionDescription.Length);
+		Assert.AreEqual("Withdraw " + new string('c', 230) + " from transactio",
+			fixture.PersistBankTransaction().TransactionDescription);
+		Assert.AreEqual("x", fixture.Context.ClanBudgetTransactions.Single().Reason);
+		Assert.AreEqual(995M, fixture.BankAccount.CurrentBalance);
+		Assert.AreEqual(0M, VirtualCashLedger.Balance(fixture.Clan, fixture.Currency.Object));
+	}
+
+	[DataTestMethod]
+	[DataRow(0, 1000, true, false)]
+	[DataRow(0, 1001, false, false)]
+	[DataRow(5, 1000, true, false)]
+	[DataRow(5, 1001, false, false)]
+	[DataRow(0, 1000, true, true)]
+	[DataRow(0, 1001, false, true)]
+	[DataRow(5, 1000, true, true)]
+	[DataRow(5, 1001, false, true)]
+	public void BudgetDraw_BankFundedReasonBoundary_PreservesFullReasonOrRejectsBeforeMutation(
+		int virtualBalance, int reasonLength, bool accepted, bool databaseLedger)
+	{
+		using var fixture = new BudgetFixture();
+		fixture.UseDatabaseLedger(databaseLedger);
+		fixture.AddBudget(new string('n', 200), true, virtualBalance);
+		var reason = new string('r', reasonLength);
+		fixture.Draw(reason);
+		if (!accepted) { fixture.AssertRejectedWithoutMutation(); return; }
+		Assert.AreEqual(reason, fixture.Context.ClanBudgetTransactions.Single().Reason);
+		Assert.AreEqual("Clan budget " + new string('n', 200) + ": " + reason,
+			VirtualCashLedger.LedgerEntries(fixture.Clan).Single(x => x.Amount < 0M).Reason);
+		Assert.AreEqual(255, fixture.PersistBankTransaction().TransactionDescription.Length);
+		Assert.AreEqual(1000M - (10M - virtualBalance), fixture.BankAccount.CurrentBalance);
+		Assert.AreEqual(0M, VirtualCashLedger.Balance(fixture.Clan, fixture.Currency.Object));
+	}
+
+	[DataTestMethod]
+	[DataRow("\U0001F600")]
+	[DataRow("e\u0301")]
+	[DataRow("\U0001F469\u200D\U0001F4BB")]
+	public void BudgetDraw_UnicodeAtDescriptionBoundary_KeepsWholeTextElements(string textElement)
+	{
+		using var fixture = new BudgetFixture();
+		fixture.AddBudget("office budget", true, 5M);
+		var prefix = $"Withdraw {fixture.AmountDescription(5M)} from transaction - Clan budget office budget: ";
+		var padding = new string('r', 254 - prefix.Length);
+		var reason = padding + textElement + "tail";
+		fixture.Draw(reason);
+		Assert.AreEqual(prefix + padding, fixture.BankTransactions.Single().TransactionDescription);
+		Assert.AreEqual(prefix + padding, fixture.PersistBankTransaction().TransactionDescription);
+		Assert.AreEqual(reason, fixture.Context.ClanBudgetTransactions.Single().Reason);
+	}
+
+	[DataTestMethod]
+	[DataRow(false)]
+	[DataRow(true)]
+	public void BudgetDraw_FormattingFailure_LeavesFundsLedgersAndPayoutUntouched(bool databaseLedger)
+	{
+		using var fixture = new BudgetFixture();
+		fixture.UseDatabaseLedger(databaseLedger);
+		fixture.AddBudget("office budget", true, 5M);
+		fixture.AmountDescription = _ => throw new InvalidOperationException("format failed");
+		Assert.ThrowsException<InvalidOperationException>(() => fixture.Draw("supplies"));
+		Assert.AreEqual(5M, VirtualCashLedger.Balance(fixture.Clan, fixture.Currency.Object));
+		Assert.AreEqual(1000M, fixture.BankAccount.CurrentBalance);
+		Assert.AreEqual(0, fixture.BankTransactions.Count);
+		Assert.AreEqual(0, fixture.Context.ClanBudgetTransactions.Count());
+		Assert.IsFalse(VirtualCashLedger.LedgerEntries(fixture.Clan).Any(x => x.Amount < 0M));
+		fixture.Budget.Verify(x => x.AddDrawdown(It.IsAny<IClanBudgetTransaction>()), Times.Never);
+		fixture.AssertNoPayout();
+		Assert.IsFalse(fixture.BankAccount.Changed);
+	}
+
+	[DataTestMethod]
+	[DataRow(255)]
+	[DataRow(256)]
+	public void BankWithdrawal_OriginalTwoArgumentMethod_PersistsTheBoundedDescription(int descriptionLength)
+	{
+		using var fixture = new BudgetFixture();
+		var prefix = $"Withdraw {fixture.AmountDescription(5M)} from transaction - ";
+		var reference = new string('r', descriptionLength - prefix.Length);
+		fixture.BankAccount.WithdrawFromTransaction(5M, reference);
+		var expected = (prefix + reference)[..Math.Min(descriptionLength, 255)];
+		Assert.AreEqual(expected, fixture.BankTransactions.Single().TransactionDescription);
+		Assert.AreEqual(expected, fixture.PersistBankTransaction().TransactionDescription);
+		Assert.AreEqual(995M, fixture.BankAccount.CurrentBalance);
+		fixture.Currency.Verify(x => x.Describe(5M, CurrencyDescriptionPatternType.ShortDecimal), Times.Once);
 	}
 
 	[TestMethod]
@@ -204,8 +293,10 @@ public class ClanBudgetLengthTests
 
 	private sealed class BudgetFixture : IDisposable
 	{
-		private readonly object? _oldContext;
-		private readonly object? _oldCount;
+		private readonly object _ambient;
+		private readonly PropertyInfo _ambientValue;
+		private readonly object? _previousSession;
+		private readonly string _previousConnectionString;
 		private readonly IGameItemProto? _oldCurrencyPrototype;
 		private decimal _openingVirtualBalance;
 		public FuturemudDatabaseContext Context { get; }
@@ -224,13 +315,19 @@ public class ClanBudgetLengthTests
 		public BudgetFixture(int permission = 0)
 		{
 			Assert.IsTrue(string.IsNullOrWhiteSpace(FMDB.ConnectionString), "This fixture requires an explicitly in-memory run.");
-			Assert.IsNull(FMDB.Connection, "This fixture must not replace a live connection.");
-			_oldContext = typeof(FMDB).GetProperty("Context")!.GetValue(null);
-			_oldCount = typeof(FMDB).GetProperty("InstanceCount", BindingFlags.Static | BindingFlags.NonPublic)!.GetValue(null);
+			_previousConnectionString = FMDB.ConnectionString;
 			Context = new FuturemudDatabaseContext(new DbContextOptionsBuilder<FuturemudDatabaseContext>()
 				.UseInMemoryDatabase("percival-clan-budget-" + Guid.NewGuid()).Options);
-			typeof(FMDB).GetProperty("Context")!.SetValue(null, Context);
-			typeof(FMDB).GetProperty("InstanceCount", BindingFlags.Static | BindingFlags.NonPublic)!.SetValue(null, 1u);
+			_ambient = typeof(FMDB).GetField("_ambientSession", BindingFlags.Static | BindingFlags.NonPublic)!.GetValue(null)!;
+			_ambientValue = _ambient.GetType().GetProperty("Value")!;
+			_previousSession = _ambientValue.GetValue(_ambient);
+			var sessionType = typeof(FMDB).GetNestedType("DatabaseSession", BindingFlags.NonPublic)!;
+			var session = Activator.CreateInstance(sessionType, true)!;
+			sessionType.GetProperty("Context")!.SetValue(session, Context);
+			_ambientValue.SetValue(_ambient, session);
+			Assert.IsTrue(FMDB.IsIsolated);
+			Assert.AreSame(Context, FMDB.Context);
+			Assert.IsNull(FMDB.Connection, "This fixture owns an in-memory session without a connection.");
 			VirtualCashLedger.ClearInMemoryForTests();
 			_gameworld.SetupGet(x => x.SaveManager).Returns(Mock.Of<ISaveManager>());
 			SetGameworld(Clan, _gameworld.Object);
@@ -321,6 +418,29 @@ public class ClanBudgetLengthTests
 
 		public void Draw(string reason) => Clan.BudgetCommand(Actor.Object, new StringStack($"draw 1 10 {reason}"));
 
+		public void UseDatabaseLedger(bool enabled)
+		{
+			if (!enabled) return;
+			Assert.IsTrue(FMDB.IsIsolated);
+			Assert.AreSame(Context, FMDB.Context);
+			Assert.IsNull(FMDB.Connection);
+			// Select the EF ledger branch using this already-owned InMemory session; no connection is opened.
+			FMDB.ConnectionString = "percival-owned-inmemory-ledger";
+		}
+
+		public void AssertNoPayout() => _payout.Verify(x => x.Login(), Times.Never);
+
+		public MudSharp.Models.BankAccountTransaction PersistBankTransaction()
+		{
+			using (new FMDB())
+			{
+				var transaction = (BankAccountTransaction)BankTransactions.Single();
+				var row = (MudSharp.Models.BankAccountTransaction)transaction.DatabaseInsert();
+				Context.SaveChanges();
+				return row;
+			}
+		}
+
 		public void AssertRejectedWithoutMutation()
 		{
 			Assert.AreEqual(_openingVirtualBalance, VirtualCashLedger.Balance(Clan, Currency.Object));
@@ -339,8 +459,8 @@ public class ClanBudgetLengthTests
 		public void Dispose()
 		{
 			CurrencyGameItemComponentProto.ItemPrototype = _oldCurrencyPrototype;
-			typeof(FMDB).GetProperty("Context")!.SetValue(null, _oldContext);
-			typeof(FMDB).GetProperty("InstanceCount", BindingFlags.Static | BindingFlags.NonPublic)!.SetValue(null, _oldCount);
+			FMDB.ConnectionString = _previousConnectionString;
+			_ambientValue.SetValue(_ambient, _previousSession);
 			Context.Dispose();
 			VirtualCashLedger.ClearInMemoryForTests();
 		}

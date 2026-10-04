@@ -10,10 +10,11 @@ using MudSharp.TimeAndDate;
 using MudSharp.TimeAndDate.Date;
 using MudSharp.TimeAndDate.Time;
 using System.Runtime.CompilerServices;
+using System.Globalization;
 
 namespace MudSharp.Economy.Banking;
 
-public class BankAccount : SaveableItem, IBankAccount, ILazyLoadDuringIdleTime, IPreparedBankAccountWithdrawal
+public class BankAccount : SaveableItem, IBankAccount, ILazyLoadDuringIdleTime
 {
 	public const int MaximumTransactionDescriptionLength = 255;
 
@@ -443,16 +444,35 @@ public class BankAccount : SaveableItem, IBankAccount, ILazyLoadDuringIdleTime, 
 
 	public static string DescribeWithdrawalFromTransaction(ICurrency currency, decimal amount, string transactionReference)
 	{
-		return $"Withdraw {currency.Describe(amount, CurrencyDescriptionPatternType.ShortDecimal)} from transaction{(!string.IsNullOrEmpty(transactionReference) ? $" - {transactionReference}" : "")}";
+		var description = $"Withdraw {currency.Describe(amount, CurrencyDescriptionPatternType.ShortDecimal)} from transaction{(!string.IsNullOrEmpty(transactionReference) ? $" - {transactionReference}" : "")}";
+		if (description.Length <= MaximumTransactionDescriptionLength)
+		{
+			return description;
+		}
+
+		var length = 0;
+		var elements = StringInfo.GetTextElementEnumerator(description);
+		while (elements.MoveNext())
+		{
+			var end = elements.ElementIndex + elements.GetTextElement().Length;
+			if (end > MaximumTransactionDescriptionLength)
+			{
+				break;
+			}
+
+			length = end;
+		}
+
+		return description[..length];
 	}
 
     public void WithdrawFromTransaction(decimal amount, string transactionReference)
     {
-		WithdrawFromTransaction(amount, transactionReference,
+		WithdrawFromTransactionWithDescription(amount,
 			DescribeWithdrawalFromTransaction(Currency, amount, transactionReference));
     }
 
-	public void WithdrawFromTransaction(decimal amount, string transactionReference, string transactionDescription)
+	internal void WithdrawFromTransactionWithDescription(decimal amount, string transactionDescription)
     {
         MudDateTime time = Bank.EconomicZone.ZoneForTimePurposes.DateTime(Bank.EconomicZone.FinancialPeriodReferenceCalendar);
         RecordTransaction(new BankAccountTransaction(this, BankTransactionType.WithdrawalFromTransaction, amount,

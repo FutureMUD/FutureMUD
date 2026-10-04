@@ -396,23 +396,6 @@ public partial class Clan
 
 		var ledgerReason = $"Clan budget {budget.Name}: {reason}";
 		var bankAccount = budget.BankAccount;
-		var bankAmount = Math.Max(0.0M, amount - VirtualCashLedger.Balance(budget.Clan, budget.Currency));
-		string? bankTransactionDescription = null;
-		if (bankAmount > 0.0M && bankAccount?.Currency == budget.Currency)
-		{
-			if (bankAccount is not IPreparedBankAccountWithdrawal)
-			{
-				actor.OutputHandler.Send("That bank account cannot use the validated withdrawal description.");
-				return;
-			}
-
-			bankTransactionDescription = BankAccount.DescribeWithdrawalFromTransaction(bankAccount.Currency, bankAmount, ledgerReason);
-			if (bankTransactionDescription.Length > BankAccount.MaximumTransactionDescriptionLength)
-			{
-				actor.OutputHandler.Send($"The bank transaction description would exceed {BankAccount.MaximumTransactionDescriptionLength} characters. Please use a shorter drawdown reason or budget name.");
-				return;
-			}
-		}
 
 		budget.RollToCurrentPeriod();
 		if (amount > budget.RemainingBudget)
@@ -423,9 +406,7 @@ public partial class Clan
 		}
 
 		if (!VirtualCashLedger.Debit(budget.Clan, budget.Currency, amount, actor, budget, "Cash",
-			    ledgerReason, bankAccount, Calendar.CurrentDateTime, out var error,
-			    reference: null, referenceText: null,
-			    bankTransactionDescription: bankTransactionDescription))
+			    ledgerReason, bankAccount, Calendar.CurrentDateTime, out var error))
 		{
 			actor.OutputHandler.Send(error);
 			return;

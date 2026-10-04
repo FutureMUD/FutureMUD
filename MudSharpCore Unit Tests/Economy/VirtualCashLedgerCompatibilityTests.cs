@@ -35,6 +35,8 @@ public class VirtualCashLedgerCompatibilityTests
 		Assert.AreEqual(1, methods.Length);
 		CollectionAssert.AreEqual(new[] { typeof(decimal), typeof(string) },
 			methods.Single().GetParameters().Select(x => x.ParameterType).ToArray());
+		Assert.AreEqual(1, typeof(MudSharp.Economy.Banking.BankAccount).GetMethods()
+			.Count(x => x.Name == "WithdrawFromTransaction"));
 	}
 
 	[TestMethod]
@@ -47,6 +49,7 @@ public class VirtualCashLedgerCompatibilityTests
 			typeof(IFrameworkItem), typeof(string)
 		});
 		Assert.IsNotNull(method, "The original twelve-parameter CLR method must remain callable.");
+		Assert.AreEqual(1, typeof(VirtualCashLedger).GetMethods().Count(x => x.Name == "Debit"));
 		Assert.AreEqual(typeof(bool), method.ReturnType);
 		Assert.IsTrue(method.GetParameters()[9].IsOut);
 		foreach (var parameter in method.GetParameters().Skip(10))
@@ -60,7 +63,6 @@ public class VirtualCashLedgerCompatibilityTests
 	public void Debit_OriginalExplicitCaller_PreservesLegacyBankAndReferenceFields()
 	{
 		var (owner, currency, bank, account) = CreateFixture();
-		Assert.IsFalse(account.Object is IPreparedBankAccountWithdrawal);
 		var reference = new Mock<IFrameworkItem>();
 		reference.SetupGet(x => x.Id).Returns(8L);
 		reference.SetupGet(x => x.FrameworkItemType).Returns("Order");
@@ -80,13 +82,14 @@ public class VirtualCashLedgerCompatibilityTests
 	[DataTestMethod]
 	[DataRow(0)]
 	[DataRow(5)]
-	public void Debit_PreparedDescriptionToLegacyBank_RejectsBeforeMutation(int virtualBalance)
+	public void Debit_InsufficientBankFunds_RejectsBeforeMutation(int virtualBalance)
 	{
 		var (owner, currency, bank, account) = CreateFixture();
 		if (virtualBalance > 0) VirtualCashLedger.Credit(owner.Object, currency.Object, virtualBalance, null, null, "Cash", "opening");
+		account.Setup(x => x.CanWithdraw(It.IsAny<decimal>(), false)).Returns((false, "bank blocked"));
 		Assert.IsFalse(VirtualCashLedger.Debit(owner.Object, currency.Object, 10M, null, null, "Cash", "reason",
-			account.Object, null, out var error, null, null, "validated description"));
-		Assert.IsTrue(error.Contains("prepared transaction description"));
+			account.Object, null, out var error));
+		Assert.IsTrue(error.Contains("bank blocked"));
 		Assert.AreEqual((decimal)virtualBalance, VirtualCashLedger.Balance(owner.Object, currency.Object));
 		Assert.IsFalse(VirtualCashLedger.LedgerEntries(owner.Object).Any(x => x.Amount < 0M));
 		Assert.AreEqual(100M, bank.Object.CurrencyReserves[currency.Object]);
@@ -95,17 +98,15 @@ public class VirtualCashLedgerCompatibilityTests
 	}
 
 	[TestMethod]
-	public void Debit_OptionalPreparedCapability_ForwardsExactDescription()
+	public void Debit_FullyVirtualFunding_DoesNotWithdrawFromConfiguredBank()
 	{
 		var (owner, currency, bank, account) = CreateFixture();
-		var prepared = account.As<IPreparedBankAccountWithdrawal>();
-		VirtualCashLedger.Credit(owner.Object, currency.Object, 5M, null, null, "Cash", "opening");
+		VirtualCashLedger.Credit(owner.Object, currency.Object, 10M, null, null, "Cash", "opening");
 		Assert.IsTrue(VirtualCashLedger.Debit(owner.Object, currency.Object, 10M, null, null, "Cash", "reason",
-			account.Object, null, out var error, null, null, "validated description"), error);
-		prepared.Verify(x => x.WithdrawFromTransaction(5M, "reason", "validated description"), Times.Once);
+			account.Object, null, out var error), error);
 		account.Verify(x => x.WithdrawFromTransaction(It.IsAny<decimal>(), It.IsAny<string>()), Times.Never);
 		Assert.AreEqual(0M, VirtualCashLedger.Balance(owner.Object, currency.Object));
-		Assert.AreEqual(95M, bank.Object.CurrencyReserves[currency.Object]);
+		Assert.AreEqual(100M, bank.Object.CurrencyReserves[currency.Object]);
 	}
 
 	private static (Mock<IFrameworkItem> Owner, Mock<ICurrency> Currency, Mock<IBank> Bank, Mock<IBankAccount> Account) CreateFixture()

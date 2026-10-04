@@ -489,6 +489,14 @@ The same-identity effects reuse the same owned-form provisioning conventions as 
 
 Builder-facing examples and command sequences are in [Multiple Body Forms and Instances Builder Guide](../Characters/Multiple_Body_Forms_and_Instances_Builder_Guide.md).
 
+`animatecorpse` additionally supports opt-in `lifecycle durable`, `family <name>` and
+`lifetime <real-seconds expression>`. Its recovery journal persists across reboot while
+the active AI actor still collapses. This bounded adapter accepts final-death corpses
+of dead original owners, owns only the new secondary instance, and restores the same
+borrowed corpse/body/gear after expiry, dispel, death or actor Quit. It refuses
+nonfinal bodies, foreign ownership, unsupported custody and invalid lifetime before
+payment. See [Spell-owned lifecycle](Spell_Owned_Lifecycle.md) for recovery boundaries.
+
 ### Engine V2 dispels, portals, item enchantments, and recipes
 Engine V2 adds a deeper parity layer. True body-left-behind projection and copy/clone gameplay now live in the simultaneous body instance effects above rather than in planar overlays alone.
 

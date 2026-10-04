@@ -45,9 +45,9 @@ internal static partial class GNHProgram
 		SpellOwnedLifecycleStore Store, Scheduler Scheduler, HeartbeatManager Heartbeats, All<IGameItem> Items,
 		Dictionary<long, GameItemProto> Prototypes);
 
-	private static RetirementHost PrepareRetirementHost(TestDatabase database, FixtureIds fixture, HarnessClock clock, bool wielding = false, bool consumablesAnatomy = false)
+	private static RetirementHost PrepareRetirementHost(TestDatabase database, FixtureIds fixture, HarnessClock clock, bool wielding = false, bool consumablesAnatomy = false, bool corpseAnimationAnatomy = false)
 	{
-		var native = NativeRuntime.Load(fixture, database.ConnectionString, true, wielding: wielding, consumablesAnatomy: consumablesAnatomy);
+		var native = NativeRuntime.Load(fixture, database.ConnectionString, true, wielding: wielding, consumablesAnatomy: consumablesAnatomy || corpseAnimationAnatomy);
 		ConfigureCastingWorld(native, database.ConnectionString, false); PrepareLifecycleRuntime(native);
 		var roots = ArchiveRoots(); ConfigureArchiveWorld(native, roots, fixture, database.ConnectionString);
 		var scheduler = new Scheduler(clock); var heartbeats = new HeartbeatManager(native.World);

@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.Construction;
 using MudSharp.Effects.Concrete;
 using MudSharp.Events;
@@ -578,6 +578,7 @@ public partial class GameItem : IHaveWounds
     public IGameItem Die()
     {
 		if (Deleted || Destroyed) return null;
+		if (Gameworld?.SpellOwnedCorpseAnimations is { } animations && GetItemType<ICorpse>() is not null && animations.IsBorrowedCorpse(Id)) return this;
 		if (SpellCreationOrigin?.IsTemporary == true)
 		{
 			if (Gameworld.SpellOwnedItems?.TryPrepareRemoval(this, out _) != true) return this;

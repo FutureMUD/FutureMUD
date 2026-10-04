@@ -152,6 +152,8 @@ public sealed partial class MagicCastingService : IMagicCastingService
 						throw new InvalidOperationException(itemError);
 					if (effect is MudSharp.Magic.SpellEffects.CreateLiquidEffect liquid && !liquid.ValidateInvocation(actor, recipient, out var liquidError))
 						throw new InvalidOperationException(liquidError);
+					if (effect is MudSharp.Magic.SpellEffects.AnimateCorpseSpellEffect animation && !animation.ValidateInvocation(actor, recipient, out var animationError))
+						throw new InvalidOperationException(animationError);
 				}
 		}
 		List<CastingPayment> payments = [];

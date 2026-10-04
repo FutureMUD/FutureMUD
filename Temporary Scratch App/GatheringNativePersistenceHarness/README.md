@@ -46,3 +46,15 @@ leaves the old timer unable to overwrite its terminal receipt. Its material plan
 explicitly empty; material execution/finalisation is covered by focused automated tests.
 This controlled cap60 fixture is not an installed Mend Flesh, full hostile-AI scenario,
 real-time scheduler or Telnet/login stock qualification.
+
+The Phase3D1 corpse-animation extension is selected with `-CorpseAnimationOnly`
+after rebuilding Debug. It exercises paid native grade-3 casting, an actual selected
+CombatEnd AI and compiled resource Prog, same-corpse expiry/dispel/death/Quit,
+exact ownership, activation and provider failure recovery, guarded placement,
+ordinary saves and separate-process cold recovery. Source anatomy and room catalogues
+are controlled. Callback fault injection uses native item/body methods; stale cell-join
+loss is an explicit database simulation, not a native Cell.Save execution. The old
+host remains quiescent after restart recovery. Final-death NPC corpses are qualified;
+PC and nonfinal corpses, installed stock AI/combat profiles, arbitrary callbacks,
+simultaneous-host recovery and high-volume N16 remain unqualified. Use the stage
+verification receipt for exact passed checks and retained failed exploratory probes.

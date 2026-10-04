@@ -345,6 +345,11 @@ event subscriptions and runtime activation belong **after** the method returns s
 Callbacks must not save or expose runtime objects, mutate existing rows, or perform external
 side effects. A duplicate lifecycle key refuses creation before calling the factory.
 Rollback disposes the fresh context and restores an isolated caller's untouched session.
+The typed corpse-animation adapter is the narrow exception to the existing-row rule:
+it suspends only exact dead/stasis holders of the borrowed body and removes the exact
+source cell join inside that same transaction. It snapshots those permitted changes
+and refuses subsequent mutation or any other modified/deleted row. Ownership still
+covers only the newly added secondary instance.
 Write-suppressed callers cannot create, transition or retire bodies through an independent
 scope. Read-only lookups inherit suppression and restore the caller's context.
 
@@ -383,6 +388,46 @@ caster or source spell later disappears. It owns no per-character timer and repl
 No cleanup worker or heartbeat registration is introduced before its native adapter is ready.
 
 ## Retired physical bodies
+
+### Durable final-corpse animation
+
+`animatecorpse lifecycle durable` opts into `ISpellOwnedCorpseAnimationService`;
+existing definitions default to `legacy`. Builders supply a family and a positive,
+finite lifetime in real seconds, evaluated with the selected grade before payment.
+Invalid schema, unavailable/unready AIs, excessive persisted echoes and unsuitable
+corpse custody refuse before payment. These lifetimes are authored replacements;
+historical EVENT units are not interpreted as seconds.
+
+This adapter currently accepts final-death corpses whose exact canonical owner is
+still dead in runtime and persistence. It refuses abandoned/nonfinal bodies pending
+a cold-load adapter. Runtime and saved ownership checks reject foreign body pointers,
+instances, forms, sources and retirement records, external attachments and route
+positions. Source identity, body, corpse and carried goods are borrowed, never owned.
+Only one active animation may borrow a particular corpse; there is no universal
+one-summon cap. Existing AI metadata and shared canonical resources remain native.
+
+Expiry, dispel, dismissal, actor death and actor Quit converge on durable retirement.
+An exact serializable transaction restores the source corpse's cell/layer and deletes
+only its created secondary row. A bounded journal checkpoint retains the committed
+destination independently of deferred cell saves. Runtime teardown and placement
+guard custody callbacks; unavailable dependencies or callback/provider failures hold
+for retry. Selected-AI heartbeat/event execution stops while retirement is held.
+The borrowed corpse is never recorded as owned death remains. Its deletion, death,
+morph, prototype replacement and copying are refused while borrowed. Body and foreign
+inventory rows survive. Collapse/restore output is attempted at most once after the
+restoration commit; a crash or callback failure can omit that presentation.
+
+The active actor intentionally collapses on restart. Loading keeps its exact saved row
+for the recovery worker without rematerializing its AI. Recovery needs no saved child
+effect, does not reset the absolute deadline or replay the cast, and restores the same
+corpse. Lost final destinations use a safe loaded fallback or retain recoverable holding.
+
+Phase3D1 native evidence uses real corpse/body/item/instance, selected CombatEnd AI,
+compiled resource FutureProg, paid casting, dispel, death, provider triggers, ordinary
+saves and fresh processes. Anatomy and room catalogues are controlled, and the fixture
+character uses the inherited specialized Save override. This is not installed Raise
+Servitor, a commandable/combat AI profile, PC corpse qualification, nonfinal support,
+arbitrary callback safety, simultaneous-host recovery or full N14–N16 acceptance.
 
 `Character.TryCleanupRetiredBody` refuses any live/runtime form, backup, instance or physical
 remains reference. A body containing runtime items is refused intact before any database

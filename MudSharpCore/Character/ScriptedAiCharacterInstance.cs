@@ -20,11 +20,23 @@ public sealed class ScriptedAiCharacterInstance : Character, IArtificialIntellig
 	private readonly Character _identity;
 	private readonly List<IArtificialIntelligence> _AIs = new();
 	private long? _bodyguardingCharacterId;
+	private bool _spellRetirementPending;
+
+	internal void SuspendForSpellRetirement()
+	{
+		_spellRetirementPending = true;
+		ReleaseEventSubscriptions();
+	}
 
 	internal ScriptedAiCharacterInstance(Character identity, MudSharp.Models.CharacterInstance instance, IBody body)
 		: base(identity, instance, body)
 	{
 		_identity = identity;
+	}
+
+	// Register the instance with its identity before activating external runtime roots.
+	internal void InitialiseScriptedControl()
+	{
 		PermissionLevel = PermissionLevel.NPC;
 		CommandTree = Gameworld.RetrieveAppropriateCommandTree(this);
 		var controller = new NPCController();
@@ -102,7 +114,7 @@ public sealed class ScriptedAiCharacterInstance : Character, IArtificialIntellig
 
 	public void SetupEventSubscriptions()
 	{
-		if (State.HasFlag(CharacterState.Dead) || State.HasFlag(CharacterState.Stasis))
+		if (_spellRetirementPending || State.HasFlag(CharacterState.Dead) || State.HasFlag(CharacterState.Stasis))
 		{
 			ReleaseEventSubscriptions();
 			return;
@@ -135,25 +147,10 @@ public sealed class ScriptedAiCharacterInstance : Character, IArtificialIntellig
 
 	public void ReleaseEventSubscriptions()
 	{
-		if (AIs.Any(x => x.HandlesEvent(EventType.FiveSecondTick)))
-		{
-			Gameworld.HeartbeatManager.FuzzyFiveSecondHeartbeat -= FiveSecondHeartbeat;
-		}
-
-		if (AIs.Any(x => x.HandlesEvent(EventType.TenSecondTick)))
-		{
-			Gameworld.HeartbeatManager.FuzzyTenSecondHeartbeat -= TenSecondHeartbeat;
-		}
-
-		if (AIs.Any(x => x.HandlesEvent(EventType.MinuteTick)))
-		{
-			Gameworld.HeartbeatManager.FuzzyMinuteHeartbeat -= MinuteHeartbeat;
-		}
-
-		if (AIs.Any(x => x.HandlesEvent(EventType.HourTick)))
-		{
-			Gameworld.HeartbeatManager.FuzzyHourHeartbeat -= HourHeartbeat;
-		}
+		Gameworld.HeartbeatManager.FuzzyFiveSecondHeartbeat -= FiveSecondHeartbeat;
+		Gameworld.HeartbeatManager.FuzzyTenSecondHeartbeat -= TenSecondHeartbeat;
+		Gameworld.HeartbeatManager.FuzzyMinuteHeartbeat -= MinuteHeartbeat;
+		Gameworld.HeartbeatManager.FuzzyHourHeartbeat -= HourHeartbeat;
 	}
 
 	public void AddAI(IArtificialIntelligence ai)
@@ -194,7 +191,7 @@ public sealed class ScriptedAiCharacterInstance : Character, IArtificialIntellig
 
 	public override bool HandleEvent(EventType type, params dynamic[] arguments)
 	{
-		if (State.HasFlag(CharacterState.Dead) || State.HasFlag(CharacterState.Stasis))
+		if (_spellRetirementPending || State.HasFlag(CharacterState.Dead) || State.HasFlag(CharacterState.Stasis))
 		{
 			return false;
 		}

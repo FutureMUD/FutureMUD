@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 
 using MudSharp.Construction;
 using MudSharp.Effects;
@@ -501,6 +501,8 @@ public sealed class CorpsePossessionDispelProxyEffect : Effect, IPossessionDispe
 public sealed class SpellAnimatedCorpseEffect : SimpleSpellStatusEffectBase, IAnimatedCorpseEffect
 {
 	private bool _removing;
+	public Guid? OwnedLifecycleId { get; private set; }
+	internal void BindOwnedLifecycle(Guid id) => OwnedLifecycleId = id;
 
 	public static void InitialiseEffectType()
 	{
@@ -547,6 +549,7 @@ public sealed class SpellAnimatedCorpseEffect : SimpleSpellStatusEffectBase, IAn
 		: base(root, owner)
 	{
 		var trueRoot = root.Element("Effect");
+		if (Guid.TryParse(trueRoot?.Element("OwnedLifecycleId")?.Value, out var lifecycle)) OwnedLifecycleId = lifecycle;
 		AnchorCharacterId = long.Parse(trueRoot?.Element("AnchorCharacterId")?.Value ?? "0");
 		AnchorInstanceId = long.Parse(trueRoot?.Element("AnchorInstanceId")?.Value ?? "0");
 		CorpseItemId = long.Parse(trueRoot?.Element("CorpseItemId")?.Value ?? "0");
@@ -591,6 +594,7 @@ public sealed class SpellAnimatedCorpseEffect : SimpleSpellStatusEffectBase, IAn
 	protected override XElement SaveDefinition()
 	{
 		return SimpleSaveDefinition(
+			new XElement("OwnedLifecycleId", OwnedLifecycleId?.ToString() ?? ""),
 			new XElement("AnchorCharacterId", AnchorCharacterId),
 			new XElement("AnchorInstanceId", AnchorInstanceId),
 			new XElement("CorpseItemId", CorpseItemId),
@@ -635,6 +639,12 @@ public sealed class SpellAnimatedCorpseEffect : SimpleSpellStatusEffectBase, IAn
 
 	public override void RemovalEffect()
 	{
+		if (OwnedLifecycleId is not null)
+		{
+			Gameworld.SpellOwnedCorpseAnimations?.TryRetire(AnimatedInstanceId, MudSharp.Magic.SpellRetirementReason.Dispel, out _);
+			base.RemovalEffect();
+			return;
+		}
 		if (_removing)
 		{
 			return;

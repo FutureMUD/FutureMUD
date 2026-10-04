@@ -287,6 +287,10 @@ public partial class Character
 			if ((CharacterInstancePersistencePolicy)instance.PersistencePolicy ==
 			    CharacterInstancePersistencePolicy.DespawnOnReboot)
 			{
+				// The corpse adapter restores its borrowed source in the same transaction as deletion.
+				// Do not materialise its AI or erase the row before that recovery has run.
+				if ((CharacterInstanceKind)instance.InstanceKind == CharacterInstanceKind.AnimatedCorpse &&
+					Gameworld.SpellOwnedCorpseAnimations?.OwnsInstance(instance.Id) == true) continue;
 				FMDB.Context.CharacterInstances.Remove(instance);
 				persistenceChanged = true;
 				continue;
@@ -315,16 +319,44 @@ public partial class Character
 		EnsureProvisionedFormBodyVitals(body);
 		var controlPolicy = (CharacterInstanceControlPolicy)instance.ControlPolicy;
 		var instanceKind = (CharacterInstanceKind)instance.InstanceKind;
-		var materialised =
-			this is INPC && controlPolicy == CharacterInstanceControlPolicy.NpcAiControlled
-				? (ICharacterInstance)new NpcCharacterInstance(this, instance, body)
-				: controlPolicy == CharacterInstanceControlPolicy.ScriptOnly ||
-				  instanceKind == CharacterInstanceKind.ScriptedAi ||
-				  instanceKind == CharacterInstanceKind.AnimatedCorpse
-					? new ScriptedAiCharacterInstance(this, instance, body)
-					: new PassiveCharacterInstance(this, instance, body);
+		var previousBodyActor = body.Actor;
+		ICharacterInstance materialised;
+		try
+		{
+			materialised =
+				this is INPC && controlPolicy == CharacterInstanceControlPolicy.NpcAiControlled
+					? (ICharacterInstance)new NpcCharacterInstance(this, instance, body)
+					: controlPolicy == CharacterInstanceControlPolicy.ScriptOnly ||
+					  instanceKind == CharacterInstanceKind.ScriptedAi ||
+					  instanceKind == CharacterInstanceKind.AnimatedCorpse
+						? new ScriptedAiCharacterInstance(this, instance, body)
+						: new PassiveCharacterInstance(this, instance, body);
+		}
+		catch
+		{
+			try
+			{
+				if (body.Actor is Character partial && !ReferenceEquals(partial, previousBodyActor))
+				{
+					Gameworld.SaveManager.Abort(partial);
+					Gameworld.Scheduler.Destroy(partial);
+					Gameworld.EffectScheduler.Destroy(partial);
+					partial.PositionTarget = null!;
+				}
+			}
+			finally
+			{
+				body.Actor = previousBodyActor;
+				body.ActivateForCharacter();
+			}
+			throw;
+		}
 		_secondaryInstances.RemoveAll(x => ReferenceEquals(x, materialised) || x.InstanceId == materialised.InstanceId);
 		_secondaryInstances.Add(materialised);
+		if (materialised is ScriptedAiCharacterInstance scriptedAi)
+		{
+			scriptedAi.InitialiseScriptedControl();
+		}
 		if (materialised.IsEmbodied && materialised.Location is not null)
 		{
 			materialised.Location.Enter(materialised, roomLayer: materialised.RoomLayer);

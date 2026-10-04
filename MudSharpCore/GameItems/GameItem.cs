@@ -89,6 +89,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
     public bool CheckPrototypeForUpdate()
     {
 		if (SpellCreationOrigin?.IsTemporary == true) return false;
+		if (GetItemType<ICorpse>() is not null && Gameworld.SpellOwnedCorpseAnimations?.IsBorrowedCorpse(Id) == true) return false;
         if (Prototype.Status == RevisionStatus.Obsolete || Prototype.Status == RevisionStatus.Revised)
         {
             IGameItemProto newProto =
@@ -1066,6 +1067,8 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
     public GameItem(GameItem rhs, bool temporary = false, bool preserveMorphTime = false)
     {
 		if (!temporary) SpellOwnedItemValuePolicy.RequireOrdinaryValue(rhs, "copying");
+		if (rhs.GetItemType<ICorpse>() is not null && rhs.Gameworld.SpellOwnedCorpseAnimations?.IsBorrowedCorpse(rhs.Id) == true)
+			throw new InvalidOperationException("A borrowed animated corpse cannot be copied.");
 		SpellCreationOrigin = rhs.SpellCreationOrigin;
         if (temporary)
         {
@@ -1789,6 +1792,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
     {
 		ForeignCustodyTransferContext.EnsureItem(this, destructive: true);
         if (Deleted || _notifyingDeletionObservers) return;
+		if (GetItemType<ICorpse>() is not null && Gameworld.SpellOwnedCorpseAnimations?.IsBorrowedCorpse(Id) == true) return;
 		if (SpellCreationOrigin?.IsTemporary == true && Gameworld.SpellOwnedItems?.TryPrepareRemoval(this, out _) != true) return;
         if (_deletionObserverFailure is not null)
             throw new InvalidOperationException("Deletion observers failed; native removal remains held.", _deletionObserverFailure);
@@ -1812,6 +1816,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
         }
         if (GetItemType<ICorpse>() is not null && Gameworld.SpellOwnedNpcs?.TryPrepareRemainsRemoval(this, out _) == false) return;
         if (SpellCreationOrigin?.IsTemporary == true && Gameworld.SpellOwnedItems?.TryPrepareRemoval(this, out _) != true) return;
+		if (GetItemType<ICorpse>() is not null && Gameworld.SpellOwnedCorpseAnimations?.IsBorrowedCorpse(Id) == true) return;
         if (SpellCreationOrigin?.IsTemporary == true) { DeleteSpellOwnedItem(); return; }
         DeleteNative();
     }
@@ -2467,6 +2472,14 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
         return this;
     }
 
+	internal void HideBorrowedCorpseForAnimation()
+	{
+		Location?.Extract(this);
+		ClearRoutePositionForDetachment();
+		Location = null;
+		Changed = true;
+	}
+
     public IGameItem Get(IBody getter, int quantity)
     {
 		ForeignCustodyTransferContext.EnsureItem(this, destructive: !DropsWhole(quantity));
@@ -2940,6 +2953,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 		ForeignCustodyTransferContext.EnsureItem(this, destructive: true);
 		if (SpellCreationOrigin?.IsTemporary == true && Gameworld.SpellOwnedItems?.TryPrepareRemoval(this, out _) != true) return;
         if (GetItemType<ICorpse>() is not null && Gameworld.SpellOwnedNpcs?.TryPrepareRemainsRemoval(this, out _, morphing: true) == false) return;
+		if (GetItemType<ICorpse>() is not null && Gameworld.SpellOwnedCorpseAnimations?.IsBorrowedCorpse(Id) == true) return;
         IGameItem newItem = Prototype.LoadMorphedItem(this);
         ICell location = TrueLocations.FirstOrDefault();
 		var originalSpatialLocation = location is null

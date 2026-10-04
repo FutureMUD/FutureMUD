@@ -68,6 +68,7 @@ internal static class CastingNumerics
 			if (effect is CreateNPCEffect { DefinitionError: { } creationError }) yield return $"{label}/createnpc: {creationError}";
 			if (effect is CreateLiquidEffect { DefinitionError: { } liquidError }) yield return $"{label}/createliquid: {liquidError}";
 			if (effect is CreateItemEffect { DefinitionError: { } itemCreationError }) yield return $"{label}/createitem: {itemCreationError}";
+			if (effect is AnimateCorpseSpellEffect { DefinitionError: { } animationError }) yield return $"{label}/animatecorpse: {animationError}";
 			if (effect is SpellArmourEffect armour && (armour.ArmourConfiguration.ArmourType is null || armour.ArmourConfiguration.ArmourMaterial is null))
 				yield return $"{label}/spellarmour: missing armour type/material.";
 		}

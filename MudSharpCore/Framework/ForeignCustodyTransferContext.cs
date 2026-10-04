@@ -17,6 +17,15 @@ internal static class ForeignCustodyTransferContext
 {
 	private static readonly AsyncLocal<Scope?> Current = new();
 
+	/// <summary>Runtime teardown owns no borrowed possessions and may not move or destroy any item.</summary>
+	internal static Scope FreezeCustody()
+	{
+		if (Current.Value is not null) throw new InvalidOperationException("Nested foreign custody transfers require a separate adapter.");
+		var scope = new Scope(null, new HashSet<IGameItem>(ReferenceEqualityComparer.Instance), null, freezeCustody: true);
+		Current.Value = scope;
+		return scope;
+	}
+
 	internal static Scope Enter(IBody body, IEnumerable<IGameItem> items, ICell destination)
 		=> EnterRemoval(body, items, destination);
 
@@ -31,7 +40,7 @@ internal static class ForeignCustodyTransferContext
 	internal static void EnsureItem(IGameItem item, bool destructive = false)
 	{
 		if (Current.Value is not { } scope) return;
-		if (destructive || !scope.Items.Contains(item))
+		if (scope.Frozen || destructive || !scope.Items.Contains(item))
 			throw new InvalidOperationException("A native transfer callback attempted unsupported destruction or foreign custody outside its captured graph.");
 	}
 
@@ -94,8 +103,9 @@ internal static class ForeignCustodyTransferContext
 			throw new InvalidOperationException("A native custody transaction cannot flush unrelated save queues.");
 	}
 
-	internal sealed class Scope(IBody? body, HashSet<IGameItem> items, ICell? destination) : IDisposable
+	internal sealed class Scope(IBody? body, HashSet<IGameItem> items, ICell? destination, bool freezeCustody = false) : IDisposable
 	{
+		internal bool Frozen { get; } = freezeCustody;
 		internal IBody? Body { get; } = body;
 		internal HashSet<IGameItem> Items { get; } = items;
 		internal ICell? Destination { get; } = destination;

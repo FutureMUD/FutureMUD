@@ -70,6 +70,8 @@ internal static partial class GNHProgram
 				["--spell-owned-npc-run"] => RunSpellOwnedNpcAcceptanceChecks(),
 				["--spell-owned-retirement-run"] => RunSpellOwnedNpcRetirementChecks(),
 				["--created-consumables-run"] => RunCreatedConsumablesChecks(),
+				["--corpse-animation-run"] => RunCorpseAnimationChecks(),
+				["--corpse-animation-reader", .. string[] animationArguments] => RunCorpseAnimationReader(animationArguments),
 				["--created-consumables-reader", .. string[] consumableArguments] => RunCreatedConsumablesReader(consumableArguments),
 				["--spell-owned-item-run"] => RunSpellOwnedItemChecks(),
 				["--spell-owned-item-reader", .. string[] itemArguments] => RunSpellOwnedItemReader(itemArguments),

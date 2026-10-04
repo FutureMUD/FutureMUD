@@ -1854,6 +1854,12 @@ Post-V1 direct possession slice, June 17, 2026:
 
 Post-V1 design work:
 
+Phase3D1 extends `animatecorpse` with opt-in durable final-corpse restoration. The
+created AI instance still despawns on reboot; its ownership/recovery journal persists
+until the same borrowed corpse has been restored and only the exact secondary row
+has been removed. The default legacy effects retain their earlier behavior. Nonfinal
+corpse animation remains outside this adapter. See [Spell-owned lifecycle](../Magic/Spell_Owned_Lifecycle.md).
+
 Future phases can still add richer gameplay and deeper audits: body-specific legal personhood, disguise-aware identity discovery, observer memory and recognition decay, projection- or possession-specific criminal evidence, per-clone social consequences, send-shadow/shadow-identity control policy, channel/telepathy policy configuration, player-facing recognition controls, and broader FutureProg convenience APIs. Those are now content and policy layers on top of the V1 foundation and V6 possession primitives rather than blockers for simultaneous body instances.
 
 ---

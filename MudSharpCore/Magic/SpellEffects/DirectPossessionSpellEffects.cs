@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 
 using MudSharp.Accounts;
 using MudSharp.Construction;
@@ -658,7 +658,7 @@ public sealed class PossessCorpseSpellEffect : IMagicSpellEffectTemplate
 	}
 }
 
-public sealed class AnimateCorpseSpellEffect : IMagicSpellEffectTemplate
+public sealed partial class AnimateCorpseSpellEffect : IMagicSpellEffectTemplate
 {
 	public const string DefaultTargetEcho = "";
 	public const string DefaultRoomEcho = "@ jerk|jerks upright under necromantic command.";
@@ -711,6 +711,7 @@ public sealed class AnimateCorpseSpellEffect : IMagicSpellEffectTemplate
 	private AnimateCorpseSpellEffect(XElement root, IMagicSpell spell)
 	{
 		Spell = spell;
+		LoadLifecycle(root.Element("Lifecycle"));
 		_allowPcs = bool.Parse(root.Element("AllowPCs")?.Value ?? "true");
 		_allowNpcs = bool.Parse(root.Element("AllowNPCs")?.Value ?? "true");
 		_allowAdmins = bool.Parse(root.Element("AllowAdmins")?.Value ?? "false");
@@ -740,6 +741,7 @@ public sealed class AnimateCorpseSpellEffect : IMagicSpellEffectTemplate
 	{
 		return new XElement("Effect",
 			new XAttribute("type", "animatecorpse"),
+			SaveLifecycle(),
 			new XElement("AllowPCs", _allowPcs),
 			new XElement("AllowNPCs", _allowNpcs),
 			new XElement("AllowAdmins", _allowAdmins),
@@ -762,6 +764,13 @@ public sealed class AnimateCorpseSpellEffect : IMagicSpellEffectTemplate
 	public IMagicSpellEffect? GetOrApplyEffect(ICharacter caster, IPerceivable? target, OpposedOutcomeDegree outcome,
 		SpellPower power, IMagicSpellEffectParent parent, SpellAdditionalParameter[] additionalParameters)
 	{
+		if (DurableLifecycle || _invalidLifecycle is not null)
+		{
+			if (!TryPrepareApplication(caster, target!, outcome, power, TimeSpan.Zero, out var application, out var error))
+			{ caster.OutputHandler.Send(error); return null; }
+			return application!.Create(parent);
+		}
+
 		if (target is not IGameItem corpseItem || corpseItem.GetItemType<ICorpse>() is not { } corpse)
 		{
 			return null;
@@ -874,6 +883,9 @@ public sealed class AnimateCorpseSpellEffect : IMagicSpellEffectTemplate
 
 	public const string HelpText = @"You can use the following options with this effect:
 
+	#3lifecycle legacy|durable#0 - selects legacy or durable temporary corpse restoration
+	#3family <name>#0 - sets the durable creation family
+	#3lifetime <expression>#0 - sets real seconds (grade supported); restart still collapses
 	#3ai add <which>#0 - adds an AI to attach to the animated corpse
 	#3ai remove <which>#0 - removes an AI from this effect
 	#3ai clear#0 - clears all configured AIs
@@ -889,6 +901,7 @@ public sealed class AnimateCorpseSpellEffect : IMagicSpellEffectTemplate
 
 	public bool BuildingCommand(ICharacter actor, StringStack command)
 	{
+		if (command.PeekSpeech().ToLowerInvariant() is "lifecycle" or "family" or "lifetime") return BuildingCommandLifecycle(actor, command);
 		switch (command.PopForSwitch())
 		{
 			case "ai":
@@ -949,7 +962,8 @@ public sealed class AnimateCorpseSpellEffect : IMagicSpellEffectTemplate
 	public string Show(ICharacter actor)
 	{
 		return SpellEffectPresentation.Describe(actor, "Animate Corpse",
-			("Persistence", CharacterInstancePersistencePolicy.TemporaryEffectBound.DescribeEnum().ColourValue()),
+			("Persistence", DurableLifecycle ? "Durable temporary cleanup; collapse on restart" : CharacterInstancePersistencePolicy.TemporaryEffectBound.DescribeEnum().ColourValue()),
+			("Lifecycle", DurableLifecycle ? $"{LifecycleFamily}; {_lifetimeFormula} real seconds" : "Legacy"),
 			("AIs", DescribeArtificialIntelligences(actor)),
 			("Allow PCs", _allowPcs.ToColouredString()),
 			("Allow NPCs", _allowNpcs.ToColouredString()),

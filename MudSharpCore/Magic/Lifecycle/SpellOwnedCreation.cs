@@ -10,7 +10,7 @@ namespace MudSharp.Magic.Lifecycle;
 /// A private creation transaction. Register added rows before SaveChanges; expose runtime entities only
 /// after Create returns. Existing/borrowed rows and primary projection instances cannot acquire ownership.
 /// </summary>
-public sealed class SpellOwnedCreation
+public sealed partial class SpellOwnedCreation
 {
 	private readonly List<(SpellOwnedEntityKind Kind, SpellOwnedEntityRole Role, object Row)> _claims = new();
 	private readonly long _creatorId;
@@ -39,7 +39,8 @@ public sealed class SpellOwnedCreation
 	{
 		if (_claims.Count is 0 or > 256 || _claims.Any(x => Context.Entry(x.Row).State != EntityState.Added) ||
 		    _claims.Count(x => x.Kind is SpellOwnedEntityKind.AutonomousCharacter or SpellOwnedEntityKind.CharacterInstance) > 1 ||
-		    Context.ChangeTracker.Entries().Any(x => x.State is EntityState.Modified or EntityState.Deleted))
+		    Context.ChangeTracker.Entries().Any(x => (x.State is EntityState.Modified or EntityState.Deleted) && !IsExactBorrowedChange(x)) ||
+			_borrowedChanges.Keys.Any(x => !IsExactBorrowedChange(Context.Entry(x))))
 		{
 			throw new InvalidOperationException("Creation must retain 1-256 added owned rows until the atomic save.");
 		}
@@ -53,7 +54,7 @@ public sealed class SpellOwnedCreation
 				throw new InvalidOperationException("Only a newly created autonomous NPC identity can be spell owned.");
 			}
 			if (claim.Row is Models.CharacterInstance instance &&
-			    (instance.IsPrimary || instance.CharacterId != _creatorId &&
+			    (instance.IsPrimary || instance.CharacterId != _creatorId && !ReferenceEquals(instance, _borrowedCorpseInstance) &&
 			     !_claims.Any(x => x.Row is Models.Character character && ReferenceEquals(instance.Character, character))))
 			{
 				throw new InvalidOperationException("A projection can own only a new secondary instance, never its canonical identity.");

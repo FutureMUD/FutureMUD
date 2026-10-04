@@ -2892,10 +2892,10 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
         {
             Gameworld.Scheduler.AddSchedule(new RepeatingSchedule<IGameItem>(this, Gameworld,
                 item => item.Changed = true, ScheduleType.MorphSaving, TimeSpan.FromSeconds(30),
-                $"Morph Saver for {HowSeen(this)} #{Id}"));
+                $"Morph Saver for item #{Id}"));
             Gameworld.Scheduler.AddSchedule(new Schedule<IGameItem>(this, Morph, ScheduleType.Morph,
                 MorphTime > RuntimeClock.UtcNow ? MorphTime - RuntimeClock.UtcNow : TimeSpan.FromTicks(1),
-                $"Morph checker for {HowSeen(this)} #{Id}"));
+                $"Morph checker for item #{Id}"));
         }
     }
 

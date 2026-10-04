@@ -3187,7 +3187,7 @@
     },
     {
       "id": "phase3D1P1_saved_paid_parent_restart",
-      "status": "implemented_verified_parent_rereview_pending",
+      "status": "parent_verified_saved_child_deferral_scope",
       "base": "6701240b354a70af7972eedccd092a378cf34227",
       "receipt": "Armageddon_Stage3D1P1_SavedParent_Verification.json",
       "parent_timer_P2_verified_head": "6701240b354a70af7972eedccd092a378cf34227",
@@ -3233,6 +3233,55 @@
         "Transient unregistered and duplicate-object reads, initial provider lookup retry and explicit loaded-parent dispel are managed checks. The native checkpoint is a controlled completion fault and quiescent processes, not simultaneous-host recovery, power loss or a cleanup race.",
         "Current native packet reruns all 25 markers qualified at timerP2 plus eight saved-parent markers. Other 262 historical combined-packet markers are not rerun. All prior D1/C2 scope limits remain.",
         "Installed Raise Servitor duration conversion, functional combat/control AI and native cell/save/scheduler integration under combat or queued work remain pending. No new spell families or later stock work started."
+      ],
+      "parent_verified_head": "c1882ba7bc5c04157137c22d32066b63a8dd6789",
+      "morph_and_active_recovery_followup": "Armageddon_Stage3D1P1M_MorphRestart_Verification.json"
+    },
+    {
+      "id": "phase3D1P1M_morphing_paid_parent_restart",
+      "status": "implemented_verified_parent_rereview_pending",
+      "base": "c1882ba7bc5c04157137c22d32066b63a8dd6789",
+      "receipt": "Armageddon_Stage3D1P1M_MorphRestart_Verification.json",
+      "managed_runs": {
+        "focused": "20261004T082903Z-7b9d5f13f7b9",
+        "Fast": "20261004T082942Z-a936235700e9"
+      },
+      "counts": {
+        "focused": {
+          "executed": 609,
+          "passed": 609,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 609
+        },
+        "Fast": {
+          "executed": 6930,
+          "passed": 6930,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 6930
+        }
+      },
+      "native_markers": 39,
+      "owned_databases_cleaned": 4,
+      "owned_processes_remaining": 0,
+      "acceptance": [
+        "Morph labels use stable item IDs without boot-time description/character loading; native positive morph duration and schedules persist unchanged.",
+        "Actual paid active parents recover after boot as Logout for future deadlines and Expiry for elapsed deadlines; exact secondary retirement and normal XML cleanup persist.",
+        "Pending/completed restoration checkpoints reload morphing corpses with one exact item, canonical/body/foreign gear preservation, no AI materialization or replay.",
+        "Prior independent timer, saved-child deferral, legacy and explicit dispel behavior remain qualified by the rerun packet and managed suites."
+      ],
+      "qualification_limits": [
+        "Actual paid parent/child XML and positive corpse morph duration are saved by native SaveManager. Cold item construction and Login run with the real character-materialisation guard blocked; no morph disabling or character-guard bypass is used.",
+        "Separate owned databases prove actual paid Active-to-Logout before the absolute spell deadline and Active-to-Expiry after it. Pending/completed restoration readers retain genuine stale paid XML after a real completion-update trigger refusal. Producers remain quiescent after readers can mutate persistence.",
+        "Controlled world/cell/anatomy catalogue and inherited specialized character Save remain. Full production boot/Telnet, native Cell.Save, concurrent activation/cleanup, power loss and simultaneous-host recovery are not claimed.",
+        "The native scripted-AI command-tree seam is never invoked; canonical runtime and persisted resources remain unchanged. Exact ID sets exclude creation/deletion beyond the owned animation secondary; repeated completed recovery leaves version and placement unchanged.",
+        "Current packet covers the 33 earlier saved-parent/timer markers and six additional pass markers from two independent active-recovery cases (including their repeated paid-save assertions) on four owned databases. Other 262 historical combined-packet markers are not rerun. All previous immutable failed runs and qualifications remain recorded; this packet supersedes the prior morph-free and active-load-only limitations within its stated scope.",
+        "Installed Raise Servitor duration conversion, functional combat/control AI and native cell/save/scheduler integration under combat or queued work remain pending. No later stock work or new spell families started."
       ]
     }
   ],
@@ -3469,12 +3518,13 @@
     },
     {
       "id": "borrowed_corpse_animation_lifecycle",
-      "status": "bounded_final_corpse_saved_parent_corrected_parent_rereview_pending",
+      "status": "bounded_morphing_paid_parent_restart_verified_parent_rereview_pending",
       "acceptance": "Exact created secondary ownership; canonical character, borrowed body and same real corpse retained; functional selected AI; expiry/dispel/death/restart restoration, provider-failure recovery and foreign-possession conservation. Legacy defaults unchanged. Full installed stock and other projection/topology families remain pending.",
       "receipt": "Armageddon_Stage3D1_CorpseAnimation_Verification.json",
-      "limits": "Timer P2 verified. Saved paid-parent committed/pending/completed reload corrected; active paid boot-load-only qualification and prior D1 limits remain. Concurrent activation/cleanup races unqualified.",
+      "limits": "Morphing paid Active Logout/Expiry and pending/completed reload qualified. Prior D1 final-corpse, controlled-world/cell/save limits remain; concurrent activation/cleanup unqualified.",
       "correction_receipt": "Armageddon_Stage3D1P2_Scheduler_Verification.json",
-      "restart_correction_receipt": "Armageddon_Stage3D1P1_SavedParent_Verification.json"
+      "restart_correction_receipt": "Armageddon_Stage3D1P1_SavedParent_Verification.json",
+      "morph_restart_receipt": "Armageddon_Stage3D1P1M_MorphRestart_Verification.json"
     }
   ]
 }

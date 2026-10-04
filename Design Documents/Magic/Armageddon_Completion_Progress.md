@@ -985,3 +985,17 @@ Parent confirmed timer P2 at `6701240b354a70af7972eedccd092a378cf34227` and iden
 - [ ] Parent rereviews this exact local correction before later stock work.
 
 Actual paid Active-to-Logout native recovery remains a distinct gap: the active reader proves blocked-boot load safety only. Saved-parent readers use a morph-free corpse with persisted null morph duration asserted; probe-02 reproduced an independent morphing-corpse Login boot failure that remains unresolved. Controlled world/cell/save limitations, simultaneous-host/race exclusions and the 262 historical native checks not rerun remain explicit. Installed Raise Servitor timing, functional combat/control AI and native cell/save/scheduler qualification under combat or queued work remain pending. No publication, merge, deployment or shared/production database access occurred. See [Armageddon_Stage3D1P1_SavedParent_Verification.json](Armageddon_Stage3D1P1_SavedParent_Verification.json).
+
+
+## Phase3D1P1M morphing paid-parent restart - parent rereview pending
+
+Parent cleared narrow saved-child deferral at `c1882ba7bc5c04157137c22d32066b63a8dd6789` and required the retained morphing-corpse boot failure and actual paid Active recovery gaps to close. Morph scheduler diagnostics now use stable item IDs without description resolution; timing and the boot guard remain unchanged.
+
+- [x] Cold paid corpse XML retains a positive persisted morph duration; real Login starts both morph schedules without resolving characters before boot permits it.
+- [x] Separate fresh processes complete actual paid Active-to-Logout for future spell deadlines and Active-to-Expiry for elapsed deadlines.
+- [x] Pending/completed restoration loads retain morph timing, exact single corpse/canonical/body/foreign gear IDs, no scripted AI construction or resource replay, and normal stale XML removal save.
+- [x] 609 focused and 6,930 Fast tests pass; 39 native markers, four owned databases cleaned, zero owned processes.
+- [x] Earlier receipts, failures and full seven-phase/16-decision/154-candidate/82+12-row/25-scenario plan remain preserved. The new packet supersedes the preceding morph-free and active-load-only qualification gaps within the controlled native scope.
+- [ ] Parent rereview before later stock prerequisites.
+
+Full native Cell.Save/production boot/Telnet, combat or queued-work integration and simultaneous-host/race qualification remain pending, as do installed Raise Servitor timing and functional combat/control AI. The other 262 historical native markers were not rerun. No publication, merge, deployment or shared/production database access occurred. See [Armageddon_Stage3D1P1M_MorphRestart_Verification.json](Armageddon_Stage3D1P1M_MorphRestart_Verification.json).

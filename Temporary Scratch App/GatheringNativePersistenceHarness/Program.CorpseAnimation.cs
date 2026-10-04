@@ -62,7 +62,7 @@ internal static partial class GNHProgram
 		return ai;
 	}
 
-	private static int RunCorpseAnimationChecks(bool savedParentRestart = false)
+	private static int RunCorpseAnimationChecks(bool savedParentRestart = false, string restartAction = "restoration")
 	{
 		using var database = TestDatabase.CreateFresh("futuremud_land_"); ConfigureNativeDatabase(database.ConnectionString);
 		Console.WriteLine($"ARM03D1-created={database.Name}");
@@ -139,7 +139,7 @@ internal static partial class GNHProgram
 			caster.MagicResourceAmounts[native.Resource] < beforePayment && animated.AIs.Single().Id == ai.Id,
 			"Paid animation changed ownership, deadline, identity or foreign custody.");
 		if (savedParentRestart)
-			return RunSavedCorpseAnimationParentChecks(database, fixture, host, clock, spell, owner, corpse, foreign, animated, life);
+			return RunSavedCorpseAnimationParentChecks(database, fixture, host, clock, spell, owner, corpse, foreign, animated, life, restartAction);
 		Console.WriteLine("ARM03D1-paid-creation=passed actual-builder-paid-grade3-cast zero-lifetime-prepayment-refusal exact-one-new-secondary different-caster-and-original-identity same-body foreign-gear retained-source-corpse hidden atomic-cell-link 180-real-seconds-authored-replacement");
 		var beforeAi = owner.MagicResourceAmounts[native.Resource];
 		Require(animated.HandleEvent(EventType.NoNaturalTargets, animated) && owner.MagicResourceAmounts[native.Resource] == beforeAi + 1 &&

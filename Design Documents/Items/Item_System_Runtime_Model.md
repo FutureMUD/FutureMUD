@@ -47,6 +47,11 @@ Important responsibilities include:
 
 In practice, `GameItem` is the orchestration layer. Components provide most specialised behaviour, while `GameItem` coordinates persistence, description composition, movement, inventory state, wound handling, and world integration.
 
+Morph schedules created during item login use the stable item ID in diagnostic labels.
+They must not render item descriptions: a cold corpse description can resolve its
+original character before boot permits character materialisation. This leaves the
+saved morph duration, deadline calculation and periodic save schedule unchanged.
+
 Planar presence is resolved at the item level before component-specific physical interaction. A visible but non-interactable item can still appear in descriptions or be speech/observation targeted where commands allow it, while inventory and manipulation checks can reject it through `CanInteractPlanar`.
 
 ### Runtime Event Surface

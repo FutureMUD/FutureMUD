@@ -222,6 +222,11 @@ try {
 			Invoke-OwnedHarness '--corpse-animation-saved-parent-run'
 			$runExit = $LASTEXITCODE
 		}
+		foreach ($restartMode in @('--corpse-animation-active-future-run', '--corpse-animation-active-expired-run')) {
+			if ($runExit -ne 0) { break }
+			Invoke-OwnedHarness $restartMode
+			$runExit = $LASTEXITCODE
+		}
 	}
 	Write-Output "nativeHarnessExit=$runExit"
 }

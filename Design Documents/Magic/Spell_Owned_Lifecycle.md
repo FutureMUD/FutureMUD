@@ -439,6 +439,12 @@ drop their timer after boot; a later login can rearm it. Initial provider lookup
 retain a bounded recovery retry. Fresh-cast deadline scheduling and legacy animation
 remain separate from this saved-effect recovery path.
 
+Corpse morph schedules retain their saved duration on cold login. Scheduler diagnostic
+labels use the item ID without rendering a corpse description, so their creation does
+not resolve the canonical character during the blocked boot phase. Saved paid active
+parents recover as Logout before their spell deadline or Expiry at/after it; recovery
+preserves the independent morph deadline and does not rematerialise the scripted AI.
+
 The focused scheduler correction uses actual paid casts and the native EffectScheduler
 with 30/180/300-second ordinary durations, a 180-second animation and an ordinary glow
 sibling. Early dispel is checked both before and after ordinary parent expiry. The

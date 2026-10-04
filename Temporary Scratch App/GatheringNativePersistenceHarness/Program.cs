@@ -72,6 +72,8 @@ internal static partial class GNHProgram
 				["--created-consumables-run"] => RunCreatedConsumablesChecks(),
 				["--corpse-animation-run"] => RunCorpseAnimationChecks(),
 				["--corpse-animation-saved-parent-run"] => RunCorpseAnimationChecks(savedParentRestart: true),
+				["--corpse-animation-active-future-run"] => RunCorpseAnimationChecks(true, "active-future-boot-recovery"),
+				["--corpse-animation-active-expired-run"] => RunCorpseAnimationChecks(true, "active-expired-boot-recovery"),
 				["--corpse-animation-saved-parent-reader", .. string[] savedParentArguments] => RunSavedCorpseAnimationParentReader(savedParentArguments),
 				["--corpse-animation-reader", .. string[] animationArguments] => RunCorpseAnimationReader(animationArguments),
 				["--created-consumables-reader", .. string[] consumableArguments] => RunCreatedConsumablesReader(consumableArguments),

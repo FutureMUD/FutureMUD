@@ -77,3 +77,12 @@ identity/body/foreign gear, unchanged deadline and deferred cleanup through the 
 effect scheduler. The final reader normally saves removal of stale XML. Intermediate
 readers deliberately do not flush the corpse, and the producer remains quiescent;
 this qualifies a controlled crash boundary, not simultaneous-host recovery or power loss.
+
+These readers retain a positive persisted corpse morph duration and verify both native
+morph schedules during blocked boot, unchanged timing through recovery and remaining
+duration on normal save. Separate `--corpse-animation-active-future-run` and
+`--corpse-animation-active-expired-run` databases cold-load still-active paid parents
+and complete actual Logout/Expiry recovery after boot. They assert exact secondary
+retirement, unchanged canonical/body/item IDs and foreign gear, no scripted AI
+construction or resource-program replay, and durable stale XML removal. The same
+corpse packet runs these modes after the pending/completed checkpoint matrix.

@@ -895,3 +895,6 @@ Parent accepted historical authorship `88cf4d4a`/`ec618c6b`. Local implementatio
 - [ ] Parent independently reviews this exact checkpoint before the next dependent slice.
 
 The plain weapon lifecycle/economy dependency is ready for source-informed Flame Knife and the full-inventory sand/shadow/whip weapon tiers. Storm Spear still needs automatic primary-hand placement and an actual combat profile. This is controlled N21/N25 dependency evidence; no installed stock spell is complete. Historical event units are not asserted as seconds. Food, water/wine, HoveringLight, corpse animation/projections, occupied topology, all eight larger features and rider/guard/control/count/courier behavior remain required. N14/N15 installed stock and N16 high-volume/every-cycle restart remain pending.
+
+
+Phase3C1 evidence clarification: one managed failure log was included by the original native-attempt filename glob. The original receipt remains immutable. [Armageddon_Stage3C_NativeItems_Evidence_Addendum.json](Armageddon_Stage3C_NativeItems_Evidence_Addendum.json) supplies the corrected eight native attempts and links the already-retained managed attempt. All 6,868 managed passes, 250 native markers, frozen inputs and cleanup results are unchanged.

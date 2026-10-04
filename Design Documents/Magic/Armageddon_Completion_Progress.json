@@ -2957,7 +2957,8 @@
       "frozen_inputs_matching": 282,
       "binary_fingerprints": 19,
       "prior_twelve_receipts_1127_artifacts_thirty_helpers_unchanged": true,
-      "installed_stock_N21_N25_not_qualified": true
+      "installed_stock_N21_N25_not_qualified": true,
+      "evidence_clarification": "Armageddon_Stage3C_NativeItems_Evidence_Addendum.json"
     }
   ],
   "implementation_commits": [

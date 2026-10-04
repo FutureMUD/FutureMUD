@@ -1,0 +1,292 @@
+{
+  "schema_version": 1,
+  "kind": "immutable_receipt_evidence_classification_clarification",
+  "scope": "Metadata only; production source, tests, binaries, checks and acceptance results unchanged.",
+  "original_receipt": "Armageddon_Stage3C_NativeItems_Verification.json",
+  "original_receipt_sha256": "ba12699da620dc9092045202de2c40989bb0b5aa6d908306e7399ae9f28db516",
+  "implementation_commit": "9e65d0a4b2fe75422d36dea299d787e21a9ae42c",
+  "original_handoff_commit": "1739fb61e96660f57044082b39c953eab501c00e",
+  "correction": "The original native_attempts filename glob also matched one items-*-managed.log. That log is a managed test attempt, already correctly retained in earlier_managed_attempts. Use the corrected eight-entry item-only native attempt history below. No native result or count changes.",
+  "misclassified_managed_log": {
+    "name": "items-guard-focused-02-managed",
+    "exit": {
+      "exit_code": 1,
+      "ended_utc": "2026-10-03T22:47:55.7723941Z",
+      "mode": "Items"
+    },
+    "log": ".artifacts/test-runs/native-armageddon-20261003-stage3C1-items/items-guard-focused-02-managed.log",
+    "log_sha256": "4e7a6427905d28c7fdbb32cd099b4913ae8f53745ce542a5fe96969a8ed62ec9",
+    "passed_markers": [],
+    "passed_marker_count": 0,
+    "owned_databases_cleaned": 0,
+    "temporary_mysql_cleanup_verified": false,
+    "failures": []
+  },
+  "managed_receipt": {
+    "run_id": "20261003T224727Z-cb17ee1ba449",
+    "head": "ec618c6bf046bf1fcfde4364fe0d48866070700e",
+    "status": "FAIL",
+    "counts": {
+      "executed": 18,
+      "passed": 17,
+      "failed": 1,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 18
+    },
+    "filter": "FullyQualifiedName~SpellOwnedItemTests",
+    "configuration": "Debug",
+    "sdk": "10.0.401",
+    "started_utc": "2026-10-03T22:47:27.5348726+00:00",
+    "ended_utc": "2026-10-03T22:47:55.7361177+00:00",
+    "source_start": "ec46820bd30728d1645ff2679efba03a9611ab5fb3c81545ba89710d06805cf9",
+    "source_end": "ec46820bd30728d1645ff2679efba03a9611ab5fb3c81545ba89710d06805cf9",
+    "source_stable": true,
+    "execution_complete": true,
+    "counts_complete": true,
+    "projects": [
+      "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+    ],
+    "issues": [
+      {
+        "kind": "TEST_FAILED",
+        "project": null,
+        "detail": "1 failing test records"
+      }
+    ],
+    "summary_path": ".artifacts/test-runs/managed-armageddon-20261003-stage3C1-items/20261003T224727Z-cb17ee1ba449/summary.json",
+    "summary_sha256": "a92a7a7ce57d56da8d4aec04d54dd4ac4e9f7afdadb361ae6191499f15a60b12",
+    "failures_path": ".artifacts/test-runs/managed-armageddon-20261003-stage3C1-items/20261003T224727Z-cb17ee1ba449/failures.json",
+    "failures_sha256": "4940a934ea0ce3af5ae00108bacbbfa941a5efa981517b8cb7e9d5e1d4b1fca0",
+    "project_counts": [
+      {
+        "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+        "counts": {
+          "executed": 18,
+          "passed": 17,
+          "failed": 1,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 18
+        }
+      }
+    ]
+  },
+  "corrected_items_only_native_attempts": [
+    {
+      "name": "items-initial-01",
+      "exit": {
+        "exit_code": 1,
+        "ended_utc": "2026-10-03T22:28:34.8346174Z",
+        "mode": "Items",
+        "probe": ""
+      },
+      "log": ".artifacts/test-runs/native-armageddon-20261003-stage3C1-items/items-initial-01.log",
+      "log_sha256": "a84b63019cb981883d5d1ab3cbfbba40e859aa605ad7f3761938f6294a1d794a",
+      "passed_markers": [
+        "ARM03B2B-connection-refusals=passed unowned-host shared-default blank-database unregistered-owned-prefix all-refused-before-connect"
+      ],
+      "passed_marker_count": 1,
+      "owned_databases_cleaned": 1,
+      "temporary_mysql_cleanup_verified": true,
+      "failures": [
+        "Harness failed: System.InvalidOperationException: Sequence contains no elements"
+      ]
+    },
+    {
+      "name": "items-repaired-02",
+      "exit": {
+        "exit_code": 1,
+        "ended_utc": "2026-10-03T22:50:31.0578010Z",
+        "mode": "Items",
+        "probe": ""
+      },
+      "log": ".artifacts/test-runs/native-armageddon-20261003-stage3C1-items/items-repaired-02.log",
+      "log_sha256": "05f7821a79bf4cfd7c149851abb654c7479b10243fa9c68fdf25e000ccd8d405",
+      "passed_markers": [
+        "ARM03B2B-connection-refusals=passed unowned-host shared-default blank-database unregistered-owned-prefix all-refused-before-connect",
+        "ARM03C1-readonly-authority=passed native-write-suppression-before-item-construction caller-context-preserved native-rows-and-unrelated-dirty-queue-conserved",
+        "ARM03C1-private-creation=passed real-native-prototype-item-three-components atomic-exact-claim registered-identities quality-before-exposure no-global-flush no-replay rollback early-native-Delete completion"
+      ],
+      "passed_marker_count": 3,
+      "owned_databases_cleaned": 1,
+      "temporary_mysql_cleanup_verified": true,
+      "failures": [
+        "Harness failed: System.InvalidOperationException: Item fixture builder refused effect 1 item 7."
+      ]
+    },
+    {
+      "name": "items-repaired-03",
+      "exit": {
+        "exit_code": 1,
+        "ended_utc": "2026-10-03T22:53:39.3439845Z",
+        "mode": "Items",
+        "probe": ""
+      },
+      "log": ".artifacts/test-runs/native-armageddon-20261003-stage3C1-items/items-repaired-03.log",
+      "log_sha256": "cf38bd1dc9e27ddbe9b613c72e858f22afd96ee88fa18b1dfd233fbeac998293",
+      "passed_markers": [
+        "ARM03B2B-connection-refusals=passed unowned-host shared-default blank-database unregistered-owned-prefix all-refused-before-connect",
+        "ARM03C1-readonly-authority=passed native-write-suppression-before-item-construction caller-context-preserved native-rows-and-unrelated-dirty-queue-conserved",
+        "ARM03C1-private-creation=passed real-native-prototype-item-three-components atomic-exact-claim registered-identities quality-before-exposure no-global-flush no-replay rollback early-native-Delete completion"
+      ],
+      "passed_marker_count": 3,
+      "owned_databases_cleaned": 1,
+      "temporary_mysql_cleanup_verified": true,
+      "failures": [
+        "Harness failed: System.InvalidOperationException: Item fixture builder refused effect 1 item 7."
+      ]
+    },
+    {
+      "name": "items-repaired-04",
+      "exit": {
+        "exit_code": 1,
+        "ended_utc": "2026-10-03T22:59:34.8309507Z",
+        "mode": "Items",
+        "probe": ""
+      },
+      "log": ".artifacts/test-runs/native-armageddon-20261003-stage3C1-items/items-repaired-04.log",
+      "log_sha256": "193141c8d3f643422f64cc9beb7e94ddb93d74368a318ad2f992ab3b00064fcd",
+      "passed_markers": [
+        "ARM03B2B-connection-refusals=passed unowned-host shared-default blank-database unregistered-owned-prefix all-refused-before-connect",
+        "ARM03C1-readonly-authority=passed native-write-suppression-before-item-construction caller-context-preserved native-rows-and-unrelated-dirty-queue-conserved",
+        "ARM03C1-private-creation=passed real-native-prototype-item-three-components atomic-exact-claim registered-identities quality-before-exposure no-global-flush no-replay rollback early-native-Delete completion"
+      ],
+      "passed_marker_count": 3,
+      "owned_databases_cleaned": 1,
+      "temporary_mysql_cleanup_verified": true,
+      "failures": [
+        "Harness failed: System.InvalidOperationException: Sequence contains no elements"
+      ]
+    },
+    {
+      "name": "items-repaired-05",
+      "exit": {
+        "exit_code": 1,
+        "ended_utc": "2026-10-03T23:06:25.7276338Z",
+        "mode": "Items",
+        "probe": ""
+      },
+      "log": ".artifacts/test-runs/native-armageddon-20261003-stage3C1-items/items-repaired-05.log",
+      "log_sha256": "b81bcadba7f62cdf74990e475fe95c13a03e678a8e41f993989852b3a81c2765",
+      "passed_markers": [
+        "ARM03B2B-connection-refusals=passed unowned-host shared-default blank-database unregistered-owned-prefix all-refused-before-connect",
+        "ARM03C1-readonly-authority=passed native-write-suppression-before-item-construction caller-context-preserved native-rows-and-unrelated-dirty-queue-conserved",
+        "ARM03C1-private-creation=passed real-native-prototype-item-three-components atomic-exact-claim registered-identities quality-before-exposure no-global-flush no-replay rollback early-native-Delete completion"
+      ],
+      "passed_marker_count": 3,
+      "owned_databases_cleaned": 1,
+      "temporary_mysql_cleanup_verified": true,
+      "failures": [
+        "Harness failed: System.InvalidOperationException: Item fixture enrolment refused."
+      ]
+    },
+    {
+      "name": "items-repaired-06",
+      "exit": {
+        "exit_code": 1,
+        "ended_utc": "2026-10-03T23:12:05.6603511Z",
+        "mode": "Items",
+        "probe": ""
+      },
+      "log": ".artifacts/test-runs/native-armageddon-20261003-stage3C1-items/items-repaired-06.log",
+      "log_sha256": "fd52a25431a3a42a8f6705f77f069dacd2797910f19db8e76eb690f2b85fee25",
+      "passed_markers": [
+        "ARM03B2B-connection-refusals=passed unowned-host shared-default blank-database unregistered-owned-prefix all-refused-before-connect",
+        "ARM03C1-readonly-authority=passed native-write-suppression-before-item-construction caller-context-preserved native-rows-and-unrelated-dirty-queue-conserved",
+        "ARM03C1-private-creation=passed real-native-prototype-item-three-components atomic-exact-claim registered-identities quality-before-exposure no-global-flush no-replay rollback early-native-Delete completion",
+        "ARM03C1-admission=passed configured-native-route default-hook-refusal-without-eligibility-program zero-lifetime-refusal no-operation no-resource-or-real-component-payment native-rows-conserved",
+        "ARM03C1-component-conservation=passed real-temporary-tagged-component-only prepayment-refusal no-operation-or-debit ordinary-native-component-admitted",
+        "ARM03C1-lifetime-binding=passed native-casting-copy prepared-createitem controlled-expression-RNG positive-admitted-sample-next-draw-zero exact-one-second-deadline one-draw-only"
+      ],
+      "passed_marker_count": 6,
+      "owned_databases_cleaned": 1,
+      "temporary_mysql_cleanup_verified": true,
+      "failures": [
+        "Harness failed: System.InvalidOperationException: Paid timed item casting failed: The actual component plan is infeasible; check materials and free manipulators."
+      ]
+    },
+    {
+      "name": "items-repaired-07",
+      "exit": {
+        "exit_code": 1,
+        "ended_utc": "2026-10-03T23:21:13.8727647Z",
+        "mode": "Items",
+        "probe": ""
+      },
+      "log": ".artifacts/test-runs/native-armageddon-20261003-stage3C1-items/items-repaired-07.log",
+      "log_sha256": "2eb82d712e39174184b7085a5ee1ac2aecb71dc1c1ae265c2e1745df3ee9c764",
+      "passed_markers": [
+        "ARM03B2B-connection-refusals=passed unowned-host shared-default blank-database unregistered-owned-prefix all-refused-before-connect",
+        "ARM03C1-readonly-authority=passed native-write-suppression-before-item-construction caller-context-preserved native-rows-and-unrelated-dirty-queue-conserved",
+        "ARM03C1-private-creation=passed real-native-prototype-item-three-components atomic-exact-claim registered-identities quality-before-exposure no-global-flush no-replay rollback early-native-Delete completion",
+        "ARM03C1-admission=passed configured-native-route default-hook-refusal-without-eligibility-program zero-lifetime-refusal no-operation no-resource-or-real-component-payment native-rows-conserved",
+        "ARM03C1-component-conservation=passed real-temporary-tagged-component-only prepayment-refusal no-operation-or-debit ordinary-native-component-admitted",
+        "ARM03C1-lifetime-binding=passed native-casting-copy prepared-createitem controlled-expression-RNG positive-admitted-sample-next-draw-zero exact-one-second-deadline one-draw-only"
+      ],
+      "passed_marker_count": 6,
+      "owned_databases_cleaned": 1,
+      "temporary_mysql_cleanup_verified": true,
+      "failures": [
+        "Harness failed: System.InvalidOperationException: Paid timed item casting failed: You need a functioning free hand to manipulate this casting."
+      ]
+    },
+    {
+      "name": "items-repaired-08",
+      "exit": {
+        "exit_code": 0,
+        "ended_utc": "2026-10-03T23:26:14.6700481Z",
+        "mode": "Items",
+        "probe": ""
+      },
+      "log": ".artifacts/test-runs/native-armageddon-20261003-stage3C1-items/items-repaired-08.log",
+      "log_sha256": "c062223d9121c552315a848fb04ff4ffaf450f0f49a82b2900fae893cb0e31d0",
+      "passed_markers": [
+        "ARM03B2B-connection-refusals=passed unowned-host shared-default blank-database unregistered-owned-prefix all-refused-before-connect",
+        "ARM03C1-readonly-authority=passed native-write-suppression-before-item-construction caller-context-preserved native-rows-and-unrelated-dirty-queue-conserved",
+        "ARM03C1-private-creation=passed real-native-prototype-item-three-components atomic-exact-claim registered-identities quality-before-exposure no-global-flush no-replay rollback early-native-Delete completion",
+        "ARM03C1-admission=passed configured-native-route default-hook-refusal-without-eligibility-program zero-lifetime-refusal no-operation no-resource-or-real-component-payment native-rows-conserved",
+        "ARM03C1-component-conservation=passed real-temporary-tagged-component-only prepayment-refusal no-operation-or-debit ordinary-native-component-admitted",
+        "ARM03C1-lifetime-binding=passed native-casting-copy prepared-createitem controlled-expression-RNG positive-admitted-sample-next-draw-zero exact-one-second-deadline one-draw-only",
+        "ARM03C1-timed-cast=passed actual-native-casting real-material-Delete actual-resource-debit selected-grade-three absolute-sixty-second-deadline real-Body-Get-Wield legal-title-transfer-preserves-authority",
+        "ARM03C1-destruction-hold=passed actual-held-native-melee-item real-persistent-spell-invisibility effect hold-before-Die callbacks Destroyed flag inventory-mutation or durable-join change",
+        "ARM03C1-death-callback-conservation=passed clean-actual-wielded-native-weapon death-callback-adds-effect refusal-preserves-custody-and-Destroyed once-only-observer writable-release-actual-Delete",
+        "ARM03C1-detach-callback-conservation=passed real-Body-OnInventoryChange native-SimpleWound foreign-lodged-item post-detach-revalidation rollback original-wielded-custody normal-save foreign-value-preserved exact-release",
+        "ARM03C1-reacquisition-conservation=passed actual-same-body-Get-in-Dropped-callback raw-membership-gate rollback original-wielded-entry once-only no-phantom-Held-item normal-save successful-exact-release",
+        "ARM03C1-value-conservation=passed actual-native-weapon-salvage-quote-and-direct-products copy craft shop-stock-sale-and-nested-purchase-guards no-payment-or-custody-mutation conservative-conversion-refusals",
+        "ARM03C1-mon-cast=passed exact-configured-grade-seven distinct-real-native-staff real-component-consumption resource-debit ordinary-salvage-eligibility no-magical-deadline permanent-journal-released",
+        "ARM03C1-paid-exposure-fault=passed real-component-delete resource-debit private-item-and-components-exactly-once world-publication-failure NeedsReview same-origin-and-new-invocation-refused no-refund no-duplicate",
+        "ARM03C1-reader-paid-quarantine=passed new-process persisted-casting-operation no-replay-or-refund exact-owned-committed-item-loadable",
+        "ARM03C1-reader-before-deadline=passed new-process actual-native-GameItem-and-container-component loading no-replayed-creation no-lifetime-reset no-early-expiry permanent-origin-retained",
+        "ARM03C1-reader-cold-custody=passed expired-real-native-leaf persisted-foreign-container recoverable-Retiring diagnostic no-child-or-host-deletion-before-custodian-load",
+        "ARM03C1-removal-fault-reader=passed new-process real-native-container-and-leaf reload after-final-DELETE-fault-and-normal-save same-origin same-foreign-container sibling-intact recoverable-retirement",
+        "ARM03C1-reader-removal-rollback=passed actual-MySQL-final-DELETE-fault atomic-custodian-and-item-transaction native-rollback normal-save separate-process-reload exact-original-contained-item foreign-bag-and-sibling-conserved",
+        "ARM03C1-reader-expired=passed actual-native-Delete exact-item-and-component-rows-gone foreign-container-and-other-goods-retained normal-save repeated-terminal-idempotence no-permanent-expiry",
+        "ARM03C1-restart-expiry=passed separate-process native-container-reload persisted-absolute-deadline no-reset native-item-Delete completed-once foreign-bag-and-child-preserved permanent-staff-survives",
+        "ARM03C1-acceptance=passed controlled-replacement-fixtures N21-native-boundary installed-stock-not-qualified food-liquid-host-adapters-and-event-unit-conversion-pending"
+      ],
+      "passed_marker_count": 22,
+      "owned_databases_cleaned": 1,
+      "temporary_mysql_cleanup_verified": true,
+      "failures": []
+    }
+  ],
+  "corrected_items_only_native_attempt_count": 8,
+  "corrected_native_failures_retained": 7,
+  "corrected_native_items_passes": 1,
+  "final_managed_passed": 6868,
+  "final_native_markers": 250,
+  "new_item_markers": 21,
+  "owned_databases_cleaned": 15,
+  "owned_processes_remaining": 0,
+  "frozen_sources": 282,
+  "frozen_assemblies": 19,
+  "original_receipt_artifact_fingerprints_verified": 232,
+  "original_receipt_helper_fingerprints_verified": 6,
+  "prior_twelve_receipts_1127_artifacts_thirty_helpers_preserved": true,
+  "stock_N21_N25_qualification": "controlled native dependency partial; installed stock NOT_RUN",
+  "next_feature_slice_started": false,
+  "parent_checkpoint_review_pending": true
+}

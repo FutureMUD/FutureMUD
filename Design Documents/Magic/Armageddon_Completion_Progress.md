@@ -959,3 +959,16 @@ Parent cleared C2 at `94a931b176e31b7cac28d62bcc31d8ffe656cc5a` with its evidenc
 - [ ] Parent independently reviews this exact checkpoint before further feature work.
 
 The `grade*60` real-second lifetime is authored fixture content. This is not installed Raise Servitor or recovered EVENT timing. Nonfinal/abandoned corpses refuse in durable mode; PC corpse and stock commandable/combat AI qualification, full native cell placement, arbitrary callbacks, simultaneous-host recovery and full N14-N16 remain pending. Anatomy/room catalogue and inherited specialized character Save remain controlled. All eight larger features and later portable production, installer and release gates remain required. No publication, merge, deployment or shared/production DB access occurred. See [Armageddon_Stage3D1_CorpseAnimation_Verification.json](Armageddon_Stage3D1_CorpseAnimation_Verification.json).
+
+
+## Phase3D1P2 independent animation expiry - parent rereview pending
+
+Parent review of `ff7c5e8e85729c0f4b5119343d5ddc4dee7d8fcf` found that the ordinary spell parent could collapse a durable animation before its journal deadline. This focused repair schedules the child at that exact deadline; ordinary siblings expire at their original duration, while the same parent remains available for explicit dispel and saving. Legacy animation retains parent-controlled expiry. The child timer is installed before potentially throwing room-output callbacks.
+
+- [x] Actual native paid casts: ordinary durations of 30/180/300 seconds against a 180-second durable animation, with a native glow sibling and real EffectScheduler.
+- [x] Native proxy dispel at 15 seconds and 60 seconds, including after the short parent duration, restores the same body/corpse/foreign gear; expired timers do not replay cleanup.
+- [x] 592 focused and 6,922 Fast managed cases passed; 25 native markers (19 D1, five P2 and one inherited connection guard), one disposable database cleaned, zero owned native processes. All earlier receipts and source-tree requirements remain preserved.
+- [x] Corrected the idempotence marker to **sequential** duplicate activation. Historical D1 logs retain their original wording; neither concurrent activation nor cleanup races are qualified.
+- [ ] Parent rereviews the exact correction commit before later stock work.
+
+The other 262 historical native markers were not rerun for this focused correction. Native cell/save integration under active combat or queued work, installed Raise Servitor duration conversion and functional combat/control AI remain the next stock prerequisites. All earlier D1/C2 fixture limits and the complete seven-phase plan remain in force. No publication, merge, deployment or shared/production database access occurred. See [Armageddon_Stage3D1P2_Scheduler_Verification.json](Armageddon_Stage3D1P2_Scheduler_Verification.json).

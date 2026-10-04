@@ -97,7 +97,7 @@ public sealed partial class AnimateCorpseSpellEffect : IMagicSpellEffectAdmissio
 				CharacterInstanceIdentityComparer.IdentityId(corpse.OriginalCharacter), corpse.OriginalBody.Id, animated.InstanceId,
 				originalCell, (int)layer, native.Id, ais.Select(x => x.Id), CharacterInstancePersistencePolicy.DespawnOnReboot,
 				Effect._roomEcho, Effect._collapseEcho, Effect._restoreEcho);
-			result.BindOwnedLifecycle(Id);
+			result.BindOwnedLifecycle(Id, origin.DeadlineUtc!.Value);
 			return result;
 		}
 	}

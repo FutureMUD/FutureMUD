@@ -58,3 +58,12 @@ host remains quiescent after restart recovery. Final-death NPC corpses are quali
 PC and nonfinal corpses, installed stock AI/combat profiles, arbitrary callbacks,
 simultaneous-host recovery and high-volume N16 remain unqualified. Use the stage
 verification receipt for exact passed checks and retained failed exploratory probes.
+
+The Phase3D1P2 extension in the same packet uses the real EffectScheduler and its
+virtual clock for paid animations with ordinary parent durations of 30, 180 and 300
+seconds against an independent 180-second lifecycle. A native glow sibling verifies
+ordinary duration is neither extended nor shortened. Native proxy dispel is exercised
+at 15 seconds and after the short parent's ordinary expiry at 60 seconds. These expiry
+checks do not call the lifecycle reconciliation worker. The duplicate activation
+marker describes sequential calls; concurrent activation and cleanup races remain
+unqualified. Cell/save/combat fixture limitations above still apply.

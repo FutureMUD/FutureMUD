@@ -70,7 +70,24 @@ public class MagicSpellParent : Effect, IMagicSpellEffectParent
 	public override void ExpireEffect()
 	{
 		foreach (var treatment in _spellEffects.OfType<ILandRejuvenationEffect>().ToArray()) treatment.ExpireTreatment();
-		base.ExpireEffect();
+		if (!_spellEffects.OfType<IIndependentlyExpiringSpellEffect>().Any(x => x.ExpiryUtc.HasValue))
+		{
+			base.ExpireEffect();
+			return;
+		}
+
+		// Retain the dispel/save wrapper for children with their own deadline. Ordinary
+		// siblings still end now, even when the independently timed child lives longer.
+		using var capacityChange = (Owner as MudSharp.Character.Character ??
+			(Owner as MudSharp.Body.IBody)?.Actor as MudSharp.Character.Character)
+			?.DeferCastingCapacityReconciliationForMutation();
+		foreach (var effect in _spellEffects.Where(x =>
+			x is not IIndependentlyExpiringSpellEffect { ExpiryUtc: not null }).ToArray())
+		{
+			Owner.RemoveEffect(effect, true);
+		}
+		Gameworld.EffectScheduler.Unschedule(this);
+		Owner.EffectsChanged = true;
 	}
 
     protected override string SpecificEffectType => "MagicSpellParent";
@@ -158,7 +175,7 @@ public class MagicSpellParent : Effect, IMagicSpellEffectParent
 
     public virtual void RemoveSpellEffect(IMagicSpellEffect effect)
     {
-        _spellEffects.Remove(effect);
+        if (_spellEffects.Remove(effect)) Owner.EffectsChanged = true;
         if (!_removingSpellEffects && !_spellEffects.Any())
         {
             Owner.RemoveEffect(this);

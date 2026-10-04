@@ -3128,6 +3128,61 @@
         "C2 parent acceptance retains initial unexplained transport failure, excluded stale Debug probe09, bounded empty-associated-plan finalizer guard, controlled anatomy and specialized native Save limitations. Wine intoxication and installed profiles/conversions remain pending.",
         "Remaining required work includes installed Raise Servitor/stock combat AI, Storm Spear placement/combat, generic corpse/projection/topology adapters, summons control/count/riding/guarding/delivery, all eight larger features, portable production, installer and release acceptance."
       ]
+    },
+    {
+      "id": "phase3D1P2_animation_independent_scheduler",
+      "status": "implemented_verified_parent_rereview_pending",
+      "base": "ff7c5e8e85729c0f4b5119343d5ddc4dee7d8fcf",
+      "receipt": "Armageddon_Stage3D1P2_Scheduler_Verification.json",
+      "managed_runs": {
+        "focused": "20261004T065738Z-4534bddf1806",
+        "Fast": "20261004T070039Z-48b2a12c7ab2"
+      },
+      "counts": {
+        "focused": {
+          "executed": 592,
+          "passed": 592,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 592
+        },
+        "Fast": {
+          "executed": 6922,
+          "passed": 6922,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 6922
+        }
+      },
+      "native_markers": 25,
+      "D1_markers": 19,
+      "P2_markers": 5,
+      "connection_guard_markers": 1,
+      "owned_databases_cleaned": 1,
+      "owned_processes_remaining": 0,
+      "acceptance": [
+        "Durable child follows exact journal deadline regardless of shorter/equal/longer ordinary parent duration.",
+        "Ordinary glow sibling ends at its own duration; parent remains available for explicit dispel until its final child ends.",
+        "Native proxy dispel at15 and60 seconds works before and after ordinary parent expiry; no delayed second cleanup.",
+        "Legacy parent expiry and callback-failure partial application remain scheduled correctly; child serialization retains absolute deadline.",
+        "Duplicate activation evidence accurately states sequential calls."
+      ],
+      "evidence_corrections": [
+        "Parent independent review found ordinary spell duration could prematurely retire the durable animation at ff7c5e8e. The previous D1 source review did not discover it; its no-findings conclusion is superseded by this focused correction.",
+        "Original ARM03D1-idempotence marker concurrent-same-source-refused exercised sequential duplicate calls, not simultaneous activation. Historical receipt/logs remain immutable; corrected current marker is sequential-same-source-refused. Concurrent activation and cleanup races are NOT_RUN."
+      ],
+      "qualification_limits": [
+        "Current native packet reruns 19 D1 markers plus five scheduler/early-dispel markers and one inherited connection-refusal guard. The other 262 historical markers from the prior combined 282-marker packet are retained evidence, NOT_RUN for this correction.",
+        "Actual paid grade3 casting, native GameItem/corpse/body/instance, EffectHandler/EffectScheduler and proxy DispelMagicEffect run against marker-owned disposable MySQL with a virtual clock. World/anatomy/cell catalogues and inherited specialized character Save remain controlled.",
+        "Managed checks exercise parent-first and child-first equal deadlines, legacy parent-controlled animation, child deadline XML roundtrip, explicit removal and a throwing room-output callback. They use controlled world/identity/lifecycle service mocks and do not replace native cleanup evidence.",
+        "Native D1 restart collapses through the journal with a quiescent old host; live-AI continuity and simultaneous-host recovery are not qualified. Full native cell/save/scheduler integration under active combat or queued work remains pending.",
+        "Installed Raise Servitor explicit historical EVENT-to-duration conversion, functional combat/control AI and native stock acceptance are not implemented in this repair. Fixture grade*60 real seconds remains authored replacement content.",
+        "All prior D1/C2 scope limits remain: PC/nonfinal corpses, arbitrary callbacks, high-volume and full N14-N16, stock profiles, wine intoxication and wider nonempty-plan finalizer concurrency remain unqualified. No later feature slice started."
+      ]
     }
   ],
   "implementation_commits": [
@@ -3363,10 +3418,11 @@
     },
     {
       "id": "borrowed_corpse_animation_lifecycle",
-      "status": "bounded_final_corpse_native_verified_parent_review_pending",
+      "status": "bounded_final_corpse_scheduler_corrected_parent_rereview_pending",
       "acceptance": "Exact created secondary ownership; canonical character, borrowed body and same real corpse retained; functional selected AI; expiry/dispel/death/restart restoration, provider-failure recovery and foreign-possession conservation. Legacy defaults unchanged. Full installed stock and other projection/topology families remain pending.",
       "receipt": "Armageddon_Stage3D1_CorpseAnimation_Verification.json",
-      "limits": "Nonfinal/PC/combat-stock/full-cell/high-volume acceptance pending; active actor collapses on restart."
+      "limits": "Prior D1 limits retained; actual scheduler duration matrix corrected. Sequential duplicate refusal only; concurrent activation and cleanup races unqualified.",
+      "correction_receipt": "Armageddon_Stage3D1P2_Scheduler_Verification.json"
     }
   ]
 }

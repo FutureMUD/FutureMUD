@@ -407,6 +407,14 @@ Only one active animation may borrow a particular corpse; there is no universal
 one-summon cap. Existing AI metadata and shared canonical resources remain native.
 
 Expiry, dispel, dismissal, actor death and actor Quit converge on durable retirement.
+The durable animation child schedules its exact journal deadline independently of the
+ordinary spell duration. At the ordinary duration, the parent expires ordinary siblings
+but retains independently timed children as a save/dispel wrapper. A longer ordinary
+sibling retains its original duration after animation expiry. Explicit dispel still
+removes the whole matched parent immediately, including after its ordinary duration.
+Legacy animation has no independent deadline and retains parent-controlled expiry.
+The child installs its timer before room-output callbacks, so a presentation failure
+cannot leave a partially applied animation without its deadline schedule.
 An exact serializable transaction restores the source corpse's cell/layer and deletes
 only its created secondary row. A bounded journal checkpoint retains the committed
 destination independently of deferred cell saves. Runtime teardown and placement
@@ -421,6 +429,13 @@ The active actor intentionally collapses on restart. Loading keeps its exact sav
 for the recovery worker without rematerializing its AI. Recovery needs no saved child
 effect, does not reset the absolute deadline or replay the cast, and restores the same
 corpse. Lost final destinations use a safe loaded fallback or retain recoverable holding.
+
+The focused scheduler correction uses actual paid casts and the native EffectScheduler
+with 30/180/300-second ordinary durations, a 180-second animation and an ordinary glow
+sibling. Early dispel is checked both before and after ordinary parent expiry. The
+duplicate activation check is sequential; it does not qualify concurrent activation
+or cleanup races. Historical D1 logs retain their original marker text; the correction
+receipt supersedes that marker's former concurrency wording.
 
 Phase3D1 native evidence uses real corpse/body/item/instance, selected CombatEnd AI,
 compiled resource FutureProg, paid casting, dispel, death, provider triggers, ordinary

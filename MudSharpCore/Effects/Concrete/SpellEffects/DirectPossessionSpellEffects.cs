@@ -2,6 +2,7 @@
 
 using MudSharp.Construction;
 using MudSharp.Effects;
+using MudSharp.Framework.Scheduling;
 using MudSharp.GameItems;
 using MudSharp.Magic;
 using MudSharp.Magic.SpellEffects;
@@ -498,11 +499,18 @@ public sealed class CorpsePossessionDispelProxyEffect : Effect, IPossessionDispe
 	protected override string SpecificEffectType => "CorpsePossessionDispelProxy";
 }
 
-public sealed class SpellAnimatedCorpseEffect : SimpleSpellStatusEffectBase, IAnimatedCorpseEffect
+public sealed class SpellAnimatedCorpseEffect : SimpleSpellStatusEffectBase, IAnimatedCorpseEffect,
+	IIndependentlyExpiringSpellEffect
 {
 	private bool _removing;
 	public Guid? OwnedLifecycleId { get; private set; }
-	internal void BindOwnedLifecycle(Guid id) => OwnedLifecycleId = id;
+	public DateTime? ExpiryUtc { get; private set; }
+	private SpellRetirementReason _retirementReason = SpellRetirementReason.Dispel;
+	internal void BindOwnedLifecycle(Guid id, DateTime expiryUtc)
+	{
+		OwnedLifecycleId = id;
+		ExpiryUtc = expiryUtc;
+	}
 
 	public static void InitialiseEffectType()
 	{
@@ -550,6 +558,7 @@ public sealed class SpellAnimatedCorpseEffect : SimpleSpellStatusEffectBase, IAn
 	{
 		var trueRoot = root.Element("Effect");
 		if (Guid.TryParse(trueRoot?.Element("OwnedLifecycleId")?.Value, out var lifecycle)) OwnedLifecycleId = lifecycle;
+		if (OwnedLifecycleId.HasValue) ExpiryUtc = (DateTime?)trueRoot?.Element("ExpiryUtc");
 		AnchorCharacterId = long.Parse(trueRoot?.Element("AnchorCharacterId")?.Value ?? "0");
 		AnchorInstanceId = long.Parse(trueRoot?.Element("AnchorInstanceId")?.Value ?? "0");
 		CorpseItemId = long.Parse(trueRoot?.Element("CorpseItemId")?.Value ?? "0");
@@ -595,6 +604,7 @@ public sealed class SpellAnimatedCorpseEffect : SimpleSpellStatusEffectBase, IAn
 	{
 		return SimpleSaveDefinition(
 			new XElement("OwnedLifecycleId", OwnedLifecycleId?.ToString() ?? ""),
+			ExpiryUtc.HasValue ? new XElement("ExpiryUtc", ExpiryUtc.Value) : null,
 			new XElement("AnchorCharacterId", AnchorCharacterId),
 			new XElement("AnchorInstanceId", AnchorInstanceId),
 			new XElement("CorpseItemId", CorpseItemId),
@@ -628,6 +638,13 @@ public sealed class SpellAnimatedCorpseEffect : SimpleSpellStatusEffectBase, IAn
 			return;
 		}
 
+		if (ExpiryUtc is { } deadline)
+		{
+			Gameworld.EffectScheduler.AddSchedule(new EffectSchedule(this, deadline - RuntimeClock.UtcNow)
+			{
+				TriggerETA = deadline
+			});
+		}
 		EmitRoomEcho(animated, RoomEcho, animated, Owner);
 	}
 
@@ -637,11 +654,17 @@ public sealed class SpellAnimatedCorpseEffect : SimpleSpellStatusEffectBase, IAn
 		Owner.RemoveEffect(this, true);
 	}
 
+	public override void ExpireEffect()
+	{
+		if (OwnedLifecycleId.HasValue) _retirementReason = SpellRetirementReason.Expiry;
+		base.ExpireEffect();
+	}
+
 	public override void RemovalEffect()
 	{
 		if (OwnedLifecycleId is not null)
 		{
-			Gameworld.SpellOwnedCorpseAnimations?.TryRetire(AnimatedInstanceId, MudSharp.Magic.SpellRetirementReason.Dispel, out _);
+			Gameworld.SpellOwnedCorpseAnimations?.TryRetire(AnimatedInstanceId, _retirementReason, out _);
 			base.RemovalEffect();
 			return;
 		}

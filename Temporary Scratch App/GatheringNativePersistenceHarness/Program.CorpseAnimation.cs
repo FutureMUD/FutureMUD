@@ -83,6 +83,8 @@ internal static partial class GNHProgram
 			db.SaveChanges();
 		}
 		var host = PrepareRetirementHost(database, fixture, clock, corpseAnimationAnatomy: true); var native = host.Native; var world = native.World; var caster = native.Actor;
+		var effectScheduler = new EffectScheduler(world, clock);
+		native.WorldMock.SetupGet(x => x.EffectScheduler).Returns(effectScheduler);
 		var ai = ConfigureCorpseAnimationWorld(host, database.ConnectionString); var service = world.SpellOwnedCorpseAnimations!;
 		var data = new SimpleCharacterTemplate
 		{
@@ -148,6 +150,7 @@ internal static partial class GNHProgram
 		clock.Advance(TimeSpan.FromSeconds(181)); service.ReconcileRetirements(RuntimeClock.UtcNow);
 		AssertCorpseAnimationRestored(database, host, life.Origin.Id, animated.InstanceId, corpse.Id, owner.Id, owner.Body.Id, foreign.Id);
 		Console.WriteLine("ARM03D1-expiry=passed absolute-deadline worker same-real-corpse-and-body-and-canonical-identity restored one-secondary-removed no-duplicate-remains no-foreign-item-loss");
+		RunCorpseAnimationSchedulerChecks(database, host, clock, effectScheduler, casting, cap, spell, owner, corpse, foreign);
 
 		ScriptedAiCharacterInstance CreateDirect(Guid? id = null, IReadOnlyCollection<IArtificialIntelligence>? selected = null) =>
 			(ScriptedAiCharacterInstance)service.Create(corpse, caster, selected ?? [ai], new(id ?? Guid.NewGuid(), spell.Id, 3, caster.Id,
@@ -169,7 +172,7 @@ internal static partial class GNHProgram
 		var replayRefused = false;
 		try { CreateDirect(stable); } catch (InvalidOperationException) { replayRefused = true; }
 		Require(replayRefused && owner.Instances.All(x => x.IsPrimaryInstance), "Completed creation key was replayed.");
-		Console.WriteLine("ARM03D1-idempotence=passed concurrent-same-source-refused completed-creation-key-refused explicit-dismissal exact-original-corpse-restored");
+		Console.WriteLine("ARM03D1-idempotence=passed sequential-same-source-refused completed-creation-key-refused explicit-dismissal exact-original-corpse-restored");
 
 		var failedOrigin = Guid.NewGuid(); int beforeInstances;
 		using (var db = NewIndependentContext(database.ConnectionString))

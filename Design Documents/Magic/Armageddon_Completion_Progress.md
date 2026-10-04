@@ -930,3 +930,32 @@ Parent/Astra cleared C1P2 at `909bdd4b4e80d71f65311504ad67bf6465e44042` with its
 Replacement contracts are explicit: food `1800*grade` real seconds declares one second/source EVENT unit; water `0.5*grade` litres declares 0.1L/source water unit and configured-plane doubling; wine `0.25*grade` litres, light `600*grade` seconds/40 lux and food 4 bites/2 satiation-hours are authored fixture content. Historical heap tick conversion/prototype/formula recovery is not claimed. The installer must adopt/refine and qualify these stock profiles.
 
 World/cell/catalogues, race/hand and wear-profile boundaries remain controlled; no installed stock spell, arbitrary callback/liquid-adjustment prog, wine intoxication, complete N14/N15 or high-volume/every-cycle-restart N16 is qualified. Storm Spear placement/combat, corpse animation/projections/topology, summons count/control/Guardian guarding/Mount riding/Gate risk/Courier delivery, eight larger features, portable devices and full installer acceptance remain required. No publication, merge, deployment or shared/production DB access occurred.
+
+
+## Phase3D1 Raise Servitor corpse animation - in progress
+
+Parent independently cleared bounded C2 at `94a931b176e31b7cac28d62bcc31d8ffe656cc5a` with no actionable defect. The initial transport failure remains unexplained; stale Debug probe09 is excluded. Final rebuilt evidence qualifies the bounded empty-associated-plan guard only. Anatomy/world remain controlled and the native character Save override is specialized; production needs persistence is statically checked. Installed profiles/conversions, full N14-N16, arbitrary callbacks and wine intoxication remain unqualified.
+
+This checkpoint implements the next concrete stock-required family: Raise Servitor's eligible-corpse animation with builder-selected AI, a durable finite created-instance lifetime, and restoration of the same real corpse. It depends on the accepted lifecycle journal and existing native shared-identity AnimatedCorpse instance. Only the new secondary instance can be owned; the canonical character, borrowed body, corpse and foreign inventory remain unowned. Legacy/default spell behavior remains unchanged.
+
+- [x] Reconcile clean isolated HEAD and retained C2 evidence; no owned native processes remain.
+- [ ] Implement bounded admission, exact ownership and durable corpse restoration.
+- [ ] Qualify selected AI, expiry/dispel/death/restart, provider failure and foreign-custody conservation with meaningful disposable native checks.
+- [ ] Run focused and relevant aggregate managed checks; retain failures, frozen inputs and immutable evidence.
+- [ ] Commit locally and stop for independent parent review.
+
+No installed stock completion, full N14-N16, other projection/topology family, or larger-feature completion is claimed. No publication, merge, deployment or shared/production database is authorized.
+
+
+## Phase3D1 durable final-corpse animation - review pending
+
+Parent cleared C2 at `94a931b176e31b7cac28d62bcc31d8ffe656cc5a` with its evidence limits retained. Local implementation `b4237365b6b1d26cf4f9ca37ee300d60e1255664` completes the bounded final-corpse lifecycle adapter for the future Raise Servitor stock spell.
+
+- [x] Opt-in builder family/lifetime and prepayment eligibility; only the newly created secondary is owned. Original canonical character, body, corpse and foreign gear are retained. Legacy defaults remain.
+- [x] Paid grade3 creation, actual selected AI/compiled resource program, expiry, dispel, death and Quit. Atomic ownership insertion failure and final DELETE refusal, constructor/AI setup rollback, duplicate/replay refusal, foreign ownership and missing dependencies are checked.
+- [x] Moved-actor destination survives guarded callback failure, ordinary save, fresh reader and explicitly simulated stale cell-join loss. Restart collapses without rematerializing AI or resetting deadline; five repeated Quit/save cycles release secondary/control roots.
+- [x] 491 focused and 6,913 Fast managed cases across ten projects passed. 282 combined native markers include 19 D1 and 263 inherited; 17 disposable databases cleaned; zero owned processes. Earlier failed probes/builds and guard-order regression remain retained.
+- [x] Independent source review found five P2 defects, all repaired and exercised; no remaining established actionable finding. Prior receipts/artifacts/helpers and all 7 phases, 16 decisions, 154 candidates, 82+12 source rows and 25 native scenarios are preserved.
+- [ ] Parent independently reviews this exact checkpoint before further feature work.
+
+The `grade*60` real-second lifetime is authored fixture content. This is not installed Raise Servitor or recovered EVENT timing. Nonfinal/abandoned corpses refuse in durable mode; PC corpse and stock commandable/combat AI qualification, full native cell placement, arbitrary callbacks, simultaneous-host recovery and full N14-N16 remain pending. Anatomy/room catalogue and inherited specialized character Save remain controlled. All eight larger features and later portable production, installer and release gates remain required. No publication, merge, deployment or shared/production DB access occurred. See [Armageddon_Stage3D1_CorpseAnimation_Verification.json](Armageddon_Stage3D1_CorpseAnimation_Verification.json).

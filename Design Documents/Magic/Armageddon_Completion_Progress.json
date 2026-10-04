@@ -39,7 +39,7 @@
   "preparation_baseline": "b0e4339d57bf15bc6e6a6f21fbdd5edc73006e38",
   "implementation_branch": "codex/armageddon-completion-phase1",
   "authorised_scope": "Complete plan in coherent stages; local commits; no publication, merge, deploy or shared/production DB",
-  "selected_stage": "Phase3C2 food/liquid/worn-light native adapters implemented and verified; parent review pending",
+  "selected_stage": "Phase3D1 durable final-corpse animation implemented and verified; parent review pending",
   "phase1_remaining": [
     "Stock installer selects and qualifies the mental/spiritual native attribute, capacity expression/basis and authored energy coefficients.",
     "Complete installed source/support/crafting/chargen wiring and gathering restrictions/environmental accounting remain later stock/native gates.",
@@ -3022,7 +3022,7 @@
     },
     {
       "id": "phase3C2_food_liquid_worn_light",
-      "status": "implemented_verified_parent_independent_review_pending",
+      "status": "implemented_verified_parent_independently_accepted",
       "base": "909bdd4b4e80d71f65311504ad67bf6465e44042",
       "implementation": "4fe46a33bf4168bd0ff0008d4dc1370f7f662746",
       "receipt": "Armageddon_Stage3C_ConsumablesLight_Verification.json",
@@ -3068,7 +3068,66 @@
       "installed_stock_and_full_N14_N16_NOT_RUN": true,
       "prior_fourteen_receipts_1486_artifacts_42_helpers_unchanged": true,
       "C1_addendum_clarification_and_C1P2_closing_helpers_unchanged": true,
-      "source_tree_preserved": true
+      "source_tree_preserved": true,
+      "parent_clearance": {
+        "head": "94a931b176e31b7cac28d62bcc31d8ffe656cc5a",
+        "qualification_limits_preserved": true
+      }
+    },
+    {
+      "id": "phase3D1_borrowed_final_corpse_animation",
+      "status": "implemented_verified_parent_independent_review_pending",
+      "base": "94a931b176e31b7cac28d62bcc31d8ffe656cc5a",
+      "implementation": "b4237365b6b1d26cf4f9ca37ee300d60e1255664",
+      "receipt": "Armageddon_Stage3D1_CorpseAnimation_Verification.json",
+      "managed_runs": {
+        "focused": "20261004T060406Z-b887aeecb7d8",
+        "Fast": "20261004T060455Z-9740ac6aa8dc"
+      },
+      "counts": {
+        "focused": {
+          "executed": 491,
+          "passed": 491,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 491
+        },
+        "Fast": {
+          "executed": 6913,
+          "passed": 6913,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 6913
+        }
+      },
+      "native_markers": 282,
+      "D1_markers": 19,
+      "owned_databases_cleaned": 17,
+      "owned_processes_remaining": 0,
+      "acceptance": [
+        "Paid selected-grade native creation owns only one new secondary; exact original canonical identity/body/corpse/gear survive.",
+        "Selected native AI executes a compiled canonical-resource program; source duplicate and stable creation replay refuse.",
+        "Expiry, native dispel/death/Quit, creation/activation/provider failure and fresh-process recovery restore the same corpse.",
+        "Exact foreign persisted ownership refuses before payment; borrowed corpse destruction/copy/replacement guards preserve unowned entities.",
+        "Guarded placement preserves committed moved-actor destination across callback failure, ordinary save, independent inspection and simulated stale cell-join loss.",
+        "Full exact82+12 stock, eight larger features and 25 native scenarios remain in durable whole-plan checklist."
+      ],
+      "qualification_limits": [
+        "Opt-in durable mode supports final-death remains with an exact dead original canonical owner. Nonfinal/abandoned remains refuse before payment pending a cold-load adapter; legacy defaults remain unchanged.",
+        "Native qualification uses real GameItem/corpse/body/NPC/ScriptedAiCharacterInstance, paid selected-grade casting, selected CombatEndAI, compiled FutureProg, dispel/death/Quit, SaveManager, EF/MySQL and fresh reader processes. Anatomy, world/cell catalogues and the inherited character Save override remain controlled.",
+        "One actual selected AI event changes the canonical resource pool. Installed commandable/aggressive/combat profiles, Guardian guarding, Mount riding and arbitrary queued AI callbacks are NOT_RUN.",
+        "Cell placement callback uses actual MoveTo/OnLocationChanged and native Body.Get in a controlled insertion wrapper. Lost deferred cell membership is an explicit database simulation, not native Cell.Save execution. Arbitrary callbacks and full installed-world cell placement remain unqualified.",
+        "Creation owned-claim INSERT and final secondary DELETE faults are actual MySQL triggers. Missing corpse/cell availability and constructor/AI predicate faults are controlled injections; power/network failure is not simulated.",
+        "Restart collapses the active actor through a retained journal; it does not restore live AI continuity. The previous host remains quiescent after the reader. Simultaneous-host recovery is NOT_RUN.",
+        "The fixture lifetime grade*60 real seconds is an authored replacement, not a recovered historical EVENT conversion or installed Raise Servitor balance decision.",
+        "Five repeated native Quit/save cycles qualify bounded instance/controller cleanup. PC corpse gameplay, nonfinal-body support, high-volume/every-cycle restart and full N14-N16 remain unqualified.",
+        "C2 parent acceptance retains initial unexplained transport failure, excluded stale Debug probe09, bounded empty-associated-plan finalizer guard, controlled anatomy and specialized native Save limitations. Wine intoxication and installed profiles/conversions remain pending.",
+        "Remaining required work includes installed Raise Servitor/stock combat AI, Storm Spear placement/combat, generic corpse/projection/topology adapters, summons control/count/riding/guarding/delivery, all eight larger features, portable production, installer and release acceptance."
+      ]
     }
   ],
   "implementation_commits": [
@@ -3187,24 +3246,31 @@
     {
       "sha": "4fe46a33bf4168bd0ff0008d4dc1370f7f662746",
       "subject": "Add conserved native spell-created food, liquid and worn light"
+    },
+    {
+      "sha": "b4237365b6b1d26cf4f9ca37ee300d60e1255664",
+      "subject": "Add durable final-corpse animation and conserved restoration"
     }
   ],
   "next_checkpoint": {
-    "status": "awaiting_parent_phase3C2_independent_review",
-    "base": "909bdd4b4e80d71f65311504ad67bf6465e44042",
-    "implementation_head": "4fe46a33bf4168bd0ff0008d4dc1370f7f662746",
-    "receipt": "Armageddon_Stage3C_ConsumablesLight_Verification.json",
+    "status": "awaiting_parent_phase3D1_independent_review",
+    "base": "94a931b176e31b7cac28d62bcc31d8ffe656cc5a",
+    "previous_C2_parent_accepted": true,
+    "previous_C2_acceptance_limits": "Initial transport failure remains unexplained; stale Debug probe09 is excluded. Final rebuilt packet qualifies only the bounded empty-associated-plan guard. Anatomy/world are controlled and native character Save is specialized; production needs persistence is statically checked. Installed stock profiles/conversions, full N14-N16, arbitrary callbacks and wine intoxication remain unqualified.",
+    "scope": "Raise Servitor corpse-animation lifecycle: builder-selected AI, ownership of only a newly created secondary instance borrowing the original canonical character/body, durable finite lifetime and same-corpse restoration.",
+    "dependencies": [
+      "Accepted shared lifecycle journal and exact ownership",
+      "Existing native AnimatedCorpse shared-identity instance and selected-AI runtime",
+      "Conserved borrowed body/corpse/foreign inventory and recoverable holding"
+    ],
+    "required_connection_ownership": "Fresh disposable loopback MySQL only; verify owned server UUID/datadir/port/database/marker at every boundary.",
     "implementation_verified": true,
-    "previous_admission_parent_accepted": true,
-    "scope": "Bounded unscripted food grade-count/consumption, native water-wine fill and worn ProgLight creation with owned-item expiry/restart conservation.",
-    "required_connection_ownership": "Explicit owned MySQL server/database validation at every native process/service boundary before use; no shared/default database; sanitized evidence",
+    "independent_checkpoint_review_before_further_features": true,
     "N14_N15": "controlled_native_pass_full_installed_stock_pending",
     "N16": "partial_high_volume_pending",
-    "independent_checkpoint_review_before_further_features": true,
-    "next_stage_after_review": "Parent selects the next required Phase3C stock-facing dependency; no later slice has started.",
-    "parent_accepted_durable_removal_P2_preserved": true,
-    "parent_accepted_retirement_P2_protocols_preserved": true,
-    "previous_C1P2_parent_accepted": true
+    "implementation_head": "b4237365b6b1d26cf4f9ca37ee300d60e1255664",
+    "receipt": "Armageddon_Stage3D1_CorpseAnimation_Verification.json",
+    "next_stage_after_review": "Parent selects the next unmet stock-required Phase3 dependency; no later slice started."
   },
   "deferred_consultation": {
     "source_task": "01a0fc1f-ccd4-7359-95f2-f8c03724b0b1",
@@ -3224,7 +3290,7 @@
   },
   "phase3_remaining": [
     "Writing/TrueAuthor/Drawings history is boundedly verified; extend other identity-bearing histories only with native need/evidence, preserving unknown-reference holds and ownership.",
-    "Bounded native created leaf weapons, food grade-count/consumption, water/wine capacity/mixing/transfer and worn light are verified. Actual stock profiles and declared event/unit conversions remain pending, as do Storm Spear automatic primary-hand placement/native combat profile, corpse animation, canonical projections and occupied/connected topology. Variable/prosthetic/role-adjusted/extra-body NPC generalization remains conditional on selected stock need.",
+    "Bounded native created leaf weapons, food grade-count/consumption, water/wine capacity/mixing/transfer and worn light are verified. Actual stock profiles and declared event/unit conversions remain pending, as do Storm Spear automatic primary-hand placement/native combat profile, installed/nonfinal corpse qualification, canonical projections and occupied/connected topology. Variable/prosthetic/role-adjusted/extra-body NPC generalization remains conditional on selected stock need.",
     "Complete generated-possession economy/salvage and occupant/cross-body detachment/replacement-morph adapters plus approved per-cast counts, Gate follower-risk/control, Guardian guarding, Mount riding and Courier delivery. Safe destinations must use configured fallback OR recoverable holding with diagnostics (brief255); automatic fallback is not mandatory.",
     "Complete installed stock command/world N14/N15 and high-volume N16 with per-cycle restart; controlled native early death/decay/restart, same-template modes and sixteen heavy/runtime cycles are verified.",
     "Implement remaining reusable effects and all eight approved larger features; later charm must retain the per-spell PC toggle, resolved executable whitelist and queued-action provenance.",
@@ -3289,9 +3355,18 @@
     },
     {
       "id": "created_food_liquid_worn_light",
-      "status": "bounded_native_verified_parent_review_pending",
+      "status": "bounded_native_parent_independently_accepted",
       "receipt": "Armageddon_Stage3C_ConsumablesLight_Verification.json",
-      "acceptance": "Native consumption, container filling/transfer and occupied-hand worn light; exact ownership, rollback, restart and expiry with player/foreign-state conservation. Installed profiles/event conversion still pending."
+      "acceptance": "Native consumption, container filling/transfer and occupied-hand worn light; exact ownership, rollback, restart and expiry with player/foreign-state conservation. Installed profiles/event conversion still pending.",
+      "parent_accepted_head": "94a931b176e31b7cac28d62bcc31d8ffe656cc5a",
+      "acceptance_limits": "Initial transport failure remains unexplained; stale Debug probe09 is excluded. Final rebuilt packet qualifies only the bounded empty-associated-plan guard. Anatomy/world are controlled and native character Save is specialized; production needs persistence is statically checked. Installed stock profiles/conversions, full N14-N16, arbitrary callbacks and wine intoxication remain unqualified."
+    },
+    {
+      "id": "borrowed_corpse_animation_lifecycle",
+      "status": "bounded_final_corpse_native_verified_parent_review_pending",
+      "acceptance": "Exact created secondary ownership; canonical character, borrowed body and same real corpse retained; functional selected AI; expiry/dispel/death/restart restoration, provider-failure recovery and foreign-possession conservation. Legacy defaults unchanged. Full installed stock and other projection/topology families remain pending.",
+      "receipt": "Armageddon_Stage3D1_CorpseAnimation_Verification.json",
+      "limits": "Nonfinal/PC/combat-stock/full-cell/high-volume acceptance pending; active actor collapses on restart."
     }
   ]
 }

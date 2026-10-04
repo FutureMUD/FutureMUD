@@ -45,9 +45,9 @@ internal static partial class GNHProgram
 		SpellOwnedLifecycleStore Store, Scheduler Scheduler, HeartbeatManager Heartbeats, All<IGameItem> Items,
 		Dictionary<long, GameItemProto> Prototypes);
 
-	private static RetirementHost PrepareRetirementHost(TestDatabase database, FixtureIds fixture, HarnessClock clock, bool wielding = false)
+	private static RetirementHost PrepareRetirementHost(TestDatabase database, FixtureIds fixture, HarnessClock clock, bool wielding = false, bool consumablesAnatomy = false)
 	{
-		var native = NativeRuntime.Load(fixture, database.ConnectionString, true, wielding: wielding);
+		var native = NativeRuntime.Load(fixture, database.ConnectionString, true, wielding: wielding, consumablesAnatomy: consumablesAnatomy);
 		ConfigureCastingWorld(native, database.ConnectionString, false); PrepareLifecycleRuntime(native);
 		var roots = ArchiveRoots(); ConfigureArchiveWorld(native, roots, fixture, database.ConnectionString);
 		var scheduler = new Scheduler(clock); var heartbeats = new HeartbeatManager(native.World);
@@ -95,6 +95,7 @@ internal static partial class GNHProgram
 		templates.Setup(x => x.GetEnumerator()).Returns(() => Enumerable.Empty<INPCTemplate>().GetEnumerator());
 		templates.Setup(x => x.Get(It.IsAny<long>(), It.IsAny<int>())).Returns<long, int>((id, _) => Mock.Of<INPCTemplate>(x => x.Id == id));
 		native.WorldMock.SetupGet(x => x.NpcTemplates).Returns(templates.Object);
+		if (consumablesAnatomy) ConfigureConsumablesWorld(native, database.ConnectionString);
 		var componentPrototypes = new Dictionary<long, IGameItemComponentProto>();
 		var prototypes = new Dictionary<long, GameItemProto>();
 		var componentCatalogue = new Mock<IUneditableRevisableAll<IGameItemComponentProto>>();
@@ -127,6 +128,8 @@ internal static partial class GNHProgram
 			{
 				var type = model.Type switch
 				{
+					"Food" => typeof(FoodGameItemComponentProto), "Wearable" => typeof(WearableGameItemComponentProto),
+					"ProgLight" => typeof(ProgLightGameItemComponentProto), "LiquidContainer" => typeof(LiquidContainerGameItemComponentProto),
 					"Corpse" => typeof(CorpseGameItemComponentProto), "Container" => typeof(ContainerGameItemComponentProto),
 					"Holdable" => typeof(HoldableGameItemComponentProto), "Belt" => typeof(BeltGameItemComponentProto),
 					"MeleeWeapon" => typeof(MeleeWeaponGameItemComponentProto), "Salvageable" => typeof(SalvageableGameItemComponentProto),

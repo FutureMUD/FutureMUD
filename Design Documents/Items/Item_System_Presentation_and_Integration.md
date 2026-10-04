@@ -448,3 +448,8 @@ Manual prog and register values use the [shared argument resolver](../Core/Futur
 ## Magical substance integration
 
 Liquids, consumable items, inhalers and incense fuel can bind magical substances. Surface transfer preserves spent/suppressed charge; ordinary container storage is not magical contact. See [Magical Substances](../Magic/Magical_Substances.md) for dose units and builder workflows.
+
+
+## Created meals, drink fills and Hovering Light
+
+Created food uses ordinary bite presentation, native eating and active needs; fractional/zero saved remainders survive reload without restoration. Hovering Light is a lit native wearable object on the recipient's configured profile and contributes to real recipient illumination. It remains independent of foreign worn equipment; expiry uses exact ownership rather than removing a whole inventory layer. Created water/wine fill an existing accessible open drink container and preserve its existing constituents. Incompatible recipes refuse instead of changing old contents. They remain ordinary drink/transfer/save quantities with no magical expiry.

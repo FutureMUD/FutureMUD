@@ -1,4 +1,4 @@
-﻿using ExpressionEngine;
+using ExpressionEngine;
 using MudSharp.Body;
 using MudSharp.Construction;
 using MudSharp.Events;
@@ -11,7 +11,7 @@ using MudSharp.RPG.Checks;
 
 namespace MudSharp.Magic.SpellEffects;
 
-public class CreateLiquidEffect : IMagicSpellEffectTemplate
+public partial class CreateLiquidEffect : IMagicSpellEffectTemplate, IMagicSpellEffectAdmission
 {
     public static void RegisterFactory()
     {
@@ -39,6 +39,7 @@ public class CreateLiquidEffect : IMagicSpellEffectTemplate
         Spell = spell;
         _liquidId = long.Parse((root.Element("LiquidId") ?? root.Element("Liquid"))!.Value);
         AmountFormula = new Expression(root.Element("AmountFormula").Value);
+		LoadContainerFill(root.Element("ContainerFill"));
     }
     public IFuturemud Gameworld => Spell.Gameworld;
 
@@ -55,7 +56,8 @@ public class CreateLiquidEffect : IMagicSpellEffectTemplate
         return new XElement("Effect",
             new XAttribute("type", "createliquid"),
             new XElement("LiquidId", _liquidId),
-            new XElement("AmountFormula", new XCData(AmountFormula.OriginalExpression))
+            new XElement("AmountFormula", new XCData(AmountFormula.OriginalExpression)),
+			SaveContainerFill()
         );
     }
 
@@ -88,6 +90,12 @@ public class CreateLiquidEffect : IMagicSpellEffectTemplate
     public IMagicSpellEffect GetOrApplyEffect(ICharacter caster, IPerceivable target, OpposedOutcomeDegree outcome,
         SpellPower power, IMagicSpellEffectParent parent, SpellAdditionalParameter[] additionalParameters)
     {
+		if (ContainerOnly || _fillLoadError is not null)
+		{
+			if (!TryPrepareApplication(caster, target, outcome, power, TimeSpan.Zero, out var application, out var error))
+				throw new InvalidOperationException(error);
+			return application!.Create(parent);
+		}
         ILiquid liquid = Liquid;
         if (liquid is null)
         {
@@ -122,7 +130,7 @@ public class CreateLiquidEffect : IMagicSpellEffectTemplate
                 return null;
             }
 
-            amount = container.LiquidCapacity - container.LiquidMixture?.TotalVolume ?? 0.0;
+            amount = container.LiquidCapacity - (container.LiquidMixture?.TotalVolume ?? 0.0);
             if (mixture.TotalVolume > amount)
             {
                 mixture.SetLiquidVolume(amount);
@@ -133,7 +141,7 @@ public class CreateLiquidEffect : IMagicSpellEffectTemplate
                 return null;
             }
 
-            if (container.LiquidMixture?.CanMerge(mixture) == true)
+            if (container.LiquidMixture is null || container.LiquidMixture.CanMerge(mixture))
             {
                 container.MergeLiquid(mixture, null, "spell");
             }
@@ -154,7 +162,11 @@ public class CreateLiquidEffect : IMagicSpellEffectTemplate
     public const string HelpText = @"You can use the following options with this effect:
 
 	#3liquid <which>#0 - sets the liquid to be loaded
-	#3amount <formula>#0 - sets the amount of liquid to be loaded (in ml)
+	#3amount <formula>#0 - sets the legacy volume in native fluid units
+	#3containerfill on|off#0 - uses accessible owned containers with capacity and compatibility admission
+	#3litres <formula>#0 - sets a prepayment route-bound grade/power/mastery/trait formula in litres
+	#3compatible <liquid>#0 - toggles an additional allowed existing liquid (source liquid is always allowed)
+	#3bonusplane <plane> <multiplier>|none#0 - scales the prepared amount on one configured plane
 
 Parameters for amount formula:
 
@@ -165,11 +177,17 @@ Parameters for amount formula:
     {
         return SpellEffectPresentation.Describe(actor, "Create Liquid",
             ("Liquid", Liquid?.Name.Colour(Liquid.DisplayColour) ?? "nothing".ColourError()),
-            ("Amount", $"{AmountFormula.OriginalExpression} ml".ColourCommand()));
+            ("Amount", ContainerOnly ? $"{LitresExpression?.OriginalFormulaText} litres".ColourCommand() : $"{AmountFormula.OriginalExpression} native fluid units".ColourCommand()),
+			("Container Fill", ContainerOnly.ToColouredString()),
+			("Compatible", string.Join(", ", _compatibleLiquids.Prepend(_liquidId).Distinct().Select(x => Gameworld.Liquids.Get(x)?.Name ?? $"#{x}"))),
+			("Bonus Plane", _bonusPlaneId == 0 ? "None" : $"{Gameworld.Planes.Get(_bonusPlaneId)?.Name}: {_planeMultiplier}"),
+			("Validation", DefinitionError ?? "Valid"));
     }
 
     public bool BuildingCommand(ICharacter actor, StringStack command)
     {
+		if (command.PeekSpeech().ToLowerInvariant() is "containerfill" or "litres" or "compatible" or "bonusplane")
+			return BuildingCommandContainerFill(actor, command);
         switch (command.PopSpeech().ToLowerInvariant())
         {
             case "liquid":

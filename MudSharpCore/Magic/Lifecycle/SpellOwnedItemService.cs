@@ -25,6 +25,8 @@ public sealed class SpellOwnedItemService(IFuturemud world) : ISpellOwnedItemSer
 		if (NativeItemCreationEligibility.Error(prototype, world) is { } error) throw new InvalidOperationException(error);
 		if (_store.Find(origin.Id) is not null) throw new InvalidOperationException("This native item creation cannot be replayed.");
 		var item = new GameItem(prototype, caster, quality, deferSpellInitialisation: true);
+		// The light's usable state is part of its private birth, before rows or exposure.
+		if (item.GetItemType<MudSharp.GameItems.Components.ProgLightGameItemComponent>() is { } light) light.Lit = true;
 		MudSharp.Models.GameItem? inserted = null;
 		var components = new List<(GameItemComponent Component, MudSharp.Models.GameItemComponent Row)>();
 		var life = _store.Create(origin, creation =>

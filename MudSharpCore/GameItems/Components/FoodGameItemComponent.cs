@@ -5,6 +5,12 @@ namespace MudSharp.GameItems.Components;
 
 public class FoodGameItemComponent : GameItemComponent, IEdible
 {
+	internal override Action CaptureCustodyRollback()
+	{
+		var restoreBase = base.CaptureCustodyRollback();
+		var remaining = _bitesRemaining;
+		return () => { restoreBase?.Invoke(); _bitesRemaining = remaining; };
+	}
     private FoodGameItemComponentProto _prototype;
     public override IGameItemComponentProto Prototype => _prototype;
 
@@ -80,7 +86,8 @@ public class FoodGameItemComponent : GameItemComponent, IEdible
         XElement element = root.Element("Bites");
         if (element != null)
         {
-            BitesRemaining = int.Parse(element.Value);
+			// Loading an exhausted item must neither delete an incomplete parent nor recreate food.
+			_bitesRemaining = (double)element;
         }
     }
 
@@ -126,11 +133,9 @@ public class FoodGameItemComponent : GameItemComponent, IEdible
         set
         {
             _bitesRemaining = value;
-            if (_bitesRemaining > 0)
-            {
-                Changed = true;
-            }
-            else
+			// A held retirement still has to save the consumed remainder before restart.
+			Changed = true;
+			if (_bitesRemaining <= 0)
             {
                 Parent.Delete();
             }

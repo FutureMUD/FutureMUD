@@ -6,6 +6,12 @@ namespace MudSharp.GameItems.Components;
 
 public class ProgLightGameItemComponent : GameItemComponent, ILightable, IProduceLight
 {
+	internal override Action CaptureCustodyRollback()
+	{
+		var restoreBase = base.CaptureCustodyRollback();
+		var lit = _lit;
+		return () => { restoreBase?.Invoke(); _lit = lit; };
+	}
     protected bool _lit;
     protected ProgLightGameItemComponentProto _prototype;
 

@@ -618,3 +618,10 @@ No restaurant-specific item component is required. Create dining furniture with 
 ## Psychometric integration
 
 Psychometric history is a saved item effect, not a mandatory component. Inventory component authors should complete transfers before invoking inventory-change notifications so effective carrier continuity is observed after detach/attach operations. Splitting components should preserve history through the item copy/owner-copy hooks.
+
+
+## Native spell-created consumable graphs
+
+For bounded lifecycle food author a loadable approved prototype with exactly Holdable + Food, finite positive bites, finite nonnegative nutrition, a bites decorator and no OnEatProg. For a worn light use exactly Holdable + Wearable + ProgLight, a native default wear profile without wear scripts and finite positive lux. Both prototypes must be unscripted and have no ordinary morphing/default item hooks. Add count/placement/lifetime policy on the spell, not on a duplicate component timer. Unsupported stacks, recipe payloads and component graphs require their own ownership adapters.
+
+Liquid creation targets existing open LiquidContainer components; it creates no new container. Author unscripted stock containers for the qualified slice, native fluid capacity and the spell's litres/allowed-mixture/optional-plane recipe. Additional callback-bearing containers retain ordinary MergeLiquid callbacks and require separate failure qualification.

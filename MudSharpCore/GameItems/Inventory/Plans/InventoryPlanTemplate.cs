@@ -379,6 +379,13 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
 
     public void FinalisePlan(ICharacter executor, bool restore, IInventoryPlan plan, IList<IGameItem> exemptItems)
     {
+        // Advisory and unexecuted plans own no restoration effects. Their finalizer
+        // must not traverse the actor's mutable effect list from the GC thread.
+        if (plan.AssociatedEffects.Count == 0)
+        {
+            return;
+        }
+
         if (restore)
         {
             List<IInventoryPlanItemEffect> items = (exemptItems != null

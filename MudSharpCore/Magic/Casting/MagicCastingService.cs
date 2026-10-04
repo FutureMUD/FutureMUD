@@ -143,8 +143,17 @@ public sealed partial class MagicCastingService : IMagicCastingService
 		var copy = intent.Mode == MagicCastingMode.Practice ? spell : spell.CastingCopy(actor, trait, intent.Grade, power, difficulty, controlledGrade);
 		if (intent.Mode != MagicCastingMode.Practice) copy.InvocationOriginId = intent.OriginId;
 		if (intent.Mode != MagicCastingMode.Practice)
-			foreach (var itemCreation in copy.SpellEffects.Concat(copy.CasterSpellEffects).OfType<MudSharp.Magic.SpellEffects.CreateItemEffect>())
-				if (!itemCreation.ValidateInvocation(actor, out var itemError)) throw new InvalidOperationException(itemError);
+		{
+			foreach (var (effect, recipients) in copy.SpellEffects.Select(x => (x, targets))
+				.Concat(copy.CasterSpellEffects.Select(x => (x, (IEnumerable<IPerceivable>)new[] { actor }))))
+				foreach (var recipient in recipients)
+				{
+					if (effect is MudSharp.Magic.SpellEffects.CreateItemEffect item && !item.ValidateRecipientInvocation(actor, recipient, out var itemError))
+						throw new InvalidOperationException(itemError);
+					if (effect is MudSharp.Magic.SpellEffects.CreateLiquidEffect liquid && !liquid.ValidateInvocation(actor, recipient, out var liquidError))
+						throw new InvalidOperationException(liquidError);
+				}
+		}
 		List<CastingPayment> payments = [];
 		foreach (var (resource, expression) in copy.CastingCosts)
 		{

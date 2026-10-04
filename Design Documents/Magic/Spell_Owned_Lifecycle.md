@@ -286,8 +286,9 @@ Temporary output refuses copy, merge, split, morph/replacement, prototype update
 conversion into ordinary crafting inputs, casting material, salvage products, shop stock,
 sale proceeds or auction lots. Value guards also inspect temporary items inside or attached
 to an otherwise ordinary host. These refusals occur before payment or input reservation.
-The simple adapter deliberately refuses unsupported conversions; food consumption, liquid
-mixing and worn lights still need their own value-preserving adapters.
+The Phase3C1 simple adapter deliberately refuses unsupported conversions. The bounded
+food consumption, liquid mixing and worn-light adapters are described in the Phase3C2
+section below; installed stock profiles and their full acceptance remain pending.
 
 Exact temporary leaf deletion commits custodian changes and the item row deletion in one
 private transaction. A loaded native container or sheath, native body, or location with a
@@ -471,3 +472,20 @@ without a retired-body preload, database possession/reference refusal and the re
 component's final release callback. Its item host and world services are controlled fixtures;
 the persisted foreign inventory join is deliberately unloaded. It does not qualify a full
 command session, timed decay, native NPC death or the later summon adapters.
+
+
+## Native created consumables and worn lights
+
+The bounded item adapter also admits exact unscripted Holdable + Food and Holdable + Wearable + ProgLight graphs. Food requires positive finite bites, nonnegative finite nutrition and a native decorator. Lights require native wear profiles without wear scripts and positive finite illumination. Other graphs still require an adapter. Existing ownership, permanent value policy, callback-free retirement, exact single-leaf claims and conservative foreign-dependency holds apply to each output.
+
+`createitem count grade` produces one separate plain food object per selected configured grade (1–7), with a separate stable origin for each and one prepared absolute deadline across its batch. It does not use a stack or reset bites. A partial exposure failure retains its paid casting uncertainty; already committed outputs retain exact ownership and cannot be replayed. `count single` retains the existing behavior. Grade-count food cannot select a permanent-grade alternate. Stock Sustain Meal uses TemporaryCleanup at every grade; an independently configured permanent food remains an ordinary consumable, rather than becoming indestructible.
+
+`createitem placement wornlight` admits a character recipient's default wear profile before payment and revalidates it at application. The service persists Lit=true in the private light graph before exposure. Placement uses native Get/WearExternally without requiring a free held-item location; actual worn membership is required. Recipient illumination and saved wear-profile IDs use ordinary engine mechanisms. A permanent-grade alternate cannot select a light and bypass this admission. Temporary expiry detaches only the exact owned light; foreign worn gear survives. Food and ProgLight add raw component snapshots to the existing native removal rollback journal.
+
+Food component XML reads fractional bites as doubles and loads an exhausted zero remainder without deleting an incomplete parent. Exhaustion marks the remainder dirty even when retirement is held. Native eating refuses invalid or exhausted portions before applying nutrition. Explicit needs fulfilment queues the Character whose row stores active needs as well as its Body. Reconciliation never recreates missing food. Ordinary save/reload and failed-removal retry conserve consumed quantities; this is not a new atomic transaction spanning every possible eating-event callback.
+
+`createliquid containerfill on` supplies a prepayment route-bound `litres` formula, optional `bonusplane <plane> <multiplier>`, and `compatible <liquid>` toggles. It fills an accessible open container that owns its mixture, clamps to remaining capacity and initializes empty mixtures. The source liquid is always compatible; every existing original and effective liquid must be the source or an explicitly allowed ID. This recipe policy supplies genuine refusal while the engine's general CanMerge predicate remains permissive. Existing constituents are merged, never silently converted. Legacy wetting/puddles/native-unit formulas retain their behavior, with empty-container initialization corrected. Created water/wine have no magical lifecycle or expiry. Normal drinking, transfer and mixture XML own subsequent consumption/persistence. Arbitrary adjustment callbacks and stored-device adapters remain separate qualification.
+
+These are reusable runtime capabilities and controlled replacement fixtures, not installed stock profiles. Historical prototypes, stock installation and full native scenarios remain in the completion ledger.
+
+Inventory plans that own no restoration effects now finalize without traversing the actor's live effect list. This shared no-op covers abandoned feasibility and unexecuted plans, whose destructor otherwise ran actor cleanup on the GC thread. Plans with associated restoration effects retain their existing restore/removal behavior. Bounded managed ownership checks and forced native garbage collection preserve foreign actor effects, needs and resources; broader nonempty-plan finalizer concurrency is not qualified by this guard.

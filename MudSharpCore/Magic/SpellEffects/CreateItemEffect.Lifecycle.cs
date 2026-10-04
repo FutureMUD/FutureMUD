@@ -10,6 +10,7 @@ using MudSharp.Events;
 using MudSharp.Framework.Scheduling;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
+using MudSharp.GameItems.Prototypes;
 using MudSharp.Magic.Lifecycle;
 using MudSharp.RPG.Checks;
 
@@ -27,13 +28,19 @@ public partial class CreateItemEffect
 	public int? PermanentGrade { get; private set; }
 	public IGameItemProto? PermanentPrototype => Gameworld.ItemProtos.Get(_permanentPrototypeId);
 	public ITraitExpression? LifetimeExpression { get; internal set; }
+	public bool CountByGrade { get; private set; }
+	public bool WornLight { get; private set; }
 
 	public string? DefinitionError => _lifecycleLoadError ?? (LifecycleMode is null ? null :
 		Gameworld.SpellOwnedItems is null ? "Spell-owned native item creation is unavailable." :
-		Quantity != 1 || _itemSkinId != 0 || !string.IsNullOrEmpty(LoadString) ? "Lifecycle weapons require quantity one, no skin and no load string." :
+		Quantity != 1 || _itemSkinId != 0 || !string.IsNullOrEmpty(LoadString) ? "Lifecycle items require quantity one per output, no skin and no load string." :
 		string.IsNullOrWhiteSpace(LifecycleFamily) || LifecycleFamily.Length > 128 ? "Set a creation family of at most 128 characters." :
 		NativeItemCreationEligibility.Error(ItemPrototype, Gameworld) is { } error ? error :
 		PermanentGrade is not null && NativeItemCreationEligibility.Error(PermanentPrototype, Gameworld) is { } permanentError ? permanentError :
+		PermanentGrade is not null && PermanentPrototype!.IsItemType<ProgLightGameItemComponentProto>() ? "Permanent grade overrides cannot select lights; configure explicit worn-light placement." :
+		CountByGrade && (!ItemPrototype.IsItemType<FoodGameItemComponentProto>() || PermanentGrade is not null) ? "Grade-count creation requires plain food without a permanent grade override." :
+		WornLight && (!ItemPrototype.IsItemType<ProgLightGameItemComponentProto>() || CountByGrade || PermanentGrade is not null) ? "Worn-light placement requires one wearable light without a permanent grade override." :
+		ItemPrototype.IsItemType<ProgLightGameItemComponentProto>() && !WornLight ? "Lifecycle lights require worn-light placement." :
 		LifecycleMode == SpellLifecycleMode.TemporaryCleanup && (LifetimeExpression is null || LifetimeExpression.HasErrors()) ? "Set a valid lifetime expression in real seconds." :
 		LifetimeExpression?.NonTraitParameters.Contains("outcome", StringComparer.OrdinalIgnoreCase) == true ? "Item lifetime must be determinable before payment; outcome is not supported." :
 		ItemQuality.HasErrors() ? "Set a valid quality expression." : null);
@@ -44,6 +51,8 @@ public partial class CreateItemEffect
 		if (!int.TryParse((string?)root.Attribute("version"), out var version) || version != 1 ||
 			!Enum.TryParse<SpellLifecycleMode>((string?)root.Attribute("mode"), true, out var mode) ||
 			mode is not (SpellLifecycleMode.Permanent or SpellLifecycleMode.TemporaryCleanup) ||
+			root.Element("Count") is { } count && count.Value is not ("single" or "grade") ||
+			root.Element("Placement") is { } placement && placement.Value is not ("standard" or "wornlight") ||
 			root.Element("PermanentOutput") is { } output &&
 			(!int.TryParse((string?)output.Attribute("grade"), out var grade) || grade is < 1 or > 7 ||
 			 !long.TryParse(output.Value, out var prototypeId) || prototypeId <= 0))
@@ -52,6 +61,8 @@ public partial class CreateItemEffect
 			_unreadableLifecycle = new(root); return;
 		}
 		LifecycleMode = mode; LifecycleFamily = root.Element("Family")?.Value ?? "";
+		CountByGrade = root.Element("Count")?.Value == "grade";
+		WornLight = root.Element("Placement")?.Value == "wornlight";
 		_lifetimeFormula = root.Element("Seconds")?.Value;
 		if (_lifetimeFormula is not null) LifetimeExpression = new TraitExpression(_lifetimeFormula, Gameworld);
 		if (root.Element("PermanentOutput") is { } permanent)
@@ -61,15 +72,28 @@ public partial class CreateItemEffect
 	private XElement? SaveLifecycle() => _unreadableLifecycle is not null ? new(_unreadableLifecycle) : LifecycleMode is { } mode
 		? new("Lifecycle", new XAttribute("version", 1), new XAttribute("mode", mode), new XElement("Family", LifecycleFamily),
 			_lifetimeFormula is not null ? new XElement("Seconds", _lifetimeFormula) : null,
+			CountByGrade ? new XElement("Count", "grade") : null,
+			WornLight ? new XElement("Placement", "wornlight") : null,
 			PermanentGrade is { } grade ? new XElement("PermanentOutput", new XAttribute("grade", grade), _permanentPrototypeId) : null)
 		: null;
 
-	internal bool ValidateInvocation(ICharacter caster, out string? error)
+	internal bool ValidateInvocation(ICharacter caster, out string? error) => ValidateRecipientInvocation(caster, null, out error);
+
+	internal bool ValidateRecipientInvocation(ICharacter caster, IPerceivable? recipient, out string? error)
 	{
 		error = DefinitionError;
 		if (error is not null || LifecycleMode is null) return error is null;
 		if (Spell is not MagicSpell { InvocationGrade: { } grade } native)
 		{ error = "Lifecycle item creation requires a selected-grade native casting invocation."; return false; }
+		if (WornLight && recipient is not null)
+		{
+			if (recipient is not ICharacter character || !ReferenceEquals(character.Gameworld, Gameworld))
+			{ error = "A worn light requires a character recipient in this world."; return false; }
+			var preview = new GameItem(ItemPrototype, caster, MudSharp.GameItems.ItemQuality.Standard, deferSpellInitialisation: true);
+			var profile = ItemPrototype.GetItemType<WearableGameItemComponentProto>().DefaultProfile;
+			if (profile.Profile(character.Body) is not { Count: > 0 } || !character.Body.CanWear(preview, profile))
+			{ error = "The recipient cannot wear the configured light profile."; return false; }
+		}
 		if (LifecycleMode == SpellLifecycleMode.Permanent || PermanentGrade == grade) return true;
 		if (_preparedLifetimeSeconds is not null) return true;
 		try
@@ -88,7 +112,7 @@ public partial class CreateItemEffect
 		SpellPower power, TimeSpan resolvedDuration, out IMagicSpellEffectApplication? application, out string? error)
 	{
 		application = null;
-		if (!ValidateInvocation(caster, out error)) return false;
+		if (!ValidateRecipientInvocation(caster, target, out error)) return false;
 		if (LifecycleMode is null)
 		{ application = new LegacyItemCreation(this, caster, target, outcome, power); return true; }
 		if (!ReferenceEquals(caster.Gameworld, Gameworld) || !ReferenceEquals(target.Gameworld, Gameworld) || target is not (ICharacter or ICell or IGameItem))
@@ -101,7 +125,7 @@ public partial class CreateItemEffect
 			var qualityValue = Math.Floor(ItemQuality.EvaluateDoubleWith(("base", (int)prototype.BaseItemQuality), ("power", (int)power), ("outcome", (int)outcome)));
 			if (!double.IsFinite(qualityValue) || qualityValue < int.MinValue || qualityValue > int.MaxValue || !Enum.IsDefined((ItemQuality)(int)qualityValue))
 			{ error = "The created item quality must resolve to a native quality."; return false; }
-			application = new NativeItemCreation(Guid.NewGuid(), this, caster, target, prototype, (ItemQuality)(int)qualityValue, grade, mode,
+			application = new NativeItemCreation(Enumerable.Range(0, CountByGrade ? grade : 1).Select(_ => Guid.NewGuid()).ToArray(), this, caster, target, prototype, (ItemQuality)(int)qualityValue, grade, mode,
 				mode == SpellLifecycleMode.Permanent ? null : _preparedLifetimeSeconds, native.InvocationOriginId);
 			return true;
 		}
@@ -114,17 +138,20 @@ public partial class CreateItemEffect
 		public IMagicSpellEffect Create(IMagicSpellEffectParent parent) => Effect.GetOrApplyEffect(Caster, Target, Outcome, Power, parent, []);
 	}
 
-	private sealed record NativeItemCreation(Guid Id, CreateItemEffect Effect, ICharacter Caster, IPerceivable Target,
+	private sealed record NativeItemCreation(Guid[] Ids, CreateItemEffect Effect, ICharacter Caster, IPerceivable Target,
 		IGameItemProto Prototype, ItemQuality Quality, int Grade, SpellLifecycleMode Mode, double? Seconds, Guid? Invocation) : IMagicSpellEffectApplication
 	{
 		public IMagicSpellEffect Create(IMagicSpellEffectParent parent)
 		{
 			var now = RuntimeClock.UtcNow;
-			var origin = new SpellLifecycleOrigin(Id, Effect.Spell.Id, Grade, CharacterInstanceIdentityComparer.IdentityId(Caster),
+			for (var i = 0; i < Ids.Length; ++i)
+			{
+			var origin = new SpellLifecycleOrigin(Ids[i], Effect.Spell.Id, Grade, CharacterInstanceIdentityComparer.IdentityId(Caster),
 				Effect.LifecycleFamily, Mode, now, Seconds is { } seconds ? now.AddSeconds(seconds) : null,
-				$"native-createitem; prototype={Prototype.Id}/{Prototype.RevisionNumber}; invocation={Invocation}; parent={(parent as MagicSpellParent)?.Identity}");
+				$"native-createitem; output={i + 1}/{Ids.Length}; prototype={Prototype.Id}/{Prototype.RevisionNumber}; invocation={Invocation}; parent={(parent as MagicSpellParent)?.Identity}");
 			var item = Effect.Gameworld.SpellOwnedItems!.Create(Prototype, Caster, Quality, origin);
 			Effect.PlaceOwnedItem(item, Caster, Target);
+			}
 			return null!;
 		}
 	}
@@ -133,7 +160,13 @@ public partial class CreateItemEffect
 	{
 		Gameworld.Add(item);
 		item.SetOwner(target as ICharacter ?? caster);
-		if (target is ICharacter character && character.Body.CanGet(item, 0)) character.Body.Get(item, silent: true);
+		if (WornLight && target is ICharacter recipient)
+		{
+			item.Get(recipient.Body);
+			recipient.Body.WearExternally(item, item.GetItemType<IWearable>().DefaultProfile);
+			if (!recipient.Body.WornItems.Contains(item)) throw new InvalidOperationException("The created light could not enter its admitted wear profile.");
+		}
+		else if (target is ICharacter character && character.Body.CanGet(item, 0)) character.Body.Get(item, silent: true);
 		else if (target is IGameItem host && host.GetItemType<IContainer>() is { } container && container.CanPut(item)) container.Put(null, item, false);
 		else if (target is IGameItem sheathHost && sheathHost.GetItemType<ISheath>() is { } sheath && sheath.CanSheath(item)) sheath.Content = item.GetItemType<IWieldable>();
 		else if (target is ICell cell && !ReferenceEquals(cell, caster.Location)) cell.Insert(item, true);
@@ -155,6 +188,14 @@ public partial class CreateItemEffect
 				if (string.IsNullOrWhiteSpace(command.SafeRemainingArgument) || command.SafeRemainingArgument.Length > 128)
 				{ actor.OutputHandler.Send("Specify a family of at most 128 characters."); return false; }
 				LifecycleFamily = command.SafeRemainingArgument; break;
+			case "count":
+				var count = command.PopSpeech().ToLowerInvariant();
+				if (count is not ("single" or "grade")) { actor.OutputHandler.Send("Specify single or grade (plain food only)."); return false; }
+				CountByGrade = count == "grade"; break;
+			case "placement":
+				var placement = command.PopSpeech().ToLowerInvariant();
+				if (placement is not ("standard" or "wornlight")) { actor.OutputHandler.Send("Specify standard or wornlight."); return false; }
+				WornLight = placement == "wornlight"; break;
 			case "lifetime":
 				var expression = new TraitExpression(command.SafeRemainingArgument, Gameworld);
 				if (expression.HasErrors() || expression.NonTraitParameters.Contains("outcome", StringComparer.OrdinalIgnoreCase))

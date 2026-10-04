@@ -868,3 +868,16 @@ Reflection is intentionally narrow:
 ### Healing and damage payload persistence
 
 Healing, mending and damage templates save their original formula text, allowing cloning and dose-scaled substance application to preserve valid expressions. Healing/mending overflow advance through each eligible wound once and stop when the dose or eligible wound list is exhausted.
+
+
+## Created food, drink and worn-light authoring
+
+Lifecycle `createitem` supports `count single|grade` (grade is plain food only) and `placement standard|wornlight` (one native wearable ProgLight around a character). Use `lifecycle temporarycleanup`, `family` and a finite positive `lifetime` expression for temporary stock outputs. Each grade-count food object owns its own journal claim. Wear-profile eligibility and deterministic lifetime are validated before casting payment. Permanent-grade alternate lights refuse; ordinary permanent food can still be consumed.
+
+Worn-light placement requires no free recipient hand. Ordinary configured casting still requires the caster's native free manipulation hand; the placement adapter preserves that casting rule.
+
+For container-only drink creation use `createliquid` with `liquid`, `containerfill on`, `litres <formula>`, `compatible <liquid>` and optional `bonusplane <plane> <multiplier>|none`. Litres bind selected `grade`, native `power`, controlled `mastery` and traits, then convert through UnitManager.BaseFluidToLitres. Outcome is unavailable before payment. Open/reachable/owned-mixture/capacity/recipe compatibility are checked before payment and again at application. Source liquid is implicitly allowed. Water/wine can be explicitly allowed to mix, while unlisted oil/slime remains intact on refusal. Empty and partially filled containers use the same MergeLiquid path; overflow clamps. These creation effects remain unsupported by stored scroll snapshots.
+
+The item-target trigger persists its native `item` type through builder edits, cloning and factory reload, preserving container targeting after save.
+
+The Phase3C2 controlled replacement contract declares one real second per historical food EVENT unit, giving `1800*grade` seconds and grade separate food objects. This is an authored conversion, not proof of the old event heap's tick duration. It uses 0.1 litre per historical water unit: `0.5*grade` litres ordinarily, multiplied by two on a configured water plane. No source conversion to native units is inferred from the legacy `(in ml)` help. Wine `0.25*grade` litres, Hovering Light `600*grade` seconds/40 lux and food four bites/two satiation hours are labeled replacement fixture values because their historical prototypes/formulas are absent. All food grades remain temporary, and created water/wine receive no magical expiry. Installer stock must explicitly adopt or refine these profiles and record the declared conversions; this checkpoint alone does not install or qualify them.

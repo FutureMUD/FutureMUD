@@ -69,6 +69,8 @@ internal static partial class GNHProgram
 				["--npc-archive-maintenance-run"] => RunNpcArchiveMaintenanceChecks(),
 				["--spell-owned-npc-run"] => RunSpellOwnedNpcAcceptanceChecks(),
 				["--spell-owned-retirement-run"] => RunSpellOwnedNpcRetirementChecks(),
+				["--created-consumables-run"] => RunCreatedConsumablesChecks(),
+				["--created-consumables-reader", .. string[] consumableArguments] => RunCreatedConsumablesReader(consumableArguments),
 				["--spell-owned-item-run"] => RunSpellOwnedItemChecks(),
 				["--spell-owned-item-reader", .. string[] itemArguments] => RunSpellOwnedItemReader(itemArguments),
 				["--spell-owned-item-removal-reader", .. string[] removalArguments] => RunSpellOwnedItemRemovalReader(removalArguments),
@@ -542,7 +544,7 @@ internal static partial class GNHProgram
 		public IMagicGatheringCapability Capability { get; }
 
 		public static NativeRuntime Load(FixtureIds fixture, string connectionString, bool casting = false,
-			Action<NativeRuntime>? beforeMagicLoad = null, bool vocalAnatomy = false, bool wielding = false)
+			Action<NativeRuntime>? beforeMagicLoad = null, bool vocalAnatomy = false, bool wielding = false, bool consumablesAnatomy = false)
 		{
 			using FuturemudDatabaseContext context = NewIndependentContext(connectionString);
 			Db.Character character = context.Characters
@@ -618,7 +620,7 @@ internal static partial class GNHProgram
 			ethnicities.Add(ethnicity.Object);
 			world.SetupGet(x => x.Ethnicities).Returns(ethnicities);
 
-			Mock<IBodyPrototype> bodyPrototype = NewBodyPrototype(bodyModel.BodyPrototypeId, world.Object, bodypart.Object, casting, vocalAnatomy, extraBodypart?.Object);
+			Mock<IBodyPrototype> bodyPrototype = NewBodyPrototype(bodyModel.BodyPrototypeId, world.Object, bodypart.Object, casting, vocalAnatomy, extraBodypart?.Object, consumablesAnatomy);
 			var bodyPrototypes = new All<IBodyPrototype>();
 			bodyPrototypes.Add(bodyPrototype.Object);
 			world.SetupGet(x => x.BodyPrototypes).Returns(bodyPrototypes);
@@ -721,7 +723,7 @@ internal static partial class GNHProgram
 			return bodypart;
 		}
 
-		private static Mock<IBodyPrototype> NewBodyPrototype(long id, IFuturemud world, IBodypart bodypart, bool livingAnatomy = false, bool vocalAnatomy = false, IBodypart? extraBodypart = null)
+		private static Mock<IBodyPrototype> NewBodyPrototype(long id, IFuturemud world, IBodypart bodypart, bool livingAnatomy = false, bool vocalAnatomy = false, IBodypart? extraBodypart = null, bool consumablesAnatomy = false)
 		{
 			var prototype = new Mock<IBodyPrototype>(MockBehavior.Loose);
 			// Real damage runs the living health strategy, which requires functioning brain and heart organs.
@@ -736,6 +738,20 @@ internal static partial class GNHProgram
 					new HeartProto(OrganModel(bodypart.Id + 2, "harness heart"), world)]
 				: [];
 			var external = extraBodypart is null ? new[] { bodypart } : new[] { bodypart, extraBodypart };
+			if (consumablesAnatomy)
+			{
+				var foodId = 2000000000L + id * 100;
+				organs = organs.Append(new EsophagusProto(OrganModel(foodId + 1, "harness esophagus"), world)).ToArray();
+				var wear = new DrapeableBodypartProto(OrganModel(foodId + 2, "harness light location"), world);
+				wear.SetBodyProto(prototype.Object); ((All<IBodypart>)world.BodypartPrototypes).Add(wear);
+				external = external.Append(wear).ToArray();
+				foreach (var eyeId in new[] { foodId + 3, foodId + 4 })
+				{
+					var eye = new EyeProto(OrganModel(eyeId, "harness eye"), world);
+					eye.SetBodyProto(prototype.Object); ((All<IBodypart>)world.BodypartPrototypes).Add(eye);
+					external = external.Append(eye).ToArray();
+				}
+			}
 			if (vocalAnatomy)
 			{
 				var vocalId = 1000000000L + id * 100;
@@ -930,6 +946,15 @@ internal static partial class GNHProgram
 			if (MagicChanged || ResourcesChanged)
 			{
 				SaveMagic(character);
+			}
+			if (NeedsModel?.NeedsSave == true)
+			{
+				character.NeedsModel = NeedsModel.ModelName;
+				character.AlcoholLitres = NeedsModel.AlcoholLitres;
+				character.WaterLitres = NeedsModel.WaterLitres;
+				character.DrinkSatiatedHours = NeedsModel.DrinkSatiatedHours;
+				character.FoodSatiatedHours = NeedsModel.FoodSatiatedHours;
+				character.SatiationReserve = NeedsModel.SatiationReserve;
 			}
 			character.EffectData = SaveEffects().ToString();
 

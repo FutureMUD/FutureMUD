@@ -1,4 +1,4 @@
-﻿using ExpressionEngine;
+using ExpressionEngine;
 using MudSharp.Body.Traits;
 using MudSharp.Construction;
 using MudSharp.Events;
@@ -232,6 +232,8 @@ public partial class CreateItemEffect : IMagicSpellEffectTemplate, IMagicSpellEf
 	#3quality <formula>#0 - sets the formula for item quality. See below for possible parameters.
 	#3lifecycle legacy|permanent|temporarycleanup#0 - sets explicit plain-item creation policy
 	#3family <name>#0 - sets the creation lifecycle family
+	#3count single|grade#0 - creates one output or one plain food object per selected grade
+	#3placement standard|wornlight#0 - places the output normally or wears a native light around a recipient
 	#3lifetime <formula>#0 - sets the lifetime in real seconds (constant or route-bound grade/power/mastery/traits)
 	#3permanent <grade 1-7> <proto>|none#0 - selects a permanent output at one exact configured grade
 
@@ -250,6 +252,8 @@ Parameters for quality formula:
             ("Load String", string.IsNullOrWhiteSpace(LoadString) ? "None".ColourError() : LoadString.ColourCommand()),
 			("Lifecycle", LifecycleMode?.ToString().ColourName() ?? "Legacy"),
 			("Family", LifecycleFamily.ColourValue()),
+			("Output Count", CountByGrade ? "Selected Grade" : "One"),
+			("Placement", WornLight ? "Worn Light" : "Standard"),
 			("Lifetime Seconds", LifetimeExpression?.OriginalFormulaText.ColourCommand() ?? "None"),
 			("Permanent Grade", PermanentGrade?.ToString().ColourValue() ?? "None"),
 			("Permanent Prototype", PermanentPrototype?.EditHeaderColour(actor) ?? "None"),
@@ -258,7 +262,7 @@ Parameters for quality formula:
 
     public bool BuildingCommand(ICharacter actor, StringStack command)
     {
-		if (command.PeekSpeech().ToLowerInvariant() is "lifecycle" or "family" or "lifetime" or "permanent")
+		if (command.PeekSpeech().ToLowerInvariant() is "lifecycle" or "family" or "lifetime" or "permanent" or "count" or "placement")
 			return BuildingCommandLifecycle(actor, command);
         switch (command.PopSpeech().ToLowerInvariant())
         {

@@ -17,7 +17,8 @@ public partial class GameItem
 	/// <summary>Commit exact leaf removal and custodian persistence together before releasing runtime roots.</summary>
 	private void DeleteSpellOwnedItem()
 	{
-		if (Components.Any(x => x is not (HoldableGameItemComponent or MeleeWeaponGameItemComponent or SalvageableGameItemComponent)))
+		if (Components.Any(x => x is not (HoldableGameItemComponent or MeleeWeaponGameItemComponent or SalvageableGameItemComponent or
+			FoodGameItemComponent or WearableGameItemComponent or ProgLightGameItemComponent)))
 			throw new InvalidOperationException("Created item removal needs an adapter for this component graph.");
 		var parent = ContainedIn as GameItem;
 		if (ContainedIn is not null && parent is null || parent is not null &&

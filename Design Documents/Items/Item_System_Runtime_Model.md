@@ -818,3 +818,12 @@ cannot flush global queues inside this transaction. An ordinary flush after refu
 both the original custody and the pending values; independent native reload qualifies that
 behavior. Other native adapters and installed-world acceptance remain separate gates. See
 [Spell-owned lifecycle](../Magic/Spell_Owned_Lifecycle.md).
+
+
+## Created food and wearable-light persistence
+
+The spell-owned leaf boundary admits unscripted native Food and Wearable+ProgLight graphs in addition to plain weapons. Food XML retains fractional or exhausted remaining bites; loading zero does not delete an incomplete parent. Failed/held consumption deletion retains a dirty zero remainder and native eating refuses it, preventing restored portions or duplicate nutrition. Explicit needs fulfilment queues the owning Character, whose row stores active nutrition/hydration, alongside Body changes.
+
+Created lights persist Lit=true before publication and enter actual worn inventory through a configured profile. Character illumination includes their native external-item light. Wear-profile IDs, lit state and raw food remainders participate in normal saves and bounded removal rollback. Exact expiry removes the owned food/light and its components while retaining foreign gear, containers, contents and active player state. Ordinary permanent food still uses normal consumption deletion.
+
+Container-only liquid creation initializes an empty mixture or merges into its existing instance graph, capacity-clamped and subject to an explicit allowed-liquid recipe. It does not replace the foreign container or silently convert its prior mixture. The generated liquid has no spell expiry; ordinary drinking, transfer and instance XML conserve subsequent amounts.

@@ -37,7 +37,7 @@ public class CastingTriggerItem : CastingTriggerBase
     public override XElement SaveToXml()
     {
         return new XElement("Trigger",
-            new XAttribute("type", "character"),
+            new XAttribute("type", "item"),
             new XElement("MinimumPower", (int)MinimumPower),
             new XElement("MaximumPower", (int)MaximumPower),
             new XElement("TargetFilterProg", TargetFilterProg?.Id ?? 0L)

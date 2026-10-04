@@ -972,3 +972,16 @@ Parent review of `ff7c5e8e85729c0f4b5119343d5ddc4dee7d8fcf` found that the ordin
 - [ ] Parent rereviews the exact correction commit before later stock work.
 
 The other 262 historical native markers were not rerun for this focused correction. Native cell/save integration under active combat or queued work, installed Raise Servitor duration conversion and functional combat/control AI remain the next stock prerequisites. All earlier D1/C2 fixture limits and the complete seven-phase plan remain in force. No publication, merge, deployment or shared/production database access occurred. See [Armageddon_Stage3D1P2_Scheduler_Verification.json](Armageddon_Stage3D1P2_Scheduler_Verification.json).
+
+
+## Phase3D1P1 saved paid-parent restart - parent rereview pending
+
+Parent confirmed timer P2 at `6701240b354a70af7972eedccd092a378cf34227` and identified a separate constructor-time saved-parent restart defect. Durable loaded children now remain inert through construction and early login. A deferred scheduler turn waits for completed boot and exact registered corpse ownership; transient reads drop recurring timers and initial provider lookup failures retain a bounded retry.
+
+- [x] Real paid parent/child saved before restoration; completion-update fault after restoration commit leaves original child XML present.
+- [x] Five fresh readers: active boot-load inertness, pending runtime-load inertness, pending boot recovery, completed boot recovery and completed runtime recovery with normal stale-XML removal save. One corpse instance, exact identity/body/foreign gear and deadline preserved; no cleanup-induced movement.
+- [x] 607 focused and 6,928 Fast managed cases passed. 33 native markers include the cleared 25-marker timing packet and eight saved-parent checks; two owned databases cleaned and zero owned processes.
+- [x] Prior immutable receipts and the full seven-phase, 16-decision, 154-candidate, 82+12-source-row and 25-scenario plan retained.
+- [ ] Parent rereviews this exact local correction before later stock work.
+
+Actual paid Active-to-Logout native recovery remains a distinct gap: the active reader proves blocked-boot load safety only. Saved-parent readers use a morph-free corpse with persisted null morph duration asserted; probe-02 reproduced an independent morphing-corpse Login boot failure that remains unresolved. Controlled world/cell/save limitations, simultaneous-host/race exclusions and the 262 historical native checks not rerun remain explicit. Installed Raise Servitor timing, functional combat/control AI and native cell/save/scheduler qualification under combat or queued work remain pending. No publication, merge, deployment or shared/production database access occurred. See [Armageddon_Stage3D1P1_SavedParent_Verification.json](Armageddon_Stage3D1P1_SavedParent_Verification.json).

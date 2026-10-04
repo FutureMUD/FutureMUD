@@ -430,6 +430,15 @@ for the recovery worker without rematerializing its AI. Recovery needs no saved 
 effect, does not reset the absolute deadline or replay the cast, and restores the same
 corpse. Lost final destinations use a safe loaded fallback or retain recoverable holding.
 
+A saved durable animation child is inert during corpse construction and early login:
+it neither resolves its original character nor attempts restoration inline. Its deferred
+recovery runs only after boot completes and its exact owner is registered in the item
+catalogue. This also removes stale child/empty-parent XML after the restoration journal
+has already completed, without moving the restored corpse. Transient unregistered reads
+drop their timer after boot; a later login can rearm it. Initial provider lookup failures
+retain a bounded recovery retry. Fresh-cast deadline scheduling and legacy animation
+remain separate from this saved-effect recovery path.
+
 The focused scheduler correction uses actual paid casts and the native EffectScheduler
 with 30/180/300-second ordinary durations, a 180-second animation and an ordinary glow
 sibling. Early dispel is checked both before and after ordinary parent expiry. The

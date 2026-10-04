@@ -218,6 +218,10 @@ try {
 	if ($runExit -eq 0 -and $CorpseAnimationOnly) {
 		Invoke-OwnedHarness '--corpse-animation-run'
 		$runExit = $LASTEXITCODE
+		if ($runExit -eq 0) {
+			Invoke-OwnedHarness '--corpse-animation-saved-parent-run'
+			$runExit = $LASTEXITCODE
+		}
 	}
 	Write-Output "nativeHarnessExit=$runExit"
 }

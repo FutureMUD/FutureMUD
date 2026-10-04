@@ -3131,7 +3131,7 @@
     },
     {
       "id": "phase3D1P2_animation_independent_scheduler",
-      "status": "implemented_verified_parent_rereview_pending",
+      "status": "parent_independently_verified_timer_scope",
       "base": "ff7c5e8e85729c0f4b5119343d5ddc4dee7d8fcf",
       "receipt": "Armageddon_Stage3D1P2_Scheduler_Verification.json",
       "managed_runs": {
@@ -3182,6 +3182,57 @@
         "Native D1 restart collapses through the journal with a quiescent old host; live-AI continuity and simultaneous-host recovery are not qualified. Full native cell/save/scheduler integration under active combat or queued work remains pending.",
         "Installed Raise Servitor explicit historical EVENT-to-duration conversion, functional combat/control AI and native stock acceptance are not implemented in this repair. Fixture grade*60 real seconds remains authored replacement content.",
         "All prior D1/C2 scope limits remain: PC/nonfinal corpses, arbitrary callbacks, high-volume and full N14-N16, stock profiles, wine intoxication and wider nonempty-plan finalizer concurrency remain unqualified. No later feature slice started."
+      ],
+      "parent_verified_head": "6701240b354a70af7972eedccd092a378cf34227"
+    },
+    {
+      "id": "phase3D1P1_saved_paid_parent_restart",
+      "status": "implemented_verified_parent_rereview_pending",
+      "base": "6701240b354a70af7972eedccd092a378cf34227",
+      "receipt": "Armageddon_Stage3D1P1_SavedParent_Verification.json",
+      "parent_timer_P2_verified_head": "6701240b354a70af7972eedccd092a378cf34227",
+      "managed_runs": {
+        "focused": "20261004T073936Z-2daacf6e2e04",
+        "Fast": "20261004T074426Z-81375d94fa1d"
+      },
+      "counts": {
+        "focused": {
+          "executed": 607,
+          "passed": 607,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 607
+        },
+        "Fast": {
+          "executed": 6928,
+          "passed": 6928,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 6928
+        }
+      },
+      "native_markers": 33,
+      "saved_parent_markers": 8,
+      "owned_databases_cleaned": 2,
+      "owned_processes_remaining": 0,
+      "acceptance": [
+        "Durable loaded children do not resolve characters or restore corpses in constructor/early Login.",
+        "Recovery waits for boot completion and exact registered owner; transient reads do not retain recurring timers; initial provider lookup failures retry.",
+        "Fresh processes load real paid parent XML after restoration commits, before and after lifecycle completion, with one exact corpse and preserved identity/body/foreign gear.",
+        "Completed stale-child cleanup preserves runtime placement and removes empty parent XML on normal save; prior timer and legacy/dispel regressions still pass."
+      ],
+      "qualification_limits": [
+        "Actual paid parent/child XML is saved by native SaveManager. A real completion-update MySQL trigger refuses completion after restoration commits; producer never flushes afterward. Intermediate fresh readers deliberately leave stale XML unsaved so both pending and completed journal checkpoints can be loaded.",
+        "Native active paid-parent reader qualifies constructor and early Login inertness during blocked boot only. Actual paid Active-to-Logout restart recovery is not newly qualified; managed full-parent tests mock retirement. Prior direct-service active restart remains supporting evidence.",
+        "Saved-parent native readers use a morph-free corpse: the shared retirement fixture timer is stopped and its cached duration cleared before the paid XML save, with persisted MorphTimeRemaining=null asserted. Probe-02 independently reproduced a separate ordinary morphing-corpse boot failure in GameItem.Login -> StartMorphTimer -> HowSeen -> OriginalBody -> blocked TryGetCharacter. That pre-existing boot path remains unresolved and is not cleared by this scoped repair.",
+        "Pending and completed stale paid parents load in fresh processes; native effect scheduler recovers after exact item registration and boot. Character-blocked phase uses the actual Futuremud.TryGetCharacter boot guard. Runtime world/cell/anatomy catalogue and inherited specialized character Save remain controlled; full production boot/Telnet and native Cell.Save are not claimed.",
+        "Transient unregistered and duplicate-object reads, initial provider lookup retry and explicit loaded-parent dispel are managed checks. The native checkpoint is a controlled completion fault and quiescent processes, not simultaneous-host recovery, power loss or a cleanup race.",
+        "Current native packet reruns all 25 markers qualified at timerP2 plus eight saved-parent markers. Other 262 historical combined-packet markers are not rerun. All prior D1/C2 scope limits remain.",
+        "Installed Raise Servitor duration conversion, functional combat/control AI and native cell/save/scheduler integration under combat or queued work remain pending. No new spell families or later stock work started."
       ]
     }
   ],
@@ -3418,11 +3469,12 @@
     },
     {
       "id": "borrowed_corpse_animation_lifecycle",
-      "status": "bounded_final_corpse_scheduler_corrected_parent_rereview_pending",
+      "status": "bounded_final_corpse_saved_parent_corrected_parent_rereview_pending",
       "acceptance": "Exact created secondary ownership; canonical character, borrowed body and same real corpse retained; functional selected AI; expiry/dispel/death/restart restoration, provider-failure recovery and foreign-possession conservation. Legacy defaults unchanged. Full installed stock and other projection/topology families remain pending.",
       "receipt": "Armageddon_Stage3D1_CorpseAnimation_Verification.json",
-      "limits": "Prior D1 limits retained; actual scheduler duration matrix corrected. Sequential duplicate refusal only; concurrent activation and cleanup races unqualified.",
-      "correction_receipt": "Armageddon_Stage3D1P2_Scheduler_Verification.json"
+      "limits": "Timer P2 verified. Saved paid-parent committed/pending/completed reload corrected; active paid boot-load-only qualification and prior D1 limits remain. Concurrent activation/cleanup races unqualified.",
+      "correction_receipt": "Armageddon_Stage3D1P2_Scheduler_Verification.json",
+      "restart_correction_receipt": "Armageddon_Stage3D1P1_SavedParent_Verification.json"
     }
   ]
 }

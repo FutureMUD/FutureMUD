@@ -505,6 +505,7 @@ public sealed class SpellAnimatedCorpseEffect : SimpleSpellStatusEffectBase, IAn
 	private bool _removing;
 	public Guid? OwnedLifecycleId { get; private set; }
 	public DateTime? ExpiryUtc { get; private set; }
+	private readonly bool _loadedFromXml;
 	private SpellRetirementReason _retirementReason = SpellRetirementReason.Dispel;
 	internal void BindOwnedLifecycle(Guid id, DateTime expiryUtc)
 	{
@@ -556,6 +557,7 @@ public sealed class SpellAnimatedCorpseEffect : SimpleSpellStatusEffectBase, IAn
 	private SpellAnimatedCorpseEffect(XElement root, IPerceivable owner)
 		: base(root, owner)
 	{
+		_loadedFromXml = true;
 		var trueRoot = root.Element("Effect");
 		if (Guid.TryParse(trueRoot?.Element("OwnedLifecycleId")?.Value, out var lifecycle)) OwnedLifecycleId = lifecycle;
 		if (OwnedLifecycleId.HasValue) ExpiryUtc = (DateTime?)trueRoot?.Element("ExpiryUtc");
@@ -631,6 +633,11 @@ public sealed class SpellAnimatedCorpseEffect : SimpleSpellStatusEffectBase, IAn
 	public override void InitialEffect()
 	{
 		base.InitialEffect();
+		if (_loadedFromXml && OwnedLifecycleId.HasValue)
+		{
+			ScheduleLoadedRecovery();
+			return;
+		}
 		var animated = AnimatedCharacter();
 		if (animated is null)
 		{
@@ -651,12 +658,47 @@ public sealed class SpellAnimatedCorpseEffect : SimpleSpellStatusEffectBase, IAn
 	public override void Login()
 	{
 		base.Login();
+		if (_loadedFromXml && OwnedLifecycleId.HasValue)
+		{
+			ScheduleLoadedRecovery();
+			return;
+		}
 		Owner.RemoveEffect(this, true);
+	}
+
+	private void ScheduleLoadedRecovery()
+	{
+		if (!Gameworld.EffectScheduler.IsScheduled(this))
+			Gameworld.EffectScheduler.AddSchedule(new EffectSchedule(this, TimeSpan.Zero));
 	}
 
 	public override void ExpireEffect()
 	{
-		if (OwnedLifecycleId.HasValue) _retirementReason = SpellRetirementReason.Expiry;
+		if (_loadedFromXml && OwnedLifecycleId.HasValue)
+		{
+			// Saved parents are reconstructed inside GameItem's constructor. Recovery
+			// must not resolve characters or recursively load that unregistered corpse.
+			if (Gameworld.SaveManager.MudBootingMode)
+			{
+				Gameworld.EffectScheduler.AddSchedule(new EffectSchedule(this, TimeSpan.FromSeconds(1)));
+				return;
+			}
+			// A non-world transient read must not be retained by a recurring timer.
+			// Login can schedule recovery again if this exact item later becomes live.
+			if (Owner is not IGameItem item || !ReferenceEquals(Gameworld.Items.Get(item.Id), item)) return;
+			_retirementReason = ExpiryUtc <= RuntimeClock.UtcNow ? SpellRetirementReason.Expiry : SpellRetirementReason.Logout;
+			try { base.ExpireEffect(); }
+			catch (Exception ex)
+			{
+				// A provider failure before the service can journal a hold must not
+				// strand this saved effect after its recovery schedule was dequeued.
+				if (Owner.Effects.Contains(this))
+					Gameworld.EffectScheduler.AddSchedule(new EffectSchedule(this, TimeSpan.FromSeconds(60)));
+				Gameworld.SystemMessage($"Saved corpse animation #{CorpseItemId} recovery deferred: {ex.Message}", true);
+			}
+			return;
+		}
+		else if (OwnedLifecycleId.HasValue) _retirementReason = SpellRetirementReason.Expiry;
 		base.ExpireEffect();
 	}
 

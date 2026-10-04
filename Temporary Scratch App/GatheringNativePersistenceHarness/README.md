@@ -67,3 +67,13 @@ at 15 seconds and after the short parent's ordinary expiry at 60 seconds. These 
 checks do not call the lifecycle reconciliation worker. The duplicate activation
 marker describes sequential calls; concurrent activation and cleanup races remain
 unqualified. Cell/save/combat fixture limitations above still apply.
+
+The same corpse packet also runs `--corpse-animation-saved-parent-run` in a separate
+owned database. It saves a real paid parent/child, checks inert active boot loading,
+and injects a completion-update refusal after restoration commits while paid XML remains
+unsaved. Fresh processes load that XML during disallowed boot and allowed runtime,
+before and after journal completion. They assert one corpse construction, exact original
+identity/body/foreign gear, unchanged deadline and deferred cleanup through the real
+effect scheduler. The final reader normally saves removal of stale XML. Intermediate
+readers deliberately do not flush the corpse, and the producer remains quiescent;
+this qualifies a controlled crash boundary, not simultaneous-host recovery or power loss.

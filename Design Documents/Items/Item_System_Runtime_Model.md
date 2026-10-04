@@ -95,6 +95,11 @@ It owns the reusable definition of:
 
 Prototype methods like `CreateNew(...)` instantiate a `GameItem`, create one runtime component per attached component prototype, apply variable initialisation, and execute on-load progs.
 
+The public `GameItem(IGameItemProto, ICharacter, ItemQuality)` constructor retains its
+three-argument binary signature and optional loader/quality defaults. It forwards to normal
+initialisation. Deferred spell-owned construction uses an internal four-argument overload;
+that private creation path does not replace the existing public contract.
+
 `UniqueName` is a nullable, builder-facing identifier for the item template. It exists because the inherited `Name` property is the item noun in most builder workflows. Nonblank unique names are trimmed, must not be entirely numeric, and must be unique case-insensitively among active builder-visible revisions: `Current`, `PendingRevision`, and `UnderDesign`. Historical `Rejected`, `Revised`, and `Obsolete` revisions may duplicate active or historical unique names. Lookup code resolves item prototypes by numeric id first, exact unique name second, and legacy noun/name matching last.
 
 `Name` is the item noun, not a unique builder identifier. Distinct prototype IDs may freely share it. Direct noun edits, cloning, and `item rename <match regex> <replacement text>` allow shared and numeric nouns, requiring only nonblank text. Bulk renames trim results and validate all replacements before mutation. These changes use the existing name persistence path and require no database migration.

@@ -713,6 +713,21 @@ public abstract partial class Shop : SaveableItem, IShop
     public (bool Truth, string Reason) CanBuy(ICharacter actor, IMerchandise merchandise, int quantity,
         IPaymentMethod method, string extraArguments = null)
     {
+        return CanBuyFromStockedItems(actor, merchandise, quantity, method,
+            null, extraArguments);
+    }
+
+    private List<IGameItem> SelectPurchaseStock(ICharacter actor, IMerchandise merchandise, string extraArguments)
+    {
+        return StockedItems(merchandise)
+            .Where(x => !SpellOwnedItemValuePolicy.ContainsTemporaryValue(x))
+            .Where(x => string.IsNullOrEmpty(extraArguments) || x.HasKeywords(extraArguments.Split('.'), actor, true))
+            .ToList();
+    }
+
+    private (bool Truth, string Reason) CanBuyFromStockedItems(ICharacter actor, IMerchandise merchandise,
+        int quantity, IPaymentMethod method, List<IGameItem> stockedItems, string extraArguments = null)
+    {
         if (!IsTrading && !actor.IsAdministrator())
         {
             return (false, "the store is currently closed");
@@ -726,27 +741,22 @@ public abstract partial class Shop : SaveableItem, IShop
                                  ?.ToString() ?? "of an unknown reason");
         }
 
-        List<IGameItem> stockedItems = StockedItems(merchandise).ToList();
+        stockedItems ??= SelectPurchaseStock(actor, merchandise, extraArguments);
 		if (stockedItems.Any(SpellOwnedItemValuePolicy.ContainsTemporaryValue)) return (false, SpellOwnedItemValuePolicy.Refusal);
 
         if (!stockedItems.Any())
         {
-            return (false, "the store is currently out of stock of that item.");
+            return (false, string.IsNullOrEmpty(extraArguments)
+                ? "the store is currently out of stock of that item."
+                : "the store does not stock any of that item with the specified keywords.");
         }
 
         if (!string.IsNullOrEmpty(extraArguments))
         {
-            List<IGameItem> specificStockedItems =
-                stockedItems.Where(x => x.HasKeywords(extraArguments.Split('.'), actor, true)).ToList();
-            if (!specificStockedItems.Any())
-            {
-                return (false, "the store does not stock any of that item with the specified keywords.");
-            }
-
-            if (specificStockedItems.Sum(x => x.Quantity) < quantity)
+            if (stockedItems.Sum(x => x.Quantity) < quantity)
             {
                 return (false,
-                    $"the store only has {specificStockedItems.Sum(x => x.Quantity)} of that specified variant of that item in stock.");
+                    $"the store only has {stockedItems.Sum(x => x.Quantity)} of that specified variant of that item in stock.");
             }
         }
         else
@@ -868,7 +878,7 @@ public abstract partial class Shop : SaveableItem, IShop
                 $"the selected stock items only provide {exactQuantity.ToString("N0", actor)} of that item.");
         }
 
-        return CanBuy(actor, merchandise, quantity, method);
+        return CanBuyFromStockedItems(actor, merchandise, quantity, method, exactItems);
     }
 
     public (bool Truth, string Reason) CanBuyCommodityWeight(ICharacter actor, IMerchandise merchandise,
@@ -1056,13 +1066,8 @@ public abstract partial class Shop : SaveableItem, IShop
     public IEnumerable<IGameItem> Buy(ICharacter actor, IMerchandise merchandise, int quantity, IPaymentMethod method,
         string extraArguments = null)
     {
-        List<IGameItem> stockedItems = StockedItems(merchandise).ToList();
-        if (!string.IsNullOrEmpty(extraArguments))
-        {
-            stockedItems = stockedItems.Where(x => x.HasKeywords(extraArguments.Split('.'), actor, true)).ToList();
-        }
-
-        return BuyFromStockedItems(actor, merchandise, quantity, method, stockedItems);
+        return BuyFromStockedItems(actor, merchandise, quantity, method,
+            SelectPurchaseStock(actor, merchandise, extraArguments));
     }
 
     public IEnumerable<IGameItem> BuyExact(ICharacter actor, IMerchandise merchandise, int quantity,
@@ -1454,12 +1459,7 @@ public abstract partial class Shop : SaveableItem, IShop
     public (decimal Price, IEnumerable<IGameItem> Items) PreviewBuy(ICharacter actor, IMerchandise merchandise,
         int quantity, IPaymentMethod method, string extraArguments = null)
     {
-        List<IGameItem> stockedItems = StockedItems(merchandise).ToList();
-        if (!string.IsNullOrEmpty(extraArguments))
-        {
-            stockedItems = stockedItems.Where(x => x.HasKeywords(extraArguments.Split('.'), actor, true)).ToList();
-        }
-
+        List<IGameItem> stockedItems = SelectPurchaseStock(actor, merchandise, extraArguments);
         List<IGameItem> boughtItems = new();
         int quantitySought = quantity;
         foreach (IGameItem item in stockedItems)

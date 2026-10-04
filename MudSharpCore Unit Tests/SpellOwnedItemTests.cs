@@ -28,6 +28,22 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class SpellOwnedItemTests
 {
+	[TestMethod]
+	public void GameItem_PrototypeConstructor_PreservesPublicThreeArgumentSignatureAndDefaults()
+	{
+		var signature = new[] { typeof(IGameItemProto), typeof(ICharacter), typeof(ItemQuality) };
+		var constructor = typeof(GameItem).GetConstructor(signature);
+		Assert.IsNotNull(constructor, "Existing binaries require the public three-argument constructor.");
+		Assert.IsTrue(constructor.IsPublic);
+		Assert.IsNull(constructor.GetParameters()[1].DefaultValue);
+		Assert.AreEqual(ItemQuality.Standard, constructor.GetParameters()[2].DefaultValue);
+		Assert.IsNull(typeof(GameItem).GetConstructor([.. signature, typeof(bool)]));
+		var deferred = typeof(GameItem).GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic,
+			null, [.. signature, typeof(bool)], null);
+		Assert.IsNotNull(deferred);
+		Assert.IsTrue(deferred.IsAssembly);
+	}
+
 	private static Mock<IGameItem> Temporary()
 	{
 		var item = new Mock<IGameItem>();

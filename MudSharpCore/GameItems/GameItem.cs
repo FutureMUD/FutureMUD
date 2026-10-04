@@ -1005,8 +1005,12 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
         StartHealthTick();
     }
 
-    public GameItem(IGameItemProto proto, ICharacter? loader = null, ItemQuality quality = ItemQuality.Standard,
-		bool deferSpellInitialisation = false)
+    public GameItem(IGameItemProto proto, ICharacter? loader = null, ItemQuality quality = ItemQuality.Standard)
+		: this(proto, loader, quality, deferSpellInitialisation: false)
+	{
+	}
+
+	internal GameItem(IGameItemProto proto, ICharacter? loader, ItemQuality quality, bool deferSpellInitialisation)
     {
 		_noSave = deferSpellInitialisation;
         Register(new IgnorantItemOutputHandler(this));

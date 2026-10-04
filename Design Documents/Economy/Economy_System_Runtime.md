@@ -210,6 +210,7 @@ Runtime safety invariants:
 - merchandise repricing permits ordinary reductions and rejects unsafe markup multipliers rather than allowing decimal arithmetic to crash command handling
 - item preview follows normal container visibility rules; closed opaque containers do not reveal contents through shop preview
 - temporary spell-created material, including a temporary child or attachment of ordinary merchandise, is refused by shop stock admission, sale and purchase guards before payment or custody changes; auction listing applies the same value guard
+- ordinary and keyword-variant purchase quotes, previews and execution use the same clean-stock selection, excluding contaminated goods without blocking clean goods in that merchandise group; lawful-purchase checks and near-morph confirmation inspect those clean preview goods, and exact purchases reject contaminated selections, including contamination introduced after the quote or preview
 
 Partial stack and commodity retrieval preserve shop display identity. Stock removal resolves that merchandise before generic prototype matching, values the actual split, and does not decrement a residual commodity pile for a split never separately indexed. Read-only commodity previews never enter the world or save queue. Source lawful/access checks run before splitting or debiting. See [Physical Manipulation Audit](../Items/Physical_Manipulation_Audit.md).
 

@@ -805,6 +805,8 @@ You can use the following player options with this command:
 
 Lowering or clearing a labour pay rate while people are already working that labour requires confirmation and removes those workers from the project.
 
+Queued labour preferences can be at most 100 characters long. Longer preferences are rejected without changing the queue.
+
 You can use the following admin options with this command:
 
 	#3list#0 - lists all current projects
@@ -1924,6 +1926,12 @@ Note: See the closely related #3projects#0 command for information about your cu
 		if (!first.EqualToAny("once", "for", "until"))
 		{
 			labourPreference = first.EqualTo("automatic") ? null : first;
+			if (!ProjectLabourQueueEntry.IsValidLabourPreference(labourPreference))
+			{
+				actor.OutputHandler.Send($"Labour preferences cannot be longer than {ProjectLabourQueueEntry.MaximumLabourPreferenceLength} characters.");
+				return false;
+			}
+
 			if (ss.IsFinished)
 			{
 				return true;
@@ -1995,6 +2003,12 @@ Note: See the closely related #3projects#0 command for information about your cu
 		}
 
 		var labour = ss.SafeRemainingArgument;
+		if (!ProjectLabourQueueEntry.IsValidLabourPreference(labour))
+		{
+			actor.OutputHandler.Send($"Labour preferences cannot be longer than {ProjectLabourQueueEntry.MaximumLabourPreferenceLength} characters.");
+			return;
+		}
+
 		if (!actor.SetProjectLabourQueueLabour(position, labour.EqualTo("automatic") ? null : labour))
 		{
 			actor.OutputHandler.Send("There is no such queue entry.");

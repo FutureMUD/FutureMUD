@@ -571,7 +571,22 @@ namespace MudSharp.Framework
                 return $"{str}1";
             }
 
-            return $"{match.Groups["pre"].Value}{(int.Parse(match.Groups["number"].Value) + 1).ToString(CultureInfo.InvariantCulture)}";
+			// Increment decimal digits directly so names are not limited by an integer type.
+			// Dropping leading zeroes preserves the existing formatting of numeric suffixes.
+			var digits = match.Groups["number"].Value.TrimStart('0').ToCharArray();
+			for (var i = digits.Length - 1; i >= 0; i--)
+			{
+				if (digits[i] == '9')
+				{
+					digits[i] = '0';
+					continue;
+				}
+
+				digits[i]++;
+				return $"{match.Groups["pre"].Value}{new string(digits)}";
+			}
+
+			return $"{match.Groups["pre"].Value}1{new string(digits)}";
         }
 
         /// <summary>

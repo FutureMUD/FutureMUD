@@ -401,6 +401,8 @@ For ordinal month intervals:
 
 Day-of-month recurrences clamp to the last valid day in shorter months. Ordinal weekday recurrences accept any positive ordinal; the search uses generated calendar months and weekday names, so non-seven-day weeks and long fictional months are supported. The search is bounded and throws if no valid occurrence can be found inside the conservative month-search horizon.
 
+Interval amounts, day numbers, and weekday ordinals must fit a positive 32-bit signed integer (1 through 2,147,483,647). `TryParse` returns `false` with an error for oversized numeric inputs rather than throwing; omitted amounts still default to one, and leading zeros do not change a representable value.
+
 Recurring intervals can:
 
 - describe themselves in player-facing text

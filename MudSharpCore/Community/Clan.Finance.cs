@@ -4,6 +4,7 @@ using MudSharp.Character.Name;
 using MudSharp.Construction;
 using MudSharp.Database;
 using MudSharp.Economy;
+using MudSharp.Economy.Banking;
 using MudSharp.Economy.Currency;
 using MudSharp.Economy.Property;
 using MudSharp.GameItems;
@@ -293,6 +294,12 @@ public partial class Clan
 		}
 
 		var name = command.SafeRemainingArgument;
+		if (name.Length > ClanBudget.MaximumNameLength)
+		{
+			actor.OutputHandler.Send($"Budget names must be no longer than {ClanBudget.MaximumNameLength} characters.");
+			return;
+		}
+
 		if (Budgets.Any(x => x.Name.EqualTo(name)))
 		{
 			actor.OutputHandler.Send($"{FullName.ColourName()} already has a budget called {name.ColourName()}.");
@@ -380,6 +387,16 @@ public partial class Clan
 			return;
 		}
 
+		var reason = command.SafeRemainingArgument;
+		if (reason.Length > ClanBudgetTransaction.MaximumReasonLength)
+		{
+			actor.OutputHandler.Send($"Budget drawdown reasons must be no longer than {ClanBudgetTransaction.MaximumReasonLength} characters.");
+			return;
+		}
+
+		var ledgerReason = $"Clan budget {budget.Name}: {reason}";
+		var bankAccount = budget.BankAccount;
+
 		budget.RollToCurrentPeriod();
 		if (amount > budget.RemainingBudget)
 		{
@@ -388,9 +405,8 @@ public partial class Clan
 			return;
 		}
 
-		var reason = command.SafeRemainingArgument;
 		if (!VirtualCashLedger.Debit(budget.Clan, budget.Currency, amount, actor, budget, "Cash",
-			    $"Clan budget {budget.Name}: {reason}", budget.BankAccount, Calendar.CurrentDateTime, out var error))
+			    ledgerReason, bankAccount, Calendar.CurrentDateTime, out var error))
 		{
 			actor.OutputHandler.Send(error);
 			return;

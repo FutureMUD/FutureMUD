@@ -9,6 +9,8 @@ namespace MudSharp.Work.Projects.ConcreteTypes;
 /// </summary>
 public class ProjectLabourQueueEntry : IProjectLabourQueueEntry
 {
+	public const int MaximumLabourPreferenceLength = 100;
+
 	private readonly ICharacter _character;
 	private readonly IFuturemud _gameworld;
 	private long? _activeProjectId;
@@ -30,7 +32,7 @@ public class ProjectLabourQueueEntry : IProjectLabourQueueEntry
 		_projectDefinitionId = project.ProjectDefinition?.Id;
 		_labour = labour;
 		_labourId = labour?.Id;
-		LabourPreference = labourPreference ?? labour?.Name;
+		LabourPreference = ValidatedLabourPreference(labourPreference ?? labour?.Name);
 		CompletionMode = completionMode;
 		TargetHours = completionMode == ProjectLabourQueueCompletionMode.Duration ? targetHours : 0.0;
 		QueueOrder = queueOrder;
@@ -44,7 +46,7 @@ public class ProjectLabourQueueEntry : IProjectLabourQueueEntry
 		_gameworld = character.Gameworld;
 		EntryType = ProjectLabourQueueEntryType.StartProject;
 		_projectDefinitionId = project.Id;
-		LabourPreference = labourPreference;
+		LabourPreference = ValidatedLabourPreference(labourPreference);
 		CompletionMode = completionMode;
 		TargetHours = completionMode == ProjectLabourQueueCompletionMode.Duration ? targetHours : 0.0;
 		QueueOrder = queueOrder;
@@ -60,7 +62,7 @@ public class ProjectLabourQueueEntry : IProjectLabourQueueEntry
 		_activeProjectId = queue.ActiveProjectId;
 		_projectDefinitionId = queue.ProjectId;
 		_labourId = queue.ProjectLabourRequirementId;
-		LabourPreference = queue.LabourPreference;
+		LabourPreference = ValidatedLabourPreference(queue.LabourPreference);
 		CompletionMode = (ProjectLabourQueueCompletionMode)queue.CompletionMode;
 		TargetHours = queue.TargetHours;
 		ElapsedHours = queue.ElapsedHours;
@@ -116,9 +118,25 @@ public class ProjectLabourQueueEntry : IProjectLabourQueueEntry
 
 	public void SetLabourPreference(string? labourPreference)
 	{
-		LabourPreference = labourPreference;
+		LabourPreference = ValidatedLabourPreference(labourPreference);
 		_labour = null;
 		_labourId = null;
+	}
+
+	public static bool IsValidLabourPreference(string? labourPreference)
+	{
+		return labourPreference is null || labourPreference.Length <= MaximumLabourPreferenceLength;
+	}
+
+	private static string? ValidatedLabourPreference(string? labourPreference)
+	{
+		if (!IsValidLabourPreference(labourPreference))
+		{
+			throw new ArgumentException($"Labour preferences cannot be longer than {MaximumLabourPreferenceLength} characters.",
+				nameof(labourPreference));
+		}
+
+		return labourPreference;
 	}
 
 	public void SetCompletionMode(ProjectLabourQueueCompletionMode completionMode, double targetHours)

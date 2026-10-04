@@ -437,9 +437,16 @@ If more than one terminal could be used, specify one explicitly or connect first
 
 		var name = ss.SafeRemainingArgument;
 		var error = string.Empty;
-		var success = medium is not null
-			? medium.DeleteRecording(name, out error)
-			: digitalRecorder!.RecordingFileSystem.DeleteFile(name);
+		bool success;
+		if (medium is not null)
+		{
+			success = medium.DeleteRecording(name, out error);
+		}
+		else
+		{
+			var fileSystem = digitalRecorder!.RecordingFileSystem;
+			success = fileSystem.GetFile(name)?.Kind == ComputerFileKind.Media && fileSystem.DeleteFile(name);
+		}
 		if (!success)
 		{
 			actor.Send(medium is not null ? error : "That recorder has no media file with that name.");

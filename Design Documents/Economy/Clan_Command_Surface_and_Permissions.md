@@ -140,6 +140,8 @@ Appointment budgets are recurring-period allowances backed by the clan's default
 
 Creating or closing a budget requires `CanCreateBudgets`. Drawing from a budget requires administrator authority, `CanCreateBudgets`, or appointment-chain authority over the assigned appointment. A successful drawdown withdraws from the clan bank account, issues a currency pile to the actor, and records the actor, amount, period window, bank balance after withdrawal, and audit reason.
 
+Budget names are limited to 200 characters and drawdown audit reasons to 1000 characters. Oversized direct inputs are rejected with an explanation before rolling the budget period, debiting funds, or issuing cash. When a draw uses bank funds, its generated withdrawal description is truncated at a whole Unicode text-element boundary to fit 255 characters; the clan drawdown record preserves the full audit reason.
+
 ### Balance sheet
 
 `clan balance <clan>`

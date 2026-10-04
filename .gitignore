@@ -38,3 +38,4 @@ MudSharp/bin/*
 /.artifacts/configurable-casting/
 /.artifacts/arm02-tools/
 /.artifacts/weather/
+/.artifacts

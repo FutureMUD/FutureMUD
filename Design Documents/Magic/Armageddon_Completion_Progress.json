@@ -39,7 +39,7 @@
   "preparation_baseline": "b0e4339d57bf15bc6e6a6f21fbdd5edc73006e38",
   "implementation_branch": "codex/armageddon-completion-phase1",
   "authorised_scope": "Complete plan in coherent stages; local commits; no publication, merge, deploy or shared/production DB",
-  "selected_stage": "Phase3C1 purchase selection and constructor review corrections verified; parent re-review pending",
+  "selected_stage": "Phase3C2 food/liquid/worn-light native adapters implemented and verified; parent review pending",
   "phase1_remaining": [
     "Stock installer selects and qualifies the mental/spiritual native attribute, capacity expression/basis and authored energy coefficients.",
     "Complete installed source/support/crafting/chargen wiring and gathering restrictions/environmental accounting remain later stock/native gates.",
@@ -2963,7 +2963,7 @@
     },
     {
       "id": "phase3C1_P2_purchase_selection_constructor_ABI",
-      "status": "implemented_verified_parent_independent_rereview_pending",
+      "status": "implemented_verified_parent_independently_accepted",
       "implementation": "3d89f6014faaaeacdbae5baed684c26421ebfa37",
       "base": "e127084be38b7098a437877188f211fce92d1d26",
       "receipt": "Armageddon_Stage3C_NativeItems_P2_Verification.json",
@@ -3009,7 +3009,66 @@
       "c1_evidence_addendum_and_two_clarification_helpers_unchanged": true,
       "exact_source_tree_unchanged": true,
       "next_feature_slice_started": false,
-      "installed_stock_N21_N25_not_qualified": true
+      "installed_stock_N21_N25_not_qualified": true,
+      "parent_clearance": {
+        "head": "909bdd4b4e80d71f65311504ad67bf6465e44042",
+        "reviewer": "Astra via parent",
+        "qualification_limits_preserved": [
+          "Mixed-stock item/body/account boundaries remain mocked.",
+          "Previously compiled constructor consumer execution NOT_RUN.",
+          "Installed stock gameplay NOT_RUN."
+        ]
+      }
+    },
+    {
+      "id": "phase3C2_food_liquid_worn_light",
+      "status": "implemented_verified_parent_independent_review_pending",
+      "base": "909bdd4b4e80d71f65311504ad67bf6465e44042",
+      "implementation": "4fe46a33bf4168bd0ff0008d4dc1370f7f662746",
+      "receipt": "Armageddon_Stage3C_ConsumablesLight_Verification.json",
+      "managed_runs": {
+        "focused": "20261004T033816Z-8f31fb649e11",
+        "Fast": "20261004T033858Z-4b56b005c9f3"
+      },
+      "counts": {
+        "focused": {
+          "executed": 403,
+          "passed": 403,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 403
+        },
+        "Fast": {
+          "executed": 6901,
+          "passed": 6901,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 6901
+        }
+      },
+      "new_core_cases": 19,
+      "native_markers": 263,
+      "C2_markers": 13,
+      "owned_databases_cleaned": 16,
+      "owned_processes_remaining": 0,
+      "acceptance": [
+        "Paid grades 1-7 create 28 individually claimed food outputs; authored finite absolute lifetimes; no food permanence override.",
+        "Native fractional Body.Eat and SilentEat conserve nutrition/remainders, exhausted food cannot feed twice, ordinary permanent food is consumed.",
+        "Native item-targeted water/wine creation fills empty/partial containers, preserves allowed mixtures, clamps capacity and refuses full/closed/incompatible contents.",
+        "Native drinking and transfer conserve usable fluid across two foreign containers, restart and magical-item expiry.",
+        "Native effect placement works with occupied recipient hands; paid self-casting keeps its free manipulation hand rule. Both contribute 40 lux and retain foreign gear; paid output has the authored deadline.",
+        "Fresh processes preserve fractional2.75/zero bites, player needs, lit worn custody, transferred mixture and permanent consumption.",
+        "Actual provider final-DELETE failures compensate and survive normal Flush/fresh reader; exact retry retires29 origins and item/component rows.",
+        "Empty-associated native inventory plans finalize without actor-effect traversal; normal owned-effect cleanup and forced native GC preserve foreign effects, needs and resources."
+      ],
+      "installed_stock_and_full_N14_N16_NOT_RUN": true,
+      "prior_fourteen_receipts_1486_artifacts_42_helpers_unchanged": true,
+      "C1_addendum_clarification_and_C1P2_closing_helpers_unchanged": true,
+      "source_tree_preserved": true
     }
   ],
   "implementation_commits": [
@@ -3124,23 +3183,28 @@
     {
       "sha": "3d89f6014faaaeacdbae5baed684c26421ebfa37",
       "subject": "Select clean purchase stock consistently and preserve GameItem constructor ABI"
+    },
+    {
+      "sha": "4fe46a33bf4168bd0ff0008d4dc1370f7f662746",
+      "subject": "Add conserved native spell-created food, liquid and worn light"
     }
   ],
   "next_checkpoint": {
-    "status": "awaiting_parent_phase3C1_P2_independent_rereview",
-    "base": "e127084be38b7098a437877188f211fce92d1d26",
-    "implementation_head": "3d89f6014faaaeacdbae5baed684c26421ebfa37",
-    "receipt": "Armageddon_Stage3C_NativeItems_P2_Verification.json",
+    "status": "awaiting_parent_phase3C2_independent_review",
+    "base": "909bdd4b4e80d71f65311504ad67bf6465e44042",
+    "implementation_head": "4fe46a33bf4168bd0ff0008d4dc1370f7f662746",
+    "receipt": "Armageddon_Stage3C_ConsumablesLight_Verification.json",
     "implementation_verified": true,
     "previous_admission_parent_accepted": true,
-    "scope": "Correct same-merchandise temporary-value selection across quote/preview/purchase and restore public constructor ABI.",
+    "scope": "Bounded unscripted food grade-count/consumption, native water-wine fill and worn ProgLight creation with owned-item expiry/restart conservation.",
     "required_connection_ownership": "Explicit owned MySQL server/database validation at every native process/service boundary before use; no shared/default database; sanitized evidence",
     "N14_N15": "controlled_native_pass_full_installed_stock_pending",
     "N16": "partial_high_volume_pending",
     "independent_checkpoint_review_before_further_features": true,
-    "next_stage_after_review": "Parent selects continuation; no next item family has started. All required stock and later phases remain in the ledger.",
+    "next_stage_after_review": "Parent selects the next required Phase3C stock-facing dependency; no later slice has started.",
     "parent_accepted_durable_removal_P2_preserved": true,
-    "parent_accepted_retirement_P2_protocols_preserved": true
+    "parent_accepted_retirement_P2_protocols_preserved": true,
+    "previous_C1P2_parent_accepted": true
   },
   "deferred_consultation": {
     "source_task": "01a0fc1f-ccd4-7359-95f2-f8c03724b0b1",
@@ -3160,7 +3224,7 @@
   },
   "phase3_remaining": [
     "Writing/TrueAuthor/Drawings history is boundedly verified; extend other identity-bearing histories only with native need/evidence, preserving unknown-reference holds and ownership.",
-    "Bounded native created leaf weapon lifecycle/value and grade7 permanent output are verified. Required remaining stock items: actual profiles and duration conversion, food consumption/counts, water/wine capacity/mixing, HoveringLight wear support and automatic Storm Spear primary-hand placement; corpse animation, canonical projections and occupied/connected topology remain mandatory. Variable/prosthetic/role-adjusted/extra-body NPC generalization remains conditional on stock choosing it.",
+    "Bounded native created leaf weapons, food grade-count/consumption, water/wine capacity/mixing/transfer and worn light are verified. Actual stock profiles and declared event/unit conversions remain pending, as do Storm Spear automatic primary-hand placement/native combat profile, corpse animation, canonical projections and occupied/connected topology. Variable/prosthetic/role-adjusted/extra-body NPC generalization remains conditional on selected stock need.",
     "Complete generated-possession economy/salvage and occupant/cross-body detachment/replacement-morph adapters plus approved per-cast counts, Gate follower-risk/control, Guardian guarding, Mount riding and Courier delivery. Safe destinations must use configured fallback OR recoverable holding with diagnostics (brief255); automatic fallback is not mandatory.",
     "Complete installed stock command/world N14/N15 and high-volume N16 with per-cycle restart; controlled native early death/decay/restart, same-template modes and sixteen heavy/runtime cycles are verified.",
     "Implement remaining reusable effects and all eight approved larger features; later charm must retain the per-spell PC toggle, resolved executable whitelist and queued-action provenance.",
@@ -3217,10 +3281,17 @@
     },
     {
       "id": "created_leaf_weapon_lifecycle_value",
-      "status": "bounded_native_P2_corrections_verified_parent_rereview_pending",
+      "status": "bounded_native_P2_corrections_parent_independently_accepted",
       "receipt": "Armageddon_Stage3C_NativeItems_Verification.json",
       "acceptance": "Actual native quantity-one private item/components and exact ownership, paid grade3 timed and grade7 permanent replacement weapon fixtures, real component/resource payment, immutable deadline/equipment, refusal of value conversion, callback/provider rollback and fresh-process expiry/quarantine. Stock profiles/event conversion/other item adapters remain pending.",
-      "correction_receipt": "Armageddon_Stage3C_NativeItems_P2_Verification.json"
+      "correction_receipt": "Armageddon_Stage3C_NativeItems_P2_Verification.json",
+      "parent_accepted_head": "909bdd4b4e80d71f65311504ad67bf6465e44042"
+    },
+    {
+      "id": "created_food_liquid_worn_light",
+      "status": "bounded_native_verified_parent_review_pending",
+      "receipt": "Armageddon_Stage3C_ConsumablesLight_Verification.json",
+      "acceptance": "Native consumption, container filling/transfer and occupied-hand worn light; exact ownership, rollback, restart and expiry with player/foreign-state conservation. Installed profiles/event conversion still pending."
     }
   ]
 }

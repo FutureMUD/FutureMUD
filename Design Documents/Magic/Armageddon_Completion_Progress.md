@@ -912,3 +912,21 @@ Local correction `3d89f6014faaaeacdbae5baed684c26421ebfa37` follows the parent r
 - [ ] Parent re-reviews the exact corrected checkpoint. No next item family has started.
 
 The managed shop tests use an initialized native shop and real BankPayment with mocked items, bodies and accounts; the native packet revalidates the existing creation/expiry/payment/rollback/restart contract and early merchant guards. Full installed mixed-stock commerce, all stock profiles/event timing, food/liquid/light/placement, corpse/projection/topology and later phases remain unqualified. This adds no stock completion or N14/N15 installed or N16 high-volume/every-cycle restart claim.
+
+
+## Phase3C2 food, liquid and worn-light checkpoint - review pending
+
+Parent/Astra cleared C1P2 at `909bdd4b4e80d71f65311504ad67bf6465e44042` with its original mixed-stock mocks, compiled-consumer NOT_RUN and installed-gameplay NOT_RUN limits retained. Local implementation `4fe46a33bf4168bd0ff0008d4dc1370f7f662746` supplies the next required stock item adapters.
+
+- [x] Paid grades 1-7 create 28 separate temporary food outputs with exact single-item origins and declared selected-grade deadlines. Native fractional eating, held exhausted food, no-second-meal and ordinary permanent-food consumption conserve needs and portions.
+- [x] Native item-targeted water/wine fills empty/partial containers, preserves allowed constituents, clamps capacity and refuses full/closed/incompatible contents before payment. Native drinking and 250-unit transfer to a foreign destination survive restart and magical-item expiry.
+- [x] Native worn-light effect placement works with occupied recipient hands and contributes 40 lux. Paid self-casting retains its ordinary free manipulation hand rule, preserves foreign worn gear and keeps its declared deadline.
+- [x] Abandoned real empty-associated inventory plans collect through native GC finalizers without actor-effect traversal; foreign effects, needs and resources survive. Nonempty exact-owned-effect cleanup remains covered; broader finalizer concurrency is unqualified.
+- [x] Fresh processes preserve 2.75/zero bites, nutrition, liquids and worn illumination. Actual MySQL final-DELETE faults restore food/light custody; normal save/fresh fault reader and exact retry retire all 29 origins and item/component rows.
+- [x] 403 focused and 6,901 Fast managed cases across ten projects; 263 combined native markers (13 new C2), sixteen owned database cleanups, zero owned processes. Earlier failures remain retained.
+- [x] Independent source review has no remaining established P1/P2. Preserve fourteen prior receipts, 1,486 artifacts, 42 helpers plus closing/clarification evidence and all 7 phases, 16 decisions, 154 candidates, 82+12 source rows and 25 native scenarios. See [Armageddon_Stage3C_ConsumablesLight_Verification.json](Armageddon_Stage3C_ConsumablesLight_Verification.json).
+- [ ] Parent independently reviews this exact checkpoint before the next required slice.
+
+Replacement contracts are explicit: food `1800*grade` real seconds declares one second/source EVENT unit; water `0.5*grade` litres declares 0.1L/source water unit and configured-plane doubling; wine `0.25*grade` litres, light `600*grade` seconds/40 lux and food 4 bites/2 satiation-hours are authored fixture content. Historical heap tick conversion/prototype/formula recovery is not claimed. The installer must adopt/refine and qualify these stock profiles.
+
+World/cell/catalogues, race/hand and wear-profile boundaries remain controlled; no installed stock spell, arbitrary callback/liquid-adjustment prog, wine intoxication, complete N14/N15 or high-volume/every-cycle-restart N16 is qualified. Storm Spear placement/combat, corpse animation/projections/topology, summons count/control/Guardian guarding/Mount riding/Gate risk/Courier delivery, eight larger features, portable devices and full installer acceptance remain required. No publication, merge, deployment or shared/production DB access occurred.

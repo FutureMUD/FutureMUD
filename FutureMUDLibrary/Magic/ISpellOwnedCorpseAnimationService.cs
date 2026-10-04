@@ -15,6 +15,8 @@ public interface ISpellOwnedCorpseAnimationService
 	ICharacter Create(IGameItem corpse, ICharacter caster, IReadOnlyCollection<IArtificialIntelligence> ais,
 		SpellLifecycleOrigin origin);
 	bool OwnsInstance(long instanceId);
+	/// <summary>Checks an explicit, unexpired creator command grant on an active animation.</summary>
+	bool CanCommand(long instanceId, long commanderIdentityId);
 	bool TryRetire(long instanceId, SpellRetirementReason reason, out string diagnostic);
 	bool IsBorrowedCorpse(long corpseId);
 	int ReconcileRetirements(DateTime nowUtc, int limit = 100);

@@ -497,6 +497,31 @@ borrowed corpse/body/gear after expiry, dispel, death or actor Quit. It refuses
 nonfinal bodies, foreign ownership, unsupported custody and invalid lifetime before
 payment. See [Spell-owned lifecycle](Spell_Owned_Lifecycle.md) for recovery boundaries.
 
+#### Stock Raise Servitor authoring
+
+Create the editable stock profile with
+`magic spell edit new stock raise-servitor <school> <casting trait> <resource>`,
+quoting names containing spaces. It creates native Commandable/CombatEnd AIs and
+support progs; configure capability membership and acquisition separately.
+
+Selected grade maps to historical level: animation uses `600*(grade+10)-1` real
+seconds and creator control uses `600*(grade+6)-1`, from recovered 600-second affect
+units. This supersedes the older `60*g` proposal for this profile. The ordinary cost
+expression is `7*grade`; configured casting substitutes the source-resource efficiency
+curve (minimum 7, scale 1), then applies the existing 1.5 overreach multiplier. The
+stock physical plan is empty, consistent with its historical lack of components.
+
+The editable control prog excludes terrain named Silt or Shallows. Native following
+is independent of control, including after its deadline. Orders require the canonical
+creator's active durable grant and pass ordinary NPC command checks. Guard/rescue are
+excluded pending separate native repairs. `control`, `controlprog` and `followcaster`
+effect settings expose the reusable policy; no new implicit legacy defaults apply.
+
+The profile borrows the exact corpse/body/identity and foreign gear and owns only its
+secondary instance. Retirement restores the same corpse, cancels queued work and
+cleans native combat/following subscriptions. Active actors still collapse on restart.
+See [Spell-owned lifecycle](Spell_Owned_Lifecycle.md) for evidence and remaining limits.
+
 ### Engine V2 dispels, portals, item enchantments, and recipes
 Engine V2 adds a deeper parity layer. True body-left-behind projection and copy/clone gameplay now live in the simultaneous body instance effects above rather than in planar overlays alone.
 

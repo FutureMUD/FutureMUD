@@ -1378,6 +1378,8 @@ public static class CharacterInstanceService
 		secondary.Movement?.CancelForMoverOnly(secondary);
 		secondary.CombatTarget = null;
 		secondary.PositionTarget = null!;
+		secondary.CeaseFollowing();
+		secondary.QueuedMoveCommands.Clear();
 		secondary.Gameworld.EffectScheduler.Destroy(secondary, true);
 		secondary.Gameworld.Scheduler.Destroy(secondary);
 		secondary.Location?.Leave(secondary);

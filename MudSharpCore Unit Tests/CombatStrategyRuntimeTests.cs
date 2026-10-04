@@ -37,6 +37,27 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class CombatStrategyRuntimeTests
 {
+	[TestMethod]
+	public void ManualActionConsumption_ReleasesBothCombatSubscriptionsBeforeReturningMove()
+	{
+		var combat = new Mock<ICombat>();
+		var actor = new Mock<ICharacter>();
+		actor.SetupGet(x => x.Gameworld).Returns(Mock.Of<IFuturemud>());
+		actor.SetupGet(x => x.Combat).Returns(combat.Object);
+		actor.SetupGet(x => x.State).Returns(CharacterState.Awake);
+		var action = SelectedCombatAction.GetEffectGetItem(actor.Object, Mock.Of<IGameItem>(), null);
+		actor.Setup(x => x.EffectsOfType<SelectedCombatAction>(It.IsAny<Predicate<SelectedCombatAction>>())).Returns([action]);
+		actor.Setup(x => x.RemoveEffect(action, It.IsAny<bool>())).Callback<IEffect, bool>((effect, cleanup) =>
+		{
+			if (cleanup) effect.RemovalEffect();
+		});
+		var move = typeof(StrategyBase).GetMethod("HandleObligatoryCombatMoves", BindingFlags.Instance | BindingFlags.NonPublic)!
+			.Invoke(CombatStrategyFactory.GetStrategy(CombatStrategyMode.StandardMelee), [actor.Object]);
+		Assert.IsInstanceOfType(move, typeof(RetrieveItemMove));
+		combat.VerifyRemove(x => x.CombatEnds -= It.IsAny<EventHandler>(), Times.Once);
+		combat.VerifyRemove(x => x.CombatMerged -= It.IsAny<CombatMergeDelegate>(), Times.Once);
+	}
+
 	private static string GetCoreSourcePath(params string[] segments)
 	{
 		return Path.GetFullPath(Path.Combine(

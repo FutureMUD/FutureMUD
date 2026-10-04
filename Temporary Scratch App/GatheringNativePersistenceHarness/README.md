@@ -86,3 +86,20 @@ and complete actual Logout/Expiry recovery after boot. They assert exact seconda
 retirement, unchanged canonical/body/item IDs and foreign gear, no scripted AI
 construction or resource-program replay, and durable stale XML removal. The same
 corpse packet runs these modes after the pending/completed checkpoint matrix.
+
+`Run-IsolatedAcceptance.ps1 -RaiseServitorStockOnly` runs the bounded stock Raise
+Servitor packet in a fresh owned database. It creates the stock through the ordinary
+spell builder, persists/reloads its definition, and refuses excessive control duration
+before payment. Actual paid grade-3 casts use the recovered 5,399-second control and
+7,799-second animation deadlines. Real Cell/CellOverlay saving, creator-only follow/hit
+orders, continuing three-actor combat, selected inventory-action execution and both
+pending/consumed action subscriptions are asserted. Silt/Shallows grant refusal keeps
+independent following. A real secondary-row DELETE trigger holds retirement; queued
+work and orders stop, exact retry restores the same corpse/body/foreign gear, and fresh
+reader processes verify persisted Active/held command grants without actor loading.
+
+Combine `-RaiseServitorStockOnly -CorpseAnimationOnly` to rerun the stock packet with
+the four-database paid corpse/morph restart regression packet. World/anatomy catalogues
+and specialized caster Save remain controlled. Damage/defence delivery, autonomous
+historical aggression, guard/rescue orders, PC-corpse stock casts, complete boot/Telnet
+and concurrent recovery remain outside this bounded acceptance.

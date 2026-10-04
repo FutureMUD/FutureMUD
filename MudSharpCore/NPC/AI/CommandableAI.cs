@@ -105,14 +105,17 @@ public class CommandableAI : ArtificialIntelligenceBase
             }
         }
 
-        if (_commandIssuedEmoteText is not null)
+        if (!string.IsNullOrEmpty(_commandIssuedEmoteText))
         {
             EmoteOutput emote = new(new Emote(string.Format(_commandIssuedEmoteText, commandText), commandCh,
                 commandCh, ch));
             commandCh.OutputHandler.Send(emote);
         }
 
-        locatedCommand?.Execute(ch, commandText, ch.State, ch.Account.Authority.Level, ch.OutputHandler);
+        if (locatedCommand is not null)
+        {
+            ch.CommandTree.Commands.Execute(ch, locatedCommand, commandText, ch.State, ch.PermissionLevel, ch.OutputHandler);
+        }
         return true;
     }
 

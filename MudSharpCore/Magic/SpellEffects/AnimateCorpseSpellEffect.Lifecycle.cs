@@ -18,14 +18,24 @@ public sealed partial class AnimateCorpseSpellEffect : IMagicSpellEffectAdmissio
 	private XElement? _invalidLifecycle;
 	private string? _lifetimeFormula;
 	private double? _preparedSeconds;
+	private string? _controlFormula;
+	private double? _preparedControlSeconds;
+	private long _controlProgId;
+	private bool _followCaster;
+	private readonly Dictionary<IGameItem, bool> _preparedControl = new();
 	public bool DurableLifecycle { get; private set; }
 	public string LifecycleFamily { get; private set; } = "";
 	public ITraitExpression? LifetimeExpression { get; internal set; }
+	public ITraitExpression? ControlExpression { get; internal set; }
 	public string? DefinitionError => _invalidLifecycle is not null ? "Invalid corpse-animation lifecycle schema." : !DurableLifecycle ? null :
 		Gameworld.SpellOwnedCorpseAnimations is null ? "Durable corpse animation is unavailable." :
 		string.IsNullOrWhiteSpace(LifecycleFamily) || LifecycleFamily.Length > 128 ? "Set a corpse-animation family of at most 128 characters." :
 		LifetimeExpression is null || LifetimeExpression.HasErrors() || LifetimeExpression.NonTraitParameters.Contains("outcome", StringComparer.OrdinalIgnoreCase)
 			? "Set a valid lifetime in real seconds, determinable before the casting check." :
+		_controlFormula is not null && (ControlExpression is null || ControlExpression.HasErrors() ||
+			ControlExpression.NonTraitParameters.Contains("outcome", StringComparer.OrdinalIgnoreCase) ||
+			Gameworld.FutureProgs.Get(_controlProgId) is not { } controlProg || controlProg.ReturnType != ProgVariableTypes.Boolean ||
+			!controlProg.MatchesParameters([ProgVariableTypes.Character, ProgVariableTypes.Item])) ? "Set a valid control duration and a boolean (character, item) eligibility prog." :
 		_aiIds.Count == 0 || _aiIds.Any(x => Gameworld.AIs.Get(x)?.IsReadyToBeUsed != true) ? "Select available ready corpse-animation AIs." : null;
 
 	private void LoadLifecycle(XElement? root)
@@ -36,17 +46,27 @@ public sealed partial class AnimateCorpseSpellEffect : IMagicSpellEffectAdmissio
 		DurableLifecycle = true; LifecycleFamily = root.Element("Family")?.Value ?? "";
 		_lifetimeFormula = root.Element("Seconds")?.Value;
 		if (_lifetimeFormula is not null) LifetimeExpression = new TraitExpression(_lifetimeFormula, Gameworld);
+		if (root.Element("Control") is { } control)
+		{
+			_controlFormula = control.Element("Seconds")?.Value ?? "";
+			ControlExpression = new TraitExpression(_controlFormula, Gameworld);
+			_controlProgId = (long?)control.Element("EligibilityProg") ?? 0;
+		}
+		_followCaster = (bool?)root.Element("FollowCaster") ?? false;
 	}
 
 	private XElement? SaveLifecycle() => _invalidLifecycle is not null ? new(_invalidLifecycle) : !DurableLifecycle ? null :
 		new("Lifecycle", new XAttribute("version", 1), new XAttribute("mode", "TemporaryCleanup"),
-			new XElement("Family", LifecycleFamily), new XElement("Seconds", _lifetimeFormula));
+			new XElement("Family", LifecycleFamily), new XElement("Seconds", _lifetimeFormula),
+			_controlFormula is null ? null : new XElement("Control", new XElement("Seconds", _controlFormula), new XElement("EligibilityProg", _controlProgId)),
+			new XElement("FollowCaster", _followCaster));
 
 	internal bool ValidateInvocation(ICharacter caster, IPerceivable target, out string? error)
 	{
 		error = DefinitionError;
 		if (error is not null || !DurableLifecycle) return error is null;
-		if (!Lifecycle.SpellOwnedCorpseAnimationService.CanPersistPresentation(SavePresentation(Guid.Empty)))
+		if (!Lifecycle.SpellOwnedCorpseAnimationService.CanPersistPresentation(SavePresentation(Guid.Empty,
+			ControlExpression is null ? null : DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Utc))))
 		{ error = "The durable corpse-animation echoes exceed the bounded lifecycle presentation size."; return false; }
 		if (Spell is not MagicSpell { InvocationGrade: not null } native)
 		{ error = "Durable corpse animation requires a selected-grade native invocation."; return false; }
@@ -58,13 +78,23 @@ public sealed partial class AnimateCorpseSpellEffect : IMagicSpellEffectAdmissio
 		{ error = "This corpse does not satisfy the spell's configured eligibility."; return false; }
 		error = Gameworld.SpellOwnedCorpseAnimations!.AdmissionError(item);
 		if (error is not null) return false;
-		if (_preparedSeconds is not null) return true;
 		try
 		{
-			var seconds = LifetimeExpression!.Evaluate(caster, native.CastingTrait, TraitBonusContext.SpellDuration);
+			var seconds = _preparedSeconds ?? LifetimeExpression!.Evaluate(caster, native.CastingTrait, TraitBonusContext.SpellDuration);
 			if (!double.IsFinite(seconds) || seconds <= 0 || seconds > (DateTime.MaxValue - RuntimeClock.UtcNow).TotalSeconds || TimeSpan.FromSeconds(seconds) <= TimeSpan.Zero)
 				error = "Corpse-animation lifetime must be finite, positive and representable as an absolute UTC deadline.";
 			else _preparedSeconds = seconds;
+			if (error is null && ControlExpression is not null)
+			{
+				var control = _preparedControlSeconds ?? ControlExpression.Evaluate(caster, native.CastingTrait, TraitBonusContext.SpellDuration);
+				if (!double.IsFinite(control) || control <= 0 || control > seconds || TimeSpan.FromSeconds(control) <= TimeSpan.Zero)
+					error = "Corpse-animation control duration must be positive and no longer than its lifetime.";
+				else
+				{
+					_preparedControlSeconds = control;
+						if (!_preparedControl.ContainsKey(item)) _preparedControl[item] = Gameworld.FutureProgs.Get(_controlProgId)!.ExecuteBool(caster, item);
+				}
+			}
 		}
 		catch (Exception ex) { error = "Corpse-animation lifetime could not be prepared: " + ex.Message; }
 		return error is null;
@@ -90,8 +120,10 @@ public sealed partial class AnimateCorpseSpellEffect : IMagicSpellEffectAdmissio
 			var native = (MagicSpell)Effect.Spell; var now = RuntimeClock.UtcNow;
 			var ais = Effect._aiIds.Select(x => Effect.Gameworld.AIs.Get(x)!).ToArray();
 			var origin = new SpellLifecycleOrigin(Id, native.Id, native.InvocationGrade!.Value, CharacterInstanceIdentityComparer.IdentityId(Caster),
-				Effect.LifecycleFamily, SpellLifecycleMode.TemporaryCleanup, now, now.AddSeconds(Effect._preparedSeconds!.Value), Effect.SavePresentation(native.InvocationOriginId));
+				Effect.LifecycleFamily, SpellLifecycleMode.TemporaryCleanup, now, now.AddSeconds(Effect._preparedSeconds!.Value),
+				Effect.SavePresentation(native.InvocationOriginId, Effect._preparedControl.GetValueOrDefault(item) ? now.AddSeconds(Effect._preparedControlSeconds!.Value) : null));
 			var animated = Effect.Gameworld.SpellOwnedCorpseAnimations!.Create(item, Caster, ais, origin);
+			if (Effect._followCaster) animated.Follow(Caster);
 			animated.AddEffect(new CorpseAnimationDispelProxyEffect(animated, item.Id));
 			var result = new SpellAnimatedCorpseEffect(item, parent, origin.CreatorId, Caster.InstanceId, item.Id,
 				CharacterInstanceIdentityComparer.IdentityId(corpse.OriginalCharacter), corpse.OriginalBody.Id, animated.InstanceId,
@@ -102,7 +134,8 @@ public sealed partial class AnimateCorpseSpellEffect : IMagicSpellEffectAdmissio
 		}
 	}
 
-	private string SavePresentation(Guid? invocation) => new XElement("Presentation", new XAttribute("invocation", invocation?.ToString() ?? ""),
+	private string SavePresentation(Guid? invocation, DateTime? controlUntil) => new XElement("Presentation", new XAttribute("invocation", invocation?.ToString() ?? ""),
+		controlUntil is null ? null : new XElement("ControlUntilUtc", controlUntil.Value.ToString("O", System.Globalization.CultureInfo.InvariantCulture)),
 		new XElement("Target", _targetEcho), new XElement("Collapse", _collapseEcho), new XElement("Restore", _restoreEcho)).ToString(SaveOptions.DisableFormatting);
 
 	private bool BuildingCommandLifecycle(ICharacter actor, StringStack command)
@@ -118,10 +151,25 @@ public sealed partial class AnimateCorpseSpellEffect : IMagicSpellEffectAdmissio
 				{ actor.OutputHandler.Send("Specify a family of at most 128 characters."); return false; }
 				LifecycleFamily = command.SafeRemainingArgument; break;
 			case "lifetime":
+			case "control":
+				var controlOption = command.Last.EqualTo("control");
+				if (controlOption && command.SafeRemainingArgument.EqualTo("off"))
+				{ _controlFormula = null; ControlExpression = null; _preparedControlSeconds = null; _preparedControl.Clear(); break; }
 				var expression = new TraitExpression(command.SafeRemainingArgument, Gameworld);
 				if (expression.HasErrors() || expression.NonTraitParameters.Contains("outcome", StringComparer.OrdinalIgnoreCase))
 				{ actor.OutputHandler.Send("Specify a valid real-seconds lifetime determinable before the casting check."); return false; }
-				LifetimeExpression = expression; _lifetimeFormula = command.SafeRemainingArgument; _preparedSeconds = null; break;
+				if (controlOption) { ControlExpression = expression; _controlFormula = command.SafeRemainingArgument; _preparedControlSeconds = null; _preparedControl.Clear(); }
+				else { LifetimeExpression = expression; _lifetimeFormula = command.SafeRemainingArgument; _preparedSeconds = null; }
+				break;
+			case "controlprog":
+				var lookup = new MudSharp.FutureProg.ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
+					ProgVariableTypes.Boolean, [ProgVariableTypes.Character, ProgVariableTypes.Item]);
+				var prog = lookup.LookupProg();
+				if (prog is null) return false;
+				_controlProgId = prog.Id; _preparedControl.Clear(); break;
+			case "followcaster":
+				if (!bool.TryParse(command.SafeRemainingArgument, out var follow)) { actor.OutputHandler.Send("Use followcaster true or false."); return false; }
+				_followCaster = follow; break;
 		}
 		Spell.Changed = true; actor.OutputHandler.Send("Corpse-animation lifecycle configuration updated."); return true;
 	}

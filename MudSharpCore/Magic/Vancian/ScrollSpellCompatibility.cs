@@ -76,6 +76,8 @@ public static class ScrollSpellCompatibility
 				break;
 			case AnimateCorpseSpellEffect { LifetimeExpression: { } corpseExpression } x:
 				yield return ("LifetimeSeconds", corpseExpression, e => x.LifetimeExpression = e);
+				if (x.ControlExpression is { } controlExpression)
+					yield return ("ControlSeconds", controlExpression, e => x.ControlExpression = e);
 				break;
 		}
 	}

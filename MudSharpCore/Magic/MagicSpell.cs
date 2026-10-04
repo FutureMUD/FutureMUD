@@ -24,6 +24,7 @@ namespace MudSharp.Magic;
 
 public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpell
 {
+	public string? StockIdentity { get; private set; }
     public MagicSpell(Models.MagicSpell spell, IFuturemud gameworld)
     {
         Gameworld = gameworld;
@@ -55,6 +56,7 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
         TargetNullEmote = spell.TargetNullEmote;
 
         XElement definition = XElement.Parse(spell.Definition);
+		StockIdentity = definition.Element("StockIdentity")?.Value;
 		LoadGradeProfile(definition);
         if (definition.Element("NoTrigger") == null)
         {
@@ -138,6 +140,7 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
         School = rhs.School;
         _name = name;
         Blurb = rhs.Blurb;
+		StockIdentity = rhs.StockIdentity;
 		GradeProfile = rhs.GradeProfile;
 		PracticeInventoryPlanTemplate = rhs.PracticeInventoryPlanTemplate is null ? null :
 			new InventoryPlanTemplate(rhs.PracticeInventoryPlanTemplate.SaveToXml(), Gameworld);
@@ -220,6 +223,7 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
     private XElement SaveDefinition()
     {
         return new XElement("Spell",
+			StockIdentity is null ? null : new XElement("StockIdentity", StockIdentity),
             SaveGradeProfile(),
             Trigger?.SaveToXml() ?? new XElement("NoTrigger"),
             new XElement("Costs",

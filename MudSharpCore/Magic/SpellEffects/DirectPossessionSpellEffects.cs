@@ -886,6 +886,9 @@ public sealed partial class AnimateCorpseSpellEffect : IMagicSpellEffectTemplate
 	#3lifecycle legacy|durable#0 - selects legacy or durable temporary corpse restoration
 	#3family <name>#0 - sets the durable creation family
 	#3lifetime <expression>#0 - sets real seconds (grade supported); restart still collapses
+	#3control <expression>|off#0 - sets a separate creator-order window in real seconds
+	#3controlprog <prog>#0 - selects a boolean (character, item) prog deciding whether control is granted
+	#3followcaster true|false#0 - follows the caster when the animation is created
 	#3ai add <which>#0 - adds an AI to attach to the animated corpse
 	#3ai remove <which>#0 - removes an AI from this effect
 	#3ai clear#0 - clears all configured AIs
@@ -901,7 +904,7 @@ public sealed partial class AnimateCorpseSpellEffect : IMagicSpellEffectTemplate
 
 	public bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		if (command.PeekSpeech().ToLowerInvariant() is "lifecycle" or "family" or "lifetime") return BuildingCommandLifecycle(actor, command);
+		if (command.PeekSpeech().ToLowerInvariant() is "lifecycle" or "family" or "lifetime" or "control" or "controlprog" or "followcaster") return BuildingCommandLifecycle(actor, command);
 		switch (command.PopForSwitch())
 		{
 			case "ai":
@@ -964,6 +967,8 @@ public sealed partial class AnimateCorpseSpellEffect : IMagicSpellEffectTemplate
 		return SpellEffectPresentation.Describe(actor, "Animate Corpse",
 			("Persistence", DurableLifecycle ? "Durable temporary cleanup; collapse on restart" : CharacterInstancePersistencePolicy.TemporaryEffectBound.DescribeEnum().ColourValue()),
 			("Lifecycle", DurableLifecycle ? $"{LifecycleFamily}; {_lifetimeFormula} real seconds" : "Legacy"),
+			("Creator Control", _controlFormula is null ? "None" : $"{_controlFormula} real seconds; eligibility prog #{_controlProgId}"),
+			("Follow Caster", _followCaster.ToColouredString()),
 			("AIs", DescribeArtificialIntelligences(actor)),
 			("Allow PCs", _allowPcs.ToColouredString()),
 			("Allow NPCs", _allowNpcs.ToColouredString()),

@@ -395,8 +395,9 @@ No cleanup worker or heartbeat registration is introduced before its native adap
 existing definitions default to `legacy`. Builders supply a family and a positive,
 finite lifetime in real seconds, evaluated with the selected grade before payment.
 Invalid schema, unavailable/unready AIs, excessive persisted echoes and unsuitable
-corpse custody refuse before payment. These lifetimes are authored replacements;
-historical EVENT units are not interpreted as seconds.
+corpse custody refuse before payment. Generic lifetimes are builder-authored real
+seconds; historical EVENT units receive no implicit conversion. The stock Raise
+Servitor profile below uses separately recovered affect timing.
 
 This adapter currently accepts final-death corpses whose exact canonical owner is
 still dead in runtime and persistence. It refuses abandoned/nonfinal bodies pending
@@ -457,7 +458,58 @@ compiled resource FutureProg, paid casting, dispel, death, provider triggers, or
 saves and fresh processes. Anatomy and room catalogues are controlled, and the fixture
 character uses the inherited specialized Save override. This is not installed Raise
 Servitor, a commandable/combat AI profile, PC corpse qualification, nonfinal support,
-arbitrary callback safety, simultaneous-host recovery or full N14–N16 acceptance.
+arbitrary callback safety, simultaneous-host recovery or full N14-N16 acceptance.
+
+#### Stock Raise Servitor
+
+`magic spell edit new stock raise-servitor <school> <casting trait> <resource>`
+creates an editable spell, two native AI definitions and compiled support progs
+atomically. Quote names containing spaces. Builders select existing world definitions
+and separately configure capability membership and acquisition. Duplicate creation in
+the same school refuses; this command is not the complete Armageddon installer.
+
+Selected grade 1–7 maps explicitly to historical level. Animation lasts
+`600*(grade+10)-1` real seconds and command authority lasts `600*(grade+6)-1`.
+These follow `codedump.c` fresh affects: `time(NULL) + RT_ZAL_HOUR*duration - 1`,
+with `RT_ZAL_HOUR = 600`. They supersede the earlier `60*g` proposal/fixture for this
+stock profile. Neither formula converts EVENT units. Source windows and version/hash
+qualifications are retained in `Armageddon_Stage3D1Stock_HistoricalTiming_ReadReceipt.json`
+beside the execution workspace; the stock verification receipt records its fingerprint.
+
+Optional durable-animation builder settings are `control <seconds expression>|off`,
+`controlprog <boolean (character, item) prog>` and `followcaster true|false`.
+Control must be finite, positive and no longer than animation; its formula and
+eligibility are prepared before payment. Legacy defaults remain unchanged.
+
+The stock eligibility prog excludes terrain names Silt and Shallows, case-insensitively.
+This is an editable name-based adaptation; worlds using other names must change the
+prog. Animation and native following still occur without a command grant there.
+`cancommandanimation(animation, commander)` checks the creator's canonical identity,
+exact owned secondary instance, Active journal and both absolute UTC deadlines.
+Control expiry denies further orders while leaving animation and its independent
+follower link intact. No runtime charm effect is installed.
+
+Commandable AI executes resolved included commands through the ordinary command tree
+with the actor's current state, permissions and native checks. The stock allowlist is
+`follow`, `hit`, `flee`, `stop`, `stand`, `sit`, `kneel`, `emote`, `get`, `drop`, `give`,
+`wear`, `remove`, `wield` and `unwield`. Guard and rescue are excluded pending repair
+of existing native ownership/removal behavior. CombatEnd AI accepts truce and target
+incapacitation; the profile does not reproduce historical autonomous aggression.
+
+Retirement releases following and combat, clears movement commands, cancels both
+schedulers and cleans selected-action subscriptions even while restoration is held.
+Ordinary selected-action consumption also unsubscribes it from the continuing combat.
+Only the secondary is owned: the canonical identity, same corpse/body and foreign gear
+remain borrowed. Restart still collapses the active actor, preserving deadlines without
+replaying creation or AI activation.
+
+The stock native packet covers paid builder-created casts, real cell insertion,
+extraction and saving, actual follow/hit orders, native selected inventory action in
+combat, separate deadlines, terrain eligibility, database-refused retirement/retry and
+fresh durable-control readers. World/anatomy catalogues and the inherited specialized
+caster Save remain controlled. Damage/defence delivery, PC-corpse stock casts, arbitrary
+callbacks, full server boot/Telnet, concurrency and complete N14–N16 remain unqualified.
+See [the stock verification receipt](Armageddon_Stage3D1Stock_RaiseServitor_Verification.json).
 
 `Character.TryCleanupRetiredBody` refuses any live/runtime form, backup, instance or physical
 remains reference. A body containing runtime items is refused intact before any database

@@ -126,6 +126,28 @@ public sealed class SpellOwnedCorpseAnimationService(IFuturemud world) : ISpellO
 	}
 
 	public bool OwnsInstance(long instanceId) => Find(instanceId) is not null;
+	public bool CanCommand(long instanceId, long commanderIdentityId) =>
+		Find(instanceId) is { } life && HasCommandGrant(life, instanceId, commanderIdentityId, RuntimeClock.UtcNow);
+
+	internal static bool HasCommandGrant(SpellOwnedLifecycle life, long instanceId, long commanderIdentityId, DateTime now)
+	{
+		if (life.State != SpellLifecycleState.Active || life.Origin.CreatorId != commanderIdentityId ||
+			now < life.Origin.CreatedUtc || now >= life.Origin.DeadlineUtc ||
+			life.Entities.Count != 1 || life.Entities[0] is not { Kind: SpellOwnedEntityKind.CharacterInstance, Role: SpellOwnedEntityRole.CreatedEntity } entity || entity.Id != instanceId)
+			return false;
+		try
+		{
+			_ = Borrow.Read(life);
+			var source = XElement.Parse(XElement.Parse(life.Origin.Provenance).Element("Source")!.Value);
+			return source.Element("ControlUntilUtc") is { } element &&
+				DateTime.TryParse(element.Value, System.Globalization.CultureInfo.InvariantCulture,
+					System.Globalization.DateTimeStyles.RoundtripKind, out var until) &&
+				until.Kind == DateTimeKind.Utc && until > life.Origin.CreatedUtc &&
+				until <= life.Origin.DeadlineUtc && now < until;
+		}
+		catch (Exception ex) when (ex is System.Xml.XmlException or InvalidOperationException or NullReferenceException or FormatException)
+		{ return false; }
+	}
 	public bool IsBorrowedCorpse(long corpseId)
 	{
 		using var isolated = FMDB.BeginIndependentScope(); using var db = new FMDB();

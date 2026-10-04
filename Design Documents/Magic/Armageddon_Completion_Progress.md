@@ -999,3 +999,17 @@ Parent cleared narrow saved-child deferral at `c1882ba7bc5c04157137c22d32066b63a
 - [ ] Parent rereview before later stock prerequisites.
 
 Full native Cell.Save/production boot/Telnet, combat or queued-work integration and simultaneous-host/race qualification remain pending, as do installed Raise Servitor timing and functional combat/control AI. The other 262 historical native markers were not rerun. No publication, merge, deployment or shared/production database access occurred. See [Armageddon_Stage3D1P1M_MorphRestart_Verification.json](Armageddon_Stage3D1P1M_MorphRestart_Verification.json).
+
+
+## Phase3D1Stock Raise Servitor - parent review pending
+
+Parent cleared morph restart at `812020244974323bcc75b2dee2e212e3110ff101`. The normal spell builder now creates an editable stock Raise Servitor with recovered fresh-affect timing and bounded native orders.
+
+- [x] Selected grade maps to historical level: animation `600*(grade+10)-1` seconds; creator command authority `600*(grade+6)-1`. Silt/Shallows control exclusion and independent native following are explicit editable adaptations.
+- [x] Actual paid stock casts, saved/reloaded definition, prepayment control-duration refusal, canonical creator-only orders, native follow and hit, real Cell.Save, ongoing combat and consumed/pending selected-action cleanup.
+- [x] Dispel, expiry and actual database-refused retirement conserve the same corpse/body/foreign gear; both schedulers and command acceptance are quiescent, durable readers and repeated retry pass.
+- [x] 667 focused and 6,959 Fast tests; 47 native markers on five cleaned owned databases; zero owned processes.
+- [x] Seven phases, 16 decisions, 154 candidates, 82+12 source rows and 25 complete-plan native scenarios preserved with all earlier evidence.
+- [ ] Integrate parent-verified security master only after this checkpoint is committed; parent reviews exact result before later repertoire work.
+
+Guard/rescue orders, autonomous historical aggression and damage delivery are not qualified. Controlled world/anatomy/caster Save, full boot/Telnet, PC-corpse stock casting and concurrency boundaries remain explicit. The other 262 historical native markers were not rerun. Complete installer and later whole-plan gates remain required. See [Armageddon_Stage3D1Stock_RaiseServitor_Verification.json](Armageddon_Stage3D1Stock_RaiseServitor_Verification.json).

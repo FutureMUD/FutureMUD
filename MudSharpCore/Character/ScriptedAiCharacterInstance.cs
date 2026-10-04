@@ -3,6 +3,7 @@ using MudSharp.Body;
 using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Construction;
+using MudSharp.Combat;
 using MudSharp.Database;
 using MudSharp.Events;
 using MudSharp.GameItems;
@@ -26,6 +27,34 @@ public sealed class ScriptedAiCharacterInstance : Character, IArtificialIntellig
 	{
 		_spellRetirementPending = true;
 		ReleaseEventSubscriptions();
+		Gameworld.EffectScheduler.Destroy(this);
+		Gameworld.Scheduler.Destroy(this);
+		CeaseFollowing();
+		QueuedMoveCommands.Clear();
+		// A failed external movement/combat observer must not prevent the other roots being released.
+		List<Exception> failures = [];
+		void Release(Action action) { try { action(); } catch (Exception ex) { failures.Add(ex); } }
+		Release(() => Combat?.LeaveCombat(this));
+		Release(() => Movement?.CancelForMoverOnly(this));
+		Release(() => CombatTarget = null);
+		Release(() => RemoveAllEffects(x => x is ISelectedCombatAction, true));
+		// Leaving combat can add an engage delay. No actor work survives a held retirement.
+		Gameworld.EffectScheduler.Destroy(this);
+		Gameworld.Scheduler.Destroy(this);
+		if (failures.Count > 0) throw new AggregateException("Animation retirement callbacks failed after quiescence.", failures);
+	}
+
+	public override ICombatMove ChooseMove() => _spellRetirementPending ? null! : base.ChooseMove();
+
+	public override bool Engage(IPerceiver target, bool ranged, bool preserveHide = false) =>
+		!_spellRetirementPending && base.Engage(target, ranged, preserveHide);
+
+	public override bool TakeOrQueueCombatAction(ISelectedCombatAction action) =>
+		!_spellRetirementPending && base.TakeOrQueueCombatAction(action);
+
+	public override void OutOfContextExecuteCommand(string command)
+	{
+		if (!_spellRetirementPending) base.OutOfContextExecuteCommand(command);
 	}
 
 	internal ScriptedAiCharacterInstance(Character identity, MudSharp.Models.CharacterInstance instance, IBody body)

@@ -71,6 +71,8 @@ internal static partial class GNHProgram
 				["--spell-owned-retirement-run"] => RunSpellOwnedNpcRetirementChecks(),
 				["--created-consumables-run"] => RunCreatedConsumablesChecks(),
 				["--corpse-animation-run"] => RunCorpseAnimationChecks(),
+				["--raise-servitor-stock-run"] => RunRaiseServitorStockChecks(),
+				["--raise-servitor-stock-reader", .. string[] stockArguments] => RunRaiseServitorStockReader(stockArguments),
 				["--corpse-animation-saved-parent-run"] => RunCorpseAnimationChecks(savedParentRestart: true),
 				["--corpse-animation-active-future-run"] => RunCorpseAnimationChecks(true, "active-future-boot-recovery"),
 				["--corpse-animation-active-expired-run"] => RunCorpseAnimationChecks(true, "active-expired-boot-recovery"),

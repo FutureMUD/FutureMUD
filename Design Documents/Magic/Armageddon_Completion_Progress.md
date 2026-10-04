@@ -898,3 +898,17 @@ The plain weapon lifecycle/economy dependency is ready for source-informed Flame
 
 
 Phase3C1 evidence clarification: one managed failure log was included by the original native-attempt filename glob. The original receipt remains immutable. [Armageddon_Stage3C_NativeItems_Evidence_Addendum.json](Armageddon_Stage3C_NativeItems_Evidence_Addendum.json) supplies the corrected eight native attempts and links the already-retained managed attempt. All 6,868 managed passes, 250 native markers, frozen inputs and cleanup results are unchanged.
+
+
+## Phase3C1 purchase/API review corrections - re-review pending
+
+Local correction `3d89f6014faaaeacdbae5baed684c26421ebfa37` follows the parent review of `9e65d0a4`/`1739fb61`/`e127084b`.
+
+- [x] Ordinary and variant quotes, previews and purchases skip temporary-value-contaminated stock; clean exact goods remain buyable in the same merchandise group.
+- [x] Explicit contaminated selection and contamination introduced before execution or delayed acceptance refuse before payment/custody. Actual Buy/Accept managed cases verify lawful checks inspect the clean preview and near-morph confirmation buys that same clean item.
+- [x] Restore the public three-argument GameItem constructor ABI/defaults and keep deferred initialization internal.
+- [x] 52 focused and 6,882 Fast managed cases pass with zero failures/skips; 250 combined disposable native markers (21 item markers), fifteen owned database cleanups and zero owned processes. Preserve the fixture-ID failure receipt and earlier focused attempt.
+- [x] Preserve thirteen prior receipts, 1,359 artifacts, 36 helpers, the C1 addendum and two clarification helpers. See [Armageddon_Stage3C_NativeItems_P2_Verification.json](Armageddon_Stage3C_NativeItems_P2_Verification.json).
+- [ ] Parent re-reviews the exact corrected checkpoint. No next item family has started.
+
+The managed shop tests use an initialized native shop and real BankPayment with mocked items, bodies and accounts; the native packet revalidates the existing creation/expiry/payment/rollback/restart contract and early merchant guards. Full installed mixed-stock commerce, all stock profiles/event timing, food/liquid/light/placement, corpse/projection/topology and later phases remain unqualified. This adds no stock completion or N14/N15 installed or N16 high-volume/every-cycle restart claim.

@@ -39,7 +39,7 @@
   "preparation_baseline": "b0e4339d57bf15bc6e6a6f21fbdd5edc73006e38",
   "implementation_branch": "codex/armageddon-completion-phase1",
   "authorised_scope": "Complete plan in coherent stages; local commits; no publication, merge, deploy or shared/production DB",
-  "selected_stage": "Phase3C1 created leaf weapon lifecycle/value adapter implemented and verified; parent checkpoint review pending",
+  "selected_stage": "Phase3C1 purchase selection and constructor review corrections verified; parent re-review pending",
   "phase1_remaining": [
     "Stock installer selects and qualifies the mental/spiritual native attribute, capacity expression/basis and authored energy coefficients.",
     "Complete installed source/support/crafting/chargen wiring and gathering restrictions/environmental accounting remain later stock/native gates.",
@@ -2882,7 +2882,7 @@
     },
     {
       "id": "phase3C1_native_created_leaf_items",
-      "status": "implemented_verified_parent_independent_review_pending",
+      "status": "implemented_verified_parent_requested_purchase_and_constructor_corrections",
       "implementation": "9e65d0a4b2fe75422d36dea299d787e21a9ae42c",
       "base": "ec618c6bf046bf1fcfde4364fe0d48866070700e",
       "receipt": "Armageddon_Stage3C_NativeItems_Verification.json",
@@ -2958,7 +2958,58 @@
       "binary_fingerprints": 19,
       "prior_twelve_receipts_1127_artifacts_thirty_helpers_unchanged": true,
       "installed_stock_N21_N25_not_qualified": true,
-      "evidence_clarification": "Armageddon_Stage3C_NativeItems_Evidence_Addendum.json"
+      "evidence_clarification": "Armageddon_Stage3C_NativeItems_Evidence_Addendum.json",
+      "followup": "Parent found mixed-stock selection and public constructor ABI P2s; corrected separately by Phase3C1P2. Original C1 receipt and evidence clarification remain immutable. No demonstrated creation, permanent output, expiry, rollback or restart defect in the parent review."
+    },
+    {
+      "id": "phase3C1_P2_purchase_selection_constructor_ABI",
+      "status": "implemented_verified_parent_independent_rereview_pending",
+      "implementation": "3d89f6014faaaeacdbae5baed684c26421ebfa37",
+      "base": "e127084be38b7098a437877188f211fce92d1d26",
+      "receipt": "Armageddon_Stage3C_NativeItems_P2_Verification.json",
+      "managed_runs": {
+        "shop_and_item_focused": "20261004T004609Z-bd2b2988b5e9",
+        "fast_all_ten_projects": "20261004T004633Z-d78db5575c2b"
+      },
+      "counts": {
+        "shop_and_item_focused": {
+          "executed": 52,
+          "passed": 52,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 52
+        },
+        "fast_all_ten_projects": {
+          "executed": 6882,
+          "passed": 6882,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 6882
+        }
+      },
+      "new_core_cases": 14,
+      "native_markers": 250,
+      "item_markers": 21,
+      "owned_databases_cleaned": 15,
+      "owned_processes_remaining": 0,
+      "frozen_inputs_matching": 283,
+      "binary_fingerprints": 19,
+      "parent_P2s": [
+        "Same-merchandise contamination blocked clean ordinary/exact purchases.",
+        "Restore original public three-argument GameItem constructor binary signature."
+      ],
+      "independent_adjacent_path_finding": "PreviewBuy must use the same clean selector for lawful checks and near-morph confirmation.",
+      "mixed_stock_quote_preview_execution_actual_buy_accept_managed_PASS": true,
+      "original_native_creation_expiry_rollback_restart_revalidated": true,
+      "prior_thirteen_receipts_1359_artifacts_36_helpers_unchanged": true,
+      "c1_evidence_addendum_and_two_clarification_helpers_unchanged": true,
+      "exact_source_tree_unchanged": true,
+      "next_feature_slice_started": false,
+      "installed_stock_N21_N25_not_qualified": true
     }
   ],
   "implementation_commits": [
@@ -3069,21 +3120,25 @@
     {
       "sha": "9e65d0a4b2fe75422d36dea299d787e21a9ae42c",
       "subject": "Add owned created leaf weapons with conserved native expiry and value guards"
+    },
+    {
+      "sha": "3d89f6014faaaeacdbae5baed684c26421ebfa37",
+      "subject": "Select clean purchase stock consistently and preserve GameItem constructor ABI"
     }
   ],
   "next_checkpoint": {
-    "status": "awaiting_parent_phase3C1_independent_review",
-    "base": "ec618c6bf046bf1fcfde4364fe0d48866070700e",
-    "implementation_head": "9e65d0a4b2fe75422d36dea299d787e21a9ae42c",
-    "receipt": "Armageddon_Stage3C_NativeItems_Verification.json",
+    "status": "awaiting_parent_phase3C1_P2_independent_rereview",
+    "base": "e127084be38b7098a437877188f211fce92d1d26",
+    "implementation_head": "3d89f6014faaaeacdbae5baed684c26421ebfa37",
+    "receipt": "Armageddon_Stage3C_NativeItems_P2_Verification.json",
     "implementation_verified": true,
     "previous_admission_parent_accepted": true,
-    "scope": "Owned one-item creation, prepared lifetime, permanent-grade output, native custody/expiry rollback and economy/casting-material refusal",
+    "scope": "Correct same-merchandise temporary-value selection across quote/preview/purchase and restore public constructor ABI.",
     "required_connection_ownership": "Explicit owned MySQL server/database validation at every native process/service boundary before use; no shared/default database; sanitized evidence",
     "N14_N15": "controlled_native_pass_full_installed_stock_pending",
     "N16": "partial_high_volume_pending",
     "independent_checkpoint_review_before_further_features": true,
-    "next_stage_after_review": "Choose the next stock-facing created-item food/liquid/light/placement profile, corpse animation or canonical projection prerequisite; retain required rider/guard/control/topology and full N14-N16 gates.",
+    "next_stage_after_review": "Parent selects continuation; no next item family has started. All required stock and later phases remain in the ledger.",
     "parent_accepted_durable_removal_P2_preserved": true,
     "parent_accepted_retirement_P2_protocols_preserved": true
   },
@@ -3162,9 +3217,10 @@
     },
     {
       "id": "created_leaf_weapon_lifecycle_value",
-      "status": "bounded_native_verified_parent_review_pending",
+      "status": "bounded_native_P2_corrections_verified_parent_rereview_pending",
       "receipt": "Armageddon_Stage3C_NativeItems_Verification.json",
-      "acceptance": "Actual native quantity-one private item/components and exact ownership, paid grade3 timed and grade7 permanent replacement weapon fixtures, real component/resource payment, immutable deadline/equipment, refusal of value conversion, callback/provider rollback and fresh-process expiry/quarantine. Stock profiles/event conversion/other item adapters remain pending."
+      "acceptance": "Actual native quantity-one private item/components and exact ownership, paid grade3 timed and grade7 permanent replacement weapon fixtures, real component/resource payment, immutable deadline/equipment, refusal of value conversion, callback/provider rollback and fresh-process expiry/quarantine. Stock profiles/event conversion/other item adapters remain pending.",
+      "correction_receipt": "Armageddon_Stage3C_NativeItems_P2_Verification.json"
     }
   ]
 }

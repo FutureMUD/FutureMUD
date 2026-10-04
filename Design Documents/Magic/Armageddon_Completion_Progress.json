@@ -39,7 +39,7 @@
   "preparation_baseline": "b0e4339d57bf15bc6e6a6f21fbdd5edc73006e38",
   "implementation_branch": "codex/armageddon-completion-phase1",
   "authorised_scope": "Complete plan in coherent stages; local commits; no publication, merge, deploy or shared/production DB",
-  "selected_stage": "Bounded stock Raise Servitor implemented and verified; parent review and authorized security-master integration pending",
+  "selected_stage": "Bounded stock Raise Servitor and verified security-master integration implemented and tested; parent review pending",
   "phase1_remaining": [
     "Stock installer selects and qualifies the mental/spiritual native attribute, capacity expression/basis and authored energy coefficients.",
     "Complete installed source/support/crafting/chargen wiring and gathering restrictions/environmental accounting remain later stock/native gates.",
@@ -3333,6 +3333,96 @@
         "Guard and rescue are deliberately excluded from the bounded stock allowlist because existing native guard ownership and rescue removal callbacks require separate repair. This checkpoint fixes only the selected-action consumption and retirement cleanup needed by included stock orders.",
         "Fresh stock readers prove persisted control/identity/formula/deadline queries without actor materialization. The rerun 39-marker corpse packet supplies the separately qualified paid active/pending/completed morphing restart evidence; these are not full production boots.",
         "Other 262 historical native markers were not rerun. Earlier failures, receipts and the complete seven-phase plan remain preserved. Security master integration is separately authorized only after this clean checkpoint; no Armageddon publication or production/shared database access is authorized."
+      ],
+      "implementation_commit": "3507170c1f85e7e2e88855ab91174ca23e531eb2"
+    },
+    {
+      "id": "security_master_integration_93297ccb",
+      "status": "integration_verified_parent_review_pending",
+      "preintegration_commit": "3507170c1f85e7e2e88855ab91174ca23e531eb2",
+      "verified_master": "93297ccb8e85fe3d7099f22b8c917cb74b903fa8",
+      "verified_tree": "1042a5856eaaa1e7dc7c298909b02624ac239916",
+      "master_parents": [
+        "b0e4339d57bf15bc6e6a6f21fbdd5edc73006e38",
+        "3817dfc2e693f4810e60ff9cac577db29b91e1ff"
+      ],
+      "receipt": "Armageddon_SecurityMaster_Integration_Verification.json",
+      "security_paths": [
+        "Design Documents/Crafting/Projects_System_Builder_Workflows.md",
+        "Design Documents/Crafting/Projects_System_Overview.md",
+        "Design Documents/Economy/Clan_Command_Surface_and_Permissions.md",
+        "Design Documents/Economy/Economy_System_Runtime.md",
+        "Design Documents/Economy/Economy_System_Workflows_and_Integration.md",
+        "Design Documents/Economy/Law_System_Runtime.md",
+        "Design Documents/Technology/FutureMUD_Computer_Programs_Concept_Design.md",
+        "Design Documents/Technology/Media_System_Runtime_and_Workflows.md",
+        "Design Documents/World/Time_And_Date_System.md",
+        "FutureMUDLibrary Unit Tests/NumericNameSuffixTests.cs",
+        "FutureMUDLibrary Unit Tests/RecurringIntervalNumericValidationTests.cs",
+        "FutureMUDLibrary/Framework/StringExtensions.cs",
+        "FutureMUDLibrary/TimeAndDate/Intervals/RecurringInterval.cs",
+        "MudSharpCore Unit Tests/Community/ClanBudgetLengthTests.cs",
+        "MudSharpCore Unit Tests/Economy/VirtualCashLedgerCompatibilityTests.cs",
+        "MudSharpCore Unit Tests/MediaErasureTests.cs",
+        "MudSharpCore Unit Tests/NetworkSwitchStateTests.cs",
+        "MudSharpCore Unit Tests/OutfitTeachingNumericNameTests.cs",
+        "MudSharpCore Unit Tests/ProjectQueuePreferenceTests.cs",
+        "MudSharpCore Unit Tests/RPG/Law/EmptyPatrolRouteTests.cs",
+        "MudSharpCore/Character/CharacterWork.cs",
+        "MudSharpCore/Commands/Modules/CraftModule.cs",
+        "MudSharpCore/Commands/Modules/ElectronicsModule.cs",
+        "MudSharpCore/Commands/Modules/LegalModule.cs",
+        "MudSharpCore/Community/Clan.Finance.cs",
+        "MudSharpCore/Community/ClanBudget.cs",
+        "MudSharpCore/Community/ClanBudgetTransaction.cs",
+        "MudSharpCore/Economy/Banking/BankAccount.cs",
+        "MudSharpCore/Economy/VirtualCashLedger.cs",
+        "MudSharpCore/GameItems/Components/ImplantAVRecorderGameItemComponent.cs",
+        "MudSharpCore/GameItems/Components/NetworkSwitchGameItemComponent.cs",
+        "MudSharpCore/RPG/Law/PatrolStrategies/DoorDutiesPatrolStrategy.cs",
+        "MudSharpCore/Work/Projects/ConcreteTypes/ProjectLabourQueueEntry.cs"
+      ],
+      "armageddon_overlap": [
+        "Design Documents/Economy/Economy_System_Runtime.md",
+        "Design Documents/Economy/Law_System_Runtime.md",
+        "MudSharpCore/Character/CharacterWork.cs"
+      ],
+      "conflicts": [],
+      "managed_runs": {
+        "focused": "20261004T202103Z-1df9767736dd",
+        "Fast": "20261004T202307Z-a9187b7bd2c4"
+      },
+      "managed_counts": {
+        "focused": {
+          "executed": 809,
+          "passed": 809,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 809
+        },
+        "Fast": {
+          "executed": 7163,
+          "passed": 7163,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 7163
+        }
+      },
+      "native_markers": 9,
+      "stock_markers": 8,
+      "owned_databases_cleaned": 1,
+      "owned_processes_remaining": 0,
+      "qualification_limits": [
+        "The original stock checkpoint remains a separate immutable commit 3507170c1f85e7e2e88855ab91174ca23e531eb2, with 667 focused, 6959 Fast and 47 native markers on five cleaned owned databases. Its evidence, failed attempts and earlier complete acceptance chain are preserved unchanged.",
+        "This integration adds only the exact parent-reviewed security master and ledger/evidence documents. The 33 security files merge cleanly; overlap review is limited to CharacterWork and the two economy/law documents. It does not re-review every security fix.",
+        "Post-integration native acceptance reruns the eight bounded stock markers plus the connection guard on one fresh owned loopback database. The prior 39-marker corpse/restart packet and other 262 historical native markers were not rerun after integration.",
+        "Stock qualification still uses controlled world/anatomy catalogues and specialized caster Save. Damage/defence delivery, autonomous historical aggression, guard/rescue, PC-corpse stock casts, arbitrary callbacks, full production boot/Telnet, concurrency and complete N14-N16 acceptance are not qualified.",
+        "The seven-phase plan, all 16 approved decisions, 154 candidates, 82 Sorcerer spells plus 12 support rows and 25 native acceptance scenarios remain required. Complete installer, portable production, remaining effects and larger features, stock acquisition/crafting/chargen/energy wiring and release qualification remain pending.",
+        "Parent review of the exact bounded stock and integration result is the next gate before later repertoire implementation. Repository publication, remote merge, deployment and production/shared database access are not authorized. No billing, credit or quota-reset action was performed."
       ]
     }
   ],
@@ -3459,13 +3549,15 @@
     }
   ],
   "next_checkpoint": {
-    "status": "authorized_security_integration_after_clean_stock_commit_then_parent_review",
-    "base": "812020244974323bcc75b2dee2e212e3110ff101",
+    "status": "awaiting_parent_stock_and_security_integration_review",
+    "stock_implementation_commit": "3507170c1f85e7e2e88855ab91174ca23e531eb2",
     "verified_security_master": "93297ccb8e85fe3d7099f22b8c917cb74b903fa8",
     "stock_receipt": "Armageddon_Stage3D1Stock_RaiseServitor_Verification.json",
-    "scope": "Preserve the stock preintegration commit, integrate only the verified security master in this isolated branch, qualify affected overlaps and return to parent review before further repertoire work.",
+    "integration_receipt": "Armageddon_SecurityMaster_Integration_Verification.json",
+    "scope": "Parent reviews the exact stock and isolated security integration, then selects the earliest unmet stock-required dependency; no later repertoire slice started.",
     "primary_checkout_must_remain_unchanged": true,
-    "publication_authorized": false
+    "publication_authorized": false,
+    "full_plan_complete": false
   },
   "deferred_consultation": {
     "source_task": "01a0fc1f-ccd4-7359-95f2-f8c03724b0b1",
@@ -3566,7 +3658,8 @@
       "restart_correction_receipt": "Armageddon_Stage3D1P1_SavedParent_Verification.json",
       "morph_restart_receipt": "Armageddon_Stage3D1P1M_MorphRestart_Verification.json",
       "stock_receipt": "Armageddon_Stage3D1Stock_RaiseServitor_Verification.json",
-      "parent_verified_morph_restart_head": "812020244974323bcc75b2dee2e212e3110ff101"
+      "parent_verified_morph_restart_head": "812020244974323bcc75b2dee2e212e3110ff101",
+      "security_integration_receipt": "Armageddon_SecurityMaster_Integration_Verification.json"
     }
   ],
   "checkpoint_history": [
@@ -3589,6 +3682,15 @@
       "implementation_head": "b4237365b6b1d26cf4f9ca37ee300d60e1255664",
       "receipt": "Armageddon_Stage3D1_CorpseAnimation_Verification.json",
       "next_stage_after_review": "Parent selects the next unmet stock-required Phase3 dependency; no later slice started."
+    },
+    {
+      "status": "authorized_security_integration_after_clean_stock_commit_then_parent_review",
+      "base": "812020244974323bcc75b2dee2e212e3110ff101",
+      "verified_security_master": "93297ccb8e85fe3d7099f22b8c917cb74b903fa8",
+      "stock_receipt": "Armageddon_Stage3D1Stock_RaiseServitor_Verification.json",
+      "scope": "Preserve the stock preintegration commit, integrate only the verified security master in this isolated branch, qualify affected overlaps and return to parent review before further repertoire work.",
+      "primary_checkout_must_remain_unchanged": true,
+      "publication_authorized": false
     }
   ]
 }

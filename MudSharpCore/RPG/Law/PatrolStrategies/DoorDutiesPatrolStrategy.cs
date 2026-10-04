@@ -339,7 +339,12 @@ Normal uses the assigned DoorguardAI's existing will-open rules, such as clan-br
 	public override IEnumerable<ICharacter> SelectEnforcers(IPatrolRoute patrol, IEnumerable<ICharacter> pool,
 		int numberToPick)
 	{
-		ICell node = patrol.PatrolNodes.First();
+		ICell node = patrol.PatrolNodes.FirstOrDefault();
+		if (node is null)
+		{
+			return Enumerable.Empty<ICharacter>();
+		}
+
 		List<ICharacter> selected = new();
 		selected.AddRange(pool.Where(x => x.Location == node).PickUpToRandom(numberToPick));
 		if (selected.Count >= numberToPick)

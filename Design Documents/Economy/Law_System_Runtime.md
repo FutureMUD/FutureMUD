@@ -202,6 +202,8 @@ The `legal status [authority]` admin command and the player-facing `legalstatus 
 
 The status report separates setup issues from ordinary runtime waiting. For example, a patrol route waiting for a crime trigger, corpse report, due condemned prisoner, active-patrol slot, or allowed time of day is not treated as broken setup. Missing route nodes, unready routes, missing required enforcers, missing enforcement zones, incomplete strategy configuration, and failed strategy-specific enforcer selection are reported as setup problems.
 
+Routes with a known setup blocker report that reason without running staffing selection. Startable routes and routes waiting for an ordinary runtime condition still receive staffing checks. Door-duty selection returns no enforcers when its route has no duty node; valid routes still prefer enforcers already at the duty node before selecting from the remaining pool.
+
 The report also checks the common legal-system stock failures:
 
 - execution patrols using coup de grace need a suitable melee weapon in the equipment room

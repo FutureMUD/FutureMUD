@@ -17,6 +17,10 @@ public class NetworkSwitchGameItemComponent : PoweredMachineBaseGameItemComponen
 	private NetworkSwitchGameItemComponentProto _prototype;
 	private INetworkInfrastructure? _connectedInfrastructure;
 	private ITelecommunicationsGrid? _directTelecommunicationsGrid;
+	[ThreadStatic]
+	private static HashSet<NetworkSwitchGameItemComponent>? _activeGridQueries;
+	[ThreadStatic]
+	private static HashSet<NetworkSwitchGameItemComponent>? _activeTransportQueries;
 
 	public NetworkSwitchGameItemComponent(NetworkSwitchGameItemComponentProto proto, IGameItem parent,
 		bool temporary = false)
@@ -43,7 +47,23 @@ public class NetworkSwitchGameItemComponent : PoweredMachineBaseGameItemComponen
 	public override IGameItemComponentProto Prototype => _prototype;
 	public ITelecommunicationsGrid? TelecommunicationsGrid
 	{
-		get => _connectedInfrastructure?.TelecommunicationsGrid ?? _directTelecommunicationsGrid;
+		get
+		{
+			var activeQueries = _activeGridQueries ??= new(ReferenceEqualityComparer.Instance);
+			if (!activeQueries.Add(this))
+			{
+				return null;
+			}
+
+			try
+			{
+				return _connectedInfrastructure?.TelecommunicationsGrid ?? _directTelecommunicationsGrid;
+			}
+			finally
+			{
+				activeQueries.Remove(this);
+			}
+		}
 		set
 		{
 			if (ReferenceEquals(_directTelecommunicationsGrid, value))
@@ -57,10 +77,28 @@ public class NetworkSwitchGameItemComponent : PoweredMachineBaseGameItemComponen
 		}
 	}
 
-	public bool NetworkTransportReady =>
-		IsPowered && SwitchedOn &&
-		(_connectedInfrastructure?.NetworkTransportReady ?? _directTelecommunicationsGrid is not null) &&
-		TelecommunicationsGrid is not null;
+	public bool NetworkTransportReady
+	{
+		get
+		{
+			var activeQueries = _activeTransportQueries ??= new(ReferenceEqualityComparer.Instance);
+			if (!activeQueries.Add(this))
+			{
+				return false;
+			}
+
+			try
+			{
+				return IsPowered && SwitchedOn &&
+				       (_connectedInfrastructure?.NetworkTransportReady ?? _directTelecommunicationsGrid is not null) &&
+				       TelecommunicationsGrid is not null;
+			}
+			finally
+			{
+				activeQueries.Remove(this);
+			}
+		}
+	}
 	public IEnumerable<ConnectorType> Connections => _prototype.Connections;
 	public IEnumerable<Tuple<ConnectorType, IConnectable>> ConnectedItems => _connectedItems.ToList();
 	public IEnumerable<ConnectorType> FreeConnections

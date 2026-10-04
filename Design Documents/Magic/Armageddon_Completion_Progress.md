@@ -1013,3 +1013,16 @@ Parent cleared morph restart at `812020244974323bcc75b2dee2e212e3110ff101`. The 
 - [ ] Integrate parent-verified security master only after this checkpoint is committed; parent reviews exact result before later repertoire work.
 
 Guard/rescue orders, autonomous historical aggression and damage delivery are not qualified. Controlled world/anatomy/caster Save, full boot/Telnet, PC-corpse stock casting and concurrency boundaries remain explicit. The other 262 historical native markers were not rerun. Complete installer and later whole-plan gates remain required. See [Armageddon_Stage3D1Stock_RaiseServitor_Verification.json](Armageddon_Stage3D1Stock_RaiseServitor_Verification.json).
+
+
+## Verified security-master integration - parent review pending
+
+Stock Raise Servitor is sealed separately at `3507170c1f85e7e2e88855ab91174ca23e531eb2`. The isolated branch integrates parent-verified master `93297ccb8e85fe3d7099f22b8c917cb74b903fa8`, tree `1042a5856eaaa1e7dc7c298909b02624ac239916`, retaining that stock commit as the first parent.
+
+- [x] Exact master tree and both parents verified; 33 security files merged with no conflicts. The three overlap files preserve canonical project ownership/casting-capacity notifications and both branches' design contracts; independent overlap review has no established P1/P2 findings.
+- [x] 809 focused and 7,163 Fast tests passed, zero failures/skips and stable inputs.
+- [x] Eight bounded stock native markers plus connection guard passed after integration on one cleaned owned database; zero owned processes. All prior stock evidence and its 47-marker packet remain immutable.
+- [x] Protected primary checkout remains at `aca21bfc39298199291933375226d8982352420d` on `codex/monster-ai-v1`; all seven phases, 16 decisions, 154 candidates, 82+12 source rows and 25 complete-plan native scenarios preserved.
+- [ ] Parent reviews the stock and exact local integration before later repertoire work. Complete installer, portable production, remaining lifecycle/effect/topology/charm features, stock wiring and full native release acceptance remain required.
+
+The 39-marker corpse/restart packet and 262 other historical native markers were not rerun after integration. Stock still has the documented controlled-world, caster Save, damage/defence, guard/rescue, PC-corpse, full boot/Telnet and concurrency limits. No remote publication, deployment, production/shared database or billing/reset actions occurred. See [Armageddon_SecurityMaster_Integration_Verification.json](Armageddon_SecurityMaster_Integration_Verification.json).

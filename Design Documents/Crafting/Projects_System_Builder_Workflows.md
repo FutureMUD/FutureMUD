@@ -164,6 +164,7 @@ Current behavior:
 - adding a start entry requires current catalogue visibility but deliberately does not require initiation eligibility yet
 - blocked entries remain queued and show statuses such as `Waiting For Initiation`, `Waiting For Labour Selection`, `Waiting For Slot`, `Waiting For Qualification`, `Waiting For Location`, or `Waiting For Funding`; later ready entries are still considered once per activation pass
 - automatic labour selection only proceeds when exactly one qualified role can be joined; otherwise set a labour preference explicitly
+- labour preferences are limited to 100 characters by their storage column; adding or editing a longer preference gives an error and leaves the queue unchanged
 - duration entries count successfully funded labour time only; phase and completion entries retain their linked active instance across phase changes
 - a player queue entry can become `Ready` when the only occupied slot is held by an NPC who can be displaced
 - stale join entries are removed automatically when their project disappears

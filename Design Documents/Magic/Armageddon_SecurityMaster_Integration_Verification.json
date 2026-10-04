@@ -1,0 +1,896 @@
+{
+  "schema_version": 1,
+  "stage": "Local security-master integration after bounded stock Raise Servitor",
+  "status": "integration_verified_parent_review_pending",
+  "preintegration_commit": "3507170c1f85e7e2e88855ab91174ca23e531eb2",
+  "verified_master": "93297ccb8e85fe3d7099f22b8c917cb74b903fa8",
+  "verified_tree": "1042a5856eaaa1e7dc7c298909b02624ac239916",
+  "master_parents": [
+    "b0e4339d57bf15bc6e6a6f21fbdd5edc73006e38",
+    "3817dfc2e693f4810e60ff9cac577db29b91e1ff"
+  ],
+  "branch": "codex/armageddon-completion-phase1",
+  "recorded_utc": "2026-10-04T20:31:28.283827+00:00",
+  "security_paths": [
+    "Design Documents/Crafting/Projects_System_Builder_Workflows.md",
+    "Design Documents/Crafting/Projects_System_Overview.md",
+    "Design Documents/Economy/Clan_Command_Surface_and_Permissions.md",
+    "Design Documents/Economy/Economy_System_Runtime.md",
+    "Design Documents/Economy/Economy_System_Workflows_and_Integration.md",
+    "Design Documents/Economy/Law_System_Runtime.md",
+    "Design Documents/Technology/FutureMUD_Computer_Programs_Concept_Design.md",
+    "Design Documents/Technology/Media_System_Runtime_and_Workflows.md",
+    "Design Documents/World/Time_And_Date_System.md",
+    "FutureMUDLibrary Unit Tests/NumericNameSuffixTests.cs",
+    "FutureMUDLibrary Unit Tests/RecurringIntervalNumericValidationTests.cs",
+    "FutureMUDLibrary/Framework/StringExtensions.cs",
+    "FutureMUDLibrary/TimeAndDate/Intervals/RecurringInterval.cs",
+    "MudSharpCore Unit Tests/Community/ClanBudgetLengthTests.cs",
+    "MudSharpCore Unit Tests/Economy/VirtualCashLedgerCompatibilityTests.cs",
+    "MudSharpCore Unit Tests/MediaErasureTests.cs",
+    "MudSharpCore Unit Tests/NetworkSwitchStateTests.cs",
+    "MudSharpCore Unit Tests/OutfitTeachingNumericNameTests.cs",
+    "MudSharpCore Unit Tests/ProjectQueuePreferenceTests.cs",
+    "MudSharpCore Unit Tests/RPG/Law/EmptyPatrolRouteTests.cs",
+    "MudSharpCore/Character/CharacterWork.cs",
+    "MudSharpCore/Commands/Modules/CraftModule.cs",
+    "MudSharpCore/Commands/Modules/ElectronicsModule.cs",
+    "MudSharpCore/Commands/Modules/LegalModule.cs",
+    "MudSharpCore/Community/Clan.Finance.cs",
+    "MudSharpCore/Community/ClanBudget.cs",
+    "MudSharpCore/Community/ClanBudgetTransaction.cs",
+    "MudSharpCore/Economy/Banking/BankAccount.cs",
+    "MudSharpCore/Economy/VirtualCashLedger.cs",
+    "MudSharpCore/GameItems/Components/ImplantAVRecorderGameItemComponent.cs",
+    "MudSharpCore/GameItems/Components/NetworkSwitchGameItemComponent.cs",
+    "MudSharpCore/RPG/Law/PatrolStrategies/DoorDutiesPatrolStrategy.cs",
+    "MudSharpCore/Work/Projects/ConcreteTypes/ProjectLabourQueueEntry.cs"
+  ],
+  "armageddon_overlap": [
+    "Design Documents/Economy/Economy_System_Runtime.md",
+    "Design Documents/Economy/Law_System_Runtime.md",
+    "MudSharpCore/Character/CharacterWork.cs"
+  ],
+  "merge_conflicts": [],
+  "managed": {
+    "focused": {
+      "run_id": "20261004T202103Z-1df9767736dd",
+      "head": "3507170c1f85e7e2e88855ab91174ca23e531eb2",
+      "status": "PASS",
+      "counts": {
+        "executed": 809,
+        "passed": 809,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 809
+      },
+      "filter": "FullyQualifiedName~ClanBudgetLengthTests|FullyQualifiedName~VirtualCashLedgerCompatibilityTests|FullyQualifiedName~MediaErasureTests|FullyQualifiedName~NetworkSwitchStateTests|FullyQualifiedName~OutfitTeachingNumericNameTests|FullyQualifiedName~ProjectQueuePreferenceTests|FullyQualifiedName~EmptyPatrolRouteTests|FullyQualifiedName~CombatStrategyRuntimeTests|FullyQualifiedName~SpellAnimationControlTests|FullyQualifiedName~CommandableAiTests|FullyQualifiedName~ItemMorphBootTests|FullyQualifiedName~SpellAnimationReloadTests|FullyQualifiedName~BootLoadingRegressionTests|FullyQualifiedName~SpellAnimationSchedulerTests|FullyQualifiedName~RuntimeSchedulerTests|FullyQualifiedName~Rejuvenation|FullyQualifiedName~MagicSpellPhaseOneTests|FullyQualifiedName~SpellOwnedCorpseAnimationTests|FullyQualifiedName~BodyFormProvisioningTests|FullyQualifiedName~CharacterInstance|FullyQualifiedName~MagicCasting|FullyQualifiedName~SpellOwnedItemTests|FullyQualifiedName~ForeignCustodySaveJournalTests|FullyQualifiedName~PossessionReviewFindingSourceTests|FullyQualifiedName~SpellOwnedNpcRetirementTests",
+      "configuration": "Debug",
+      "sdk": "10.0.401",
+      "started_utc": "2026-10-04T20:21:03.8695190+00:00",
+      "ended_utc": "2026-10-04T20:22:30.9701897+00:00",
+      "source_start": "d3163715529ee5927adbd02b2bf84dc99d37f05b745167722782bb430267a2c6",
+      "source_end": "d3163715529ee5927adbd02b2bf84dc99d37f05b745167722782bb430267a2c6",
+      "source_stable": true,
+      "execution_complete": true,
+      "counts_complete": true,
+      "projects": [
+        "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+      ],
+      "issues": [],
+      "summary": ".artifacts/test-runs/managed-armageddon-20261004-security-integration/20261004T202103Z-1df9767736dd/summary.json",
+      "summary_sha256": "a50b43757a8a696c18ed8d2764c2a19ef1ae27ad9b1022d199c82ddc14467c19",
+      "project_counts": [
+        {
+          "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+          "counts": {
+            "executed": 809,
+            "passed": 809,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 809
+          }
+        }
+      ]
+    },
+    "Fast": {
+      "run_id": "20261004T202307Z-a9187b7bd2c4",
+      "head": "3507170c1f85e7e2e88855ab91174ca23e531eb2",
+      "status": "PASS",
+      "counts": {
+        "executed": 7163,
+        "passed": 7163,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 7163
+      },
+      "filter": null,
+      "configuration": "Debug",
+      "sdk": "10.0.401",
+      "started_utc": "2026-10-04T20:23:07.8638487+00:00",
+      "ended_utc": "2026-10-04T20:26:29.1409458+00:00",
+      "source_start": "d2fcc83de704992da9ede42f6197ba52dad246184df4fa5ae4489a8243ebd033",
+      "source_end": "d2fcc83de704992da9ede42f6197ba52dad246184df4fa5ae4489a8243ebd033",
+      "source_stable": true,
+      "execution_complete": true,
+      "counts_complete": true,
+      "projects": [
+        "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+        "ExpressionEngine Unit Tests/ExpressionEngine Unit Tests.csproj",
+        "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+        "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+        "MudsharpDatabaseLibrary Unit Tests/MudsharpDatabaseLibrary Unit Tests.csproj",
+        "DiscordBotCore Unit Tests/DiscordBotCore Unit Tests.csproj",
+        "RPI Engine Worldfile Converter Tests/RPI Engine Worldfile Converter Tests.csproj",
+        "FutureMUD.Web.Tests/FutureMUD.Web.Tests.csproj",
+        "TerrainPlanner/TerrainPlanner.Tests/TerrainPlanner.Tests.csproj",
+        "scripts/TestReporting.Tests/TestReporting.Tests.csproj"
+      ],
+      "issues": [],
+      "summary": ".artifacts/test-runs/managed-armageddon-20261004-security-integration/20261004T202307Z-a9187b7bd2c4/summary.json",
+      "summary_sha256": "88134db94840421f24b22fa86fc504bd28f9a8a4aadbff866d409dfcc3e3842e",
+      "project_counts": [
+        {
+          "project": "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+          "counts": {
+            "executed": 631,
+            "passed": 631,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 631
+          }
+        },
+        {
+          "project": "ExpressionEngine Unit Tests/ExpressionEngine Unit Tests.csproj",
+          "counts": {
+            "executed": 36,
+            "passed": 36,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 36
+          }
+        },
+        {
+          "project": "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+          "counts": {
+            "executed": 1441,
+            "passed": 1441,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 1441
+          }
+        },
+        {
+          "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+          "counts": {
+            "executed": 4797,
+            "passed": 4797,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 4797
+          }
+        },
+        {
+          "project": "MudsharpDatabaseLibrary Unit Tests/MudsharpDatabaseLibrary Unit Tests.csproj",
+          "counts": {
+            "executed": 67,
+            "passed": 67,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 67
+          }
+        },
+        {
+          "project": "DiscordBotCore Unit Tests/DiscordBotCore Unit Tests.csproj",
+          "counts": {
+            "executed": 22,
+            "passed": 22,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 22
+          }
+        },
+        {
+          "project": "RPI Engine Worldfile Converter Tests/RPI Engine Worldfile Converter Tests.csproj",
+          "counts": {
+            "executed": 43,
+            "passed": 43,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 43
+          }
+        },
+        {
+          "project": "FutureMUD.Web.Tests/FutureMUD.Web.Tests.csproj",
+          "counts": {
+            "executed": 54,
+            "passed": 54,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 54
+          }
+        },
+        {
+          "project": "TerrainPlanner/TerrainPlanner.Tests/TerrainPlanner.Tests.csproj",
+          "counts": {
+            "executed": 34,
+            "passed": 34,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 34
+          }
+        },
+        {
+          "project": "scripts/TestReporting.Tests/TestReporting.Tests.csproj",
+          "counts": {
+            "executed": 38,
+            "passed": 38,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 38
+          }
+        }
+      ]
+    }
+  },
+  "native": {
+    "status": "PASS",
+    "exit": {
+      "exit_code": 0,
+      "ended_utc": "2026-10-04T20:30:16.1337581Z",
+      "mode": "Stock"
+    },
+    "passed_markers": [
+      "ARM03B2B-connection-refusals=passed unowned-host shared-default blank-database unregistered-owned-prefix all-refused-before-connect",
+      "ARM03D1Stock-install=passed normal-spell-builder atomic-stock-plus-two-real-AIs two-compiled-progs source-duration-formulas definition-save-reload control-bound-refused-before-payment no-reagent no-automatic-capability duplicate-refused",
+      "ARM03D1Stock-control-combat=passed creator-not-corpse-owner stranger-refused native-follow-alias unlisted-quit-refused real-hit-command mutual-SimpleMeleeCombat native-combat-schedules",
+      "ARM03D1Stock-native-cell-combat-retire=passed real-Cell-Insert-Extract-Save queued-save-after-hide-and-restore selected-inventory-action-executed consumed-and-pending-action-unsubscribed continuing-three-actor-combat native-combat-leave both-scheduler-queues-cancelled follow-unsubscribed exact-corpse-body-foreign-gear",
+      "ARM03D1Stock-two-deadlines=passed grade3-control-5399s animation-7799s real-affect-seconds independent-follow-link paid-parent-effect-scheduler-expiry same-corpse",
+      "ARM03D1Stock-terrain=passed compiled-stock-prog actual-Silt-and-Shallows-terrains no-command-grant independent-native-follow-link",
+      "ARM03D1Stock-reader=passed fresh-process durable-control-query persisted-stock-identity-formula-and-animation-deadline no-actor-materialization-or-replay",
+      "ARM03D1Stock-reader=passed fresh-process durable-control-query persisted-stock-identity-formula-and-animation-deadline no-actor-materialization-or-replay",
+      "ARM03D1Stock-held-retirement=passed actual-DELETE-refusal real-cell-save native-combat-leave no-queued-actions no-command-grant exact-retry repeated-retirement same-canonical-body-corpse-foreign-item"
+    ],
+    "stock_markers": 8,
+    "count": 9,
+    "log": ".artifacts/test-runs/armageddon-20261004-security-integration/integration-final-native.log",
+    "sha256": "d8a89a457ca248c92a533be610bd8247f3b4bb4c02b78cdc0dfb2f4c800a53a2",
+    "owned_databases_cleaned": 1,
+    "isolated_instance_cleanup": true,
+    "connection_boundaries": 4277,
+    "native_pids": [
+      9100,
+      46716,
+      75248,
+      90364
+    ],
+    "preservation": {
+      "checked_utc": "2026-10-04T20:30:59.8955381Z",
+      "primary_head": "aca21bfc39298199291933375226d8982352420d",
+      "primary_branch": "codex/monster-ai-v1",
+      "primary_status": [
+        "?? .artifacts/"
+      ],
+      "primary_head_branch_status_unchanged": true,
+      "owned_processes_remaining": 0,
+      "process_query_succeeded": true,
+      "process_query_scope": "Read-only native harness paths and isolated MySQL prefix; no termination or database access.",
+      "local_integration_target": "93297ccb8e85fe3d7099f22b8c917cb74b903fa8",
+      "publication_deployment_actions": [],
+      "production_or_shared_database_access": [],
+      "primary_mutations": []
+    }
+  },
+  "source_review": {
+    "status": "no_remaining_established_P1_P2_in_three_file_overlap",
+    "reviewer": "fm_reviewer",
+    "recorded_utc": "2026-10-04T20:24:34.910879+00:00",
+    "preintegration_commit": "3507170c1f85e7e2e88855ab91174ca23e531eb2",
+    "merge_head": "93297ccb8e85fe3d7099f22b8c917cb74b903fa8",
+    "findings": [],
+    "clearance": [
+      "Canonical ProjectQueueOwner routing and all three accepted casting-capacity notifications retained.",
+      "Only CharacterWork change is preference-length validation before queue mutation or dirty-state changes; constructor/setter and boundary tests match the verified security tree.",
+      "Both economy/law documents preserve accepted Armageddon content and add the reviewed security paragraphs unchanged.",
+      "No unresolved index entries or unstaged differences in the three overlap files."
+    ],
+    "read_boundaries": [
+      "CharacterWork staged comparisons against both trees; persistence, canonical ownership and mutation code through line243.",
+      "Economy runtime and Law runtime overlap diffs and security paragraph comparison.",
+      "ProjectLabourQueueEntry constructors, validation and setter ordering; complete ProjectQueuePreferenceTests."
+    ],
+    "files": [
+      {
+        "path": "Design Documents/Economy/Economy_System_Runtime.md",
+        "sha256": "ed2bb03a17f6d831bffbc7212befc5418167fbede509bb670e67a572952069d8"
+      },
+      {
+        "path": "Design Documents/Economy/Law_System_Runtime.md",
+        "sha256": "42781b11afec0562a4c42f687af964223d0ba93fe89f1994805a1a46c319dd1d"
+      },
+      {
+        "path": "MudSharpCore/Character/CharacterWork.cs",
+        "sha256": "5d91069909dc244cfba542bde04526ef62e3cd19a134e72db030b2ed67e50265"
+      },
+      {
+        "path": "MudSharpCore/Work/Projects/ConcreteTypes/ProjectLabourQueueEntry.cs",
+        "sha256": "04f249676888f37854ca985bd8d2433807ad9bf38b8a754f46422b30cad495c2"
+      },
+      {
+        "path": "MudSharpCore Unit Tests/ProjectQueuePreferenceTests.cs",
+        "sha256": "493f3d2efc7ed7335bf58e90381a31745d917641eb81d637476b502a958d3612"
+      }
+    ],
+    "limits": [
+      "Source-only overlap clearance; other security paths already reviewed by parent, not re-reviewed here.",
+      "No build, test, database operation or source mutation by reviewer; execution qualification belongs to coordinator."
+    ]
+  },
+  "native_build": {
+    "exit_code": 0,
+    "ended_utc": "2026-10-04T20:27:53.0574588Z",
+    "configuration": "Debug",
+    "no_restore": true
+  },
+  "whole_plan": {
+    "phases": 7,
+    "approved_decisions": 16,
+    "candidates": 154,
+    "selected_sorcerer_spells": 82,
+    "support_source_rows": 12,
+    "source_tree_rows": 94,
+    "native_acceptance_scenarios": 25,
+    "source_tree_sha256": "ada4e574d1c2243b2bad30cb0d65b98a5413a20ad1d8917965335fb9e481d496"
+  },
+  "durable_check": {
+    "id": "security_master_integration_93297ccb",
+    "status": "integration_verified_parent_review_pending",
+    "preintegration_commit": "3507170c1f85e7e2e88855ab91174ca23e531eb2",
+    "verified_master": "93297ccb8e85fe3d7099f22b8c917cb74b903fa8",
+    "verified_tree": "1042a5856eaaa1e7dc7c298909b02624ac239916",
+    "master_parents": [
+      "b0e4339d57bf15bc6e6a6f21fbdd5edc73006e38",
+      "3817dfc2e693f4810e60ff9cac577db29b91e1ff"
+    ],
+    "receipt": "Armageddon_SecurityMaster_Integration_Verification.json",
+    "security_paths": [
+      "Design Documents/Crafting/Projects_System_Builder_Workflows.md",
+      "Design Documents/Crafting/Projects_System_Overview.md",
+      "Design Documents/Economy/Clan_Command_Surface_and_Permissions.md",
+      "Design Documents/Economy/Economy_System_Runtime.md",
+      "Design Documents/Economy/Economy_System_Workflows_and_Integration.md",
+      "Design Documents/Economy/Law_System_Runtime.md",
+      "Design Documents/Technology/FutureMUD_Computer_Programs_Concept_Design.md",
+      "Design Documents/Technology/Media_System_Runtime_and_Workflows.md",
+      "Design Documents/World/Time_And_Date_System.md",
+      "FutureMUDLibrary Unit Tests/NumericNameSuffixTests.cs",
+      "FutureMUDLibrary Unit Tests/RecurringIntervalNumericValidationTests.cs",
+      "FutureMUDLibrary/Framework/StringExtensions.cs",
+      "FutureMUDLibrary/TimeAndDate/Intervals/RecurringInterval.cs",
+      "MudSharpCore Unit Tests/Community/ClanBudgetLengthTests.cs",
+      "MudSharpCore Unit Tests/Economy/VirtualCashLedgerCompatibilityTests.cs",
+      "MudSharpCore Unit Tests/MediaErasureTests.cs",
+      "MudSharpCore Unit Tests/NetworkSwitchStateTests.cs",
+      "MudSharpCore Unit Tests/OutfitTeachingNumericNameTests.cs",
+      "MudSharpCore Unit Tests/ProjectQueuePreferenceTests.cs",
+      "MudSharpCore Unit Tests/RPG/Law/EmptyPatrolRouteTests.cs",
+      "MudSharpCore/Character/CharacterWork.cs",
+      "MudSharpCore/Commands/Modules/CraftModule.cs",
+      "MudSharpCore/Commands/Modules/ElectronicsModule.cs",
+      "MudSharpCore/Commands/Modules/LegalModule.cs",
+      "MudSharpCore/Community/Clan.Finance.cs",
+      "MudSharpCore/Community/ClanBudget.cs",
+      "MudSharpCore/Community/ClanBudgetTransaction.cs",
+      "MudSharpCore/Economy/Banking/BankAccount.cs",
+      "MudSharpCore/Economy/VirtualCashLedger.cs",
+      "MudSharpCore/GameItems/Components/ImplantAVRecorderGameItemComponent.cs",
+      "MudSharpCore/GameItems/Components/NetworkSwitchGameItemComponent.cs",
+      "MudSharpCore/RPG/Law/PatrolStrategies/DoorDutiesPatrolStrategy.cs",
+      "MudSharpCore/Work/Projects/ConcreteTypes/ProjectLabourQueueEntry.cs"
+    ],
+    "armageddon_overlap": [
+      "Design Documents/Economy/Economy_System_Runtime.md",
+      "Design Documents/Economy/Law_System_Runtime.md",
+      "MudSharpCore/Character/CharacterWork.cs"
+    ],
+    "conflicts": [],
+    "managed_runs": {
+      "focused": "20261004T202103Z-1df9767736dd",
+      "Fast": "20261004T202307Z-a9187b7bd2c4"
+    },
+    "managed_counts": {
+      "focused": {
+        "executed": 809,
+        "passed": 809,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 809
+      },
+      "Fast": {
+        "executed": 7163,
+        "passed": 7163,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 7163
+      }
+    },
+    "native_markers": 9,
+    "stock_markers": 8,
+    "owned_databases_cleaned": 1,
+    "owned_processes_remaining": 0,
+    "qualification_limits": [
+      "The original stock checkpoint remains a separate immutable commit 3507170c1f85e7e2e88855ab91174ca23e531eb2, with 667 focused, 6959 Fast and 47 native markers on five cleaned owned databases. Its evidence, failed attempts and earlier complete acceptance chain are preserved unchanged.",
+      "This integration adds only the exact parent-reviewed security master and ledger/evidence documents. The 33 security files merge cleanly; overlap review is limited to CharacterWork and the two economy/law documents. It does not re-review every security fix.",
+      "Post-integration native acceptance reruns the eight bounded stock markers plus the connection guard on one fresh owned loopback database. The prior 39-marker corpse/restart packet and other 262 historical native markers were not rerun after integration.",
+      "Stock qualification still uses controlled world/anatomy catalogues and specialized caster Save. Damage/defence delivery, autonomous historical aggression, guard/rescue, PC-corpse stock casts, arbitrary callbacks, full production boot/Telnet, concurrency and complete N14-N16 acceptance are not qualified.",
+      "The seven-phase plan, all 16 approved decisions, 154 candidates, 82 Sorcerer spells plus 12 support rows and 25 native acceptance scenarios remain required. Complete installer, portable production, remaining effects and larger features, stock acquisition/crafting/chargen/energy wiring and release qualification remain pending.",
+      "Parent review of the exact bounded stock and integration result is the next gate before later repertoire implementation. Repository publication, remote merge, deployment and production/shared database access are not authorized. No billing, credit or quota-reset action was performed."
+    ]
+  },
+  "qualification_limits": [
+    "The original stock checkpoint remains a separate immutable commit 3507170c1f85e7e2e88855ab91174ca23e531eb2, with 667 focused, 6959 Fast and 47 native markers on five cleaned owned databases. Its evidence, failed attempts and earlier complete acceptance chain are preserved unchanged.",
+    "This integration adds only the exact parent-reviewed security master and ledger/evidence documents. The 33 security files merge cleanly; overlap review is limited to CharacterWork and the two economy/law documents. It does not re-review every security fix.",
+    "Post-integration native acceptance reruns the eight bounded stock markers plus the connection guard on one fresh owned loopback database. The prior 39-marker corpse/restart packet and other 262 historical native markers were not rerun after integration.",
+    "Stock qualification still uses controlled world/anatomy catalogues and specialized caster Save. Damage/defence delivery, autonomous historical aggression, guard/rescue, PC-corpse stock casts, arbitrary callbacks, full production boot/Telnet, concurrency and complete N14-N16 acceptance are not qualified.",
+    "The seven-phase plan, all 16 approved decisions, 154 candidates, 82 Sorcerer spells plus 12 support rows and 25 native acceptance scenarios remain required. Complete installer, portable production, remaining effects and larger features, stock acquisition/crafting/chargen/energy wiring and release qualification remain pending.",
+    "Parent review of the exact bounded stock and integration result is the next gate before later repertoire implementation. Repository publication, remote merge, deployment and production/shared database access are not authorized. No billing, credit or quota-reset action was performed."
+  ],
+  "frozen_inputs": {
+    "path": ".artifacts/test-runs/armageddon-20261004-security-integration/final-inputs.json",
+    "sha256": "70fc5be01d7f520f452e9a62dcc5c8e6e4fc902a3f5a186fe6f145e562f10951",
+    "sources": 347,
+    "binaries": 19
+  },
+  "preserved_stock_receipt": {
+    "path": "Design Documents/Magic/Armageddon_Stage3D1Stock_RaiseServitor_Verification.json",
+    "sha256": "1dc72cf72e305c1bc176d0572d2a0a384489639f55865e24313424d10102ad95",
+    "implementation_commit": "3507170c1f85e7e2e88855ab91174ca23e531eb2"
+  },
+  "artifact_fingerprints": [
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-security-integration/fetch.log",
+      "sha256": "7461a22f2fd9210a76b882969621629c0271b9a7d5b85e8e09f935ed7649b5c9"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-security-integration/final-end-fingerprints.json",
+      "sha256": "1044c8c996932da63237c1e76a3665d7815f9b0f74c7539b3d5c1979bd51db18"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-security-integration/final-inputs.json",
+      "sha256": "70fc5be01d7f520f452e9a62dcc5c8e6e4fc902a3f5a186fe6f145e562f10951"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-security-integration/final-summary.json",
+      "sha256": "b1c15e7465dbea7be1edd82fb0c7ab8e9bd3a7dbfa73632445ba4763da8fca74"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-security-integration/integration-fast-managed-exit.json",
+      "sha256": "880e86450b20e5ce0f705f7a7059f20e6cc5a67cfbc7dc06736937f534af784d"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-security-integration/integration-fast-managed.log",
+      "sha256": "47899268f26957e3d9fc93f33cd2e2477ca433b4575c2b2811d7a679dd0174a9"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-security-integration/integration-final-native-exit.json",
+      "sha256": "137d50f9efeca0f34dbae87b9946bdb6358e86994e10410d31dc7c439b3cfb3e"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-security-integration/integration-final-native.log",
+      "sha256": "d8a89a457ca248c92a533be610bd8247f3b4bb4c02b78cdc0dfb2f4c800a53a2"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-security-integration/integration-final-preservation.json",
+      "sha256": "d813d1e34bd0484c04b51e821f8e2082f81c6573d75103fb432623c5ecb01793"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-security-integration/integration-focused-managed-exit.json",
+      "sha256": "40c65c1724b9e7734de40c53fe5b83b00f6c493e44b175a94cf32dc048ae053c"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-security-integration/integration-focused-managed.log",
+      "sha256": "2c2f3270d5db7875e4307d5b7fa662d4cb078b8cccf02c66f18eecf51f3e3ce8"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-security-integration/integration-native-build-build-exit.json",
+      "sha256": "6b1ee328a0a7e9f81a54a8ac2eaacd0978038f2ba4b0d1d6f0ff072617bbe8fc"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-security-integration/integration-native-build-build.log",
+      "sha256": "0855c53ecb2c221fd48dbcfe30c6b1d9231d6fbd83dcb08cbb5597c898420db4"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-security-integration/merge-start.json",
+      "sha256": "35a75316c1abfb1129723092fcbb87d54243d6e24503ca51008448ec895ce544"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-security-integration/merge.log",
+      "sha256": "8cb8126baa6da2753aad68747976bf5f1eeab452db3ba73e3b07b92fed79128f"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-security-integration/review-overlap.json",
+      "sha256": "04d5f8fb3b773f5d319b5cad4708b0f3f6bac092dda70e8f7c423ebe6806250c"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-security-integration/security-stat.txt",
+      "sha256": "b7e6779cb7de030d98e1bc8392230b1c7fd850dbecb3b5bb885c9c1e5c1ab985"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-security-integration/verified-inputs.json",
+      "sha256": "b02bc786409b49b5770204d6dfc47d83ee642c6953b424d54a688b222cdce0e0"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-security-integration/verified-security.patch",
+      "sha256": "f46717f40b1c526588c7a3256b3dcb6ed1205c2946c7735c7111ad2de5b22be7"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-security-integration/20261004T202103Z-1df9767736dd/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-security-integration/20261004T202103Z-1df9767736dd/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-security-integration/20261004T202103Z-1df9767736dd/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stdout.log",
+      "sha256": "1b5fae641705390cf6326f48a17b0d39d80f291bc8690588b694905b8e543d40"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-security-integration/20261004T202103Z-1df9767736dd/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/results.trx",
+      "sha256": "2143064aebb3746498fa1cefb10f63d58dae0f39998aad2f7c62a52bbf39b36d"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-security-integration/20261004T202103Z-1df9767736dd/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-security-integration/20261004T202103Z-1df9767736dd/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stdout.log",
+      "sha256": "dd3007436af226de14f84c888ae14c052d93f7056a871a80baddfe4e364316ac"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-security-integration/20261004T202103Z-1df9767736dd/run.json",
+      "sha256": "cebe87a9f8bfcdf4dbbc1cf7c725fc834983cdcd4df850d1477f53acd6015992"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-security-integration/20261004T202103Z-1df9767736dd/sdk/sdk.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-security-integration/20261004T202103Z-1df9767736dd/sdk/sdk.stdout.log",
+      "sha256": "3db6bca4b50618b2e0d2d55d23b3d0541fe039ab6f731df0e9c47317b400ce52"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-security-integration/20261004T202103Z-1df9767736dd/source-end.json",
+      "sha256": "2254134fc975023df3c8738c6a7422f8362097a7d34d2ce5c5e452f65ccdaaaf"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-security-integration/20261004T202103Z-1df9767736dd/source-start.json",
+      "sha256": "9eeb07e06f6b6a26f0459d211fdc22b2b2f8ca3eaceb2e665fcfccea3f48c2ac"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-security-integration/20261004T202103Z-1df9767736dd/summary.json",
+      "sha256": "a50b43757a8a696c18ed8d2764c2a19ef1ae27ad9b1022d199c82ddc14467c19"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-security-integration/20261004T202103Z-1df9767736dd/summary.txt",
+      "sha256": "52ce7eb9bafad54f17f6230d084358b29745727214b74b22022a23cfab825366"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-security-integration/20261004T202103Z-1df9767736dd/test-results.json",
+      "sha256": "f11286332a6f64274064443209ac3b76414205e19369515ed53a1902956e36bb"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-security-integration/20261004T202307Z-a9187b7bd2c4/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-security-integration/20261004T202307Z-a9187b7bd2c4/invocations/DatabaseSeeder_Unit_Tests-e14dcedb/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-security-integration/20261004T202307Z-a9187b7bd2c4/invocations/DatabaseSeeder_Unit_Tests-e14dcedb/build/build.stdout.log",
+      "sha256": "4eeaebceac68232c3f42debd40fb0dbc2dd4aac8bf855a1c527399874479a35e"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-security-integration/20261004T202307Z-a9187b7bd2c4/invocations/DatabaseSeeder_Unit_Tests-e14dcedb/net10-41544e89/1/results.trx",
+      "sha256": "472ba2d23707efde7d7dd52a53088dcac1bc19fbcf9783ccdf3ec8cc1624234a"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-security-integration/20261004T202307Z-a9187b7bd2c4/invocations/DatabaseSeeder_Unit_Tests-e14dcedb/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-security-integration/20261004T202307Z-a9187b7bd2c4/invocations/DatabaseSeeder_Unit_Tests-e14dcedb/net10-41544e89/1/test.stdout.log",
+      "sha256": "5228d5aa95d6dc020843dd46c9e03532f06f0c32464b1a51f5e6c39857a53720"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-security-integration/20261004T202307Z-a9187b7bd2c4/invocations/DiscordBotCore_Unit_Tests-4ffa2b0e/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-security-integration/20261004T202307Z-a9187b7bd2c4/invocations/DiscordBotCore_Unit_Tests-4ffa2b0e/build/build.stdout.log",
+      "sha256": "6c52724aa35429ca0e7fbff8c058f45a10c396222a5dfc146ac6970eae43e5eb"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-security-integration/20261004T202307Z-a9187b7bd2c4/invocations/DiscordBotCore_Unit_Tests-4ffa2b0e/net10-41544e89/1/results.trx",
+      "sha256": "fbec0dd47bd2194e748598449f87da560a123fc449bc1b60c48fd09140fccb4e"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-security-integration/20261004T202307Z-a9187b7bd2c4/invocations/DiscordBotCore_Unit_Tests-4ffa2b0e/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-security-integration/20261004T202307Z-a9187b7bd2c4/invocations/DiscordBotCore_Unit_Tests-4ffa2b0e/net10-41544e89/1/test.stdout.log",
+      "sha256": "241d5b13843c3e999852f3aca55107d0dbe02282823d8790595d8d4bf4034ef3"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-security-integration/20261004T202307Z-a9187b7bd2c4/invocations/ExpressionEngine_Unit_Tests-8cdb3e65/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-security-integration/20261004T202307Z-a9187b7bd2c4/invocations/ExpressionEngine_Unit_Tests-8cdb3e65/build/build.stdout.log",
+      "sha256": "ecd946422aaba773beb32ada02642e06ea5a77b5282f2703330c2722ff5e8d4b"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-security-integration/20261004T202307Z-a9187b7bd2c4/invocations/ExpressionEngine_Unit_Tests-8cdb3e65/net10-41544e89/1/results.trx",
+      "sha256": "ed49e1d8a81ade6329cf92f7b502de44ba658e38ca29f59a12d90a888145a43f"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-security-integration/20261004T202307Z-a9187b7bd2c4/invocations/ExpressionEngine_Unit_Tests-8cdb3e65/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-security-integration/20261004T202307Z-a9187b7bd2c4/invocations/ExpressionEngine_Unit_Tests-8cdb3e65/net10-41544e89/1/test.stdout.log",
+      "sha256": "b4d69dbd41fdd8badeb06937a1b6cb5762a3bf3b31e8d2f761cdb9d389369c4d"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-security-integration/20261004T202307Z-a9187b7bd2c4/invocations/FutureMUD.Web.Tests-ac492d08/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-security-integration/20261004T202307Z-a9187b7bd2c4/invocations/FutureMUD.Web.Tests-ac492d08/build/build.stdout.log",
+      "sha256": "cefb7b4609a23ceecf28682df1588d02eebbf3b3f1420fcd4d539b7af227fda3"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-security-integration/20261004T202307Z-a9187b7bd2c4/invocations/FutureMUD.Web.Tests-ac492d08/net10-41544e89/1/results.trx",
+      "sha256": "8c67376f8d98473d9cb8b61fea5460b2b53479782b0129f5213516fd33a89fb0"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-security-integration/20261004T202307Z-a9187b7bd2c4/invocations/FutureMUD.Web.Tests-ac492d08/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-security-integration/20261004T202307Z-a9187b7bd2c4/invocations/FutureMUD.Web.Tests-ac492d08/net10-41544e89/1/test.stdout.log",
+      "sha256": "baabbfce75f408534afd018e1ce8533085b7a5387d41347bb6cb13cf439a0c5e"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-security-integration/20261004T202307Z-a9187b7bd2c4/invocations/FutureMUDLibrary_Unit_Tests-45c02d6c/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-security-integration/20261004T202307Z-a9187b7bd2c4/invocations/FutureMUDLibrary_Unit_Tests-45c02d6c/build/build.stdout.log",
+      "sha256": "cff228aa76eb4b4c84a8979cf1374975f233e7fd19b034fcd728057db8f842e5"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-security-integration/20261004T202307Z-a9187b7bd2c4/invocations/FutureMUDLibrary_Unit_Tests-45c02d6c/net10-41544e89/1/results.trx",
+      "sha256": "5c680f16aaf41b91902998ff8947786da18ddc28b981f7ada70b4dc7b390a61e"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-security-integration/20261004T202307Z-a9187b7bd2c4/invocations/FutureMUDLibrary_Unit_Tests-45c02d6c/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-security-integration/20261004T202307Z-a9187b7bd2c4/invocations/FutureMUDLibrary_Unit_Tests-45c02d6c/net10-41544e89/1/test.stdout.log",
+      "sha256": "f7ac64f49a8ec4353f0d0a6cfc4c6e52e9db08459c8c14686a396c8619236f3b"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-security-integration/20261004T202307Z-a9187b7bd2c4/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-security-integration/20261004T202307Z-a9187b7bd2c4/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stdout.log",
+      "sha256": "a3ad999a9d1dd284ceb5ee39267e928923803c9c82fa3281d22be195fcb0c164"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-security-integration/20261004T202307Z-a9187b7bd2c4/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/results.trx",
+      "sha256": "37c40f2da2775a9dceba62c3ffa49fc2e64e29409f84385a833638f10be1a7ff"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-security-integration/20261004T202307Z-a9187b7bd2c4/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-security-integration/20261004T202307Z-a9187b7bd2c4/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stdout.log",
+      "sha256": "515ccc25866f9e9c90079a35514cf0a6211856eecb1de18bb9b90ae0be934c1e"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-security-integration/20261004T202307Z-a9187b7bd2c4/invocations/MudsharpDatabaseLibrary_Unit_Tests-6ef1914c/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-security-integration/20261004T202307Z-a9187b7bd2c4/invocations/MudsharpDatabaseLibrary_Unit_Tests-6ef1914c/build/build.stdout.log",
+      "sha256": "9c34cbea520438ed85cb0f3f88d1c3f36396b642c855ae08a5425af37f069b58"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-security-integration/20261004T202307Z-a9187b7bd2c4/invocations/MudsharpDatabaseLibrary_Unit_Tests-6ef1914c/net10-41544e89/1/results.trx",
+      "sha256": "14e94d8008d2fb43406a80925cf52851e88f5ea0c468d46fb7d1a697c67180b4"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-security-integration/20261004T202307Z-a9187b7bd2c4/invocations/MudsharpDatabaseLibrary_Unit_Tests-6ef1914c/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-security-integration/20261004T202307Z-a9187b7bd2c4/invocations/MudsharpDatabaseLibrary_Unit_Tests-6ef1914c/net10-41544e89/1/test.stdout.log",
+      "sha256": "5d1388c6486594b141840d913428af69401890f17d9a52df407148f23b781591"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-security-integration/20261004T202307Z-a9187b7bd2c4/invocations/RPI_Engine_Worldfile_Converter_Tests-14d87d34/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-security-integration/20261004T202307Z-a9187b7bd2c4/invocations/RPI_Engine_Worldfile_Converter_Tests-14d87d34/build/build.stdout.log",
+      "sha256": "df0d0793252e54d54b42b70910b2df69e8eae1487b2864fd4129ffe5bd2af7d1"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-security-integration/20261004T202307Z-a9187b7bd2c4/invocations/RPI_Engine_Worldfile_Converter_Tests-14d87d34/net10-41544e89/1/results.trx",
+      "sha256": "57ad6d5540926836d25d093d86554729660a55d5d4f23d514c34a80f220fdd57"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-security-integration/20261004T202307Z-a9187b7bd2c4/invocations/RPI_Engine_Worldfile_Converter_Tests-14d87d34/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-security-integration/20261004T202307Z-a9187b7bd2c4/invocations/RPI_Engine_Worldfile_Converter_Tests-14d87d34/net10-41544e89/1/test.stdout.log",
+      "sha256": "fa6b9e45709820d0f601a27838ebe771ac8e3ab62baa07525d79b1cce08c7592"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-security-integration/20261004T202307Z-a9187b7bd2c4/invocations/TerrainPlanner.Tests-1085b5fa/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-security-integration/20261004T202307Z-a9187b7bd2c4/invocations/TerrainPlanner.Tests-1085b5fa/build/build.stdout.log",
+      "sha256": "c59a6e9236bcf0c4270839aee17d3abe2ec3a632917e5c2c716416ff949c3aaf"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-security-integration/20261004T202307Z-a9187b7bd2c4/invocations/TerrainPlanner.Tests-1085b5fa/net10-41544e89/1/results.trx",
+      "sha256": "0beb0f5a45e2d127da33e50ad722c85219aeca0b0af05fe530660dd1df13aa13"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-security-integration/20261004T202307Z-a9187b7bd2c4/invocations/TerrainPlanner.Tests-1085b5fa/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-security-integration/20261004T202307Z-a9187b7bd2c4/invocations/TerrainPlanner.Tests-1085b5fa/net10-41544e89/1/test.stdout.log",
+      "sha256": "7c2b1127cf7ed78fd0715a9a745a41cccdf3ffd08f483009cc0e5bbd527ccb74"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-security-integration/20261004T202307Z-a9187b7bd2c4/invocations/TestReporting.Tests-25b07e44/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-security-integration/20261004T202307Z-a9187b7bd2c4/invocations/TestReporting.Tests-25b07e44/build/build.stdout.log",
+      "sha256": "b6c0e235c040a77263a46766a1678ddb3c6d14b856ef5d452656c376b2863ef3"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-security-integration/20261004T202307Z-a9187b7bd2c4/invocations/TestReporting.Tests-25b07e44/net10-41544e89/1/results.trx",
+      "sha256": "a29fc5dccaf9a0490d9240bf02ff59f6645bf6af6c8fe9a21cc0ae7db48a1762"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-security-integration/20261004T202307Z-a9187b7bd2c4/invocations/TestReporting.Tests-25b07e44/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-security-integration/20261004T202307Z-a9187b7bd2c4/invocations/TestReporting.Tests-25b07e44/net10-41544e89/1/test.stdout.log",
+      "sha256": "a3fc341d5951dee960cb19331a999a5d4d4bb37f24c71d4edf5be621357d4484"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-security-integration/20261004T202307Z-a9187b7bd2c4/run.json",
+      "sha256": "309c820efd0bc0575a6aea3150219d2746b6558f97c427e858155ce89fb7fdd9"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-security-integration/20261004T202307Z-a9187b7bd2c4/sdk/sdk.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-security-integration/20261004T202307Z-a9187b7bd2c4/sdk/sdk.stdout.log",
+      "sha256": "3db6bca4b50618b2e0d2d55d23b3d0541fe039ab6f731df0e9c47317b400ce52"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-security-integration/20261004T202307Z-a9187b7bd2c4/source-end.json",
+      "sha256": "8ca995badd475d909f2f01089be6e739a50ef7525ad98d2a407b442a4495979f"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-security-integration/20261004T202307Z-a9187b7bd2c4/source-start.json",
+      "sha256": "b6a64972818ffbf0330750203e4687649b5af36604318057672c5bfb655b084b"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-security-integration/20261004T202307Z-a9187b7bd2c4/summary.json",
+      "sha256": "88134db94840421f24b22fa86fc504bd28f9a8a4aadbff866d409dfcc3e3842e"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-security-integration/20261004T202307Z-a9187b7bd2c4/summary.txt",
+      "sha256": "eabfc41ac90d95a1e4e9df8fb91347befa4608acad4ceceddd208b8456fb1c95"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-security-integration/20261004T202307Z-a9187b7bd2c4/test-results.json",
+      "sha256": "412fb570f7bd3349c57b868c4fdb1e2aa78da03290aa5515d3e3b3d6ab0d4ed3"
+    }
+  ],
+  "helper_fingerprints": [
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Start-ArmageddonSecurityIntegration.ps1",
+      "sha256": "c3f842699d3d4de73c87ed92ffc7c734e303c441339cb6b988c5dc147d2c5aa7"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Run-ArmageddonSecurityTests.ps1",
+      "sha256": "4d76cb4bce47b6cc24c4594a1f97e971f1ef617d4dbf1124cd2b8739ef53fd9b"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Build-ArmageddonSecurityNative.ps1",
+      "sha256": "fc02a12d111418e0ce6df1636246a72d6edbf41232dbb4af4465a090c2233510"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Run-ArmageddonSecurityNative.ps1",
+      "sha256": "5e5b3f0f543c4b67785f65430463cb990cbce59a08f7907128a7adb182dcc579"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Record-ArmageddonSecurityPreservation.ps1",
+      "sha256": "f5f463e379b28bdf1f57d0b826a56ecd9a67c55c2739b937ab5606d3302c7eaf"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Commit-ArmageddonSecurityCheckpoint.ps1",
+      "sha256": "5fb28ef4de831c505184d80d94454a43b4cf581e294c7cfe55078f3ec9f0460a"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\security_integration_evidence.py",
+      "sha256": "cf33bd2fc96e4ff00f9a4dfb993853d43d2d2155b70c0200a0cf5170b961830d"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\security_integration_handoff.py",
+      "sha256": "ae7698085981310ef8d9dd1279ab27a1f40f1fd74d2504c1d80a3058266f1c50"
+    }
+  ],
+  "prior_fourteen_receipts_1486_artifacts_42_helpers_unchanged": true,
+  "C1_addendum_clarification_and_C1P2_closing_helpers_unchanged": true,
+  "source_tree_preserved": true,
+  "C2_receipt_311_artifacts_6_helpers_and_closing_evidence_preserved": true,
+  "D1_200_artifacts_7_helpers_13_build_logs_and_closing_evidence_preserved": true,
+  "D1P2_91_artifacts_6_helpers_2_build_logs_and_closing_evidence_preserved": true,
+  "D1P1_96_artifacts_6_helpers_4_build_logs_and_closing_evidence_preserved": true,
+  "D1P1M_133_artifacts_6_helpers_2_build_logs_and_closing_evidence_preserved": true,
+  "stock_186_artifacts_6_helpers_13_build_logs_historical_source_and_closing_evidence_preserved": true,
+  "local_merge_target": "93297ccb8e85fe3d7099f22b8c917cb74b903fa8",
+  "publication_deployment_actions": [],
+  "production_or_shared_database_access": [],
+  "billing_or_quota_reset_actions": []
+}

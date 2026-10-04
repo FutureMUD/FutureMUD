@@ -228,7 +228,7 @@ public partial class Character
 	public bool SetProjectLabourQueueLabour(int position, string labourPreference)
 	{
 		var entry = ProjectQueueOwner.QueueEntryAt(position);
-		if (entry is null)
+		if (entry is null || !ProjectLabourQueueEntry.IsValidLabourPreference(labourPreference))
 		{
 			return false;
 		}

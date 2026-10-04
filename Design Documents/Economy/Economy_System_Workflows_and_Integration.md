@@ -174,11 +174,14 @@ Current player/admin-facing clan finance workflows include:
 
 Budget creation and closure require the clan `CanCreateBudgets` privilege. Budget, balance-sheet, and payroll-history review require `CanViewTreasury`. Budget drawdown can also be performed by someone who holds or controls the budgeted appointment, so builders can give an office practical spending authority without exposing the whole treasury.
 
+Budget names are limited to 200 characters and drawdown reasons to 1000 characters. A bank-funded draw retains the full audit reason in the clan record, while its automatically composed bank transaction description is shortened at a whole Unicode text-element boundary to fit the bank's 255-character field.
+
 Practical note:
 
 - appointment budgets are recurring-period allowances, not separate bank accounts
 - a drawdown issues cash to the actor and funds it from the clan virtual treasury first, then the default clan bank account when present
 - every drawdown stores an audit reason, actor, period window, amount, and balance after withdrawal, and also writes a virtual treasury ledger row
+- names must fit 200 characters and audit reasons 1000, with oversized direct inputs rejected before any debit or period rollover; generated bank withdrawal descriptions are truncated at whole Unicode text-element boundaries to fit 255 characters, while the clan record keeps the full audit reason
 - payroll history is clan payroll audit data, while the broader employment/job subsystem remains separate
 
 ### Markets, Categories, Influences, Populations, and Shoppers

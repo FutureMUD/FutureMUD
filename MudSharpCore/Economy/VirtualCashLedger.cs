@@ -351,6 +351,7 @@ public static class VirtualCashLedger
 		}
 
 		var bankAmount = 0.0M;
+		string? bankTransactionDescription = null;
 		decimal balanceAfter;
 		var ownerId = FrameworkItemId(owner);
 		var actorId = CharacterInstanceIdentityComparer.IdentityId(actor);
@@ -363,9 +364,14 @@ public static class VirtualCashLedger
 				var key = (owner.FrameworkItemType, ownerId, currency.Id);
 				var balance = InMemoryBalances.GetValueOrDefault(key);
 				var virtualAmount = Math.Min(balance, amount);
+				bankAmount = amount - virtualAmount;
+				if (bankAmount > 0.0M && bankAccount is Banking.BankAccount)
+				{
+					bankTransactionDescription = Banking.BankAccount.DescribeWithdrawalFromTransaction(bankAccount.Currency, bankAmount, reason);
+				}
+
 				InMemoryBalances[key] = balance - virtualAmount;
 				balanceAfter = InMemoryBalances[key];
-				bankAmount = amount - virtualAmount;
 				InMemoryLedger.Add(new MudSharp.Models.VirtualCashLedgerEntry
 				{
 					Id = InMemoryLedger.Count + 1,
@@ -399,9 +405,14 @@ public static class VirtualCashLedger
 		{
 			var record = BalanceRecord(owner.FrameworkItemType, ownerId, currency);
 			var virtualAmount = Math.Min(record.Balance, amount);
+			bankAmount = amount - virtualAmount;
+			if (bankAmount > 0.0M && bankAccount is Banking.BankAccount)
+			{
+				bankTransactionDescription = Banking.BankAccount.DescribeWithdrawalFromTransaction(bankAccount.Currency, bankAmount, reason);
+			}
+
 			record.Balance -= virtualAmount;
 			balanceAfter = record.Balance;
-			bankAmount = amount - virtualAmount;
 			FMDB.Context.VirtualCashLedgerEntries.Add(new MudSharp.Models.VirtualCashLedgerEntry
 			{
 				OwnerType = owner.FrameworkItemType,
@@ -435,7 +446,14 @@ public static class VirtualCashLedger
 			return true;
 		}
 
-		bankAccount.WithdrawFromTransaction(bankAmount, reason);
+		if (bankAccount is Banking.BankAccount account)
+		{
+			account.WithdrawFromTransactionWithDescription(bankAmount, bankTransactionDescription!);
+		}
+		else
+		{
+			bankAccount.WithdrawFromTransaction(bankAmount, reason);
+		}
 		bankAccount.Bank.CurrencyReserves[currency] -= bankAmount;
 		bankAccount.Bank.Changed = true;
 		return true;

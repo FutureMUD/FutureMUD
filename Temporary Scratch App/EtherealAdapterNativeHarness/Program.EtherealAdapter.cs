@@ -117,10 +117,12 @@ internal static partial class GNHProgram
 			var result = casting.Cast(intent);
 			Require(result.Status == MagicCastingStatus.Succeeded, "Actual paid ethereal adapter cast: " + result.Message);
 			Require(before - actor.MagicResourceAmounts[native.Resource] == quote.Invocation!.Costs.Single().Amount &&
-				(overreach || before - actor.MagicResourceAmounts[native.Resource] == (grade == 1 ? 7 : 17.5)), "Quote/debit mismatch");
+				(overreach || before - actor.MagicResourceAmounts[native.Resource] == (grade == 1 ? 7 : 50)), "Quote/debit mismatch");
 			Require((bool)XElement.Parse(state.Operation(result.OperationId!.Value)!.Definition).Attribute("applied")! == applied,
 				"Ethereal native application receipt");
-			VerifyNativeEtherealChannels(native, true); return result;
+			VerifyNativeEtherealChannels(native, true);
+			Console.WriteLine($"ETHEREAL-paid=passed grade:{grade} cost:{before - actor.MagicResourceAmounts[native.Resource]} applied:{applied}");
+			return result;
 		}
 		Cast(1); Require(scheduler.ScheduledExpiry(Parent()) == RuntimeClock.UtcNow.AddSeconds(1800), "Grade1 three-hour increment");
 		var old = Parent(); Cast(7);
@@ -143,6 +145,17 @@ internal static partial class GNHProgram
 		var uncertain = casting.Cast(new(actor, cap.Id, spell.Id, 1, false, "me")); callback = null;
 		Require(uncertain.Status == MagicCastingStatus.NeedsReview && balance - actor.MagicResourceAmounts[native.Resource] == 7 &&
 			actor.Effects.Contains(old) && Parent() == old, "Paid cohort uncertainty guessed replacement or refunded");
+		var paidBalance = actor.MagicResourceAmounts[native.Resource];
+		var retry = casting.Cast(new(actor, cap.Id, spell.Id, 1, false, "me", OriginId: uncertain.OperationId));
+		Require(retry.Status == MagicCastingStatus.Refused && actor.MagicResourceAmounts[native.Resource] == paidBalance &&
+			Parent() == old && XElement.Parse(state.Operation(uncertain.OperationId!.Value)!.Definition).Attribute("masterySample") is null,
+			"Paid uncertainty replayed, refunded, replaced the cohort or sampled mastery");
+		// Staff reconciles this inspected disposable fixture explicitly so later independent
+		// acceptance can continue. The engine has not automatically resolved uncertainty.
+		Require(casting.ReconcileOperation(staff, actor, uncertain.OperationId!.Value,
+			"Owned disposable fixture: retained old ethereal cohort and paid reserve inspected").Allowed,
+			"Explicit disposable-fixture reconciliation");
+		Require(actor.MagicResourceAmounts[native.Resource] == paidBalance, "Fixture reconciliation refunded payment");
 		var final = Cast(7); var saved = Parent(); FlushCasting(native);
 		RunItemReaderProcess(new EtherealAdapterReader(database.Name, fixture, RuntimeClock.UtcNow, spell.Id,
 			scheduler.ScheduledExpiry(saved)!.Value, saved.Identity, final.OperationId!.Value, actor.MagicResourceAmounts[native.Resource]),

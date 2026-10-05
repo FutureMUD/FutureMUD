@@ -29,6 +29,7 @@ internal static partial class GNHProgram
 		string? Policy = null, string? WithoutPierceVariant = null, long? Pierce = null, bool ReadOnly = false, string? ProvisionsPolicy = null);
 	internal static int PreparedSeederMain(string[] args)
 	{
+		if (args.FirstOrDefault() == "--installed-components-check") return PreparedInstalledComponentPreflight();
 		OwnedConnections.Install();
 		return args.FirstOrDefault() switch
 		{

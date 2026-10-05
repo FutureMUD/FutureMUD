@@ -118,20 +118,21 @@ internal static partial class GNHProgram
 			var row = new Db.GameItemComponentProto { Id = db.GameItemComponentProtos.Max(x => x.Id) + 1, RevisionNumber = 0, Name = "Installed Sense " + type, Type = type, Description = "Native acceptance dependency", Definition = definition, EditableItem = Approved() };
 			db.Add(row); db.SaveChanges(); Record("GameItemComponentProto", row.Id, row.Name, definition); return row;
 		}
-		var wearable = Component("Wearable", new XElement("Definition", new XElement("Profiles", new XAttribute("Default", profile.Id), new XElement("Profile", profile.Id)), new XElement("WearableProg", 0), new XElement("WhyCannotWearProg", 0)).ToString());
-		var glow = Component("ProgLight", "<Definition><IlluminationProvided>40</IlluminationProvided></Definition>");
+		var wearable = Component("Wearable", InstalledWearableDefinition(profile.Id));
+		var glow = Component(InstalledLightDatabaseType, InstalledLightDefinition());
+		var componentValidation = ValidateInstalledComponents(new[] { hold, wearable, glow }, profile.Id);
 		var light = new Db.GameItemProto { Id = db.GameItemProtos.Max(x => x.Id) + 1, RevisionNumber = 0, Name = "Installed Sense approved light dependency", UniqueName = "Installed Sense approved light dependency",
 			MaterialId = material.Id, Size = 1, Weight = 0.01, BaseItemQuality = 5, Keywords = "light", ShortDescription = "a configured light", LongDescription = "A configured light is here.", FullDescription = "A builder-authored native light dependency.",
 			EditableItem = Approved(), PlanarData = "<Definition/>" };
 		foreach (var property in typeof(Db.GameItemProto).GetProperties().Where(x => x.PropertyType == typeof(string))) if (property.GetValue(light) is null) property.SetValue(light, "");
 		foreach (var part in new[] { hold, wearable, glow }) light.GameItemProtosGameItemComponentProtos.Add(new() { GameItemComponentProtoId = part.Id, GameItemComponentRevision = part.RevisionNumber });
-		db.Add(light); db.SaveChanges(); Record("GameItemProto", light.Id, light.Name, "Approved Holdable+Wearable+ProgLight; no load/wear scripts, hooks, morphing or live item instances.");
+		db.Add(light); db.SaveChanges(); Record("GameItemProto", light.Id, light.Name, "Approved Holdable+Wearable+Prog Light; no load/wear scripts, hooks, morphing or live item instances.");
 		var bindings = new ArmageddonPreparedWorldBindings(new(true, school.Id, resource.Id, skills, no.Id, mend.Id, water.Id, light.Id, 0, hold.Id, hold.RevisionNumber, material.Id, account.Id),
 			resource.Id, decorator.Id, yes.Id, capability.Id, new Dictionary<string, long> { ["arm.support.gather"] = gather.Id }, attribute.Id, expression.Id, "raw",
 			ArmageddonTraditionInstaller.Variants.ToDictionary(x => x, _ => (IReadOnlyList<MagicGatheringMethodKind>)new[] { MagicGatheringMethodKind.Self }));
 		var errors = ArmageddonPreparedWorldInstaller.Validate(db, bindings); Require(errors.Count == 0, string.Join("; ", errors));
 		Require(!db.SeederManagedRecords.Any(x => x.Seeder == ArmageddonMagicInstaller.Package), "Builder dependencies were claimed as package records.");
-		transaction.Commit(); preparation = new { seeded_bindings = existing, forage_selection = forageSelection, authored_dependencies = authored, players_untouched = true, starting_reserve = 0,
+		transaction.Commit(); preparation = new { seeded_bindings = existing, forage_selection = forageSelection, component_validation = componentValidation, authored_dependencies = authored, players_untouched = true, starting_reserve = 0,
 			preparation_kind = "Explicit native builder-format configuration in owned disposable world; not a stock world readiness certificate", bindings };
 		return bindings;
 	}

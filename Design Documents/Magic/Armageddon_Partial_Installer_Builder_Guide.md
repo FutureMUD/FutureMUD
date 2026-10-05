@@ -221,3 +221,17 @@ reported as blocked; it does not qualify full replay. All five profile inventori
 Read exact checkpoint receipts for outcomes. Native controlled-world scenarios do not certify Telnet/login or a full
 running server. Read the separately retained installed Active Sense eating/reload qualification for the consumption repair.
 The unattainable stock Mend/device prerequisite path remains an explicit limit.
+
+The full replay uses production-equivalent lazy-loading contexts with the same owned-connection enforcement; controlled
+native/module contexts remain unchanged. Before Human, it verifies the saved Core Colour values load through the replay
+context and records the corresponding unloaded navigation in a plain context, without inserting values or editing seeders.
+
+An explicitly selected Windows-only lane smoke can keep the replay database owner alive for native boot, seeded Admin
+avatar login/LOOK, native save flush, graceful shutdown, cold restart and login. The executor-local child must exactly match
+the fingerprinted dedicated Python source. Unique runtime directories and loopback endpoints isolate both MUD processes;
+email is disabled in the owned database and the Discord bridge is redirected to a reserved non-listening loopback endpoint.
+Parent and child process jobs enforce bounded cleanup and verify zero active owned processes before database disposal.
+The Python child waits for a unique matching parent-ready receipt after job attachment before SQL or MUD startup,
+so process scheduling cannot put MUD children outside the database owner's job.
+Read the exact boot receipt for outcomes or the first substantive failure. Default replay runs no boot child. This basic
+server smoke does not certify the whole Armageddon repertoire or remove the stock Mend/device prerequisite limit.

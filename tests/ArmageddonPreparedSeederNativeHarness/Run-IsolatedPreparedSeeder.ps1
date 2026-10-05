@@ -31,7 +31,8 @@ function Write-SourceEvidence {
 	param([string]$Name)
 	$sourcePaths = @(& git -c core.quotepath=false -C $workspaceRoot ls-files --cached --others --exclude-standard)
 	if ($LASTEXITCODE -ne 0) { throw 'Source inventory failed.' }
-	$records = @($sourcePaths | Where-Object { $_ -match '\.(cs|csproj|props|targets|sln|json|ps1|md|sql|sql\.gz)$' } | Sort-Object -Unique | ForEach-Object {
+	$records = @($sourcePaths | Where-Object { $_ -match '\.(cs|csproj|props|targets|sln|json|ps1|md|sql|sql\.gz)$' -or
+		$_ -eq 'tests/ArmageddonPreparedSeederNativeHarness/PreparedReplayBootSmoke.py' } | Sort-Object -Unique | ForEach-Object {
 		$sourcePath = Join-Path $workspaceRoot $_
 		if (-not (Test-Path -LiteralPath $sourcePath)) { throw "Source missing: $_" }
 		@{ path = $_; sha256 = (Get-FileHash -LiteralPath $sourcePath -Algorithm SHA256).Hash }

@@ -5019,5 +5019,45 @@
       "Full Fast/full-world/Telnet NOT_RUN. Whole82/12/154/25 plan remains incomplete. No stock integration, publication, merge, deployment or shared/production DB."
     ],
     "whole_plan_complete": false
+  },
+  "native_container_give_custody_qualification": {
+    "status": "PASS_BOUNDED_LOCAL_CHECKPOINT_PARENT_REVIEW_PENDING",
+    "base_head": "3d1f0564d86b502922ee5cba8b32baad22bd701d",
+    "acceptance": [
+      {
+        "id": "focused-core",
+        "status": "PASS",
+        "passed": 285
+      },
+      {
+        "id": "full-core",
+        "status": "PASS",
+        "passed": 5153
+      },
+      {
+        "id": "native-container-give",
+        "status": "PASS",
+        "cases": 19,
+        "readers": 19
+      },
+      {
+        "id": "whole-plan",
+        "status": "INCOMPLETE"
+      }
+    ],
+    "receipt": "Design Documents/Magic/Armageddon_CustodyMerge_Verification.json",
+    "next_smallest_gate": "InternalMagazine Load output-rebind P2, preserving independent placement and proving cold exact joins.",
+    "decision_update": {
+      "Calm": "Incoming hostile attack breaks Calm including misses; approved Sentinel_17ba194d1fe481918a659d2d5b9a0972; no shared-hook implementation in checkpoint17.",
+      "FuryEndurance": "PENDING"
+    },
+    "limits": [
+      "Native exact Stackable/Holdable leaf stacks only; composite ammunition and component Unload remain separate.",
+      "Stock get/give whitelist and native parser/body operations; direct-valid executes explicitly independently. Final policy callbacks retain command grant and establish independent movement/closure.",
+      "Fresh readers check raw saved parent/body/cell joins and reconstruct native items/body inventory; they do not reconstruct the animated wrapper or prove Raise Servitor restart collapse.",
+      "Full Fast, full-world and Telnet NOT_RUN for checkpoint17. No lane integration/publication/merge/deploy/shared or production database.",
+      "Whole82/12/154/25 plan remains incomplete; Fury endurance decision pending."
+    ],
+    "whole_plan_complete": false
   }
 }

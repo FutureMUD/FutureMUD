@@ -1883,12 +1883,45 @@ public partial class Body
 		CheckConsequences();
 	}
 
-	private IGameItem? GivePhysicalItem(IGameItem item, IBody receiver, int quantity, MudSharp.Character.ICharacter executor)
+	// Preserve native reach facts across the final executable authority callback.
+	private static Func<bool>? PrepareItemReachSnapshot(IGameItem item)
 	{
-		var whole = quantity == 0 || item.DropsWhole(quantity);
+		var seen = new HashSet<IGameItem>(ReferenceEqualityComparer.Instance);
+		var edges = new List<(IGameItem Item, IGameItem? Parent)>();
+		for (var current = item; current is not null; current = current.ContainedIn)
+		{
+			if (!seen.Add(current)) return null;
+			edges.Add((current, current.ContainedIn));
+		}
+		var nodes = new List<(IGameItem Item, IGameItem? Parent, IBody? Body, MudSharp.Character.ICharacter? Actor,
+			ICell? Cell, RoomLayer Layer, double? Position, IOpenable? Openable, bool? Open)>();
+		foreach (var (current, parent) in edges)
+		{
+			var body = current.InInventoryOf;
+			var openable = current.GetItemType<IOpenable>();
+			nodes.Add((current, parent, body, body?.Actor, current.Location, current.RoomLayer,
+				current.RoutePositionMetres, openable, openable?.IsOpen));
+		}
+		return () => edges.All(x => ReferenceEquals(x.Item.ContainedIn, x.Parent)) &&
+			nodes.All(x => !x.Item.Deleted && !x.Item.Destroyed && ReferenceEquals(x.Item.InInventoryOf, x.Body) &&
+			ReferenceEquals(x.Body?.Actor, x.Actor) && ReferenceEquals(x.Item.Location, x.Cell) &&
+			x.Item.RoomLayer == x.Layer && x.Item.RoutePositionMetres == x.Position &&
+			ReferenceEquals(x.Item.GetItemType<IOpenable>(), x.Openable) && x.Openable?.IsOpen == x.Open);
+	}
+
+	private IGameItem? GivePhysicalItem(IGameItem item, IBody receiver, int quantity, MudSharp.Character.ICharacter executor,
+		int expectedQuantity, IHoldable? expectedHolder, bool whole, MudSharp.Character.ICharacter receiverExecutor, Func<bool> canGive, Func<bool> receiverUnchanged)
+	{
+		bool OriginalSource() => !item.Deleted && !item.Destroyed && item.Quantity == expectedQuantity &&
+			ReferenceEquals(item.GetItemType<IHoldable>(), expectedHolder) && ReferenceEquals(expectedHolder?.HeldBy, this) &&
+			(_heldItems.Any(x => ReferenceEquals(x.Item1, item)) || _wieldedItems.Any(x => ReferenceEquals(x.Item1, item))) &&
+			item.ContainedIn is null && ComponentItemTransfer.DirectLocationOf(item) is null;
+		if (!OriginalSource()) return null;
 		if (receiver is not Body destination) return null;
 		var placement = destination.PrepareGetPlacement(whole ? item : item.PeekSplit(quantity), true);
-		if (placement is null || !ReferenceEquals(Actor, executor) || !CommandExecutionScope.TryContinue(executor)) return null;
+		if (placement is null || !ReferenceEquals(receiver.Actor, receiverExecutor) || !canGive() ||
+			!CommandExecutionScope.TryContinue(executor) || !ReferenceEquals(Actor, executor) ||
+			!ReferenceEquals(receiver.Actor, receiverExecutor) || !receiverUnchanged() || !OriginalSource()) return null;
 		CommandExecutionScope.MarkCommitted(executor);
 		IGameItem transferred;
 		if (whole)
@@ -1898,7 +1931,8 @@ public partial class Body
 			transferred = item.Get(destination);
 		}
 		else transferred = item.Get(destination, quantity);
-		if (!destination.CompleteGetPlacement(transferred, placement)) return null;
+		if (!destination.CompleteGetPlacementWithResult(transferred, placement, out transferred, consumeNativeStack: true) ||
+			transferred.Deleted || transferred.Destroyed) return null;
 		destination.NotifyGotItem(transferred, placement.Executor);
 		return transferred;
 	}
@@ -1918,6 +1952,16 @@ public partial class Body
 		if (!CanContinue()) return null;
 		ForeignCustodyTransferContext.EnsureBody(this, item);
 		ForeignCustodyTransferContext.EnsurePair(containerItem, item);
+		var sourceQuantity = item.Quantity;
+		var sourceHolder = item.GetItemType<IHoldable>();
+		var containerComp = containerItem.GetItemType<IContainer>();
+		var whole = quantity == 0 || item.DropsWhole(quantity);
+		var reachUnchanged = PrepareItemReachSnapshot(containerItem);
+		if (reachUnchanged is null) return null;
+		bool OriginalSource() => ReferenceEquals(Actor, executor) && reachUnchanged() &&
+			item.Quantity == sourceQuantity && ReferenceEquals(item.GetItemType<IHoldable>(), sourceHolder) &&
+			!containerItem.Deleted && !containerItem.Destroyed && ReferenceEquals(containerItem.GetItemType<IContainer>(), containerComp) &&
+			containerComp?.Contents.Any(x => ReferenceEquals(x, item)) == true && ComponentUnloadCompletion.OwnedBy(item, containerItem);
         if (!CanGet(item, containerItem, quantity, ignoreFlags))
         {
             if (!silent)
@@ -1929,16 +1973,16 @@ public partial class Body
         }
 
         if (!CanContinue()) return null;
-		var placement = PrepareGetPlacement(quantity == 0 ? item : item.PeekSplit(quantity), true);
-		if (placement is null || !CanContinue()) return null;
-        IContainer containerComp = containerItem.GetItemType<IContainer>();
+		var placement = PrepareGetPlacement(whole ? item : item.PeekSplit(quantity), true);
+		if (placement is null || !CanGet(item, containerItem, quantity, ignoreFlags) || !CanContinue() || !OriginalSource()) return null;
 
         CommandExecutionScope.MarkCommitted(executor);
 		var takenItem = containerComp.Take(executor, item, quantity);
 		if (takenItem is null || takenItem.Deleted || takenItem.Destroyed || takenItem.ContainedIn is not null ||
 			takenItem.InInventoryOf is not null || takenItem.Location is not null) return null;
 		takenItem.Get(this);
-		if (!CompleteGetPlacement(takenItem, placement)) return null;
+		if (!CompleteGetPlacementWithResult(takenItem, placement, out takenItem, consumeNativeStack: true) ||
+			takenItem.Deleted || takenItem.Destroyed) return null;
 
         MixedEmoteOutput output =
             new(new Emote("@ get|gets $0 from $1", this, takenItem, containerItem),
@@ -2510,6 +2554,17 @@ public partial class Body
 		using var execution = CommandExecutionScope.EnterBodyOperation(executor);
 		if (!CommandExecutionScope.TryContinue(executor)) return;
 		ForeignCustodyTransferContext.EnsureBody(this, item);
+		var sourceQuantity = item.Quantity;
+		var sourceHolder = item.GetItemType<IHoldable>();
+		var receiver = target;
+		var receiverExecutor = receiver.Actor;
+		var receiverCurrentBody = receiverExecutor.Body;
+		var receiverCell = receiverExecutor.Location;
+		var receiverLayer = receiverExecutor.RoomLayer;
+		var receiverPosition = receiverExecutor.RoutePositionMetres;
+		bool ReceiverUnchanged() => ReferenceEquals(receiverExecutor.Body, receiverCurrentBody) && ReferenceEquals(receiverExecutor.Location, receiverCell) &&
+			receiverExecutor.RoomLayer == receiverLayer && receiverExecutor.RoutePositionMetres == receiverPosition;
+		var whole = quantity == 0 || item.DropsWhole(quantity);
         if (!CanGive(item, target, quantity))
         {
             OutputHandler.Send(WhyCannotGive(item, target, quantity));
@@ -2518,7 +2573,7 @@ public partial class Body
 
         if (!ReferenceEquals(Actor, executor) || !CommandExecutionScope.TryContinue(executor)) return;
 		var wasWielded = _heldItems.All(x => x.Item1 != item);
-		var givenItem = GivePhysicalItem(item, target, quantity, executor);
+		var givenItem = GivePhysicalItem(item, receiver, quantity, executor, sourceQuantity, sourceHolder, whole, receiverExecutor, () => CanGive(item, target, quantity), ReceiverUnchanged);
 		if (givenItem is null) return;
 		var output = new MixedEmoteOutput(new Emote("@ give|gives $0 to $1", this, givenItem, target), flags: OutputFlags.SuppressObscured);
 
@@ -2620,6 +2675,25 @@ public partial class Body
 		using var execution = CommandExecutionScope.EnterBodyOperation(executor);
 		if (!CommandExecutionScope.TryContinue(executor)) return;
 		ForeignCustodyTransferContext.EnsureBody(this, item);
+		var sourceQuantity = item.Quantity;
+		var sourceHolder = item.GetItemType<IHoldable>();
+		var receiver = target.Body;
+		if (receiver is null) return;
+		var receiverExecutor = receiver.Actor;
+		var corpse = target.Parent;
+		var reachUnchanged = PrepareItemReachSnapshot(corpse);
+		if (reachUnchanged is null) return;
+		var corpseCell = corpse.Location;
+		var corpseLayer = corpse.RoomLayer;
+		var corpsePosition = corpse.RoutePositionMetres;
+		var receiverCell = receiverExecutor.Location;
+		var receiverLayer = receiverExecutor.RoomLayer;
+		var receiverPosition = receiverExecutor.RoutePositionMetres;
+		bool ReceiverUnchanged() => reachUnchanged() && ReferenceEquals(target.Body, receiver) && ReferenceEquals(target.Parent, corpse) &&
+			ReferenceEquals(corpse.Location, corpseCell) && corpse.RoomLayer == corpseLayer && corpse.RoutePositionMetres == corpsePosition &&
+			ReferenceEquals(receiverExecutor.Location, receiverCell) && receiverExecutor.RoomLayer == receiverLayer &&
+			receiverExecutor.RoutePositionMetres == receiverPosition;
+		var whole = quantity == 0 || item.DropsWhole(quantity);
         if (!CanGive(item, target, quantity))
         {
             OutputHandler.Send(WhyCannotGive(item, target, quantity));
@@ -2628,7 +2702,10 @@ public partial class Body
 
         if (!ReferenceEquals(Actor, executor) || !CommandExecutionScope.TryContinue(executor)) return;
 		var wasWielded = _heldItems.All(x => x.Item1 != item);
-		var givenItem = GivePhysicalItem(item, target.Body, quantity, executor);
+		var givenItem = ReferenceEquals(target.Body, receiver)
+			? GivePhysicalItem(item, receiver, quantity, executor, sourceQuantity, sourceHolder, whole, receiverExecutor,
+				() => ReferenceEquals(target.Body, receiver) && CanGive(item, target, quantity), ReceiverUnchanged)
+			: null;
 		if (givenItem is null) return;
 		var output = new MixedEmoteOutput(new Emote("@ give|gives $0 to $1", this, givenItem, target.Parent), flags: OutputFlags.SuppressObscured);
 

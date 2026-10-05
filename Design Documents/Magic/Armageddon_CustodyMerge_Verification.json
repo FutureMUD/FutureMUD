@@ -1,0 +1,453 @@
+{
+  "status": "PASS_BOUNDED_LOCAL_CHECKPOINT_PARENT_REVIEW_PENDING",
+  "utc": "2026-10-05T22:30:08.504559+00:00",
+  "base_head": "3d1f0564d86b502922ee5cba8b32baad22bd701d",
+  "focused": {
+    "status": "PASS",
+    "run_id": "20261005T221806Z-5bc83cb280e4",
+    "counts": {
+      "executed": 285,
+      "passed": 285,
+      "failed": 0,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 285
+    },
+    "source_start": "629017118a38dda319b72daff99df764ad7e09979e6568509f8407c8b4c835a1",
+    "source_end": "629017118a38dda319b72daff99df764ad7e09979e6568509f8407c8b4c835a1",
+    "projects": [
+      "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+    ],
+    "filter": "FullyQualifiedName~QueuedCommandAuthorityTests|FullyQualifiedName~PreparedGetStackMergeTests|FullyQualifiedName~PreparedCurrencyTransferTests|FullyQualifiedName~InternalMagazineReloadTests|FullyQualifiedName~PreparedItemReachSnapshotTests",
+    "summary": ".artifacts/test-runs/armageddon-native-custody/focused05/20261005T221806Z-5bc83cb280e4/summary.json",
+    "sha256": "9cfcf1f45f076fecfd8669980002a0d7a81eec748a213e54549af680d23dd215"
+  },
+  "full_core": {
+    "status": "PASS",
+    "run_id": "20261005T221848Z-81958808d7b4",
+    "counts": {
+      "executed": 5153,
+      "passed": 5153,
+      "failed": 0,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 5153
+    },
+    "source_start": "629017118a38dda319b72daff99df764ad7e09979e6568509f8407c8b4c835a1",
+    "source_end": "629017118a38dda319b72daff99df764ad7e09979e6568509f8407c8b4c835a1",
+    "projects": [
+      "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+    ],
+    "filter": null,
+    "summary": ".artifacts/test-runs/armageddon-native-custody/full-core05/20261005T221848Z-81958808d7b4/summary.json",
+    "sha256": "fd41d4efde1f0248c79661b788839025b8532d3ab75a1f2241de5da181745867"
+  },
+  "native": {
+    "status": "PASS",
+    "cases": [
+      "container/authority-ancestor",
+      "container/authority-reach",
+      "container/preflight-relocate",
+      "container/partial-preflight-refill",
+      "container/ordered-valid",
+      "container/direct-valid",
+      "container/callback-refuse",
+      "container/callback-relocate",
+      "container/delete-expire",
+      "container/delete-refill",
+      "give/authority-reach",
+      "give/preflight-relocate",
+      "give/partial-preflight-refill",
+      "give/ordered-valid",
+      "give/direct-valid",
+      "give/callback-refuse",
+      "give/callback-relocate",
+      "give/delete-expire",
+      "give/delete-refill"
+    ],
+    "fresh_readers": [
+      "custody-container-authority-ancestor",
+      "custody-container-authority-reach",
+      "custody-container-preflight-relocate",
+      "custody-container-partial-preflight-refill",
+      "custody-container-ordered-valid",
+      "custody-container-direct-valid",
+      "custody-container-callback-refuse",
+      "custody-container-callback-relocate",
+      "custody-container-delete-expire",
+      "custody-container-delete-refill",
+      "custody-give-authority-reach",
+      "custody-give-preflight-relocate",
+      "custody-give-partial-preflight-refill",
+      "custody-give-ordered-valid",
+      "custody-give-direct-valid",
+      "custody-give-callback-refuse",
+      "custody-give-callback-relocate",
+      "custody-give-delete-expire",
+      "custody-give-delete-refill"
+    ],
+    "results": [
+      "ARMCustody=container/authority-ancestor passed native-command/body exact-8-total title callback-custody survivor-events:0 cold-reader",
+      "ARMCustody=container/authority-reach passed native-command/body exact-8-total title callback-custody survivor-events:0 cold-reader",
+      "ARMCustody=container/preflight-relocate passed native-command/body exact-8-total title callback-custody survivor-events:0 cold-reader",
+      "ARMCustody=container/partial-preflight-refill passed native-command/body exact-9-total title callback-custody survivor-events:0 cold-reader",
+      "ARMCustody=container/ordered-valid passed native-command/body exact-8-total title callback-custody survivor-events:1 cold-reader",
+      "ARMCustody=container/direct-valid passed native-command/body exact-8-total title callback-custody survivor-events:1 cold-reader",
+      "ARMCustody=container/callback-refuse passed native-command/body exact-8-total title callback-custody survivor-events:0 cold-reader",
+      "ARMCustody=container/callback-relocate passed native-command/body exact-8-total title callback-custody survivor-events:0 cold-reader",
+      "ARMCustody=container/delete-expire passed native-command/body exact-8-total title callback-custody survivor-events:1 cold-reader",
+      "ARMCustody=container/delete-refill passed native-command/body exact-10-total title callback-custody survivor-events:1 cold-reader",
+      "ARMCustody=give/authority-reach passed native-command/body exact-8-total title callback-custody survivor-events:0 cold-reader",
+      "ARMCustody=give/preflight-relocate passed native-command/body exact-8-total title callback-custody survivor-events:0 cold-reader",
+      "ARMCustody=give/partial-preflight-refill passed native-command/body exact-9-total title callback-custody survivor-events:0 cold-reader",
+      "ARMCustody=give/ordered-valid passed native-command/body exact-8-total title callback-custody survivor-events:1 cold-reader",
+      "ARMCustody=give/direct-valid passed native-command/body exact-8-total title callback-custody survivor-events:1 cold-reader",
+      "ARMCustody=give/callback-refuse passed native-command/body exact-8-total title callback-custody survivor-events:0 cold-reader",
+      "ARMCustody=give/callback-relocate passed native-command/body exact-8-total title callback-custody survivor-events:0 cold-reader",
+      "ARMCustody=give/delete-expire passed native-command/body exact-8-total title callback-custody survivor-events:1 cold-reader",
+      "ARMCustody=give/delete-refill passed native-command/body exact-10-total title callback-custody survivor-events:1 cold-reader"
+    ],
+    "log": ".artifacts/test-runs/armageddon-native-custody/qualify02-native.log",
+    "sha256": "8b9ddea9cc7a4bf6a2c6f8328b3e0599a75cf06d3beba153a64a83e193be2891",
+    "cleanup_sha256": "726e87d4438ed365d7c9ce74ff0c2b9aa3de39a9444ab94e01c9fcc96f99130a",
+    "inputs_sha256": "052de8f3bbda7ea03c5b8c38bf45af2e071ddfced32679f28c2febbcb5193c15",
+    "fingerprints_sha256": "3a016fad48f15232a28b130362fcda993c01dee520ac5dbfdd00f5662d6de49d"
+  },
+  "retained_native_baselines": [
+    {
+      "label": "baseline01",
+      "status": "EXPECTED_FAIL_REPRODUCED",
+      "reason": "original source remains live after survivor credit",
+      "log": ".artifacts/test-runs/armageddon-native-custody/baseline01-native.log",
+      "sha256": "ca587af5ea857518e4c4518c610ed9a5a5d71b833f68dcf4ce95f00b2a494ad6",
+      "cleanup_sha256": "403541d36256d4e76191f244660bf72dc4e8e020a540229a948d03c3dfdab3bb",
+      "inputs_sha256": "8fb30f635a974e6a503c83a5b09e3e90863ae91e8f9dc294afb8b95764806bb1",
+      "fingerprints_sha256": "dd777f0e0b591bedd71cb2f433463d3a8af9b4c5889a4fc6dd9d02a5a394c6a3"
+    },
+    {
+      "label": "baseline02",
+      "status": "EXPECTED_FAIL_REPRODUCED",
+      "reason": "independent preflight source relocation overridden",
+      "log": ".artifacts/test-runs/armageddon-native-custody/baseline02-native.log",
+      "sha256": "9f929520a711f355409972182eb55e41dab0473136a9e6348652aa4e767f22ce",
+      "cleanup_sha256": "8f496d8bfc0096f465f244c401ab92eb535e53325460cb38b3475cae71d2bd38",
+      "inputs_sha256": "3e8e7cad4c924a7866613358efd18db1599a8d1c2bfd2a6f031a71257b4d2961",
+      "fingerprints_sha256": "cbecb8c3baf5de1d10ff96169a19c9c3f2bf41180f7510c55acc6102c9468886"
+    },
+    {
+      "label": "baseline03",
+      "status": "EXPECTED_FAIL_REPRODUCED",
+      "reason": "final authority callback independently moves container but extraction continues",
+      "log": ".artifacts/test-runs/armageddon-native-custody/baseline03-native.log",
+      "sha256": "98b09c180de067a3158493ce684f8a5b4aadd1caa08c66d3c2e983072b1f713c",
+      "cleanup_sha256": "467e04047ff291acc2334c7cd5f0b8ef793a01ff38a4c1a5f4acadb601e0fd05",
+      "inputs_sha256": "5e59d8636f1c9da921d9423f8d67f3791d3bbf7eac869d666f0447997caee7e7",
+      "fingerprints_sha256": "e604ae8813ff09613a426dd41d251cd6159ae2fe410ef1957ef41037f5bc6dc0"
+    },
+    {
+      "label": "qualify01",
+      "status": "FAIL_FIXTURE_SETUP_RETAINED",
+      "reason": "Unused unrelated held item selected before direct Give; restricted to deletion-expiry case. No production change for this failure.",
+      "log": ".artifacts/test-runs/armageddon-native-custody/qualify01-native.log",
+      "sha256": "f6a7e4b5b86a0d6da94737a1f4ef78127f605679d35d1dea0b0e86f0ec656266",
+      "cleanup_sha256": "808b6e6e786317679727c2911bc7ef73405ef9648021eeddb6c3152f4a3876de",
+      "inputs_sha256": "577358715f38c3a412873c78a8bc1f53524cf03d09ab1f7e0bf4fc99ab61389e",
+      "fingerprints_sha256": "253e83b70cd638a23c9fbcf948880d88e8050a62ee0e144dd5798220d4f21b45"
+    }
+  ],
+  "superseded_managed_passes": [
+    {
+      "status": "PASS",
+      "run_id": "20261005T214644Z-21e2fda5db3d",
+      "counts": {
+        "executed": 282,
+        "passed": 282,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 282
+      },
+      "source_start": "e0f1ddf5c1191572d599b45aefadadba72dec6205904cbcac2decd0a2dafac00",
+      "source_end": "e0f1ddf5c1191572d599b45aefadadba72dec6205904cbcac2decd0a2dafac00",
+      "projects": [
+        "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+      ],
+      "filter": "FullyQualifiedName~QueuedCommandAuthorityTests|FullyQualifiedName~PreparedGetStackMergeTests|FullyQualifiedName~PreparedCurrencyTransferTests|FullyQualifiedName~InternalMagazineReloadTests",
+      "summary": ".artifacts/test-runs/armageddon-native-custody/focused01/20261005T214644Z-21e2fda5db3d/summary.json",
+      "sha256": "0eaa391f14be8cae92a5c4290e7ca921200fadd29265c5e861b7b663823dd0d4"
+    },
+    {
+      "status": "PASS",
+      "run_id": "20261005T214754Z-711a8474dbb5",
+      "counts": {
+        "executed": 5150,
+        "passed": 5150,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 5150
+      },
+      "source_start": "e0f1ddf5c1191572d599b45aefadadba72dec6205904cbcac2decd0a2dafac00",
+      "source_end": "e0f1ddf5c1191572d599b45aefadadba72dec6205904cbcac2decd0a2dafac00",
+      "projects": [
+        "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+      ],
+      "filter": null,
+      "summary": ".artifacts/test-runs/armageddon-native-custody/full-core01/20261005T214754Z-711a8474dbb5/summary.json",
+      "sha256": "6e97b00328bac5bf4510741312cd4d41628f696d069ba3c650177d45ae0be968"
+    },
+    {
+      "status": "PASS",
+      "run_id": "20261005T215637Z-e8369293656f",
+      "counts": {
+        "executed": 282,
+        "passed": 282,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 282
+      },
+      "source_start": "6d32aafcc9b38d6301415a9f498908d9447cebb56a0bf0f186608413da7a6a55",
+      "source_end": "6d32aafcc9b38d6301415a9f498908d9447cebb56a0bf0f186608413da7a6a55",
+      "projects": [
+        "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+      ],
+      "filter": "FullyQualifiedName~QueuedCommandAuthorityTests|FullyQualifiedName~PreparedGetStackMergeTests|FullyQualifiedName~PreparedCurrencyTransferTests|FullyQualifiedName~InternalMagazineReloadTests",
+      "summary": ".artifacts/test-runs/armageddon-native-custody/focused02/20261005T215637Z-e8369293656f/summary.json",
+      "sha256": "a4f9fdfbc90763786b66aa293039136ef1f96414b8d960eeef6f78946fdd7e20"
+    },
+    {
+      "status": "PASS",
+      "run_id": "20261005T215751Z-6b1d0cf3eb77",
+      "counts": {
+        "executed": 5150,
+        "passed": 5150,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 5150
+      },
+      "source_start": "6d32aafcc9b38d6301415a9f498908d9447cebb56a0bf0f186608413da7a6a55",
+      "source_end": "6d32aafcc9b38d6301415a9f498908d9447cebb56a0bf0f186608413da7a6a55",
+      "projects": [
+        "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+      ],
+      "filter": null,
+      "summary": ".artifacts/test-runs/armageddon-native-custody/full-core02/20261005T215751Z-6b1d0cf3eb77/summary.json",
+      "sha256": "aee3ae9b7e03f57422b0bcad895cb1cfb29558567b610131a331cfd456fb07fc"
+    },
+    {
+      "status": "PASS",
+      "run_id": "20261005T220411Z-4a37fd77ba4a",
+      "counts": {
+        "executed": 282,
+        "passed": 282,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 282
+      },
+      "source_start": "0a2f12956c7be3a1c64ae60bf53d39ff15ac41889eed1af4f6ebb9e1a67579f6",
+      "source_end": "0a2f12956c7be3a1c64ae60bf53d39ff15ac41889eed1af4f6ebb9e1a67579f6",
+      "projects": [
+        "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+      ],
+      "filter": "FullyQualifiedName~QueuedCommandAuthorityTests|FullyQualifiedName~PreparedGetStackMergeTests|FullyQualifiedName~PreparedCurrencyTransferTests|FullyQualifiedName~InternalMagazineReloadTests",
+      "summary": ".artifacts/test-runs/armageddon-native-custody/focused03/20261005T220411Z-4a37fd77ba4a/summary.json",
+      "sha256": "9294f6fdf6b198d2616b51e19a17875fce29f9fd3dbf780af5c6d0f987f579e2"
+    },
+    {
+      "status": "PASS",
+      "run_id": "20261005T220453Z-55447846f471",
+      "counts": {
+        "executed": 5150,
+        "passed": 5150,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 5150
+      },
+      "source_start": "0a2f12956c7be3a1c64ae60bf53d39ff15ac41889eed1af4f6ebb9e1a67579f6",
+      "source_end": "0a2f12956c7be3a1c64ae60bf53d39ff15ac41889eed1af4f6ebb9e1a67579f6",
+      "projects": [
+        "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+      ],
+      "filter": null,
+      "summary": ".artifacts/test-runs/armageddon-native-custody/full-core03/20261005T220453Z-55447846f471/summary.json",
+      "sha256": "d511e08ff274b8463b36dd9f7772bf53de01f058a200eda3acf53ddc2351f2d4"
+    },
+    {
+      "status": "PASS",
+      "run_id": "20261005T221130Z-36eba7a79e62",
+      "counts": {
+        "executed": 282,
+        "passed": 282,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 282
+      },
+      "source_start": "7255aef884a313c887b53992e27672c7f7cd99c8f94dc431bcbe042e65059921",
+      "source_end": "7255aef884a313c887b53992e27672c7f7cd99c8f94dc431bcbe042e65059921",
+      "projects": [
+        "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+      ],
+      "filter": "FullyQualifiedName~QueuedCommandAuthorityTests|FullyQualifiedName~PreparedGetStackMergeTests|FullyQualifiedName~PreparedCurrencyTransferTests|FullyQualifiedName~InternalMagazineReloadTests",
+      "summary": ".artifacts/test-runs/armageddon-native-custody/focused04/20261005T221130Z-36eba7a79e62/summary.json",
+      "sha256": "b1758e90a6b0bcbccfc27629c48e23e4b455b438444c7bb6b752c22b6c94692e"
+    },
+    {
+      "status": "PASS",
+      "run_id": "20261005T221305Z-49badf8dad8e",
+      "counts": {
+        "executed": 5150,
+        "passed": 5150,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 5150
+      },
+      "source_start": "7255aef884a313c887b53992e27672c7f7cd99c8f94dc431bcbe042e65059921",
+      "source_end": "7255aef884a313c887b53992e27672c7f7cd99c8f94dc431bcbe042e65059921",
+      "projects": [
+        "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+      ],
+      "filter": null,
+      "summary": ".artifacts/test-runs/armageddon-native-custody/full-core04/20261005T221305Z-49badf8dad8e/summary.json",
+      "sha256": "9a4685bc2bf3a381c79421184e24db1baefdd9569ba4ae65ef9a8d2ca550cdbb"
+    }
+  ],
+  "binary_capsules": [
+    {
+      "path": ".artifacts/test-runs/armageddon-native-custody/baseline01-binary-capsule/manifest.json",
+      "sha256": "f651e7284d5dc919aaa3fa1447256fbf0631d7b82bf83276f7462eccd83d633d",
+      "files": 604
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-native-custody/baseline02-binary-capsule/manifest.json",
+      "sha256": "676d8488afe2466355da6602f847dea8a187ca6cb5d6a6854d4a13766302c442",
+      "files": 604
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-native-custody/baseline03-binary-capsule/manifest.json",
+      "sha256": "389a830539bcc795f588604e09bc6b5e91ccdc0e156926c0ef99a6d073a0cd04",
+      "files": 604
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-native-custody/focused01-binary-capsule/manifest.json",
+      "sha256": "d8c139c8e51be0c640f83a7caab0ff8bee6edea7fe08dc00652d5c594016b86e",
+      "files": 604
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-native-custody/focused02-binary-capsule/manifest.json",
+      "sha256": "b307dabde26defb7ab85b833ee43a849f212c02dc2da8388abb12ee3012e0913",
+      "files": 604
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-native-custody/focused03-binary-capsule/manifest.json",
+      "sha256": "872d60970947090599f6c60d38c49acdd26f092bbc359f73ddd2f73b40df95f9",
+      "files": 604
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-native-custody/focused04-binary-capsule/manifest.json",
+      "sha256": "d7cb274010146b144bb595faa95962f2259a04f0a3ff31b886ed240f2cd670e8",
+      "files": 604
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-native-custody/focused05-binary-capsule/manifest.json",
+      "sha256": "791c2ef4da5731f058496bf6bdc8b3e90ee786c66f598e703952218c0d9ef1f7",
+      "files": 604
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-native-custody/full-core01-binary-capsule/manifest.json",
+      "sha256": "a37ff8cc88de37f5a61aca9165bc3be0e267baae7bf4f672d7ef1c928b7c6277",
+      "files": 604
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-native-custody/full-core02-binary-capsule/manifest.json",
+      "sha256": "85cd81334c1f6edd9a9795ef209450d25690df99ec62f5e1ce238cb5f30b37f9",
+      "files": 604
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-native-custody/full-core03-binary-capsule/manifest.json",
+      "sha256": "b90b9b9e63655484b2a65ba818b991440a7af75ffe937238f4926bf0e6562cc1",
+      "files": 604
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-native-custody/full-core04-binary-capsule/manifest.json",
+      "sha256": "5391c664c4e536f46c5e19700af925d61388c9d1068000d134a0b9e062ae9542",
+      "files": 604
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-native-custody/full-core05-binary-capsule/manifest.json",
+      "sha256": "5796c03efb9e54420dfa29fcb9b3289f1adc36a4ce55f2c7e31d500ab1cc94d5",
+      "files": 604
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-native-custody/qualify01-binary-capsule/manifest.json",
+      "sha256": "152c2f50ec3fbb12340784aeea6cf2058e638a5157ab295e9a6e0d879c8184c9",
+      "files": 604
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-native-custody/qualify02-binary-capsule/manifest.json",
+      "sha256": "54d87fdde306e80ad98606f5d8cd5dc7ce24e0231b4dcb6441ea7625ac7bc18b",
+      "files": 604
+    }
+  ],
+  "scope": [
+    {
+      "path": "MudSharpCore Unit Tests/PreparedItemReachSnapshotTests.cs",
+      "sha256": "1615c67cae9691a67eb7db224a223ed6ef8b3cf9fdf156a37c7840f3bfb8cd25"
+    },
+    {
+      "path": "MudSharpCore/Body/Implementations/BodyInventory.cs",
+      "sha256": "df3865d6d77f6843c2630b8187409cf6218bd8d4fd595588a1e22216a5ebee2f"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.cs",
+      "sha256": "b1524d09ab77f5c30a9ac201da9c2cad00b909d0f3c98f6d6676a622338c682e"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.CustodyMerge.cs",
+      "sha256": "c60039911be0d6664fb5e875c7d2f389c3072d6c69aa2462d6840c58cc7baf2c"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.OrderedNpcRegressionP2.cs",
+      "sha256": "352779282ec0c26006ea7de60c859710c5aa15ee8e650640911232ce8f49c932"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.RaiseServitorStock.cs",
+      "sha256": "3c5db591928f169f07fbd475e50b68a69b89ac144b0c2883b95524cba36067e9"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Run-IsolatedAcceptance.ps1",
+      "sha256": "e9b6f375159a6482f1228b2dca3fbb871072967a604e569a536ca43d62a858b6"
+    }
+  ],
+  "source_scope_digest": "c93e21f98c4561a4e1c983f465fc3e2deb8fb19977393eb78f79dbc460d997f2",
+  "review": "fm_reviewer read-only: final two-pass ancestry correction cleared, no remaining established P1/P2 in bounded correction; execution coordinator-owned",
+  "preserved": {
+    "historical_artifacts": 41008,
+    "task_files": 524,
+    "primary_head": "34eb234eb5a1e2784c595b4f848f6f785b426302",
+    "primary_clean": true
+  },
+  "limits": [
+    "Native exact Stackable/Holdable leaf stacks only; composite ammunition and component Unload remain separate.",
+    "Stock get/give whitelist and native parser/body operations; direct-valid executes explicitly independently. Final policy callbacks retain command grant and establish independent movement/closure.",
+    "Fresh readers check raw saved parent/body/cell joins and reconstruct native items/body inventory; they do not reconstruct the animated wrapper or prove Raise Servitor restart collapse.",
+    "Full Fast, full-world and Telnet NOT_RUN for checkpoint17. No lane integration/publication/merge/deploy/shared or production database.",
+    "Whole82/12/154/25 plan remains incomplete; Fury endurance decision pending."
+  ],
+  "whole_plan_complete": false
+}

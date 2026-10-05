@@ -135,8 +135,8 @@ internal static partial class GNHProgram
 		return destination;
 	}
 
-	private sealed record RegressionP2SavedStack(long Id, int Quantity, ItemOwnershipReference? Owner, long? Body, long? Character, long? Cell, bool Deleted = false);
-	private sealed record RegressionP2Reader(string Database, FixtureIds Fixture, DateTime Now, long Destination, RegressionP2SavedStack[] Stacks, string Scenario, int ExpectedTotal = 8, long? CallerItem = null, double? CallerCondition = null);
+	private sealed record RegressionP2SavedStack(long Id, int Quantity, ItemOwnershipReference? Owner, long? Body, long? Character, long? Cell, bool Deleted = false, long? Container = null, long? CharacterCell = null);
+	private sealed record RegressionP2Reader(string Database, FixtureIds Fixture, DateTime Now, long Destination, RegressionP2SavedStack[] Stacks, string Scenario, int ExpectedTotal = 8, long? CallerItem = null, double? CallerCondition = null, long? ContainerItem = null, long? OtherContainerItem = null, long? ContainerCell = null, long? AncestorItem = null);
 	private static int RunRegressionP2Reader(string[] args)
 	{
 		var input = JsonSerializer.Deserialize<RegressionP2Reader>(Encoding.UTF8.GetString(Convert.FromBase64String(args.Single())))!;
@@ -149,10 +149,31 @@ internal static partial class GNHProgram
 		// Inventory scenarios are saved after travel teardown, with ordinary-cell positions.
 		source.ReloadRouteDefinition(null!); destination.ReloadRouteDefinition(null!);
 		SetPrivateMember(host.Native.Actor, "Location", source);
+		foreach (var bagId in new[] { input.AncestorItem, input.ContainerItem, input.OtherContainerItem }.Where(x => x.HasValue).Select(x => x!.Value))
+		{
+			using var stored = NewIndependentContext(database.ConnectionString);
+			var bagCell = bagId == input.ContainerItem ? input.ContainerCell ?? source.Id : source.Id;
+			var bagParent = bagId == input.ContainerItem ? input.AncestorItem : null;
+			Require(stored.GameItems.Single(x => x.Id == bagId).ContainerId == bagParent &&
+				stored.CellsGameItems.Count(x => x.GameItemId == bagId) == (bagParent.HasValue ? 0 : 1) &&
+				(bagParent.HasValue || stored.CellsGameItems.Any(x => x.GameItemId == bagId && x.CellId == bagCell)) &&
+				!stored.BodiesGameItems.Any(x => x.GameItemId == bagId), "Cold bag lost its exact floor membership.");
+			var expected = input.Stacks.Where(x => !x.Deleted && x.Container == bagId).Select(x => x.Id)
+				.Concat(bagId == input.AncestorItem ? new[] { input.ContainerItem!.Value } : Array.Empty<long>()).Order().ToArray();
+			var actual = stored.GameItemComponents.AsNoTracking().Where(x => x.GameItemId == bagId).ToArray()
+				.SelectMany(x => XElement.Parse(x.Definition).Elements("Contained")).Select(x => (long)x).Order().ToArray();
+			Require(actual.SequenceEqual(expected), "Cold bag XML retained or lost a source child.");
+			var bag = (GameItem)world.TryGetItem(bagId, true)!; bag.FinaliseLoadTimeTasks();
+			if (!bagParent.HasValue) (bagCell == source.Id ? source : destination).Insert(bag, true);
+			Require(bag.ContainedIn?.Id == bagParent && (bagId != input.AncestorItem || !bag.GetItemType<IOpenable>()!.IsOpen), "Cold nested reach state or exact parent changed.");
+			Require(bag.GetItemType<IContainer>()!.Contents.Select(x => x.Id).Order().SequenceEqual(expected), "Cold native container lost its exact children.");
+		}
 		foreach (var saved in input.Stacks.Where(x => x.Character.HasValue).DistinctBy(x => x.Character))
 		{
 			var actor = world.TryGetCharacter(saved.Character!.Value, true)!;
-			SetPrivateMember(actor, "Location", source);
+			using (var stored = NewIndependentContext(database.ConnectionString))
+				Require(saved.CharacterCell is null || stored.Characters.Single(x => x.Id == saved.Character).Location == saved.CharacterCell, "Cold canonical participant lost its captured cell.");
+			SetPrivateMember(actor, "Location", saved.CharacterCell == destination.Id ? destination : source);
 			using var db = NewIndependentContext(database.ConnectionString);
 			((Body)actor.Body).LoadInventory(db.Bodies.Include(x => x.BodiesGameItems).Single(x => x.Id == saved.Body));
 		}
@@ -170,7 +191,7 @@ internal static partial class GNHProgram
 			}
 			using (var stored = NewIndependentContext(database.ConnectionString))
 			{
-				Require(stored.GameItems.AsNoTracking().Any(x => x.Id == saved.Id), "Cold live stack item row must survive the caller's later flush.");
+				Require(stored.GameItems.AsNoTracking().Any(x => x.Id == saved.Id && x.ContainerId == saved.Container), "Cold live stack item row must survive the caller's later flush.");
 				var cells = stored.CellsGameItems.AsNoTracking().Where(x => x.GameItemId == saved.Id).Select(x => x.CellId).ToArray();
 				var bodies = stored.BodiesGameItems.AsNoTracking().Where(x => x.GameItemId == saved.Id).Select(x => x.BodyId).ToArray();
 				Require(cells.SequenceEqual(saved.Cell.HasValue ? new[] { saved.Cell.Value } : Array.Empty<long>()) &&
@@ -180,7 +201,7 @@ internal static partial class GNHProgram
 			var item = (GameItem)world.TryGetItem(saved.Id, true)!; item.FinaliseLoadTimeTasks();
 			if (saved.Cell.HasValue) (saved.Cell == source.Id ? source : destination).Insert(item, true);
 			Require(item.Quantity == saved.Quantity && item.OwnershipReference == saved.Owner &&
-				item.GetItemType<IHoldable>()!.HeldBy?.Id == saved.Body && item.DirectLocation?.Id == saved.Cell && item.ContainedIn is null,
+				item.GetItemType<IHoldable>()!.HeldBy?.Id == saved.Body && item.DirectLocation?.Id == saved.Cell && item.ContainedIn?.Id == saved.Container,
 				"Cold native stack lost quantity, title or exact custody.");
 			Require(saved.Body is null || item.GetItemType<IHoldable>()!.HeldBy!.HeldItems.Any(x => ReferenceEquals(x, item)), "Cold native body lost exact stack membership.");
 			using var db = NewIndependentContext(database.ConnectionString);

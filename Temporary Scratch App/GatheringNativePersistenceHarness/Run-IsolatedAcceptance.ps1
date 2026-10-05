@@ -1,7 +1,8 @@
 [CmdletBinding()]
-param([switch]$LandOnly, [switch]$RejuvenationOnly, [switch]$CastingOnly, [switch]$PracticeOnly, [switch]$SpeechOnly, [switch]$AreaOnly, [switch]$LifecycleOnly, [switch]$BodyRetirementOnly, [switch]$LegacyRemainsOnly, [switch]$NpcArchiveOnly, [switch]$NpcArchiveMaintenanceOnly, [switch]$SpellOwnedNpcOnly, [switch]$SpellOwnedRetirementOnly, [switch]$SpellOwnedItemOnly, [switch]$CreatedConsumablesOnly, [switch]$CorpseAnimationOnly, [switch]$RaiseServitorStockOnly, [switch]$StormSpearStockOnly, [switch]$FlameKnifeStockOnly, [switch]$SandKnifeStockOnly, [switch]$QueuedCommandOnly, [switch]$QueuedCallbackOnly, [switch]$OrderedNpcCallbacksOnly, [switch]$CheckLearningOnly, [switch]$RegressionP2Only, [switch]$StackMergeOnly, [switch]$SelectedMeleeCheckOnly, [switch]$FirearmAuthorityOnly, [switch]$CountershotAuthorityOnly, [switch]$DefendedMeleeOnly, [switch]$OwnershipOnly, [switch]$RefreshSnapshot)
+param([switch]$LandOnly, [switch]$RejuvenationOnly, [switch]$CastingOnly, [switch]$PracticeOnly, [switch]$SpeechOnly, [switch]$AreaOnly, [switch]$LifecycleOnly, [switch]$BodyRetirementOnly, [switch]$LegacyRemainsOnly, [switch]$NpcArchiveOnly, [switch]$NpcArchiveMaintenanceOnly, [switch]$SpellOwnedNpcOnly, [switch]$SpellOwnedRetirementOnly, [switch]$SpellOwnedItemOnly, [switch]$CreatedConsumablesOnly, [switch]$CorpseAnimationOnly, [switch]$RaiseServitorStockOnly, [switch]$StormSpearStockOnly, [switch]$FlameKnifeStockOnly, [switch]$SandKnifeStockOnly, [switch]$QueuedCommandOnly, [switch]$QueuedCallbackOnly, [switch]$OrderedNpcCallbacksOnly, [switch]$CheckLearningOnly, [switch]$RegressionP2Only, [switch]$StackMergeOnly, [switch]$CustodyMergeOnly, [switch]$SelectedMeleeCheckOnly, [switch]$FirearmAuthorityOnly, [switch]$CountershotAuthorityOnly, [switch]$DefendedMeleeOnly, [switch]$OwnershipOnly, [switch]$RefreshSnapshot)
 
 $ErrorActionPreference = 'Stop'
+if ($CustodyMergeOnly) { $RegressionP2Only = $true }
 if ($StackMergeOnly) { $RegressionP2Only = $true }
 if ($DefendedMeleeOnly) { $SelectedMeleeCheckOnly = $true }
 if ($SelectedMeleeCheckOnly -or $FirearmAuthorityOnly -or $CountershotAuthorityOnly) { $OrderedNpcCallbacksOnly = $true }
@@ -223,7 +224,7 @@ try {
 		$runExit = $LASTEXITCODE
 	}
 	if ($runExit -eq 0 -and $RegressionP2Only) {
-		Invoke-OwnedHarness $(if ($StackMergeOnly) { '--stack-merge-run' } else { '--regression-p2-run' })
+		Invoke-OwnedHarness $(if ($CustodyMergeOnly) { '--custody-merge-run' } elseif ($StackMergeOnly) { '--stack-merge-run' } else { '--regression-p2-run' })
 		$runExit = $LASTEXITCODE
 	}
 	if ($runExit -eq 0 -and $CheckLearningOnly) {

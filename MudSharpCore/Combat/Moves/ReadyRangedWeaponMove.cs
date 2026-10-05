@@ -26,11 +26,14 @@ public class ReadyRangedWeaponMove : CombatMoveBase
             return CombatMoveResult.Irrelevant;
         }
 
-        Weapon.Ready(Assailant);
+        if (!Weapon.Ready(Assailant)) return CombatMoveResult.Irrelevant;
         return new CombatMoveResult
         {
             RecoveryDifficulty = Difficulty.Easy,
             MoveWasSuccessful = true
         };
     }
+
+    public override bool UsesStaminaWithResult(CombatMoveResult result)
+        => result.MoveWasSuccessful && base.UsesStaminaWithResult(result);
 }

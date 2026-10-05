@@ -207,7 +207,9 @@ public partial class Character
 			if (displacement is not null && !displacement.Continue()) return;
             sourceLocation?.Extract(item);
         }
-        RoomLayer = layer;
+        // Cell entry publishes the destination cell, layer and route position together.
+        // Keep the captured source position intact while the membership receipt is leaving.
+        if (displacement is null) RoomLayer = layer;
         Dictionary<ICharacter, ICell> moverOrigins = new();
 
         foreach (ICharacter mover in otherMovers)
@@ -223,7 +225,7 @@ public partial class Character
 				if (moverSourceLocation is not Cell nativeSource || !nativeSource.LeaveDisplaced(mover, displacement)) return;
 			}
 			else moverSourceLocation?.Leave(mover);
-            mover.RoomLayer = layer;
+            if (displacement is null) mover.RoomLayer = layer;
         }
 
 
@@ -292,7 +294,7 @@ public partial class Character
         foreach (ICell duplicateCell in new[] { source, target }
                  .Where(x => x is not null && !ReferenceEquals(x, canonicalCell))
                  .Distinct()
-                 .Where(x => x.Characters.Contains(character)))
+                 .Where(x => x.Characters.ContainsPhysicalInstance(character)))
         {
             duplicateCell.Leave(character);
         }

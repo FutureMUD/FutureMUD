@@ -1761,17 +1761,36 @@ public partial class Body
 	// Reentrant public inventory operations still pass their own normal authority checks.
 	private bool CompleteGetPlacement(IGameItem item, PreparedGet placement)
 	{
-		if (item.Deleted || item.Destroyed || ComponentItemTransfer.DirectLocationOf(item) is not null || item.ContainedIn is not null ||
-			!ReferenceEquals(item.GetItemType<IHoldable>()?.HeldBy, this)) return false;
+		bool SourceReady() => !item.Deleted && !item.Destroyed && ComponentItemTransfer.DirectLocationOf(item) is null &&
+			item.ContainedIn is null && ReferenceEquals(item.GetItemType<IHoldable>()?.HeldBy, this);
+		if (!SourceReady()) return false;
 		if (HeldOrWieldedItems.Any(x => ReferenceEquals(x, item))) return true;
 		if (ReferenceEquals(Actor, placement.Executor))
 		{
 			if (placement.Merge is { Deleted: false, Destroyed: false } merge && HeldOrWieldedItems.Any(x => ReferenceEquals(x, merge)))
 			{
-				merge.Merge(item);
-				return true;
+				// Get/removal callbacks may change the prepared survivor's title or custody.
+				// CanMerge itself invokes effects/components, so check its inputs and custody again afterwards.
+				var sourceOwner = item.OwnershipReference;
+				var mergeOwner = merge.OwnershipReference;
+				var sourceDescription = (item.Prototype, item.OverrideSdesc, item.OverrideDesc);
+				var mergeDescription = (merge.Prototype, merge.OverrideSdesc, merge.OverrideDesc);
+				var canMerge = merge.CanMerge(item);
+				if (!SourceReady()) return false;
+				if (HeldOrWieldedItems.Any(x => ReferenceEquals(x, item))) return true;
+				if (canMerge && ReferenceEquals(Actor, placement.Executor) && !merge.Deleted && !merge.Destroyed &&
+					HeldOrWieldedItems.Any(x => ReferenceEquals(x, merge)) &&
+					ReferenceEquals(merge.GetItemType<IHoldable>()?.HeldBy, this) && merge.ContainedIn is null &&
+					ComponentItemTransfer.DirectLocationOf(merge) is null &&
+					item.OwnershipReference == sourceOwner && merge.OwnershipReference == mergeOwner && sourceOwner == mergeOwner &&
+					(item.Prototype, item.OverrideSdesc, item.OverrideDesc) == sourceDescription &&
+					(merge.Prototype, merge.OverrideSdesc, merge.OverrideDesc) == mergeDescription)
+				{
+					merge.Merge(item);
+					return true;
+				}
 			}
-			if (placement.Hand is not null && !_heldItems.Any(x => ReferenceEquals(x.Item2, placement.Hand)) &&
+			if (ReferenceEquals(Actor, placement.Executor) && placement.Hand is not null && !_heldItems.Any(x => ReferenceEquals(x.Item2, placement.Hand)) &&
 				!_wieldedItems.Any(x => ReferenceEquals(x.Item2, placement.Hand)))
 			{
 				_heldItems.Add(Tuple.Create(item, placement.Hand));

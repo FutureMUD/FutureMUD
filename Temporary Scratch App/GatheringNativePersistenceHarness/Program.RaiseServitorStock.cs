@@ -64,7 +64,7 @@ internal static partial class GNHProgram
 		Console.WriteLine("ARM03D1Stock-reader=passed fresh-process durable-control-query persisted-stock-identity-formula-and-animation-deadline no-actor-materialization-or-replay");
 		return 0;
 	}
-	private static int RunRaiseServitorStockChecks(bool queuedAuthorityOnly = false, bool queuedCallbackOnly = false, bool orderedCallbacks = false, bool checkLearningOnly = false)
+	private static int RunRaiseServitorStockChecks(bool queuedAuthorityOnly = false, bool queuedCallbackOnly = false, bool orderedCallbacks = false, bool checkLearningOnly = false, bool regressionP2Only = false)
 	{
 		using var database = TestDatabase.CreateFresh("futuremud_land_"); ConfigureNativeDatabase(database.ConnectionString);
 		var fixture = FixtureSeed.Create(database, "arm03d1_stock", true);
@@ -78,9 +78,14 @@ internal static partial class GNHProgram
 			SeedConsumables(database, fixture, seed.World.Materials.First().Id);
 			SeedFlameFixture(database);
 		}
+		if (regressionP2Only)
+		{
+			SeedCreatedWeaponPrototypes(database, seed.World.Materials.First().Id);
+			SeedRegressionP2Fixture(database, seed.World);
+		}
 		using var orderedGlobals = orderedCallbacks ? new ConsumableGlobals() : null;
 		var host = PrepareRetirementHost(database, fixture, clock, corpseAnimationAnatomy: true,
-			consumablesAnatomy: orderedCallbacks, wielding: orderedCallbacks);
+			consumablesAnatomy: orderedCallbacks, wielding: orderedCallbacks || regressionP2Only);
 		var native = host.Native; var world = native.World; var caster = native.Actor;
 		// The fixture player must be present in native identity roots for live command authority.
 		// The partial archive host omits production online-player statistics.
@@ -199,6 +204,8 @@ internal static partial class GNHProgram
 		void Order(ScriptedAiCharacterInstance animation, ICharacter issuer, string command) =>
 			Require(animation.HandleEvent(EventType.CommandIssuedToCharacter, animation, issuer, command), "Stock command event was not handled.");
 		var animated = Cast();
+		if (regressionP2Only)
+			return RunOrderedNpcRegressionP2(database, host, clock, animated, caster, foe, Cast, Restored, Order, fixture);
 		if (checkLearningOnly)
 			return RunOrderedNpcCheckLearning(database, host, clock, animated, caster, foe, Cast, Restored, Order);
 		if (orderedCallbacks)

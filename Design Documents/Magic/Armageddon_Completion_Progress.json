@@ -39,7 +39,7 @@
   "preparation_baseline": "b0e4339d57bf15bc6e6a6f21fbdd5edc73006e38",
   "implementation_branch": "codex/armageddon-completion-phase1",
   "authorised_scope": "Complete plan in coherent stages; local commits; no publication, merge, deploy or shared/production DB",
-  "selected_stage": "Bounded intrinsic Check learning implemented and verified; stop for coordinator review; comprehensive ordered action closure remains open",
+  "selected_stage": "Three d882 P2 repairs verified; separate Check stale-write correction co-tested and pending its own local commit; stop for parent review",
   "phase1_remaining": [
     "Stock installer selects and qualifies the mental/spiritual native attribute, capacity expression/basis and authored energy coefficients.",
     "Complete installed source/support/crafting/chargen wiring and gathering restrictions/environmental accounting remain later stock/native gates.",
@@ -3556,6 +3556,14 @@
       "cold_readers": 6,
       "stop_for_review": true,
       "whole_plan_complete": false
+    },
+    {
+      "id": "Armageddon_OrderedNpc_RegressionP2",
+      "status": "PASS_BOUNDED_THREE_P2S_REVIEW_PENDING",
+      "receipt": "Design Documents/Magic/Armageddon_OrderedNpc_RegressionP2_Verification.json",
+      "focused_passed": 253,
+      "fast_passed": 7475,
+      "whole_plan_complete": false
     }
   ],
   "implementation_commits": [
@@ -3681,57 +3689,45 @@
     }
   ],
   "next_checkpoint": {
-    "status": "STOP_FOR_COORDINATOR_CHECK_LEARNING_REVIEW",
-    "base": "d882cf3527188664fc301b1639b111c78ac77281",
-    "receipt": "Design Documents/Magic/Armageddon_OrderedNpc_CheckLearning_Verification.json",
-    "report": "Design Documents/Magic/Armageddon_OrderedNpc_CheckLearning_Checkpoint.md",
-    "exact_new_commit_location": "Task Armageddon_CheckLearning_CommitReceipt.json",
-    "full_plan_complete": false,
-    "publication_authorized": false,
-    "comprehensive_queued_authority_cleared": false,
+    "status": "STOP_FOR_PARENT_BOUNDED_REGRESSION_REVIEW",
+    "receipt": "Design Documents/Magic/Armageddon_OrderedNpc_RegressionP2_Verification.json",
     "remaining": [
       {
-        "id": "cross-layer-displacement",
-        "status": "REVIEW_P2_UNFIXED",
-        "owner": "this authority lane; separate checkpoint",
-        "seam": "CharacterMovement RoomLayer write before destination entry versus NativeDisplacementReceipt source/destination layer validation",
-        "acceptance": "Native Character/Cell cross-layer and route-gap transition, revoked callback, direct control; captured source or explicit authorized transition"
-      },
-      {
-        "id": "held-noncurrency-merge",
-        "status": "REVIEW_P2_UNFIXED_PLUS_HISTORICAL_CONSERVATION_OPEN",
-        "owner": "this authority/GameItem lane; separate checkpoint",
-        "seam": "BodyInventory prepared merge before GameItem.Get removal callbacks; revalidate owner/compatibility/custody at completion",
-        "acceptance": "Native owner-change/relocation refusal, valid stack survivor and absorbed cleanup, quantity/title/custody and cold reader"
-      },
-      {
-        "id": "firearm-ready-result",
-        "status": "REVIEW_P2_UNFIXED",
-        "owner": "this authority/combat component lane; separate checkpoint",
-        "seam": "FirearmBase.Ready premarks commit before void ChamberRound refusal; ReadyRangedWeaponMove ignores result",
-        "acceptance": "Actual chamber admission refusal and valid/direct controls; ammo, mutation result and stamina; commit at irreversible transition"
+        "id": "historical-stack-conservation",
+        "status": "OPEN_NOT_QUALIFIED",
+        "scope": "Ordinary valid merge absorbed-source cleanup, native total quantity/title/custody and cold reader"
       },
       {
         "id": "eat-with-detection",
-        "status": "DEMONSTRATED_NATIVE_GAMEPLAY_BLOCKER_UNFIXED",
-        "owner": "GameItem.SpellRemoval and consumption/removal adapter here; installer lane collects evidence only",
-        "seam": "GameItem.SpellRemoval body custodian blanket Actor.Effects rejection; Food bites reaches0 and nutrition credited before Delete throws",
-        "acceptance": "Keep actor MagicSpellParent+SpellDetectMagickEffect; consumed food removal and native held joins/lifecycle/nutrition persistence with fresh reader; reject actual callback custody changes and retain rollback"
+        "status": "DEMONSTRATED_NATIVE_BLOCKER_NEXT_SEPARATE_CHECKPOINT",
+        "scope": "Admit ordinary Sense/detection in spell item removal; preserve custody/reacquisition/dependency refusal and commit-safe persistence/rollback"
       },
       {
         "id": "component-boarding-countershot",
         "status": "NOT_COMPLETE",
-        "owner": "later finite authority checkpoints",
-        "acceptance": "Representative native load/chamber/unready/unload, accepted shot condition effects, displacement/boarding and independent real defender countershot"
+        "scope": "Representative gun families load/chamber/unready/unload/fire, accepted-shot costs, boarding and actual independent defender countershot"
+      },
+      {
+        "id": "selected-melee-check-fault",
+        "status": "NATIVE_NOT_RUN",
+        "scope": "Actual selected melee attack with native scoring-merit fault; prior native Check fixture dispatch and explicit casting scope do not qualify this"
       },
       {
         "id": "fury-calm-hooks",
-        "status": "SIBLING_PROPOSAL_NOT_ALLOCATED_OR_INTEGRATED",
-        "owner": "sibling stock partials; parent allocates exact caller hooks",
-        "seam": "CharacterCombat engagement/attack/truce, StrategyBase attack policy, CombatBase harmful move admission, harmful spell admission; shared existing authority guards",
-        "integration": "Query actor plus current body effects in narrow policy helper; preserve exact existing precommit authority validation after executable policy callbacks, independent defender/autonomous scopes, selective cessation through native LeaveCombat; separate allocation and checkpoint"
+        "status": "NOT_ALLOCATED_OR_INTEGRATED",
+        "scope": "Stock da9af18a departing-Fury stamina correction independently cleared. Native victim LeaveCombat may retarget caster via AcquireTarget; pair cessation must inspect current post-removal opponent, with another-opponent shared-combat regression. Endurance defaults and Calm break behavior await Luke. Live shared combat hooks untouched"
+      },
+      {
+        "id": "whole-plan-release",
+        "status": "OPEN",
+        "scope": "PC charm N13, stock/device/provision integration, eight larger features, production/repertoire/installer and all remaining native release gates. Sibling installer reports Pierce and seven of82 closed admissions, prepared-world entry/guide only; new provision installation remains gated on active-Sense persisted removal repair. Installer owns SeederMetadataRegistry.cs and DebugSeederReplay.cs; no runtime overlap"
       }
-    ]
+    ],
+    "priority_after_review": "Persisted active-Sense food consumption/removal before broader optional authority coverage",
+    "exact_local_commit_receipt": "Task Armageddon_p2_CommitReceipt.json",
+    "full_plan_complete": false,
+    "publication_authorized": false,
+    "comprehensive_queued_authority_cleared": false
   },
   "deferred_consultation": {
     "source_task": "01a0fc1f-ccd4-7359-95f2-f8c03724b0b1",
@@ -4153,45 +4149,34 @@
     "fast_final": "PASS_current_currency_checkpoint",
     "remaining": [
       {
-        "id": "cross-layer-displacement",
-        "status": "REVIEW_P2_UNFIXED",
-        "owner": "this authority lane; separate checkpoint",
-        "seam": "CharacterMovement RoomLayer write before destination entry versus NativeDisplacementReceipt source/destination layer validation",
-        "acceptance": "Native Character/Cell cross-layer and route-gap transition, revoked callback, direct control; captured source or explicit authorized transition"
-      },
-      {
-        "id": "held-noncurrency-merge",
-        "status": "REVIEW_P2_UNFIXED_PLUS_HISTORICAL_CONSERVATION_OPEN",
-        "owner": "this authority/GameItem lane; separate checkpoint",
-        "seam": "BodyInventory prepared merge before GameItem.Get removal callbacks; revalidate owner/compatibility/custody at completion",
-        "acceptance": "Native owner-change/relocation refusal, valid stack survivor and absorbed cleanup, quantity/title/custody and cold reader"
-      },
-      {
-        "id": "firearm-ready-result",
-        "status": "REVIEW_P2_UNFIXED",
-        "owner": "this authority/combat component lane; separate checkpoint",
-        "seam": "FirearmBase.Ready premarks commit before void ChamberRound refusal; ReadyRangedWeaponMove ignores result",
-        "acceptance": "Actual chamber admission refusal and valid/direct controls; ammo, mutation result and stamina; commit at irreversible transition"
+        "id": "historical-stack-conservation",
+        "status": "OPEN_NOT_QUALIFIED",
+        "scope": "Ordinary valid merge absorbed-source cleanup, native total quantity/title/custody and cold reader"
       },
       {
         "id": "eat-with-detection",
-        "status": "DEMONSTRATED_NATIVE_GAMEPLAY_BLOCKER_UNFIXED",
-        "owner": "GameItem.SpellRemoval and consumption/removal adapter here; installer lane collects evidence only",
-        "seam": "GameItem.SpellRemoval body custodian blanket Actor.Effects rejection; Food bites reaches0 and nutrition credited before Delete throws",
-        "acceptance": "Keep actor MagicSpellParent+SpellDetectMagickEffect; consumed food removal and native held joins/lifecycle/nutrition persistence with fresh reader; reject actual callback custody changes and retain rollback"
+        "status": "DEMONSTRATED_NATIVE_BLOCKER_NEXT_SEPARATE_CHECKPOINT",
+        "scope": "Admit ordinary Sense/detection in spell item removal; preserve custody/reacquisition/dependency refusal and commit-safe persistence/rollback"
       },
       {
         "id": "component-boarding-countershot",
         "status": "NOT_COMPLETE",
-        "owner": "later finite authority checkpoints",
-        "acceptance": "Representative native load/chamber/unready/unload, accepted shot condition effects, displacement/boarding and independent real defender countershot"
+        "scope": "Representative gun families load/chamber/unready/unload/fire, accepted-shot costs, boarding and actual independent defender countershot"
+      },
+      {
+        "id": "selected-melee-check-fault",
+        "status": "NATIVE_NOT_RUN",
+        "scope": "Actual selected melee attack with native scoring-merit fault; prior native Check fixture dispatch and explicit casting scope do not qualify this"
       },
       {
         "id": "fury-calm-hooks",
-        "status": "SIBLING_PROPOSAL_NOT_ALLOCATED_OR_INTEGRATED",
-        "owner": "sibling stock partials; parent allocates exact caller hooks",
-        "seam": "CharacterCombat engagement/attack/truce, StrategyBase attack policy, CombatBase harmful move admission, harmful spell admission; shared existing authority guards",
-        "integration": "Query actor plus current body effects in narrow policy helper; preserve exact existing precommit authority validation after executable policy callbacks, independent defender/autonomous scopes, selective cessation through native LeaveCombat; separate allocation and checkpoint"
+        "status": "NOT_ALLOCATED_OR_INTEGRATED",
+        "scope": "Stock da9af18a departing-Fury stamina correction independently cleared. Native victim LeaveCombat may retarget caster via AcquireTarget; pair cessation must inspect current post-removal opponent, with another-opponent shared-combat regression. Endurance defaults and Calm break behavior await Luke. Live shared combat hooks untouched"
+      },
+      {
+        "id": "whole-plan-release",
+        "status": "OPEN",
+        "scope": "PC charm N13, stock/device/provision integration, eight larger features, production/repertoire/installer and all remaining native release gates. Sibling installer reports Pierce and seven of82 closed admissions, prepared-world entry/guide only; new provision installation remains gated on active-Sense persisted removal repair. Installer owns SeederMetadataRegistry.cs and DebugSeederReplay.cs; no runtime overlap"
       }
     ],
     "new_commit": null,
@@ -4517,6 +4502,104 @@
         "production_runtime_and_managed_test_changes": false
       },
       "whole_plan_complete": false
+    },
+    "regression_p2_checkpoint": {
+      "status": "PASS_BOUNDED_THREE_P2S_REVIEW_PENDING",
+      "focused": {
+        "status": "PASS",
+        "run_id": "20261005T152618Z-c64b8b2ab84a",
+        "summary": ".artifacts/test-runs/regression-p2-focused08/20261005T152618Z-c64b8b2ab84a/summary.json",
+        "summary_sha256": "7ba919b998a2304ef21a9187458737b1316234586d9c913d440be0387719daa2",
+        "counts": {
+          "executed": 253,
+          "passed": 253,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 253
+        },
+        "source_start": "3a2ee9f211821a8d1445d458655ca1774f796853a4654de3f9a173c2e13cf199",
+        "source_stable": true,
+        "projects": [
+          "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+        ]
+      },
+      "fast": {
+        "status": "PASS",
+        "run_id": "20261005T152716Z-7ef0af812f3c",
+        "summary": ".artifacts/test-runs/regression-p2-fast03/20261005T152716Z-7ef0af812f3c/summary.json",
+        "summary_sha256": "070eacd971a3364ddb005dd5efc0b0ff1553057d77067ed14895cf71fc6e33c0",
+        "counts": {
+          "executed": 7475,
+          "passed": 7475,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 7475
+        },
+        "source_start": "42af0b0dd04619837d181cde70bd2b2a8068133710efc1dbf8782315f78c7139",
+        "source_stable": true,
+        "projects": [
+          "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+          "ExpressionEngine Unit Tests/ExpressionEngine Unit Tests.csproj",
+          "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+          "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+          "MudsharpDatabaseLibrary Unit Tests/MudsharpDatabaseLibrary Unit Tests.csproj",
+          "DiscordBotCore Unit Tests/DiscordBotCore Unit Tests.csproj",
+          "RPI Engine Worldfile Converter Tests/RPI Engine Worldfile Converter Tests.csproj",
+          "FutureMUD.Web.Tests/FutureMUD.Web.Tests.csproj",
+          "TerrainPlanner/TerrainPlanner.Tests/TerrainPlanner.Tests.csproj",
+          "scripts/TestReporting.Tests/TestReporting.Tests.csproj"
+        ]
+      },
+      "native": {
+        "status": "PASS",
+        "attempt": "native12",
+        "cases": 13,
+        "fresh_native_stack_readers": 4,
+        "manifest": ".artifacts/test-runs/armageddon-regression-p2-checkpoint09/native12-inputs.json",
+        "manifest_sha256": "a70cba7e3db5219caff9a2a7ab16c7375ccf9a2470647a962d09b3d9ded0177a",
+        "source_files": 4734,
+        "dll_entries": 19,
+        "aligned": true,
+        "owned_database_server_cleanup": "PASS",
+        "owned_processes_remaining": 0,
+        "before_after_fingerprints": "PASS"
+      },
+      "remaining": [
+        {
+          "id": "historical-stack-conservation",
+          "status": "OPEN_NOT_QUALIFIED",
+          "scope": "Ordinary valid merge absorbed-source cleanup, native total quantity/title/custody and cold reader"
+        },
+        {
+          "id": "eat-with-detection",
+          "status": "DEMONSTRATED_NATIVE_BLOCKER_NEXT_SEPARATE_CHECKPOINT",
+          "scope": "Admit ordinary Sense/detection in spell item removal; preserve custody/reacquisition/dependency refusal and commit-safe persistence/rollback"
+        },
+        {
+          "id": "component-boarding-countershot",
+          "status": "NOT_COMPLETE",
+          "scope": "Representative gun families load/chamber/unready/unload/fire, accepted-shot costs, boarding and actual independent defender countershot"
+        },
+        {
+          "id": "selected-melee-check-fault",
+          "status": "NATIVE_NOT_RUN",
+          "scope": "Actual selected melee attack with native scoring-merit fault; prior native Check fixture dispatch and explicit casting scope do not qualify this"
+        },
+        {
+          "id": "fury-calm-hooks",
+          "status": "NOT_ALLOCATED_OR_INTEGRATED",
+          "scope": "Stock da9af18a departing-Fury stamina correction independently cleared. Native victim LeaveCombat may retarget caster via AcquireTarget; pair cessation must inspect current post-removal opponent, with another-opponent shared-combat regression. Endurance defaults and Calm break behavior await Luke. Live shared combat hooks untouched"
+        },
+        {
+          "id": "whole-plan-release",
+          "status": "OPEN",
+          "scope": "PC charm N13, stock/device/provision integration, eight larger features, production/repertoire/installer and all remaining native release gates. Sibling installer reports Pierce and seven of82 closed admissions, prepared-world entry/guide only; new provision installation remains gated on active-Sense persisted removal repair. Installer owns SeederMetadataRegistry.cs and DebugSeederReplay.cs; no runtime overlap"
+        }
+      ]
     }
   }
 }

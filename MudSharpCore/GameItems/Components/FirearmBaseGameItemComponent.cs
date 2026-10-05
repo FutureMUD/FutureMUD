@@ -369,12 +369,10 @@ public abstract class FirearmBaseGameItemComponent : GameItemComponent, IFirearm
         readier.OutputHandler.Handle(new EmoteOutput(new Emote(_prototype.ReadyEmote, readier, readier, Parent),
             flags: OutputFlags.InnerWrap));
         if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(readier)) return false;
-        MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted(readier);
-        ChamberRound(readier);
-        return true;
+        return ChamberRound(readier);
     }
 
-    protected abstract void ChamberRound(ICharacter readier);
+    protected abstract bool ChamberRound(ICharacter readier);
 
     /// <inheritdoc />
     public bool CanUnready(ICharacter readier)

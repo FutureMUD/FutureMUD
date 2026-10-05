@@ -174,32 +174,53 @@ public class InternalMagazineGunGameItemComponent : FirearmBaseGameItemComponent
             "Unknown WhyCannotLoad reason in InternalMagazineGunGameItemComponent.WhyCannotLoad");
     }
 
-    protected override void ChamberRound(ICharacter loader)
+    protected override bool ChamberRound(ICharacter loader)
     {
         using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(loader);
-        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return;
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return false;
 
+        var accepted = false;
+        bool AcceptStep()
+        {
+            if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return false;
+            MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted(loader);
+            accepted = true;
+            Changed = true;
+            return true;
+        }
 
-        if (ChamberedRound != null)
+        if (ChamberedRound is { } oldRound)
         {
             loader.OutputHandler.Handle(new EmoteOutput(
                 new Emote("$1 is ejected from $0 by the action.", loader, Parent,
-                    ChamberedRound.Parent), flags: OutputFlags.Insigificant));
-            ChamberedRound.Parent.RoomLayer = loader.RoomLayer;
-            ChamberedRound.Parent.InsertAtSource(loader);
-            ChamberedRound.Parent.ContainedIn = null;
+                    oldRound.Parent), flags: OutputFlags.Insigificant));
+            if (!ReferenceEquals(ChamberedRound, oldRound) || !AcceptStep()) return accepted;
+            ChamberedRound = null;
+            oldRound.Parent.ContainedIn = null;
+            if (ComponentItemTransfer.IsDetached(oldRound.Parent))
+            {
+                oldRound.Parent.RoomLayer = loader.RoomLayer;
+                if (ComponentItemTransfer.IsDetached(oldRound.Parent)) oldRound.Parent.InsertAtSource(loader);
+            }
+            if (ChamberedRound is not null) return accepted;
         }
 
-        if (ChamberedCasing != null)
+        if (ChamberedCasing is { } oldCasing)
         {
             loader.OutputHandler.Handle(new EmoteOutput(
-                new Emote("@ tumble|tumbles to the ground.", ChamberedCasing), flags: OutputFlags.Insigificant));
-            ChamberedCasing.RoomLayer = loader.RoomLayer;
-            ChamberedCasing.InsertAtSource(loader);
-            ChamberedCasing.ContainedIn = null;
+                new Emote("@ tumble|tumbles to the ground.", oldCasing), flags: OutputFlags.Insigificant));
+            if (!ReferenceEquals(ChamberedCasing, oldCasing) || !AcceptStep()) return accepted;
             ChamberedCasing = null;
+            oldCasing.ContainedIn = null;
+            if (ComponentItemTransfer.IsDetached(oldCasing))
+            {
+                oldCasing.RoomLayer = loader.RoomLayer;
+                if (ComponentItemTransfer.IsDetached(oldCasing)) oldCasing.InsertAtSource(loader);
+            }
+            if (ChamberedRound is not null || ChamberedCasing is not null) return accepted;
         }
 
+        if (!AcceptStep()) return accepted;
         if (_roundsInMagazine.Any())
         {
             IGameItem first = _roundsInMagazine.First();
@@ -220,6 +241,7 @@ public class InternalMagazineGunGameItemComponent : FirearmBaseGameItemComponent
         }
 
         Changed = true;
+        return accepted;
     }
 
     public override void Load(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)

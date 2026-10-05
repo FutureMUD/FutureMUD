@@ -149,24 +149,40 @@ public class GunGameItemComponent : FirearmBaseGameItemComponent, IRangedWeapon,
         throw new ApplicationException("Unknown WhyCannotLoad reason in PistolGameItemComponent.WhyCannotLoad");
     }
 
-    protected override void ChamberRound(ICharacter loader)
+    protected override bool ChamberRound(ICharacter loader)
     {
         using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(loader);
-        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return;
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return false;
 
+        var accepted = false;
+        bool AcceptStep()
+        {
+            if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return false;
+            MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted(loader);
+            accepted = true;
+            Changed = true;
+            return true;
+        }
 
-        if (ChamberedRound != null)
+        if (ChamberedRound is { } oldRound)
         {
             loader.OutputHandler.Handle(new EmoteOutput(new Emote("$1 is ejected from $0 by the action.", loader,
-                Parent, ChamberedRound.Parent)));
-            ChamberedRound.Parent.RoomLayer = loader.RoomLayer;
-            ChamberedRound.Parent.InsertAtSource(loader);
-            ChamberedRound.Parent.ContainedIn = null;
+                Parent, oldRound.Parent)));
+            if (!ReferenceEquals(ChamberedRound, oldRound) || !AcceptStep()) return accepted;
+            ChamberedRound = null;
+            oldRound.Parent.ContainedIn = null;
+            if (ComponentItemTransfer.IsDetached(oldRound.Parent))
+            {
+                oldRound.Parent.RoomLayer = loader.RoomLayer;
+                if (ComponentItemTransfer.IsDetached(oldRound.Parent)) oldRound.Parent.InsertAtSource(loader);
+            }
+            if (ChamberedRound is not null) return accepted;
         }
 
         IAmmo newRound = MagazineContents.SelectNotNull(x => x.GetItemType<IAmmo>()).FirstOrDefault(x =>
             x.AmmoType.SpecificType == SpecificAmmoGrade &&
             x.AmmoType.RangedWeaponTypes.Contains(RangedWeaponType.ModernFirearm));
+        if (!AcceptStep()) return accepted;
         if (newRound != null)
         {
             ChamberedRound = Magazine.Take(null, newRound.Parent, 1)?.GetItemType<IAmmo>();
@@ -178,6 +194,7 @@ public class GunGameItemComponent : FirearmBaseGameItemComponent, IRangedWeapon,
         }
 
         Changed = true;
+        return accepted;
     }
 
     public override void Load(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)

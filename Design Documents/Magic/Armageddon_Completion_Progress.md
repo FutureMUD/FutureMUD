@@ -9,7 +9,7 @@ The reader reports a null version ID; resolved file ID is
 No metadata-less substitute input file was created. The previous Windows materialization
 failure is historical and no longer blocks implementation: the parent authorized full text read.
 
-Current upstream and preparation baseline are both `b0e4339d57bf15bc6e6a6f21fbdd5edc73006e38`.
+Historical preparation baseline: `b0e4339d57bf15bc6e6a6f21fbdd5edc73006e38`. Current clean primary master: `34eb234eb5a1e2784c595b4f848f6f785b426302`; later implementation is reconciled in the isolated branch and checkpoint receipts.
 PR771's foundation and PR778's cascade fix are present. Their local branches contain no
 additional unmerged commits relative to this baseline. Work uses the isolated branch
 `codex/armageddon-completion-phase1`; unrelated primary/worktree content is preserved.
@@ -1154,3 +1154,8 @@ The coordinator superseded the previous requirement to hold every change until c
 Based on immutable d882cf35, the separately authorized Check learning boundary is implemented without ICheck/IImprovementModel signature changes. Focused42 and Fast7443 passed with stable inputs. Native03 passed six actual ordered/native learning controls and six independent durable trait-row readers, preserving completed cooldown/gains, independent training and casting suppression. A same-canonical-trait cap callback write regression was found, retained, fixed and passed. Native qualification uses an opt-in fixture command rather than an actual selected melee fault; the [checkpoint report](Armageddon_OrderedNpc_CheckLearning_Checkpoint.md) states exact limits and failed attempts. Production/managed sources were unchanged by the final native-only boot-expression initialization repair after Fast.
 
 Stop after this local checkpoint for coordinator review. The finite continuation queue records three demonstrated d882 P2s (cross-layer displacement, prepared noncurrency merge ownership, chamber-ready result/stamina), the installed eating-with-detection removal blocker, and representative remaining component/boarding/countershot cases. No fix for those is silently included here. Fury/Calm new policy partials may proceed in their sibling lane; exact shared combat/casting hooks need allocation and must retain the final authority validation after callbacks. No stock/device/provision integration, publication, merge or deployment occurred. Whole-plan completion remains false. The exact local commit is recorded in task Armageddon_CheckLearning_CommitReceipt.json.
+
+
+## Checkpoint09: three bounded d882 P2 corrections
+
+Cross-layer receipt travel, callback-time ordinary Get compatibility/title/custody, and actual firearm-ready result/stamina are repaired. Focused253 and FullFast7475 passed. Thirteen native cases and four fresh native stack readers passed; failed attempts, exact frozen inputs and owned cleanup are retained. The [checkpoint report](Armageddon_OrderedNpc_RegressionP2_Checkpoint.md) states the limits. The separately requested Check stale-write correction is co-tested and kept in its own commit. Valid native stack absorbed-source conservation, active-Sense consumption/removal, the broader component/boarding/countershot matrix and actual selected-melee Check fault remain open. Stop for parent review; whole-plan completion remains false.

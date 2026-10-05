@@ -88,7 +88,7 @@ internal static partial class GNHProgram
 			"Production-equivalent replay context did not load the stored Core Colour values.");
 		Console.WriteLine($"ARMPREP-replay-colour-loading=passed definition:{loaded.Id} stored-values:{stored} no-proxy-navigation:0 replay-navigation:{loaded.CharacteristicValues.Count} no-inserted-values original-failing-characteristic-not-recorded");
 	}
-	private static void RunPreparedReplayBoot(TestDatabase database, Assembly assembly, string scriptName = "PreparedReplayBootSmoke.py", string outputPrefix = "prepared-replay-boot-native")
+	private static void RunPreparedReplayBoot(TestDatabase database, Assembly assembly, string scriptName = "PreparedReplayBootSmoke.py", string outputPrefix = "prepared-replay-boot-native", bool schemaOnly = false)
 	{
 		var suppliedScript = Environment.GetEnvironmentVariable("FUTUREMUD_PREPARED_REPLAY_BOOT_SCRIPT");
 		if (string.IsNullOrWhiteSpace(suppliedScript)) return;
@@ -152,10 +152,21 @@ internal static partial class GNHProgram
 		}
 		Require(child.ExitCode == 0, "Owned boot child failed; see retained first-failure evidence.");
 		using var receipt = JsonDocument.Parse(File.ReadAllText(Path.Combine(output, "boot-latest.json")));
-		Require(receipt.RootElement.GetProperty("status").GetString() == "PASS" &&
-			receipt.RootElement.GetProperty("owned_mud_processes_stopped").GetBoolean(),
-			"Boot receipt did not verify both owned MUD process trees stopped before database disposal.");
-		Console.WriteLine("ARMPREP-replay-boot=passed native-login-LOOK-save-graceful-shutdown-cold-restart-login owned-processes-stopped");
+        Require(receipt.RootElement.GetProperty("status").GetString() == "PASS", "Owned smoke receipt failed.");
+        if (schemaOnly)
+        {
+            Require(receipt.RootElement.GetProperty("schema_only").GetBoolean() &&
+                receipt.RootElement.GetProperty("processes").GetArrayLength() == 0 &&
+                receipt.RootElement.GetProperty("sql_preflight").GetProperty("status").GetString() == "PASS",
+                "Schema preflight unexpectedly started MUD or failed its queries.");
+            Console.WriteLine("ARMPREP-sql-preflight=passed no-MUD no-player-writes owned-child-stopped");
+        }
+        else
+        {
+            Require(receipt.RootElement.GetProperty("owned_mud_processes_stopped").GetBoolean(),
+                "Boot receipt did not verify both owned MUD process trees stopped before database disposal.");
+            Console.WriteLine("ARMPREP-replay-boot=passed native-login-LOOK-save-graceful-shutdown-cold-restart-login owned-processes-stopped");
+        }
 	}
 	private static string PreparedDatabaseChecksum(TestDatabase database)
 	{

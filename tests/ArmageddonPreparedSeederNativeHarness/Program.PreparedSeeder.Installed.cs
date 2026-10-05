@@ -43,7 +43,7 @@ internal static partial class GNHProgram
 		var input = Path.Combine(laneRoot, "prepared-installed-sense-input_" + Guid.NewGuid().ToString("N") + ".json");
 		File.WriteAllText(input, JsonSerializer.Serialize(new
 		{
-			preparation, character = actor.Id, body = actor.BodyId, language = language.Id, language_name = language.Name,
+			sql_schema = InstalledSqlSchema(db), preparation, character = actor.Id, body = actor.BodyId, language = language.Id, language_name = language.Name,
 			school = bindings.Utilities.School, school_verb = "armsense", resource = bindings.ReserveResource,
 			capability = ids["arm.capability.sorcerer"], merit = ids["arm.merit.sorcerer"],
 			spell = ids[ArmageddonReviewedUtilityContent.SenseEnchantmentKey],

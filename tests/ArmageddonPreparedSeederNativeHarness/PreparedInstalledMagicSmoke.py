@@ -55,6 +55,25 @@ mysql = Path('C:/Program Files/MySQL/MySQL Server 8.0/bin/mysql.exe')
 require(mysql.is_file() and user, 'Owned SQL executable/user unavailable.')
 marker = None
 assertions = []
+sql_identifiers = {}
+sql_preflight_queries = None
+
+
+def mapped_sql(statement):
+    # Replace only SQL identifier tokens, never quoted values (including XML and setting names).
+    return re.sub(r"'(?:''|[^'])*'|[A-Za-z_][A-Za-z_0-9]*",
+                  lambda match: match[0] if match[0].startswith("'") else sql_identifiers.get(match[0], match[0]), statement)
+
+
+def install_sql_mapping(schema):
+    require(isinstance(schema, list) and len(schema) == 16, 'Missing bounded EF SQL schema contract.')
+    for table in schema:
+        for alias, name in [(table['alias'], table['table'])] + [(x['alias'], x['column']) for x in table['columns']]:
+            require(isinstance(name, str) and re.fullmatch(r'[A-Za-z_][A-Za-z_0-9]*', name), 'Unsafe EF SQL identifier.')
+            quoted = '`' + name + '`'
+            require(alias not in sql_identifiers or sql_identifiers[alias] == quoted, 'Ambiguous unqualified EF SQL column: ' + alias)
+            sql_identifiers[alias] = quoted
+
 
 def sql(statement):
     global marker
@@ -62,7 +81,7 @@ def sql(statement):
     env['MYSQL_PWD'] = sql_password
     command = [str(mysql), '--no-defaults', '--protocol=tcp', '--host=127.0.0.1', f'--port={port}',
                f'--user={user}', f'--database={database}', '--batch', '--raw', '--skip-column-names',
-               '--execute=SELECT @@server_uuid, @@port, @@datadir; SELECT RunToken FROM __gathering_harness_ownership; ' + statement]
+               '--execute=SELECT @@server_uuid, @@port, @@datadir; SELECT RunToken FROM __gathering_harness_ownership; ' + mapped_sql(statement)]
     result = subprocess.run(command, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                             text=True, encoding='utf-8', errors='replace', timeout=40,
                             creationflags=subprocess.CREATE_NO_WINDOW)
@@ -76,7 +95,10 @@ def sql(statement):
     require(re.fullmatch(r'[a-f0-9]{40}', lines[1]), 'Invalid owned database marker.')
     if marker is None: marker = lines[1]
     require(lines[1] == marker, 'Owned database marker changed.')
-    return [line.split('\t') for line in lines[2:]]
+    rows = [line.split('\t') for line in lines[2:]]
+    if sql_preflight_queries is not None:
+        sql_preflight_queries.append({'sql': mapped_sql(statement), 'rows': len(rows), 'field_counts': sorted({len(x) for x in rows})})
+    return rows
 
 class IoCounters(ctypes.Structure):
     _fields_ = [(name, ctypes.c_ulonglong) for name in ('ReadOperationCount','WriteOperationCount','OtherOperationCount','ReadTransferCount','WriteTransferCount','OtherTransferCount')]
@@ -139,8 +161,11 @@ receipt = {'status':'FAIL','database':database,'mysql_endpoint':f'127.0.0.1:{por
 discord_socket = socket.socket()
 started = time.monotonic()
 
+def avatar_query():
+    return "SELECT a.Id,c.Id,c.Name,c.Location,IFNULL(DATE_FORMAT(c.LastLoginTime,'%Y-%m-%dT%H:%i:%s.%f'),'NULL'),IFNULL(DATE_FORMAT(c.LastLogoutTime,'%Y-%m-%dT%H:%i:%s.%f'),'NULL') FROM Accounts a JOIN Characters c ON c.AccountId=a.Id WHERE a.Name='Admin' AND c.IsAdminAvatar=1 ORDER BY c.Id"
+
 def character_state():
-    rows = sql("SELECT a.Id,c.Id,c.Name,c.Location,IFNULL(DATE_FORMAT(c.LastLoginTime,'%Y-%m-%dT%H:%i:%s.%f'),'NULL'),IFNULL(DATE_FORMAT(c.LastLogoutTime,'%Y-%m-%dT%H:%i:%s.%f'),'NULL') FROM Accounts a JOIN Characters c ON c.AccountId=a.Id WHERE a.Name='Admin' AND c.IsAdminAvatar=1 ORDER BY c.Id")
+    rows = sql(avatar_query())
     require(len(rows) == 1 and len(rows[0]) == 6, 'Expected one legitimately seeded Admin avatar.')
     return rows[0]
 
@@ -154,13 +179,17 @@ def xmlhex(value):
 def flush(session):
     require('All queued saves have been flushed' in session.send('impdebug flush', read_seconds=1), 'Native flush did not confirm.')
 
-def installed_state():
+def state_query():
     c, s, r, cap, trait = (int(installed[k]) for k in ('character','spell','resource','capability','source_skill'))
-    rows = sql(f'SELECT IFNULL((SELECT Amount FROM CharactersMagicResources WHERE CharacterId={c} AND MagicResourceId={r}),0), '
+    return (f'SELECT IFNULL((SELECT Amount FROM CharactersMagicResources WHERE CharacterId={c} AND MagicResourceId={r}),0), '
                f'IFNULL((SELECT ControlledGrade FROM CharacterAcquiredSpells WHERE CharacterId={c} AND MagicSpellId={s}),0), '
                f'IFNULL((SELECT Value FROM CharacterTraits WHERE CharacterId={c} AND TraitDefinitionId={trait}),0), '
                f'(SELECT COUNT(*) FROM CharacterCastingEnrolments WHERE CharacterId={c} AND MagicCapabilityId={cap}), '
                f'HEX(EffectData) FROM Characters WHERE Id={c}')
+
+def installed_state():
+    s = installed['spell']
+    rows = sql(state_query())
     require(len(rows)==1 and len(rows[0])==5, 'Installed avatar state missing.')
     balance, grade, raw, enrol, effects = rows[0]
     parents = []
@@ -175,16 +204,38 @@ def installed_state():
                         'child_types':[x.findtext('Type') for x in children]})
     return {'balance':float(balance), 'grade':int(grade), 'raw_skill':float(raw), 'enrolments':int(enrol), 'parents':parents}
 
-def operations():
+def operations_query():
     c, s = int(installed['character']), int(installed['spell'])
-    return sql(f'SELECT Id,Stage,HEX(Definition),HEX(Diagnostic) FROM MagicCastingOperations WHERE CharacterId={c} AND MagicSpellId={s} ORDER BY CreatedUtc,Id')
+    return f'SELECT Id,Stage,HEX(Definition),HEX(Diagnostic) FROM MagicCastingOperations WHERE CharacterId={c} AND MagicSpellId={s} ORDER BY CreatedUtc,Id'
+
+def operations():
+    return sql(operations_query())
+
+def gathering_ids_query():
+    return f"SELECT Id FROM MagicGatheringOperations WHERE OwnerId={installed['character']}"
+
+def gathering_query():
+    return f"SELECT Id,Status,Kind,RequestedAmount,StaminaCost,BodilyCostApplied,DestinationCredited,AccountingPersisted FROM MagicGatheringOperations WHERE OwnerId={installed['character']} AND MagicCapabilityId={installed['capability']} AND DestinationResourceId={installed['resource']}"
+
+def spell_query():
+    return f"SELECT HEX(Definition) FROM MagicSpells WHERE Id={installed['spell']}"
+
+def configuration_query():
+    return "SELECT SettingName,Definition FROM StaticConfigurations WHERE SettingName IN ('EmailServer','UseDiscordBot','DiscordBotIpAddress','DiscordBotPort') ORDER BY SettingName"
+
+def configuration_updates(discord_port):
+    require(type(discord_port) is int and 0 < discord_port < 65536, 'Invalid loopback bridge port.')
+    return ["UPDATE StaticConfigurations SET Definition='<EmailServer><Version>2</Version><Enabled>false</Enabled></EmailServer>' WHERE SettingName='EmailServer'",
+            "UPDATE StaticConfigurations SET Definition='false' WHERE SettingName='UseDiscordBot'",
+            "UPDATE StaticConfigurations SET Definition='127.0.0.1' WHERE SettingName='DiscordBotIpAddress'",
+            f"UPDATE StaticConfigurations SET Definition='{discord_port}' WHERE SettingName='DiscordBotPort'"]
 
 def gather(session, phase):
     amount = int(installed['gather_amount'])
     c, cap, resource = (int(installed[k]) for k in ('character','capability','resource'))
     before = installed_state()['balance']
     require(before+amount <= float(installed['native_capacity']), 'Gathering would exceed actual seeded attribute capacity.')
-    old = {row[0] for row in sql(f'SELECT Id FROM MagicGatheringOperations WHERE OwnerId={c}')}
+    old = {row[0] for row in sql(gathering_ids_query())}
     session.send(f'armsense gather {cap} methods', read_seconds=.3)
     session.send(f'armsense gather {cap} preview draw {amount}', read_seconds=.3)
     action_start = time.monotonic()
@@ -195,7 +246,7 @@ def gather(session, phase):
     while time.monotonic()<deadline:
         session.read_for(1)
         flush(session)
-        rows = [x for x in sql(f'SELECT Id,Status,Kind,RequestedAmount,StaminaCost,BodilyCostApplied,DestinationCredited,AccountingPersisted FROM MagicGatheringOperations WHERE OwnerId={c} AND MagicCapabilityId={cap} AND DestinationResourceId={resource}') if x[0] not in old]
+        rows = [x for x in sql(gathering_query()) if x[0] not in old]
         if rows: break
     receipt.setdefault('gathering',[]).append({'phase':phase,'before':before,'rows':rows,'elapsed_seconds':time.monotonic()-action_start})
     require(len(rows)==1 and rows[0][1:3]==['Completed','Self'], 'Timed paid Self gathering did not complete exactly once.')
@@ -252,7 +303,7 @@ def exercise_installed(session, phase):
         session.send('magic spell set grades incantation provenance Native acceptance aliases; historical POWER word wek', read_seconds=.5)
         session.send('magic spell set grades show', read_seconds=.5)
         flush(session)
-        definition = xmlhex(sql(f"SELECT HEX(Definition) FROM MagicSpells WHERE Id={installed['spell']}")[0][0])
+        definition = xmlhex(sql(spell_query())[0][0])
         incantation = definition.find('.//Incantation')
         require(incantation is not None and incantation.get('language')==str(installed['language']) and incantation.get('reach')=='fm-self', 'Native formula/language edits not persisted.')
         receipt['authored_incantation'] = ET.tostring(incantation,encoding='unicode')
@@ -340,6 +391,75 @@ def boot(phase):
         collector.thread.join(timeout=5)
         (runtime/'process-output.txt').write_text('\n'.join(collector.lines)+'\n',encoding='utf-8')
 
+
+def preflight_schema_sql():
+    # These are exact physical EF names and store types, checked against this fresh owned server.
+    def normal_type(value):
+        return re.sub(r'\b(tinyint|smallint|mediumint|int|bigint)\(\d+\)', r'\1', value.lower())
+    for table in installed['sql_schema']:
+        rows = sql("SELECT COLUMN_NAME,COLUMN_TYPE,IS_NULLABLE FROM information_schema.COLUMNS "
+                   f"WHERE TABLE_SCHEMA='{database}' AND TABLE_NAME='{table['table']}'")
+        actual = {row[0]: row[1:] for row in rows}
+        for column in table['columns']:
+            require(column['column'] in actual, 'Missing mapped SQL column: ' + table['table'] + '.' + column['column'])
+            value = actual[column['column']]
+            require(normal_type(value[0]) == normal_type(column['store_type']) and (value[1] == 'YES') == column['nullable'],
+                    'EF/fresh schema store type or nullability mismatch: ' + table['table'] + '.' + column['column'])
+
+
+def preflight_installed_sql():
+    global sql_preflight_queries
+    sql_preflight_queries = []
+    receipt['sql_preflight'] = {'status': 'FAIL', 'player_writes': False, 'mud_started': False,
+                                'queries': sql_preflight_queries, 'ef_schema': installed['sql_schema']}
+    preflight_schema_sql()
+    for key, table in [('character','Characters'), ('body','Bodies'), ('language','Languages'),
+                       ('resource','MagicResources'), ('capability','MagicCapabilities'), ('merit','Merits'),
+                       ('spell','MagicSpells'), ('source_skill','TraitDefinitions')]:
+        rows = sql(f"SELECT Id FROM {table} WHERE Id={installed[key]}")
+        require(rows == [[str(installed[key])]], 'Selected SQL identity cardinality mismatch: ' + key)
+        id_column = next(x for x in installed['sql_schema'] if x['alias'] == table)['columns']
+        require(next(x for x in id_column if x['alias'] == 'Id')['clr_type'] == 'System.Int64', 'Selected ID is not an EF Int64: ' + key)
+    relations = sql(f"SELECT BodyId,NativeLanguageId FROM Characters WHERE Id={installed['character']}")
+    require(relations == [[str(installed['body']),str(installed['language'])]], 'Selected avatar body/language mismatch.')
+    skill = sql(f"SELECT Type,OwnerScope FROM TraitDefinitions WHERE Id={installed['source_skill']}")
+    require(skill == [['0','1']], 'Selected source trait is not a character skill.')
+    require(int(character_state()[1]) == installed['character'], 'Selected Admin avatar mismatch.')
+    before = installed_state()
+    require(before == {'balance':0.0,'grade':0,'raw_skill':0.0,'enrolments':0,'parents':[]}, 'Fresh installed player state already mutated.')
+    require(not operations() and not sql(gathering_ids_query()) and not sql(gathering_query()), 'Fresh native operation receipts already exist.')
+    spell = sql(spell_query())
+    require(len(spell) == 1 and len(spell[0]) == 1, 'Selected spell definition cardinality mismatch.')
+    xmlhex(spell[0][0])
+    configurations = sql(configuration_query())
+    require(len(configurations) == 4 and len({x[0] for x in configurations}) == 4 and all(len(x)==2 for x in configurations),
+            'Expected exactly four external service configuration rows.')
+    # EXPLAIN validates the exact UPDATE plans without executing writes. ROW_COUNT and SELECT 1 have no table dependencies.
+    for update in configuration_updates(1): sql('EXPLAIN ' + update)
+    require(sql('SELECT ROW_COUNT()') == [['-1']] and sql('SELECT 1') == [['1']], 'SQL scalar preflight failed.')
+    receipt['sql_preflight'].update(status='PASS', initial_state=before, selected_avatar=character_state(),
+                                    query_count=len(sql_preflight_queries))
+    sql_preflight_queries = None
+    assertions.append('Read-only EF schema, every smoke query, typed selected identities and fresh cardinalities passed before MUD startup')
+
+def preflight_blank_sql():
+    global sql_preflight_queries
+    sql_preflight_queries = []
+    receipt['sql_preflight'] = {'status':'FAIL','scope':'fresh migrated schema only; no selected world identities',
+                                'player_writes':False,'mud_started':False,'queries':sql_preflight_queries,
+                                'ef_schema':installed['sql_schema']}
+    preflight_schema_sql()
+    for query in [avatar_query(),state_query(),operations_query(),gathering_ids_query(),gathering_query(),spell_query(),configuration_query()]:
+        require(sql(query) == [], 'Blank-schema SQL query unexpectedly found a player/configuration/operation.')
+    for update in configuration_updates(1): sql('EXPLAIN ' + update)
+    require(sql('SELECT ROW_COUNT()') == [['-1']] and sql('SELECT 1') == [['1']], 'Blank SQL scalar preflight failed.')
+    receipt['sql_preflight'].update(status='PASS',query_count=len(sql_preflight_queries))
+    sql_preflight_queries = None
+    receipt['status'] = 'PASS'
+    receipt['schema_only'] = True
+    assertions.append('Every gameplay SQL query and isolation UPDATE plan passed on a blank owned migrated schema; no MUD started')
+
+
 try:
     ready = Path(os.environ['FUTUREMUD_PREPARED_REPLAY_PARENT_READY_PATH']).resolve()
     ready_token = os.environ['FUTUREMUD_PREPARED_REPLAY_PARENT_READY_TOKEN']
@@ -357,38 +477,39 @@ try:
     assertions.append('Matching parent-ready receipt before owned SQL or MUD startup')
     sql('SELECT 1')
     receipt['ownership_marker_sha256'] = hashlib.sha256(marker.encode()).hexdigest().upper()
-    receipt['initial_avatar'] = character_state()
     input_path = Path(os.environ['FUTUREMUD_PREPARED_INSTALLED_INPUT']).resolve()
     require(input_path.parent==ROOT and input_path.name.startswith('prepared-installed-sense-input_') and input_path.stat().st_size<2000000, 'Invalid bounded installed input.')
     installed = json.loads(input_path.read_text(encoding='utf-8-sig'))
-    require(all(isinstance(installed[k],int) and installed[k]>0 for k in ('character','body','language','resource','capability','merit','spell','source_skill')), 'Installed IDs invalid.')
-    require(int(receipt['initial_avatar'][1])==installed['character'] and installed['initial_players_unchanged'], 'Installed avatar/preparation mismatch.')
-    receipt['installed_input'] = {'path':str(input_path),'sha256':sha(input_path),'content':installed}
-    discord_socket.bind(('127.0.0.1',0)) # Reserved but not listening: bridge fails locally, sends nowhere.
-    discord_port = discord_socket.getsockname()[1]
-    configuration = sql("UPDATE StaticConfigurations SET Definition='<EmailServer><Version>2</Version><Enabled>false</Enabled></EmailServer>' WHERE SettingName='EmailServer'; SELECT ROW_COUNT(); "
-        "UPDATE StaticConfigurations SET Definition='false' WHERE SettingName='UseDiscordBot'; SELECT ROW_COUNT(); "
-        "UPDATE StaticConfigurations SET Definition='127.0.0.1' WHERE SettingName='DiscordBotIpAddress'; SELECT ROW_COUNT(); "
-        f"UPDATE StaticConfigurations SET Definition='{discord_port}' WHERE SettingName='DiscordBotPort'; SELECT ROW_COUNT(); "
-        "SELECT SettingName,Definition FROM StaticConfigurations WHERE SettingName IN ('EmailServer','UseDiscordBot','DiscordBotIpAddress','DiscordBotPort') ORDER BY SettingName")
-    settings = {row[0]:row[1] for row in configuration if len(row)==2}
-    require(settings.get('EmailServer') == '<EmailServer><Version>2</Version><Enabled>false</Enabled></EmailServer>' and
-            settings.get('UseDiscordBot') == 'false' and settings.get('DiscordBotIpAddress') == '127.0.0.1' and
-            settings.get('DiscordBotPort') == str(discord_port), 'Owned-only external service isolation configuration failed.')
-    receipt.update(external_email_disabled=True,discord_loopback_only=True,discord_reserved_endpoint=f'127.0.0.1:{discord_port}')
-    assertions.append('Owned database only: disabled email and reserved non-listening loopback Discord bridge')
-    receipt['script_sha256'] = sha(__file__)
-    receipt['helper_source'] = {'path':str(spec.origin),'sha256':sha(spec.origin)}
-    receipt['assemblies'] = [{'path':str(REPO/'MudSharpCore/bin/Debug/net10.0'/name),'sha256':sha(REPO/'MudSharpCore/bin/Debug/net10.0'/name)}
-                            for name in ('MudSharp.dll','FutureMUDLibrary.dll','MudsharpDatabaseLibrary.dll','ExpressionEngine.dll')]
-    boot('first')
-    boot('cold')
-    require(receipt['first_after_shutdown'][:4] == receipt['cold_after_shutdown'][:4], 'Cold restart did not retain seeded avatar identity/cell.')
-    require(receipt['cold_after_flush'][4] > receipt['first_after_flush'][4], 'Cold login did not advance persisted login time.')
-    require(all(sha(row['path']) == row['sha256'] for row in receipt['assemblies']), 'Boot assembly source changed during qualification.')
-    require(sha(__file__) == receipt['script_sha256'] and sha(REPO/'tests/ArmageddonPreparedSeederNativeHarness/PreparedInstalledMagicSmoke.py') == receipt['script_sha256'] and
-            sha(spec.origin) == receipt['helper_source']['sha256'], 'Boot script/helper source changed during qualification.')
-    receipt['status'] = 'PASS'
+    require(all(type(installed[k]) is int and 0<installed[k]<=9223372036854775807 for k in ('character','body','language','resource','capability','merit','spell','source_skill')), 'Installed IDs invalid.')
+    install_sql_mapping(installed['sql_schema'])
+    if installed.get('sql_schema_only') is True:
+        preflight_blank_sql()
+    else:
+        receipt['initial_avatar'] = character_state()
+        preflight_installed_sql()
+        require(int(receipt['initial_avatar'][1])==installed['character'] and installed['initial_players_unchanged'], 'Installed avatar/preparation mismatch.')
+        receipt['installed_input'] = {'path':str(input_path),'sha256':sha(input_path),'content':installed}
+        discord_socket.bind(('127.0.0.1',0)) # Reserved but not listening: bridge fails locally, sends nowhere.
+        discord_port = discord_socket.getsockname()[1]
+        configuration = sql('; SELECT ROW_COUNT(); '.join(configuration_updates(discord_port)) + '; SELECT ROW_COUNT(); ' + configuration_query())
+        settings = {row[0]:row[1] for row in configuration if len(row)==2}
+        require(settings.get('EmailServer') == '<EmailServer><Version>2</Version><Enabled>false</Enabled></EmailServer>' and
+                settings.get('UseDiscordBot') == 'false' and settings.get('DiscordBotIpAddress') == '127.0.0.1' and
+                settings.get('DiscordBotPort') == str(discord_port), 'Owned-only external service isolation configuration failed.')
+        receipt.update(external_email_disabled=True,discord_loopback_only=True,discord_reserved_endpoint=f'127.0.0.1:{discord_port}')
+        assertions.append('Owned database only: disabled email and reserved non-listening loopback Discord bridge')
+        receipt['script_sha256'] = sha(__file__)
+        receipt['helper_source'] = {'path':str(spec.origin),'sha256':sha(spec.origin)}
+        receipt['assemblies'] = [{'path':str(REPO/'MudSharpCore/bin/Debug/net10.0'/name),'sha256':sha(REPO/'MudSharpCore/bin/Debug/net10.0'/name)}
+                                for name in ('MudSharp.dll','FutureMUDLibrary.dll','MudsharpDatabaseLibrary.dll','ExpressionEngine.dll')]
+        boot('first')
+        boot('cold')
+        require(receipt['first_after_shutdown'][:4] == receipt['cold_after_shutdown'][:4], 'Cold restart did not retain seeded avatar identity/cell.')
+        require(receipt['cold_after_flush'][4] > receipt['first_after_flush'][4], 'Cold login did not advance persisted login time.')
+        require(all(sha(row['path']) == row['sha256'] for row in receipt['assemblies']), 'Boot assembly source changed during qualification.')
+        require(sha(__file__) == receipt['script_sha256'] and sha(REPO/'tests/ArmageddonPreparedSeederNativeHarness/PreparedInstalledMagicSmoke.py') == receipt['script_sha256'] and
+                sha(spec.origin) == receipt['helper_source']['sha256'], 'Boot script/helper source changed during qualification.')
+        receipt['status'] = 'PASS'
 except BaseException as error:
     receipt['first_failure'] = redact(error)
     receipt['failure_traceback'] = redact(traceback.format_exc())
@@ -404,4 +525,4 @@ finally:
     (OUTPUT/'boot-latest.json').write_text(json.dumps(receipt,indent=2)+'\n',encoding='utf-8')
     print('ARMPREP-boot-smoke='+json.dumps({'status':receipt['status'],'owned_mud_processes_stopped':receipt['owned_mud_processes_stopped'],
                                          'receipt':str(OUTPUT/'boot-latest.json'),'first_failure':receipt.get('first_failure')}))
-sys.exit(0 if receipt['status']=='PASS' and receipt['owned_mud_processes_stopped'] else 1)
+sys.exit(0 if receipt['status']=='PASS' and (receipt['owned_mud_processes_stopped'] or (receipt.get('schema_only') and not processes)) else 1)

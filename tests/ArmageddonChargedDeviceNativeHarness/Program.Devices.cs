@@ -37,7 +37,7 @@ internal static partial class GNHProgram
 		try
 		{
 			OwnedConnections.Install();
-			return args.FirstOrDefault() == "--device-reader" ? ReadDeviceNative(args.Skip(1).Single()) : RunDeviceNative();
+			return args.FirstOrDefault() switch { "--device-reader" => ReadDeviceNative(args.Skip(1).Single()), "--device-review-host" => ReadReviewDeviceHost(args.Skip(1).Single()), _ => RunDeviceNative() };
 		}
 		catch (Exception ex) { Console.Error.WriteLine(ex); return 1; }
 	}
@@ -48,9 +48,10 @@ internal static partial class GNHProgram
 		var previous = world.ItemComponentProtos;
 		var components = db.GameItemComponentProtos.Include(x => x.EditableItem).AsNoTracking()
 			.Where(x => x.Name.StartsWith("ARM03B2B") || x.Name.StartsWith("ARMDEV"))
-			.ToDictionary(x => x.Id, x => x.Type == "ChargedMagicDevice" ? (IGameItemComponentProto)new ChargedMagicDeviceGameItemComponentProto(x, world) : previous.Get(x.Id, x.RevisionNumber));
+			.ToDictionary(x => (x.Id, x.RevisionNumber), x => x.Type == "ChargedMagicDevice" ? (IGameItemComponentProto)new ChargedMagicDeviceGameItemComponentProto(x, world) : previous.Get(x.Id, x.RevisionNumber));
 		var catalogue = new Mock<IUneditableRevisableAll<IGameItemComponentProto>>();
-		catalogue.Setup(x => x.Get(It.IsAny<long>(), It.IsAny<int>())).Returns<long, int>((id, _) => components.GetValueOrDefault(id)!);
+		catalogue.Setup(x => x.Get(It.IsAny<long>(), It.IsAny<int>())).Returns<long, int>((id, revision) => components.GetValueOrDefault((id, revision))!);
+		catalogue.Setup(x => x.GetEnumerator()).Returns(() => components.Values.GetEnumerator());
 		host.Native.WorldMock.SetupGet(x => x.ItemComponentProtos).Returns(catalogue.Object);
 		foreach (var model in db.GameItemProtos.Include(x => x.EditableItem).Include(x => x.GameItemProtosTags)
 			.Include(x => x.GameItemProtosGameItemComponentProtos).Where(x => x.Name.StartsWith("ARMDEV")))
@@ -134,6 +135,8 @@ internal static partial class GNHProgram
 		})).ToArray(); Task.WaitAll(results);
 		Require(results.Count(x => x.Result) == 1, "Concurrent database inserts did not admit exactly one claim.");
 		Console.WriteLine("ARMDEV-insert-only=passed two-concurrent-independent-database-connections one-winner duplicate-key-refusal terminal-tombstone-byte-preservation");
+		ReviewDeviceNative(database, fixture, host, clock, service, staff.Object, spell, capability);
+		native.Body.Get(item, silent: true);
 		// An independent empty carrier exercises actual frozen damage and heal, while the first bank stays homogeneous.
 		native.Body.Take(item); actor.Location.Insert(item, true);
 		var auxiliary = (GameItem)host.Prototypes.Values.Single(x => x.Name == "ARMDEV Wand").CreateNew(actor);
@@ -145,7 +148,7 @@ internal static partial class GNHProgram
 			foreach (var command in new[] { "effect remove 1", "effect add " + effect, "effect 1 formula " + (effect == "damage" ? "variable/10+grade" : "20") })
 				Require(payload.BuildingCommand(actor, new StringStack(command)), "Native payload builder refused " + command);
 			Require(capability.BuildingCommand(actor, new StringStack($"casting entry add {payload.Id}")), "Native payload admission failed.");
-			Require(((ChargedMagicDeviceGameItemComponentProto)device.Prototype).BuildingCommand(actor, new StringStack($"spell add {payload.Id}")), "Native carrier whitelist failed.");
+			Require(((ChargedMagicDeviceGameItemComponentProto)auxiliaryBank.Prototype).BuildingCommand(actor, new StringStack($"spell add {payload.Id}")), "Native carrier whitelist failed.");
 			world.SaveManager.Flush(); var grant = service.Grant(staff.Object, actor, capability.Id, payload.Id, "Native device payload fixture"); Require(grant.Allowed, grant.Message);
 			store.Write(acquired: service.Acquisition(actor, payload.Id)! with { ControlledGrade = 2 });
 			var production = service.BeginDeviceProduction(actor, auxiliary, capability.Id, payload.Id, 2, 1); Require(production.Status == MagicCastingStatus.Started, production.Message);

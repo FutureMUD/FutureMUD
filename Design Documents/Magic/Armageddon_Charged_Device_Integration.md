@@ -99,8 +99,12 @@ An unknown claim result or any later exception yields quarantine and staff revie
 without automatic retry, effect replay or refund.
 
 Each reservation, fill and consumption uses an isolated, parameterized compare-and-swap
-of the exact component XML bytes. A stale host cannot overwrite a newer bank or
-reservation. The component is removed from the ordinary save queue before this write.
+of the exact component XML bytes and expected prototype identity/revision. The component's
+ordinary `Save` override uses that same writer; its prototype-update override atomically
+compares the old bank/revision and updates the revision. Transient reservations and
+refusal releases never queue a generic bank save. Conflicting hosts are disabled and
+dequeued, preserving the durable winner. The base `CheckPrototypeForUpdate` signature
+is virtual by coordinator approval; its default implementation is unchanged.
 The checksum covers the full stored numerical/provenance/charge bank, and invalid
 original XML remains available as evidence. A checksum is corruption detection,
 not protection from a database administrator who deliberately rewrites and re-signs XML.
@@ -115,7 +119,13 @@ repair. Terminal receipts remain historical evidence.
 
 Focused tests cover entitlement, copying, homogeneous recharge, depletion, explicit
 focus, callback changes, live wards/resistance, suppressed improvement and injected
-fault boundaries. The lane-native project is
+fault boundaries. Review regressions execute actual usability and target-filter
+callbacks that mutate custody, entitlement, body or configuration. The final state-only
+checks run after authored callbacks without executing another usability/filter callback.
+Native regressions use compiled `silentdrop`/`removemerit` policies at the final charged
+and focus boundaries, two independently loaded host processes, real ordinary
+SaveManager flushes and interface-dispatched same-host/stale-host prototype updates.
+The lane-native project is
 `tests/ArmageddonChargedDeviceNativeHarness/ArmageddonChargedDeviceNativeHarness.csproj`;
 it links existing substrate read-only and selects a distinct entrypoint/output path.
 `Run-IsolatedDevices.ps1` creates a fresh `futuremud-device-mysql_<GUID>` process/data
@@ -130,8 +140,9 @@ player-login/Telnet or production-world acceptance certificate.
 
 The integrator should add the verified results and explicit limitations to the
 central progress ledger. No schema or `IMagicCastingService` changes are needed.
-The only shared casting-service edit is the approved inert-outside-focus `Prepare`
-hook; numerical-context optional grade/mastery XML remains backward compatible.
+The shared casting-service edit is the approved inert-outside-focus `Prepare` hook;
+it passes the existing resolved target into lane-owned final validation.
+Numerical-context optional grade/mastery XML remains backward compatible.
 The general item registration audit classifies this new type as dependency-bound;
 its fixed-count expectations increase by one. No generic stock item with placeholder
 magic IDs is seeded.

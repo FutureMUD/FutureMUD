@@ -17,6 +17,7 @@ using MudSharp.Magic.Casting;
 using MudSharp.Magic.SpellEffects;
 using MudSharp.Magic.Vancian;
 using MudSharp.RPG.Checks;
+using MudSharp.FutureProg;
 
 #nullable enable
 namespace MudSharp_Unit_Tests;
@@ -69,6 +70,79 @@ public class ChargedMagicDeviceTests
 		{
 			F.Restart();
 			Device = new(new MudSharp.Models.GameItemComponent { Id = 10, Definition = Persisted }, Proto, Item.Object); Bind();
+		}
+	}
+
+	[TestMethod]
+	[DataRow(false, "custody")]
+	[DataRow(false, "entitlement")]
+	[DataRow(false, "configuration")]
+	[DataRow(false, "body")]
+	[DataRow(true, "custody")]
+	[DataRow(true, "entitlement")]
+	[DataRow(true, "configuration")]
+	[DataRow(true, "body")]
+	public void ActualUsabilityCallback_TrueAfterMutation_RefusesBeforeCommitment(bool focus, string mutation)
+	{
+		var f = new Fixture(); f.Charge();
+		var prog = new Mock<IFutureProg>(); prog.SetupGet(x => x.Id).Returns(701);
+		prog.SetupGet(x => x.ReturnType).Returns(ProgVariableTypes.Boolean);
+		prog.SetupGet(x => x.Parameters).Returns(new[] { ProgVariableTypes.Character, ProgVariableTypes.Item });
+		prog.Setup(x => x.Execute(It.IsAny<object[]>())).Returns<object[]>(_ =>
+		{
+			if (mutation == "custody") f.Held.Clear();
+			if (mutation == "entitlement") f.F.ActiveCapabilities.Clear();
+			if (mutation == "configuration") f.Proto.BuildingCommand(f.F.Actor.Object, new StringStack("capacity 6"));
+			if (mutation == "body") f.F.Body.SetupGet(x => x.Id).Returns(900);
+			return true;
+		});
+		f.F.World.SetupGet(x => x.FutureProgs).Returns(MagicCastingFixture.Collection(() => new[] { prog.Object }));
+		Assert.IsTrue(f.Proto.BuildingCommand(f.F.Actor.Object, new StringStack("usable 701")));
+		var before = f.F.Balances[f.F.Resources[1]]; var bank = f.Persisted; var receipts = f.F.Store.Operations.Count;
+		var result = focus ? f.F.Service.CastDeviceFocus(new(f.F.Actor.Object, 1, 2, 2, false, "self"), f.Item.Object) : f.F.Service.ActivateDevice(f.F.Actor.Object, f.Item.Object, "self");
+		Assert.AreEqual(MagicCastingStatus.Refused, result.Status, result.Message);
+		Assert.AreEqual(before, f.F.Balances[f.F.Resources[1]]); Assert.AreEqual(bank, f.Persisted);
+		Assert.AreEqual(receipts, f.F.Store.Operations.Count); Assert.IsNull(f.Device.Reservation);
+		prog.Verify(x => x.Execute(It.IsAny<object[]>()), Times.AtLeastOnce);
+	}
+
+	[TestMethod]
+	[DataRow(false, "custody")]
+	[DataRow(false, "entitlement")]
+	[DataRow(true, "custody")]
+	[DataRow(true, "entitlement")]
+	public void ActualFinalTargetFilter_TrueAfterMutation_RefusesWithoutPaymentBankOrJournal(bool focus, string mutation)
+	{
+		var f = new Fixture(); var source = (MagicSpell)f.F.Spells.Single(x => x.Id == 2);
+		var calls = 0; var commitCall = focus ? 3 : 2;
+		var prog = new Mock<IFutureProg>(); prog.SetupGet(x => x.Id).Returns(702);
+		prog.Setup(x => x.Execute<bool?>(It.IsAny<object[]>())).Returns<object[]>(_ =>
+		{
+			if (++calls == commitCall) { if (mutation == "custody") f.Held.Clear(); else f.F.ActiveCapabilities.Clear(); }
+			return true;
+		});
+		f.F.World.SetupGet(x => x.FutureProgs).Returns(MagicCastingFixture.Collection(() => new[] { prog.Object }));
+		var trigger = new XElement("Trigger", new XAttribute("type", "character"), new XElement("MinimumPower", 0), new XElement("MaximumPower", 10), new XElement("CanTargetSelf", true), new XElement("TargetFilterProg", 702));
+		source.Trigger = SpellTriggerFactory.LoadTrigger(trigger, source);
+		f.F.Actor.Setup(x => x.TargetActorOrCorpse(It.IsAny<string>(), It.IsAny<PerceiveIgnoreFlags>())).Returns(f.F.Actor.Object);
+		f.Charge(); var before = f.F.Balances[f.F.Resources[1]]; var bank = f.Persisted; var receipts = f.F.Store.Operations.Count;
+		var result = focus ? f.F.Service.CastDeviceFocus(new(f.F.Actor.Object, 1, 2, 2, false, "self"), f.Item.Object) : f.F.Service.ActivateDevice(f.F.Actor.Object, f.Item.Object, "self");
+		Assert.AreEqual(MagicCastingStatus.Refused, result.Status, result.Message); Assert.AreEqual(commitCall, calls);
+		Assert.AreEqual(before, f.F.Balances[f.F.Resources[1]]); Assert.AreEqual(bank, f.Persisted);
+		Assert.AreEqual(receipts, f.F.Store.Operations.Count); Assert.IsNull(f.Device.Reservation);
+	}
+
+	[TestMethod]
+	public void BankMutationsAndRefusal_DoNotQueueOrdinarySaves_AndPersistenceDispatchIsOverridden()
+	{
+		var f = new Fixture(); f.Charge(); var token = f.Device.NextCharge!.Value;
+		Assert.IsTrue(f.Device.Reserve(token)); f.Device.Release(token); Assert.IsFalse(f.Device.Changed);
+		f.F.World.Verify(x => x.SaveManager.Add(f.Device), Times.Never);
+		foreach (var method in new[] { "Save", "CheckPrototypeForUpdate" })
+		{
+			var implementation = typeof(ChargedMagicDeviceGameItemComponent).GetMethod(method)!;
+			Assert.AreEqual(typeof(ChargedMagicDeviceGameItemComponent), implementation.DeclaringType);
+			Assert.AreEqual(typeof(GameItemComponent).GetMethod(method)!.GetBaseDefinition(), implementation.GetBaseDefinition());
 		}
 	}
 

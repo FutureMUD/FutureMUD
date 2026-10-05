@@ -1,0 +1,31 @@
+{
+  "schema": 1,
+  "status": "blocked_until_main_hook_integration",
+  "main_contract_commit": "fdba0e03f6b6cf3a3a4df9197e9ff42c2697c255",
+  "magic_package_release_enabled": false,
+  "database_prefix": "futuremud_fury_calm_stock_<timestamp>_<random>",
+  "process_temp_prefix": "futuremud-fury-calm-stock-mysql_<UUID>",
+  "requirements": [
+    "Exact owned MySQL UUID/datadir/port and marked disposable database; no user database or other lane process.",
+    "Unique nonempty identity per actually admitted attack child and distinct physical recipient.",
+    "Source and assembly manifests stable across final committed native execution."
+  ],
+  "pending_cases": [
+    "Ordinary builder construction, duplicate/malformed row conservation and paid grade1/grade7 casts.",
+    "Target/body/terrain/profile/capability refusal before payment; source cost and operation/mastery reporting.",
+    "Reciprocal stronger/equal/weaker counters; Fury old-state cap36; Calm strongest-state cap24.",
+    "Completed resisted Calm still performs proved source cessation; thrown save/output callbacks remain uncertainty.",
+    "Melee admission after its last pre-check callback; refused or stale action emits no notification.",
+    "Admitted hit/miss/zero damage breaks only opted-in owned Calm; attacker retirement or authority revocation in callback prevents stale execution.",
+    "Firearm validates the exact chambered round at actual commit/detach; empty chamber emits nothing; preserve independent defender countershot.",
+    "Multi-target wrapper notifies each actual admitted child, never its whole proposed target enumeration.",
+    "Direct component/spell routes have their own operation identity, final admission receipt and coverage evidence.",
+    "B leaves and A acquires C: preserve A/C combat registration and target; no caster-wide leave from old A/B snapshot.",
+    "Guard cessation inside callback-bearing target/combat commits; preserve callback-created replacement fight; surrounding ordinary setters alone is insufficient.",
+    "Two-person ending, subject fighting a third party, remaining exact caster/subject pair, stale queues, ProgCombat callback drift.",
+    "Real inferred attribute consumed by world capacity prog; attach/recast do not refill; removal/expiry/dispel clamp and conserve siblings.",
+    "Independent-process database reload, exact child/source state, parent power, deadlines and empty-parent expiry cleanup.",
+    "Unravel80 opens Fury30/cap90, Fury80 opens Calm30/cap90, Calm80 opens Mend30/cap60 and Mend practice reaches grade7.",
+    "Preserve cleared See/Pierce/water/provision/five stocks and Raise Servitor/Storm Spear/Flame Knife/Sand Knife regressions."
+  ]
+}

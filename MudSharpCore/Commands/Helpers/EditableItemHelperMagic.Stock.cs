@@ -9,10 +9,11 @@ public partial class EditableItemHelper
 {
 	private static void CreateStockSpell(ICharacter actor, StringStack command)
 	{
+		if (TryCreateUtilityStockSpell(actor, command)) return;
 		var stock = command.PopSpeech().ToLowerInvariant();
 		if (stock is not ("raise-servitor" or "storm-spear" or "flame-knife" or "sand-knife"))
 		{
-			actor.OutputHandler.Send("Available stock spells: #3raise-servitor#0, #3storm-spear#0, #3flame-knife#0 and #3sand-knife#0.".SubstituteANSIColour());
+			actor.OutputHandler.Send(("Available stock spells: #3raise-servitor#0, #3storm-spear#0, #3flame-knife#0, #3sand-knife#0, " + UtilityStockNames + ".").SubstituteANSIColour());
 			return;
 		}
 		var schoolText = command.PopSpeech();

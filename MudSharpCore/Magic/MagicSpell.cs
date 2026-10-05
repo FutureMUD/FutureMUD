@@ -1783,7 +1783,16 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
 					if (stillEligible?.Invoke() == false) break;
 					resolvedAny = true;
 					IMagicSpellEffect? child;
-					if (prepared.TryGetValue(effect, out var application)) child = application.Create(head);
+					if (prepared.TryGetValue(effect, out var application))
+					{
+						if (invocation?.Configured is { } reporting && application is IMagicSpellEffectApplicationOperation operation)
+						{
+							var report = operation.Apply(head);
+							child = report.Effect;
+							if (intended && report.Status == MagicEffectOperationStatus.Applied) reporting.AppliedIntendedOperation = true;
+						}
+						else child = application.Create(head);
+					}
 					else if (invocation?.Configured is { } reporting && effect is IMagicSpellEffectOperation operation)
 					{
 						var report = operation.Apply(magician, effectTarget, effectOutcome, power, head, additionalParameters);
@@ -2059,6 +2068,7 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
 	}
 
     public bool ReadyForGame =>
+        TargetFilterConfigurationError is null &&
         GradeConfigurationErrors().Count == 0 &&
         Trigger != null &&
 		_spellEffects.OfType<SpellEffects.RejuvenateLandEffect>().Count() <= 1 &&
@@ -2073,6 +2083,7 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
 
     public string WhyNotReadyForGame(ICharacter builder)
     {
+		if (TargetFilterConfigurationError is { } filterError) return filterError;
 		if (GradeConfigurationErrors().FirstOrDefault() is { } gradeError) return gradeError;
 		if (_spellEffects.OfType<SpellEffects.RejuvenateLandEffect>().Count() > 1 || _casterSpellEffects.OfType<SpellEffects.RejuvenateLandEffect>().Any())
 			return "rejuvenateland permits one target effect and cannot be a caster-side effect.";

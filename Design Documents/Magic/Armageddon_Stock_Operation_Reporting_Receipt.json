@@ -1,0 +1,78 @@
+{
+  "schema": 1,
+  "lane": "five-stock",
+  "checkpoint": "operation-reporting",
+  "base": "1ad24d636925da64e7a82ffa858b0af470e56b0a",
+  "build": "Debug net10.0; no restore; serial; UseSharedCompilation=false",
+  "tests": {
+    "filter": "MagicStockOperationReportingTests|MagicCasting|SpellOwnedItem|SpellCreatedConsumable|Dispel",
+    "passed": 426,
+    "failed": 0,
+    "skipped": 0,
+    "trx": ".artifacts/test-runs/five-stock-reporting-04/reporting.trx"
+  },
+  "source": [
+    {
+      "path": "FutureMUDLibrary/Magic/IMagicSpellEffectApplicationOperation.cs",
+      "sha256": "15bda6e8e99b850d4c85fef8be00320b7d79ad74ac18046f46b39bbdbabe3d25"
+    },
+    {
+      "path": "MudSharpCore/Magic/MagicSpell.cs",
+      "sha256": "449ebbabe7838ffc3ba8b725b01044d0e329aba034a32ff96f027de28237da6b"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/CreateItemEffect.Lifecycle.cs",
+      "sha256": "67d9dbb53e226a17db6fabfd76ac4084972711963bf08cf250d9e86b5c7d5493"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/CreateLiquidEffect.ContainerFill.cs",
+      "sha256": "70744388501a03ac998d5429ecdfe7b1ffb7d5b5919c180b3a97ad6ac13e55a6"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/DispelMagicEffect.cs",
+      "sha256": "9f65a7d41adb0660215a8f94f3bf033a1035d540d73d147e613a3db9a81ddeaf"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/HealEffect.cs",
+      "sha256": "0a52dff787631c4238d36c9ca3aa2496768e78c4c60f249eb29b5dcd4d0fcb00"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/StandaloneStatusSpellEffects.cs",
+      "sha256": "b298272df7edf5ed458e4483697d9ec8183965dc7076d72c00e2fed76d8180bb"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/DetectMagickEffect.Operation.cs",
+      "sha256": "350005329a13baf28102ffe709a7659c22828b77f1ac56816300eee431c8ad4c"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/DispelMagicEffect.Operation.cs",
+      "sha256": "c48632716819551ca45ec3751bcedd36bb54c378145e52f302c27f788ddc8855"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/HealEffect.Operation.cs",
+      "sha256": "6419583426959586e23a40b57938fee4bfd4b392a9c77e6743f52b6c0492bb1f"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/MagicStockOperationReportingTests.cs",
+      "sha256": "ad5675b2d8bb20a0ee0edd0574897d9c86f4ebea5fceed2a32f5779fb342011d"
+    }
+  ],
+  "assemblies": [
+    {
+      "path": "MudSharpCore/bin/Debug/net10.0/MudSharp.dll",
+      "sha256": "4c58463237a73876004301c15e36943c3ee3edf523bdf44a0c180b438356b5af"
+    },
+    {
+      "path": "FutureMUDLibrary/bin/Debug/net10.0/FutureMUDLibrary.dll",
+      "sha256": "9f06e196e2803de783e537119786ce773fdac44fda677545ef0ccd123570e829"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/bin/Debug/net10.0/MudSharpCore Unit Tests.dll",
+      "sha256": "92c3406d918c7c9e1c20108c5e1ef827c619523a30c937a5ff594d0806e64736"
+    }
+  ],
+  "limits": [
+    "Native paid stock qualification follows in a separate checkpoint. Unit fixtures include real prepared application implementations with mocked native persistence/custody collaborators.",
+    "Failed attempts are retained under .artifacts/test-runs/five-stock-reporting-history; earlier failures were fixture setup and compile errors, not passing evidence."
+  ]
+}

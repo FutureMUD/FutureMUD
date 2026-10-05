@@ -25,6 +25,20 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class ChargedMagicDeviceTests
 {
+	private delegate bool TargetPolicyExecutor(out object result, object[] arguments);
+	private static Mock<IFutureProg> SuccessfulTargetPolicy(long id, Action callback)
+	{
+		var prog = new Mock<IFutureProg>(); prog.SetupGet(x => x.Id).Returns(id);
+		prog.SetupGet(x => x.ReturnType).Returns(ProgVariableTypes.Boolean);
+		prog.SetupGet(x => x.CompileError).Returns("");
+		prog.Setup(x => x.MatchesParameters(It.IsAny<IEnumerable<ProgVariableTypes>>())).Returns(true);
+		prog.Setup(x => x.ExecuteWithStatus(out It.Ref<object>.IsAny, It.IsAny<object[]>()))
+			.Returns(new TargetPolicyExecutor((out object result, object[] arguments) =>
+			{
+				callback(); result = true; return true;
+			}));
+		return prog;
+	}
 	[TestMethod]
 	[DataRow("DeviceConsumed", false)]
 	[DataRow("DeviceConsumed", true)]
@@ -66,11 +80,9 @@ public class ChargedMagicDeviceTests
 	public void FinalCommitment_NewGlobalItemQuarantineAfterCallback_RefusesWithoutClaim()
 	{
 		var f = new Fixture(); var calls = 0;
-		var prog = new Mock<IFutureProg>(); prog.SetupGet(x => x.Id).Returns(703);
-		prog.Setup(x => x.Execute<bool?>(It.IsAny<object[]>())).Returns<object[]>(_ =>
+		var prog = SuccessfulTargetPolicy(703, () =>
 		{
 			if (++calls == 2) f.F.Store.Write(new(Guid.NewGuid(), 999, 999, 998, 1, 2, 1, 11, "NeedsReview", "<Casting version='1'><Item id='400'/></Casting>", f.F.Now, f.F.Now));
-			return true;
 		});
 		f.F.World.SetupGet(x => x.FutureProgs).Returns(MagicCastingFixture.Collection(() => new[] { prog.Object }));
 		var source = (MagicSpell)f.F.Spells.Single(x => x.Id == 2);
@@ -81,6 +93,7 @@ public class ChargedMagicDeviceTests
 		var receipts = f.F.Store.Operations.Count; var balance = f.F.Balances[f.F.Resources[1]];
 		Assert.AreEqual(MagicCastingStatus.Refused, f.F.Service.ActivateDevice(f.F.Actor.Object, f.Item.Object, "self").Status);
 		Assert.AreEqual(2, calls); Assert.AreEqual(receipts + 1, f.F.Store.Operations.Count);
+		prog.Verify(x => x.ExecuteWithStatus(out It.Ref<object>.IsAny, It.IsAny<object[]>()), Times.Exactly(2));
 		Assert.AreEqual(bank, f.Device.Export().ToString()); Assert.AreEqual(charge, f.Device.NextCharge); Assert.AreEqual(balance, f.F.Balances[f.F.Resources[1]]);
 	}
 	[TestMethod]
@@ -278,11 +291,9 @@ public class ChargedMagicDeviceTests
 	{
 		var f = new Fixture(); var source = (MagicSpell)f.F.Spells.Single(x => x.Id == 2);
 		var calls = 0; var commitCall = focus ? 3 : 2;
-		var prog = new Mock<IFutureProg>(); prog.SetupGet(x => x.Id).Returns(702);
-		prog.Setup(x => x.Execute<bool?>(It.IsAny<object[]>())).Returns<object[]>(_ =>
+		var prog = SuccessfulTargetPolicy(702, () =>
 		{
 			if (++calls == commitCall) { if (mutation == "custody") f.Held.Clear(); else f.F.ActiveCapabilities.Clear(); }
-			return true;
 		});
 		f.F.World.SetupGet(x => x.FutureProgs).Returns(MagicCastingFixture.Collection(() => new[] { prog.Object }));
 		var trigger = new XElement("Trigger", new XAttribute("type", "character"), new XElement("MinimumPower", 0), new XElement("MaximumPower", 10), new XElement("CanTargetSelf", true), new XElement("TargetFilterProg", 702));
@@ -291,6 +302,9 @@ public class ChargedMagicDeviceTests
 		f.Charge(); var before = f.F.Balances[f.F.Resources[1]]; var bank = f.Persisted; var receipts = f.F.Store.Operations.Count;
 		var result = focus ? f.F.Service.CastDeviceFocus(new(f.F.Actor.Object, 1, 2, 2, false, "self"), f.Item.Object) : f.F.Service.ActivateDevice(f.F.Actor.Object, f.Item.Object, "self");
 		Assert.AreEqual(MagicCastingStatus.Refused, result.Status, result.Message); Assert.AreEqual(commitCall, calls);
+		prog.Verify(x => x.ExecuteWithStatus(out It.Ref<object>.IsAny, It.IsAny<object[]>()), Times.Exactly(commitCall));
+		Assert.IsTrue(mutation == "custody" ? f.Held.Count == 0 : f.F.ActiveCapabilities.Count == 0,
+			"The successful final target policy must actually mutate custody or entitlement.");
 		Assert.AreEqual(before, f.F.Balances[f.F.Resources[1]]); Assert.AreEqual(bank, f.Persisted);
 		Assert.AreEqual(receipts, f.F.Store.Operations.Count); Assert.IsNull(f.Device.Reservation);
 	}

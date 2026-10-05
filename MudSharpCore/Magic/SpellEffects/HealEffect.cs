@@ -7,7 +7,7 @@ using MoreLinq;
 
 namespace MudSharp.Magic.SpellEffects;
 
-public class HealEffect : IMagicSpellEffectTemplate
+public partial class HealEffect : IMagicSpellEffectTemplate, IMagicSpellEffectOperation
 {
     public static void RegisterFactory()
     {

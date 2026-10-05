@@ -112,16 +112,20 @@ public partial class CreateLiquidEffect
 		public IMagicSpellEffect Create(IMagicSpellEffectParent parent) => Effect.GetOrApplyEffect(Caster, Target, Outcome, Power, parent, []);
 	}
 
-	private sealed record ContainerFill(CreateLiquidEffect Effect, ICharacter Caster, IPerceivable Target, double Amount) : IMagicSpellEffectApplication
+	private sealed record ContainerFill(CreateLiquidEffect Effect, ICharacter Caster, IPerceivable Target, double Amount) : IMagicSpellEffectApplicationOperation
 	{
-		public IMagicSpellEffect Create(IMagicSpellEffectParent parent)
+		public IMagicSpellEffect Create(IMagicSpellEffectParent parent) => Apply(parent).Effect!;
+		public MagicEffectOperation Apply(IMagicSpellEffectParent parent)
 		{
 			if (!Effect.TryContainer(Caster, Target, out var container, out var error)) throw new InvalidOperationException(error);
+			var before = container!.LiquidMixture?.TotalVolume ?? 0;
 			var mixture = new LiquidMixture(Effect.Liquid, Math.Min(Amount, container!.LiquidCapacity - (container.LiquidMixture?.TotalVolume ?? 0)), Effect.Gameworld);
 			if (container.LiquidMixture is not null && !container.LiquidMixture.CanMerge(mixture))
 				throw new InvalidOperationException("The current mixture refuses the configured liquid.");
 			container.MergeLiquid(mixture, Caster, "spell");
-			return null!;
+			var after = container.LiquidMixture?.TotalVolume ?? 0;
+			return new(!double.IsFinite(after) ? MagicEffectOperationStatus.Unknown :
+				after > before ? MagicEffectOperationStatus.Applied : MagicEffectOperationStatus.NoChange, null);
 		}
 	}
 

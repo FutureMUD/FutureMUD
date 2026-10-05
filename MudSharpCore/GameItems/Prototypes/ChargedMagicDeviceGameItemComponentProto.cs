@@ -73,11 +73,9 @@ public sealed class ChargedMagicDeviceGameItemComponentProto : GameItemComponent
 	}
 	public override bool CanSubmit() => ConfigurationErrors().Count == 0;
 	public override string WhyCannotSubmit() => string.Join("\n", ConfigurationErrors());
-	protected override string SaveToXml() => new XElement("Definition", new XAttribute("version", 1),
-		new XElement("Kind", (int)Kind), new XElement("Role", (int)Role), new XElement("Eligibility", (int)Eligibility),
-		new XElement("Capacity", Capacity), new XElement("Seconds", SecondsPerCharge), new XElement("Capability", CapabilityId),
-		new XElement("UseProg", UseProgId), new XElement("CheckTrait", CheckTraitId), new XElement("MinimumUseGrade", MinimumUseGrade), new XElement("Difficulty", (int)CheckDifficulty),
-		new XElement("Outcome", (int)MinimumOutcome), _spells.Order().Select(x => new XElement("Spell", x)), ProductionPlan.SaveToXml()).ToString();
+	protected override string SaveToXml() => MagicDeviceDefinition.Serialize(Kind, Role, Eligibility, Capacity,
+		SecondsPerCharge, CapabilityId, UseProgId, CheckTraitId, MinimumUseGrade, CheckDifficulty, MinimumOutcome,
+		_spells, ProductionPlan.SaveToXml());
 	public const string HelpText = @"Settings:
 	kind wand|staff - carrier name; new wand/staff defaults are 5/10 charges
 	role charged|focus|dual - explicit modes; depleted charged mode never casts personally

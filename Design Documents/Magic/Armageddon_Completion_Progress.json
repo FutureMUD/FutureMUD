@@ -494,7 +494,8 @@
       "status": "bounded_self_stock_native_pass_full_installed_acceptance_pending",
       "evidence": [
         "Armageddon_Stage3C_NativeItems_Verification.json",
-        "Armageddon_FlameKnife_Stock_Verification.json"
+        "Armageddon_FlameKnife_Stock_Verification.json",
+        "Armageddon_SandKnife_Stock_Verification.json"
       ]
     },
     {
@@ -673,7 +674,7 @@
       "group": "Gap",
       "required_behavior": "Timed low-tier fire weapon; mon component-consuming permanent staff output; source-informed prototypes and explicit per-tier ownership/cleanup",
       "selected_sorcerer": true,
-      "status": "bounded_self_stock_native_verified_parent_review_pending_full_installer_pending",
+      "status": "bounded_self_stock_parent_independently_cleared_full_installer_pending",
       "evidence": [
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending",
         "Armageddon_FlameKnife_Stock_Verification.json"
@@ -1037,8 +1038,22 @@
       "group": "Gap",
       "required_behavior": "Timed low-tier sand weapon; mon component-consuming permanent staff output; source-informed prototypes and explicit per-tier ownership/cleanup",
       "selected_sorcerer": false,
-      "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "status": "bounded_self_stock_native_verified_parent_review_pending_full_installer_pending",
+      "evidence": [
+        "Armageddon_SandKnife_Stock_Verification.json"
+      ],
+      "qualification_limits": [
+        "Historical objects456-461 and1378-1385 statistics and embedded payloads are unavailable. Six distinct temporary native weapons and eight permanent native staffs use explicit builder-selected physical profiles; controlled acceptance authors piercing6 damage4 pain2 stun. No historical damage parity or charged staff payload qualification.",
+        "Enough-sand source admits Desert/Earth Plane/Silt/Shallows/Salt Flats, room sandstorm flag or numeric weather condition>=2.5; wrapper excludes Inside/City. Stock maps editable terrain names, a selected native room tag and exact selected current weather event ID. Numeric condition, full climate evolution and historical sector parity are unqualified; native acceptance uses actual Cell/Tag/WeatherEvent with a controlled controller.",
+        "Source temporary heap duration=((grade+1)*3000)/2 maps nominal0.75 seconds/unit to (grade+1)*1500*0.75 seconds, excluding heap batching/load. Sand has no shadow half-duration; tagged Shadow Plane grade6 is paid with full lifetime.",
+        "Five-energy lower bound is explicitly authored native policy for a candidate outside82Sorcerer roster, separate from raw C minimum0/basepower15. Paid controlled grades1-7 are qualified; paid overreach and whole-stock affordability matrices remain separate gates. Immutable82+12 source tree unchanged.",
+        "Bounded caster-only stock uses native normal inventory placement then explicit native Wield and MeleeWeaponAttack/HelplessDefenseMove. Other-recipient/drop-at-feet, privileged source material exemptions, autonomous selection/ordinary defence, arbitrary callbacks, full boot/Telnet and concurrency remain unqualified.",
+        "One actual permanent random pool outcome is paid and reloaded; all eight prototype IDs are validated and persisted, but not every random outcome or individual historical property is gameplay-qualified.",
+        "Controlled native world/anatomy catalogues, deterministic rolls and specialized caster Save apply. Permanent staff is ordinary salvage-eligible material, not indestructible. Full production persistence and every lifecycle fault boundary remain separate qualifications.",
+        "Queued servitor-control gap stays open: immutable accepted-action controller/grant provenance and execution-time deadline revalidation while animation lives, preserving independent following.",
+        "Whole plan incomplete: seven phases,16 decisions,154 candidates,82 Sorcerer spells plus12 support rows and25 native scenarios; installer/acquisition/crafting/chargen/energy/portable production and remaining effect/topology/charm/lifecycle/native release work remain pending.",
+        "Local commit only; no publication, remote merge, deployment, shared/production database or model/billing changes. Stop for parent independent review."
+      ]
     },
     {
       "key": "arm.spell.stone_skin",
@@ -3651,9 +3666,9 @@
     }
   ],
   "next_checkpoint": {
-    "status": "awaiting_parent_flame_knife_independent_review",
-    "base": "d966e8af6b60a8b2ed4de8fa178568f2d8ca1676",
-    "receipt": "Armageddon_FlameKnife_Stock_Verification.json",
+    "status": "awaiting_parent_sand_knife_independent_review",
+    "base": "c9530927beb7413e7aa937041799f8894b6633be",
+    "receipt": "Armageddon_SandKnife_Stock_Verification.json",
     "full_plan_complete": false,
     "publication_authorized": false,
     "queued_servitor_control_gap": "accepted-action immutable controller/grant provenance and execution-time deadline revalidation still pending"
@@ -3870,6 +3885,41 @@
         "Controlled native world/anatomy catalogues, deterministic rolls and specialized caster Save apply. Permanent staff remains ordinary salvage-eligible material, not indestructible. Full production persistence and every lifecycle fault boundary remain separate qualifications.",
         "Queued servitor control still needs immutable accepted-action controller/grant provenance and execution-time deadline revalidation while animation lives; preserve independent following.",
         "Full plan incomplete: seven phases,16 decisions,154 candidates,82 Sorcerer spells plus12 support rows and25 native scenarios. Complete installer/acquisition/crafting/chargen/energy/portable production and remaining effect/topology/charm/lifecycle/native-release work remain pending.",
+        "Local commit only; no publication, remote merge, deployment, shared/production database or model/billing changes. Stop for parent independent review."
+      ]
+    },
+    {
+      "status": "parent_independently_cleared_bounded_flame_knife",
+      "implementation_commit": "c9530927beb7413e7aa937041799f8894b6633be",
+      "receipt": "Armageddon_FlameKnife_Stock_Verification.json",
+      "limits": [
+        "Historical objects462-467 and1386-1393 and their statistics/payloads are unavailable. Six distinct native grade prototypes and eight native permanent staff prototypes are builder-selected burning melee adaptations. Acceptance declares6 damage4 pain2 stun; no historical damage parity or embedded charged staff payload is asserted.",
+        "Temporary deadline=(grade+1)*1500*0.75 seconds, shadow half; nominal heap conversion excludes batching/load. Environment maps source sectors to editable terrain-name progs Water Plane/Shadow Plane, rather than claiming native planar parity.",
+        "Bounded stock targets the caster and uses ordinary inventory/location placement; native explicit wield and actual MeleeWeaponAttack/HelplessDefenseMove deliver and persist burning wounds. Other-recipient drop-at-feet, arbitrary callbacks, autonomous selection/defences, full boot/Telnet and concurrency remain unqualified.",
+        "Printed energy lower bound7 follows approved source tree, distinct from raw C metadata minimum0. Paid controlled grades1-7 are qualified; paid overreach and all stock affordability matrices remain separate gates.",
+        "One actual random staff choice is paid and reloaded; all eight IDs are validated and persisted, but all eight random outcomes and their individual historical properties are not gameplay-qualified.",
+        "Controlled native world/anatomy catalogues, deterministic rolls and specialized caster Save apply. Permanent staff remains ordinary salvage-eligible material, not indestructible. Full production persistence and every lifecycle fault boundary remain separate qualifications.",
+        "Queued servitor control still needs immutable accepted-action controller/grant provenance and execution-time deadline revalidation while animation lives; preserve independent following.",
+        "Full plan incomplete: seven phases,16 decisions,154 candidates,82 Sorcerer spells plus12 support rows and25 native scenarios. Complete installer/acquisition/crafting/chargen/energy/portable production and remaining effect/topology/charm/lifecycle/native-release work remain pending.",
+        "Local commit only; no publication, remote merge, deployment, shared/production database or model/billing changes. Stop for parent independent review."
+      ]
+    },
+    {
+      "status": "bounded_sand_knife_verified_parent_review_pending",
+      "base": "c9530927beb7413e7aa937041799f8894b6633be",
+      "receipt": "Armageddon_SandKnife_Stock_Verification.json",
+      "managed_focused_run": "20261005T020036Z-6456e81f4517",
+      "managed_fast_run": "20261005T020302Z-ded78c70e0c1",
+      "limits": [
+        "Historical objects456-461 and1378-1385 statistics and embedded payloads are unavailable. Six distinct temporary native weapons and eight permanent native staffs use explicit builder-selected physical profiles; controlled acceptance authors piercing6 damage4 pain2 stun. No historical damage parity or charged staff payload qualification.",
+        "Enough-sand source admits Desert/Earth Plane/Silt/Shallows/Salt Flats, room sandstorm flag or numeric weather condition>=2.5; wrapper excludes Inside/City. Stock maps editable terrain names, a selected native room tag and exact selected current weather event ID. Numeric condition, full climate evolution and historical sector parity are unqualified; native acceptance uses actual Cell/Tag/WeatherEvent with a controlled controller.",
+        "Source temporary heap duration=((grade+1)*3000)/2 maps nominal0.75 seconds/unit to (grade+1)*1500*0.75 seconds, excluding heap batching/load. Sand has no shadow half-duration; tagged Shadow Plane grade6 is paid with full lifetime.",
+        "Five-energy lower bound is explicitly authored native policy for a candidate outside82Sorcerer roster, separate from raw C minimum0/basepower15. Paid controlled grades1-7 are qualified; paid overreach and whole-stock affordability matrices remain separate gates. Immutable82+12 source tree unchanged.",
+        "Bounded caster-only stock uses native normal inventory placement then explicit native Wield and MeleeWeaponAttack/HelplessDefenseMove. Other-recipient/drop-at-feet, privileged source material exemptions, autonomous selection/ordinary defence, arbitrary callbacks, full boot/Telnet and concurrency remain unqualified.",
+        "One actual permanent random pool outcome is paid and reloaded; all eight prototype IDs are validated and persisted, but not every random outcome or individual historical property is gameplay-qualified.",
+        "Controlled native world/anatomy catalogues, deterministic rolls and specialized caster Save apply. Permanent staff is ordinary salvage-eligible material, not indestructible. Full production persistence and every lifecycle fault boundary remain separate qualifications.",
+        "Queued servitor-control gap stays open: immutable accepted-action controller/grant provenance and execution-time deadline revalidation while animation lives, preserving independent following.",
+        "Whole plan incomplete: seven phases,16 decisions,154 candidates,82 Sorcerer spells plus12 support rows and25 native scenarios; installer/acquisition/crafting/chargen/energy/portable production and remaining effect/topology/charm/lifecycle/native release work remain pending.",
         "Local commit only; no publication, remote merge, deployment, shared/production database or model/billing changes. Stop for parent independent review."
       ]
     }

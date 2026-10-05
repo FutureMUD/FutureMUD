@@ -1,0 +1,1944 @@
+{
+  "schema_version": 1,
+  "stage": "Bounded stock Sand Knife",
+  "status": "bounded_stock_verified_parent_review_pending",
+  "baseline": "c9530927beb7413e7aa937041799f8894b6633be",
+  "branch": "codex/armageddon-completion-phase1",
+  "recorded_utc": "2026-10-05T02:12:11.320858+00:00",
+  "source_review": {
+    "status": "one_P2_and_missing_mapping_error_path_resolved_no_additional_established_actionable_defect",
+    "scope": "Independent source-only initial and narrow closure; root owns native fixture setup repairs and all execution",
+    "finding_resolved": "Numeric IsTagged tag lookup narrowed valid64-bit IDs to32-bit. Stock uses typed tag(longID) with an explicit absent-tag guard before IsTagged; compiled-prog regressions cover large-ID admission and missing mapping refusal.",
+    "files": [
+      {
+        "path": "MudSharpCore/Magic/ArmageddonSandKnifeStock.cs",
+        "sha256": "d535d6030c1fd7ab9a3c7df5f8c3acf114b4c3d4c8250844d6475c29f08d0d8c"
+      },
+      {
+        "path": "MudSharpCore/Commands/Helpers/EditableItemHelperMagic.Stock.cs",
+        "sha256": "2e0a8eb82ada2fa91d21e7c5385f5d976e92de9ad8c4caa4991489d769311d80"
+      },
+      {
+        "path": "MudSharpCore/Commands/Helpers/EditableItemHelperMagic.cs",
+        "sha256": "00b49f23545cd3905b23b3a494b44622010ca117fcc65bc8a29b0798d8850415"
+      },
+      {
+        "path": "MudSharpCore Unit Tests/SandKnifeStockTests.cs",
+        "sha256": "b0395407a2314e8a21cd9da617de9861f20265a773ac54f0a970832ecadf1605"
+      },
+      {
+        "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.SandKnifeStock.cs",
+        "sha256": "96090c9ffe16a731c0985b55ba2d2d8b35b731ac9285e3a7c5dcca8187ce2dcc"
+      },
+      {
+        "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.cs",
+        "sha256": "27dfe76329543142448e36d02f3cf03e4c8321842bc66dd4e72ce5e424fe8be1"
+      },
+      {
+        "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Run-IsolatedAcceptance.ps1",
+        "sha256": "90e51ab40e898eae1c30bfe012a7043c9b0eda8bc0ca7c6c5df351081e19d094"
+      }
+    ]
+  },
+  "historical_source_receipts": [
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_SandKnife_HistoricalSource_ReadReceipt.json",
+      "sha256": "84f6d8fcf48ecd87a2579a9e4a2d3ee9fe82a2bb23f6a8024d539b4b195a2975"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_SandKnife_SourceEnergy_ReadReceipt.json",
+      "sha256": "8462498b393f99d49df0575f88520ca6c1660050155d8ca9b31ad5f814493859"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_SandKnife_Environment_ReadReceipt.json",
+      "sha256": "80d63b7655dc01589364c27d3402111b63aa9bfebb528f8d05952b4b80529882"
+    }
+  ],
+  "managed": {
+    "focused": {
+      "run": "20261005T020036Z-6456e81f4517",
+      "summary": {
+        "schema_version": 1,
+        "run_id": "20261005T020036Z-6456e81f4517",
+        "repository": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD",
+        "head": "c9530927beb7413e7aa937041799f8894b6633be",
+        "started_utc": "2026-10-05T02:00:36.7444639+00:00",
+        "ended_utc": "2026-10-05T02:01:13.5260120+00:00",
+        "duration_seconds": 36.7815688,
+        "source_start": "b070a3e22ca18c1d8a41f7e86c5ee241568c82fe94768c472715b9c655efda9a",
+        "source_end": "b070a3e22ca18c1d8a41f7e86c5ee241568c82fe94768c472715b9c655efda9a",
+        "source_stable": true,
+        "sdk": "10.0.401",
+        "runner": "VSTest/TRX (Microsoft.NET.Test.Sdk 17.9.0)",
+        "suite": "fast",
+        "configuration": "Debug",
+        "filter": "FullyQualifiedName~ClanBudgetLengthTests|FullyQualifiedName~VirtualCashLedgerCompatibilityTests|FullyQualifiedName~MediaErasureTests|FullyQualifiedName~NetworkSwitchStateTests|FullyQualifiedName~OutfitTeachingNumericNameTests|FullyQualifiedName~ProjectQueuePreferenceTests|FullyQualifiedName~EmptyPatrolRouteTests|FullyQualifiedName~CombatStrategyRuntimeTests|FullyQualifiedName~SpellAnimationControlTests|FullyQualifiedName~CommandableAiTests|FullyQualifiedName~ItemMorphBootTests|FullyQualifiedName~SpellAnimationReloadTests|FullyQualifiedName~BootLoadingRegressionTests|FullyQualifiedName~SpellAnimationSchedulerTests|FullyQualifiedName~RuntimeSchedulerTests|FullyQualifiedName~Rejuvenation|FullyQualifiedName~MagicSpellPhaseOneTests|FullyQualifiedName~SpellOwnedCorpseAnimationTests|FullyQualifiedName~BodyFormProvisioningTests|FullyQualifiedName~CharacterInstance|FullyQualifiedName~MagicCasting|FullyQualifiedName~SpellOwnedItemTests|FullyQualifiedName~ForeignCustodySaveJournalTests|FullyQualifiedName~PossessionReviewFindingSourceTests|FullyQualifiedName~SpellOwnedNpcRetirementTests|FullyQualifiedName~StormSpearComponentTests|FullyQualifiedName~SpellCreatedConsumableTests|FullyQualifiedName~BodyInventoryInitialisationTests|FullyQualifiedName~Vancian|FullyQualifiedName~FlameKnifeGradeTests|FullyQualifiedName~SandKnifeStockTests",
+        "fail_on_skipped": true,
+        "execution_complete": true,
+        "counts_complete": true,
+        "status": "PASS",
+        "counts": {
+          "executed": 1005,
+          "passed": 1005,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 1005
+        },
+        "projects": [
+          "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+        ],
+        "invocations": [
+          {
+            "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+            "framework": "net10.0",
+            "attempt": 1,
+            "status": "PASS",
+            "reason": null,
+            "build": {
+              "name": "build",
+              "arguments": [
+                "build",
+                "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+                "-c",
+                "Debug",
+                "-m:1",
+                "-p:RestoreBuildInParallel=false",
+                "-p:NuGetAudit=false",
+                "-p:NoWarn=NU1902%3BNU1510"
+              ],
+              "started_utc": "2026-10-05T02:00:37.1866267+00:00",
+              "ended_utc": "2026-10-05T02:00:56.0261355+00:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-sand-knife\\20261005T020036Z-6456e81f4517\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\build\\build.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-sand-knife\\20261005T020036Z-6456e81f4517\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\build\\build.stderr.log"
+            },
+            "test": {
+              "name": "test",
+              "arguments": [
+                "test",
+                "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+                "-c",
+                "Debug",
+                "--no-build",
+                "--no-restore",
+                "-m:1",
+                "-f",
+                "net10.0",
+                "-p:NoWarn=NU1902%3BNU1510",
+                "--logger",
+                "trx;LogFileName=results.trx",
+                "--results-directory",
+                "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-sand-knife\\20261005T020036Z-6456e81f4517\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\net10-41544e89\\1",
+                "--filter",
+                "FullyQualifiedName~ClanBudgetLengthTests|FullyQualifiedName~VirtualCashLedgerCompatibilityTests|FullyQualifiedName~MediaErasureTests|FullyQualifiedName~NetworkSwitchStateTests|FullyQualifiedName~OutfitTeachingNumericNameTests|FullyQualifiedName~ProjectQueuePreferenceTests|FullyQualifiedName~EmptyPatrolRouteTests|FullyQualifiedName~CombatStrategyRuntimeTests|FullyQualifiedName~SpellAnimationControlTests|FullyQualifiedName~CommandableAiTests|FullyQualifiedName~ItemMorphBootTests|FullyQualifiedName~SpellAnimationReloadTests|FullyQualifiedName~BootLoadingRegressionTests|FullyQualifiedName~SpellAnimationSchedulerTests|FullyQualifiedName~RuntimeSchedulerTests|FullyQualifiedName~Rejuvenation|FullyQualifiedName~MagicSpellPhaseOneTests|FullyQualifiedName~SpellOwnedCorpseAnimationTests|FullyQualifiedName~BodyFormProvisioningTests|FullyQualifiedName~CharacterInstance|FullyQualifiedName~MagicCasting|FullyQualifiedName~SpellOwnedItemTests|FullyQualifiedName~ForeignCustodySaveJournalTests|FullyQualifiedName~PossessionReviewFindingSourceTests|FullyQualifiedName~SpellOwnedNpcRetirementTests|FullyQualifiedName~StormSpearComponentTests|FullyQualifiedName~SpellCreatedConsumableTests|FullyQualifiedName~BodyInventoryInitialisationTests|FullyQualifiedName~Vancian|FullyQualifiedName~FlameKnifeGradeTests|FullyQualifiedName~SandKnifeStockTests"
+              ],
+              "started_utc": "2026-10-05T02:00:56.0288692+00:00",
+              "ended_utc": "2026-10-05T02:01:13.2324478+00:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-sand-knife\\20261005T020036Z-6456e81f4517\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\net10-41544e89\\1\\test.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-sand-knife\\20261005T020036Z-6456e81f4517\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\net10-41544e89\\1\\test.stderr.log"
+            },
+            "report": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-sand-knife\\20261005T020036Z-6456e81f4517\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\net10-41544e89\\1\\results.trx",
+            "binary": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\MudSharpCore Unit Tests\\bin\\Debug\\net10.0\\MudSharpCore Unit Tests.dll",
+            "counts": {
+              "executed": 1005,
+              "passed": 1005,
+              "failed": 0,
+              "skipped": 0,
+              "inconclusive": 0,
+              "other": 0,
+              "total": 1005
+            },
+            "native_counters": {
+              "total": "1005",
+              "executed": "1005",
+              "passed": "1005",
+              "failed": "0",
+              "error": "0",
+              "timeout": "0",
+              "aborted": "0",
+              "inconclusive": "0",
+              "passedButRunAborted": "0",
+              "notRunnable": "0",
+              "notExecuted": "0",
+              "disconnected": "0",
+              "warning": "0",
+              "completed": "0",
+              "inProgress": "0",
+              "pending": "0"
+            }
+          }
+        ],
+        "issues": [],
+        "artifacts": {
+          "run": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-sand-knife\\20261005T020036Z-6456e81f4517\\run.json",
+          "summary": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-sand-knife\\20261005T020036Z-6456e81f4517\\summary.json",
+          "failures": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-sand-knife\\20261005T020036Z-6456e81f4517\\failures.json",
+          "results": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-sand-knife\\20261005T020036Z-6456e81f4517\\test-results.json",
+          "bootstrap": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\bootstrap-fe09f8daf491409ea5c6abf1efeaaa64\\bootstrap.log"
+        },
+        "build_switches": [
+          "-m:1",
+          "-p:RestoreBuildInParallel=false",
+          "-p:NuGetAudit=false",
+          "-p:NoWarn=NU1902%3BNU1510"
+        ]
+      }
+    },
+    "Fast": {
+      "run": "20261005T020302Z-ded78c70e0c1",
+      "summary": {
+        "schema_version": 1,
+        "run_id": "20261005T020302Z-ded78c70e0c1",
+        "repository": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD",
+        "head": "c9530927beb7413e7aa937041799f8894b6633be",
+        "started_utc": "2026-10-05T02:03:02.8319195+00:00",
+        "ended_utc": "2026-10-05T02:06:18.8875305+00:00",
+        "duration_seconds": 196.0556302,
+        "source_start": "8b1097edcc3b72e2b2c8bd0b92affc80efb611f682bec8e6b0b19abded582879",
+        "source_end": "8b1097edcc3b72e2b2c8bd0b92affc80efb611f682bec8e6b0b19abded582879",
+        "source_stable": true,
+        "sdk": "10.0.401",
+        "runner": "VSTest/TRX (Microsoft.NET.Test.Sdk 17.9.0)",
+        "suite": "fast",
+        "configuration": "Debug",
+        "filter": null,
+        "fail_on_skipped": true,
+        "execution_complete": true,
+        "counts_complete": true,
+        "status": "PASS",
+        "counts": {
+          "executed": 7219,
+          "passed": 7219,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 7219
+        },
+        "projects": [
+          "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+          "ExpressionEngine Unit Tests/ExpressionEngine Unit Tests.csproj",
+          "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+          "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+          "MudsharpDatabaseLibrary Unit Tests/MudsharpDatabaseLibrary Unit Tests.csproj",
+          "DiscordBotCore Unit Tests/DiscordBotCore Unit Tests.csproj",
+          "RPI Engine Worldfile Converter Tests/RPI Engine Worldfile Converter Tests.csproj",
+          "FutureMUD.Web.Tests/FutureMUD.Web.Tests.csproj",
+          "TerrainPlanner/TerrainPlanner.Tests/TerrainPlanner.Tests.csproj",
+          "scripts/TestReporting.Tests/TestReporting.Tests.csproj"
+        ],
+        "invocations": [
+          {
+            "project": "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+            "framework": "net10.0",
+            "attempt": 1,
+            "status": "PASS",
+            "reason": null,
+            "build": {
+              "name": "build",
+              "arguments": [
+                "build",
+                "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+                "-c",
+                "Debug",
+                "-m:1",
+                "-p:RestoreBuildInParallel=false",
+                "-p:NuGetAudit=false",
+                "-p:NoWarn=NU1902%3BNU1510"
+              ],
+              "started_utc": "2026-10-05T02:03:03.3137545+00:00",
+              "ended_utc": "2026-10-05T02:03:05.2284043+00:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-sand-knife\\20261005T020302Z-ded78c70e0c1\\invocations\\FutureMUDLibrary_Unit_Tests-45c02d6c\\build\\build.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-sand-knife\\20261005T020302Z-ded78c70e0c1\\invocations\\FutureMUDLibrary_Unit_Tests-45c02d6c\\build\\build.stderr.log"
+            },
+            "test": {
+              "name": "test",
+              "arguments": [
+                "test",
+                "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+                "-c",
+                "Debug",
+                "--no-build",
+                "--no-restore",
+                "-m:1",
+                "-f",
+                "net10.0",
+                "-p:NoWarn=NU1902%3BNU1510",
+                "--logger",
+                "trx;LogFileName=results.trx",
+                "--results-directory",
+                "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-sand-knife\\20261005T020302Z-ded78c70e0c1\\invocations\\FutureMUDLibrary_Unit_Tests-45c02d6c\\net10-41544e89\\1"
+              ],
+              "started_utc": "2026-10-05T02:03:21.4741170+00:00",
+              "ended_utc": "2026-10-05T02:03:25.2024558+00:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-sand-knife\\20261005T020302Z-ded78c70e0c1\\invocations\\FutureMUDLibrary_Unit_Tests-45c02d6c\\net10-41544e89\\1\\test.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-sand-knife\\20261005T020302Z-ded78c70e0c1\\invocations\\FutureMUDLibrary_Unit_Tests-45c02d6c\\net10-41544e89\\1\\test.stderr.log"
+            },
+            "report": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-sand-knife\\20261005T020302Z-ded78c70e0c1\\invocations\\FutureMUDLibrary_Unit_Tests-45c02d6c\\net10-41544e89\\1\\results.trx",
+            "binary": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\FutureMUDLibrary Unit Tests\\bin\\Debug\\net10.0\\FutureMUDLibrary Unit Tests.dll",
+            "counts": {
+              "executed": 631,
+              "passed": 631,
+              "failed": 0,
+              "skipped": 0,
+              "inconclusive": 0,
+              "other": 0,
+              "total": 631
+            },
+            "native_counters": {
+              "total": "631",
+              "executed": "631",
+              "passed": "631",
+              "failed": "0",
+              "error": "0",
+              "timeout": "0",
+              "aborted": "0",
+              "inconclusive": "0",
+              "passedButRunAborted": "0",
+              "notRunnable": "0",
+              "notExecuted": "0",
+              "disconnected": "0",
+              "warning": "0",
+              "completed": "0",
+              "inProgress": "0",
+              "pending": "0"
+            }
+          },
+          {
+            "project": "ExpressionEngine Unit Tests/ExpressionEngine Unit Tests.csproj",
+            "framework": "net10.0",
+            "attempt": 1,
+            "status": "PASS",
+            "reason": null,
+            "build": {
+              "name": "build",
+              "arguments": [
+                "build",
+                "ExpressionEngine Unit Tests/ExpressionEngine Unit Tests.csproj",
+                "-c",
+                "Debug",
+                "-m:1",
+                "-p:RestoreBuildInParallel=false",
+                "-p:NuGetAudit=false",
+                "-p:NoWarn=NU1902%3BNU1510"
+              ],
+              "started_utc": "2026-10-05T02:03:05.2299554+00:00",
+              "ended_utc": "2026-10-05T02:03:06.1976496+00:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-sand-knife\\20261005T020302Z-ded78c70e0c1\\invocations\\ExpressionEngine_Unit_Tests-8cdb3e65\\build\\build.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-sand-knife\\20261005T020302Z-ded78c70e0c1\\invocations\\ExpressionEngine_Unit_Tests-8cdb3e65\\build\\build.stderr.log"
+            },
+            "test": {
+              "name": "test",
+              "arguments": [
+                "test",
+                "ExpressionEngine Unit Tests/ExpressionEngine Unit Tests.csproj",
+                "-c",
+                "Debug",
+                "--no-build",
+                "--no-restore",
+                "-m:1",
+                "-f",
+                "net10.0",
+                "-p:NoWarn=NU1902%3BNU1510",
+                "--logger",
+                "trx;LogFileName=results.trx",
+                "--results-directory",
+                "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-sand-knife\\20261005T020302Z-ded78c70e0c1\\invocations\\ExpressionEngine_Unit_Tests-8cdb3e65\\net10-41544e89\\1"
+              ],
+              "started_utc": "2026-10-05T02:03:21.4786516+00:00",
+              "ended_utc": "2026-10-05T02:03:23.1761871+00:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-sand-knife\\20261005T020302Z-ded78c70e0c1\\invocations\\ExpressionEngine_Unit_Tests-8cdb3e65\\net10-41544e89\\1\\test.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-sand-knife\\20261005T020302Z-ded78c70e0c1\\invocations\\ExpressionEngine_Unit_Tests-8cdb3e65\\net10-41544e89\\1\\test.stderr.log"
+            },
+            "report": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-sand-knife\\20261005T020302Z-ded78c70e0c1\\invocations\\ExpressionEngine_Unit_Tests-8cdb3e65\\net10-41544e89\\1\\results.trx",
+            "binary": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\ExpressionEngine Unit Tests\\bin\\Debug\\net10.0\\ExpressionEngine Unit Tests.dll",
+            "counts": {
+              "executed": 36,
+              "passed": 36,
+              "failed": 0,
+              "skipped": 0,
+              "inconclusive": 0,
+              "other": 0,
+              "total": 36
+            },
+            "native_counters": {
+              "total": "36",
+              "executed": "36",
+              "passed": "36",
+              "failed": "0",
+              "error": "0",
+              "timeout": "0",
+              "aborted": "0",
+              "inconclusive": "0",
+              "passedButRunAborted": "0",
+              "notRunnable": "0",
+              "notExecuted": "0",
+              "disconnected": "0",
+              "warning": "0",
+              "completed": "0",
+              "inProgress": "0",
+              "pending": "0"
+            }
+          },
+          {
+            "project": "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+            "framework": "net10.0",
+            "attempt": 1,
+            "status": "PASS",
+            "reason": null,
+            "build": {
+              "name": "build",
+              "arguments": [
+                "build",
+                "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+                "-c",
+                "Debug",
+                "-m:1",
+                "-p:RestoreBuildInParallel=false",
+                "-p:NuGetAudit=false",
+                "-p:NoWarn=NU1902%3BNU1510"
+              ],
+              "started_utc": "2026-10-05T02:03:06.1991341+00:00",
+              "ended_utc": "2026-10-05T02:03:09.7742681+00:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-sand-knife\\20261005T020302Z-ded78c70e0c1\\invocations\\DatabaseSeeder_Unit_Tests-e14dcedb\\build\\build.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-sand-knife\\20261005T020302Z-ded78c70e0c1\\invocations\\DatabaseSeeder_Unit_Tests-e14dcedb\\build\\build.stderr.log"
+            },
+            "test": {
+              "name": "test",
+              "arguments": [
+                "test",
+                "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+                "-c",
+                "Debug",
+                "--no-build",
+                "--no-restore",
+                "-m:1",
+                "-f",
+                "net10.0",
+                "-p:NoWarn=NU1902%3BNU1510",
+                "--logger",
+                "trx;LogFileName=results.trx",
+                "--results-directory",
+                "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-sand-knife\\20261005T020302Z-ded78c70e0c1\\invocations\\DatabaseSeeder_Unit_Tests-e14dcedb\\net10-41544e89\\1"
+              ],
+              "started_utc": "2026-10-05T02:03:21.4839450+00:00",
+              "ended_utc": "2026-10-05T02:06:18.5598126+00:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-sand-knife\\20261005T020302Z-ded78c70e0c1\\invocations\\DatabaseSeeder_Unit_Tests-e14dcedb\\net10-41544e89\\1\\test.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-sand-knife\\20261005T020302Z-ded78c70e0c1\\invocations\\DatabaseSeeder_Unit_Tests-e14dcedb\\net10-41544e89\\1\\test.stderr.log"
+            },
+            "report": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-sand-knife\\20261005T020302Z-ded78c70e0c1\\invocations\\DatabaseSeeder_Unit_Tests-e14dcedb\\net10-41544e89\\1\\results.trx",
+            "binary": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\DatabaseSeeder Unit Tests\\bin\\Debug\\net10.0\\DatabaseSeeder Unit Tests.dll",
+            "counts": {
+              "executed": 1441,
+              "passed": 1441,
+              "failed": 0,
+              "skipped": 0,
+              "inconclusive": 0,
+              "other": 0,
+              "total": 1441
+            },
+            "native_counters": {
+              "total": "1441",
+              "executed": "1441",
+              "passed": "1441",
+              "failed": "0",
+              "error": "0",
+              "timeout": "0",
+              "aborted": "0",
+              "inconclusive": "0",
+              "passedButRunAborted": "0",
+              "notRunnable": "0",
+              "notExecuted": "0",
+              "disconnected": "0",
+              "warning": "0",
+              "completed": "0",
+              "inProgress": "0",
+              "pending": "0"
+            }
+          },
+          {
+            "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+            "framework": "net10.0",
+            "attempt": 1,
+            "status": "PASS",
+            "reason": null,
+            "build": {
+              "name": "build",
+              "arguments": [
+                "build",
+                "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+                "-c",
+                "Debug",
+                "-m:1",
+                "-p:RestoreBuildInParallel=false",
+                "-p:NuGetAudit=false",
+                "-p:NoWarn=NU1902%3BNU1510"
+              ],
+              "started_utc": "2026-10-05T02:03:09.7750527+00:00",
+              "ended_utc": "2026-10-05T02:03:11.2129267+00:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-sand-knife\\20261005T020302Z-ded78c70e0c1\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\build\\build.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-sand-knife\\20261005T020302Z-ded78c70e0c1\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\build\\build.stderr.log"
+            },
+            "test": {
+              "name": "test",
+              "arguments": [
+                "test",
+                "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+                "-c",
+                "Debug",
+                "--no-build",
+                "--no-restore",
+                "-m:1",
+                "-f",
+                "net10.0",
+                "-p:NoWarn=NU1902%3BNU1510",
+                "--logger",
+                "trx;LogFileName=results.trx",
+                "--results-directory",
+                "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-sand-knife\\20261005T020302Z-ded78c70e0c1\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\net10-41544e89\\1"
+              ],
+              "started_utc": "2026-10-05T02:03:21.4886788+00:00",
+              "ended_utc": "2026-10-05T02:04:36.6069751+00:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-sand-knife\\20261005T020302Z-ded78c70e0c1\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\net10-41544e89\\1\\test.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-sand-knife\\20261005T020302Z-ded78c70e0c1\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\net10-41544e89\\1\\test.stderr.log"
+            },
+            "report": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-sand-knife\\20261005T020302Z-ded78c70e0c1\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\net10-41544e89\\1\\results.trx",
+            "binary": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\MudSharpCore Unit Tests\\bin\\Debug\\net10.0\\MudSharpCore Unit Tests.dll",
+            "counts": {
+              "executed": 4853,
+              "passed": 4853,
+              "failed": 0,
+              "skipped": 0,
+              "inconclusive": 0,
+              "other": 0,
+              "total": 4853
+            },
+            "native_counters": {
+              "total": "4853",
+              "executed": "4853",
+              "passed": "4853",
+              "failed": "0",
+              "error": "0",
+              "timeout": "0",
+              "aborted": "0",
+              "inconclusive": "0",
+              "passedButRunAborted": "0",
+              "notRunnable": "0",
+              "notExecuted": "0",
+              "disconnected": "0",
+              "warning": "0",
+              "completed": "0",
+              "inProgress": "0",
+              "pending": "0"
+            }
+          },
+          {
+            "project": "MudsharpDatabaseLibrary Unit Tests/MudsharpDatabaseLibrary Unit Tests.csproj",
+            "framework": "net10.0",
+            "attempt": 1,
+            "status": "PASS",
+            "reason": null,
+            "build": {
+              "name": "build",
+              "arguments": [
+                "build",
+                "MudsharpDatabaseLibrary Unit Tests/MudsharpDatabaseLibrary Unit Tests.csproj",
+                "-c",
+                "Debug",
+                "-m:1",
+                "-p:RestoreBuildInParallel=false",
+                "-p:NuGetAudit=false",
+                "-p:NoWarn=NU1902%3BNU1510"
+              ],
+              "started_utc": "2026-10-05T02:03:11.2138465+00:00",
+              "ended_utc": "2026-10-05T02:03:12.3879426+00:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-sand-knife\\20261005T020302Z-ded78c70e0c1\\invocations\\MudsharpDatabaseLibrary_Unit_Tests-6ef1914c\\build\\build.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-sand-knife\\20261005T020302Z-ded78c70e0c1\\invocations\\MudsharpDatabaseLibrary_Unit_Tests-6ef1914c\\build\\build.stderr.log"
+            },
+            "test": {
+              "name": "test",
+              "arguments": [
+                "test",
+                "MudsharpDatabaseLibrary Unit Tests/MudsharpDatabaseLibrary Unit Tests.csproj",
+                "-c",
+                "Debug",
+                "--no-build",
+                "--no-restore",
+                "-m:1",
+                "-f",
+                "net10.0",
+                "-p:NoWarn=NU1902%3BNU1510",
+                "--logger",
+                "trx;LogFileName=results.trx",
+                "--results-directory",
+                "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-sand-knife\\20261005T020302Z-ded78c70e0c1\\invocations\\MudsharpDatabaseLibrary_Unit_Tests-6ef1914c\\net10-41544e89\\1"
+              ],
+              "started_utc": "2026-10-05T02:03:21.4928694+00:00",
+              "ended_utc": "2026-10-05T02:03:30.0903164+00:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-sand-knife\\20261005T020302Z-ded78c70e0c1\\invocations\\MudsharpDatabaseLibrary_Unit_Tests-6ef1914c\\net10-41544e89\\1\\test.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-sand-knife\\20261005T020302Z-ded78c70e0c1\\invocations\\MudsharpDatabaseLibrary_Unit_Tests-6ef1914c\\net10-41544e89\\1\\test.stderr.log"
+            },
+            "report": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-sand-knife\\20261005T020302Z-ded78c70e0c1\\invocations\\MudsharpDatabaseLibrary_Unit_Tests-6ef1914c\\net10-41544e89\\1\\results.trx",
+            "binary": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\MudsharpDatabaseLibrary Unit Tests\\bin\\Debug\\net10.0\\MudsharpDatabaseLibrary Unit Tests.dll",
+            "counts": {
+              "executed": 67,
+              "passed": 67,
+              "failed": 0,
+              "skipped": 0,
+              "inconclusive": 0,
+              "other": 0,
+              "total": 67
+            },
+            "native_counters": {
+              "total": "67",
+              "executed": "67",
+              "passed": "67",
+              "failed": "0",
+              "error": "0",
+              "timeout": "0",
+              "aborted": "0",
+              "inconclusive": "0",
+              "passedButRunAborted": "0",
+              "notRunnable": "0",
+              "notExecuted": "0",
+              "disconnected": "0",
+              "warning": "0",
+              "completed": "0",
+              "inProgress": "0",
+              "pending": "0"
+            }
+          },
+          {
+            "project": "DiscordBotCore Unit Tests/DiscordBotCore Unit Tests.csproj",
+            "framework": "net10.0",
+            "attempt": 1,
+            "status": "PASS",
+            "reason": null,
+            "build": {
+              "name": "build",
+              "arguments": [
+                "build",
+                "DiscordBotCore Unit Tests/DiscordBotCore Unit Tests.csproj",
+                "-c",
+                "Debug",
+                "-m:1",
+                "-p:RestoreBuildInParallel=false",
+                "-p:NuGetAudit=false",
+                "-p:NoWarn=NU1902%3BNU1510"
+              ],
+              "started_utc": "2026-10-05T02:03:12.3888637+00:00",
+              "ended_utc": "2026-10-05T02:03:13.8858929+00:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-sand-knife\\20261005T020302Z-ded78c70e0c1\\invocations\\DiscordBotCore_Unit_Tests-4ffa2b0e\\build\\build.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-sand-knife\\20261005T020302Z-ded78c70e0c1\\invocations\\DiscordBotCore_Unit_Tests-4ffa2b0e\\build\\build.stderr.log"
+            },
+            "test": {
+              "name": "test",
+              "arguments": [
+                "test",
+                "DiscordBotCore Unit Tests/DiscordBotCore Unit Tests.csproj",
+                "-c",
+                "Debug",
+                "--no-build",
+                "--no-restore",
+                "-m:1",
+                "-f",
+                "net10.0",
+                "-p:NoWarn=NU1902%3BNU1510",
+                "--logger",
+                "trx;LogFileName=results.trx",
+                "--results-directory",
+                "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-sand-knife\\20261005T020302Z-ded78c70e0c1\\invocations\\DiscordBotCore_Unit_Tests-4ffa2b0e\\net10-41544e89\\1"
+              ],
+              "started_utc": "2026-10-05T02:03:21.4973727+00:00",
+              "ended_utc": "2026-10-05T02:03:24.0261432+00:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-sand-knife\\20261005T020302Z-ded78c70e0c1\\invocations\\DiscordBotCore_Unit_Tests-4ffa2b0e\\net10-41544e89\\1\\test.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-sand-knife\\20261005T020302Z-ded78c70e0c1\\invocations\\DiscordBotCore_Unit_Tests-4ffa2b0e\\net10-41544e89\\1\\test.stderr.log"
+            },
+            "report": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-sand-knife\\20261005T020302Z-ded78c70e0c1\\invocations\\DiscordBotCore_Unit_Tests-4ffa2b0e\\net10-41544e89\\1\\results.trx",
+            "binary": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\DiscordBotCore Unit Tests\\bin\\Debug\\net10.0\\DiscordBotCore Unit Tests.dll",
+            "counts": {
+              "executed": 22,
+              "passed": 22,
+              "failed": 0,
+              "skipped": 0,
+              "inconclusive": 0,
+              "other": 0,
+              "total": 22
+            },
+            "native_counters": {
+              "total": "22",
+              "executed": "22",
+              "passed": "22",
+              "failed": "0",
+              "error": "0",
+              "timeout": "0",
+              "aborted": "0",
+              "inconclusive": "0",
+              "passedButRunAborted": "0",
+              "notRunnable": "0",
+              "notExecuted": "0",
+              "disconnected": "0",
+              "warning": "0",
+              "completed": "0",
+              "inProgress": "0",
+              "pending": "0"
+            }
+          },
+          {
+            "project": "RPI Engine Worldfile Converter Tests/RPI Engine Worldfile Converter Tests.csproj",
+            "framework": "net10.0",
+            "attempt": 1,
+            "status": "PASS",
+            "reason": null,
+            "build": {
+              "name": "build",
+              "arguments": [
+                "build",
+                "RPI Engine Worldfile Converter Tests/RPI Engine Worldfile Converter Tests.csproj",
+                "-c",
+                "Debug",
+                "-m:1",
+                "-p:RestoreBuildInParallel=false",
+                "-p:NuGetAudit=false",
+                "-p:NoWarn=NU1902%3BNU1510"
+              ],
+              "started_utc": "2026-10-05T02:03:13.8866774+00:00",
+              "ended_utc": "2026-10-05T02:03:16.2093056+00:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-sand-knife\\20261005T020302Z-ded78c70e0c1\\invocations\\RPI_Engine_Worldfile_Converter_Tests-14d87d34\\build\\build.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-sand-knife\\20261005T020302Z-ded78c70e0c1\\invocations\\RPI_Engine_Worldfile_Converter_Tests-14d87d34\\build\\build.stderr.log"
+            },
+            "test": {
+              "name": "test",
+              "arguments": [
+                "test",
+                "RPI Engine Worldfile Converter Tests/RPI Engine Worldfile Converter Tests.csproj",
+                "-c",
+                "Debug",
+                "--no-build",
+                "--no-restore",
+                "-m:1",
+                "-f",
+                "net10.0",
+                "-p:NoWarn=NU1902%3BNU1510",
+                "--logger",
+                "trx;LogFileName=results.trx",
+                "--results-directory",
+                "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-sand-knife\\20261005T020302Z-ded78c70e0c1\\invocations\\RPI_Engine_Worldfile_Converter_Tests-14d87d34\\net10-41544e89\\1"
+              ],
+              "started_utc": "2026-10-05T02:03:21.5058433+00:00",
+              "ended_utc": "2026-10-05T02:03:24.2628946+00:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-sand-knife\\20261005T020302Z-ded78c70e0c1\\invocations\\RPI_Engine_Worldfile_Converter_Tests-14d87d34\\net10-41544e89\\1\\test.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-sand-knife\\20261005T020302Z-ded78c70e0c1\\invocations\\RPI_Engine_Worldfile_Converter_Tests-14d87d34\\net10-41544e89\\1\\test.stderr.log"
+            },
+            "report": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-sand-knife\\20261005T020302Z-ded78c70e0c1\\invocations\\RPI_Engine_Worldfile_Converter_Tests-14d87d34\\net10-41544e89\\1\\results.trx",
+            "binary": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\RPI Engine Worldfile Converter Tests\\bin\\Debug\\net10.0\\RPI Engine Worldfile Converter Tests.dll",
+            "counts": {
+              "executed": 43,
+              "passed": 43,
+              "failed": 0,
+              "skipped": 0,
+              "inconclusive": 0,
+              "other": 0,
+              "total": 43
+            },
+            "native_counters": {
+              "total": "43",
+              "executed": "43",
+              "passed": "43",
+              "failed": "0",
+              "error": "0",
+              "timeout": "0",
+              "aborted": "0",
+              "inconclusive": "0",
+              "passedButRunAborted": "0",
+              "notRunnable": "0",
+              "notExecuted": "0",
+              "disconnected": "0",
+              "warning": "0",
+              "completed": "0",
+              "inProgress": "0",
+              "pending": "0"
+            }
+          },
+          {
+            "project": "FutureMUD.Web.Tests/FutureMUD.Web.Tests.csproj",
+            "framework": "net10.0",
+            "attempt": 1,
+            "status": "PASS",
+            "reason": null,
+            "build": {
+              "name": "build",
+              "arguments": [
+                "build",
+                "FutureMUD.Web.Tests/FutureMUD.Web.Tests.csproj",
+                "-c",
+                "Debug",
+                "-m:1",
+                "-p:RestoreBuildInParallel=false",
+                "-p:NuGetAudit=false",
+                "-p:NoWarn=NU1902%3BNU1510"
+              ],
+              "started_utc": "2026-10-05T02:03:16.2100832+00:00",
+              "ended_utc": "2026-10-05T02:03:18.0923789+00:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-sand-knife\\20261005T020302Z-ded78c70e0c1\\invocations\\FutureMUD.Web.Tests-ac492d08\\build\\build.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-sand-knife\\20261005T020302Z-ded78c70e0c1\\invocations\\FutureMUD.Web.Tests-ac492d08\\build\\build.stderr.log"
+            },
+            "test": {
+              "name": "test",
+              "arguments": [
+                "test",
+                "FutureMUD.Web.Tests/FutureMUD.Web.Tests.csproj",
+                "-c",
+                "Debug",
+                "--no-build",
+                "--no-restore",
+                "-m:1",
+                "-f",
+                "net10.0",
+                "-p:NoWarn=NU1902%3BNU1510",
+                "--logger",
+                "trx;LogFileName=results.trx",
+                "--results-directory",
+                "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-sand-knife\\20261005T020302Z-ded78c70e0c1\\invocations\\FutureMUD.Web.Tests-ac492d08\\net10-41544e89\\1"
+              ],
+              "started_utc": "2026-10-05T02:03:21.5097096+00:00",
+              "ended_utc": "2026-10-05T02:03:26.4299919+00:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-sand-knife\\20261005T020302Z-ded78c70e0c1\\invocations\\FutureMUD.Web.Tests-ac492d08\\net10-41544e89\\1\\test.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-sand-knife\\20261005T020302Z-ded78c70e0c1\\invocations\\FutureMUD.Web.Tests-ac492d08\\net10-41544e89\\1\\test.stderr.log"
+            },
+            "report": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-sand-knife\\20261005T020302Z-ded78c70e0c1\\invocations\\FutureMUD.Web.Tests-ac492d08\\net10-41544e89\\1\\results.trx",
+            "binary": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\FutureMUD.Web.Tests\\bin\\Debug\\net10.0\\FutureMUD.Web.Tests.dll",
+            "counts": {
+              "executed": 54,
+              "passed": 54,
+              "failed": 0,
+              "skipped": 0,
+              "inconclusive": 0,
+              "other": 0,
+              "total": 54
+            },
+            "native_counters": {
+              "total": "54",
+              "executed": "54",
+              "passed": "54",
+              "failed": "0",
+              "error": "0",
+              "timeout": "0",
+              "aborted": "0",
+              "inconclusive": "0",
+              "passedButRunAborted": "0",
+              "notRunnable": "0",
+              "notExecuted": "0",
+              "disconnected": "0",
+              "warning": "0",
+              "completed": "0",
+              "inProgress": "0",
+              "pending": "0"
+            }
+          },
+          {
+            "project": "TerrainPlanner/TerrainPlanner.Tests/TerrainPlanner.Tests.csproj",
+            "framework": "net10.0",
+            "attempt": 1,
+            "status": "PASS",
+            "reason": null,
+            "build": {
+              "name": "build",
+              "arguments": [
+                "build",
+                "TerrainPlanner/TerrainPlanner.Tests/TerrainPlanner.Tests.csproj",
+                "-c",
+                "Debug",
+                "-m:1",
+                "-p:RestoreBuildInParallel=false",
+                "-p:NuGetAudit=false",
+                "-p:NoWarn=NU1902%3BNU1510"
+              ],
+              "started_utc": "2026-10-05T02:03:18.0934147+00:00",
+              "ended_utc": "2026-10-05T02:03:20.1614325+00:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-sand-knife\\20261005T020302Z-ded78c70e0c1\\invocations\\TerrainPlanner.Tests-1085b5fa\\build\\build.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-sand-knife\\20261005T020302Z-ded78c70e0c1\\invocations\\TerrainPlanner.Tests-1085b5fa\\build\\build.stderr.log"
+            },
+            "test": {
+              "name": "test",
+              "arguments": [
+                "test",
+                "TerrainPlanner/TerrainPlanner.Tests/TerrainPlanner.Tests.csproj",
+                "-c",
+                "Debug",
+                "--no-build",
+                "--no-restore",
+                "-m:1",
+                "-f",
+                "net10.0",
+                "-p:NoWarn=NU1902%3BNU1510",
+                "--logger",
+                "trx;LogFileName=results.trx",
+                "--results-directory",
+                "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-sand-knife\\20261005T020302Z-ded78c70e0c1\\invocations\\TerrainPlanner.Tests-1085b5fa\\net10-41544e89\\1"
+              ],
+              "started_utc": "2026-10-05T02:03:21.5134110+00:00",
+              "ended_utc": "2026-10-05T02:03:42.4253991+00:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-sand-knife\\20261005T020302Z-ded78c70e0c1\\invocations\\TerrainPlanner.Tests-1085b5fa\\net10-41544e89\\1\\test.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-sand-knife\\20261005T020302Z-ded78c70e0c1\\invocations\\TerrainPlanner.Tests-1085b5fa\\net10-41544e89\\1\\test.stderr.log"
+            },
+            "report": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-sand-knife\\20261005T020302Z-ded78c70e0c1\\invocations\\TerrainPlanner.Tests-1085b5fa\\net10-41544e89\\1\\results.trx",
+            "binary": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\TerrainPlanner\\TerrainPlanner.Tests\\bin\\Debug\\net10.0\\TerrainPlanner.Tests.dll",
+            "counts": {
+              "executed": 34,
+              "passed": 34,
+              "failed": 0,
+              "skipped": 0,
+              "inconclusive": 0,
+              "other": 0,
+              "total": 34
+            },
+            "native_counters": {
+              "total": "34",
+              "executed": "34",
+              "passed": "34",
+              "failed": "0",
+              "error": "0",
+              "timeout": "0",
+              "aborted": "0",
+              "inconclusive": "0",
+              "passedButRunAborted": "0",
+              "notRunnable": "0",
+              "notExecuted": "0",
+              "disconnected": "0",
+              "warning": "0",
+              "completed": "0",
+              "inProgress": "0",
+              "pending": "0"
+            }
+          },
+          {
+            "project": "scripts/TestReporting.Tests/TestReporting.Tests.csproj",
+            "framework": "net10.0",
+            "attempt": 1,
+            "status": "PASS",
+            "reason": null,
+            "build": {
+              "name": "build",
+              "arguments": [
+                "build",
+                "scripts/TestReporting.Tests/TestReporting.Tests.csproj",
+                "-c",
+                "Debug",
+                "-m:1",
+                "-p:RestoreBuildInParallel=false",
+                "-p:NuGetAudit=false",
+                "-p:NoWarn=NU1902%3BNU1510"
+              ],
+              "started_utc": "2026-10-05T02:03:20.1622812+00:00",
+              "ended_utc": "2026-10-05T02:03:21.4720230+00:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-sand-knife\\20261005T020302Z-ded78c70e0c1\\invocations\\TestReporting.Tests-25b07e44\\build\\build.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-sand-knife\\20261005T020302Z-ded78c70e0c1\\invocations\\TestReporting.Tests-25b07e44\\build\\build.stderr.log"
+            },
+            "test": {
+              "name": "test",
+              "arguments": [
+                "test",
+                "scripts/TestReporting.Tests/TestReporting.Tests.csproj",
+                "-c",
+                "Debug",
+                "--no-build",
+                "--no-restore",
+                "-m:1",
+                "-f",
+                "net10.0",
+                "-p:NoWarn=NU1902%3BNU1510",
+                "--logger",
+                "trx;LogFileName=results.trx",
+                "--results-directory",
+                "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-sand-knife\\20261005T020302Z-ded78c70e0c1\\invocations\\TestReporting.Tests-25b07e44\\net10-41544e89\\1"
+              ],
+              "started_utc": "2026-10-05T02:03:21.5172478+00:00",
+              "ended_utc": "2026-10-05T02:04:27.0279033+00:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-sand-knife\\20261005T020302Z-ded78c70e0c1\\invocations\\TestReporting.Tests-25b07e44\\net10-41544e89\\1\\test.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-sand-knife\\20261005T020302Z-ded78c70e0c1\\invocations\\TestReporting.Tests-25b07e44\\net10-41544e89\\1\\test.stderr.log"
+            },
+            "report": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-sand-knife\\20261005T020302Z-ded78c70e0c1\\invocations\\TestReporting.Tests-25b07e44\\net10-41544e89\\1\\results.trx",
+            "binary": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\scripts\\TestReporting.Tests\\bin\\Debug\\net10.0\\TestReporting.Tests.dll",
+            "counts": {
+              "executed": 38,
+              "passed": 38,
+              "failed": 0,
+              "skipped": 0,
+              "inconclusive": 0,
+              "other": 0,
+              "total": 38
+            },
+            "native_counters": {
+              "total": "38",
+              "executed": "38",
+              "passed": "38",
+              "failed": "0",
+              "error": "0",
+              "timeout": "0",
+              "aborted": "0",
+              "inconclusive": "0",
+              "passedButRunAborted": "0",
+              "notRunnable": "0",
+              "notExecuted": "0",
+              "disconnected": "0",
+              "warning": "0",
+              "completed": "0",
+              "inProgress": "0",
+              "pending": "0"
+            }
+          }
+        ],
+        "issues": [],
+        "artifacts": {
+          "run": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-sand-knife\\20261005T020302Z-ded78c70e0c1\\run.json",
+          "summary": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-sand-knife\\20261005T020302Z-ded78c70e0c1\\summary.json",
+          "failures": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-sand-knife\\20261005T020302Z-ded78c70e0c1\\failures.json",
+          "results": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-sand-knife\\20261005T020302Z-ded78c70e0c1\\test-results.json",
+          "bootstrap": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\bootstrap-cf8a3666b74f447f949aa06084eca9b6\\bootstrap.log"
+        },
+        "build_switches": [
+          "-m:1",
+          "-p:RestoreBuildInParallel=false",
+          "-p:NuGetAudit=false",
+          "-p:NoWarn=NU1902%3BNU1510"
+        ]
+      }
+    }
+  },
+  "native": {
+    "native-final": {
+      "status": "PASS",
+      "log": ".artifacts/test-runs/armageddon-20261005-sand-knife/native-final-native.log",
+      "sha256": "0759e96eafa677787e79f3a3b58e0446c0cc7b48d82f01657bb5c9ab4b66769c",
+      "markers": [
+        "ARM03B2B-connection-refusals=passed unowned-host shared-default blank-database unregistered-owned-prefix all-refused-before-connect",
+        "ARMSand-stock-builder=passed six-distinct-temporary-grades eight-permanent-staff-pool mon-only-component standard-placement sufficient-sand-prog authored-energy-floor-five source-C-minimum-zero persisted-reload duplicate-refusal invalid-edit-preserved",
+        "ARMSand-prepayment=passed missing-low-rank-ground-contained-mon-component-refused zero-payment zero-operation zero-created-row",
+        "ARMSand-environment=passed five-native-terrains actual-room-storm-tag selected-native-weather null-unmapped-gale-weather-refused Inside-City-refuse-despite-both-storm-mappings no-payment controlled-controller actual-native-event-and-cell source-condition-not-inferred",
+        "ARMSand-paid-grade1=passed actual-payment component-only-at-mon prototype:10 native-standard-get explicit-native-wield mode:TemporaryCleanup deadline:2026-09-15T00:37:30.0000000Z",
+        "ARMSand-combat-grade1=passed real-MeleeWeaponAttack actual-piercing-target-wounds persisted-native-wounds declared-6-damage-4-pain-2-stun helpless-defence controlled-roll no-historical-damage-parity",
+        "ARMSand-paid-grade2=passed actual-payment component-only-at-mon prototype:11 native-standard-get explicit-native-wield mode:TemporaryCleanup deadline:2026-09-15T01:33:45.0000000Z",
+        "ARMSand-combat-grade2=passed real-MeleeWeaponAttack actual-piercing-target-wounds persisted-native-wounds declared-6-damage-4-pain-2-stun helpless-defence controlled-roll no-historical-damage-parity",
+        "ARMSand-paid-grade3=passed actual-payment component-only-at-mon prototype:12 native-standard-get explicit-native-wield mode:TemporaryCleanup deadline:2026-09-15T02:48:45.0000000Z",
+        "ARMSand-combat-grade3=passed real-MeleeWeaponAttack actual-piercing-target-wounds persisted-native-wounds declared-6-damage-4-pain-2-stun helpless-defence controlled-roll no-historical-damage-parity",
+        "ARMSand-paid-grade4=passed actual-payment component-only-at-mon prototype:13 native-standard-get explicit-native-wield mode:TemporaryCleanup deadline:2026-09-15T04:22:30.0000000Z",
+        "ARMSand-combat-grade4=passed real-MeleeWeaponAttack actual-piercing-target-wounds persisted-native-wounds declared-6-damage-4-pain-2-stun helpless-defence controlled-roll no-historical-damage-parity",
+        "ARMSand-paid-grade5=passed actual-payment component-only-at-mon prototype:14 native-standard-get explicit-native-wield mode:TemporaryCleanup deadline:2026-09-15T06:15:00.0000000Z",
+        "ARMSand-combat-grade5=passed real-MeleeWeaponAttack actual-piercing-target-wounds persisted-native-wounds declared-6-damage-4-pain-2-stun helpless-defence controlled-roll no-historical-damage-parity",
+        "ARMSand-paid-grade6=passed actual-payment component-only-at-mon prototype:15 native-standard-get explicit-native-wield mode:TemporaryCleanup deadline:2026-09-15T08:26:15.0000000Z",
+        "ARMSand-combat-grade6=passed real-MeleeWeaponAttack actual-piercing-target-wounds persisted-native-wounds declared-6-damage-4-pain-2-stun helpless-defence controlled-roll no-historical-damage-parity",
+        "ARMSand-threshold-variants=passed all-six-paid-prototypes grades1-to5-exact-wielded-expiry tagged-shadow-grade6-full-duration no-sand-source-shadow-reduction immutable-deadline temporary-value-block",
+        "ARMSand-paid-grade7=passed actual-payment component-only-at-mon prototype:21 native-standard-get explicit-native-wield mode:Permanent deadline:",
+        "ARMSand-combat-grade7=passed real-MeleeWeaponAttack actual-piercing-target-wounds persisted-native-wounds declared-6-damage-4-pain-2-stun helpless-defence controlled-roll no-historical-damage-parity",
+        "ARMSand-component-threshold=passed exact-six-prepayment-admitted higher-descendant-seven-paid-and-consumed wrong-lower-tags-refused exact-six-unrelated-preserved",
+        "ARMSand-reader=passed fresh-process original-stock-formula persisted-deadline no-reset no-early-expiry cold-custody-hold native-custodian-load exact-expiry repeated-reconciliation foreign-bag-and-child-preserved",
+        "ARMSand-restart-expiry=passed real-fresh-process sand-temporary-expiry exact-owned-leaf permanent-staff-foreign-bag-and-sibling-survive no-reset-or-replay"
+      ],
+      "marker_count": 22,
+      "owned_processes_remaining": 0
+    },
+    "regression-flame": {
+      "status": "PASS",
+      "log": ".artifacts/test-runs/armageddon-20261005-sand-knife/regression-flame-native.log",
+      "sha256": "7dedddf5bc97788d88d4c9adb27b00beda56356879df51035f5b9cd366fdd951",
+      "markers": [
+        "ARM03B2B-connection-refusals=passed unowned-host shared-default blank-database unregistered-owned-prefix all-refused-before-connect",
+        "ARMFlame-stock-builder=passed six-distinct-temporary-grades eight-permanent-staff-pool mon-only-component standard-placement environment-progs persisted-reload duplicate-refusal invalid-edit-preserved",
+        "ARMFlame-prepayment=passed missing-low-rank-ground-contained-mon-component-refused zero-payment zero-operation zero-created-row",
+        "ARMFlame-environment=passed real-native-terrain real-stock-prog water-low-and-mon-refused no-payment",
+        "ARMFlame-paid-grade1=passed actual-payment component-only-at-mon prototype:10 native-standard-get explicit-native-wield mode:TemporaryCleanup deadline:2026-09-15T00:37:30.0000000Z",
+        "ARMFlame-combat-grade1=passed real-MeleeWeaponAttack actual-burning-target-wounds persisted-native-wounds declared-6-damage-4-pain-2-stun helpless-defence controlled-roll no-historical-damage-parity",
+        "ARMFlame-paid-grade2=passed actual-payment component-only-at-mon prototype:11 native-standard-get explicit-native-wield mode:TemporaryCleanup deadline:2026-09-15T01:33:45.0000000Z",
+        "ARMFlame-combat-grade2=passed real-MeleeWeaponAttack actual-burning-target-wounds persisted-native-wounds declared-6-damage-4-pain-2-stun helpless-defence controlled-roll no-historical-damage-parity",
+        "ARMFlame-paid-grade3=passed actual-payment component-only-at-mon prototype:12 native-standard-get explicit-native-wield mode:TemporaryCleanup deadline:2026-09-15T02:48:45.0000000Z",
+        "ARMFlame-combat-grade3=passed real-MeleeWeaponAttack actual-burning-target-wounds persisted-native-wounds declared-6-damage-4-pain-2-stun helpless-defence controlled-roll no-historical-damage-parity",
+        "ARMFlame-paid-grade4=passed actual-payment component-only-at-mon prototype:13 native-standard-get explicit-native-wield mode:TemporaryCleanup deadline:2026-09-15T04:22:30.0000000Z",
+        "ARMFlame-combat-grade4=passed real-MeleeWeaponAttack actual-burning-target-wounds persisted-native-wounds declared-6-damage-4-pain-2-stun helpless-defence controlled-roll no-historical-damage-parity",
+        "ARMFlame-paid-grade5=passed actual-payment component-only-at-mon prototype:14 native-standard-get explicit-native-wield mode:TemporaryCleanup deadline:2026-09-15T06:15:00.0000000Z",
+        "ARMFlame-combat-grade5=passed real-MeleeWeaponAttack actual-burning-target-wounds persisted-native-wounds declared-6-damage-4-pain-2-stun helpless-defence controlled-roll no-historical-damage-parity",
+        "ARMFlame-paid-grade6=passed actual-payment component-only-at-mon prototype:15 native-standard-get explicit-native-wield mode:TemporaryCleanup deadline:2026-09-15T07:20:37.5000000Z",
+        "ARMFlame-combat-grade6=passed real-MeleeWeaponAttack actual-burning-target-wounds persisted-native-wounds declared-6-damage-4-pain-2-stun helpless-defence controlled-roll no-historical-damage-parity",
+        "ARMFlame-threshold-variants=passed all-six-paid-prototypes grades1-to5-exact-wielded-expiry shadow-grade6-half-duration immutable-deadline temporary-value-block",
+        "ARMFlame-paid-grade7=passed actual-payment component-only-at-mon prototype:17 native-standard-get explicit-native-wield mode:Permanent deadline:",
+        "ARMFlame-combat-grade7=passed real-MeleeWeaponAttack actual-burning-target-wounds persisted-native-wounds declared-6-damage-4-pain-2-stun helpless-defence controlled-roll no-historical-damage-parity",
+        "ARMFlame-component-threshold=passed exact-six-prepayment-admitted higher-descendant-seven-paid-and-consumed wrong-lower-tags-refused exact-six-unrelated-preserved",
+        "ARMFlame-reader=passed fresh-process original-stock-formula persisted-deadline no-reset no-early-expiry cold-custody-hold native-custodian-load exact-expiry repeated-reconciliation foreign-bag-and-child-preserved",
+        "ARMFlame-restart-expiry=passed real-fresh-process shadow-temporary-expiry exact-owned-leaf permanent-staff-foreign-bag-and-sibling-survive no-reset-or-replay"
+      ],
+      "marker_count": 22,
+      "owned_processes_remaining": 0
+    },
+    "regression-storm": {
+      "status": "PASS",
+      "log": ".artifacts/test-runs/armageddon-20261005-sand-knife/regression-storm-native.log",
+      "sha256": "67dd35b943555592f271f2dc4bc9b09292a70c2f449461895833b960839d311a",
+      "markers": [
+        "ARM03B2B-connection-refusals=passed unowned-host shared-default blank-database unregistered-owned-prefix all-refused-before-connect",
+        "ARMStorm-stock-builder=passed stock-identity duplicate-refusal seven-grades builder-material-edit persisted-reload primaryhand rank-offset-minus-three all-grades-temporary declared-electrical-profile-no-historical-JS-parity",
+        "ARMStorm-prepayment=passed real-low-rank direct-scope ground-container-and-occupied-primary-hand-refused zero-operation zero-debit zero-material-delete zero-output-or-lifecycle-row",
+        "ARMStorm-paid-grade1=passed actual-resource-debit actual-component-delete exact-one-native-weapon primary-hand-wield persisted-grade absolute-source-nominal-deadline seconds:1957.5",
+        "ARMStorm-combat-grade1=passed real-MeleeWeaponAttack actual-electrical-target-wounds persisted-native-wounds declared-6-damage-4-pain-2-stun helpless-defence controlled-roll no-historical-damage-parity",
+        "ARMStorm-wielded-expiry=passed exact-absolute-boundary native-Body-unwield native-item-Delete completed-once unrelated-goods-and-container-survive",
+        "ARMStorm-recipient-grade-gate=passed other-recipient-occupied-primary-refused caster-free-hand-preserved no-payment native-cap90 overreach-raw81-refused overreach-raw85point5-preflight-admitted approved-95-percent-gate controlled-grade-retained-independently no-paid-overreach-claim",
+        "ARMStorm-paid-grade7=passed actual-resource-debit actual-component-delete exact-one-native-weapon primary-hand-wield persisted-grade absolute-source-nominal-deadline seconds:11812.5",
+        "ARMStorm-combat-grade7=passed real-MeleeWeaponAttack actual-electrical-target-wounds persisted-native-wounds declared-6-damage-4-pain-2-stun helpless-defence controlled-roll no-historical-damage-parity",
+        "ARMStorm-reader=passed fresh-process original-stock-formula persisted-deadline no-reset no-early-expiry cold-custody-hold native-custodian-load exact-expiry repeated-reconciliation foreign-bag-and-child-preserved",
+        "ARMStorm-restart-expiry=passed actual-fresh-process native-container-reload grade-seven-temporary unchanged-absolute-deadline exact-owned-leaf-removal foreign-container-and-sibling-survive",
+        "ARMStorm-placement-reader=passed fresh-process real-item no-body-membership exact-one-cell-reference paid-operation-quarantined no-replay-or-refund",
+        "ARMStorm-placement-callback=passed actual-Held-inventory-callback-drops-output post-Get-custody-revalidation paid-NeedsReview no-false-wield normal-save fresh-process single-cell-custody no-replay-or-refund"
+      ],
+      "marker_count": 13,
+      "owned_processes_remaining": 0
+    },
+    "regression-servitor": {
+      "status": "PASS",
+      "log": ".artifacts/test-runs/armageddon-20261005-sand-knife/regression-servitor-native.log",
+      "sha256": "4d28ba50a05d9a3773947ad84d51f95ac422d8a17e8a3cdbee6e878080ac8562",
+      "markers": [
+        "ARM03B2B-connection-refusals=passed unowned-host shared-default blank-database unregistered-owned-prefix all-refused-before-connect",
+        "ARM03D1Stock-install=passed normal-spell-builder atomic-stock-plus-two-real-AIs two-compiled-progs source-duration-formulas definition-save-reload control-bound-refused-before-payment no-reagent no-automatic-capability duplicate-refused",
+        "ARM03D1Stock-control-combat=passed creator-not-corpse-owner stranger-refused native-follow-alias unlisted-quit-refused real-hit-command mutual-SimpleMeleeCombat native-combat-schedules",
+        "ARM03D1Stock-native-cell-combat-retire=passed real-Cell-Insert-Extract-Save queued-save-after-hide-and-restore selected-inventory-action-executed consumed-and-pending-action-unsubscribed continuing-three-actor-combat native-combat-leave both-scheduler-queues-cancelled follow-unsubscribed exact-corpse-body-foreign-gear",
+        "ARM03D1Stock-two-deadlines=passed grade3-control-5399s animation-7799s real-affect-seconds independent-follow-link paid-parent-effect-scheduler-expiry same-corpse",
+        "ARM03D1Stock-terrain=passed compiled-stock-prog actual-Silt-and-Shallows-terrains no-command-grant independent-native-follow-link",
+        "ARM03D1Stock-reader=passed fresh-process durable-control-query persisted-stock-identity-formula-and-animation-deadline no-actor-materialization-or-replay",
+        "ARM03D1Stock-reader=passed fresh-process durable-control-query persisted-stock-identity-formula-and-animation-deadline no-actor-materialization-or-replay",
+        "ARM03D1Stock-held-retirement=passed actual-DELETE-refusal real-cell-save native-combat-leave no-queued-actions no-command-grant exact-retry repeated-retirement same-canonical-body-corpse-foreign-item"
+      ],
+      "marker_count": 9,
+      "owned_processes_remaining": 0
+    }
+  },
+  "frozen_inputs": {
+    "path": ".artifacts/test-runs/armageddon-20261005-sand-knife/native-final-inputs.json",
+    "sha256": "1f35f8dd63f0069448bc126cfb44b9a1b752c2ddf6099261d59c0702ff074a35",
+    "source_count": 697,
+    "binary_count": 19,
+    "shared_copies_aligned": true
+  },
+  "artifact_fingerprints": [
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-sand-knife/begin.json",
+      "sha256": "d3957a021ed952b1b150c03a9c1952d5c75aff8c89c9d7cb853e3b15632b36c3"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-sand-knife/build-01.log",
+      "sha256": "bf6e2aa9a20f61ffdb00c7562d337c7e5f4d28842274421cce69aee6b037eb7e"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-sand-knife/build-02.log",
+      "sha256": "c2ba38be9dc6df3d26b8bf163d24995c732e379107aef7187e514e0762928aba"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-sand-knife/build-03.log",
+      "sha256": "f25fc41241ba4f042ab81955dbe429b06113fe2dcd16bac881fc75c81033f463"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-sand-knife/build-04.log",
+      "sha256": "6b1d0a0e9ac3cd2c95b1f37a21664a6d84cf743b2e12ead07e2699ea3607eef3"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-sand-knife/build-05.log",
+      "sha256": "de3cef5ec169b7136f22c4c4c05716206582e8d565ed0073c2b76d8a13255cae"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-sand-knife/build-06.log",
+      "sha256": "c2ba38be9dc6df3d26b8bf163d24995c732e379107aef7187e514e0762928aba"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-sand-knife/build-07.log",
+      "sha256": "b1284aaa283e3e03a7390a00a97767174eb9a1c62027dd4802f3a331a55770bf"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-sand-knife/documentation.json",
+      "sha256": "3c6c3f5f7a1449859da779e8f7aed58903238fcf186b11ed3fe56e394a736e2a"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-sand-knife/fast-after-fingerprints.json",
+      "sha256": "6183fc9064b21e1369a0c4dd5a65ca6a35335cbbe293a8bd2e2fa9f15049faa9"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-sand-knife/fast-before-fingerprints.json",
+      "sha256": "aace14362985691fa9384add7b98cd22a50198f9ff2b91edb38825ac972df260"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-sand-knife/focused-after-failed-fingerprints.json",
+      "sha256": "dc64b04a8b8715895265847d99096e04333a9e13b9b2a71ea63eb46ce8172c90"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-sand-knife/focused-before-fingerprints.json",
+      "sha256": "e8304897d45b4025486c8cbe4cf7b7a73a7cd305eed4eb5e4feacd277d9e9ae6"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-sand-knife/focused2-after-fingerprints.json",
+      "sha256": "51a88fd907ea1a84a9017ae256e81ba6b0071d198d3c2e441401bf5fa454df2b"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-sand-knife/focused2-before-fingerprints.json",
+      "sha256": "cadea9277f00dd15d5fb0e6b4f4710ffe81086a7e1f5b4401a001a915c863887"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-sand-knife/managed-fast-inputs.json",
+      "sha256": "74a17909559f864234d71c0fa8880cfd33bd6c021fe99037f2c0e9c987761377"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-sand-knife/managed-focused-inputs.json",
+      "sha256": "9df9a65120c0801d252d29a9cc8df83f899b773b6497ecc5d0af51c302da25cd"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-sand-knife/managed-focused2-inputs.json",
+      "sha256": "b40732989afe4adb279e01a0b4aed0539b563020e979c7f0f1f30ab7fe8861b3"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-sand-knife/managed-selection.json",
+      "sha256": "3a476f909317a80c4c811bf65ed2e52eb20c63c5acaf9cbc5062dd6485042ac2"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-sand-knife/native-attempt1-after-fingerprints.json",
+      "sha256": "23ff0bd62933e3227ce27a2b59daf6b1c5a72dc60161184f6171e8068377e950"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-sand-knife/native-attempt1-before-fingerprints.json",
+      "sha256": "1b7a46455eeff85926f608f135d0d93cba4c24894c8102d3c6d6d3e532bbaf90"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-sand-knife/native-attempt1-inputs.json",
+      "sha256": "c79f9ba8bd56bd782ded7b81ea56cee90664812126bcfcca55f74974fa86a4d3"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-sand-knife/native-attempt1-native-exit.json",
+      "sha256": "4cb8eac19239b0f8f0c3f1b20628cb15144beff83e0d751c41576c76d600bb09"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-sand-knife/native-attempt1-native.log",
+      "sha256": "460f3787874826c5d95eb1615656462cef05f9c4478e6b138580da06a434c9c5"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-sand-knife/native-attempt1-process-cleanup.json",
+      "sha256": "f84fe6159ee4604ff148e3225725649ba9c56ea40993fa74dcd4f21ada4e9d61"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-sand-knife/native-attempt2-after-fingerprints.json",
+      "sha256": "e011c035f5d8ab6a9eab47f171a5559e18c034132ea26bf2df4a485790634e22"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-sand-knife/native-attempt2-before-fingerprints.json",
+      "sha256": "75924fa97f6904b85b90353fc85f77c53e3d7243379b49d27a907ffc5d0d5e97"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-sand-knife/native-attempt2-inputs.json",
+      "sha256": "e55778c884f48743dbe9ec5c56e93b01380fbef8cfb647b58a222c2d4b26b7a6"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-sand-knife/native-attempt2-native-exit.json",
+      "sha256": "adbcabe6c02e44e0d94336160c6a11d614c47e69024380ee81f00c20ddf9bbf2"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-sand-knife/native-attempt2-native.log",
+      "sha256": "4695be7067c9e288a1dccf0646c4cf5c3e787c11a9aaee1da0b6e2838084df68"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-sand-knife/native-attempt2-process-cleanup.json",
+      "sha256": "413ef604367b09a20715ee3463364a8af93cd74fa02b2f600503a9d5223463c3"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-sand-knife/native-attempt3-after-fingerprints.json",
+      "sha256": "d7a79b2f0d436819b6ec78758146e23541a23a1eb80b64990a2614f940c723d3"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-sand-knife/native-attempt3-before-fingerprints.json",
+      "sha256": "22d366de75245b349a81e7d35b312ca86cbaaa85f67aa40c36ff5836b71a61b7"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-sand-knife/native-attempt3-inputs.json",
+      "sha256": "b35f453912f31a18ecc5eecdce29ca760c14101b6b1e225e9bc33347a88877a9"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-sand-knife/native-attempt3-native-exit.json",
+      "sha256": "c6053d26ba065eeb30dc2f5735355b5b3e192f8645cabc3c4a8970d4f7d5524d"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-sand-knife/native-attempt3-native.log",
+      "sha256": "63f751d1b54e6fa1c1a0d0eed69c0dcb58df3dddabc9d859abab956b366ed5e3"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-sand-knife/native-attempt3-process-cleanup.json",
+      "sha256": "97cbfdc2ca39afd1c664cf5839792e334db14ff0ab702191d4e312d3ed392efb"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-sand-knife/native-attempt4-after-fingerprints.json",
+      "sha256": "724957453175a4a8ba809d7a7432f9907c5097d03383015109d5eb17d8f53127"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-sand-knife/native-attempt4-before-fingerprints.json",
+      "sha256": "719cdeb7f0fe85ce48d4bdb028e027dd723244fd51bf3b324f457086db2c0c3e"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-sand-knife/native-attempt4-inputs.json",
+      "sha256": "f707748671df0e35cc10059a51bea47e4e90404b3a48d9b93341ca20119d859d"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-sand-knife/native-attempt4-native-exit.json",
+      "sha256": "2cbe7f2fbaee5a5a94b6cdf51706a71c051d6516d0d66946cdc5b5419f866c2e"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-sand-knife/native-attempt4-native.log",
+      "sha256": "acd9d1b3bb32f5f4e04838dcab9842246079e7ae600048aad332d32de837362f"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-sand-knife/native-attempt4-process-cleanup.json",
+      "sha256": "4521397dd0d56d091e766ddfae9b20e323836652f6fe2c9f336b2be25a95e30f"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-sand-knife/native-attempt5-after-fingerprints.json",
+      "sha256": "194e51c16cdeacc9309fb8952cd62a924f996c0b103acb6ba932a17458e515c5"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-sand-knife/native-attempt5-before-fingerprints.json",
+      "sha256": "bb56eeee19b41fe35ab42a1b8da81282408c7802bd0b152392410c442f8dd1ec"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-sand-knife/native-attempt5-inputs.json",
+      "sha256": "8e494fa25cadbf09a69741844e1853411132d964c7267af247eeee8850e304f1"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-sand-knife/native-attempt5-native-exit.json",
+      "sha256": "55a489af59277280b2155630911d49ea2b5a027f4c1eaa8039ade3469adab958"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-sand-knife/native-attempt5-native.log",
+      "sha256": "78a48c61ab65b41e428a9a066a556e0d8c8199180cc7260a1f5af1242011868e"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-sand-knife/native-attempt5-process-cleanup.json",
+      "sha256": "9dc94199776d5941af969fc8e227bd8ed711ec258d98e6660c5c8d8160f2e765"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-sand-knife/native-final-after-fingerprints.json",
+      "sha256": "b7b4e8aa5cd79f3a5d31b56a5e445d718dc8580333696b257a81c9b604106264"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-sand-knife/native-final-before-fingerprints.json",
+      "sha256": "c1a6a1fc7c0adb36d04c97d702284bcad9a0cc0a340675b5dc3dba1c206760af"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-sand-knife/native-final-inputs.json",
+      "sha256": "1f35f8dd63f0069448bc126cfb44b9a1b752c2ddf6099261d59c0702ff074a35"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-sand-knife/native-final-native-exit.json",
+      "sha256": "0a3110cbdbf0a51039e8d7c56cc8c8a88f746b61fe453818ab8438895b0111cf"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-sand-knife/native-final-native.log",
+      "sha256": "0759e96eafa677787e79f3a3b58e0446c0cc7b48d82f01657bb5c9ab4b66769c"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-sand-knife/native-final-process-cleanup.json",
+      "sha256": "cd9cde1a35d0a636005175bbfb976ec7f19ded717c2f567039df865155372e8c"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-sand-knife/regression-flame-after-fingerprints.json",
+      "sha256": "7809a6859a9babb904df89db3090197556d9d028ccc7eccdffacc59964eae377"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-sand-knife/regression-flame-before-fingerprints.json",
+      "sha256": "c8a93f0ba1f5d221cdc35d1311723f779a35ff0df56d4e7e321b0215ede14f6f"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-sand-knife/regression-flame-native-exit.json",
+      "sha256": "e8fabc7357d6e709829bdc59c5add7b5c0712de2b1bb2c06065b4bdc69205686"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-sand-knife/regression-flame-native.log",
+      "sha256": "7dedddf5bc97788d88d4c9adb27b00beda56356879df51035f5b9cd366fdd951"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-sand-knife/regression-flame-process-cleanup.json",
+      "sha256": "f330b5bb2e51fd1e5a6cbc4a7d3200de66ceb6ad867d8c0feb4848de8ff188fd"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-sand-knife/regression-servitor-after-fingerprints.json",
+      "sha256": "9efd76ebf4a9ae7d55af52cff168ee8a0b1bc7e7cd6d3b91ee50278c1b85c51a"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-sand-knife/regression-servitor-before-fingerprints.json",
+      "sha256": "126c295597abb16115393b5d4f4a859b0fe8d0fd8657ba3fce49fe8e874ca314"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-sand-knife/regression-servitor-native-exit.json",
+      "sha256": "c120b327bdde0e7b84630091ba21dd8396181130face4fe1d541ab193583b4bf"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-sand-knife/regression-servitor-native.log",
+      "sha256": "4d28ba50a05d9a3773947ad84d51f95ac422d8a17e8a3cdbee6e878080ac8562"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-sand-knife/regression-servitor-process-cleanup.json",
+      "sha256": "47e8157ca9742bdb24792749668a59914ee0e415a2e0af5e22118447e9bcbc77"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-sand-knife/regression-storm-after-fingerprints.json",
+      "sha256": "dd6cce5b3337aa23c72d36e99c5c1f9ba4ccec006d103881a394ed1c8574b5c3"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-sand-knife/regression-storm-before-fingerprints.json",
+      "sha256": "6c6391924ea62644a1169de6b16b54cdb20e55cbaa7698d336392a8ec5851786"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-sand-knife/regression-storm-native-exit.json",
+      "sha256": "89dc197ef31066a7e13602e821c23695c5d1e2415c29051db471b41e2e5ff486"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-sand-knife/regression-storm-native.log",
+      "sha256": "67dd35b943555592f271f2dc4bc9b09292a70c2f449461895833b960839d311a"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-sand-knife/regression-storm-process-cleanup.json",
+      "sha256": "666b655869b6afcdd6919aac3219004cdaba500d23ce8e518b053ae50a1cb1eb"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-sand-knife/source-review-final.json",
+      "sha256": "b3abf1b010cef72f06310f3d0d53484af02e740b95a600832fb1d31f0b8c6446"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-sand-knife/source-review.json",
+      "sha256": "b5c3dd2a428fdfe6f8494a4f182c736217da53c77622203f13c377ad51d5b30f"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T013221Z-86ca47f49e80/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T013221Z-86ca47f49e80/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T013221Z-86ca47f49e80/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stdout.log",
+      "sha256": "06cdb873acdb8d2913436f61ed3fdd747286c6e5e940310bece4a95e4e726fff"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T013221Z-86ca47f49e80/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/results.trx",
+      "sha256": "d6a3146068adbe73739b043f0a0e27bff48c349e8ce5bea2b48ba3823d5f46a6"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T013221Z-86ca47f49e80/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T013221Z-86ca47f49e80/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stdout.log",
+      "sha256": "a6698aeb03cb522e9ed6f8b1feb1c58ffd5a3384c99985dfcf7f1317df8d8a3f"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T013221Z-86ca47f49e80/run.json",
+      "sha256": "d23a3c3795b7686f5fcda9d1fe61f5d0b8a1f0d7dec851db21108f6e3592f086"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T013221Z-86ca47f49e80/sdk/sdk.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T013221Z-86ca47f49e80/sdk/sdk.stdout.log",
+      "sha256": "3db6bca4b50618b2e0d2d55d23b3d0541fe039ab6f731df0e9c47317b400ce52"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T013221Z-86ca47f49e80/source-end.json",
+      "sha256": "4e905ed66bedf035e505da8c099f926d3f142d5de38e34c0cde9355b0a4f2d71"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T013221Z-86ca47f49e80/source-start.json",
+      "sha256": "5232a3bef69ca3b71df4ea8cb04e899c780cb4b4c6b4187c79af70150b78e4b0"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T013221Z-86ca47f49e80/summary.json",
+      "sha256": "09a0410bfe199ec69fcbc26d20b4664a3e891b36c208ff447322ca45b7dba5c9"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T013221Z-86ca47f49e80/summary.txt",
+      "sha256": "5d74088398ab25ae063282ddeb1b41e9ef9745ddc1fa6a235409435692252013"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T013221Z-86ca47f49e80/test-results.json",
+      "sha256": "b483c1598c0143d215a636d1cd105e1ed40d73dca9e811c94ec5689f36779c51"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T015337Z-6b20e59906f8/failures.json",
+      "sha256": "d4683a226d7ff8902e6c0dcdbca221ada4251ee2965c8525825d760e01bc039c"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T015337Z-6b20e59906f8/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T015337Z-6b20e59906f8/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stdout.log",
+      "sha256": "b123139a041e8bbc218c9e67dd4b084c3ce198a2ae3ed8c043a20c09132cf27a"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T015337Z-6b20e59906f8/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/results.trx",
+      "sha256": "fadad84e6dd17759d0abeb326bda474526805ebb8cf490494c43665910ef2b98"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T015337Z-6b20e59906f8/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T015337Z-6b20e59906f8/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stdout.log",
+      "sha256": "0fd35f2d0dbb4880992a712a32aa3163cae564ce7c6e111ce12eb03a54f8b3dd"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T015337Z-6b20e59906f8/run.json",
+      "sha256": "ad10df6248429b2560537c2150264b75d77d5819f1fed53d2aca854b55d6cd12"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T015337Z-6b20e59906f8/sdk/sdk.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T015337Z-6b20e59906f8/sdk/sdk.stdout.log",
+      "sha256": "3db6bca4b50618b2e0d2d55d23b3d0541fe039ab6f731df0e9c47317b400ce52"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T015337Z-6b20e59906f8/source-end.json",
+      "sha256": "5820bd6465eb7dfa5108cacea8ff79c8a652b4a709376f423d54f652c95c2f01"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T015337Z-6b20e59906f8/source-start.json",
+      "sha256": "379bc4eee22e286e891629121524dadcc3908fc1b4257f67be4b567e8599fc2d"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T015337Z-6b20e59906f8/summary.json",
+      "sha256": "cfecaa7e3375cbc993a53c88485862288d47fc8a2432f01c939bee7b32a134f6"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T015337Z-6b20e59906f8/summary.txt",
+      "sha256": "9c7dc75e66f22a5021fcec9e2725dc52e18f8dece8186544a9693bd176568b98"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T015337Z-6b20e59906f8/test-results.json",
+      "sha256": "7edc46aa4b38c57582c269a2fe504760782195145961d98dbd4276b62268b535"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T020036Z-6456e81f4517/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T020036Z-6456e81f4517/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T020036Z-6456e81f4517/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stdout.log",
+      "sha256": "d116630fdc6f0f01c945ad137258d824a71c2ff536190c78aedbd5b3f198c92c"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T020036Z-6456e81f4517/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/results.trx",
+      "sha256": "bb8c91dffc538706aa531bb22601a0d1998638be96ac61242e85653d9976b41c"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T020036Z-6456e81f4517/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T020036Z-6456e81f4517/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stdout.log",
+      "sha256": "0dd385672fd6861b7c70b05f665d865ba770fd5661603942b2df11a82ecf3eff"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T020036Z-6456e81f4517/run.json",
+      "sha256": "53238bfb3e148e01c7a58a1b2183c0700898a471fefcd4d8ea52dd1e7cfa1dde"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T020036Z-6456e81f4517/sdk/sdk.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T020036Z-6456e81f4517/sdk/sdk.stdout.log",
+      "sha256": "3db6bca4b50618b2e0d2d55d23b3d0541fe039ab6f731df0e9c47317b400ce52"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T020036Z-6456e81f4517/source-end.json",
+      "sha256": "8ce34423e85749ab70a13d69e033b95f56ffc8cf84be36329254214a48f25b41"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T020036Z-6456e81f4517/source-start.json",
+      "sha256": "8dc70bc1f5a054936b38581a109cfb97bad2a37c95b0186d676e5519551e1228"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T020036Z-6456e81f4517/summary.json",
+      "sha256": "f9a9954e011c57006611ad23cce475e64acd38e13bd7f99b283867f25690cee0"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T020036Z-6456e81f4517/summary.txt",
+      "sha256": "69fa7b3ed24d420b89cff09de334bfeb9c81d3e06f4fd58c750b8e754d278be9"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T020036Z-6456e81f4517/test-results.json",
+      "sha256": "7a180a4a7cd6e31b64507729be5891cac9b81c863a631565324294b0600a8273"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T020302Z-ded78c70e0c1/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T020302Z-ded78c70e0c1/invocations/DatabaseSeeder_Unit_Tests-e14dcedb/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T020302Z-ded78c70e0c1/invocations/DatabaseSeeder_Unit_Tests-e14dcedb/build/build.stdout.log",
+      "sha256": "4088a29c62761651257e1bcd74b043049d41944c5205420a8c580c08841a8cbe"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T020302Z-ded78c70e0c1/invocations/DatabaseSeeder_Unit_Tests-e14dcedb/net10-41544e89/1/results.trx",
+      "sha256": "6cae5a6b47e86b59ab51a991494d1fc03c9023531551a7e6bc297d80fd46e649"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T020302Z-ded78c70e0c1/invocations/DatabaseSeeder_Unit_Tests-e14dcedb/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T020302Z-ded78c70e0c1/invocations/DatabaseSeeder_Unit_Tests-e14dcedb/net10-41544e89/1/test.stdout.log",
+      "sha256": "1fc4b4d19d702b88005256821fc6cf687f866fa387ced719c96138b17cb2bde6"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T020302Z-ded78c70e0c1/invocations/DiscordBotCore_Unit_Tests-4ffa2b0e/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T020302Z-ded78c70e0c1/invocations/DiscordBotCore_Unit_Tests-4ffa2b0e/build/build.stdout.log",
+      "sha256": "5f447fe59913928fc3076ed4d3ec0dff865c4a154bbe6466f63223f05e5f9a7d"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T020302Z-ded78c70e0c1/invocations/DiscordBotCore_Unit_Tests-4ffa2b0e/net10-41544e89/1/results.trx",
+      "sha256": "ad790dabde8afe8de8ba4353945b4eadf9805886fb72f8ad373e86982d4101f6"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T020302Z-ded78c70e0c1/invocations/DiscordBotCore_Unit_Tests-4ffa2b0e/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T020302Z-ded78c70e0c1/invocations/DiscordBotCore_Unit_Tests-4ffa2b0e/net10-41544e89/1/test.stdout.log",
+      "sha256": "42fd5df5818c1faddb46510f425fe51d7387cd28f0fe18071bea9d1470754081"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T020302Z-ded78c70e0c1/invocations/ExpressionEngine_Unit_Tests-8cdb3e65/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T020302Z-ded78c70e0c1/invocations/ExpressionEngine_Unit_Tests-8cdb3e65/build/build.stdout.log",
+      "sha256": "f1f20cfe21aefa3adec396d1a523f2bf8b19e34eb94dcb734307a18e076de551"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T020302Z-ded78c70e0c1/invocations/ExpressionEngine_Unit_Tests-8cdb3e65/net10-41544e89/1/results.trx",
+      "sha256": "2c50f02392bb46dfb7cd290e60c95c51adb3481679eb3bb048e6810aa75768b6"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T020302Z-ded78c70e0c1/invocations/ExpressionEngine_Unit_Tests-8cdb3e65/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T020302Z-ded78c70e0c1/invocations/ExpressionEngine_Unit_Tests-8cdb3e65/net10-41544e89/1/test.stdout.log",
+      "sha256": "777a9475c95238902895731912704e5656e7fca643a26adaad5531ba84947c16"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T020302Z-ded78c70e0c1/invocations/FutureMUD.Web.Tests-ac492d08/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T020302Z-ded78c70e0c1/invocations/FutureMUD.Web.Tests-ac492d08/build/build.stdout.log",
+      "sha256": "0f83544d1c42a04b5e2bb5b6847fa9b589130e5d524f68125d274dd633b13be9"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T020302Z-ded78c70e0c1/invocations/FutureMUD.Web.Tests-ac492d08/net10-41544e89/1/results.trx",
+      "sha256": "b270c42d7a9ad8e51636b7c7bd1b1f37b0e97ecd10d195bfb321d604885d6348"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T020302Z-ded78c70e0c1/invocations/FutureMUD.Web.Tests-ac492d08/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T020302Z-ded78c70e0c1/invocations/FutureMUD.Web.Tests-ac492d08/net10-41544e89/1/test.stdout.log",
+      "sha256": "cb15d18808dec4466e299741df28cabc289125de25e2990ae3ad0d0e5cb173a5"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T020302Z-ded78c70e0c1/invocations/FutureMUDLibrary_Unit_Tests-45c02d6c/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T020302Z-ded78c70e0c1/invocations/FutureMUDLibrary_Unit_Tests-45c02d6c/build/build.stdout.log",
+      "sha256": "4890aac2a00b00d1a41d88094e89187bdaf6cda2300cfa21b5fb999cbb6dad74"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T020302Z-ded78c70e0c1/invocations/FutureMUDLibrary_Unit_Tests-45c02d6c/net10-41544e89/1/results.trx",
+      "sha256": "0454d23076d07d8846a25f8f12ca56d83de641f9644e2eb542a79d12c81d6c50"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T020302Z-ded78c70e0c1/invocations/FutureMUDLibrary_Unit_Tests-45c02d6c/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T020302Z-ded78c70e0c1/invocations/FutureMUDLibrary_Unit_Tests-45c02d6c/net10-41544e89/1/test.stdout.log",
+      "sha256": "e47e9ddcf9678eeb406e8813c6f902ad4d03a66c6ea86d55a46dc2637d39e0eb"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T020302Z-ded78c70e0c1/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T020302Z-ded78c70e0c1/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stdout.log",
+      "sha256": "cc054b1159fbdf5122ced35d41f3dea215c5b3fdabda97ef284dc31d62cd7d31"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T020302Z-ded78c70e0c1/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/results.trx",
+      "sha256": "e64ca814281eb7fd2aa0cb1512766d453da6423ff542f7b4a434ccdb7482b7ab"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T020302Z-ded78c70e0c1/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T020302Z-ded78c70e0c1/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stdout.log",
+      "sha256": "0fa4a41d4920dbffb96e8933be76b4c4bd0f206104ef0386e84888027504299d"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T020302Z-ded78c70e0c1/invocations/MudsharpDatabaseLibrary_Unit_Tests-6ef1914c/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T020302Z-ded78c70e0c1/invocations/MudsharpDatabaseLibrary_Unit_Tests-6ef1914c/build/build.stdout.log",
+      "sha256": "dc517a79b0ea370d1b5699d055c77e7521e1b0b13a7775b1831c5ad7b4a0ec13"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T020302Z-ded78c70e0c1/invocations/MudsharpDatabaseLibrary_Unit_Tests-6ef1914c/net10-41544e89/1/results.trx",
+      "sha256": "8c1609a2f3cbd325276b01cac449c682a8a2288745af3693d2bde85f2fb19844"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T020302Z-ded78c70e0c1/invocations/MudsharpDatabaseLibrary_Unit_Tests-6ef1914c/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T020302Z-ded78c70e0c1/invocations/MudsharpDatabaseLibrary_Unit_Tests-6ef1914c/net10-41544e89/1/test.stdout.log",
+      "sha256": "ccac210a795215d7b21c93bd1210a3232b69f504faf082a4735ea7d6b5da77eb"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T020302Z-ded78c70e0c1/invocations/RPI_Engine_Worldfile_Converter_Tests-14d87d34/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T020302Z-ded78c70e0c1/invocations/RPI_Engine_Worldfile_Converter_Tests-14d87d34/build/build.stdout.log",
+      "sha256": "8704e0d0dabd076afc08f34e6f7b7fd1ad8c26b9004d1ac5593db002674a2656"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T020302Z-ded78c70e0c1/invocations/RPI_Engine_Worldfile_Converter_Tests-14d87d34/net10-41544e89/1/results.trx",
+      "sha256": "a606f23ff16d5488ee42c210476d60266a55dd87bfdfb3561963ccc3e5f22298"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T020302Z-ded78c70e0c1/invocations/RPI_Engine_Worldfile_Converter_Tests-14d87d34/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T020302Z-ded78c70e0c1/invocations/RPI_Engine_Worldfile_Converter_Tests-14d87d34/net10-41544e89/1/test.stdout.log",
+      "sha256": "e5b602e396de5e93bca4cb35c2088356cd5a3cda62e8567f87f8064aebc8904a"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T020302Z-ded78c70e0c1/invocations/TerrainPlanner.Tests-1085b5fa/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T020302Z-ded78c70e0c1/invocations/TerrainPlanner.Tests-1085b5fa/build/build.stdout.log",
+      "sha256": "6c828ce6ed9bafc30ea29f5ce8340118bc5d46645041ae8f40e56cb1179b711c"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T020302Z-ded78c70e0c1/invocations/TerrainPlanner.Tests-1085b5fa/net10-41544e89/1/results.trx",
+      "sha256": "5c926387c1dcbbfd497f09cea1d509669a59e5fd232f5b22437daf1133ab9bab"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T020302Z-ded78c70e0c1/invocations/TerrainPlanner.Tests-1085b5fa/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T020302Z-ded78c70e0c1/invocations/TerrainPlanner.Tests-1085b5fa/net10-41544e89/1/test.stdout.log",
+      "sha256": "0195f793f4e2ff06732c052db12fbfd66b7ece7d7f7536cea37cd39a98682c95"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T020302Z-ded78c70e0c1/invocations/TestReporting.Tests-25b07e44/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T020302Z-ded78c70e0c1/invocations/TestReporting.Tests-25b07e44/build/build.stdout.log",
+      "sha256": "08852797bfd07663e15eb2a493640251d7ec46bc2a95f60d61c17413ad1914a7"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T020302Z-ded78c70e0c1/invocations/TestReporting.Tests-25b07e44/net10-41544e89/1/results.trx",
+      "sha256": "3875a39a1e28c03005b45e9d6845a08047765f00326f3741da9191ab16fd010f"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T020302Z-ded78c70e0c1/invocations/TestReporting.Tests-25b07e44/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T020302Z-ded78c70e0c1/invocations/TestReporting.Tests-25b07e44/net10-41544e89/1/test.stdout.log",
+      "sha256": "8d0697228728fdeb504e0567eb5cc73dd4adba10725439553b6e9a2e6067f7d9"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T020302Z-ded78c70e0c1/run.json",
+      "sha256": "95e58abe52391906128694229ec5aea0fe96750750d7029453f84a5ad6b3a4a0"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T020302Z-ded78c70e0c1/sdk/sdk.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T020302Z-ded78c70e0c1/sdk/sdk.stdout.log",
+      "sha256": "3db6bca4b50618b2e0d2d55d23b3d0541fe039ab6f731df0e9c47317b400ce52"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T020302Z-ded78c70e0c1/source-end.json",
+      "sha256": "2dce20165af5e3daf0cad0dbec972d2177a059c620cdae6e4a3a8b85613cae24"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T020302Z-ded78c70e0c1/source-start.json",
+      "sha256": "8a32aa3f20865ae8615bd23c4111d5b75c3ff6ac2745c7289b65ff86e062b047"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T020302Z-ded78c70e0c1/summary.json",
+      "sha256": "a7cdaa13823e61ac03e8776f7563f141d198efeb92abede56aa5569966029043"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T020302Z-ded78c70e0c1/summary.txt",
+      "sha256": "a12ba8ae37c2342bdfced14fea32b10c70c4350df570fe85f7fc9fc120143425"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-sand-knife/20261005T020302Z-ded78c70e0c1/test-results.json",
+      "sha256": "62e7d0978659196a883f764a8e69df13273647fd95c1a239f1819395a95934f4"
+    }
+  ],
+  "helper_fingerprints": [
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\ArmageddonSandKnife-commit-message.txt",
+      "sha256": "a6c8e34ef4b2745fc89afab52962992ac3e2a9bfa91e2da9f4fbd0915a271ff8"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_SandKnife_Environment_ReadReceipt.json",
+      "sha256": "80d63b7655dc01589364c27d3402111b63aa9bfebb528f8d05952b4b80529882"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_SandKnife_HistoricalSource_ReadReceipt.json",
+      "sha256": "84f6d8fcf48ecd87a2579a9e4a2d3ee9fe82a2bb23f6a8024d539b4b195a2975"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_SandKnife_SourceEnergy_ReadReceipt.json",
+      "sha256": "8462498b393f99d49df0575f88520ca6c1660050155d8ca9b31ad5f814493859"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Begin-SandKnifeCheckpoint.py",
+      "sha256": "9ba9a01f2d90ae882428031cd20612620ef0e153c316995c9fd58a3f6740d7bc"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Build-SandKnifeHarness.py",
+      "sha256": "5b8d717d71be3ce84931220a7b1a0299554a0e6269db7f0947f6e95ca65bd7b6"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Commit-SandKnifeCheckpoint.ps1",
+      "sha256": "d0a95d0388cbaf851fdcd3394f8f2ba90b6a1ad0307240bea95ce0566b8b0327"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Document-SandKnifeCheckpoint.py",
+      "sha256": "d79dddd79a53e676544f54f66a95f31ad76eb389b4eb7642fcc3c7a02bab9044"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Prepare-SandKnifeRunner.py",
+      "sha256": "401be06e286d4ecebefd70ab006178e70e87f8817c1ba0cd0e7249f1aed9c22a"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Run-SandKnifeAcceptance.ps1",
+      "sha256": "dabaf9882f5f52873bd4ad91b70b738941e06ddc79d77ef9e35a937cba8bb6ab"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\sand_knife_evidence.py",
+      "sha256": "39e04ea76a0b77c338502539870174ccfc99b3458da584863402afdf37a900f3"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\sand_knife_handoff.py",
+      "sha256": "53b25d09fa01f801c8b4b44292ab68d7251ed793f02b44093e86adf1d0e61beb"
+    }
+  ],
+  "qualification_limits": [
+    "Historical objects456-461 and1378-1385 statistics and embedded payloads are unavailable. Six distinct temporary native weapons and eight permanent native staffs use explicit builder-selected physical profiles; controlled acceptance authors piercing6 damage4 pain2 stun. No historical damage parity or charged staff payload qualification.",
+    "Enough-sand source admits Desert/Earth Plane/Silt/Shallows/Salt Flats, room sandstorm flag or numeric weather condition>=2.5; wrapper excludes Inside/City. Stock maps editable terrain names, a selected native room tag and exact selected current weather event ID. Numeric condition, full climate evolution and historical sector parity are unqualified; native acceptance uses actual Cell/Tag/WeatherEvent with a controlled controller.",
+    "Source temporary heap duration=((grade+1)*3000)/2 maps nominal0.75 seconds/unit to (grade+1)*1500*0.75 seconds, excluding heap batching/load. Sand has no shadow half-duration; tagged Shadow Plane grade6 is paid with full lifetime.",
+    "Five-energy lower bound is explicitly authored native policy for a candidate outside82Sorcerer roster, separate from raw C minimum0/basepower15. Paid controlled grades1-7 are qualified; paid overreach and whole-stock affordability matrices remain separate gates. Immutable82+12 source tree unchanged.",
+    "Bounded caster-only stock uses native normal inventory placement then explicit native Wield and MeleeWeaponAttack/HelplessDefenseMove. Other-recipient/drop-at-feet, privileged source material exemptions, autonomous selection/ordinary defence, arbitrary callbacks, full boot/Telnet and concurrency remain unqualified.",
+    "One actual permanent random pool outcome is paid and reloaded; all eight prototype IDs are validated and persisted, but not every random outcome or individual historical property is gameplay-qualified.",
+    "Controlled native world/anatomy catalogues, deterministic rolls and specialized caster Save apply. Permanent staff is ordinary salvage-eligible material, not indestructible. Full production persistence and every lifecycle fault boundary remain separate qualifications.",
+    "Queued servitor-control gap stays open: immutable accepted-action controller/grant provenance and execution-time deadline revalidation while animation lives, preserving independent following.",
+    "Whole plan incomplete: seven phases,16 decisions,154 candidates,82 Sorcerer spells plus12 support rows and25 native scenarios; installer/acquisition/crafting/chargen/energy/portable production and remaining effect/topology/charm/lifecycle/native release work remain pending.",
+    "Local commit only; no publication, remote merge, deployment, shared/production database or model/billing changes. Stop for parent independent review."
+  ],
+  "whole_plan": {
+    "phases": 7,
+    "approved_decisions": 16,
+    "candidates": 154,
+    "selected_sorcerer_spells": 82,
+    "support_source_rows": 12,
+    "source_tree_rows": 94,
+    "native_acceptance_scenarios": 25,
+    "source_tree_sha256": "ada4e574d1c2243b2bad30cb0d65b98a5413a20ad1d8917965335fb9e481d496"
+  },
+  "prior_fourteen_receipts_1486_artifacts_42_helpers_unchanged": true,
+  "C1_addendum_clarification_and_C1P2_closing_helpers_unchanged": true,
+  "source_tree_preserved": true,
+  "C2_receipt_311_artifacts_6_helpers_and_closing_evidence_preserved": true,
+  "D1_200_artifacts_7_helpers_13_build_logs_and_closing_evidence_preserved": true,
+  "D1P2_91_artifacts_6_helpers_2_build_logs_and_closing_evidence_preserved": true,
+  "D1P1_96_artifacts_6_helpers_4_build_logs_and_closing_evidence_preserved": true,
+  "D1P1M_133_artifacts_6_helpers_2_build_logs_and_closing_evidence_preserved": true,
+  "stock_186_artifacts_6_helpers_13_build_logs_historical_source_and_closing_evidence_preserved": true,
+  "security_92_artifacts_8_helpers_and_postcommit_evidence_preserved": true,
+  "pause_snapshots_and_historical_source_preserved": true,
+  "storm_258_artifacts_10_helpers_and_postcommit_preserved": true,
+  "flame_186_artifacts_12_helpers_and_postcommit_preserved": true
+}

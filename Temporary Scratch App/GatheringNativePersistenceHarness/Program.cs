@@ -75,6 +75,8 @@ internal static partial class GNHProgram
 				["--storm-spear-stock-run"] => RunStormSpearStockChecks(),
 				["--flame-knife-stock-run"] => RunFlameKnifeStockChecks(),
 				["--flame-knife-stock-reader", .. string[] flameArguments] => RunFlameKnifeStockReader(flameArguments),
+				["--sand-knife-stock-run"] => RunSandKnifeStockChecks(),
+				["--sand-knife-stock-reader", .. string[] sandArguments] => RunSandKnifeStockReader(sandArguments),
 				["--storm-spear-stock-reader", .. string[] spearArguments] => RunStormSpearStockReader(spearArguments),
 				["--storm-spear-placement-reader", .. string[] placementArguments] => RunStormSpearPlacementReader(placementArguments),
 				["--raise-servitor-stock-reader", .. string[] stockArguments] => RunRaiseServitorStockReader(stockArguments),

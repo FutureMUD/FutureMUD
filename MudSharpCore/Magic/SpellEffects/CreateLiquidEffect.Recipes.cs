@@ -39,6 +39,11 @@ public partial class CreateLiquidEffect : IMagicSpellEffectPreparedSelection
 			var liquid = Gameworld.Liquids.Get(id);
 			return liquid is null ? $"{id}:missing" : $"{id}:{System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(liquid)}:{liquid.WaterLitresPerLitre}:{liquid.AlcoholLitresPerLitre}:{liquid.FoodSatiatedHoursPerLitre}:{liquid.DrinkSatiatedHoursPerLitre}:{liquid.DraughtProg}:{liquid.CountsAsLiquid}:{liquid.FreshnessConfiguration}";
 		}));
+	public bool TryConfirmPreparedSelection(ICharacter caster, IPerceivable recipient, out string? error)
+	{
+		error = "The liquid recipe was not prepared for this recipient.";
+		return _preparedRecipe is not null && ReferenceEquals(_preparedRecipeRecipient, recipient) && TryPrepareRecipe(caster, out error);
+	}
 	private ILiquid SelectedLiquid => _preparedRecipe ?? Liquid;
 	private void LoadRecipes(XElement? root)
 	{

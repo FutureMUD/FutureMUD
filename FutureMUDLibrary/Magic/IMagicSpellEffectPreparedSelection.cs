@@ -12,4 +12,6 @@ public interface IMagicSpellEffectPreparedSelection
     IMagicSpellEffectPreparedSelectionToken? CapturePreparedSelection(ICharacter caster, IPerceivable recipient);
     bool TryReusePreparedSelection(IMagicSpellEffectPreparedSelectionToken selection,
         ICharacter caster, IPerceivable recipient, out string? error);
+    /// <summary>Last live policy evaluation before payment. Must confirm an existing choice without drawing.</summary>
+    bool TryConfirmPreparedSelection(ICharacter caster, IPerceivable recipient, out string? error);
 }

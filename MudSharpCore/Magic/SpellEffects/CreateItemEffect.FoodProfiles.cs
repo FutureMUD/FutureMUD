@@ -45,6 +45,13 @@ public partial class CreateItemEffect : IMagicSpellEffectPreparedSelection
 			var item = Gameworld.ItemProtos.Get(id);
 			var food = item?.GetItemType<FoodGameItemComponentProto>(); return item is null ? $"{id}:missing" : $"{id}:{System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(item)}:{item.RevisionNumber}:{item.Status}:{item.BaseItemQuality}:{item.Weight}:{item.Size}:{food?.Bites}:{food?.SatiationPoints}:{food?.WaterLitres}:{food?.ThirstPoints}:{food?.AlcoholLitres}:{food?.TasteString}:{food?.Decorator}";
 		}));
+	public bool TryConfirmPreparedSelection(ICharacter caster, IPerceivable recipient, out string? error)
+	{
+		error = "The food selection was not prepared for this recipient.";
+		return _preparedFoodOutputs is not null && ReferenceEquals(_preparedFoodRecipient, recipient) &&
+			Spell is MagicSpell { InvocationGrade: { } grade } &&
+			TryPrepareFoodOutputs(caster, grade, FoodProfileRandom, out _, out error);
+	}
 	private void LoadFoodProfiles(XElement? root)
 	{
 		if (root is null) return;

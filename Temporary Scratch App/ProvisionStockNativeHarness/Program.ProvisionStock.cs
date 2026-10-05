@@ -158,6 +158,7 @@ internal static partial class GNHProgram
 			try { Refuse(food, "", "actual-food-final-" + callback + "-callback-drift"); Require(calls == 3, "Callback did not run only through final native preparation"); }
 			finally { SetPrivateMember(actor, "Location", room); Terrain("Desert"); Require(food.BuildingCommand(actor, new StringStack($"effect 1 {callback} none")), "Restore food callback"); }
 		}
+		VerifyProvisionFinalPayment(food, host, database, cap, Terrain);
 		var low = Cast(food, 1); var lowMeal = host.Items.Single(x => x.SpellCreationOrigin is not null);
 		Require(lowMeal.SpellCreationOrigin!.DeadlineUtc == RuntimeClock.UtcNow.AddSeconds(1350) && lowMeal.Location == actor.Location, "Source-ground low food deadline/placement");
 		Cast(food, 7); var high = host.Items.Where(x => x.SpellCreationOrigin?.DeadlineUtc == RuntimeClock.UtcNow.AddSeconds(9450)).ToArray(); Require(high.Length == 7 && high.All(x => pool.Any(p => p.Id == x.Prototype.Id)), "Grade-count food independent pool output");

@@ -31,6 +31,8 @@ public class PreparedSelectionCastingTests
             if (!state.Allowed || selection is not Token token || !ReferenceEquals(token.Recipient, recipient)) return false;
             _choice = token; error = null; return true;
         }
+        public bool TryConfirmPreparedSelection(ICharacter caster, IPerceivable recipient, out string? error)
+        { error = state.Allowed ? null : "Final selection policy changed"; return state.Allowed && ReferenceEquals(_choice?.Recipient, recipient); }
         public bool IsInstantaneous => true; public bool RequiresTarget => true;
         public bool IsCompatibleWithTrigger(IMagicTrigger _) => true;
         public XElement SaveToXml() => new("Effect", new XAttribute("type", "preparedselectiontest"));

@@ -24,6 +24,7 @@ public sealed partial class MagicCastingService
 			{
 				NotifyCapacityChange(actor);
 				var prepared = Prepare(intent);
+				var selectionAdmission = CaptureSelectionAdmission(intent, prepared);
 				var resolved = prepared.Quote.Invocation!;
 				var profile = prepared.Spell.GradeProfile!;
 				var acquired = Acquisition(actor, intent.SpellId)!;
@@ -79,13 +80,15 @@ public sealed partial class MagicCastingService
 							x.Target, x.Receipt.DamageMultiplier, () => AreaStillEligible(actor, x, areaPlan, prepared.Spell))).ToArray());
 					}
 					var devicePaymentAdmission = AdmitDeviceFocusPayment(intent, committed);
+					var paymentAdmission = selectionAdmission is null ? devicePaymentAdmission :
+						AdmitSelectionPayment(intent, committed, selectionAdmission, devicePaymentAdmission);
 					operation = new(resolved.Id, owner.Id, actor.InstanceId, actor.Body.Id, resolved.CapabilityId, resolved.SpellId,
 						resolved.TraitId, resolved.ReserveId, "Paying", payload.ToString(SaveOptions.DisableFormatting), now, now);
 					_store.Write(operation,
 						masteryEligible ? acquired with { NextMasteryUtc = now + profile.MasteryInterval } : null,
 						skillEligible ? new(owner.Id, resolved.TraitId, now + profile.SkillInterval, opportunity?.Version ?? 0) : null);
 					_checkpoint?.Invoke("Paying");
-					using (devicePaymentAdmission?.OpenScope()) pay();
+					using (paymentAdmission?.OpenScope()) pay();
 					return true;
 				}) { Configured = execution };
 				prepared.Spell.CastVancian(actor, prepared.Target.Target, resolved.Power, invocation, prepared.Target.Parameters);

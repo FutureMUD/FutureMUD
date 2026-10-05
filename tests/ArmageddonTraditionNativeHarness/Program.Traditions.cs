@@ -46,6 +46,9 @@ internal static partial class GNHProgram
 		return args.FirstOrDefault() switch
 		{
 			"--traditions-run" => TraditionNative(), "--traditions-reader" => TraditionRestart(args[1]),
+			"--traditions-provisions-run" => TraditionNative(true), "--traditions-provisions-reader" => ProvisionInstallerRestart(args[1]),
+			"--traditions-custody-run" => TraditionNative(true, true),
+			"--traditions-custody-reader" => ProvisionCustodyRestart(args[1]),
 			"--traditions-direct-run" => RunCastingAcceptanceChecks(),
 			"--traditions-progression-run" => RunCompletionProgressionAcceptanceChecks(),
 			"--traditions-support-run" => RunSupportProgressionAcceptanceChecks(),
@@ -64,7 +67,7 @@ internal static partial class GNHProgram
 		using var db = NewIndependentContext(database.ConnectionString);
 		return PlayerSnapshot(database) + JsonSerializer.Serialize(db.PerceiverMerits.AsNoTracking().OrderBy(x => x.MeritId).ToArray());
 	}
-	private static int TraditionNative()
+	private static int TraditionNative(bool provisions = false, bool reproduceCustody = false)
 	{
 		using var globals = new ConsumableGlobals(); using var database = TestDatabase.CreateFresh("futuremud_land_"); ConfigureNativeDatabase(database.ConnectionString);
 		var fixture = FixtureSeed.Create(database, "arm_traditions_lane", true); var clock = new HarnessClock(); using var time = RuntimeClock.Push(clock);
@@ -149,15 +152,22 @@ internal static partial class GNHProgram
 			db.Entry(merit).State = EntityState.Added; db.SaveChanges();
 			var claim = new Db.SeederManagedRecord { Seeder = "ARMTRAD foreign", Module = "foreign", StableKey = "foreign.cap", EntityType = record.EntityType, LogicalId = record.LogicalId, ManifestVersion = "foreign", AppliedFingerprint = "unchanged", AppliedAt = DateTime.UnixEpoch };
 			db.SeederManagedRecords.Add(claim); db.SaveChanges(); Require(InstallTraditions(database, plan).Status == ArmageddonInstallStatus.Blocked, "Competing identity was adopted."); db.Remove(claim); db.SaveChanges();
+			// The earlier whole-XML override intentionally keeps the builder's three admissions.
+			// Restore it only in this disposable expansion scenario to exercise the default six-entry graph.
+			if (provisions) { owned.Definition = original; db.SaveChanges(); }
 			// Builder chooses deterministic native improvement only inside this owned disposable fixture.
 			var improver = db.Improvers.Find(ids["arm.improver.spell_practice"])!; var improvement = XElement.Parse(improver.Definition);
 			improvement.SetAttributeValue("Chance", 1); improvement.SetAttributeValue("NoGainSecondsDiceExpression", "0"); improver.Definition = improvement.ToString(); db.SaveChanges();
 		}
 		Require(players == TraditionPlayers(database), "Reconciliation touched players.");
 		Console.WriteLine("ARMTRAD-ownership=passed stable-IDs builder-edit clone deletion retirement competing-claim full-transaction no-player-refresh");
-		var native = PrepareRetirementHost(database, fixture, clock, wielding: true, consumablesAnatomy: true).Native;
-		LoadTraditionNative(native, database, utilityPlan, utilities.Identities, ids);
+		var expanded = provisions ? InstallProvisionExtension(database, plan, ids) : null;
+		if (expanded is not null) plan = expanded.Traditions;
+		var host = PrepareRetirementHost(database, fixture, clock, wielding: true, consumablesAnatomy: true); var native = host.Native;
+		Require(native.World.Traits.Any(x => x.Group == "ARM02") && !native.World.Traits.Any(x => x.Group == "Armageddon Spell"), "Default shared fixture trait selection changed.");
+		LoadTraditionNative(native, database, utilityPlan, utilities.Identities, ids, expanded is null ? 3 : 6, expanded?.Identities);
 		VerifyInstalledTraditionProgression(native, database, plan, ids, clock);
+		if (expanded is not null) VerifyProvisionExtension(host, database, fixture, clock, utilityPlan, utilities.Identities, ids, expanded, reproduceCustody);
 		return 0;
 	}
 

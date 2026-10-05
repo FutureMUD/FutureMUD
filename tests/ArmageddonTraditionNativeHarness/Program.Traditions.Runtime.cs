@@ -23,12 +23,14 @@ namespace FutureMUD.GatheringNativePersistenceHarness;
 internal static partial class GNHProgram
 {
 	private static void LoadTraditionNative(NativeRuntime native, TestDatabase database, ArmageddonMagicInstallPlan utilityPlan,
-		IReadOnlyDictionary<string, long> utilityIds, IReadOnlyDictionary<string, long> ids)
+		IReadOnlyDictionary<string, long> utilityIds, IReadOnlyDictionary<string, long> ids, int admissions = 3, IReadOnlyDictionary<string, long>? provisionIds = null)
 	{
 		var world = native.World; using var db = NewIndependentContext(database.ConnectionString);
 		var progs = (All<IFutureProg>)world.FutureProgs;
 		var progIds = utilityIds.Where(x => x.Key.EndsWith(".eligibility")).Select(x => x.Value)
-			.Append(utilityPlan.AlwaysFalseProg).Append(utilityPlan.MendEligibilityProg).Append(db.FutureProgs.Single(x => x.FunctionName == "traditionAlwaysTrue").Id).ToArray();
+			.Append(utilityPlan.AlwaysFalseProg).Append(utilityPlan.MendEligibilityProg).Append(db.FutureProgs.Single(x => x.FunctionName == "traditionAlwaysTrue").Id)
+			.Concat(provisionIds?.Where(x => x.Key.EndsWith(".eligibility")).Select(x => x.Value) ?? [])
+			.Concat(db.FutureProgs.Where(x => x.Subcategory == "Installed Provisions").Select(x => x.Id)).ToArray();
 		foreach (var model in db.FutureProgs.Include(x => x.FutureProgsParameters).AsNoTracking().Where(x => progIds.Contains(x.Id)))
 			if (progs.Get(model.Id) is null) { var prog = new FutureProg(model, world); Require(prog.Compile(), prog.CompileError); progs.Add(prog); }
 		var decorators = new All<ITraitValueDecorator>();
@@ -50,9 +52,9 @@ internal static partial class GNHProgram
 		SetPrivateField(native.Actor, "_characterTraits", db.CharacterTraits.AsNoTracking().Where(x => x.CharacterId == native.Actor.Id).ToArray()
 			.Select(x => CastingRequired(traits.Get(x.TraitDefinitionId)).LoadTrait(new MudSharp.Models.Trait { Value = x.Value, AdditionalValue = x.AdditionalValue }, native.Actor)).ToList());
 		var spells = (All<IMagicSpell>)world.MagicSpells;
-		foreach (var key in utilityPlan.SpellSkills.Keys)
+		foreach (var id in utilityPlan.SpellSkills.Keys.Select(x => utilityIds[x]).Concat(provisionIds?.Where(x => x.Key is ArmageddonReviewedProvisionContent.SustainMealKey or ArmageddonReviewedProvisionContent.DrawWineKey).Select(x => x.Value) ?? []))
 		{
-			var id = utilityIds[key]; if (spells.Get(id) is { } previous) spells.Remove(previous);
+			if (spells.Get(id) is { } previous) spells.Remove(previous);
 			var spell = new MagicSpell(db.MagicSpells.AsNoTracking().Single(x => x.Id == id), world);
 			spells.Add(spell); if (!spell.ReadyForGame) throw new InvalidOperationException(spell.WhyNotReadyForGame(native.Actor));
 		}
@@ -63,7 +65,7 @@ internal static partial class GNHProgram
 			var cap = (SkillLevelBasedMagicCapability)MagicCapabilityFactory.LoadCapability(db.MagicCapabilities.AsNoTracking().Single(x => x.Id == id), world);
 			capabilities.Add(cap); Require(cap.CastingConfigurationErrors().Count == 0, string.Join("\n", cap.CastingConfigurationErrors()));
 			Require(cap.GatheringConfigurationErrors().Count == 0, string.Join("\n", cap.GatheringConfigurationErrors()));
-			Require(!cap.Regenerators.Any() && cap.CastingPolicy!.Admissions.Count == 3 && !cap.CastingPolicy.PassiveEntitlement, "Loaded policy gained passive regen or unimplemented spells.");
+			Require(!cap.Regenerators.Any() && cap.CastingPolicy!.Admissions.Count == admissions && !cap.CastingPolicy.PassiveEntitlement, "Loaded policy gained passive regen or unimplemented spells.");
 		}
 		MagicCapabilityMerit.RegisterMeritInitialiser(); var merits = new All<IMerit>();
 		foreach (var variant in ArmageddonTraditionInstaller.Variants)

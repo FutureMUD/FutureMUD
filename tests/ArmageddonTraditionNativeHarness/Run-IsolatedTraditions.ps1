@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param([string]$EvidenceRoot,
-	[ValidateSet('traditions', 'direct', 'progression', 'support', 'capacity', 'practice', 'speech', 'area')]
+	[ValidateSet('traditions', 'provisions', 'custody', 'direct', 'progression', 'support', 'capacity', 'practice', 'speech', 'area')]
 	[string]$Mode = 'traditions')
 
 $ErrorActionPreference = 'Stop'
@@ -165,7 +165,7 @@ try {
 	}
 	Require-OwnedServer -Boundary 'runner-ready'
 	# One mode per fresh endpoint prevents accumulated Windows TCP TIME_WAIT exhaustion.
-	$argument = if ($Mode -in @('traditions', 'direct', 'progression', 'support', 'capacity')) {
+	$argument = if ($Mode -in @('traditions', 'provisions', 'custody', 'direct', 'progression', 'support', 'capacity')) {
 		if ($Mode -eq 'traditions') { '--traditions-run' } else { "--traditions-$Mode-run" }
 	} else { "--$Mode-run" }
 	Invoke-OwnedHarness $argument

@@ -214,7 +214,7 @@ internal static partial class GNHProgram
 		return 0;
 	}
 
-	private static void ConfigureCastingWorld(NativeRuntime runtime, string connection, bool create)
+	private static void ConfigureCastingWorld(NativeRuntime runtime, string connection, bool create, params string[] additionalTraitGroups)
 	{
 		// Reuse the existing native spell catalogue/compiled-Prog substrate; no environmental action is started.
 		ConfigureRejuvenationSpellWorld(runtime, connection, false);
@@ -242,7 +242,7 @@ internal static partial class GNHProgram
 		foreach (var model in db.TraitExpressions.Include(x => x.TraitExpressionParameters).AsNoTracking()) expressions.Add(new TraitExpression(model, world));
 		mock.SetupGet(x => x.TraitExpressions).Returns(expressions);
 		var traits = new All<ITraitDefinition>();
-		foreach (var model in db.TraitDefinitions.AsNoTracking().Where(x => x.TraitGroup == "ARM02"))
+		foreach (var model in db.TraitDefinitions.AsNoTracking().Where(x => x.TraitGroup == "ARM02" || additionalTraitGroups.Contains(x.TraitGroup)))
 		{
 			TraitDefinition definition = model.Type == (int)TraitType.Attribute ? new AttributeDefinition(model, world) : new SkillDefinition(model, world);
 			definition.Initialise(model); traits.Add(definition);

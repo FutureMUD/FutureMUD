@@ -18,7 +18,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class ArmageddonTraditionInstallerTests
 {
-	private static (FuturemudDatabaseContext Db, ArmageddonTraditionInstallPlan Plan) Fixture()
+	internal static (FuturemudDatabaseContext Db, ArmageddonTraditionInstallPlan Plan) Fixture()
 	{
 		var db = new FuturemudDatabaseContext(new DbContextOptionsBuilder<FuturemudDatabaseContext>()
 			.UseInMemoryDatabase(Guid.NewGuid().ToString(), x => x.EnableNullChecks(false))

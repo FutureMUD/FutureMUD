@@ -37,7 +37,14 @@ public partial class DetectInvisibleEffect
 		parent.AddSpellEffect(child);
 		// If this throws after retaining the child, the existing casting exception path
 		// finalises its parent lifetime and records paid uncertainty without mastery.
-		character.AddEffect(child);
+		try { character.AddEffect(child); }
+		catch
+		{
+			// Proven absence permits removing only this provisional ownership link.
+			// A retained child keeps its parent so finalisation can bound its lifetime.
+			if (!character.Effects.Contains(child)) parent.RemoveSpellEffect(child);
+			throw;
+		}
 		if (character.Effects.Contains(child) && parent.SpellEffects.Contains(child))
 		{
 			return new(MagicEffectOperationStatus.Applied, null);

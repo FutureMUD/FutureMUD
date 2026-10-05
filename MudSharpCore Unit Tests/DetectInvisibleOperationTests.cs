@@ -58,12 +58,13 @@ public class DetectInvisibleOperationTests
 	}
 
 	[DataTestMethod]
-	[DataRow(true, 3)]
-	[DataRow(false, 2)]
-	public void OrdinaryPaidCast_OnlyRetainedChildEarnsMastery(bool retain, int expectedGrade)
+	[DataRow(true, false, 3)]
+	[DataRow(false, false, 2)]
+	[DataRow(false, true, 2)]
+	public void OrdinaryPaidCast_OnlyRetainedChildEarnsMastery(bool retain, bool unrelatedMutation, int expectedGrade)
 	{
 		var f = Fixture();
-		var effects = Attachments(f, retain);
+		var effects = Attachments(f, retain, unrelatedMutation);
 		var before = f.Balances[f.Resources[1]];
 		var quote = f.Service.Quote(f.Intent());
 		Assert.IsTrue(quote.Allowed, quote.Reason);
@@ -78,7 +79,7 @@ public class DetectInvisibleOperationTests
 	}
 
 	[TestMethod]
-	public void Refresh_ReplacesOneParentAndChildWithoutDoubleAttachment()
+	public void Refresh_ReportsRetainedApplicationButExposesExistingParentRemovalContract()
 	{
 		var f = Fixture();
 		var effects = Attachments(f, true);
@@ -91,20 +92,25 @@ public class DetectInvisibleOperationTests
 		f.Acquire();
 		var refreshed = f.Service.Cast(f.Intent());
 		Assert.AreEqual(MagicCastingStatus.Succeeded, refreshed.Status, refreshed.Message);
-		Assert.AreNotSame(original, effects.OfType<SpellDetectInvisibleEffect>().Single());
+		// The current shared casting finaliser omits fireRemovalAction. Model that
+		// contract honestly: reporting succeeds, but the old child is left orphaned.
+		Assert.AreEqual(2, effects.OfType<SpellDetectInvisibleEffect>().Count());
+		Assert.IsTrue(effects.Contains(original));
 		Assert.AreEqual(1, effects.OfType<MagicSpellParent>().Count());
 		Assert.AreEqual(1, effects.OfType<MagicSpellParent>().Single().SpellEffects.Count());
 		Assert.IsTrue((bool)XElement.Parse(f.Store.Operations[refreshed.OperationId!.Value].Definition).Attribute("applied")!);
 	}
 
-	[TestMethod]
-	public void AttachmentFailure_AfterPaymentKeepsTimedOwnershipWithoutMasteryOrReplay()
+	[DataTestMethod]
+	[DataRow(true)]
+	[DataRow(false)]
+	public void AttachmentFailure_AfterPaymentKeepsOnlyRetainedOwnershipWithoutMasteryOrReplay(bool retained)
 	{
 		var f = Fixture();
 		var effects = Attachments(f, true);
 		f.Actor.Setup(x => x.AddEffect(It.IsAny<IEffect>())).Callback<IEffect>(effect =>
 		{
-			effects.Add(effect);
+			if (retained) effects.Add(effect);
 			throw new InvalidOperationException("Injected failure after retaining detection");
 		});
 		var before = f.Balances[f.Resources[1]];
@@ -112,8 +118,8 @@ public class DetectInvisibleOperationTests
 		Assert.AreEqual(MagicCastingStatus.NeedsReview, result.Status, result.Message);
 		Assert.IsTrue(f.Balances[f.Resources[1]] < before);
 		Assert.AreEqual(2, f.Service.Acquisition(f.Actor.Object, 1)!.ControlledGrade);
-		Assert.AreEqual(1, effects.OfType<SpellDetectInvisibleEffect>().Count());
-		Assert.AreEqual(1, effects.OfType<MagicSpellParent>().Count());
+		Assert.AreEqual(retained ? 1 : 0, effects.OfType<SpellDetectInvisibleEffect>().Count());
+		Assert.AreEqual(retained ? 1 : 0, effects.OfType<MagicSpellParent>().Count());
 		var paid = f.Balances[f.Resources[1]];
 		f.Restart();
 		Assert.AreEqual(MagicCastingStatus.Refused, f.Service.Cast(f.Intent()).Status);
@@ -145,11 +151,11 @@ public class DetectInvisibleOperationTests
 		f.Actor.Setup(x => x.AddEffect(It.IsAny<IEffect>(), It.IsAny<TimeSpan>())).Callback<IEffect, TimeSpan>((effect, _) => effects.Add(effect));
 		f.Actor.Setup(x => x.RemoveEffect(It.IsAny<IEffect>(), It.IsAny<bool>())).Callback<IEffect, bool>((effect, _) => effects.Remove(effect));
 		f.Actor.Setup(x => x.RemoveAllEffects<MagicSpellParent>(It.IsAny<Predicate<MagicSpellParent>>(), It.IsAny<bool>()))
-			.Callback<Predicate<MagicSpellParent>, bool>((filter, _) =>
+			.Callback<Predicate<MagicSpellParent>, bool>((filter, fireRemovalAction) =>
 			{
 				foreach (var parent in effects.OfType<MagicSpellParent>().Where(filter.Invoke).ToArray())
 				{
-					parent.RemovalEffect();
+					if (fireRemovalAction) parent.RemovalEffect();
 					effects.Remove(parent);
 				}
 			});

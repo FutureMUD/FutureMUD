@@ -26,8 +26,18 @@ using MudSharp.RPG.Checks;
 namespace MudSharp_Unit_Tests;
 
 [TestClass]
+[DoNotParallelize]
 public class MagicStockOperationReportingTests
 {
+	[TestCleanup]
+	public void RemoveTestOnlyFactory()
+	{
+		// Keep the process-wide production compatibility registry unchanged for other tests.
+		var factories = (IDictionary<string, Func<XElement, IMagicSpell, IMagicSpellEffectTemplate>>)
+			typeof(SpellEffectFactory).GetField("_loadTimeFactories", BindingFlags.Static | BindingFlags.NonPublic)!.GetValue(null)!;
+		factories.Remove("reportingtestprepared");
+	}
+
 	[DataTestMethod]
 	[DataRow(MagicEffectOperationStatus.Applied, 3)]
 	[DataRow(MagicEffectOperationStatus.NoChange, 2)]

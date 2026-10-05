@@ -1,0 +1,8 @@
+# Final native evidence excerpts
+Full retained logs are fingerprinted in the verification receipt.
+
+Five stock entrypoint:
+System.Object[]
+
+Four preserved stock entrypoints:
+System.Object[]

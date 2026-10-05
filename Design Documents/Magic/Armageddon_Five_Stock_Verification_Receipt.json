@@ -1,28 +1,33 @@
 {
   "schema_version": 1,
-  "checkpoint": "Five editable utility stock spells, local parent review pending",
+  "checkpoint": "Five editable utility stock spells with configured target policy repair, local parent re-review pending",
   "base_commit": "1ad24d636925da64e7a82ffa858b0af470e56b0a",
+  "prior_stock_checkpoints": [
+    "1bbe49e4d43d047c64ba2b8eea00636f9b2ca035",
+    "8cd03afbab4a1ba3ca040ac0fc6316359e8c4200"
+  ],
+  "configured_policy_repair": "Selected compilation before row creation; retained live nonzero policy IDs; character/item fail-closed status-aware admission; readiness/why and one area predicate; Prepare and device APIs unchanged",
   "reporting_dependencies": [
     "48132987b481c8c1ee18adebbe8f3675f87773d1",
     "3fe9968f91ad7e41fdcf8741a9dd6d04244b3a7e"
   ],
   "verified_worktree": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-4\\FutureMUD-five-stock",
   "branch": "codex/armageddon-five-stock-spells",
-  "verified_source_head": "3fe9968f91ad7e41fdcf8741a9dd6d04244b3a7e",
+  "verified_source_head": "8cd03afbab4a1ba3ca040ac0fc6316359e8c4200",
   "source_stable": true,
-  "source_fingerprint": "3c9a6f1c3c4bfb534b8a4c22b44d7018bd20d63c01a2537839fea91749da51ed",
+  "source_fingerprint": "acdb9d81dfc86951066587c35d6fb12b828420f4b2f6bb8d46a99626d89af763",
   "sdk": "10.0.401",
   "unit_tests": {
     "status": "PASS",
-    "run_id": "20261005T055046Z-6d5e2fe78fa6",
+    "run_id": "20261005T063207Z-3491894d3a14",
     "counts": {
-      "executed": 7285,
-      "passed": 7285,
+      "executed": 7303,
+      "passed": 7303,
       "failed": 0,
       "skipped": 0,
       "inconclusive": 0,
       "other": 0,
-      "total": 7285
+      "total": 7303
     },
     "projects": [
       "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
@@ -37,8 +42,8 @@
       "scripts/TestReporting.Tests/TestReporting.Tests.csproj"
     ],
     "summary": {
-      "path": ".artifacts/test-runs/five-stock-final-units-05/20261005T055046Z-6d5e2fe78fa6/summary.json",
-      "sha256": "ed7915d7cc713e044c91e190825df03f1a56c8d9bd66cd5bc7221378fd5fbad0"
+      "path": ".artifacts/test-runs/five-stock-filter-final-units-01/20261005T063207Z-3491894d3a14/summary.json",
+      "sha256": "be1f5b5db9a2f20101b5b9062f6e4a6474f98ce0d7e35b30587d7c9a2656b43c"
     }
   },
   "native": {
@@ -54,12 +59,12 @@
     "native_assembly_before_after_equal": true,
     "cleanup": "Both separate exact owned MySQL instances gracefully shut down and removed",
     "native_run": {
-      "path": ".artifacts/test-runs/five-stock-reporting-history/native-five-stock-13.log",
-      "sha256": "b4ae34b479a2ae77247930522722e59f0afcd30c10e038cd4cbbc5507d6379a3"
+      "path": ".artifacts/test-runs/five-stock-reporting-history/filter-native-five-stock-02.log",
+      "sha256": "39baf1779a0fbfb747a2ac28151c6ee6f8cb773c4af57a62ee8d96db50157287"
     },
     "regression_run": {
-      "path": ".artifacts/test-runs/five-stock-reporting-history/native-four-stock-regressions-02.log",
-      "sha256": "2e8a662869001df3de6ae41511790c4292190568b505c4c9f73f500a30b5b527"
+      "path": ".artifacts/test-runs/five-stock-reporting-history/filter-native-four-stock-regressions-01.log",
+      "sha256": "b622c40b08ccd526e046a0fdf9f37434492255139c02b2ae5582e9da8b3d7337"
     }
   },
   "source_files": [
@@ -79,6 +84,11 @@
       "git_blob_sha1": "adf21c7176df0a473a21940ed46ec5ca438d0b2d"
     },
     {
+      "path": "MudSharpCore Unit Tests/CastingTargetFilterTests.cs",
+      "sha256": "a030c65a0e741d19c2293d4f4e859f4b636a47ef828f74e41393cfa96ebcb700",
+      "git_blob_sha1": "320b1575f1fdb6bf5ff5c76e0498fb660bd7ecfd"
+    },
+    {
       "path": "MudSharpCore Unit Tests/DispelNativeOperationReportingTests.cs",
       "sha256": "c42d5063c3b5156e926366cee81abc4594db8303445dc2bd5914a757c8e5bd6e",
       "git_blob_sha1": "c91179d4686baa6e545d1c6c5cc8e341823b6ee6"
@@ -87,6 +97,16 @@
       "path": "MudSharpCore Unit Tests/FiveUtilityStockTests.cs",
       "sha256": "2b6cf07f0b94863676f7ccc5ed0c1f8d776469657c77a3279881a547dd874a4c",
       "git_blob_sha1": "72a32b9c6c775ef64bcf2cf19b587504af6e5add"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/MagicCastingAreaFilterTests.cs",
+      "sha256": "bbec7bf269cb1b2823792cf7363a7acbb468e8d78cb0158fb65a2687e2b1897b",
+      "git_blob_sha1": "457ce393af59b6e4d2cfb2b7d2941d9411f4fb08"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/MagicCastingAreaTests.cs",
+      "sha256": "ef3d071ab30b29877568b8affc551eb979b0cb02ebd847de80a3321b0596cc74",
+      "git_blob_sha1": "bad5f8bf041138ea7bafea2dae6ae2a1a9923c7c"
     },
     {
       "path": "MudSharpCore Unit Tests/MagicStockOperationReportingTests.cs",
@@ -140,13 +160,23 @@
     },
     {
       "path": "MudSharpCore/Magic/ArmageddonUtilityStock.cs",
-      "sha256": "9df02111b6b12ce40bca0c2e910b1341440ba51aadfadca38941a9133fb7bb1a",
-      "git_blob_sha1": "cd7f6fdb9da2cc4c3ddaf984be1b58c6f9fa298f"
+      "sha256": "3fd8c468b8b4b0c7d6b6529447e98e7c3804e5e7ce2eadead082a899c91079a8",
+      "git_blob_sha1": "1ff47ca6890fca2fd7561a1afb1538120ae36490"
+    },
+    {
+      "path": "MudSharpCore/Magic/Casting/MagicCastingService.Area.cs",
+      "sha256": "5f1a3252f2f425675fd80ffb390fcc52a5ffd302abd2d5c7b6a32d781367df0d",
+      "git_blob_sha1": "bb747c2cffb63bb407f803a61bdbb200920f8964"
     },
     {
       "path": "MudSharpCore/Magic/MagicSpell.cs",
-      "sha256": "449ebbabe7838ffc3ba8b725b01044d0e329aba034a32ff96f027de28237da6b",
-      "git_blob_sha1": "431add2538a701a0609c4d2e51c5804d55ecbb68"
+      "sha256": "5218f155bb9a6af0a019fa362844df400206b9c1131368fe40e076b86fb40b08",
+      "git_blob_sha1": "3ef7c4588f633ea41be8c96c4699d395b2f59c9a"
+    },
+    {
+      "path": "MudSharpCore/Magic/MagicSpell.TargetFilter.cs",
+      "sha256": "e548f9ea56b997a749bace3ec4c48d47c4555f2a4cccc788903e4097096262a2",
+      "git_blob_sha1": "14314c2b6a3cb34ff5ad33191a14fa74180c75f9"
     },
     {
       "path": "MudSharpCore/Magic/SpellEffects/CreateItemEffect.Lifecycle.cs",
@@ -189,6 +219,31 @@
       "git_blob_sha1": "3b9feda5bb7f64a8e2bdcd36e381be1a305c7ad3"
     },
     {
+      "path": "MudSharpCore/Magic/SpellTriggers/CastingTargetFilter.cs",
+      "sha256": "2c3a212a8eac1fe1c1d61b2a98ba16d747375a065fff87f980d2ed1dedba6659",
+      "git_blob_sha1": "8a4fef2d6a4febcf35223f52a83db9da6340d3a6"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellTriggers/CastingTriggerCharacter.cs",
+      "sha256": "d5c6d3a819c7cd123f74fee2dfbb7ed89074937e00dda6adf83bd08041bdecbd",
+      "git_blob_sha1": "ecebbad3aa2850d0e5410bd7d734a513d3ea53a9"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellTriggers/CastingTriggerCharacter.Filter.cs",
+      "sha256": "c4bdd5d27b38fe770a2b1ba5f731e264574e874a84b3b41c93111449750933a0",
+      "git_blob_sha1": "a0eef12de2cb3992b7eb63ffb628ad81108087b5"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellTriggers/CastingTriggerItem.cs",
+      "sha256": "53c50bd852955b5d02989aeabaed4142290d5ef0872061cf4b0b829926ac6a71",
+      "git_blob_sha1": "fb15d4761939dd447ad6282138b6eb86f575ca72"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellTriggers/CastingTriggerItem.Filter.cs",
+      "sha256": "447b39564ee684d583f4a28877e1ec7189d0548da8d9b5d3645d15696e0577a9",
+      "git_blob_sha1": "bd7fac9f8708bd2f1341a6c92ba59421c286417e"
+    },
+    {
       "path": "MudSharpCore/MudSharpCore.csproj",
       "sha256": "d503ce8726941f4c84db3a17af5342b95e151e77e17581ab9f53d7360fc0772e",
       "git_blob_sha1": "34840a61f7abb215a852319495849b8286e508ad"
@@ -210,8 +265,13 @@
     },
     {
       "path": "Temporary Scratch App/FiveStockNativeHarness/Program.FiveStock.cs",
-      "sha256": "46db2401a8cf35904398eb3a2321df356678ab0903707f7e3d801baf3f69b674",
-      "git_blob_sha1": "9fd49ce33a5eb1328828307807006cb6aeba7144"
+      "sha256": "94620b9b3cf83ccfb3fd90f3e8450355098fc725a226814c9e60c0db5aa30262",
+      "git_blob_sha1": "8e7f9ffa6c8f2a43f0ddb53024fb7eb6698d9076"
+    },
+    {
+      "path": "Temporary Scratch App/FiveStockNativeHarness/Program.FiveStockFilters.cs",
+      "sha256": "8daebe729a085439463ce209155b889a8edecaae44877ab44920b4c66cec7a36",
+      "git_blob_sha1": "c4116dbc47b780b78d930251fa0f71dfea9211e9"
     },
     {
       "path": "Temporary Scratch App/FiveStockNativeHarness/Run-FiveStockAcceptance.ps1",
@@ -397,125 +457,133 @@
   "assemblies": [
     {
       "path": "FutureMUDLibrary Unit Tests/bin/Debug/net10.0/FutureMUDLibrary Unit Tests.dll",
-      "sha256": "618bef8eacc904afccf6214855cff2ec677e24059dc4b3b0926803aa992896f3"
+      "sha256": "0c81ed14a32f0257f5b6d7b5b0f81c944257fc16f8262431685366bf8f90d26e"
     },
     {
       "path": "FutureMUDLibrary Unit Tests/bin/Debug/net10.0/FutureMUDLibrary.dll",
-      "sha256": "5f2ab20faf59b05d5fd0c067fc0fb54f52898a7c2d4be17443619104cd5b48ca"
+      "sha256": "7a7b829e7a998c83ef89ac09d7086a434d805ead200be929487b84ae1dc9b8a8"
     },
     {
       "path": "FutureMUDLibrary Unit Tests/bin/Debug/net10.0/MudsharpDatabaseLibrary.dll",
-      "sha256": "e66635921d3661623f4d420166de550859083f53fb0851c99c1caae2cce5f817"
+      "sha256": "a77673f50cba374f8bf79ab5880a41f22a181e93fede0784a65e41752894e48b"
     },
     {
       "path": "MudSharpCore Unit Tests/bin/Debug/net10.0/FutureMUDLibrary.dll",
-      "sha256": "5f2ab20faf59b05d5fd0c067fc0fb54f52898a7c2d4be17443619104cd5b48ca"
+      "sha256": "7a7b829e7a998c83ef89ac09d7086a434d805ead200be929487b84ae1dc9b8a8"
     },
     {
       "path": "MudSharpCore Unit Tests/bin/Debug/net10.0/MudSharp.dll",
-      "sha256": "07b8af83a4d2b1c42cae9c2a1952864aaf97fc64d01839a1750255757de43baa"
+      "sha256": "ebbb103e8f878bb862bf0f6313ead6e994d1129bafa31bee3c36d336098c9ea5"
     },
     {
       "path": "MudSharpCore Unit Tests/bin/Debug/net10.0/MudSharpCore Unit Tests.dll",
-      "sha256": "fa48cc053c21a3cd200f6f94e56afdde4943c654ba2c080a92b14ccfb2d3af69"
+      "sha256": "61461c007e5789e9a0c2c26a65ff9cf11e8e7a2bb7bfb11ca7561fe5be2275b3"
     },
     {
       "path": "MudSharpCore Unit Tests/bin/Debug/net10.0/MudsharpDatabaseLibrary.dll",
-      "sha256": "e66635921d3661623f4d420166de550859083f53fb0851c99c1caae2cce5f817"
+      "sha256": "a77673f50cba374f8bf79ab5880a41f22a181e93fede0784a65e41752894e48b"
     },
     {
       "path": "Temporary Scratch App/FiveStockNativeHarness/bin/Debug/net10.0/FutureMUDLibrary.dll",
-      "sha256": "5f2ab20faf59b05d5fd0c067fc0fb54f52898a7c2d4be17443619104cd5b48ca"
+      "sha256": "7a7b829e7a998c83ef89ac09d7086a434d805ead200be929487b84ae1dc9b8a8"
     },
     {
       "path": "Temporary Scratch App/FiveStockNativeHarness/bin/Debug/net10.0/GatheringNativePersistenceHarness.dll",
-      "sha256": "95e82e4229b4720026627183b8169723f969cb3893ce427e183b4c17f6348ca3"
+      "sha256": "83900a0d06fb568bb8cbfa21af0277b6f57a9e0d60b462a57bdc90e12e076b5a"
     },
     {
       "path": "Temporary Scratch App/FiveStockNativeHarness/bin/Debug/net10.0/MudSharp.dll",
-      "sha256": "07b8af83a4d2b1c42cae9c2a1952864aaf97fc64d01839a1750255757de43baa"
+      "sha256": "ebbb103e8f878bb862bf0f6313ead6e994d1129bafa31bee3c36d336098c9ea5"
     },
     {
       "path": "Temporary Scratch App/FiveStockNativeHarness/bin/Debug/net10.0/MudsharpDatabaseLibrary.dll",
-      "sha256": "e66635921d3661623f4d420166de550859083f53fb0851c99c1caae2cce5f817"
+      "sha256": "a77673f50cba374f8bf79ab5880a41f22a181e93fede0784a65e41752894e48b"
     }
   ],
   "artifacts": [
     {
-      "path": ".artifacts/test-runs/five-stock-reporting-history/native-five-stock-13.log",
-      "sha256": "b4ae34b479a2ae77247930522722e59f0afcd30c10e038cd4cbbc5507d6379a3"
+      "path": ".artifacts/test-runs/five-stock-reporting-history/filter-native-five-stock-02.log",
+      "sha256": "39baf1779a0fbfb747a2ac28151c6ee6f8cb773c4af57a62ee8d96db50157287"
     },
     {
-      "path": ".artifacts/test-runs/five-stock-reporting-history/native-four-stock-regressions-02.log",
-      "sha256": "2e8a662869001df3de6ae41511790c4292190568b505c4c9f73f500a30b5b527"
+      "path": ".artifacts/test-runs/five-stock-reporting-history/filter-native-four-stock-regressions-01.log",
+      "sha256": "b622c40b08ccd526e046a0fdf9f37434492255139c02b2ae5582e9da8b3d7337"
     },
     {
-      "path": ".artifacts/test-runs/five-stock-reporting-history/native-build-14.log",
-      "sha256": "58cb618d07a0d007daff9461237437dd8be08d1f4b433a84070d019f7cb6c578"
+      "path": ".artifacts/test-runs/five-stock-reporting-history/filter-native-build-02.log",
+      "sha256": "42cf54d8abd8273712b433f50843c4f1c7ee7b23b2bb5bb00753f9e6b6bdb32b"
     },
     {
-      "path": ".artifacts/test-runs/five-stock-reporting-history/final-unit-fast-05.log",
-      "sha256": "a19affa8c0be51e739a276f7ab06f6fc34be21e8e37bd1e45828d8ac8a96b899"
+      "path": ".artifacts/test-runs/five-stock-reporting-history/filter-final-unit-fast-01.log",
+      "sha256": "61c9452a6e2aec2dd3ca6e7625c94297cf0de28f3748ad161f6179db839c06c2"
     },
     {
       "path": "Design Documents/Magic/Armageddon_Five_Stock_Native_Evidence.txt",
-      "sha256": "beb375e06af084dc424936add366eb4304ef5d63f20851b84ed82845f5d93446"
+      "sha256": "aa41b5254ce50997241b8fdfedd38c990e73040702d7a8d45857a1180bff0d64"
     },
     {
-      "path": ".artifacts/test-runs/five-stock-final-units-05/20261005T055046Z-6d5e2fe78fa6/summary.json",
-      "sha256": "ed7915d7cc713e044c91e190825df03f1a56c8d9bd66cd5bc7221378fd5fbad0"
+      "path": ".artifacts/test-runs/five-stock-filter-focused-04/filters.trx",
+      "sha256": "ff2d8147618640ec431fa0d75c1e22a420d42f57600a3746480d2d7b6c04d3ac"
     },
     {
-      "path": ".artifacts/test-runs/five-stock-final-units-05/20261005T055046Z-6d5e2fe78fa6/source-start.json",
-      "sha256": "4069fdbfbb5aff7144bff7e8214775d16f304e573a2964ed8eb284a459df0540"
+      "path": ".artifacts/test-runs/five-stock-reporting-history/filter-unit-focused-04.log",
+      "sha256": "24835280dd67cc6f8d75a88fa20f211a7ce17bb6ec1e1639d1a30f626956a546"
     },
     {
-      "path": ".artifacts/test-runs/five-stock-final-units-05/20261005T055046Z-6d5e2fe78fa6/source-end.json",
-      "sha256": "626216684c55023e517a8fc5121ee9728f982540ea3c4da8c7db828a7003d8f0"
+      "path": ".artifacts/test-runs/five-stock-filter-final-units-01/20261005T063207Z-3491894d3a14/summary.json",
+      "sha256": "be1f5b5db9a2f20101b5b9062f6e4a6474f98ce0d7e35b30587d7c9a2656b43c"
     },
     {
-      "path": ".artifacts/test-runs/five-stock-final-units-05/20261005T055046Z-6d5e2fe78fa6/test-results.json",
-      "sha256": "8f46752580badc5b8474ce5370b7eaa5917f5e7dd640564afc0850b924e14d67"
+      "path": ".artifacts/test-runs/five-stock-filter-final-units-01/20261005T063207Z-3491894d3a14/source-start.json",
+      "sha256": "d90b4839ed2922fd6147eee836560e776b7f5e88ebe0b7582f42fa5e68b26975"
     },
     {
-      "path": ".artifacts/test-runs/five-stock-final-units-05/20261005T055046Z-6d5e2fe78fa6/invocations/DatabaseSeeder_Unit_Tests-e14dcedb/net10-41544e89/1/results.trx",
-      "sha256": "dcb19cfda55624a3cd44fe95719501846c6e3c1e65943bbf17e663fc6406f3c3"
+      "path": ".artifacts/test-runs/five-stock-filter-final-units-01/20261005T063207Z-3491894d3a14/source-end.json",
+      "sha256": "9b82f8452c7f5bb3274e76229c6af1ea42898cece3c1efac64193faca3930e89"
     },
     {
-      "path": ".artifacts/test-runs/five-stock-final-units-05/20261005T055046Z-6d5e2fe78fa6/invocations/DiscordBotCore_Unit_Tests-4ffa2b0e/net10-41544e89/1/results.trx",
-      "sha256": "2ae120c129ca11dce0e809f7bb8e4d5b823c13f7ca3979d71e43bcbaa39cfc9d"
+      "path": ".artifacts/test-runs/five-stock-filter-final-units-01/20261005T063207Z-3491894d3a14/test-results.json",
+      "sha256": "a9c1e94f002e28f41b0aeed66ba8be71e54dd04626e16d622df701e2dadbad9d"
     },
     {
-      "path": ".artifacts/test-runs/five-stock-final-units-05/20261005T055046Z-6d5e2fe78fa6/invocations/ExpressionEngine_Unit_Tests-8cdb3e65/net10-41544e89/1/results.trx",
-      "sha256": "83f140bdfe036be987013362c9038ecded6a225ba9165630b8798c8a5a475f3f"
+      "path": ".artifacts/test-runs/five-stock-filter-final-units-01/20261005T063207Z-3491894d3a14/invocations/DatabaseSeeder_Unit_Tests-e14dcedb/net10-41544e89/1/results.trx",
+      "sha256": "cc7c4366b0aba88b82b5a194404dd830a62d9b382bb12edc01202eb1be6f96bb"
     },
     {
-      "path": ".artifacts/test-runs/five-stock-final-units-05/20261005T055046Z-6d5e2fe78fa6/invocations/FutureMUD.Web.Tests-ac492d08/net10-41544e89/1/results.trx",
-      "sha256": "2596f54884fd6e1e43d855281c798e9b954ab33d7ea8101faab41f0543522e2a"
+      "path": ".artifacts/test-runs/five-stock-filter-final-units-01/20261005T063207Z-3491894d3a14/invocations/DiscordBotCore_Unit_Tests-4ffa2b0e/net10-41544e89/1/results.trx",
+      "sha256": "e40c4acb564e80ea05be1cfaff2b223bb75765869ebed27fb8ffa06443609f3b"
     },
     {
-      "path": ".artifacts/test-runs/five-stock-final-units-05/20261005T055046Z-6d5e2fe78fa6/invocations/FutureMUDLibrary_Unit_Tests-45c02d6c/net10-41544e89/1/results.trx",
-      "sha256": "9d5b47349aed6f69122115554966f3b4855c28c6f11c88653bca3f493db868c0"
+      "path": ".artifacts/test-runs/five-stock-filter-final-units-01/20261005T063207Z-3491894d3a14/invocations/ExpressionEngine_Unit_Tests-8cdb3e65/net10-41544e89/1/results.trx",
+      "sha256": "2f3f847bd72866b3f4edfb9befc2e53962d917d36c45442cd9c18b6f5b5ee840"
     },
     {
-      "path": ".artifacts/test-runs/five-stock-final-units-05/20261005T055046Z-6d5e2fe78fa6/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/results.trx",
-      "sha256": "c882fe1de5e660ec0d115d56359d51fb8a77b36881f9c59b45882490b24f6e56"
+      "path": ".artifacts/test-runs/five-stock-filter-final-units-01/20261005T063207Z-3491894d3a14/invocations/FutureMUD.Web.Tests-ac492d08/net10-41544e89/1/results.trx",
+      "sha256": "850f3b375911ff5cdc3174a99d62394ea57fe03193beeb111a395134f22a8413"
     },
     {
-      "path": ".artifacts/test-runs/five-stock-final-units-05/20261005T055046Z-6d5e2fe78fa6/invocations/MudsharpDatabaseLibrary_Unit_Tests-6ef1914c/net10-41544e89/1/results.trx",
-      "sha256": "70b51412ba246af8ded16d6e6ebd1eec65e5794dbe6c5355a35e9e1c60569a77"
+      "path": ".artifacts/test-runs/five-stock-filter-final-units-01/20261005T063207Z-3491894d3a14/invocations/FutureMUDLibrary_Unit_Tests-45c02d6c/net10-41544e89/1/results.trx",
+      "sha256": "0cdeb9b2a9c6b5b127a67c79c63cd7c06b62bd2922836040b3cf22be7b0c6638"
     },
     {
-      "path": ".artifacts/test-runs/five-stock-final-units-05/20261005T055046Z-6d5e2fe78fa6/invocations/RPI_Engine_Worldfile_Converter_Tests-14d87d34/net10-41544e89/1/results.trx",
-      "sha256": "472cda14226ea19579b1be8763fb27340f680c07e0cbccc872a2e7736bc812b6"
+      "path": ".artifacts/test-runs/five-stock-filter-final-units-01/20261005T063207Z-3491894d3a14/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/results.trx",
+      "sha256": "6b9b7cd031b49a1fdece51ed835234093e5fd1aa20ab80f0d5c80f87fb0bbbae"
     },
     {
-      "path": ".artifacts/test-runs/five-stock-final-units-05/20261005T055046Z-6d5e2fe78fa6/invocations/TerrainPlanner.Tests-1085b5fa/net10-41544e89/1/results.trx",
-      "sha256": "2a054dfebfd353ccbdd61263b33ffbd3b4730f847d148b35387e32fa09bba362"
+      "path": ".artifacts/test-runs/five-stock-filter-final-units-01/20261005T063207Z-3491894d3a14/invocations/MudsharpDatabaseLibrary_Unit_Tests-6ef1914c/net10-41544e89/1/results.trx",
+      "sha256": "ed7e3b808248ffe0fa61285d148ae3f34203cf07b3cd9bfbc061e86d13c02e83"
     },
     {
-      "path": ".artifacts/test-runs/five-stock-final-units-05/20261005T055046Z-6d5e2fe78fa6/invocations/TestReporting.Tests-25b07e44/net10-41544e89/1/results.trx",
-      "sha256": "cc52762539e60e8f76150e55ed0f2f08c5f25f6dc207d069185b843c6e891bd5"
+      "path": ".artifacts/test-runs/five-stock-filter-final-units-01/20261005T063207Z-3491894d3a14/invocations/RPI_Engine_Worldfile_Converter_Tests-14d87d34/net10-41544e89/1/results.trx",
+      "sha256": "2ba82b691d08c2e8552dd0ea0d5d2eab06e1808e82df0be59042c5e3cc321ac6"
+    },
+    {
+      "path": ".artifacts/test-runs/five-stock-filter-final-units-01/20261005T063207Z-3491894d3a14/invocations/TerrainPlanner.Tests-1085b5fa/net10-41544e89/1/results.trx",
+      "sha256": "f540af8f741daa83f0077fc2510e3a23c96afc0a1bebb2004425da4d60a805a9"
+    },
+    {
+      "path": ".artifacts/test-runs/five-stock-filter-final-units-01/20261005T063207Z-3491894d3a14/invocations/TestReporting.Tests-25b07e44/net10-41544e89/1/results.trx",
+      "sha256": "2af904c24d764ee4785c2f6238fb23233e42f74c9890de8e05418676d03cd823"
     }
   ],
   "authority": {
@@ -532,7 +600,9 @@
     "Specialized harness actor/body save and mocked cell catalogue; reader executes ordinary effect scheduling/item load finalization",
     "Accelerated controlled clock, deterministic mastery sampling and accelerated native improver; real wall-clock gameplay not tested",
     "No full boot/Telnet/world repertoire installation, PC/NPC undead/defiler mapping installation, historical object stats or complete historical HP/flags/object/topology parity",
-    "Only five new and four retained stock entrypoints; all historical native markers not rerun"
+    "Only five new and four retained stock entrypoints; all historical native markers not rerun",
+    "Missing policy uses controlled catalogue removal plus actual SQL spell reload, not physical SQL policy deletion; null/failed outcomes use controlled IFutureProg fixtures",
+    "Healthy/unfiltered shared target parser controls; no full charged-device integration claim"
   ],
   "prior_diagnostics": "Retained under .artifacts/test-runs/five-stock-reporting-history and separate final-units/-02/-03/-04 run roots; failed/inconclusive/blocked attempts are not final evidence",
   "integration": "Coordinator owns registry/repertoire/central ledger. Dedicated project needs no shared harness dispatch change. No push, PR, merge or deployment."

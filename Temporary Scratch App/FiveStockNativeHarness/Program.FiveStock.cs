@@ -73,6 +73,7 @@ internal static partial class GNHProgram
 		Require(eligibility.Compile(),"Mend fixture eligibility failed: "+eligibility.CompileError); progs.Add(eligibility);
 		var cap=(SkillLevelBasedMagicCapability)native.Capability; var trait=world.Traits.GetByName("ARM02 Earth Proficiency")!;
 		var mendTrait=world.Traits.GetByName("ARM02 Secondary Proficiency")!;
+		VerifyRejectedStockPolicyCreation(native,database.ConnectionString,mendTrait,eligibility);
 		var water=world.Liquids.GetByName("ARM03C2 water")!;
 		var lightPrototype=host.Prototypes.Values.Single(x=>x.Name=="ARM03B2B C2 light");
 		var builderMessages=new List<string>(); var output=new Mock<MudSharp.PerceptionEngine.IOutputHandler>();
@@ -138,6 +139,7 @@ internal static partial class GNHProgram
 		TerrainName("Silt");
 		Require(((MudSharp.Magic.SpellTriggers.CastingTriggerCharacter)sense.Trigger).TargetFilterProg.Execute<bool?>(actor,actor)==false,"Compiled Silt filter did not evaluate false on native caster");
 		Refuse(sense,"me","source Silt");TerrainName("Desert");
+		VerifyLiveStockTargetPolicy(native,database.ConnectionString,sense,"me",Refuse);
 		Cast(sense,1); Require(actor.EffectsOfType<SpellDetectMagickEffect>().Count()==1,"Sense did not attach native detection");
 		var detection=actor.EffectsOfType<MagicSpellParent>().Single(x=>x.Spell.Id==sense.Id); Require(effects.OriginalDuration(detection)==TimeSpan.FromSeconds(3000),"Sense low lifetime");
 		Cast(unravel,1);Require(!actor.EffectsOfType<SpellDetectMagickEffect>().Any(),"Unravel did not remove low detection");
@@ -145,6 +147,7 @@ internal static partial class GNHProgram
 		Cast(unravel,1,applied:false); Require(actor.EffectsOfType<SpellDetectMagickEffect>().Any(),"Losing dispel contest removed stronger enchantment");
 		Cast(unravel,7);Require(!actor.EffectsOfType<SpellDetectMagickEffect>().Any(),"Unravel high contest did not remove detection"); Cast(unravel,7,applied:false);
 		TerrainName("Nilaz Plane"); Refuse(mend,"me","selected Nilaz eligibility");TerrainName("Desert");
+		VerifyLiveStockTargetPolicy(native,database.ConnectionString,mend,"me",Refuse);
 		var wounds=native.Body.Wounds.Where(x=>x.CanBeTreated(TreatmentType.Mend)!=Difficulty.Impossible).ToArray();Require(wounds.Length>0,"Native Mend fixture missing wound");
 		var damaged=wounds.Sum(x=>x.CurrentDamage);Cast(mend,1);Require(wounds.Sum(x=>x.CurrentDamage)==damaged-2,"Mend low budget");
 		Cast(mend,7);Require(!native.Body.Wounds.Any(x=>x.CurrentDamage>0),"Mend high budget did not repair native wounds");Cast(mend,7,applied:false);
@@ -152,6 +155,7 @@ internal static partial class GNHProgram
 		var vessel=New("vessel");var container=vessel.GetItemType<ILiquidContainer>()!; Refuse(draw,"vessel","closed container");container.Open();
 		TerrainName("Silt");Refuse(draw,"vessel","source Silt with accessible open container");
 		TerrainName("Fire Plane");Refuse(draw,"vessel","source Fire Plane with accessible open container");TerrainName("Desert");
+		VerifyLiveStockTargetPolicy(native,database.ConnectionString,draw,"vessel",Refuse,container);
 		Cast(draw,1,"vessel");Require(container.LiquidVolume==500,"Draw ordinary low amount");Cast(draw,7,"vessel");Require(container.LiquidVolume==4000,"Draw ordinary high amount");
 		Require(draw.BuildingCommand(actor,new StringStack($"effect 1 bonusplane {world.DefaultPlane.Id} 2")),"Water bonus plane builder");
 		Cast(draw,7,"vessel");Require(container.LiquidVolume==5000,"Draw bonus and capacity clamp");Refuse(draw,"vessel","full container");
@@ -240,6 +244,13 @@ internal static partial class GNHProgram
 		var owned=new SpellOwnedItemService(world);native.WorldMock.SetupGet(x=>x.SpellOwnedItems).Returns(owned);
 		using(var db=NewIndependentContext(database.ConnectionString)) {
 			Require(input.Spells.All(id=>world.MagicSpells.Get(id) is not null),"Fresh process missing stock rows");
+			// The shared minimal world loads only its Rejuvenation progs. Load the actual
+			// selected stock policies as normal boot would, before validating or resolving them.
+			var filterIds=input.Spells.Select(id=>(long)world.MagicSpells.Get(id).Trigger.SaveToXml().Element("TargetFilterProg")!).Where(id=>id!=0).ToArray();
+			foreach(var model in db.FutureProgs.Include(x=>x.FutureProgsParameters).AsNoTracking().Where(x=>filterIds.Contains(x.Id))) {
+				var prog=new FutureProg(model,world);Require(prog.Compile(),"Fresh stock policy compile: "+prog.CompileError);
+				if(!world.FutureProgs.Has(prog.Id))((All<IFutureProg>)world.FutureProgs).Add(prog);
+			}
 			native.Body.LoadInventory(db.Bodies.Include(x=>x.BodiesGameItems).Single(x=>x.Id==native.Body.Id));
 			foreach(var id in db.CellsGameItems.Where(x=>x.CellId==input.Fixture.CellId).Select(x=>x.GameItemId).ToArray()) {var item=world.TryGetItem(id,true)!;if(item.InInventoryOf is null && item.ContainedIn is null)native.Actor.Location.Insert(item,true);}
 			native.Actor.RestoreCastingEffects(db.Characters.AsNoTracking().Single(x=>x.Id==native.Actor.Id).EffectData);

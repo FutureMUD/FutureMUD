@@ -7,7 +7,7 @@
   "printed_source_minimum": 7,
   "verification": {
     "path": "Design Documents/Magic/Armageddon_Five_Stock_Verification_Receipt.json",
-    "sha256": "96ecd0cdadb17624be6ce1f80d2dddcd81be1a28ed5dbf1de9660cbc8ed42abe"
+    "sha256": "bc9673a6ff3c6386aeb2848428e6c49dc8d51ce1b53b98aa9773935af5588c96"
   },
   "native_claim": "Detection parent/child, 3000/21000 second lifetimes, Silt refusal, dispel and separate-process expiry",
   "paid_low_high_costs": [
@@ -17,7 +17,11 @@
   ],
   "prepayment_refusals": [
     "FIVE-STOCK-refusal=passed key:arm.spell.sense_enchantment reason:missing target prepayment-conserved",
-    "FIVE-STOCK-refusal=passed key:arm.spell.sense_enchantment reason:source Silt prepayment-conserved"
+    "FIVE-STOCK-refusal=passed key:arm.spell.sense_enchantment reason:source Silt prepayment-conserved",
+    "FIVE-STOCK-refusal=passed key:arm.spell.sense_enchantment reason:later invalidated configured eligibility prepayment-conserved",
+    "FIVE-STOCK-refusal=passed key:arm.spell.sense_enchantment reason:missing nonzero eligibility after database reload prepayment-conserved",
+    "FIVE-STOCK-refusal=passed key:arm.spell.sense_enchantment reason:null policy result prepayment-conserved",
+    "FIVE-STOCK-refusal=passed key:arm.spell.sense_enchantment reason:failed policy execution prepayment-conserved"
   ],
   "actual_practice": null,
   "limits": [
@@ -25,7 +29,9 @@
     "Specialized harness actor/body save and mocked cell catalogue; reader executes ordinary effect scheduling/item load finalization",
     "Accelerated controlled clock, deterministic mastery sampling and accelerated native improver; real wall-clock gameplay not tested",
     "No full boot/Telnet/world repertoire installation, PC/NPC undead/defiler mapping installation, historical object stats or complete historical HP/flags/object/topology parity",
-    "Only five new and four retained stock entrypoints; all historical native markers not rerun"
+    "Only five new and four retained stock entrypoints; all historical native markers not rerun",
+    "Missing policy uses controlled catalogue removal plus actual SQL spell reload, not physical SQL policy deletion; null/failed outcomes use controlled IFutureProg fixtures",
+    "Healthy/unfiltered shared target parser controls; no full charged-device integration claim"
   ],
   "recovered_rules_and_deliberate_adaptations": "Armageddon_Five_Stock_Integration.md"
 }

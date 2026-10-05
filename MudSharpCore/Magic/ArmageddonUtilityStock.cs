@@ -23,6 +23,8 @@ internal static class ArmageddonUtilityStock
 		if (existingFilter is not null && (world.FutureProgs.Get(existingFilter.Id) != existingFilter ||
 			existingFilter.ReturnType != ProgVariableTypes.Boolean || !existingFilter.MatchesParameters([targetType.Value, ProgVariableTypes.Character])))
 			throw new InvalidOperationException("Select an existing boolean target-eligibility prog with (target, caster) parameters.");
+		if (existingFilter is not null && !existingFilter.Compile())
+			throw new InvalidOperationException("The selected target-eligibility prog does not compile: " + existingFilter.CompileError);
 		if (world.MagicSpells.Any(x => x.School == school && x.Name.EqualTo(name)))
 			throw new InvalidOperationException($"{name} already exists in that school; edit or clone it instead.");
 		var no = world.AlwaysFalseProg ?? throw new InvalidOperationException("The always-false support prog is unavailable.");

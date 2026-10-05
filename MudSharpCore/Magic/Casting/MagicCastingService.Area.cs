@@ -58,7 +58,7 @@ public sealed partial class MagicCastingService
 		var body = target.Body; var casterBody = actor.Body; var location = actor.Location;
 		var instance = target.InstanceId; var identity = CharacterInstanceIdentityComparer.IdentityId(target); var layer = actor.RoomLayer;
 		if (!AreaPhysicalEligible(actor, target, policy, trigger)) return false;
-		if (trigger.TargetFilterProg?.Execute<bool?>(target, actor) == false ||
+		if (!trigger.AllowsTarget(target, actor) ||
 			policy.FilterProgId != 0 && _world.FutureProgs.Get(policy.FilterProgId)?.Execute<bool?>(target, actor) != true) return false;
 		// Progs are executable callbacks. A true return cannot authorise a replacement physical target.
 		return ReferenceEquals(target.Body, body) && ReferenceEquals(actor.Body, casterBody) &&

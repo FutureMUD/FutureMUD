@@ -2068,6 +2068,7 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
 	}
 
     public bool ReadyForGame =>
+        TargetFilterConfigurationError is null &&
         GradeConfigurationErrors().Count == 0 &&
         Trigger != null &&
 		_spellEffects.OfType<SpellEffects.RejuvenateLandEffect>().Count() <= 1 &&
@@ -2082,6 +2083,7 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
 
     public string WhyNotReadyForGame(ICharacter builder)
     {
+		if (TargetFilterConfigurationError is { } filterError) return filterError;
 		if (GradeConfigurationErrors().FirstOrDefault() is { } gradeError) return gradeError;
 		if (_spellEffects.OfType<SpellEffects.RejuvenateLandEffect>().Count() > 1 || _casterSpellEffects.OfType<SpellEffects.RejuvenateLandEffect>().Any())
 			return "rejuvenateland permits one target effect and cannot be a caster-side effect.";

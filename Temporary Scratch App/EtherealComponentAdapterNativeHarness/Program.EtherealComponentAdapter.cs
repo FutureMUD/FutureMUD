@@ -298,7 +298,9 @@ internal static partial class GNHProgram
 			operation.Stage == "NeedsReview" && XElement.Parse(operation.Definition).Attribute("masterySample") is null, "Persisted completion/quarantine report");
 		var casting = new MagicCastingService(native.World, clock: () => RuntimeClock.UtcNow,
 			random: () => throw new InvalidOperationException("No reader reroll"), flush: () => FlushCasting(native));
-		var retry = casting.Cast(new(actor, operation.CapabilityId, input.Spell, 7, false, "me", OriginId: input.Operation));
+		var operationReceipt = XElement.Parse(operation.Definition);
+		var retry = casting.Cast(new(actor, operation.CapabilityId, input.Spell, (int)operationReceipt.Attribute("grade")!, false,
+			operationReceipt.Element("Targets")!.Value, OriginId: input.Operation));
 		Require(retry.Status == MagicCastingStatus.Refused && actor.MagicResourceAmounts[native.Resource] == input.Balance &&
 			scheduler.ScheduledExpiry(parent) == input.Expiry, "Fresh retry replayed or refunded");
 		Require(component.GetItemType<IStackable>()!.Quantity == input.Quantity, "Fresh retry consumed material again");

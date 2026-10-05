@@ -389,8 +389,10 @@ public class SeeTheUnbodiedSourceSelectionTests
 		}
 		public void AssertColdRetry(MagicCastingResult result, double balance)
 		{
-			var writes = ConsumptionWrites; F.Checkpoint = null; F.Restart();
-			var retry = F.Service.Cast(F.Intent(1, false) with { OriginId = result.OperationId });
+			var writes = ConsumptionWrites; var receipt = XElement.Parse(F.Store.Operations[result.OperationId!.Value].Definition);
+			var grade = (int)receipt.Attribute("grade")!; var targets = receipt.Element("Targets")!.Value;
+			F.Checkpoint = null; F.Restart();
+			var retry = F.Service.Cast(F.Intent(grade, false) with { Targets = targets, OriginId = result.OperationId });
 			Assert.AreEqual(MagicCastingStatus.Refused, retry.Status); Assert.AreEqual(balance, F.Balances[F.Resources[1]]);
 			Assert.AreEqual(writes, ConsumptionWrites);
 		}

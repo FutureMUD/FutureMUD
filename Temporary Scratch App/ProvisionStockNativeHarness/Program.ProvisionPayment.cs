@@ -27,7 +27,7 @@ internal static partial class GNHProgram
 	{ protected override Random FoodProfileRandom => random; }
 
 	private static void VerifyProvisionFinalPayment(MagicSpell food, RetirementHost host, TestDatabase database,
-		SkillLevelBasedMagicCapability capability, Action<string> terrain)
+		SkillLevelBasedMagicCapability capability, Action<string> terrain, MudSharp.GameItems.IGameItem? focus = null)
 	{
 		var native = host.Native; var actor = native.Actor; var world = native.World;
 		var resources = (All<IMagicResource>)world.MagicResources; var oldResource = native.Resource;
@@ -62,20 +62,21 @@ internal static partial class GNHProgram
 			if (stage == "PaymentMutated") debitWindow = false;
 		}, flush: () => FlushCasting(native));
 		native.WorldMock.SetupGet(x => x.MagicCasting).Returns(casting);
+		MagicCastingResult Cast() { var intent = new MagicCastingIntent(actor, capability.Id, food.Id, 7, false, ""); return focus is null ? casting.Cast(intent) : casting.CastDeviceFocus(intent, focus); }
 		try {
 			actor.RemoveAllEffects<MagicSpellLockout>(null, true); actor.AddResource(resource, 100); FlushCasting(native);
 			using var before = NewIndependentContext(database.ConnectionString);
 			var counts = (before.MagicCastingOperations.Count(), before.GameItems.Count(), before.MagicSpellLifecycles.Count()); var reserveBefore = amounts[resource];
-			var refusal = casting.Cast(new(actor, capability.Id, food.Id, 7, false, ""));
+			var refusal = Cast();
 			using var after = NewIndependentContext(database.ConnectionString);
 			Require(refusal.Status == MagicCastingStatus.Refused && refusal.OperationId is null && !payingSeen && amounts[resource] == reserveBefore &&
 				counts == (after.MagicCastingOperations.Count(), after.GameItems.Count(), after.MagicSpellLifecycles.Count()) &&
 				eligibilityCalls == 3 && random.Draws == 7 && capCalls > 0 && debitCapCalls == 0,
 				"Actual final cap mutation did not refuse without payment/output/redraw: " + refusal.Message);
-			Console.WriteLine("PROVISION-final-cap=passed actual-SimpleMagicResource authored-cap-Prog late-first-match-drift no-Paying no-reserve-change no-operation-output-lifecycle seven-draws-no-redraw");
+			Console.WriteLine($"PROVISION-final-cap=passed mode:{(focus is null ? "ordinary" : "installed-focus")} actual-SimpleMagicResource authored-cap-Prog late-first-match-drift no-Paying no-reserve-change no-operation-output-lifecycle seven-draws-no-redraw");
 			drift = false; terrain("Desert"); eligibilityCalls = 0; random.Draws = 0; actor.RemoveAllEffects<MagicSpellLockout>(null, true);
 			var existing = host.Items.Select(x => x.Id).ToHashSet();
-			var paid = casting.Cast(new(actor, capability.Id, food.Id, 7, false, "")); var outputs = host.Items.Where(x => !existing.Contains(x.Id)).ToArray();
+			var paid = Cast(); var outputs = host.Items.Where(x => !existing.Contains(x.Id)).ToArray();
 			Require(paid.Status == MagicCastingStatus.Succeeded && payingSeen && !debitWindow && debitCapCalls == 0 && reserveBefore - amounts[resource] == 50 &&
 				outputs.Length == 7 && random.Draws == 7 && (bool)XElement.Parse(new MagicCastingStateStore().Operation(paid.OperationId!.Value)!.Definition).Attribute("applied")!,
 				"Exact final capacity admission did not protect the real native debit/application: " + paid.Message);
@@ -83,7 +84,7 @@ internal static partial class GNHProgram
 				"Capacity admission leaked into ordinary queries");
 			foreach (var item in outputs) item.Delete(); FlushCasting(native);
 			Require(outputs.All(x => x.Deleted) && amounts[resource] == reserveBefore - 50, "Exact fixture output cleanup refunded payment");
-			Console.WriteLine("PROVISION-exact-debit=passed actual-native-Character.UseResource no-cap-Prog-during-debit paid50 applied-seven-food seven-draws-no-redraw scope-ended-ordinary-cap-live exact-output-cleanup-no-refund");
+			Console.WriteLine($"PROVISION-exact-debit=passed mode:{(focus is null ? "ordinary" : "installed-focus")} actual-native-Character.UseResource no-cap-Prog-during-debit paid50 applied-seven-food seven-draws-no-redraw scope-ended-ordinary-cap-live exact-output-cleanup-no-refund");
 		} finally {
 			debitWindow = false; terrain("Desert"); factories["createitem"] = oldFactory;
 			Require(food.BuildingCommand(actor, new StringStack("effect 1 eligibility none")), "Restore provision admission fixture");

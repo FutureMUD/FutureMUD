@@ -76,6 +76,7 @@ internal static partial class GNHProgram
 		var seed = NativeRuntime.Load(fixture, database.ConnectionString, true); ConfigureCastingWorld(seed, database.ConnectionString, true);
 		SeedRetirementPrototypes(database, seed.World.Materials.First().Id); SeedCreatedWeaponPrototypes(database, seed.World.Materials.First().Id);
 		SeedConsumables(database, fixture, seed.World.Materials.First().Id); SeedProvisionProfiles(database, seed.World.Materials.First().Id);
+		InstallCombinedContent(database, fixture, seed);
 		var host = PrepareRetirementHost(database, fixture, clock, wielding: true, consumablesAnatomy: true); var native = host.Native; var actor = native.Actor; var world = native.World;
 		var owned = new SpellOwnedItemService(world); native.WorldMock.SetupGet(x => x.SpellOwnedItems).Returns(owned);
 		native.WorldMock.SetupGet(x => x.EffectScheduler).Returns(new EffectScheduler(world, clock));
@@ -84,6 +85,7 @@ internal static partial class GNHProgram
 		native.WorldMock.Setup(x => x.Add(It.IsAny<IMagicSpell>())).Callback<IMagicSpell>(value => spells.Add(value));
 		native.WorldMock.Setup(x => x.Add(It.IsAny<IFutureProg>())).Callback<IFutureProg>(value => progs.Add(value));
 		native.WorldMock.SetupGet(x => x.AlwaysFalseProg).Returns(progs.GetByName("AlwaysFalse")!);
+		LoadCombinedContent(host, database);
 		var cap = (SkillLevelBasedMagicCapability)native.Capability; var trait = world.Traits.GetByName("ARM02 Earth Proficiency")!;
 		var wines = world.Liquids.GetByName("ARM03C2 wine")!; var variant = world.Liquids.GetByName("Provision authored wine variant")!;
 		var pool = host.Prototypes.Values.Where(x => x.Name is "ARM03B2B C2 meal" or "ARM03B2B C2 meal2" or "ARM03B2B C2 meal3").OrderBy(x => x.Id).ToArray();
@@ -159,6 +161,7 @@ internal static partial class GNHProgram
 			finally { SetPrivateMember(actor, "Location", room); Terrain("Desert"); Require(food.BuildingCommand(actor, new StringStack($"effect 1 {callback} none")), "Restore food callback"); }
 		}
 		VerifyProvisionFinalPayment(food, host, database, cap, Terrain);
+		VerifyCombinedContent(host, database, clock, casting, food, cap, Terrain);
 		var low = Cast(food, 1); var lowMeal = host.Items.Single(x => x.SpellCreationOrigin is not null);
 		Require(lowMeal.SpellCreationOrigin!.DeadlineUtc == RuntimeClock.UtcNow.AddSeconds(1350) && lowMeal.Location == actor.Location, "Source-ground low food deadline/placement");
 		Cast(food, 7); var high = host.Items.Where(x => x.SpellCreationOrigin?.DeadlineUtc == RuntimeClock.UtcNow.AddSeconds(9450)).ToArray(); Require(high.Length == 7 && high.All(x => pool.Any(p => p.Id == x.Prototype.Id)), "Grade-count food independent pool output");
@@ -229,6 +232,11 @@ internal static partial class GNHProgram
 		}
 		Require(seen.SetEquals(pool), "Seeded native food choice did not cover every pool option"); Console.WriteLine("PROVISION-food-pool=passed deterministic-seeds all-three-approved-native-options grade-seven-independent-choices two-fresh-copy-live-revalidations exact-sequence throwing-random-not-called no-reroll");
 	}
+	// Optional controls are supplied only by the dedicated combined installer harness.
+	static partial void InstallCombinedContent(TestDatabase database, FixtureIds fixture, NativeRuntime seed);
+	static partial void LoadCombinedContent(RetirementHost host, TestDatabase database);
+	static partial void VerifyCombinedContent(RetirementHost host, TestDatabase database, HarnessClock clock,
+		MagicCastingService casting, MagicSpell food, SkillLevelBasedMagicCapability capability, Action<string> terrain);
 	private static int ReadProvisionStock(string encoded)
 	{
 		var input = JsonSerializer.Deserialize<ProvisionReader>(System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(encoded)))!;

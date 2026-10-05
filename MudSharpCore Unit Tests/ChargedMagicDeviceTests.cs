@@ -26,6 +26,64 @@ namespace MudSharp_Unit_Tests;
 public class ChargedMagicDeviceTests
 {
 	[TestMethod]
+	[DataRow("DeviceConsumed", false)]
+	[DataRow("DeviceConsumed", true)]
+	[DataRow("DeviceFilled", false)]
+	[DataRow("DeviceFilled", true)]
+	public void DurableFailure_TransferredToOtherCanonicalIdentity_QuarantinesBankUntilReconciliation(string boundary, bool reload)
+	{
+		var f = new Fixture(); MagicCastingResult failed;
+		if (boundary == "DeviceConsumed")
+		{
+			f.Charge(2); f.F.Checkpoint = stage => { if (stage == boundary) throw new InvalidOperationException("Owned transfer failure"); };
+			failed = f.F.Service.ActivateDevice(f.F.Actor.Object, f.Item.Object, "self");
+		}
+		else
+		{
+			var started = f.Begin(count: 2); Assert.AreEqual(MagicCastingStatus.Started, started.Status);
+			f.F.Checkpoint = stage => { if (stage == boundary) throw new InvalidOperationException("Owned transfer failure"); };
+			f.F.Now += TimeSpan.FromSeconds(120); failed = f.F.Service.CompleteDeviceProduction(f.F.Actor.Object, started.OperationId!.Value);
+		}
+		Assert.AreEqual(MagicCastingStatus.NeedsReview, failed.Status); Assert.IsNull(f.Device.Reservation);
+		if (reload) f.Restart(); f.F.Checkpoint = null;
+		// The fixture changes its canonical identity to model transfer; the native test transfers between actual distinct bodies.
+		f.F.Actor.SetupGet(x => x.Id).Returns(200); f.F.Actor.SetupGet(x => x.InstanceId).Returns(200);
+		Assert.IsNull(f.F.Service.QuarantineReason(f.F.Actor.Object, spellId: 2));
+		Assert.IsNotNull(f.F.Service.QuarantineReason(f.F.Actor.Object, itemIds: [400]));
+		var bank = f.Device.Export().ToString(); var guid = f.Device.NextCharge; var balance = f.F.Balances[f.F.Resources[1]];
+		var journal = f.F.Store.Operations.ToDictionary(x => x.Key, x => x.Value);
+		Assert.AreEqual(MagicCastingStatus.Refused, f.F.Service.ActivateDevice(f.F.Actor.Object, f.Item.Object, "self").Status);
+		Assert.AreEqual(bank, f.Device.Export().ToString()); Assert.AreEqual(guid, f.Device.NextCharge); Assert.AreEqual(balance, f.F.Balances[f.F.Resources[1]]);
+		CollectionAssert.AreEquivalent(journal.ToArray(), f.F.Store.Operations.ToArray());
+		f.F.Actor.Verify(x => x.AddEffect(It.IsAny<SpellBlindnessEffect>()), Times.Never);
+		f.F.Actor.SetupGet(x => x.Id).Returns(100); f.F.Actor.SetupGet(x => x.InstanceId).Returns(100);
+		Assert.IsTrue(f.F.Service.ReconcileOperation(f.F.Staff.Object, f.F.Actor.Object, failed.OperationId!.Value, "Owned explicit reconciliation").Allowed);
+		f.F.Actor.SetupGet(x => x.Id).Returns(200); f.F.Actor.SetupGet(x => x.InstanceId).Returns(200);
+		Assert.IsNull(f.F.Service.QuarantineReason(f.F.Actor.Object, itemIds: [400]));
+		Assert.AreEqual(MagicCastingStatus.Succeeded, f.F.Service.ActivateDevice(f.F.Actor.Object, f.Item.Object, "self").Status);
+	}
+	[TestMethod]
+	public void FinalCommitment_NewGlobalItemQuarantineAfterCallback_RefusesWithoutClaim()
+	{
+		var f = new Fixture(); var calls = 0;
+		var prog = new Mock<IFutureProg>(); prog.SetupGet(x => x.Id).Returns(703);
+		prog.Setup(x => x.Execute<bool?>(It.IsAny<object[]>())).Returns<object[]>(_ =>
+		{
+			if (++calls == 2) f.F.Store.Write(new(Guid.NewGuid(), 999, 999, 998, 1, 2, 1, 11, "NeedsReview", "<Casting version='1'><Item id='400'/></Casting>", f.F.Now, f.F.Now));
+			return true;
+		});
+		f.F.World.SetupGet(x => x.FutureProgs).Returns(MagicCastingFixture.Collection(() => new[] { prog.Object }));
+		var source = (MagicSpell)f.F.Spells.Single(x => x.Id == 2);
+		// Frozen banks capture their trigger, so recreate with this legitimate source configuration.
+		var trigger = new XElement("Trigger", new XAttribute("type", "character"), new XElement("MinimumPower", 0), new XElement("MaximumPower", 10), new XElement("CanTargetSelf", true), new XElement("TargetFilterProg", 703));
+		source.Trigger = SpellTriggerFactory.LoadTrigger(trigger, source); f.Charge(2); var bank = f.Device.Export().ToString(); var charge = f.Device.NextCharge;
+		f.F.Actor.Setup(x => x.TargetActorOrCorpse(It.IsAny<string>(), It.IsAny<PerceiveIgnoreFlags>())).Returns(f.F.Actor.Object);
+		var receipts = f.F.Store.Operations.Count; var balance = f.F.Balances[f.F.Resources[1]];
+		Assert.AreEqual(MagicCastingStatus.Refused, f.F.Service.ActivateDevice(f.F.Actor.Object, f.Item.Object, "self").Status);
+		Assert.AreEqual(2, calls); Assert.AreEqual(receipts + 1, f.F.Store.Operations.Count);
+		Assert.AreEqual(bank, f.Device.Export().ToString()); Assert.AreEqual(charge, f.Device.NextCharge); Assert.AreEqual(balance, f.F.Balances[f.F.Resources[1]]);
+	}
+	[TestMethod]
 	public void FinalCapabilityGetter_TrueEntitlementAfterDroppingDevice_RefusesRawCustody()
 	{
 		var f = new Fixture(); f.Charge(); var calls = 0;

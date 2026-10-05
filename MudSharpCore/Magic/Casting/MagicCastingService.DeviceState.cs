@@ -41,7 +41,7 @@ public sealed partial class MagicCastingService
 	/// <summary>Last admission check. No capabilities, Applies, policy, reach, physical or speech evaluation.
 	/// Native body inventory, identity, merit/effect lists and component fields are structural getters.
 	/// Target Location/RoomLayer follow the native raw spatial-host/custody graph, never visibility policies.</summary>
-	private static string? DeviceStructuralError(ICharacter actor, DeviceFocusUse use, Guid? continuing = null,
+	private string? DeviceStructuralError(ICharacter actor, DeviceFocusUse use, Guid? continuing = null,
 		DeviceTargetState[]? targets = null)
 	{
 		if (DeviceIdentityError(actor, use) is { } identity) return identity;
@@ -57,7 +57,8 @@ public sealed partial class MagicCastingService
 			return "The captured device custody, bank or reservation changed.";
 		if (targets is not null && targets.Any(x => !ReferenceEquals(x.Target.Location, x.Location) || x.Target.RoomLayer != x.Layer ||
 			!ReferenceEquals((x.Target as ICharacter)?.Body, x.Body))) return "A captured target changed location, layer or body.";
-		return null;
+		// Receipt inspection is callback-free and global to the physical item, irrespective of its current owner.
+		return CastingQuarantineReason(actor, itemIds: [device.Parent.Id], continuingOperation: continuing);
 	}
 	private string? DeviceCallbackError(ICharacter actor, DeviceFocusUse use, Guid? continuing = null, long? focusSpell = null) =>
 		DeviceItemError(actor, use.Device, continuing) ?? VancianMagicService.CastingError(actor) ??

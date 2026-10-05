@@ -258,6 +258,7 @@ internal static partial class GNHProgram
 		actor.SetMerits([merit]); filter.FunctionText = "return true"; Require(filter.Compile(), filter.CompileError);
 		Require(activePrototype.BuildingCommand(actor, new StringStack("usable none")), "Native review policy cleanup failed.");
 		ReviewDeviceIndirectCallbacks(database, host, clock, service, payload, capability, merit, bank);
+		ReviewDeviceTransferredQuarantine(database, fixture, host, clock, service, payload, capability, staff);
 		if (native.Body.HeldOrWieldedItems.Contains(item)) { native.Body.Take(item); actor.Location.Insert(item, true); }
 		world.SaveManager.Flush(); FlushCasting(native);
 	}

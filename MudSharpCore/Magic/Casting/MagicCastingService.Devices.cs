@@ -65,7 +65,7 @@ public sealed partial class MagicCastingService
 		{
 			if (!VancianPolicy.Permits(_world.FutureProgs.Get(proto.UseProgId), proto.UseProgId == 0, actor, device.Parent)) return "The item usability policy refuses this body.";
 			// A successful authored callback can still mutate the body, item or configuration.
-			return DeviceStructuralError(actor, identity, continuing);
+			if (DeviceStructuralError(actor, identity, continuing) is { } structural) return structural;
 		}
 		if (device.Reservation is { } reservation && reservation != continuing) return "This item is reserved; persisted incomplete work requires staff review.";
 		return CastingQuarantineReason(actor, itemIds: [device.Parent.Id], continuingOperation: continuing);

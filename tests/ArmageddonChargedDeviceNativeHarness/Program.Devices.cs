@@ -37,7 +37,7 @@ internal static partial class GNHProgram
 		try
 		{
 			OwnedConnections.Install();
-			return args.FirstOrDefault() switch { "--device-reader" => ReadDeviceNative(args.Skip(1).Single()), "--device-review-host" => ReadReviewDeviceHost(args.Skip(1).Single()), _ => RunDeviceNative() };
+			return args.FirstOrDefault() switch { "--device-reader" => ReadDeviceNative(args.Skip(1).Single()), "--device-review-host" => ReadReviewDeviceHost(args.Skip(1).Single()), "--device-quarantine-reader" => ReadDeviceQuarantine(args.Skip(1).Single()), _ => RunDeviceNative() };
 		}
 		catch (Exception ex) { Console.Error.WriteLine(ex); return 1; }
 	}

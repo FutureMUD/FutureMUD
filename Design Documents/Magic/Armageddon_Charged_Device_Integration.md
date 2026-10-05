@@ -212,3 +212,18 @@ canonical-owner forwarding, above-cap clamping, fractional debit and dirty-state
 persistence exercise the equivalence contract. Scope mismatches, consumption, exception
 restoration, concurrent escape, insufficient balance and callback mutations have focused
 unit coverage. Final exact-source fingerprints/results are supplied outside the repository.
+
+The physical-item quarantine check now runs after normal usability admission and at the
+final structural boundary for charged use, focus payment and production. It inspects
+unresolved receipt item IDs across owners without executing visibility, manipulation or
+authored policies. A durable consume/fill failure therefore follows the item when custody
+passes to another eligible canonical identity; an owner-only spell check is insufficient.
+The dedicated native regressions create a separate persisted character and real body,
+transfer banks with one/two remaining charges after those failures, and verify immediate
+and fresh-process refusal with exact bank XML, next GUID, reservation, balances, effects
+and journal bytes unchanged. Explicit staff reconciliation then permits the legitimate
+recipient to release a charge. Reload descriptors use uniquely named disposable files;
+each reader runs against this lane's owned database and process paths. Focused cases also
+cover a new global item receipt created by the last target callback before commitment.
+Earlier fixture trials (Windows argument-size limit and an injected fault left active for
+the reconciliation positive control) are preserved in the external evidence.

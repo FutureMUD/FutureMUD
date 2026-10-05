@@ -240,6 +240,9 @@ public partial class CreateItemEffect : IMagicSpellEffectTemplate, IMagicSpellEf
 	#3eligibility <prog>|none#0 - boolean(character caster) environment admission
 	#3lifetimemultiplier <prog>|none#0 - number(character caster) lifetime multiplier, sampled before payment
 
+	#3foodprofile <order 1-32> <boolean(character) prog|always> <food prototypes...>#0 - first matching pool; independent choice per item
+	#3foodprofile <order> remove#0 - keep an explicit always fallback last
+
 Parameters for quality formula:
 
 	#6base#0 - the base quality of the item to be loaded
@@ -255,7 +258,7 @@ Parameters for quality formula:
             ("Load String", string.IsNullOrWhiteSpace(LoadString) ? "None".ColourError() : LoadString.ColourCommand()),
 			("Lifecycle", LifecycleMode?.ToString().ColourName() ?? "Legacy"),
 			("Family", LifecycleFamily.ColourValue()),
-			("Output Count", CountByGrade ? "Selected Grade" : "One"),
+			("Output Count", CountByGrade ? "Selected Grade" : "One"), ("Food Profiles", SaveFoodProfiles()?.ToString(SaveOptions.DisableFormatting) ?? "Fixed prototype"),
 			("Placement", WornLight ? "Worn Light" : PrimaryHand ? "Primary Hand" : "Standard"),
 			("Lifetime Seconds", LifetimeExpression?.OriginalFormulaText.ColourCommand() ?? "None"),
 			("Permanent Grade", PermanentGrade?.ToString().ColourValue() ?? "None"),
@@ -268,6 +271,7 @@ Parameters for quality formula:
 
     public bool BuildingCommand(ICharacter actor, StringStack command)
     {
+		if (command.PeekSpeech().EqualTo("foodprofile")) return BuildingCommandFoodProfile(actor, command);
 		if (command.PeekSpeech().ToLowerInvariant() is "output" or "eligibility" or "lifetimemultiplier")
 			return BuildingCommandOutputPolicy(actor, command);
 		if (command.PeekSpeech().ToLowerInvariant() is "lifecycle" or "family" or "lifetime" or "permanent" or "count" or "placement")

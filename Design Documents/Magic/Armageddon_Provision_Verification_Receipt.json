@@ -1,0 +1,816 @@
+{
+  "schema_version": 1,
+  "checkpoint": "Two editable provision stocks and corrected prepared-selection admission; local parent independent review pending",
+  "base_commit": "1ad24d636925da64e7a82ffa858b0af470e56b0a",
+  "preserved_five_stock_checkpoint": "a905bb0615457d19db1b6a5f1a2f33be7ade50a3",
+  "prepared_selection_commit": "c7ebddb7e9b66eb9b219b6ca150357f1112c9a08",
+  "provision_content_commit": "074ed3e97dfedaf25dbd4f345328b84b29883f46",
+  "food_callback_order_correction": "2c0b0e367d735dfb4757d26fecea795abf5b4e22",
+  "verified_source_head": "2c0b0e367d735dfb4757d26fecea795abf5b4e22",
+  "verified_worktree": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-4\\FutureMUD-five-stock",
+  "branch": "codex/armageddon-five-stock-spells",
+  "source_stable": true,
+  "source_fingerprint": "defcd761d2fc8739f94693f671c994b84b4ca31d4bdfc156381e45affdda4aab",
+  "sdk": "10.0.401",
+  "unit_tests": {
+    "status": "PASS",
+    "run_id": "20261005T081948Z-baae46c18c94",
+    "counts": {
+      "executed": 7337,
+      "passed": 7337,
+      "failed": 0,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 7337
+    },
+    "projects": [
+      "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+      "ExpressionEngine Unit Tests/ExpressionEngine Unit Tests.csproj",
+      "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+      "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+      "MudsharpDatabaseLibrary Unit Tests/MudsharpDatabaseLibrary Unit Tests.csproj",
+      "DiscordBotCore Unit Tests/DiscordBotCore Unit Tests.csproj",
+      "RPI Engine Worldfile Converter Tests/RPI Engine Worldfile Converter Tests.csproj",
+      "FutureMUD.Web.Tests/FutureMUD.Web.Tests.csproj",
+      "TerrainPlanner/TerrainPlanner.Tests/TerrainPlanner.Tests.csproj",
+      "scripts/TestReporting.Tests/TestReporting.Tests.csproj"
+    ],
+    "summary": {
+      "path": ".artifacts/test-runs/provision-final-units-02/20261005T081948Z-baae46c18c94/summary.json",
+      "sha256": "9c00e3f276ce315477f7da0808a0f828673f73cdab1eb89a141c200414742316"
+    },
+    "focused_from_same_aggregate": {
+      "path": ".artifacts/test-runs/provision-final-units-02/provision-focus.json",
+      "sha256": "b82114c18f12c132d31aa58f1059a9f91300795a520a75b47ea66c3ee93608be"
+    },
+    "focused_passed": 92
+  },
+  "native": {
+    "status": "PASS",
+    "source_head": "2c0b0e367d735dfb4757d26fecea795abf5b4e22",
+    "full_input_file_count": 6985,
+    "source_stable": true,
+    "assemblies_stable": true,
+    "summary": {
+      "path": ".artifacts/test-runs/provision-final-native-02/summary.json",
+      "sha256": "fd979d8fdf6e0014c9cc8e345b8850cbdfc57c40040883c691742183cc61df10"
+    },
+    "source_manifest": {
+      "path": ".artifacts/test-runs/provision-final-native-02/source-before.json",
+      "sha256": "5651e4379fccf8ea9498ef45011a9b5fdcb1c1c871fd5ddfa749beccfe19c465"
+    },
+    "assembly_manifest": {
+      "path": ".artifacts/test-runs/provision-final-native-02/assemblies-before.json",
+      "sha256": "1397f00cb96115b169c82557404149e4aa2f78b3b7955c77f1d039ab70f2693a"
+    },
+    "invocation": "dotnet Temporary Scratch App/ProvisionStockNativeHarness/bin/Debug/net10.0/GatheringNativePersistenceHarness.dll; dedicated StartupObject, original and fresh-reader process from that same DLL path",
+    "modes": [
+      "provision-stock",
+      "five-stock",
+      "regressions"
+    ],
+    "stock_coverage": [
+      "Sustain Meal",
+      "Draw Wine",
+      "Sense Enchantment",
+      "Unravel Enchantment",
+      "Mend Flesh",
+      "Draw Water",
+      "Hovering Light",
+      "Raise Servitor",
+      "Storm Spear",
+      "Flame Knife",
+      "Sand Knife"
+    ],
+    "owned_database_and_server_cleanup": true,
+    "provision_checks": [
+      "normal builder construction, duplicate refusal, compiled native profile predicates and editable mappings, definition reload",
+      "paid grades 1 and 7 with exact 7/50 debit and persisted applied:true",
+      "missing room/item, closed/full/incompatible container, safe Silt, source Fire, unselected missing candidates refuse before debit and operation/item/lifecycle rows",
+      "both changed first matching food/wine profile and actual final food eligibility/lifetime callback drift refuse before payment",
+      "independent uniform food pool draws; two fresh-copy live admissions preserve exact sequence with a throwing random source",
+      "native partial/full eating and wine/alcohol consumption; fresh-process deferred alcohol fulfills once",
+      "ground placement, unchanged custody deadline, independent exact low1350/high9450 food expiry, consumed outputs absent, foreign goods and ordinary wine conserved",
+      "first actual food output then second-create fault retains paid NeedsReview; consumed origin cannot replay/refund; explicit staff acknowledgement and exact owned deletion"
+    ]
+  },
+  "source_files": [
+    {
+      "path": "FutureMUDLibrary/Effects/IEffectExpiryObserver.cs",
+      "sha256": "887659519e083d11872e8564c94ad834a14a09f8c93885f46a92eb58673f45fd",
+      "git_blob_sha1": "6485a8c842bcc3778949b7c42aa9c2df3ae3f600"
+    },
+    {
+      "path": "FutureMUDLibrary/FutureMUDLibrary.csproj",
+      "sha256": "6fae3b58fd45c2c364ddef329bbb3c231c6641a928e31374189954fa29cc26d4",
+      "git_blob_sha1": "b8e2faf84897cfd799415a11348b9ed22df7fdcf"
+    },
+    {
+      "path": "FutureMUDLibrary/Magic/IMagicSpellEffectApplicationOperation.cs",
+      "sha256": "15bda6e8e99b850d4c85fef8be00320b7d79ad74ac18046f46b39bbdbabe3d25",
+      "git_blob_sha1": "adf21c7176df0a473a21940ed46ec5ca438d0b2d"
+    },
+    {
+      "path": "FutureMUDLibrary/Magic/IMagicSpellEffectPreparedSelection.cs",
+      "sha256": "55efef43de2d6eb0574a818f1a0ad3770fd9c9a3d641121c0117ab73aecb0c2c",
+      "git_blob_sha1": "cf382bcd1d8ac4a7035522e23d1e28b3541ab5fb"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/CastingTargetFilterTests.cs",
+      "sha256": "a030c65a0e741d19c2293d4f4e859f4b636a47ef828f74e41393cfa96ebcb700",
+      "git_blob_sha1": "320b1575f1fdb6bf5ff5c76e0498fb660bd7ecfd"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/DispelNativeOperationReportingTests.cs",
+      "sha256": "c42d5063c3b5156e926366cee81abc4594db8303445dc2bd5914a757c8e5bd6e",
+      "git_blob_sha1": "c91179d4686baa6e545d1c6c5cc8e341823b6ee6"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/FiveUtilityStockTests.cs",
+      "sha256": "2b6cf07f0b94863676f7ccc5ed0c1f8d776469657c77a3279881a547dd874a4c",
+      "git_blob_sha1": "72a32b9c6c775ef64bcf2cf19b587504af6e5add"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/MagicCastingAreaFilterTests.cs",
+      "sha256": "bbec7bf269cb1b2823792cf7363a7acbb468e8d78cb0158fb65a2687e2b1897b",
+      "git_blob_sha1": "457ce393af59b6e4d2cfb2b7d2941d9411f4fb08"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/MagicCastingAreaTests.cs",
+      "sha256": "ef3d071ab30b29877568b8affc551eb979b0cb02ebd847de80a3321b0596cc74",
+      "git_blob_sha1": "bad5f8bf041138ea7bafea2dae6ae2a1a9923c7c"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/MagicStockOperationReportingTests.cs",
+      "sha256": "20c67f8f4125d671af1071ba86d591c50ffc798aac5622bda894335fd2b62462",
+      "git_blob_sha1": "e57f62f1cb021f70167d840d071563dbcc953233"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/PreparedSelectionCastingTests.cs",
+      "sha256": "94a360771d8c99166e6317032631be32e265528d976298edd5061f551cf5094b",
+      "git_blob_sha1": "1e17cbb488d13a30a6e251636de5a2fce9184baa"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/ProvisionFoodAdmissionCastingTests.cs",
+      "sha256": "880f04f2444a19377b226d55b4b39bd36874a0c4459e6d73e30dfc1ff5f82115",
+      "git_blob_sha1": "2c0e9ac2b2e71a3abe1f0351ea83c97af584b67a"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/ProvisionProfileTests.cs",
+      "sha256": "68b95464f80c7d6358d5b458b704879452f64284f130378154ed511cdcff7ec9",
+      "git_blob_sha1": "feafb1ee4e92b8c198e28052b396fc42a0e3a660"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/ProvisionStockTests.cs",
+      "sha256": "4bbbb8a450da984160e0bcdd0f5aedcad390c5fb1428d7d1e1fea90793b9bb6b",
+      "git_blob_sha1": "a14f3bfbc67bb7860bb8b9ece3359b0de6ace3b3"
+    },
+    {
+      "path": "MudSharpCore/Commands/Helpers/EditableItemHelperMagic.ProvisionStock.cs",
+      "sha256": "18440eba9d3b8d670710f0d1b61f01ce54933e218890cbb5ffdecd53b3dbc5fd",
+      "git_blob_sha1": "e507e55f03aca125a22da53dd4fe45bd73f0883a"
+    },
+    {
+      "path": "MudSharpCore/Commands/Helpers/EditableItemHelperMagic.Stock.cs",
+      "sha256": "6eb25888506ce5d333991f0f09742f921ca8c4366b12269bcc240fabeacde905",
+      "git_blob_sha1": "6a7e745dda795abde79ffb931677543cba0831c1"
+    },
+    {
+      "path": "MudSharpCore/Commands/Helpers/EditableItemHelperMagic.UtilityStock.cs",
+      "sha256": "935a8a39d222331e8edb1a87acd9d1f70a4f11791907f061e92135b02b673cf5",
+      "git_blob_sha1": "9a9c6f2ab71533a29681e1d1abb911d1eadfd1e8"
+    },
+    {
+      "path": "MudSharpCore/Effects/EffectScheduler.cs",
+      "sha256": "013c874d0fd6c5c9557d9455b95a2b687a1fa7e5b577073c4be0c15bd59d2cdb",
+      "git_blob_sha1": "e853d1b50e24d239aef657d002f19300ab1f5dc8"
+    },
+    {
+      "path": "MudSharpCore/Effects/EffectScheduler.SpellExpiry.cs",
+      "sha256": "a0760b76d8da1c7c06945fd9940d0525ffa10d2502516081f7694a137d54b7bf",
+      "git_blob_sha1": "66c8fb9327980774719f269da88050193025fcad"
+    },
+    {
+      "path": "MudSharpCore/Magic/ArmageddonDrawWaterStock.cs",
+      "sha256": "687cf3e2dabcebc8bd7ec8acd834c99a163e8b0f36d9e4ceac99cd2b3d2411e9",
+      "git_blob_sha1": "828fa94d0d877516ada2aa50fc52836c5f0bc9e8"
+    },
+    {
+      "path": "MudSharpCore/Magic/ArmageddonDrawWineStock.cs",
+      "sha256": "4fbae5e053b6e5b7075437080947e47bcf2731e9e59fb2c49762c71fc2a8d18e",
+      "git_blob_sha1": "5a47a2ce221ddbb9c32f8402a85f853f4b525f76"
+    },
+    {
+      "path": "MudSharpCore/Magic/ArmageddonHoveringLightStock.cs",
+      "sha256": "063a72766f9390d50f8fb56c4c1b6d9f2c5462e076d87d989e1fe7b75643a0e0",
+      "git_blob_sha1": "6321f9516c8f15392fd9c662b68ab05d45b920dc"
+    },
+    {
+      "path": "MudSharpCore/Magic/ArmageddonMendFleshStock.cs",
+      "sha256": "0cf7732d4a203daa975288ae88f996681fb65569d2ea1ddce8429fe72a4a8f9d",
+      "git_blob_sha1": "d7c37cabfbeffadfeeda51e24bd075294741f4c6"
+    },
+    {
+      "path": "MudSharpCore/Magic/ArmageddonSenseEnchantmentStock.cs",
+      "sha256": "a95feda96d89d07282dbb79ede14075477bdb1c23db380775d892bcae5516ce5",
+      "git_blob_sha1": "239acfa6e096af434a322f6025dc1f1496e5630f"
+    },
+    {
+      "path": "MudSharpCore/Magic/ArmageddonSustainMealStock.cs",
+      "sha256": "90ebe7b5f3dca9ceccb77957214ca0b18ad0a6ee9f5c1387da0d0cf43c26373c",
+      "git_blob_sha1": "7b9a9d0a02bcf91e41eb4c425867678d4272f734"
+    },
+    {
+      "path": "MudSharpCore/Magic/ArmageddonUnravelEnchantmentStock.cs",
+      "sha256": "de74f1ebdd1d5fc1565d4b50bfd140a2325b0b59221dbc4e8844ad79e016ab72",
+      "git_blob_sha1": "2fe3c767996d8ff7d08e87a1cf5f1137910b16cb"
+    },
+    {
+      "path": "MudSharpCore/Magic/ArmageddonUtilityStock.cs",
+      "sha256": "3fd8c468b8b4b0c7d6b6529447e98e7c3804e5e7ce2eadead082a899c91079a8",
+      "git_blob_sha1": "1ff47ca6890fca2fd7561a1afb1538120ae36490"
+    },
+    {
+      "path": "MudSharpCore/Magic/Casting/MagicCastingService.Area.cs",
+      "sha256": "5f1a3252f2f425675fd80ffb390fcc52a5ffd302abd2d5c7b6a32d781367df0d",
+      "git_blob_sha1": "bb747c2cffb63bb407f803a61bdbb200920f8964"
+    },
+    {
+      "path": "MudSharpCore/Magic/Casting/MagicCastingService.cs",
+      "sha256": "f7b02fe96022a55e05f0ff70545cdb0a9231b58f051f36f5b9c97b186e950071",
+      "git_blob_sha1": "cb1c8544e839ffad9ad245382fc29e6c296e8c7d"
+    },
+    {
+      "path": "MudSharpCore/Magic/Casting/MagicCastingService.Execution.cs",
+      "sha256": "31f5ca0b20c58068732580dc69c637cffcfa59d1e8a44f94b8d08543f413762c",
+      "git_blob_sha1": "ea4ccb67e580e2590ea3359d4ca2acbd201e06b3"
+    },
+    {
+      "path": "MudSharpCore/Magic/Casting/MagicCastingService.PreparedSelection.cs",
+      "sha256": "9d1e70aca7cbee423803a2b6cabc2aa7f209bd65c3602cae212f6c23a6fc954b",
+      "git_blob_sha1": "70fa4fa63ea113c4258a6d5920ac73a71f59da66"
+    },
+    {
+      "path": "MudSharpCore/Magic/MagicSpell.cs",
+      "sha256": "5218f155bb9a6af0a019fa362844df400206b9c1131368fe40e076b86fb40b08",
+      "git_blob_sha1": "3ef7c4588f633ea41be8c96c4699d395b2f59c9a"
+    },
+    {
+      "path": "MudSharpCore/Magic/MagicSpell.TargetFilter.cs",
+      "sha256": "e548f9ea56b997a749bace3ec4c48d47c4555f2a4cccc788903e4097096262a2",
+      "git_blob_sha1": "14314c2b6a3cb34ff5ad33191a14fa74180c75f9"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/CreateItemEffect.cs",
+      "sha256": "5d8f51b6fca34951c4469ac261182faaf0956ccbc73865280ffcd7e6ea7bf16c",
+      "git_blob_sha1": "4329b9e722bc757e7ed411c6569bd6c87249b52b"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/CreateItemEffect.FoodProfiles.cs",
+      "sha256": "625b8f185961d24175bfb5de4710a7db73dd13dde002a142b823ab8793510996",
+      "git_blob_sha1": "b501b949055cde048cf019cca36f7ca5c03563c8"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/CreateItemEffect.Lifecycle.cs",
+      "sha256": "3732ce5a670ca5691d743dbb90315523d18512268d0d4c9e1e60ee5cd67fde66",
+      "git_blob_sha1": "d672224284826bc7ab152bf3c1996ba9bd687442"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/CreateLiquidEffect.ContainerFill.cs",
+      "sha256": "69e7bef051e08431dfd36ff82bf0215cb13585258073153c65c7e06ed5e22e69",
+      "git_blob_sha1": "dba2c71651c4a7755a7bb13a722c34c7e598f2ae"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/CreateLiquidEffect.cs",
+      "sha256": "579096b435d8f78aeb4685055285e48e597dca73f36f8beeaf2144135ba5698f",
+      "git_blob_sha1": "7d50db2d0cdd7fe2dec8aa64ab23bdcd27acba3c"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/CreateLiquidEffect.Recipes.cs",
+      "sha256": "4a2b0e4b1f3dea27001a3db1530ef395b0d8087fb46beb696009ccfd6d91e59d",
+      "git_blob_sha1": "b821f14444118fdd986be9660f0bdd0aed2cdeb5"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/DetectMagickEffect.Operation.cs",
+      "sha256": "350005329a13baf28102ffe709a7659c22828b77f1ac56816300eee431c8ad4c",
+      "git_blob_sha1": "76fba79d7923f8ebbefa26b07f0b9c77e38d0ab8"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/DispelMagicEffect.cs",
+      "sha256": "9f65a7d41adb0660215a8f94f3bf033a1035d540d73d147e613a3db9a81ddeaf",
+      "git_blob_sha1": "31a410c6f4abdeb6856831f1920940d43df106d8"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/DispelMagicEffect.Operation.cs",
+      "sha256": "c28eb5df5ad7555f261577fec7dc8d10c1636e70104e0aa35e899c875ec06ca6",
+      "git_blob_sha1": "47d4fb8c7043cb564db46938be4992f99fd1ac96"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/HealEffect.cs",
+      "sha256": "0a52dff787631c4238d36c9ca3aa2496768e78c4c60f249eb29b5dcd4d0fcb00",
+      "git_blob_sha1": "7e16fa2f597a68238877c7c25cbbbc46db9dd016"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/HealEffect.Operation.cs",
+      "sha256": "6419583426959586e23a40b57938fee4bfd4b392a9c77e6743f52b6c0492bb1f",
+      "git_blob_sha1": "edd0cd6c5a764a18e208dcf649c43e8c7181ddc9"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/ProvisionProfilePolicy.cs",
+      "sha256": "437e911c7a62f348d1767b6f8e5b0d6b14f510944ce0f9290b2acf51db1b76da",
+      "git_blob_sha1": "3ae71ea644dfb1b6b1efff54ca2baf0c3b02b4e2"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/StandaloneStatusSpellEffects.cs",
+      "sha256": "b298272df7edf5ed458e4483697d9ec8183965dc7076d72c00e2fed76d8180bb",
+      "git_blob_sha1": "3b9feda5bb7f64a8e2bdcd36e381be1a305c7ad3"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellTriggers/CastingTargetFilter.cs",
+      "sha256": "2c3a212a8eac1fe1c1d61b2a98ba16d747375a065fff87f980d2ed1dedba6659",
+      "git_blob_sha1": "8a4fef2d6a4febcf35223f52a83db9da6340d3a6"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellTriggers/CastingTriggerCharacter.cs",
+      "sha256": "d5c6d3a819c7cd123f74fee2dfbb7ed89074937e00dda6adf83bd08041bdecbd",
+      "git_blob_sha1": "ecebbad3aa2850d0e5410bd7d734a513d3ea53a9"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellTriggers/CastingTriggerCharacter.Filter.cs",
+      "sha256": "c4bdd5d27b38fe770a2b1ba5f731e264574e874a84b3b41c93111449750933a0",
+      "git_blob_sha1": "a0eef12de2cb3992b7eb63ffb628ad81108087b5"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellTriggers/CastingTriggerItem.cs",
+      "sha256": "53c50bd852955b5d02989aeabaed4142290d5ef0872061cf4b0b829926ac6a71",
+      "git_blob_sha1": "fb15d4761939dd447ad6282138b6eb86f575ca72"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellTriggers/CastingTriggerItem.Filter.cs",
+      "sha256": "447b39564ee684d583f4a28877e1ec7189d0548da8d9b5d3645d15696e0577a9",
+      "git_blob_sha1": "bd7fac9f8708bd2f1341a6c92ba59421c286417e"
+    },
+    {
+      "path": "MudSharpCore/MudSharpCore.csproj",
+      "sha256": "d503ce8726941f4c84db3a17af5342b95e151e77e17581ab9f53d7360fc0772e",
+      "git_blob_sha1": "34840a61f7abb215a852319495849b8286e508ad"
+    },
+    {
+      "path": "MudsharpDatabaseLibrary/MudsharpDatabaseLibrary.csproj",
+      "sha256": "f5a70c8dffbc96699f884817788da8eff96413345708d73f2aeb3e6dd61f92ce",
+      "git_blob_sha1": "cc089c41a7dee1f88a623e1ca0954f3cd8240677"
+    },
+    {
+      "path": "Temporary Scratch App/FiveStockNativeHarness/FiveStockEntry.cs",
+      "sha256": "04d7dbdc57e73e5cf84574ca6a4c0f2b58a05a0bcbf7c8d6666c02b8fd14b85d",
+      "git_blob_sha1": "c3d2f112013e14a936c0321b8869c65ee175d439"
+    },
+    {
+      "path": "Temporary Scratch App/FiveStockNativeHarness/FiveStockNativeHarness.csproj",
+      "sha256": "cf7c8fef51b07342acc1167bd10238fe5c5a512c81d18ffa06ceabdf3baa7ba5",
+      "git_blob_sha1": "88bcdfce89049726c16cf473dd6354994832690e"
+    },
+    {
+      "path": "Temporary Scratch App/FiveStockNativeHarness/Program.FiveStock.cs",
+      "sha256": "94620b9b3cf83ccfb3fd90f3e8450355098fc725a226814c9e60c0db5aa30262",
+      "git_blob_sha1": "8e7f9ffa6c8f2a43f0ddb53024fb7eb6698d9076"
+    },
+    {
+      "path": "Temporary Scratch App/FiveStockNativeHarness/Program.FiveStockFilters.cs",
+      "sha256": "8daebe729a085439463ce209155b889a8edecaae44877ab44920b4c66cec7a36",
+      "git_blob_sha1": "c4116dbc47b780b78d930251fa0f71dfea9211e9"
+    },
+    {
+      "path": "Temporary Scratch App/FiveStockNativeHarness/Run-FiveStockAcceptance.ps1",
+      "sha256": "76475e4e2d211f8d3ce7f7a0124bc2cc0e0da4d8c5be9a4bc7f2fed2001f8fc2",
+      "git_blob_sha1": "9d9ab7b80a6dc80ef154c7cea5e39a084f0a30bf"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.BodyRetirement.cs",
+      "sha256": "a3240efc961ea72ce4fdce821ecb09b50d86309f133b95cebe46dc415d4ba530",
+      "git_blob_sha1": "29650ac491dadba759d51b27b2c923b2c9b4bccb"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.Casting.cs",
+      "sha256": "64dc4e7539dee66838645443309b3dcd6e2c2527680ed7b4da643693160289cf",
+      "git_blob_sha1": "14dc59c1c4759199b9209f334fc3c40e16a24e17"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.CastingArea.cs",
+      "sha256": "e20470480521da52ad96350c4de57962d945c9565f9b0b963b1e59b6e2d14a0a",
+      "git_blob_sha1": "12b0782c1968ac7385905d266e5434d9a840147a"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.CastingCapacity.Compound.cs",
+      "sha256": "b07f29018f63fe60918d98624d3b8a14011e076911b34450df258188b702f600",
+      "git_blob_sha1": "e628f4860e8094902289f5d274d5701348c3b818"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.CastingCapacity.cs",
+      "sha256": "62f39d84894a421fd55eab3f90815d57814b06a4c4803fb594bd72e69f2060a3",
+      "git_blob_sha1": "078a4436f987bbeb365009214975b32579103cdc"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.CastingFixtures.cs",
+      "sha256": "ab11b05832f5a146c100dbc2d4d2f7ce668d3f4eb5cdcd929fe45f8c538c9e69",
+      "git_blob_sha1": "0d8d748621ddf3cbf26cdf06b43b97064ef55ef2"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.CastingLifecycle.cs",
+      "sha256": "b6455cfc72a303ca7635e67576e8ac2e84c264f07fdb375a854c76610a1903ee",
+      "git_blob_sha1": "ecf0ad97de5fcc5715be6311f1abfc0e9285a72d"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.CastingPractice.cs",
+      "sha256": "76252844eecfa4ad5b5d45b70d77eeb68d33e73c24ac38f5634ecfa978e721df",
+      "git_blob_sha1": "5a73d84d0e898550554883b2e3bbb9f30cc45753"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.CastingProgression.cs",
+      "sha256": "3138900d83bff03742c3d10f472fa680f3bab32fa6ab9d8bc1a462c51f2aa491",
+      "git_blob_sha1": "3d97b2e21e457c26a3acbbca33f5d85e30d38d96"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.CastingSpeech.cs",
+      "sha256": "c4288a98706111360d68705d49f64e7e5e6adc8105a7477512191a5ffcdc51a3",
+      "git_blob_sha1": "b5ca1d88849972422265c634f3b0c464d1f80e50"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.CastingSupport.cs",
+      "sha256": "4669417a4984beb11b656ce1957bbff5ce4b449b84a86849a536d85de1511e2f",
+      "git_blob_sha1": "be557123d6238f23b798e6160678276a9b3cdc75"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.CorpseAnimation.cs",
+      "sha256": "6f84fafa89eeb2496bdd15cc9fb9cd4a16f7cceacdced9a82b2da86692174eae",
+      "git_blob_sha1": "f4e7ee20d9f45d35b273afae42a033587d2bfc3e"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.CorpseAnimationReload.cs",
+      "sha256": "88f5f3df9acfc4a0d0327d842be0edc8685d079120e0c37fc61eeeedc0daeebc",
+      "git_blob_sha1": "af6e87ffa68fe3e704b546aaaa52018308995c56"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.CorpseAnimationScheduler.cs",
+      "sha256": "3f7af3d09b5f500554737c4e64daa1d435ca27bfff23b35b1006f911ff43e8e6",
+      "git_blob_sha1": "cd9dc341f00e54dd08b6e7d0a253185eec37e081"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.cs",
+      "sha256": "f9a98a816d1f5f420c376f28d89abb751ad0d82925ffc8361df1a67e3b279ef6",
+      "git_blob_sha1": "ba0b243fb1e2f8a3d5a61f64a568edb96b8de153"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.FlameKnifeStock.cs",
+      "sha256": "d94b06f08d1f7a17d7d05e70d601f3cbfa52043d646144b96b03750cc42b32f5",
+      "git_blob_sha1": "39ad8912232e283c6953fda067e401ebe18eb722"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.HistoricalAuthorship.cs",
+      "sha256": "20a579f5585eb901343eb3ffc87037d4b432bc82337e89d645d7ae64138a4432",
+      "git_blob_sha1": "1b9115261c4754527899bd4d96f127eff8c16b3f"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.LegacyRemains.cs",
+      "sha256": "b77640a520a5d5576275be9558e70824c886ad497b772112f03614171ee5f34f",
+      "git_blob_sha1": "d295ad477bef6b8968f99936b13ec3821aa46dbf"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.NativeOrganic.cs",
+      "sha256": "ca22f9cea2b998d61e6956a7895a59b25be6ea553a43825fb04463abf02caacd",
+      "git_blob_sha1": "25116782dc9f942566e9f3e15a3caef045e4e923"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.NpcArchive.cs",
+      "sha256": "e8e0a8f1e4ac8173f703e5b988c9f6feb2d98bf784d81c94133c1fcdad1096a5",
+      "git_blob_sha1": "94f22c5f43d9e7d768649ee7d27980f17a2d92c6"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.NpcArchiveMaintenance.cs",
+      "sha256": "9a30af58d5b94ec8e35f905da8c61c92fef647547f157000c3de32c1c9cd5505",
+      "git_blob_sha1": "373e1e8b0288c80edf58a9415dcd30bc04ed411a"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.OwnedConnections.cs",
+      "sha256": "c62500b62d334c8c72b49db3a3a9a1d86e0b970a79b3a5c4abd0ff3dbeae309e",
+      "git_blob_sha1": "48c03ec39a2bf2fb6f42b7c9f1ba7e46d3294617"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.QueuedCommandAuthority.cs",
+      "sha256": "8ba2c320aa2d9dd32df7bc082593d09b23d1304ae49f811ed40c0f5d48b09575",
+      "git_blob_sha1": "fdeea68e9a86be4ed3e4fad08f24fbee96859990"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.RaiseServitorStock.cs",
+      "sha256": "ae6ed025cc7e4383a9d967f0c284f218b4b96deb397830dd644e00ea51ffffb2",
+      "git_blob_sha1": "7e98a8090a983d68cd5b09fe8e9c595f0b70c2a2"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.Rejuvenation.cs",
+      "sha256": "9c1702282868aeb957a1631ebe95d7a0334f077efe9303e5f2b4f0c50053dd4f",
+      "git_blob_sha1": "42b0b5b8e0e776f5aa0baaa801b2ac198ef85d3b"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.RejuvenationVancian.cs",
+      "sha256": "eb5d665c7ad845fbbb716ab026d92f45e7638f86aca570c98ad013bc10892fc9",
+      "git_blob_sha1": "c5b4991312c0b641a7cb4322fa551c3567c9d4db"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.RemainsRuntime.cs",
+      "sha256": "25f4bc348185307ba158c455e52efc756cd6704f9c70dc5b74c28eb991cabb6d",
+      "git_blob_sha1": "2f073975331a6b3795a192deaf65ccb0cb5404b7"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.SandKnifeStock.cs",
+      "sha256": "c5fdafcf13349d2af44886eda97959de88c534d1f8d54fbf93c247c03c7d9bd5",
+      "git_blob_sha1": "2c2707c70d957cfcdec0bb95c8b0d8743960accc"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.SpellCreatedConsumables.cs",
+      "sha256": "3d6883a1405cbcd696c17ad759607b39199d5d7ed4d93a357887afae32b4e9a6",
+      "git_blob_sha1": "65c8899bd1fffbb313dea01e38d760c5b9fc6dfa"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.SpellLifecycle.cs",
+      "sha256": "fe74d9a4ed6eb8d5c3cdec54d22e346b07873847c34c014c164b457f233077e0",
+      "git_blob_sha1": "462d7fc98c4d79c0417a7627d6910cadb766da30"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.SpellOwnedItems.cs",
+      "sha256": "4d7162d5ba125392c3dc0f544d2d862746ec1f33fcad91ffd337c228c047d8ec",
+      "git_blob_sha1": "298cf5afba36a88a18fbbde69f791957ee02f8e9"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.SpellOwnedNpc.cs",
+      "sha256": "83168cf46c11852c6139943045a989f80b4ede45682f3512dacd3d8704f2e422",
+      "git_blob_sha1": "c22265e4c81fc83c8597fd68d989e71187f9c3f6"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.SpellOwnedNpcAdmission.cs",
+      "sha256": "1c58fed52a41e2b0636ae6028927983a68b7829bb25aacbbbc3d92591a339cf0",
+      "git_blob_sha1": "a1257e480cf356c5bef692ebfefaa8f18b14e0ad"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.SpellOwnedNpcRetirement.cs",
+      "sha256": "42fb0251b977b1c41eec98b6a3f0ea87b3be235278a7b1c585b77673bcb77d6b",
+      "git_blob_sha1": "babf013e0718894a12fd57983e5c3a954b7971b8"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.StormSpearStock.cs",
+      "sha256": "97026b9c5ba2f78071fcbf259a4bf01c397d6f8bc5704ba3cdddf49791e31eaa",
+      "git_blob_sha1": "ad56476a4e189205b928ef9c840c10710ef1c8f8"
+    },
+    {
+      "path": "Temporary Scratch App/ProvisionStockNativeHarness/Program.ProvisionStock.cs",
+      "sha256": "319ddc844eb447a1c49d63b8d3e78adb64a5b2d51ce1fe156bed035bd6cd1852",
+      "git_blob_sha1": "ac344c29f822f2bf4203ee387504cd47e7ded63b"
+    },
+    {
+      "path": "Temporary Scratch App/ProvisionStockNativeHarness/ProvisionStockEntry.cs",
+      "sha256": "7cfec9de9fb815899224469d07300183cc4cd06557856325fff73aa86b8b208d",
+      "git_blob_sha1": "a7e9d4ec051f39b298a3b11edf674397d9ca017c"
+    },
+    {
+      "path": "Temporary Scratch App/ProvisionStockNativeHarness/ProvisionStockNativeHarness.csproj",
+      "sha256": "68c40ae95aad10f88c34f787f2acb8b2bd2cc99d06825bb7fcd96ac9cbb737fa",
+      "git_blob_sha1": "dd08f7ead35e7135eabc6c33eae94f4f923cf151"
+    },
+    {
+      "path": "Temporary Scratch App/ProvisionStockNativeHarness/Run-ProvisionStockAcceptance.ps1",
+      "sha256": "9586fc060a6db66abf15e0d48535fd372c07909dfcf4064e54b1d9e52b066f69",
+      "git_blob_sha1": "0a0fd3354db1ed7ad9de5b3ac0f181b5e732f2f3"
+    }
+  ],
+  "assemblies": [
+    {
+      "path": "DatabaseSeeder Unit Tests/bin/Debug/net10.0/DatabaseSeeder Unit Tests.dll",
+      "sha256": "ad39aa391d0af805c59cc07b8a08a890758bb7c79aee4c0d2111ceda14e53f6a"
+    },
+    {
+      "path": "DiscordBotCore Unit Tests/bin/Debug/net10.0/DiscordBotCore Unit Tests.dll",
+      "sha256": "85c526383b47e1eb84c97814be3df6cbf532d5e20a49a7ebe69d1ea532af0313"
+    },
+    {
+      "path": "ExpressionEngine Unit Tests/bin/Debug/net10.0/ExpressionEngine Unit Tests.dll",
+      "sha256": "e4c0808bd8cf79d24fe4f5432129b5bb4f1a1b927a0006f96225405751340d65"
+    },
+    {
+      "path": "FutureMUD.Web.Tests/bin/Debug/net10.0/FutureMUD.Web.Tests.dll",
+      "sha256": "914c2cf6d60cd2d6a5a46bee544385e8b9d72f54a421c5436039c3865de8d74d"
+    },
+    {
+      "path": "FutureMUDLibrary Unit Tests/bin/Debug/net10.0/FutureMUDLibrary Unit Tests.dll",
+      "sha256": "c4289c64d9eed439da94d5940fa1ae9a3bd93dff8bfe7d0a813beb49b6b6a216"
+    },
+    {
+      "path": "FutureMUDLibrary Unit Tests/bin/Debug/net10.0/FutureMUDLibrary.dll",
+      "sha256": "64f0a59381bd84cef6d589b8a2bb96f4f773a770d391e6bdb8df74e78aaf52e6"
+    },
+    {
+      "path": "FutureMUDLibrary Unit Tests/bin/Debug/net10.0/MudsharpDatabaseLibrary.dll",
+      "sha256": "bed4ebbbb783336abefdc90dd282974057cb10435d8e4fff7fc87be9e12daabd"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/bin/Debug/net10.0/FutureMUDLibrary.dll",
+      "sha256": "64f0a59381bd84cef6d589b8a2bb96f4f773a770d391e6bdb8df74e78aaf52e6"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/bin/Debug/net10.0/MudSharp.dll",
+      "sha256": "4140f9efb8cdaebedd83251e9f9b1223860f8350a9c59f813e657ae2a9c5327c"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/bin/Debug/net10.0/MudSharpCore Unit Tests.dll",
+      "sha256": "ea2509eeb6ce26c0a6c9b547e262dc74156ad6d62a1e6de21c996114c3346c82"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/bin/Debug/net10.0/MudsharpDatabaseLibrary.dll",
+      "sha256": "bed4ebbbb783336abefdc90dd282974057cb10435d8e4fff7fc87be9e12daabd"
+    },
+    {
+      "path": "MudsharpDatabaseLibrary Unit Tests/bin/Debug/net10.0/MudsharpDatabaseLibrary Unit Tests.dll",
+      "sha256": "d04f7c38bf6401b747137c46d311b4ff94c370f185589ae29055e691b4a8776c"
+    },
+    {
+      "path": "RPI Engine Worldfile Converter Tests/bin/Debug/net10.0/RPI Engine Worldfile Converter Tests.dll",
+      "sha256": "24ad5a1cc97984c90399da53d593bb4c55452fb83ec5019e5c612bff8eb421d9"
+    },
+    {
+      "path": "scripts/TestReporting.Tests/bin/Debug/net10.0/TestReporting.Tests.dll",
+      "sha256": "7ec2ddd375ab7869a8a2870d1dd56cd5e38520911081652075c952227c746c0d"
+    },
+    {
+      "path": "Temporary Scratch App/ProvisionStockNativeHarness/bin/Debug/net10.0/ExpressionEngine.dll",
+      "sha256": "0517e5206fcfd2fa88ac4aa59c2fefaee747a4a865a4c18af17e3f205ff255ad"
+    },
+    {
+      "path": "Temporary Scratch App/ProvisionStockNativeHarness/bin/Debug/net10.0/FutureMUDLibrary.dll",
+      "sha256": "64f0a59381bd84cef6d589b8a2bb96f4f773a770d391e6bdb8df74e78aaf52e6"
+    },
+    {
+      "path": "Temporary Scratch App/ProvisionStockNativeHarness/bin/Debug/net10.0/GatheringNativePersistenceHarness.dll",
+      "sha256": "7817cc8ae7e9e6d2cdd80e516b7b6b0d4640ed1b6d1b2d5f0c8b6cb0cd4225c9"
+    },
+    {
+      "path": "Temporary Scratch App/ProvisionStockNativeHarness/bin/Debug/net10.0/MudSharp.dll",
+      "sha256": "4140f9efb8cdaebedd83251e9f9b1223860f8350a9c59f813e657ae2a9c5327c"
+    },
+    {
+      "path": "Temporary Scratch App/ProvisionStockNativeHarness/bin/Debug/net10.0/MudsharpDatabaseLibrary.dll",
+      "sha256": "bed4ebbbb783336abefdc90dd282974057cb10435d8e4fff7fc87be9e12daabd"
+    },
+    {
+      "path": "TerrainPlanner/TerrainPlanner.Tests/bin/Debug/net10.0/TerrainPlanner.Tests.dll",
+      "sha256": "6065f520a98655cf1e7d94bc323773192b0ff08fd4e60390ef4a2e74f3c42e59"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": ".artifacts/test-runs/provision-final-units-02/20261005T081948Z-baae46c18c94/summary.json",
+      "sha256": "9c00e3f276ce315477f7da0808a0f828673f73cdab1eb89a141c200414742316"
+    },
+    {
+      "path": ".artifacts/test-runs/provision-final-units-02/provision-focus.json",
+      "sha256": "b82114c18f12c132d31aa58f1059a9f91300795a520a75b47ea66c3ee93608be"
+    },
+    {
+      "path": ".artifacts/test-runs/provision-final-native-02/summary.json",
+      "sha256": "fd979d8fdf6e0014c9cc8e345b8850cbdfc57c40040883c691742183cc61df10"
+    },
+    {
+      "path": ".artifacts/test-runs/provision-final-units-02/20261005T081948Z-baae46c18c94/invocations/DatabaseSeeder_Unit_Tests-e14dcedb/net10-41544e89/1/results.trx",
+      "sha256": "50a59c6d1715e675468977c081eb86107020c2bd2304c20f8d39422acf280255"
+    },
+    {
+      "path": ".artifacts/test-runs/provision-final-units-02/20261005T081948Z-baae46c18c94/invocations/DiscordBotCore_Unit_Tests-4ffa2b0e/net10-41544e89/1/results.trx",
+      "sha256": "593a915050ef45f71704ad975dba088527275a585a4670580510057a8a890c9f"
+    },
+    {
+      "path": ".artifacts/test-runs/provision-final-units-02/20261005T081948Z-baae46c18c94/invocations/ExpressionEngine_Unit_Tests-8cdb3e65/net10-41544e89/1/results.trx",
+      "sha256": "428db46e67bc22464cc78a8ee97546c72e033099dfdfc44e47da12fa379d93c4"
+    },
+    {
+      "path": ".artifacts/test-runs/provision-final-units-02/20261005T081948Z-baae46c18c94/invocations/FutureMUD.Web.Tests-ac492d08/net10-41544e89/1/results.trx",
+      "sha256": "f8a6544cd5468d12c1ff41d78d95df5a67326a046486584e0a167476693f7f04"
+    },
+    {
+      "path": ".artifacts/test-runs/provision-final-units-02/20261005T081948Z-baae46c18c94/invocations/FutureMUDLibrary_Unit_Tests-45c02d6c/net10-41544e89/1/results.trx",
+      "sha256": "2272354031ddf66a10ac6038e379e6d3e97485b96f292e03f1c1549d0c753187"
+    },
+    {
+      "path": ".artifacts/test-runs/provision-final-units-02/20261005T081948Z-baae46c18c94/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/results.trx",
+      "sha256": "fb2b945de0e9e3f3ab08ac9c683994d49c081df5852e096fc474f6e06b3e3e28"
+    },
+    {
+      "path": ".artifacts/test-runs/provision-final-units-02/20261005T081948Z-baae46c18c94/invocations/MudsharpDatabaseLibrary_Unit_Tests-6ef1914c/net10-41544e89/1/results.trx",
+      "sha256": "5b1b619732d2a504143629f0128200c4da892c2d7f10816d16443bac3d3d6bf1"
+    },
+    {
+      "path": ".artifacts/test-runs/provision-final-units-02/20261005T081948Z-baae46c18c94/invocations/RPI_Engine_Worldfile_Converter_Tests-14d87d34/net10-41544e89/1/results.trx",
+      "sha256": "d2be58d8af13770dbfcff45671f0357ed798b2c01aeab4b9e571512b88c41cbe"
+    },
+    {
+      "path": ".artifacts/test-runs/provision-final-units-02/20261005T081948Z-baae46c18c94/invocations/TerrainPlanner.Tests-1085b5fa/net10-41544e89/1/results.trx",
+      "sha256": "64affa0fff4959b172e64fab47ef36f3e8d6dab55826a4f4730ff9beaf21ffc2"
+    },
+    {
+      "path": ".artifacts/test-runs/provision-final-units-02/20261005T081948Z-baae46c18c94/invocations/TestReporting.Tests-25b07e44/net10-41544e89/1/results.trx",
+      "sha256": "c994f4dc41129102ff72a057401ce03415cc719b7e1ce71bcb60d9628b46945e"
+    },
+    {
+      "path": ".artifacts/test-runs/provision-final-units-02/20261005T081948Z-baae46c18c94/run.json",
+      "sha256": "1321bb3061eaa6e372ce4652a7b100573cb743d382e4b883751417a742325b82"
+    },
+    {
+      "path": ".artifacts/test-runs/provision-final-units-02/20261005T081948Z-baae46c18c94/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/provision-final-units-02/20261005T081948Z-baae46c18c94/test-results.json",
+      "sha256": "bbd4d3efda03a9622c017b8a436f5638c1f6540c3f0d539190631733111fdd25"
+    },
+    {
+      "path": ".artifacts/test-runs/provision-final-units-02/20261005T081948Z-baae46c18c94/source-start.json",
+      "sha256": "00ec4fe0e4ab7f5bde8f5edb082d8d4261989af7022e89dea2daa9ea8896ef02"
+    },
+    {
+      "path": ".artifacts/test-runs/provision-final-units-02/20261005T081948Z-baae46c18c94/source-end.json",
+      "sha256": "9da0ff901c087d247cc4d3671c707383958134bb95dee5b8de335fdc69e77c71"
+    },
+    {
+      "path": ".artifacts/test-runs/provision-final-native-02/source-before.json",
+      "sha256": "5651e4379fccf8ea9498ef45011a9b5fdcb1c1c871fd5ddfa749beccfe19c465"
+    },
+    {
+      "path": ".artifacts/test-runs/provision-final-native-02/source-after.json",
+      "sha256": "5651e4379fccf8ea9498ef45011a9b5fdcb1c1c871fd5ddfa749beccfe19c465"
+    },
+    {
+      "path": ".artifacts/test-runs/provision-final-native-02/assemblies-before.json",
+      "sha256": "1397f00cb96115b169c82557404149e4aa2f78b3b7955c77f1d039ab70f2693a"
+    },
+    {
+      "path": ".artifacts/test-runs/provision-final-native-02/assemblies-after.json",
+      "sha256": "1397f00cb96115b169c82557404149e4aa2f78b3b7955c77f1d039ab70f2693a"
+    },
+    {
+      "path": ".artifacts/test-runs/provision-final-native-02/provision-stock.log",
+      "sha256": "e4abb5c59f8ce92db376fe70aca8787c7d6d1c77f52fc3e9119ff9322d59cb83"
+    },
+    {
+      "path": ".artifacts/test-runs/provision-final-native-02/five-stock.log",
+      "sha256": "06998b0c6a6132f5681081a8aff7b7f0c4e565d7229568a53b3f40e27c659d0a"
+    },
+    {
+      "path": ".artifacts/test-runs/provision-final-native-02/regressions.log",
+      "sha256": "9dfab06d4e71833706467c2588cac45fe7a7e46f134ce3b4e681694f129a75fd"
+    },
+    {
+      "path": ".artifacts/test-runs/five-stock-reporting-history/provision-native-build-11.log",
+      "sha256": "f9ab5096edf66ccf26b93067a6318c6d077006c47c2035b914cfc3120397344d"
+    },
+    {
+      "path": ".artifacts/test-runs/five-stock-reporting-history/provision-unit-focused-08.log",
+      "sha256": "508a5fca69e5a2572e73b08e5b3a16e760ff1a7750be8e53473a36876a3c14aa"
+    },
+    {
+      "path": ".artifacts/test-runs/provision-focused-08/provision.trx",
+      "sha256": "0d363d0af166cb307dba2192f75ca713b27bd686905d045d34ba7e99aef2c44e"
+    }
+  ],
+  "authority": {
+    "brief_library_id": "libfile_a4606cd0097081918d6c9d9e220e6da0",
+    "brief_name": "Armageddon_Magic_Completion_Implementation_Brief.md",
+    "historical_library_id": "libfile_befb4ae78d1c8191aaa2640c49912d9d",
+    "historical_name": "codedump.c",
+    "readable_supported_library_responses": true,
+    "local_materialization": "Windows helper failed; no assumed cloud path or denied-transfer bypass",
+    "food_source": "83514-83643; wrapper217342-217385",
+    "wine_source": "83697-83788; wrapper217536-217590",
+    "event_clock": "45700-45787,45990-46045,169210-169294,25051-25062,168118-168125,168940-169092; nominal0.75seconds/unit=>1350*grade",
+    "detailed_rules": "Design Documents/Magic/Armageddon_Provision_Stock_Integration.md"
+  },
+  "native_limits": [
+    "Real native domain/SQL with controlled surrounding world, checks and targeted mutation callbacks; not full Telnet/login acceptance",
+    "Historical food/liquid statistics and native race/guild/clan identity correspondence unavailable: builder-authored mappings and profiles; historical conditional precedence recovered",
+    "Wine Silt/incompatible contents refuse in approved safe adaptation; source unit-to-litre mapping authored; food NOSAVE and heap batching adapted to saved quantities/absolute item deadlines",
+    "Device/direct intoxication or satiation routes, combat-authority repair and topology outside this checkpoint; separate device hooks must survive parent integration"
+  ],
+  "prior_history": {
+    "old_five_stock_receipt": "Design Documents/Magic/Armageddon_Five_Stock_Verification_Receipt.json",
+    "prior_074_aggregate": "provision-final-units-01/20261005T080038Z-5c29462d0be6:7333PASS, stable, before correction",
+    "prior_074_native": "provision-final-native-01:all eleven stocks passed with stable inputs, before correction",
+    "diagnostics": "provision native01 eager readiness diagnostic; native02 reader missing deferred-needs factory; focused04 MSTest API compile error; focused06 XML whole-document assertion and revisable catalogue type; food-admission01 early-return compile error; retained in .artifacts/test-runs/five-stock-reporting-history; none substitutes for this final packet"
+  },
+  "integration": {
+    "notes": [
+      "Design Documents/Magic/Armageddon_Provision_Selection_Integration.md",
+      "Design Documents/Magic/Armageddon_Provision_Stock_Integration.md"
+    ],
+    "shared_native_dispatch_changes": false,
+    "central_ledger_changes": false,
+    "preserve_separate_device_admission_and_pay_wrapper": true,
+    "parent_review_pending": true,
+    "merge_push_pr_deployment_performed": false
+  }
+}

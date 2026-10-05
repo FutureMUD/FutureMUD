@@ -117,7 +117,7 @@ public sealed partial class MagicCastingService : IMagicCastingService
 		try { return Prepare(intent).Quote; }
 		catch (Exception ex) { return new(null, $"Casting preflight refused: {ex.Message}"); }
 	}
-	private Prepared Prepare(MagicCastingIntent intent)
+	private Prepared Prepare(MagicCastingIntent intent, MagicSpell? preparedSelectionSource = null)
 	{
 		var actor = intent.Actor;
 		if (ResolveRoute(actor, intent.CapabilityId, intent.SpellId, intent.Grade, intent.Overreach,
@@ -144,6 +144,7 @@ public sealed partial class MagicCastingService : IMagicCastingService
 		if (intent.Mode != MagicCastingMode.Practice) copy.InvocationOriginId = intent.OriginId;
 		if (intent.Mode != MagicCastingMode.Practice)
 		{
+			if (preparedSelectionSource is not null) ReusePreparedSelections(copy, preparedSelectionSource, actor, targets);
 			foreach (var (effect, recipients) in copy.SpellEffects.Select(x => (x, targets))
 				.Concat(copy.CasterSpellEffects.Select(x => (x, (IEnumerable<IPerceivable>)new[] { actor }))))
 				foreach (var recipient in recipients)
@@ -154,6 +155,7 @@ public sealed partial class MagicCastingService : IMagicCastingService
 						throw new InvalidOperationException(liquidError);
 					if (effect is MudSharp.Magic.SpellEffects.AnimateCorpseSpellEffect animation && !animation.ValidateInvocation(actor, recipient, out var animationError))
 						throw new InvalidOperationException(animationError);
+					if (effect is IMagicSpellEffectPreparedSelection selection) selection.CapturePreparedSelection(actor, recipient);
 				}
 		}
 		List<CastingPayment> payments = [];

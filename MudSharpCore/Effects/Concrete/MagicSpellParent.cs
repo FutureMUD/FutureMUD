@@ -12,6 +12,10 @@ public class MagicSpellParent : Effect, IMagicSpellEffectParent
 	private bool _loaded;
 	public Guid Identity { get; private set; } = Guid.NewGuid();
 	public TimeSpan ResolvedDuration { get; init; }
+	public MagicSpellLifetimeState? LifetimeState { get; init; }
+	public string? LifetimePolicyError { get; private set; }
+	private XElement? _invalidLifetimePolicy;
+	public string? LifetimeGroup => LifetimeState?.Policy.Group ?? (string?)_invalidLifetimePolicy?.Attribute("group");
 
     public static void InitialiseEffectType()
     {
@@ -41,6 +45,21 @@ public class MagicSpellParent : Effect, IMagicSpellEffectParent
         _casterInstanceId = (long?)trueRoot.Element("CasterInstance");
         Power = (SpellPower)int.Parse(trueRoot.Element("SpellPower")?.Value ?? ((int)SpellPower.Standard).ToString());
         Outcome = (OpposedOutcomeDegree)int.Parse(trueRoot.Element("OutcomeDegree")?.Value ?? ((int)OpposedOutcomeDegree.None).ToString());
+		if (trueRoot.Element("LifetimePolicy") is { } lifetime)
+		{
+			try
+			{
+				var policy = MudSharp.Magic.SpellEffects.DetectInvisibleEffect.ReadPolicy(lifetime);
+				var grade = (int?)lifetime.Attribute("grade") ?? 0;
+				if (grade is < 1 or > 7 || !Enum.IsDefined(Power)) throw new FormatException("Invalid retained lifetime strength.");
+				LifetimeState = new(policy, grade);
+			}
+			catch (Exception error) when (error is FormatException or OverflowException or ArgumentException)
+			{
+				LifetimePolicyError = error.Message;
+				_invalidLifetimePolicy = new XElement(lifetime);
+			}
+		}
         foreach (XElement element in trueRoot.Element("Children").Elements())
         {
             IMagicSpellEffect child = (IMagicSpellEffect)LoadEffect(element, owner);
@@ -105,6 +124,7 @@ public class MagicSpellParent : Effect, IMagicSpellEffectParent
             (Spell as MagicSpell)?.StoredSnapshot?.Save(),
             new XElement("SpellPower", (int)Power),
             new XElement("OutcomeDegree", (int)Outcome),
+			SaveLifetimePolicy(),
             new XElement("Children",
                 from child in _spellEffects.ToArray()
                 select child.SaveToXml(new Dictionary<IEffect, TimeSpan>())
@@ -131,6 +151,15 @@ public class MagicSpellParent : Effect, IMagicSpellEffectParent
 			_removingSpellEffects = false;
 		}
     }
+
+	private XElement? SaveLifetimePolicy()
+	{
+		if (_invalidLifetimePolicy is not null) return new XElement(_invalidLifetimePolicy);
+		if (LifetimeState is not { } state) return null;
+		var element = MudSharp.Magic.SpellEffects.DetectInvisibleEffect.WritePolicy(state.Policy);
+		element.SetAttributeValue("grade", state.Grade);
+		return element;
+	}
 
     #endregion
 

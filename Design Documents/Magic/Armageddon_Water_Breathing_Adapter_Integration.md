@@ -8,7 +8,7 @@ Use ordinary spell construction and `trigger new character` or `trigger new self
 
 The spell requires exactly one exclusive target effect, no caster effects, no opposed save or area policy, an ordinary character/self trigger, a seven-grade casting profile and a duration expression whose formula is `0`. That expression is a placeholder for the existing caller. The source duration comes from the prepared selection. Effect configuration and native water IDs remain builder-editable; there is no inferred world liquid, racial identity or stock installation.
 
-`sourcewaterbreathing` constructs `SpellScopedWaterBreathingEffect`, a subtype of the existing `SpellWaterBreathingEffect`. Legacy `waterbreathing` XML retains its historical native broad grant. The subtype participates in the existing `removewaterbreathing` adapter. The new template and child register through existing reflection-based factory discovery; no central registry or shared harness dispatch change is required. The new dedicated harness project supplies its own entrypoint and runner.
+`sourcewaterbreathing` constructs `SpellScopedWaterBreathingEffect`, a subtype of the existing `SpellWaterBreathingEffect`. Legacy `waterbreathing` XML retains its historical native broad grant. The subtype participates in the existing `removewaterbreathing` adapter. The new template and child register through existing reflection-based factory discovery; no factory dispatch or shared harness dispatch change is required. The explicit scroll compatibility inventory needs the separate unsupported row below. The new dedicated harness project supplies its own entrypoint and runner.
 
 ## Source selection, accumulation and application
 
@@ -22,13 +22,23 @@ Exact native expiry and saved remaining-time restoration are explicit engine ada
 
 ## Breathing and mixture boundary
 
-The allocated compatibility helper preserves normal racial breathing first and admits applicable scoped water grants to lung, gill, blowhole and partless strategies. Only the lung caller opts into the pre-existing broad additional-fluid grants; those grants are not expanded to the other strategies. NonBreather and native respiratory requirement decisions remain unchanged. Existing organs, working parts, airway bleeding, anaesthesia, stop-breathing behavior, actual supply withdrawal, exposure and held-breath updates stay in their existing consumers.
+The allocated compatibility helper admits applicable scoped water grants to lung, gill, blowhole and partless strategies. The lung caller retains its historical order: query applicable additional-fluid grants before racial compatibility, even when the race already breathes that fluid. Other callers retain racial compatibility first and then scoped grants. Only the lung caller opts into the pre-existing broad additional-fluid grants; those grants are not expanded to the other strategies. NonBreather and native respiratory requirement decisions remain unchanged. Existing organs, working parts, airway bleeding, anaesthesia, stop-breathing behavior, actual supply withdrawal, exposure and held-breath updates stay in their existing consumers.
 
 Mappings match exact native ILiquid references and persisted IDs. Gases, null, unmapped liquids and unselected CountsAs aliases receive no additional compatibility. Builders must map distinct fresh/salt-water definitions explicitly. `LiquidMixture` is not an IFluid in this engine: a container mixture does not become the terrain breathing fluid, confer a grant to its constituents or bypass scope. Terrain water is one authored native liquid definition; an explicitly mapped mixture-like liquid definition is admitted by its own identity. Oxygen compatibility is not toxin immunity, organ repair, gas conservation bypass or a survival guarantee in hazardous water/air.
 
 ## Verification and remaining review boundary
 
 The entry-specific [adapter receipt](Armageddon_Water_Breathing_Adapter_Receipt.json) records the frozen source commit, source/assembly fingerprints, strict unit results, dedicated native runs, preserved regressions, failures retained during fixture development and verified owned cleanup.
+
+Final source `2099cda8791466b6425c85d1f12313269190ed1c` passed all six native modes (water-adapter, pierce-stock, pierce-shared-runtime, provision-stock, five-stock and regressions), with stable source/assembly manifests and verified owned cleanup. The focused run passed 104; the final strict ten-project run passed 7565, failed 1 and skipped 0. Its sole failure is `VancianSnapshotTests.CompatibilityManifestCoversEveryRegisteredTypeAndRequiredFamilies`: the newly registered `sourcewaterbreathing` type needs an explicit compatibility-inventory row. This is a failing whole-suite result pending parent integration, not stock clearance.
+
+The parent/shared compatibility owner must add the following to `BuildUnsupported` in `MudSharpCore/Magic/Vancian/ScrollSpellCompatibility.cs`, and an `Unsupported` row with the same reason to `Design Documents/Magic/Vancian_Scroll_Compatibility.md`:
+
+```csharp
+Add("sourcewaterbreathing", "Source-grade random accumulated lifetime and explicit native water scope have no prepaid snapshot/release adapter; ordinary direct invocation only.");
+```
+
+That addition is unapplied because both files are outside the four-file ownership allocation. Existing compatibility errors already fail closed for this new type. The row records that boundary; it adds no prepaid release or charged-carrier support.
 
 The native fixture uses real Character/Body, SimpleMagicResource, native scheduler, EF/MySQL persistence, ordinary builders and a fresh reader process. Its environment/catalogues/check outcomes use the existing harness mocks. Its selected partless strategy is explicitly installed in the already-loaded fixture body's native cache; it does not prove production race/login selection. All four native strategy implementations are exercised separately in tests with mocked fluid/organ/part inputs. Full human physiology, breathing tick/exposure damage, real gas-supply depletion, non-self paid reflection and production world boot are not newly native-qualified by this entry. Their existing consumers were preserved, and no organ/exposure/supply implementation was rewritten.
 

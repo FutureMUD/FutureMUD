@@ -585,7 +585,7 @@ public class RemoveCurseEffect : CharacterSpellEffectRemovalTemplateBase
 	public override IMagicSpellEffectTemplate Clone() => new RemoveCurseEffect(SaveToXml(), Spell);
 }
 
-public class DetectInvisibleEffect : CharacterSpellEffectTemplateBase
+public partial class DetectInvisibleEffect : CharacterSpellEffectTemplateBase, IMagicSpellEffectOperation
 {
 	public static void RegisterFactory()
 	{

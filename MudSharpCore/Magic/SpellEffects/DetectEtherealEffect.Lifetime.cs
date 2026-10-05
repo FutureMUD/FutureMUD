@@ -7,11 +7,13 @@ namespace MudSharp.Magic.SpellEffects;
 public partial class DetectEtherealEffect : IMagicSpellEffectLifetimePolicy
 {
 	public MagicSpellLifetimePolicy? LifetimePolicy { get; private set; }
-	public string? LifetimePolicyError { get; private set; }
+	private string? _lifetimePolicyError;
+	public string? LifetimePolicyError { get => _lifetimePolicyError ?? _sourceScopeError; private set => _lifetimePolicyError = value; }
 	private XElement? _invalidLifetimePolicy;
 
 	protected override void LoadFromXml(XElement root)
 	{
+		LoadSourceScope(root);
 		if (root.Element("LifetimePolicy") is not { } element) return;
 		try { LifetimePolicy = DetectInvisibleEffect.ReadPolicy(element); }
 		catch (Exception error) when (error is FormatException or OverflowException or ArgumentException)
@@ -23,6 +25,7 @@ public partial class DetectEtherealEffect : IMagicSpellEffectLifetimePolicy
 
 	protected override void SaveToXml(XElement root)
 	{
+		SaveSourceScope(root);
 		if (_invalidLifetimePolicy is not null) root.Add(new XElement(_invalidLifetimePolicy));
 		else if (LifetimePolicy is { } policy) root.Add(DetectInvisibleEffect.WritePolicy(policy));
 	}
@@ -30,10 +33,11 @@ public partial class DetectEtherealEffect : IMagicSpellEffectLifetimePolicy
 	public override string Show(ICharacter actor) => base.Show(actor) +
 		(LifetimePolicyError is { } error ? $"\nInvalid lifetime policy: {error.ColourError()}" :
 		 LifetimePolicy is { } policy ? $"\nAccumulate group {policy.Group.ColourValue()}, {policy.UnitSeconds.ToString("N0", actor)} seconds/unit, cap {policy.MaximumUnits.ToString("N0", actor)} units; retain strongest source grade." :
-		 "\nLifetime: ordinary spell duration. Use lifetime accumulate <group> <seconds per unit> <maximum units>, or lifetime off.");
+		 "\nLifetime: ordinary spell duration. Use lifetime accumulate <group> <seconds per unit> <maximum units>, or lifetime off.") + SourceScopeShow;
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
+		if (command.Peek().EqualTo("source")) return BuildSourceScope(actor, command);
 		if (!command.PopSpeech().EqualTo("lifetime"))
 		{
 			actor.OutputHandler.Send("Use lifetime accumulate <group> <seconds per unit> <maximum units>, or lifetime off.");

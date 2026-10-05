@@ -10,7 +10,8 @@ public partial class DetectEtherealEffect
 {
 	/// <summary>
 	/// The configured operation owns attachment so its report describes retained state,
-	/// not a child merely allocated for later attachment. Legacy factory calls are unchanged.
+	/// not a child merely allocated for later attachment. Absent source scope retains
+	/// ordinary unattached factory behavior.
 	/// </summary>
 	public MagicEffectOperation Apply(ICharacter caster, IPerceivable? target, OpposedOutcomeDegree outcome,
 		SpellPower power, IMagicSpellEffectParent parent, SpellAdditionalParameter[] additionalParameters)
@@ -19,6 +20,7 @@ public partial class DetectEtherealEffect
 		{
 			return new(MagicEffectOperationStatus.Rejected, null);
 		}
+		ConfirmSourceApplication(caster, character);
 
 		var existing = parent.SpellEffects.OfType<SpellDetectEtherealEffect>().ToArray();
 		if (existing.Length > 0)

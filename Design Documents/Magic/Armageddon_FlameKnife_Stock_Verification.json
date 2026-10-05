@@ -1,0 +1,1987 @@
+{
+  "schema_version": 1,
+  "stage": "Bounded stock Flame Knife",
+  "status": "bounded_stock_verified_parent_review_pending",
+  "baseline": "d966e8af6b60a8b2ed4de8fa178568f2d8ca1676",
+  "branch": "codex/armageddon-completion-phase1",
+  "recorded_utc": "2026-10-05T01:11:17.620665+00:00",
+  "source_review": {
+    "status": "two_P2_findings_resolved_no_additional_established_actionable_defect",
+    "scope": "Independent source-only initial and narrow closure; coordinator owns execution",
+    "findings_resolved": [
+      "Malformed output policy preserves invalid editable XML and refuses payment",
+      "Unresolved grade-conditioned material retains tag ID and refuses unrelated-item consumption"
+    ],
+    "files": [
+      {
+        "path": "MudSharpCore Unit Tests/FlameKnifeGradeTests.cs",
+        "sha256": "53a066df0d2385a39a0273244dc59929e1c624e9b8f80b6b48921cc0df5d98bb"
+      },
+      {
+        "path": "MudSharpCore/Commands/Helpers/EditableItemHelperMagic.Stock.cs",
+        "sha256": "27a689b6a991952de4e7257d16566e34477b347e41dee5e4e7069bd8534c45f0"
+      },
+      {
+        "path": "MudSharpCore/Commands/Helpers/EditableItemHelperMagic.cs",
+        "sha256": "cd70b090456a58d92a81f88a1b92d9d83a92b9a75c90859f3b5efe7a4965e89f"
+      },
+      {
+        "path": "MudSharpCore/GameItems/Inventory/Plans/InventoryPlanAction.cs",
+        "sha256": "d2923bbba9bfba4ad1a86e762b7cd3ead8d36b70235f7c8b2de78c0c792b03ae"
+      },
+      {
+        "path": "MudSharpCore/GameItems/Inventory/Plans/InventoryPlanActionConsume.cs",
+        "sha256": "69c9446c300666a0a445a2d44a80d6ee1828bfb2a70d95c55b3d55bc22d5f122"
+      },
+      {
+        "path": "MudSharpCore/Magic/ArmageddonFlameKnifeStock.cs",
+        "sha256": "916a5434775ef747390ea50d99df6c8579af19fbfddffa3f72b3cd4c81224ace"
+      },
+      {
+        "path": "MudSharpCore/Magic/MagicSpell.Casting.cs",
+        "sha256": "e7bcef61633bd313618e7f1501ab328f2c5edf74cceade4ad593c596cf96b12f"
+      },
+      {
+        "path": "MudSharpCore/Magic/MagicSpell.cs",
+        "sha256": "a48b437b6e80cadb7242e579a5240596f2dd678539ba305ba3b5064fbd3b2cbc"
+      },
+      {
+        "path": "MudSharpCore/Magic/SpellEffects/CreateItemEffect.GradeOutputs.cs",
+        "sha256": "d272aff35e78178e8381fdc40f60b20ca20b5d097673b32cd7c34403938994d2"
+      },
+      {
+        "path": "MudSharpCore/Magic/SpellEffects/CreateItemEffect.Lifecycle.cs",
+        "sha256": "9aeb4522564bb4d43c0d9607fcdbc106a598d485330623af37620a5569280973"
+      },
+      {
+        "path": "MudSharpCore/Magic/SpellEffects/CreateItemEffect.cs",
+        "sha256": "6005b9946cef2c063392a091a74ca29b490fb734d48a72f00912435046662171"
+      },
+      {
+        "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.FlameKnifeStock.cs",
+        "sha256": "2bd71ec411f1e49ecda238efbfa50f0b58c5c7e2680b40be54b2eb3095de0cd1"
+      },
+      {
+        "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.cs",
+        "sha256": "ec86efa317db15d75ad2bb20473784de5877fdb4d8c94fd269de9ebcdb34998c"
+      }
+    ]
+  },
+  "historical_source_receipts": [
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_FlameKnife_HistoricalSource_ReadReceipt.json",
+      "sha256": "5538372608edbad83acec3c7c8310fa85443448bb1c0c17413ad88384cc43200"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_FlameKnife_SourceEnergy_ReadReceipt.json",
+      "sha256": "040e42c77e2c0aa2fdc8a07cd67c305009d39726193f65df2f22041dfdc58918"
+    }
+  ],
+  "managed": {
+    "focused": {
+      "run": "20261005T005537Z-77c6517b3ec9",
+      "summary": {
+        "schema_version": 1,
+        "run_id": "20261005T005537Z-77c6517b3ec9",
+        "repository": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD",
+        "head": "d966e8af6b60a8b2ed4de8fa178568f2d8ca1676",
+        "started_utc": "2026-10-05T00:55:37.2145372+00:00",
+        "ended_utc": "2026-10-05T00:56:19.3465863+00:00",
+        "duration_seconds": 42.132079,
+        "source_start": "45f62874c29e8336fbb83e616c8d25af552d7153ba8dddcc7ab9d8be4896b479",
+        "source_end": "45f62874c29e8336fbb83e616c8d25af552d7153ba8dddcc7ab9d8be4896b479",
+        "source_stable": true,
+        "sdk": "10.0.401",
+        "runner": "VSTest/TRX (Microsoft.NET.Test.Sdk 17.9.0)",
+        "suite": "core",
+        "configuration": "Debug",
+        "filter": "FullyQualifiedName~ClanBudgetLengthTests|FullyQualifiedName~VirtualCashLedgerCompatibilityTests|FullyQualifiedName~MediaErasureTests|FullyQualifiedName~NetworkSwitchStateTests|FullyQualifiedName~OutfitTeachingNumericNameTests|FullyQualifiedName~ProjectQueuePreferenceTests|FullyQualifiedName~EmptyPatrolRouteTests|FullyQualifiedName~CombatStrategyRuntimeTests|FullyQualifiedName~SpellAnimationControlTests|FullyQualifiedName~CommandableAiTests|FullyQualifiedName~ItemMorphBootTests|FullyQualifiedName~SpellAnimationReloadTests|FullyQualifiedName~BootLoadingRegressionTests|FullyQualifiedName~SpellAnimationSchedulerTests|FullyQualifiedName~RuntimeSchedulerTests|FullyQualifiedName~Rejuvenation|FullyQualifiedName~MagicSpellPhaseOneTests|FullyQualifiedName~SpellOwnedCorpseAnimationTests|FullyQualifiedName~BodyFormProvisioningTests|FullyQualifiedName~CharacterInstance|FullyQualifiedName~MagicCasting|FullyQualifiedName~SpellOwnedItemTests|FullyQualifiedName~ForeignCustodySaveJournalTests|FullyQualifiedName~PossessionReviewFindingSourceTests|FullyQualifiedName~SpellOwnedNpcRetirementTests|FullyQualifiedName~StormSpearComponentTests|FullyQualifiedName~SpellCreatedConsumableTests|FullyQualifiedName~BodyInventoryInitialisationTests|FullyQualifiedName~Vancian|FullyQualifiedName~FlameKnifeGradeTests",
+        "fail_on_skipped": true,
+        "execution_complete": true,
+        "counts_complete": true,
+        "status": "PASS",
+        "counts": {
+          "executed": 988,
+          "passed": 988,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 988
+        },
+        "projects": [
+          "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+        ],
+        "invocations": [
+          {
+            "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+            "framework": "net10.0",
+            "attempt": 1,
+            "status": "PASS",
+            "reason": null,
+            "build": {
+              "name": "build",
+              "arguments": [
+                "build",
+                "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+                "-c",
+                "Debug",
+                "-m:1",
+                "-p:RestoreBuildInParallel=false",
+                "-p:NuGetAudit=false",
+                "-p:NoWarn=NU1902%3BNU1510",
+                "--no-restore"
+              ],
+              "started_utc": "2026-10-05T00:55:37.6758757+00:00",
+              "ended_utc": "2026-10-05T00:55:59.8915681+00:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-flame-knife\\20261005T005537Z-77c6517b3ec9\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\build\\build.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-flame-knife\\20261005T005537Z-77c6517b3ec9\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\build\\build.stderr.log"
+            },
+            "test": {
+              "name": "test",
+              "arguments": [
+                "test",
+                "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+                "-c",
+                "Debug",
+                "--no-build",
+                "--no-restore",
+                "-m:1",
+                "-f",
+                "net10.0",
+                "-p:NoWarn=NU1902%3BNU1510",
+                "--logger",
+                "trx;LogFileName=results.trx",
+                "--results-directory",
+                "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-flame-knife\\20261005T005537Z-77c6517b3ec9\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\net10-41544e89\\1",
+                "--filter",
+                "FullyQualifiedName~ClanBudgetLengthTests|FullyQualifiedName~VirtualCashLedgerCompatibilityTests|FullyQualifiedName~MediaErasureTests|FullyQualifiedName~NetworkSwitchStateTests|FullyQualifiedName~OutfitTeachingNumericNameTests|FullyQualifiedName~ProjectQueuePreferenceTests|FullyQualifiedName~EmptyPatrolRouteTests|FullyQualifiedName~CombatStrategyRuntimeTests|FullyQualifiedName~SpellAnimationControlTests|FullyQualifiedName~CommandableAiTests|FullyQualifiedName~ItemMorphBootTests|FullyQualifiedName~SpellAnimationReloadTests|FullyQualifiedName~BootLoadingRegressionTests|FullyQualifiedName~SpellAnimationSchedulerTests|FullyQualifiedName~RuntimeSchedulerTests|FullyQualifiedName~Rejuvenation|FullyQualifiedName~MagicSpellPhaseOneTests|FullyQualifiedName~SpellOwnedCorpseAnimationTests|FullyQualifiedName~BodyFormProvisioningTests|FullyQualifiedName~CharacterInstance|FullyQualifiedName~MagicCasting|FullyQualifiedName~SpellOwnedItemTests|FullyQualifiedName~ForeignCustodySaveJournalTests|FullyQualifiedName~PossessionReviewFindingSourceTests|FullyQualifiedName~SpellOwnedNpcRetirementTests|FullyQualifiedName~StormSpearComponentTests|FullyQualifiedName~SpellCreatedConsumableTests|FullyQualifiedName~BodyInventoryInitialisationTests|FullyQualifiedName~Vancian|FullyQualifiedName~FlameKnifeGradeTests"
+              ],
+              "started_utc": "2026-10-05T00:55:59.8950085+00:00",
+              "ended_utc": "2026-10-05T00:56:19.0321822+00:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-flame-knife\\20261005T005537Z-77c6517b3ec9\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\net10-41544e89\\1\\test.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-flame-knife\\20261005T005537Z-77c6517b3ec9\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\net10-41544e89\\1\\test.stderr.log"
+            },
+            "report": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-flame-knife\\20261005T005537Z-77c6517b3ec9\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\net10-41544e89\\1\\results.trx",
+            "binary": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\MudSharpCore Unit Tests\\bin\\Debug\\net10.0\\MudSharpCore Unit Tests.dll",
+            "counts": {
+              "executed": 988,
+              "passed": 988,
+              "failed": 0,
+              "skipped": 0,
+              "inconclusive": 0,
+              "other": 0,
+              "total": 988
+            },
+            "native_counters": {
+              "total": "988",
+              "executed": "988",
+              "passed": "988",
+              "failed": "0",
+              "error": "0",
+              "timeout": "0",
+              "aborted": "0",
+              "inconclusive": "0",
+              "passedButRunAborted": "0",
+              "notRunnable": "0",
+              "notExecuted": "0",
+              "disconnected": "0",
+              "warning": "0",
+              "completed": "0",
+              "inProgress": "0",
+              "pending": "0"
+            }
+          }
+        ],
+        "issues": [],
+        "artifacts": {
+          "run": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-flame-knife\\20261005T005537Z-77c6517b3ec9\\run.json",
+          "summary": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-flame-knife\\20261005T005537Z-77c6517b3ec9\\summary.json",
+          "failures": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-flame-knife\\20261005T005537Z-77c6517b3ec9\\failures.json",
+          "results": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-flame-knife\\20261005T005537Z-77c6517b3ec9\\test-results.json",
+          "bootstrap": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\bootstrap-b456390c6e19481ebac1da696a142c0b\\bootstrap.log"
+        },
+        "build_switches": [
+          "-m:1",
+          "-p:RestoreBuildInParallel=false",
+          "-p:NuGetAudit=false",
+          "-p:NoWarn=NU1902%3BNU1510"
+        ]
+      }
+    },
+    "Fast": {
+      "run": "20261005T010243Z-ea7e9b80bfef",
+      "summary": {
+        "schema_version": 1,
+        "run_id": "20261005T010243Z-ea7e9b80bfef",
+        "repository": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD",
+        "head": "d966e8af6b60a8b2ed4de8fa178568f2d8ca1676",
+        "started_utc": "2026-10-05T01:02:43.0098372+00:00",
+        "ended_utc": "2026-10-05T01:06:26.3311120+00:00",
+        "duration_seconds": 223.3213051,
+        "source_start": "988c43a6bcb903f196086ab653d2dade4fee3974815de71bb95256d33ba8fc4a",
+        "source_end": "988c43a6bcb903f196086ab653d2dade4fee3974815de71bb95256d33ba8fc4a",
+        "source_stable": true,
+        "sdk": "10.0.401",
+        "runner": "VSTest/TRX (Microsoft.NET.Test.Sdk 17.9.0)",
+        "suite": "fast",
+        "configuration": "Debug",
+        "filter": null,
+        "fail_on_skipped": true,
+        "execution_complete": true,
+        "counts_complete": true,
+        "status": "PASS",
+        "counts": {
+          "executed": 7202,
+          "passed": 7202,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 7202
+        },
+        "projects": [
+          "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+          "ExpressionEngine Unit Tests/ExpressionEngine Unit Tests.csproj",
+          "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+          "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+          "MudsharpDatabaseLibrary Unit Tests/MudsharpDatabaseLibrary Unit Tests.csproj",
+          "DiscordBotCore Unit Tests/DiscordBotCore Unit Tests.csproj",
+          "RPI Engine Worldfile Converter Tests/RPI Engine Worldfile Converter Tests.csproj",
+          "FutureMUD.Web.Tests/FutureMUD.Web.Tests.csproj",
+          "TerrainPlanner/TerrainPlanner.Tests/TerrainPlanner.Tests.csproj",
+          "scripts/TestReporting.Tests/TestReporting.Tests.csproj"
+        ],
+        "invocations": [
+          {
+            "project": "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+            "framework": "net10.0",
+            "attempt": 1,
+            "status": "PASS",
+            "reason": null,
+            "build": {
+              "name": "build",
+              "arguments": [
+                "build",
+                "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+                "-c",
+                "Debug",
+                "-m:1",
+                "-p:RestoreBuildInParallel=false",
+                "-p:NuGetAudit=false",
+                "-p:NoWarn=NU1902%3BNU1510"
+              ],
+              "started_utc": "2026-10-05T01:02:43.5264307+00:00",
+              "ended_utc": "2026-10-05T01:02:45.5419361+00:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-flame-knife\\20261005T010243Z-ea7e9b80bfef\\invocations\\FutureMUDLibrary_Unit_Tests-45c02d6c\\build\\build.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-flame-knife\\20261005T010243Z-ea7e9b80bfef\\invocations\\FutureMUDLibrary_Unit_Tests-45c02d6c\\build\\build.stderr.log"
+            },
+            "test": {
+              "name": "test",
+              "arguments": [
+                "test",
+                "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+                "-c",
+                "Debug",
+                "--no-build",
+                "--no-restore",
+                "-m:1",
+                "-f",
+                "net10.0",
+                "-p:NoWarn=NU1902%3BNU1510",
+                "--logger",
+                "trx;LogFileName=results.trx",
+                "--results-directory",
+                "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-flame-knife\\20261005T010243Z-ea7e9b80bfef\\invocations\\FutureMUDLibrary_Unit_Tests-45c02d6c\\net10-41544e89\\1"
+              ],
+              "started_utc": "2026-10-05T01:03:02.2879869+00:00",
+              "ended_utc": "2026-10-05T01:03:06.7276919+00:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-flame-knife\\20261005T010243Z-ea7e9b80bfef\\invocations\\FutureMUDLibrary_Unit_Tests-45c02d6c\\net10-41544e89\\1\\test.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-flame-knife\\20261005T010243Z-ea7e9b80bfef\\invocations\\FutureMUDLibrary_Unit_Tests-45c02d6c\\net10-41544e89\\1\\test.stderr.log"
+            },
+            "report": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-flame-knife\\20261005T010243Z-ea7e9b80bfef\\invocations\\FutureMUDLibrary_Unit_Tests-45c02d6c\\net10-41544e89\\1\\results.trx",
+            "binary": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\FutureMUDLibrary Unit Tests\\bin\\Debug\\net10.0\\FutureMUDLibrary Unit Tests.dll",
+            "counts": {
+              "executed": 631,
+              "passed": 631,
+              "failed": 0,
+              "skipped": 0,
+              "inconclusive": 0,
+              "other": 0,
+              "total": 631
+            },
+            "native_counters": {
+              "total": "631",
+              "executed": "631",
+              "passed": "631",
+              "failed": "0",
+              "error": "0",
+              "timeout": "0",
+              "aborted": "0",
+              "inconclusive": "0",
+              "passedButRunAborted": "0",
+              "notRunnable": "0",
+              "notExecuted": "0",
+              "disconnected": "0",
+              "warning": "0",
+              "completed": "0",
+              "inProgress": "0",
+              "pending": "0"
+            }
+          },
+          {
+            "project": "ExpressionEngine Unit Tests/ExpressionEngine Unit Tests.csproj",
+            "framework": "net10.0",
+            "attempt": 1,
+            "status": "PASS",
+            "reason": null,
+            "build": {
+              "name": "build",
+              "arguments": [
+                "build",
+                "ExpressionEngine Unit Tests/ExpressionEngine Unit Tests.csproj",
+                "-c",
+                "Debug",
+                "-m:1",
+                "-p:RestoreBuildInParallel=false",
+                "-p:NuGetAudit=false",
+                "-p:NoWarn=NU1902%3BNU1510"
+              ],
+              "started_utc": "2026-10-05T01:02:45.5433399+00:00",
+              "ended_utc": "2026-10-05T01:02:46.4867306+00:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-flame-knife\\20261005T010243Z-ea7e9b80bfef\\invocations\\ExpressionEngine_Unit_Tests-8cdb3e65\\build\\build.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-flame-knife\\20261005T010243Z-ea7e9b80bfef\\invocations\\ExpressionEngine_Unit_Tests-8cdb3e65\\build\\build.stderr.log"
+            },
+            "test": {
+              "name": "test",
+              "arguments": [
+                "test",
+                "ExpressionEngine Unit Tests/ExpressionEngine Unit Tests.csproj",
+                "-c",
+                "Debug",
+                "--no-build",
+                "--no-restore",
+                "-m:1",
+                "-f",
+                "net10.0",
+                "-p:NoWarn=NU1902%3BNU1510",
+                "--logger",
+                "trx;LogFileName=results.trx",
+                "--results-directory",
+                "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-flame-knife\\20261005T010243Z-ea7e9b80bfef\\invocations\\ExpressionEngine_Unit_Tests-8cdb3e65\\net10-41544e89\\1"
+              ],
+              "started_utc": "2026-10-05T01:03:02.2937711+00:00",
+              "ended_utc": "2026-10-05T01:03:04.2132801+00:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-flame-knife\\20261005T010243Z-ea7e9b80bfef\\invocations\\ExpressionEngine_Unit_Tests-8cdb3e65\\net10-41544e89\\1\\test.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-flame-knife\\20261005T010243Z-ea7e9b80bfef\\invocations\\ExpressionEngine_Unit_Tests-8cdb3e65\\net10-41544e89\\1\\test.stderr.log"
+            },
+            "report": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-flame-knife\\20261005T010243Z-ea7e9b80bfef\\invocations\\ExpressionEngine_Unit_Tests-8cdb3e65\\net10-41544e89\\1\\results.trx",
+            "binary": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\ExpressionEngine Unit Tests\\bin\\Debug\\net10.0\\ExpressionEngine Unit Tests.dll",
+            "counts": {
+              "executed": 36,
+              "passed": 36,
+              "failed": 0,
+              "skipped": 0,
+              "inconclusive": 0,
+              "other": 0,
+              "total": 36
+            },
+            "native_counters": {
+              "total": "36",
+              "executed": "36",
+              "passed": "36",
+              "failed": "0",
+              "error": "0",
+              "timeout": "0",
+              "aborted": "0",
+              "inconclusive": "0",
+              "passedButRunAborted": "0",
+              "notRunnable": "0",
+              "notExecuted": "0",
+              "disconnected": "0",
+              "warning": "0",
+              "completed": "0",
+              "inProgress": "0",
+              "pending": "0"
+            }
+          },
+          {
+            "project": "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+            "framework": "net10.0",
+            "attempt": 1,
+            "status": "PASS",
+            "reason": null,
+            "build": {
+              "name": "build",
+              "arguments": [
+                "build",
+                "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+                "-c",
+                "Debug",
+                "-m:1",
+                "-p:RestoreBuildInParallel=false",
+                "-p:NuGetAudit=false",
+                "-p:NoWarn=NU1902%3BNU1510"
+              ],
+              "started_utc": "2026-10-05T01:02:46.4878390+00:00",
+              "ended_utc": "2026-10-05T01:02:50.2483214+00:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-flame-knife\\20261005T010243Z-ea7e9b80bfef\\invocations\\DatabaseSeeder_Unit_Tests-e14dcedb\\build\\build.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-flame-knife\\20261005T010243Z-ea7e9b80bfef\\invocations\\DatabaseSeeder_Unit_Tests-e14dcedb\\build\\build.stderr.log"
+            },
+            "test": {
+              "name": "test",
+              "arguments": [
+                "test",
+                "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+                "-c",
+                "Debug",
+                "--no-build",
+                "--no-restore",
+                "-m:1",
+                "-f",
+                "net10.0",
+                "-p:NoWarn=NU1902%3BNU1510",
+                "--logger",
+                "trx;LogFileName=results.trx",
+                "--results-directory",
+                "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-flame-knife\\20261005T010243Z-ea7e9b80bfef\\invocations\\DatabaseSeeder_Unit_Tests-e14dcedb\\net10-41544e89\\1"
+              ],
+              "started_utc": "2026-10-05T01:03:02.2993761+00:00",
+              "ended_utc": "2026-10-05T01:06:25.8685925+00:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-flame-knife\\20261005T010243Z-ea7e9b80bfef\\invocations\\DatabaseSeeder_Unit_Tests-e14dcedb\\net10-41544e89\\1\\test.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-flame-knife\\20261005T010243Z-ea7e9b80bfef\\invocations\\DatabaseSeeder_Unit_Tests-e14dcedb\\net10-41544e89\\1\\test.stderr.log"
+            },
+            "report": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-flame-knife\\20261005T010243Z-ea7e9b80bfef\\invocations\\DatabaseSeeder_Unit_Tests-e14dcedb\\net10-41544e89\\1\\results.trx",
+            "binary": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\DatabaseSeeder Unit Tests\\bin\\Debug\\net10.0\\DatabaseSeeder Unit Tests.dll",
+            "counts": {
+              "executed": 1441,
+              "passed": 1441,
+              "failed": 0,
+              "skipped": 0,
+              "inconclusive": 0,
+              "other": 0,
+              "total": 1441
+            },
+            "native_counters": {
+              "total": "1441",
+              "executed": "1441",
+              "passed": "1441",
+              "failed": "0",
+              "error": "0",
+              "timeout": "0",
+              "aborted": "0",
+              "inconclusive": "0",
+              "passedButRunAborted": "0",
+              "notRunnable": "0",
+              "notExecuted": "0",
+              "disconnected": "0",
+              "warning": "0",
+              "completed": "0",
+              "inProgress": "0",
+              "pending": "0"
+            }
+          },
+          {
+            "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+            "framework": "net10.0",
+            "attempt": 1,
+            "status": "PASS",
+            "reason": null,
+            "build": {
+              "name": "build",
+              "arguments": [
+                "build",
+                "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+                "-c",
+                "Debug",
+                "-m:1",
+                "-p:RestoreBuildInParallel=false",
+                "-p:NuGetAudit=false",
+                "-p:NoWarn=NU1902%3BNU1510"
+              ],
+              "started_utc": "2026-10-05T01:02:50.2490327+00:00",
+              "ended_utc": "2026-10-05T01:02:51.7676848+00:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-flame-knife\\20261005T010243Z-ea7e9b80bfef\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\build\\build.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-flame-knife\\20261005T010243Z-ea7e9b80bfef\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\build\\build.stderr.log"
+            },
+            "test": {
+              "name": "test",
+              "arguments": [
+                "test",
+                "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+                "-c",
+                "Debug",
+                "--no-build",
+                "--no-restore",
+                "-m:1",
+                "-f",
+                "net10.0",
+                "-p:NoWarn=NU1902%3BNU1510",
+                "--logger",
+                "trx;LogFileName=results.trx",
+                "--results-directory",
+                "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-flame-knife\\20261005T010243Z-ea7e9b80bfef\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\net10-41544e89\\1"
+              ],
+              "started_utc": "2026-10-05T01:03:02.3035438+00:00",
+              "ended_utc": "2026-10-05T01:04:26.6453896+00:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-flame-knife\\20261005T010243Z-ea7e9b80bfef\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\net10-41544e89\\1\\test.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-flame-knife\\20261005T010243Z-ea7e9b80bfef\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\net10-41544e89\\1\\test.stderr.log"
+            },
+            "report": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-flame-knife\\20261005T010243Z-ea7e9b80bfef\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\net10-41544e89\\1\\results.trx",
+            "binary": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\MudSharpCore Unit Tests\\bin\\Debug\\net10.0\\MudSharpCore Unit Tests.dll",
+            "counts": {
+              "executed": 4836,
+              "passed": 4836,
+              "failed": 0,
+              "skipped": 0,
+              "inconclusive": 0,
+              "other": 0,
+              "total": 4836
+            },
+            "native_counters": {
+              "total": "4836",
+              "executed": "4836",
+              "passed": "4836",
+              "failed": "0",
+              "error": "0",
+              "timeout": "0",
+              "aborted": "0",
+              "inconclusive": "0",
+              "passedButRunAborted": "0",
+              "notRunnable": "0",
+              "notExecuted": "0",
+              "disconnected": "0",
+              "warning": "0",
+              "completed": "0",
+              "inProgress": "0",
+              "pending": "0"
+            }
+          },
+          {
+            "project": "MudsharpDatabaseLibrary Unit Tests/MudsharpDatabaseLibrary Unit Tests.csproj",
+            "framework": "net10.0",
+            "attempt": 1,
+            "status": "PASS",
+            "reason": null,
+            "build": {
+              "name": "build",
+              "arguments": [
+                "build",
+                "MudsharpDatabaseLibrary Unit Tests/MudsharpDatabaseLibrary Unit Tests.csproj",
+                "-c",
+                "Debug",
+                "-m:1",
+                "-p:RestoreBuildInParallel=false",
+                "-p:NuGetAudit=false",
+                "-p:NoWarn=NU1902%3BNU1510"
+              ],
+              "started_utc": "2026-10-05T01:02:51.7684660+00:00",
+              "ended_utc": "2026-10-05T01:02:52.9048471+00:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-flame-knife\\20261005T010243Z-ea7e9b80bfef\\invocations\\MudsharpDatabaseLibrary_Unit_Tests-6ef1914c\\build\\build.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-flame-knife\\20261005T010243Z-ea7e9b80bfef\\invocations\\MudsharpDatabaseLibrary_Unit_Tests-6ef1914c\\build\\build.stderr.log"
+            },
+            "test": {
+              "name": "test",
+              "arguments": [
+                "test",
+                "MudsharpDatabaseLibrary Unit Tests/MudsharpDatabaseLibrary Unit Tests.csproj",
+                "-c",
+                "Debug",
+                "--no-build",
+                "--no-restore",
+                "-m:1",
+                "-f",
+                "net10.0",
+                "-p:NoWarn=NU1902%3BNU1510",
+                "--logger",
+                "trx;LogFileName=results.trx",
+                "--results-directory",
+                "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-flame-knife\\20261005T010243Z-ea7e9b80bfef\\invocations\\MudsharpDatabaseLibrary_Unit_Tests-6ef1914c\\net10-41544e89\\1"
+              ],
+              "started_utc": "2026-10-05T01:03:02.3078822+00:00",
+              "ended_utc": "2026-10-05T01:03:12.8026827+00:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-flame-knife\\20261005T010243Z-ea7e9b80bfef\\invocations\\MudsharpDatabaseLibrary_Unit_Tests-6ef1914c\\net10-41544e89\\1\\test.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-flame-knife\\20261005T010243Z-ea7e9b80bfef\\invocations\\MudsharpDatabaseLibrary_Unit_Tests-6ef1914c\\net10-41544e89\\1\\test.stderr.log"
+            },
+            "report": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-flame-knife\\20261005T010243Z-ea7e9b80bfef\\invocations\\MudsharpDatabaseLibrary_Unit_Tests-6ef1914c\\net10-41544e89\\1\\results.trx",
+            "binary": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\MudsharpDatabaseLibrary Unit Tests\\bin\\Debug\\net10.0\\MudsharpDatabaseLibrary Unit Tests.dll",
+            "counts": {
+              "executed": 67,
+              "passed": 67,
+              "failed": 0,
+              "skipped": 0,
+              "inconclusive": 0,
+              "other": 0,
+              "total": 67
+            },
+            "native_counters": {
+              "total": "67",
+              "executed": "67",
+              "passed": "67",
+              "failed": "0",
+              "error": "0",
+              "timeout": "0",
+              "aborted": "0",
+              "inconclusive": "0",
+              "passedButRunAborted": "0",
+              "notRunnable": "0",
+              "notExecuted": "0",
+              "disconnected": "0",
+              "warning": "0",
+              "completed": "0",
+              "inProgress": "0",
+              "pending": "0"
+            }
+          },
+          {
+            "project": "DiscordBotCore Unit Tests/DiscordBotCore Unit Tests.csproj",
+            "framework": "net10.0",
+            "attempt": 1,
+            "status": "PASS",
+            "reason": null,
+            "build": {
+              "name": "build",
+              "arguments": [
+                "build",
+                "DiscordBotCore Unit Tests/DiscordBotCore Unit Tests.csproj",
+                "-c",
+                "Debug",
+                "-m:1",
+                "-p:RestoreBuildInParallel=false",
+                "-p:NuGetAudit=false",
+                "-p:NoWarn=NU1902%3BNU1510"
+              ],
+              "started_utc": "2026-10-05T01:02:52.9055803+00:00",
+              "ended_utc": "2026-10-05T01:02:54.4632258+00:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-flame-knife\\20261005T010243Z-ea7e9b80bfef\\invocations\\DiscordBotCore_Unit_Tests-4ffa2b0e\\build\\build.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-flame-knife\\20261005T010243Z-ea7e9b80bfef\\invocations\\DiscordBotCore_Unit_Tests-4ffa2b0e\\build\\build.stderr.log"
+            },
+            "test": {
+              "name": "test",
+              "arguments": [
+                "test",
+                "DiscordBotCore Unit Tests/DiscordBotCore Unit Tests.csproj",
+                "-c",
+                "Debug",
+                "--no-build",
+                "--no-restore",
+                "-m:1",
+                "-f",
+                "net10.0",
+                "-p:NoWarn=NU1902%3BNU1510",
+                "--logger",
+                "trx;LogFileName=results.trx",
+                "--results-directory",
+                "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-flame-knife\\20261005T010243Z-ea7e9b80bfef\\invocations\\DiscordBotCore_Unit_Tests-4ffa2b0e\\net10-41544e89\\1"
+              ],
+              "started_utc": "2026-10-05T01:03:02.3121402+00:00",
+              "ended_utc": "2026-10-05T01:03:05.0796436+00:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-flame-knife\\20261005T010243Z-ea7e9b80bfef\\invocations\\DiscordBotCore_Unit_Tests-4ffa2b0e\\net10-41544e89\\1\\test.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-flame-knife\\20261005T010243Z-ea7e9b80bfef\\invocations\\DiscordBotCore_Unit_Tests-4ffa2b0e\\net10-41544e89\\1\\test.stderr.log"
+            },
+            "report": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-flame-knife\\20261005T010243Z-ea7e9b80bfef\\invocations\\DiscordBotCore_Unit_Tests-4ffa2b0e\\net10-41544e89\\1\\results.trx",
+            "binary": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\DiscordBotCore Unit Tests\\bin\\Debug\\net10.0\\DiscordBotCore Unit Tests.dll",
+            "counts": {
+              "executed": 22,
+              "passed": 22,
+              "failed": 0,
+              "skipped": 0,
+              "inconclusive": 0,
+              "other": 0,
+              "total": 22
+            },
+            "native_counters": {
+              "total": "22",
+              "executed": "22",
+              "passed": "22",
+              "failed": "0",
+              "error": "0",
+              "timeout": "0",
+              "aborted": "0",
+              "inconclusive": "0",
+              "passedButRunAborted": "0",
+              "notRunnable": "0",
+              "notExecuted": "0",
+              "disconnected": "0",
+              "warning": "0",
+              "completed": "0",
+              "inProgress": "0",
+              "pending": "0"
+            }
+          },
+          {
+            "project": "RPI Engine Worldfile Converter Tests/RPI Engine Worldfile Converter Tests.csproj",
+            "framework": "net10.0",
+            "attempt": 1,
+            "status": "PASS",
+            "reason": null,
+            "build": {
+              "name": "build",
+              "arguments": [
+                "build",
+                "RPI Engine Worldfile Converter Tests/RPI Engine Worldfile Converter Tests.csproj",
+                "-c",
+                "Debug",
+                "-m:1",
+                "-p:RestoreBuildInParallel=false",
+                "-p:NuGetAudit=false",
+                "-p:NoWarn=NU1902%3BNU1510"
+              ],
+              "started_utc": "2026-10-05T01:02:54.4641238+00:00",
+              "ended_utc": "2026-10-05T01:02:56.8974471+00:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-flame-knife\\20261005T010243Z-ea7e9b80bfef\\invocations\\RPI_Engine_Worldfile_Converter_Tests-14d87d34\\build\\build.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-flame-knife\\20261005T010243Z-ea7e9b80bfef\\invocations\\RPI_Engine_Worldfile_Converter_Tests-14d87d34\\build\\build.stderr.log"
+            },
+            "test": {
+              "name": "test",
+              "arguments": [
+                "test",
+                "RPI Engine Worldfile Converter Tests/RPI Engine Worldfile Converter Tests.csproj",
+                "-c",
+                "Debug",
+                "--no-build",
+                "--no-restore",
+                "-m:1",
+                "-f",
+                "net10.0",
+                "-p:NoWarn=NU1902%3BNU1510",
+                "--logger",
+                "trx;LogFileName=results.trx",
+                "--results-directory",
+                "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-flame-knife\\20261005T010243Z-ea7e9b80bfef\\invocations\\RPI_Engine_Worldfile_Converter_Tests-14d87d34\\net10-41544e89\\1"
+              ],
+              "started_utc": "2026-10-05T01:03:02.3161513+00:00",
+              "ended_utc": "2026-10-05T01:03:05.4389854+00:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-flame-knife\\20261005T010243Z-ea7e9b80bfef\\invocations\\RPI_Engine_Worldfile_Converter_Tests-14d87d34\\net10-41544e89\\1\\test.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-flame-knife\\20261005T010243Z-ea7e9b80bfef\\invocations\\RPI_Engine_Worldfile_Converter_Tests-14d87d34\\net10-41544e89\\1\\test.stderr.log"
+            },
+            "report": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-flame-knife\\20261005T010243Z-ea7e9b80bfef\\invocations\\RPI_Engine_Worldfile_Converter_Tests-14d87d34\\net10-41544e89\\1\\results.trx",
+            "binary": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\RPI Engine Worldfile Converter Tests\\bin\\Debug\\net10.0\\RPI Engine Worldfile Converter Tests.dll",
+            "counts": {
+              "executed": 43,
+              "passed": 43,
+              "failed": 0,
+              "skipped": 0,
+              "inconclusive": 0,
+              "other": 0,
+              "total": 43
+            },
+            "native_counters": {
+              "total": "43",
+              "executed": "43",
+              "passed": "43",
+              "failed": "0",
+              "error": "0",
+              "timeout": "0",
+              "aborted": "0",
+              "inconclusive": "0",
+              "passedButRunAborted": "0",
+              "notRunnable": "0",
+              "notExecuted": "0",
+              "disconnected": "0",
+              "warning": "0",
+              "completed": "0",
+              "inProgress": "0",
+              "pending": "0"
+            }
+          },
+          {
+            "project": "FutureMUD.Web.Tests/FutureMUD.Web.Tests.csproj",
+            "framework": "net10.0",
+            "attempt": 1,
+            "status": "PASS",
+            "reason": null,
+            "build": {
+              "name": "build",
+              "arguments": [
+                "build",
+                "FutureMUD.Web.Tests/FutureMUD.Web.Tests.csproj",
+                "-c",
+                "Debug",
+                "-m:1",
+                "-p:RestoreBuildInParallel=false",
+                "-p:NuGetAudit=false",
+                "-p:NoWarn=NU1902%3BNU1510"
+              ],
+              "started_utc": "2026-10-05T01:02:56.8981471+00:00",
+              "ended_utc": "2026-10-05T01:02:58.8367250+00:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-flame-knife\\20261005T010243Z-ea7e9b80bfef\\invocations\\FutureMUD.Web.Tests-ac492d08\\build\\build.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-flame-knife\\20261005T010243Z-ea7e9b80bfef\\invocations\\FutureMUD.Web.Tests-ac492d08\\build\\build.stderr.log"
+            },
+            "test": {
+              "name": "test",
+              "arguments": [
+                "test",
+                "FutureMUD.Web.Tests/FutureMUD.Web.Tests.csproj",
+                "-c",
+                "Debug",
+                "--no-build",
+                "--no-restore",
+                "-m:1",
+                "-f",
+                "net10.0",
+                "-p:NoWarn=NU1902%3BNU1510",
+                "--logger",
+                "trx;LogFileName=results.trx",
+                "--results-directory",
+                "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-flame-knife\\20261005T010243Z-ea7e9b80bfef\\invocations\\FutureMUD.Web.Tests-ac492d08\\net10-41544e89\\1"
+              ],
+              "started_utc": "2026-10-05T01:03:02.3203837+00:00",
+              "ended_utc": "2026-10-05T01:03:07.9232441+00:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-flame-knife\\20261005T010243Z-ea7e9b80bfef\\invocations\\FutureMUD.Web.Tests-ac492d08\\net10-41544e89\\1\\test.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-flame-knife\\20261005T010243Z-ea7e9b80bfef\\invocations\\FutureMUD.Web.Tests-ac492d08\\net10-41544e89\\1\\test.stderr.log"
+            },
+            "report": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-flame-knife\\20261005T010243Z-ea7e9b80bfef\\invocations\\FutureMUD.Web.Tests-ac492d08\\net10-41544e89\\1\\results.trx",
+            "binary": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\FutureMUD.Web.Tests\\bin\\Debug\\net10.0\\FutureMUD.Web.Tests.dll",
+            "counts": {
+              "executed": 54,
+              "passed": 54,
+              "failed": 0,
+              "skipped": 0,
+              "inconclusive": 0,
+              "other": 0,
+              "total": 54
+            },
+            "native_counters": {
+              "total": "54",
+              "executed": "54",
+              "passed": "54",
+              "failed": "0",
+              "error": "0",
+              "timeout": "0",
+              "aborted": "0",
+              "inconclusive": "0",
+              "passedButRunAborted": "0",
+              "notRunnable": "0",
+              "notExecuted": "0",
+              "disconnected": "0",
+              "warning": "0",
+              "completed": "0",
+              "inProgress": "0",
+              "pending": "0"
+            }
+          },
+          {
+            "project": "TerrainPlanner/TerrainPlanner.Tests/TerrainPlanner.Tests.csproj",
+            "framework": "net10.0",
+            "attempt": 1,
+            "status": "PASS",
+            "reason": null,
+            "build": {
+              "name": "build",
+              "arguments": [
+                "build",
+                "TerrainPlanner/TerrainPlanner.Tests/TerrainPlanner.Tests.csproj",
+                "-c",
+                "Debug",
+                "-m:1",
+                "-p:RestoreBuildInParallel=false",
+                "-p:NuGetAudit=false",
+                "-p:NoWarn=NU1902%3BNU1510"
+              ],
+              "started_utc": "2026-10-05T01:02:58.8373842+00:00",
+              "ended_utc": "2026-10-05T01:03:00.8959573+00:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-flame-knife\\20261005T010243Z-ea7e9b80bfef\\invocations\\TerrainPlanner.Tests-1085b5fa\\build\\build.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-flame-knife\\20261005T010243Z-ea7e9b80bfef\\invocations\\TerrainPlanner.Tests-1085b5fa\\build\\build.stderr.log"
+            },
+            "test": {
+              "name": "test",
+              "arguments": [
+                "test",
+                "TerrainPlanner/TerrainPlanner.Tests/TerrainPlanner.Tests.csproj",
+                "-c",
+                "Debug",
+                "--no-build",
+                "--no-restore",
+                "-m:1",
+                "-f",
+                "net10.0",
+                "-p:NoWarn=NU1902%3BNU1510",
+                "--logger",
+                "trx;LogFileName=results.trx",
+                "--results-directory",
+                "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-flame-knife\\20261005T010243Z-ea7e9b80bfef\\invocations\\TerrainPlanner.Tests-1085b5fa\\net10-41544e89\\1"
+              ],
+              "started_utc": "2026-10-05T01:03:02.3259122+00:00",
+              "ended_utc": "2026-10-05T01:03:23.4160415+00:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-flame-knife\\20261005T010243Z-ea7e9b80bfef\\invocations\\TerrainPlanner.Tests-1085b5fa\\net10-41544e89\\1\\test.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-flame-knife\\20261005T010243Z-ea7e9b80bfef\\invocations\\TerrainPlanner.Tests-1085b5fa\\net10-41544e89\\1\\test.stderr.log"
+            },
+            "report": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-flame-knife\\20261005T010243Z-ea7e9b80bfef\\invocations\\TerrainPlanner.Tests-1085b5fa\\net10-41544e89\\1\\results.trx",
+            "binary": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\TerrainPlanner\\TerrainPlanner.Tests\\bin\\Debug\\net10.0\\TerrainPlanner.Tests.dll",
+            "counts": {
+              "executed": 34,
+              "passed": 34,
+              "failed": 0,
+              "skipped": 0,
+              "inconclusive": 0,
+              "other": 0,
+              "total": 34
+            },
+            "native_counters": {
+              "total": "34",
+              "executed": "34",
+              "passed": "34",
+              "failed": "0",
+              "error": "0",
+              "timeout": "0",
+              "aborted": "0",
+              "inconclusive": "0",
+              "passedButRunAborted": "0",
+              "notRunnable": "0",
+              "notExecuted": "0",
+              "disconnected": "0",
+              "warning": "0",
+              "completed": "0",
+              "inProgress": "0",
+              "pending": "0"
+            }
+          },
+          {
+            "project": "scripts/TestReporting.Tests/TestReporting.Tests.csproj",
+            "framework": "net10.0",
+            "attempt": 1,
+            "status": "PASS",
+            "reason": null,
+            "build": {
+              "name": "build",
+              "arguments": [
+                "build",
+                "scripts/TestReporting.Tests/TestReporting.Tests.csproj",
+                "-c",
+                "Debug",
+                "-m:1",
+                "-p:RestoreBuildInParallel=false",
+                "-p:NuGetAudit=false",
+                "-p:NoWarn=NU1902%3BNU1510"
+              ],
+              "started_utc": "2026-10-05T01:03:00.8967913+00:00",
+              "ended_utc": "2026-10-05T01:03:02.2859342+00:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-flame-knife\\20261005T010243Z-ea7e9b80bfef\\invocations\\TestReporting.Tests-25b07e44\\build\\build.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-flame-knife\\20261005T010243Z-ea7e9b80bfef\\invocations\\TestReporting.Tests-25b07e44\\build\\build.stderr.log"
+            },
+            "test": {
+              "name": "test",
+              "arguments": [
+                "test",
+                "scripts/TestReporting.Tests/TestReporting.Tests.csproj",
+                "-c",
+                "Debug",
+                "--no-build",
+                "--no-restore",
+                "-m:1",
+                "-f",
+                "net10.0",
+                "-p:NoWarn=NU1902%3BNU1510",
+                "--logger",
+                "trx;LogFileName=results.trx",
+                "--results-directory",
+                "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-flame-knife\\20261005T010243Z-ea7e9b80bfef\\invocations\\TestReporting.Tests-25b07e44\\net10-41544e89\\1"
+              ],
+              "started_utc": "2026-10-05T01:03:02.3307424+00:00",
+              "ended_utc": "2026-10-05T01:04:09.2489440+00:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-flame-knife\\20261005T010243Z-ea7e9b80bfef\\invocations\\TestReporting.Tests-25b07e44\\net10-41544e89\\1\\test.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-flame-knife\\20261005T010243Z-ea7e9b80bfef\\invocations\\TestReporting.Tests-25b07e44\\net10-41544e89\\1\\test.stderr.log"
+            },
+            "report": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-flame-knife\\20261005T010243Z-ea7e9b80bfef\\invocations\\TestReporting.Tests-25b07e44\\net10-41544e89\\1\\results.trx",
+            "binary": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\scripts\\TestReporting.Tests\\bin\\Debug\\net10.0\\TestReporting.Tests.dll",
+            "counts": {
+              "executed": 38,
+              "passed": 38,
+              "failed": 0,
+              "skipped": 0,
+              "inconclusive": 0,
+              "other": 0,
+              "total": 38
+            },
+            "native_counters": {
+              "total": "38",
+              "executed": "38",
+              "passed": "38",
+              "failed": "0",
+              "error": "0",
+              "timeout": "0",
+              "aborted": "0",
+              "inconclusive": "0",
+              "passedButRunAborted": "0",
+              "notRunnable": "0",
+              "notExecuted": "0",
+              "disconnected": "0",
+              "warning": "0",
+              "completed": "0",
+              "inProgress": "0",
+              "pending": "0"
+            }
+          }
+        ],
+        "issues": [],
+        "artifacts": {
+          "run": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-flame-knife\\20261005T010243Z-ea7e9b80bfef\\run.json",
+          "summary": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-flame-knife\\20261005T010243Z-ea7e9b80bfef\\summary.json",
+          "failures": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-flame-knife\\20261005T010243Z-ea7e9b80bfef\\failures.json",
+          "results": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-flame-knife\\20261005T010243Z-ea7e9b80bfef\\test-results.json",
+          "bootstrap": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\bootstrap-c5540ad1af5448a3a14efdaab47dd33b\\bootstrap.log"
+        },
+        "build_switches": [
+          "-m:1",
+          "-p:RestoreBuildInParallel=false",
+          "-p:NuGetAudit=false",
+          "-p:NoWarn=NU1902%3BNU1510"
+        ]
+      }
+    }
+  },
+  "native": {
+    "native-final": {
+      "status": "PASS",
+      "log": ".artifacts/test-runs/armageddon-20261005-flame-knife/native-final-native.log",
+      "sha256": "6872bd883f8e271c9972486a45c1bf4717d696a59698a305113468f9073a415f",
+      "markers": [
+        "ARM03B2B-connection-refusals=passed unowned-host shared-default blank-database unregistered-owned-prefix all-refused-before-connect",
+        "ARMFlame-stock-builder=passed six-distinct-temporary-grades eight-permanent-staff-pool mon-only-component standard-placement environment-progs persisted-reload duplicate-refusal invalid-edit-preserved",
+        "ARMFlame-prepayment=passed missing-low-rank-ground-contained-mon-component-refused zero-payment zero-operation zero-created-row",
+        "ARMFlame-environment=passed real-native-terrain real-stock-prog water-low-and-mon-refused no-payment",
+        "ARMFlame-paid-grade1=passed actual-payment component-only-at-mon prototype:10 native-standard-get explicit-native-wield mode:TemporaryCleanup deadline:2026-09-15T00:37:30.0000000Z",
+        "ARMFlame-combat-grade1=passed real-MeleeWeaponAttack actual-burning-target-wounds persisted-native-wounds declared-6-damage-4-pain-2-stun helpless-defence controlled-roll no-historical-damage-parity",
+        "ARMFlame-paid-grade2=passed actual-payment component-only-at-mon prototype:11 native-standard-get explicit-native-wield mode:TemporaryCleanup deadline:2026-09-15T01:33:45.0000000Z",
+        "ARMFlame-combat-grade2=passed real-MeleeWeaponAttack actual-burning-target-wounds persisted-native-wounds declared-6-damage-4-pain-2-stun helpless-defence controlled-roll no-historical-damage-parity",
+        "ARMFlame-paid-grade3=passed actual-payment component-only-at-mon prototype:12 native-standard-get explicit-native-wield mode:TemporaryCleanup deadline:2026-09-15T02:48:45.0000000Z",
+        "ARMFlame-combat-grade3=passed real-MeleeWeaponAttack actual-burning-target-wounds persisted-native-wounds declared-6-damage-4-pain-2-stun helpless-defence controlled-roll no-historical-damage-parity",
+        "ARMFlame-paid-grade4=passed actual-payment component-only-at-mon prototype:13 native-standard-get explicit-native-wield mode:TemporaryCleanup deadline:2026-09-15T04:22:30.0000000Z",
+        "ARMFlame-combat-grade4=passed real-MeleeWeaponAttack actual-burning-target-wounds persisted-native-wounds declared-6-damage-4-pain-2-stun helpless-defence controlled-roll no-historical-damage-parity",
+        "ARMFlame-paid-grade5=passed actual-payment component-only-at-mon prototype:14 native-standard-get explicit-native-wield mode:TemporaryCleanup deadline:2026-09-15T06:15:00.0000000Z",
+        "ARMFlame-combat-grade5=passed real-MeleeWeaponAttack actual-burning-target-wounds persisted-native-wounds declared-6-damage-4-pain-2-stun helpless-defence controlled-roll no-historical-damage-parity",
+        "ARMFlame-paid-grade6=passed actual-payment component-only-at-mon prototype:15 native-standard-get explicit-native-wield mode:TemporaryCleanup deadline:2026-09-15T07:20:37.5000000Z",
+        "ARMFlame-combat-grade6=passed real-MeleeWeaponAttack actual-burning-target-wounds persisted-native-wounds declared-6-damage-4-pain-2-stun helpless-defence controlled-roll no-historical-damage-parity",
+        "ARMFlame-threshold-variants=passed all-six-paid-prototypes grades1-to5-exact-wielded-expiry shadow-grade6-half-duration immutable-deadline temporary-value-block",
+        "ARMFlame-paid-grade7=passed actual-payment component-only-at-mon prototype:21 native-standard-get explicit-native-wield mode:Permanent deadline:",
+        "ARMFlame-combat-grade7=passed real-MeleeWeaponAttack actual-burning-target-wounds persisted-native-wounds declared-6-damage-4-pain-2-stun helpless-defence controlled-roll no-historical-damage-parity",
+        "ARMFlame-component-threshold=passed exact-six-prepayment-admitted higher-descendant-seven-paid-and-consumed wrong-lower-tags-refused exact-six-unrelated-preserved",
+        "ARMFlame-reader=passed fresh-process original-stock-formula persisted-deadline no-reset no-early-expiry cold-custody-hold native-custodian-load exact-expiry repeated-reconciliation foreign-bag-and-child-preserved",
+        "ARMFlame-restart-expiry=passed real-fresh-process shadow-temporary-expiry exact-owned-leaf permanent-staff-foreign-bag-and-sibling-survive no-reset-or-replay"
+      ],
+      "marker_count": 22,
+      "owned_processes_remaining": 0
+    },
+    "regression-storm": {
+      "status": "PASS",
+      "log": ".artifacts/test-runs/armageddon-20261005-flame-knife/regression-storm-native.log",
+      "sha256": "91b3bd28e287d4430b7f5a7978e7e795f430083d85f876601678ff86a7ab950c",
+      "markers": [
+        "ARM03B2B-connection-refusals=passed unowned-host shared-default blank-database unregistered-owned-prefix all-refused-before-connect",
+        "ARMStorm-stock-builder=passed stock-identity duplicate-refusal seven-grades builder-material-edit persisted-reload primaryhand rank-offset-minus-three all-grades-temporary declared-electrical-profile-no-historical-JS-parity",
+        "ARMStorm-prepayment=passed real-low-rank direct-scope ground-container-and-occupied-primary-hand-refused zero-operation zero-debit zero-material-delete zero-output-or-lifecycle-row",
+        "ARMStorm-paid-grade1=passed actual-resource-debit actual-component-delete exact-one-native-weapon primary-hand-wield persisted-grade absolute-source-nominal-deadline seconds:2025",
+        "ARMStorm-combat-grade1=passed real-MeleeWeaponAttack actual-electrical-target-wounds persisted-native-wounds declared-6-damage-4-pain-2-stun helpless-defence controlled-roll no-historical-damage-parity",
+        "ARMStorm-wielded-expiry=passed exact-absolute-boundary native-Body-unwield native-item-Delete completed-once unrelated-goods-and-container-survive",
+        "ARMStorm-recipient-grade-gate=passed other-recipient-occupied-primary-refused caster-free-hand-preserved no-payment native-cap90 overreach-raw81-refused overreach-raw85point5-preflight-admitted approved-95-percent-gate controlled-grade-retained-independently no-paid-overreach-claim",
+        "ARMStorm-paid-grade7=passed actual-resource-debit actual-component-delete exact-one-native-weapon primary-hand-wield persisted-grade absolute-source-nominal-deadline seconds:12285",
+        "ARMStorm-combat-grade7=passed real-MeleeWeaponAttack actual-electrical-target-wounds persisted-native-wounds declared-6-damage-4-pain-2-stun helpless-defence controlled-roll no-historical-damage-parity",
+        "ARMStorm-reader=passed fresh-process original-stock-formula persisted-deadline no-reset no-early-expiry cold-custody-hold native-custodian-load exact-expiry repeated-reconciliation foreign-bag-and-child-preserved",
+        "ARMStorm-restart-expiry=passed actual-fresh-process native-container-reload grade-seven-temporary unchanged-absolute-deadline exact-owned-leaf-removal foreign-container-and-sibling-survive",
+        "ARMStorm-placement-reader=passed fresh-process real-item no-body-membership exact-one-cell-reference paid-operation-quarantined no-replay-or-refund",
+        "ARMStorm-placement-callback=passed actual-Held-inventory-callback-drops-output post-Get-custody-revalidation paid-NeedsReview no-false-wield normal-save fresh-process single-cell-custody no-replay-or-refund"
+      ],
+      "marker_count": 13,
+      "owned_processes_remaining": 0
+    },
+    "regression-servitor": {
+      "status": "PASS",
+      "log": ".artifacts/test-runs/armageddon-20261005-flame-knife/regression-servitor-native.log",
+      "sha256": "1faa975a92aadb855813fdbc1a677cc79d1032715169055aa7911c36da6cd29c",
+      "markers": [
+        "ARM03B2B-connection-refusals=passed unowned-host shared-default blank-database unregistered-owned-prefix all-refused-before-connect",
+        "ARM03D1Stock-install=passed normal-spell-builder atomic-stock-plus-two-real-AIs two-compiled-progs source-duration-formulas definition-save-reload control-bound-refused-before-payment no-reagent no-automatic-capability duplicate-refused",
+        "ARM03D1Stock-control-combat=passed creator-not-corpse-owner stranger-refused native-follow-alias unlisted-quit-refused real-hit-command mutual-SimpleMeleeCombat native-combat-schedules",
+        "ARM03D1Stock-native-cell-combat-retire=passed real-Cell-Insert-Extract-Save queued-save-after-hide-and-restore selected-inventory-action-executed consumed-and-pending-action-unsubscribed continuing-three-actor-combat native-combat-leave both-scheduler-queues-cancelled follow-unsubscribed exact-corpse-body-foreign-gear",
+        "ARM03D1Stock-two-deadlines=passed grade3-control-5399s animation-7799s real-affect-seconds independent-follow-link paid-parent-effect-scheduler-expiry same-corpse",
+        "ARM03D1Stock-terrain=passed compiled-stock-prog actual-Silt-and-Shallows-terrains no-command-grant independent-native-follow-link",
+        "ARM03D1Stock-reader=passed fresh-process durable-control-query persisted-stock-identity-formula-and-animation-deadline no-actor-materialization-or-replay",
+        "ARM03D1Stock-reader=passed fresh-process durable-control-query persisted-stock-identity-formula-and-animation-deadline no-actor-materialization-or-replay",
+        "ARM03D1Stock-held-retirement=passed actual-DELETE-refusal real-cell-save native-combat-leave no-queued-actions no-command-grant exact-retry repeated-retirement same-canonical-body-corpse-foreign-item"
+      ],
+      "marker_count": 9,
+      "owned_processes_remaining": 0
+    }
+  },
+  "frozen_inputs": {
+    "path": ".artifacts/test-runs/armageddon-20261005-flame-knife/native-final-inputs.json",
+    "sha256": "afca166ca95fabd228ebf3dcf8336b1bc5c1ad128a7e3618b30e8554a4c9259f",
+    "source_count": 694,
+    "binary_count": 19,
+    "shared_copies_aligned": true
+  },
+  "artifact_fingerprints": [
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-flame-knife/begin.json",
+      "sha256": "ad9fbfb7008b0bfa5a9d8c5a3e9a7f41731064151593f39ebb642da0864b3a0a"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-flame-knife/build-01.log",
+      "sha256": "da64dd3941c889ab97c34507a7008670935836b093c83cf087d6e9b213acc456"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-flame-knife/build-02.log",
+      "sha256": "c354d0f35cc975141c85091da915fdb51a7168d97643e662f639b815c2ae612c"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-flame-knife/build-03.log",
+      "sha256": "bdb042cff887ad9d0eee1c383500aaae34fe4b48cf5f77c6826d208e6a5af8fd"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-flame-knife/build-04.log",
+      "sha256": "69b48fbc5bc991a225c9bf329661b44c7cd6cd672787190df80bbfd730c9e969"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-flame-knife/build-05.log",
+      "sha256": "a6a20cf20efb4181c6841fed3f7c9a78c08dff76b45df6cb3a95cce580dc31fe"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-flame-knife/build-06.log",
+      "sha256": "9300ebebc37149a743caee6a152a6acd6304a9dac46d8c6011c34d73b682aa50"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-flame-knife/build-07.log",
+      "sha256": "105ea7636377be2476f6364bcff38643640a3a0b2eff7da9d2c9b3ab48fcdb1c"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-flame-knife/build-08.log",
+      "sha256": "ffb1d5b55701bf6a6dd8e1b569d45435b505154455dcc62a6c43511ef1c5f7d1"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-flame-knife/documentation-encoding-repair.json",
+      "sha256": "072b718436271095decf2474161741965c5d4b6d677b4d936102c1f43c6a20f1"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-flame-knife/fast-after2-fingerprints.json",
+      "sha256": "fcbfc3e2affa2c7e42a7de4e2ffc5576c7e3dbd94ce5400d342e17d3961a4f8a"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-flame-knife/fast-before-fingerprints.json",
+      "sha256": "a6c6493f7a5b00f222d97b19b53d4601a9d8096d869d63b5f646bf550f9b9422"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-flame-knife/fast-before2-fingerprints.json",
+      "sha256": "9ac92f158292e36ff5752ec274d55e2777c87f9874323f919798a8cd7e8c9599"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-flame-knife/focused-after-fingerprints.json",
+      "sha256": "273f036123497e3011fbf0a52ee3b2360e1ea82e41c924b2d5c83e0116f01cad"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-flame-knife/focused-before-fingerprints.json",
+      "sha256": "97360fbb7f91f62c3883ff0cf1e52e55010a2f0b29d198fcaaf9435d529e6c92"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-flame-knife/managed-before-fingerprints.json",
+      "sha256": "cad7cebbf8767f79806ce0a1af68ab520485e7d6a79aa9955921ccc07af43f79"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-flame-knife/managed-fast-inputs.json",
+      "sha256": "7e9ec8d201bdf097a3422f1d0d834aa69e0cbd77d06b722b00e8d1272a746ec2"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-flame-knife/managed-fast2-inputs.json",
+      "sha256": "966ca29462e0dc921549cbc04f6310afa89d2fea80467ea3ebf876e1b9977362"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-flame-knife/managed-final-inputs.json",
+      "sha256": "bed76c407672f2b3b8a6d17710d187a1c1c393f40b31e9940540adbc65490794"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-flame-knife/managed-final2-inputs.json",
+      "sha256": "54ec444f526d1d53828d3c8353a31fc71a08f43c6db19b00842ebc2ef481e678"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-flame-knife/managed-final3-inputs.json",
+      "sha256": "fc420688e827a3bf5c64875d78f992261a3f6481044bf3d1ed8658585b935a44"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-flame-knife/managed-selection.json",
+      "sha256": "a0ec32a3d75733f6ccdc24de4a2a22730010a4c808ae3e7716851421162723bd"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-flame-knife/native-attempt1-after-fingerprints.json",
+      "sha256": "f23b55b0f4246064d920757f9331bdf0f3bc01d6129ef01f21bef8acb4b8613d"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-flame-knife/native-attempt1-before-fingerprints.json",
+      "sha256": "f953ddca660cffce5d09726e3a6b010df46a06ac943d3e7cf0e1eef5b826f864"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-flame-knife/native-attempt1-inputs.json",
+      "sha256": "412069f6391c966ecfeee046405d23ce162846e7a0eb863a1558e2863df9aaf9"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-flame-knife/native-attempt1-native-exit.json",
+      "sha256": "b6e7146b47de00cc91759e55a160d0d5ffbb64b46b196eeb7d7f900636f05601"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-flame-knife/native-attempt1-native.log",
+      "sha256": "ac83d13660290ed9537b98353237cad9fd17db34bd60faca6e8ebf589135fdf3"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-flame-knife/native-attempt1-process-cleanup.json",
+      "sha256": "1c0e171b4a19b2ac29228a8d4acc7cf88b927fbf8137adb3b7a60257e49128f7"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-flame-knife/native-attempt2-after-fingerprints.json",
+      "sha256": "29ae09a90636c2a267d1351b44aa0e5636aa7fa5eb14e9e412bd0da11ee5e18a"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-flame-knife/native-attempt2-before-fingerprints.json",
+      "sha256": "cf5740368ca85e7e727f5e08caab9cce911867db806b18290227f0a3fb49bb07"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-flame-knife/native-attempt2-inputs.json",
+      "sha256": "f37a6cf4348e42c490dd94f3e5831a361969d2ca6fe9d814c21245078c20a6b3"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-flame-knife/native-attempt2-native-exit.json",
+      "sha256": "b4d78d77b2bf2632b2950c3f5a18a983b54afbe81b77cf5fe34ca59ccb5ab55c"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-flame-knife/native-attempt2-native.log",
+      "sha256": "69f3199f923d9b16341151bf05b1e8f6f7f8721cb441802be5c640380c26d6aa"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-flame-knife/native-attempt2-process-cleanup.json",
+      "sha256": "45f89a2b2fcb4e86290a1d03b05197a43fa1db64dace33472f62b07b2a1c2856"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-flame-knife/native-attempt3-after-fingerprints.json",
+      "sha256": "0875b67e20f2a7a4a0196c4931e82b419f925bd496fea22da8400b31c5ed59a6"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-flame-knife/native-attempt3-before-fingerprints.json",
+      "sha256": "58a80db81cd3726c10963360dc2f74e9952645d1b353adc06c1525462435fa19"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-flame-knife/native-attempt3-inputs.json",
+      "sha256": "844c7f4907a0220a20ccbb522bfa577b61f1337879fd5d24d95a769e6f910e1f"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-flame-knife/native-attempt3-native-exit.json",
+      "sha256": "4cff572cd54b4919fe4f49be127f5050a069d222465ba41a2dad806bedff59cb"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-flame-knife/native-attempt3-native.log",
+      "sha256": "4247cb4c4d6d32a641b5d06119a39730bfd81c07fb18e80dde1bcfc8b12372fc"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-flame-knife/native-attempt3-process-cleanup.json",
+      "sha256": "dac2652d53f029329b331e7aedc648f10b3b5522c3ec5ca41246971ebf4c5d80"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-flame-knife/native-attempt4-after-fingerprints.json",
+      "sha256": "04e0a9925fe9e778b9c8b1296a57d752d6f7aaa69df901876b868d1079b6f143"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-flame-knife/native-attempt4-before-fingerprints.json",
+      "sha256": "1c7941bd1c28cef6d28e03ff401db664d444433badf81a36d5e356b292ab9d2b"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-flame-knife/native-attempt4-inputs.json",
+      "sha256": "2e149fed8b0cbb31b47df29c35c8e90382a2b1e4506b74fcc0e2f949df3773f3"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-flame-knife/native-attempt4-native-exit.json",
+      "sha256": "a317414a1597273f6aba6fe72b6db4d4fd8305b70de861a56416f13afac8869e"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-flame-knife/native-attempt4-native.log",
+      "sha256": "3599397879d7f150c6e43f2fb1336e2ba1aa8eadb92d0b3c4ed0b913b44f51f0"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-flame-knife/native-attempt4-process-cleanup.json",
+      "sha256": "4c3bfe9e5b848540be6c219ee6b8fe43292588ff75a462a5bb244ea6635c83fa"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-flame-knife/native-final-after-fingerprints.json",
+      "sha256": "7c6cd0cb22c8849c10d8a7a24605f48bbbdca5351b63c7b7cb99adc5776dbbe1"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-flame-knife/native-final-before-fingerprints.json",
+      "sha256": "546a48f37276a844f06fa9fc623f2d735be21db529cc8343cc6c860f59d622c6"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-flame-knife/native-final-inputs.json",
+      "sha256": "afca166ca95fabd228ebf3dcf8336b1bc5c1ad128a7e3618b30e8554a4c9259f"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-flame-knife/native-final-native-exit.json",
+      "sha256": "1df22416e30d25f5be4a4867a4b54a57729834fe414e3eee131484cb32185a69"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-flame-knife/native-final-native.log",
+      "sha256": "6872bd883f8e271c9972486a45c1bf4717d696a59698a305113468f9073a415f"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-flame-knife/native-final-process-cleanup.json",
+      "sha256": "aa12cb5bc69526c2f465d1129f026009de60185052087cbaf317208c0c118c41"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-flame-knife/regression-servitor-after-fingerprints.json",
+      "sha256": "a0eede3d7820d7fa1f8346e529b56a37aa3f2ef7bf8bb8b5eb3b78d59910c0d2"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-flame-knife/regression-servitor-before-fingerprints.json",
+      "sha256": "5577699459300601be8bef5abed65174b0240606ce9738c6cb942206929829aa"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-flame-knife/regression-servitor-native-exit.json",
+      "sha256": "959eceae7d620f500f48ef17cc85ac3cba1c85021187b669e2818bc6960fba4a"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-flame-knife/regression-servitor-native.log",
+      "sha256": "1faa975a92aadb855813fdbc1a677cc79d1032715169055aa7911c36da6cd29c"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-flame-knife/regression-servitor-process-cleanup.json",
+      "sha256": "affa2206d2462dde5f8d83fd32d925611b38983ed8217df6ef0f3796bb4f4e05"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-flame-knife/regression-storm-after-fingerprints.json",
+      "sha256": "0e01b7ba7dbfc50e14e2254b92e7f1ce22fc8bccd23b3b1c894d052e199b1289"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-flame-knife/regression-storm-before-fingerprints.json",
+      "sha256": "fcae724829dd5054768e8fc4b2d1d54276e02d43183dab96d7ab9a2b3ca2365c"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-flame-knife/regression-storm-native-exit.json",
+      "sha256": "4386e58339f879f11d5b2b6e966bfa1669c9b9c93038ffb072718ff4ffcc320b"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-flame-knife/regression-storm-native.log",
+      "sha256": "91b3bd28e287d4430b7f5a7978e7e795f430083d85f876601678ff86a7ab950c"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-flame-knife/regression-storm-process-cleanup.json",
+      "sha256": "edf57e8ef97fbbb65266defb8352d6451d390b5ba899c461b9e4e08bcd404c92"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-flame-knife/source-review.json",
+      "sha256": "f53db4762d437cfce31421a59ff96478362ca2e7155c6e7589594040e33f6dc8"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T003355Z-93e7d03ab446/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T003355Z-93e7d03ab446/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T003355Z-93e7d03ab446/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stdout.log",
+      "sha256": "f9eb0664ddd9e3d5abef88c47fbb491a94af2d123936dda4ca889064bd9f5367"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T003355Z-93e7d03ab446/run.json",
+      "sha256": "274c53c16efca236be4593798b344d20dc0ba883da6a5f9f3dbcb029dd033adc"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T003355Z-93e7d03ab446/sdk/sdk.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T003355Z-93e7d03ab446/sdk/sdk.stdout.log",
+      "sha256": "3db6bca4b50618b2e0d2d55d23b3d0541fe039ab6f731df0e9c47317b400ce52"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T003355Z-93e7d03ab446/source-end.json",
+      "sha256": "b951262622091059e3e7f613ce1732cb200793a9fdb8782c344b6ab3bd3afd16"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T003355Z-93e7d03ab446/source-start.json",
+      "sha256": "8af190df5ce0ac5060dd2c6babcf790a850be294fb5f0a818f227e38a2c36b94"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T003355Z-93e7d03ab446/summary.json",
+      "sha256": "e058287c5a54b96fea6eb86a9de35291d3e080d90c9cca508b6a96b7b9981b0e"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T003355Z-93e7d03ab446/summary.txt",
+      "sha256": "7d034af1ca068ee981066a6395d542598c7ed6c1f3cc0c4c26d53c82df8f63fb"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T003355Z-93e7d03ab446/test-results.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T003451Z-70f80840073f/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T003451Z-70f80840073f/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T003451Z-70f80840073f/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stdout.log",
+      "sha256": "e2dcfc04f8b0cae3ee23163c831428f452f6457eb4ce6758e11a5497027baf0a"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T003451Z-70f80840073f/run.json",
+      "sha256": "4d2e994d931e2ee435e0d97db6df3459bad638887a6bdfbc57a33dc141ffcaf3"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T003451Z-70f80840073f/sdk/sdk.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T003451Z-70f80840073f/sdk/sdk.stdout.log",
+      "sha256": "3db6bca4b50618b2e0d2d55d23b3d0541fe039ab6f731df0e9c47317b400ce52"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T003451Z-70f80840073f/source-end.json",
+      "sha256": "e12284952b66b8b27b6213db4b4a366fde9d8fa443ae99abd1ecd07e51884048"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T003451Z-70f80840073f/source-start.json",
+      "sha256": "788ff040203d248c0e5aac010d112aafc7b80ca04d51cc763d4aaf2c798bf83b"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T003451Z-70f80840073f/summary.json",
+      "sha256": "700cfb206d98ffda2cade90950f3715adbdb5bffd7eb8daba83c6555c2e3cc08"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T003451Z-70f80840073f/summary.txt",
+      "sha256": "51e6dd93bf7beb22d648ef2a54b32cb9fbd59dde7a5d9bfea5d15e52dcfcb2f2"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T003451Z-70f80840073f/test-results.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T003722Z-9c8914c6020d/failures.json",
+      "sha256": "82bdf2f881fb09165c633bb10facfa476e19acb062e46670e8304925091e8539"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T003722Z-9c8914c6020d/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T003722Z-9c8914c6020d/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stdout.log",
+      "sha256": "511ea26b620877acb2bc156df5359e281de8e5e447944c8de1dc24bac4e19aee"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T003722Z-9c8914c6020d/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/results.trx",
+      "sha256": "b841d96383de17f591df9362dbba216afd60fba9a2e930e5cc1c1fc64a285f60"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T003722Z-9c8914c6020d/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T003722Z-9c8914c6020d/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stdout.log",
+      "sha256": "5ee3b4f7062980fe6d0887594a4e62c72f2e248b691bc9686fb111404fd7b0ad"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T003722Z-9c8914c6020d/run.json",
+      "sha256": "a75bcc1f2461bb595b63548d5518e04111aa68deda2cff845401ec806fc1b2e0"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T003722Z-9c8914c6020d/sdk/sdk.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T003722Z-9c8914c6020d/sdk/sdk.stdout.log",
+      "sha256": "3db6bca4b50618b2e0d2d55d23b3d0541fe039ab6f731df0e9c47317b400ce52"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T003722Z-9c8914c6020d/source-end.json",
+      "sha256": "c5e7f0843ca82e06adafdac1caa4dfab3d63864e60ac0d915d64bd0de4df253e"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T003722Z-9c8914c6020d/source-start.json",
+      "sha256": "8ff34c735895d50af484dc08aa7980ec48dcc3a64e315229695836ad1721a0a3"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T003722Z-9c8914c6020d/summary.json",
+      "sha256": "0160ef7559a3b91c0ce9d21121428a116001bf41e2cddd4de13592fba2bcbffc"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T003722Z-9c8914c6020d/summary.txt",
+      "sha256": "64861f24e096e7541ab45df5d65d224172bcb6f58c4b4b0f79ea3fb7bcde28fe"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T003722Z-9c8914c6020d/test-results.json",
+      "sha256": "80e17b664dcd19278a1e1d76c98ea560b7bb16db82de51e20ae77234da8527ee"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T003920Z-282044d21550/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T003920Z-282044d21550/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T003920Z-282044d21550/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stdout.log",
+      "sha256": "a0a191415909226343fffce32d48ab875835aae64801291910f1ad4c5db04be9"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T003920Z-282044d21550/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/results.trx",
+      "sha256": "a4f4c97c81471e2b8d69dd36eac8486e865c6616b7ecddb7290d35e2edf9bde2"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T003920Z-282044d21550/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T003920Z-282044d21550/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stdout.log",
+      "sha256": "102d5652c7f89dd31d447065a633b67dba009a1b726db2b94a73af2466c75231"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T003920Z-282044d21550/run.json",
+      "sha256": "4d6108171b701b92159ae776177c1d3b3458ebae7eeef04ba9158f035afec1e5"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T003920Z-282044d21550/sdk/sdk.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T003920Z-282044d21550/sdk/sdk.stdout.log",
+      "sha256": "3db6bca4b50618b2e0d2d55d23b3d0541fe039ab6f731df0e9c47317b400ce52"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T003920Z-282044d21550/source-end.json",
+      "sha256": "9598e50f45d32381c11e0d97f93ffe3257b739b5f5af5fcac0d276d425624017"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T003920Z-282044d21550/source-start.json",
+      "sha256": "e53baed8c5ef307005908c43f2f7016f3dab454533e3b7e9570ab460a2ce882d"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T003920Z-282044d21550/summary.json",
+      "sha256": "40a490dc01aef50bd80d291369618f597ff4f1375ad776480535ba434d291903"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T003920Z-282044d21550/summary.txt",
+      "sha256": "b6d12b72168b2016b5e07964963b5b1d8e07f731d31c717d633aef8a687f7556"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T003920Z-282044d21550/test-results.json",
+      "sha256": "7b6cf3e57799edbfd8f431d3e8666ff0f53b62c97038260eefe2a0fd55e8778b"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T005537Z-77c6517b3ec9/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T005537Z-77c6517b3ec9/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T005537Z-77c6517b3ec9/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stdout.log",
+      "sha256": "63d6cd08f354322b7e71bc29e9db7a557164a494026ee21a9adef97746f1bfc1"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T005537Z-77c6517b3ec9/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/results.trx",
+      "sha256": "810dbf57957ed43db0678bf42511c2a0d9a46f156de7c6875ccdc076bf2b77f9"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T005537Z-77c6517b3ec9/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T005537Z-77c6517b3ec9/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stdout.log",
+      "sha256": "378b63cc861d336e20a55652d56e8c1bd5743ba946d41aad01f4847c9a94597e"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T005537Z-77c6517b3ec9/run.json",
+      "sha256": "60b914cc5ed5eee30831fa376d7adea1957545b21cf825a94aeacd51b66a9369"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T005537Z-77c6517b3ec9/sdk/sdk.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T005537Z-77c6517b3ec9/sdk/sdk.stdout.log",
+      "sha256": "3db6bca4b50618b2e0d2d55d23b3d0541fe039ab6f731df0e9c47317b400ce52"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T005537Z-77c6517b3ec9/source-end.json",
+      "sha256": "4ab6a642f53e8ab6d47b523938dd74705b23e2074194b1fc3f755e577923e6b2"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T005537Z-77c6517b3ec9/source-start.json",
+      "sha256": "ba64fa0fb792bbf0455dc2eeed9d606351d4bcd44b4ab1baf981d67f764e8868"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T005537Z-77c6517b3ec9/summary.json",
+      "sha256": "618a06b27ab5baf1a3d8841334dc2320fa12635e41ab7cc25eaed5445fa372e3"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T005537Z-77c6517b3ec9/summary.txt",
+      "sha256": "f7f062abdbfbb11add4bfb134d6e837015aff4929d2bf6ae2e28ea90349d3f92"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T005537Z-77c6517b3ec9/test-results.json",
+      "sha256": "eca95fb1ae37f63ce236e839a8b891e5209abb5f6dc358bfc02e5387d0e53e89"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T010243Z-ea7e9b80bfef/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T010243Z-ea7e9b80bfef/invocations/DatabaseSeeder_Unit_Tests-e14dcedb/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T010243Z-ea7e9b80bfef/invocations/DatabaseSeeder_Unit_Tests-e14dcedb/build/build.stdout.log",
+      "sha256": "85b73dab7231e600351669256b6407f741743e9609f9ece928faab1d44a4b076"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T010243Z-ea7e9b80bfef/invocations/DatabaseSeeder_Unit_Tests-e14dcedb/net10-41544e89/1/results.trx",
+      "sha256": "c41a26f470b556fb1f3a16bcb8b92e41a236831873d2b3086892ef70e1fcfa98"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T010243Z-ea7e9b80bfef/invocations/DatabaseSeeder_Unit_Tests-e14dcedb/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T010243Z-ea7e9b80bfef/invocations/DatabaseSeeder_Unit_Tests-e14dcedb/net10-41544e89/1/test.stdout.log",
+      "sha256": "8f5fa8f1243899e6c13d0d8e9a5c21effb92aa5df09c49a38c0a9cb189ee58e5"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T010243Z-ea7e9b80bfef/invocations/DiscordBotCore_Unit_Tests-4ffa2b0e/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T010243Z-ea7e9b80bfef/invocations/DiscordBotCore_Unit_Tests-4ffa2b0e/build/build.stdout.log",
+      "sha256": "ce45d66441a212cbc0156ac401005aa244a9746ab8402efb035bedca91990a44"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T010243Z-ea7e9b80bfef/invocations/DiscordBotCore_Unit_Tests-4ffa2b0e/net10-41544e89/1/results.trx",
+      "sha256": "5c8031a2c74a000115964d543d173d6c845b45d465d544da7defafb32c6487e5"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T010243Z-ea7e9b80bfef/invocations/DiscordBotCore_Unit_Tests-4ffa2b0e/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T010243Z-ea7e9b80bfef/invocations/DiscordBotCore_Unit_Tests-4ffa2b0e/net10-41544e89/1/test.stdout.log",
+      "sha256": "cd3918f945555cf9799bc9914184c498d5bb3ce7cb8007d21593ec6af390a67c"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T010243Z-ea7e9b80bfef/invocations/ExpressionEngine_Unit_Tests-8cdb3e65/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T010243Z-ea7e9b80bfef/invocations/ExpressionEngine_Unit_Tests-8cdb3e65/build/build.stdout.log",
+      "sha256": "8608a8d01e9f07f91e7b5b17b4fe1eac75dc69744bb713e29597d655828342cc"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T010243Z-ea7e9b80bfef/invocations/ExpressionEngine_Unit_Tests-8cdb3e65/net10-41544e89/1/results.trx",
+      "sha256": "3b5d6c2ba7643ddd54a93e9dc7ca027ac569e25a6be7e212db64cbda39d790bb"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T010243Z-ea7e9b80bfef/invocations/ExpressionEngine_Unit_Tests-8cdb3e65/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T010243Z-ea7e9b80bfef/invocations/ExpressionEngine_Unit_Tests-8cdb3e65/net10-41544e89/1/test.stdout.log",
+      "sha256": "322fcc7d6619231ede1d68bb0da3ac80df8b6df77134bc8c85b7e87889e9c1fb"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T010243Z-ea7e9b80bfef/invocations/FutureMUD.Web.Tests-ac492d08/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T010243Z-ea7e9b80bfef/invocations/FutureMUD.Web.Tests-ac492d08/build/build.stdout.log",
+      "sha256": "1ccd2f36c9610e4333d711e08d7e11dcaa90adb413b0f7c1691c1293df214b0a"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T010243Z-ea7e9b80bfef/invocations/FutureMUD.Web.Tests-ac492d08/net10-41544e89/1/results.trx",
+      "sha256": "2b866f83825f8b2b064ea15e80fae690f7839797a74e92815ef27e8ce589ed94"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T010243Z-ea7e9b80bfef/invocations/FutureMUD.Web.Tests-ac492d08/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T010243Z-ea7e9b80bfef/invocations/FutureMUD.Web.Tests-ac492d08/net10-41544e89/1/test.stdout.log",
+      "sha256": "c8f2da098d574ad2d4033122701524fd756ce6a6febdb5e378866886cdd14651"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T010243Z-ea7e9b80bfef/invocations/FutureMUDLibrary_Unit_Tests-45c02d6c/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T010243Z-ea7e9b80bfef/invocations/FutureMUDLibrary_Unit_Tests-45c02d6c/build/build.stdout.log",
+      "sha256": "96d79d95604f11c4b1955f502367d246386b2e6ea3fc7bba7af704afec782570"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T010243Z-ea7e9b80bfef/invocations/FutureMUDLibrary_Unit_Tests-45c02d6c/net10-41544e89/1/results.trx",
+      "sha256": "b840fae2816cf82b56405669c5ca9d74d73c58db2d960aa2a8a866cd27e08901"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T010243Z-ea7e9b80bfef/invocations/FutureMUDLibrary_Unit_Tests-45c02d6c/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T010243Z-ea7e9b80bfef/invocations/FutureMUDLibrary_Unit_Tests-45c02d6c/net10-41544e89/1/test.stdout.log",
+      "sha256": "a16e16e4831cd0ef66c32dbbe4e893bf8758d4185e0006312bd30440389cd0ef"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T010243Z-ea7e9b80bfef/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T010243Z-ea7e9b80bfef/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stdout.log",
+      "sha256": "5f511eefd5740a5b1f7978b1152c3e8f8eb9ccadca8bc70c23ab1066ec802337"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T010243Z-ea7e9b80bfef/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/results.trx",
+      "sha256": "4a9542668db09b4f3805642cb1c1ad50a54b12559b5c81025b705464b8002f85"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T010243Z-ea7e9b80bfef/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T010243Z-ea7e9b80bfef/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stdout.log",
+      "sha256": "8b17f08177b06b194e8e81fc39d3a7a9eb9331896af075fc97a09b5afce6124b"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T010243Z-ea7e9b80bfef/invocations/MudsharpDatabaseLibrary_Unit_Tests-6ef1914c/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T010243Z-ea7e9b80bfef/invocations/MudsharpDatabaseLibrary_Unit_Tests-6ef1914c/build/build.stdout.log",
+      "sha256": "e4f106e706bd3d484cdeb9ae6d4bab0eeb5ff5e94c1e69d5f9f69e3b50954ac4"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T010243Z-ea7e9b80bfef/invocations/MudsharpDatabaseLibrary_Unit_Tests-6ef1914c/net10-41544e89/1/results.trx",
+      "sha256": "313c70671f7e83195198fab4a24baee05b5a4f96b7d37a1d5ccbf49a9991cd77"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T010243Z-ea7e9b80bfef/invocations/MudsharpDatabaseLibrary_Unit_Tests-6ef1914c/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T010243Z-ea7e9b80bfef/invocations/MudsharpDatabaseLibrary_Unit_Tests-6ef1914c/net10-41544e89/1/test.stdout.log",
+      "sha256": "7284e031585d2495422ddaaa685f15485490e22a88cbe361eb5a0ec533af64cf"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T010243Z-ea7e9b80bfef/invocations/RPI_Engine_Worldfile_Converter_Tests-14d87d34/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T010243Z-ea7e9b80bfef/invocations/RPI_Engine_Worldfile_Converter_Tests-14d87d34/build/build.stdout.log",
+      "sha256": "5b27e39dac7c7e38646d4589461e24c8f7651a4e73c3ded08027b0f75b3a2080"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T010243Z-ea7e9b80bfef/invocations/RPI_Engine_Worldfile_Converter_Tests-14d87d34/net10-41544e89/1/results.trx",
+      "sha256": "d1675347c8cd01660fc104763883d79ff4e078d291cf5376a3c33e768c1ca635"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T010243Z-ea7e9b80bfef/invocations/RPI_Engine_Worldfile_Converter_Tests-14d87d34/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T010243Z-ea7e9b80bfef/invocations/RPI_Engine_Worldfile_Converter_Tests-14d87d34/net10-41544e89/1/test.stdout.log",
+      "sha256": "fbbd56e7616103c5a9bf09649effafad05a7f204cd8b13c2df008a05531040d3"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T010243Z-ea7e9b80bfef/invocations/TerrainPlanner.Tests-1085b5fa/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T010243Z-ea7e9b80bfef/invocations/TerrainPlanner.Tests-1085b5fa/build/build.stdout.log",
+      "sha256": "876758c81960aa9d2ca990244d163030e969b7bd867171afc7d93a273175ccf0"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T010243Z-ea7e9b80bfef/invocations/TerrainPlanner.Tests-1085b5fa/net10-41544e89/1/results.trx",
+      "sha256": "f9fd6e90cbcfbd889a8529499e6a59307995322825c4ba6beb5348483457961b"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T010243Z-ea7e9b80bfef/invocations/TerrainPlanner.Tests-1085b5fa/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T010243Z-ea7e9b80bfef/invocations/TerrainPlanner.Tests-1085b5fa/net10-41544e89/1/test.stdout.log",
+      "sha256": "49f1fb6c2a89018a1bc9c318840642943a42813221a86eae707731450c666537"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T010243Z-ea7e9b80bfef/invocations/TestReporting.Tests-25b07e44/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T010243Z-ea7e9b80bfef/invocations/TestReporting.Tests-25b07e44/build/build.stdout.log",
+      "sha256": "2d8e9cd0aebdd86fd774930288540defc3ed567bd41cf708b7499ccb2c193c18"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T010243Z-ea7e9b80bfef/invocations/TestReporting.Tests-25b07e44/net10-41544e89/1/results.trx",
+      "sha256": "165c4feb39a752d99e46e05a5e1a7bef9b67e50e36828bde5c9bd0b378b218bc"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T010243Z-ea7e9b80bfef/invocations/TestReporting.Tests-25b07e44/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T010243Z-ea7e9b80bfef/invocations/TestReporting.Tests-25b07e44/net10-41544e89/1/test.stdout.log",
+      "sha256": "3e79ccdf33b11832902d8863d4a15155e04c4b897258b4a8aa1f6558684b5be5"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T010243Z-ea7e9b80bfef/run.json",
+      "sha256": "04a90d1e67969ef0c54d649f35f6944f61cdce4a5616795bbbafd2fb06701539"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T010243Z-ea7e9b80bfef/sdk/sdk.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T010243Z-ea7e9b80bfef/sdk/sdk.stdout.log",
+      "sha256": "3db6bca4b50618b2e0d2d55d23b3d0541fe039ab6f731df0e9c47317b400ce52"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T010243Z-ea7e9b80bfef/source-end.json",
+      "sha256": "4e28ec1a17c58e64f77bacb620091c3a343dbb30ad150c7287193268dff6b301"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T010243Z-ea7e9b80bfef/source-start.json",
+      "sha256": "728ad5d2269524a43dc85e2969d4d947dc146f527b3fe926f1688734af97130b"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T010243Z-ea7e9b80bfef/summary.json",
+      "sha256": "59742195d88871159fe46b120bfbb94e552b827b67c3fdc2a0cd5016be38848b"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T010243Z-ea7e9b80bfef/summary.txt",
+      "sha256": "60449635c4d5ab72582a5836e13d137175a4091c9b2383665d128f094490825c"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-flame-knife/20261005T010243Z-ea7e9b80bfef/test-results.json",
+      "sha256": "06dca595cd6b3804b499d4f1eec75d116becfa5e9d602e583ede5236976009bb"
+    }
+  ],
+  "helper_fingerprints": [
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\ArmageddonFlameKnife-commit-message.txt",
+      "sha256": "8b76c12b3c9d75232a7f29a47b761e3a05407a4607db0a1505377c33cf78e86d"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_FlameKnife_HistoricalSource_ReadReceipt.json",
+      "sha256": "5538372608edbad83acec3c7c8310fa85443448bb1c0c17413ad88384cc43200"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_FlameKnife_SourceEnergy_ReadReceipt.json",
+      "sha256": "040e42c77e2c0aa2fdc8a07cd67c305009d39726193f65df2f22041dfdc58918"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Begin-FlameKnifeCheckpoint.py",
+      "sha256": "5a0bc9f3cf52d3513bba820cad788b0f3163865fd1685936782a1c04f3a8c7b3"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Build-FlameKnifeHarness.py",
+      "sha256": "c4e9f11030a5061f3d62168823c24c542d2c33c3189c8fd2e76618c3dca4fdc8"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Commit-FlameKnifeCheckpoint.ps1",
+      "sha256": "d2bcfc0ce897812ce86b25f4b98312a1b3ff60c7d53ef78f89cd592ac3204f00"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FlameKnifeHarness.AfterCombat.txt",
+      "sha256": "32bb807c0cdab2ee007f466164e48a6ec2a51654d63d9f13cdc97bd5d4b722d1"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FlameKnifeHarness.Body.txt",
+      "sha256": "bd4ae54530be8bbea7b9562902055264b7f7309de93df8064d1f848b82d4df85"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\flame_knife_evidence.py",
+      "sha256": "d04eb445494829c07ef47bf83ea92b4bd8c10c554c281af8d051ef46b89a39ba"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\flame_knife_handoff.py",
+      "sha256": "df21b3ec190d02a629c8cf423786219d27906cbe39c2b0eac38980f2a8fd7c2b"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Repair-FlameKnifeDocumentationEncoding.py",
+      "sha256": "932aecebb117a416fb8d0b04682d96b7c9c207fada1789b043962d8962ec640b"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Run-FlameKnifeAcceptance.ps1",
+      "sha256": "454e77e83fd30cee697c8ca9ca37d756d0ab1f4ae525380b20d89b444ef20cc5"
+    }
+  ],
+  "qualification_limits": [
+    "Historical objects462-467 and1386-1393 and their statistics/payloads are unavailable. Six distinct native grade prototypes and eight native permanent staff prototypes are builder-selected burning melee adaptations. Acceptance declares6 damage4 pain2 stun; no historical damage parity or embedded charged staff payload is asserted.",
+    "Temporary deadline=(grade+1)*1500*0.75 seconds, shadow half; nominal heap conversion excludes batching/load. Environment maps source sectors to editable terrain-name progs Water Plane/Shadow Plane, rather than claiming native planar parity.",
+    "Bounded stock targets the caster and uses ordinary inventory/location placement; native explicit wield and actual MeleeWeaponAttack/HelplessDefenseMove deliver and persist burning wounds. Other-recipient drop-at-feet, arbitrary callbacks, autonomous selection/defences, full boot/Telnet and concurrency remain unqualified.",
+    "Printed energy lower bound7 follows approved source tree, distinct from raw C metadata minimum0. Paid controlled grades1-7 are qualified; paid overreach and all stock affordability matrices remain separate gates.",
+    "One actual random staff choice is paid and reloaded; all eight IDs are validated and persisted, but all eight random outcomes and their individual historical properties are not gameplay-qualified.",
+    "Controlled native world/anatomy catalogues, deterministic rolls and specialized caster Save apply. Permanent staff remains ordinary salvage-eligible material, not indestructible. Full production persistence and every lifecycle fault boundary remain separate qualifications.",
+    "Queued servitor control still needs immutable accepted-action controller/grant provenance and execution-time deadline revalidation while animation lives; preserve independent following.",
+    "Full plan incomplete: seven phases,16 decisions,154 candidates,82 Sorcerer spells plus12 support rows and25 native scenarios. Complete installer/acquisition/crafting/chargen/energy/portable production and remaining effect/topology/charm/lifecycle/native-release work remain pending.",
+    "Local commit only; no publication, remote merge, deployment, shared/production database or model/billing changes. Stop for parent independent review."
+  ],
+  "whole_plan": {
+    "phases": 7,
+    "approved_decisions": 16,
+    "candidates": 154,
+    "selected_sorcerer_spells": 82,
+    "support_source_rows": 12,
+    "source_tree_rows": 94,
+    "native_acceptance_scenarios": 25,
+    "source_tree_sha256": "ada4e574d1c2243b2bad30cb0d65b98a5413a20ad1d8917965335fb9e481d496"
+  },
+  "prior_fourteen_receipts_1486_artifacts_42_helpers_unchanged": true,
+  "C1_addendum_clarification_and_C1P2_closing_helpers_unchanged": true,
+  "source_tree_preserved": true,
+  "C2_receipt_311_artifacts_6_helpers_and_closing_evidence_preserved": true,
+  "D1_200_artifacts_7_helpers_13_build_logs_and_closing_evidence_preserved": true,
+  "D1P2_91_artifacts_6_helpers_2_build_logs_and_closing_evidence_preserved": true,
+  "D1P1_96_artifacts_6_helpers_4_build_logs_and_closing_evidence_preserved": true,
+  "D1P1M_133_artifacts_6_helpers_2_build_logs_and_closing_evidence_preserved": true,
+  "stock_186_artifacts_6_helpers_13_build_logs_historical_source_and_closing_evidence_preserved": true,
+  "security_92_artifacts_8_helpers_and_postcommit_evidence_preserved": true,
+  "pause_snapshots_and_historical_source_preserved": true,
+  "storm_258_artifacts_10_helpers_and_postcommit_preserved": true
+}

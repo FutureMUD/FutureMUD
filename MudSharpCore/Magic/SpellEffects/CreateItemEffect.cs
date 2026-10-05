@@ -236,6 +236,9 @@ public partial class CreateItemEffect : IMagicSpellEffectTemplate, IMagicSpellEf
 	#3placement standard|wornlight|primaryhand#0 - places normally, wears a light or wields a weapon in the recipient's primary hand
 	#3lifetime <formula>#0 - sets the lifetime in real seconds (constant or route-bound grade/power/mastery/traits)
 	#3permanent <grade 1-7> <proto>|none#0 - selects a permanent output at one exact configured grade
+	#3output <grade 1-7> <prototype> ...|none#0 - chooses uniformly from a pool at that grade
+	#3eligibility <prog>|none#0 - boolean(character caster) environment admission
+	#3lifetimemultiplier <prog>|none#0 - number(character caster) lifetime multiplier, sampled before payment
 
 Parameters for quality formula:
 
@@ -257,11 +260,16 @@ Parameters for quality formula:
 			("Lifetime Seconds", LifetimeExpression?.OriginalFormulaText.ColourCommand() ?? "None"),
 			("Permanent Grade", PermanentGrade?.ToString().ColourValue() ?? "None"),
 			("Permanent Prototype", PermanentPrototype?.EditHeaderColour(actor) ?? "None"),
+			("Grade Outputs", string.Join("; ", GradeOutputs.Select(x => $"{x.Key}: {string.Join(", ", x.Value)}"))),
+			("Eligibility", EligibilityProg?.Name ?? "None"),
+			("Lifetime Multiplier", LifetimeMultiplierProg?.Name ?? "None"),
 			("Validation", DefinitionError?.ColourError() ?? "Valid".ColourValue()));
     }
 
     public bool BuildingCommand(ICharacter actor, StringStack command)
     {
+		if (command.PeekSpeech().ToLowerInvariant() is "output" or "eligibility" or "lifetimemultiplier")
+			return BuildingCommandOutputPolicy(actor, command);
 		if (command.PeekSpeech().ToLowerInvariant() is "lifecycle" or "family" or "lifetime" or "permanent" or "count" or "placement")
 			return BuildingCommandLifecycle(actor, command);
         switch (command.PopSpeech().ToLowerInvariant())

@@ -308,6 +308,7 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
 	#3material add held|wielded|inroom|consumed|consumedliquid ...#0 - adds a new material requirement to this spell
 	#3material delete <#>#0 - deletes a material requirement
 	#3plan carried <#> on|off#0 - restricts a consumed material to direct inventory
+	#3plan grade <#> <grade 1-7>|all#0 - consumes this material only at the selected grade, or every grade
 	#3plan ranks <#> <offset -6..0> <rank 0 tag> ... <highest rank tag>#0 - requires a component rank based on selected grade; tags must form an ascending hierarchy and cover all seven grades
 	#3plan ranks <#> none#0 - removes selected-grade rank requirements
 	#3cost <resource> <trait expression>#0 - sets the trait expression for casting cost for a resource
@@ -856,6 +857,21 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
     {
         switch (command.PopSpeech().ToLowerInvariant())
         {
+            case "grade":
+                if (!int.TryParse(command.PopSpeech(), out var number) || number < 1 ||
+                    InventoryPlanTemplate.Phases.First().Actions.ElementAtOrDefault(number - 1) is not GameItems.Inventory.Plans.InventoryPlanActionConsume material)
+                { actor.OutputHandler.Send("Select a consumed material requirement number."); return false; }
+                var gradeText = command.PopSpeech();
+                int? requiredGrade = null;
+                if (!gradeText.EqualTo("all"))
+                {
+                    if (!int.TryParse(gradeText, out var selectedGrade) || selectedGrade is < 1 or > 7)
+                    { actor.OutputHandler.Send("Use plan grade <number> <grade 1-7>|all."); return false; }
+                    requiredGrade = selectedGrade;
+                }
+                if (!command.IsFinished) return false;
+                material.ConfigureRequiredGrade(requiredGrade); Changed = true;
+                actor.OutputHandler.Send("Material grade condition updated."); return true;
             case "carried":
                 return BuildingCommandPlanSelection(actor, command, false);
             case "ranks":

@@ -18,6 +18,11 @@ public partial class MagicSpell
 		model.CastingTraitDefinitionId = trait.Id;
 		model.CastingDifficulty = (int)difficulty;
 		var definition = XElement.Parse(model.Definition);
+		var originalActions = InventoryPlanTemplate.Phases.SelectMany(x => x.Actions).ToArray();
+		var gradeAware = originalActions.OfType<InventoryPlanActionConsume>().Any(x => x.HasGradeSelection);
+		if (gradeAware)
+			foreach (var action in definition.Element("Plan")!.Descendants("Action").ToArray())
+				if (action.Attribute("grade") is { } required && int.Parse(required.Value) != grade) action.Remove();
 		foreach (var b in GradeProfile!.ScalarBindings)
 		{
 			var value = CastingNumerics.Bind(new TraitExpression(b.Expression, Gameworld), trait, grade, power,
@@ -28,8 +33,7 @@ public partial class MagicSpell
 		model.Definition = definition.ToString(SaveOptions.DisableFormatting);
 		var copy = new MagicSpell(model, Gameworld);
 		copy.InvocationGrade = grade;
-		var originalActions = InventoryPlanTemplate.Phases.SelectMany(x => x.Actions).ToArray();
-		if (!originalActions.OfType<InventoryPlanActionConsume>().Any(x => x.HasGradeRanks))
+		if (!gradeAware)
 		{
 			// Legacy/custom plans can have runtime feasibility policy beyond their XML.
 			copy.InventoryPlanTemplate = InventoryPlanTemplate;
@@ -37,9 +41,10 @@ public partial class MagicSpell
 		else
 		{
 			var copiedActions = copy.InventoryPlanTemplate.Phases.SelectMany(x => x.Actions).Cast<InventoryPlanAction>().ToArray();
+			var activeActions = originalActions.Where(x => x is not InventoryPlanActionConsume { RequiredGrade: { } required } || required == grade).ToArray();
 			for (var i = 0; i < copiedActions.Length; i++)
 			{
-				var original = (InventoryPlanAction)originalActions[i];
+				var original = (InventoryPlanAction)activeActions[i];
 				copiedActions[i].PrimaryItemSelector = original.PrimaryItemSelector;
 				copiedActions[i].SecondaryItemSelector = original.SecondaryItemSelector;
 			}

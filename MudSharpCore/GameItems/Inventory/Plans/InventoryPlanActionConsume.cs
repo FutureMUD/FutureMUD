@@ -10,6 +10,11 @@ public class InventoryPlanActionConsume : InventoryPlanAction
     {
         Quantity = int.Parse(root.Attribute("quantity").Value);
 		CarriedOnly = bool.Parse(root.Attribute("carriedonly")?.Value ?? "false");
+		if (root.Attribute("grade") is { } grade)
+		{
+			RequiredGrade = int.Parse(grade.Value);
+			if (RequiredGrade is < 1 or > 7) throw new FormatException("A material grade must be between one and seven.");
+		}
 		if (root.Element("GradeRank") is { } rank) LoadGradeRanks(rank);
     }
 
@@ -26,13 +31,14 @@ public class InventoryPlanActionConsume : InventoryPlanAction
     {
         return new XElement("Action",
             new XAttribute("state", "consumed"),
-            new XAttribute("tag", DesiredTag?.Id ?? 0),
+            new XAttribute("tag", DesiredTagId),
             new XAttribute("secondtag", DesiredSecondaryTag?.Id ?? 0),
             new XAttribute("quantity", Quantity),
             new XAttribute("inplaceoverride", ItemsAlreadyInPlaceOverrideFitnessScore),
             new XAttribute("inplacemultiplier", ItemsAlreadyInPlaceMultiplier),
             new XAttribute("originalreference", OriginalReference?.ToString() ?? ""),
 			CarriedOnly ? new XAttribute("carriedonly", true) : null,
+			RequiredGrade is { } grade ? new XAttribute("grade", grade) : null,
 			_gradeRankDefinition is null ? null : new XElement(_gradeRankDefinition)
         );
     }
@@ -43,6 +49,7 @@ public class InventoryPlanActionConsume : InventoryPlanAction
         return
             $"Consume {DesiredTag?.Name.A_An_RespectPlurals(colour: Telnet.Cyan) ?? "an item"} x{Quantity.ToString("N0", voyeur)}" +
 			(CarriedOnly ? " (directly carried only)" : "") +
+			(RequiredGrade is { } grade ? $" (grade {grade} only)" : "") +
 			(_gradeRankDefinition is null ? "" : $" (minimum rank: selected grade {_gradeRankOffset:+0;-0;0}, floor zero; {_rankTags.Count} rank tags)");
     }
 
@@ -56,11 +63,19 @@ public class InventoryPlanActionConsume : InventoryPlanAction
 
     public int Quantity { get; set; }
 	public bool CarriedOnly { get; set; }
+	public int? RequiredGrade { get; private set; }
+	private int? _boundGrade;
+	public void ConfigureRequiredGrade(int? grade)
+	{
+		if (grade is < 1 or > 7) throw new ArgumentOutOfRangeException(nameof(grade));
+		RequiredGrade = grade; _boundGrade = null;
+	}
 	private XElement _gradeRankDefinition;
 	private int _gradeRankOffset;
 	private readonly Dictionary<int, long> _rankTags = new();
 	private ITag _boundRankTag;
-	public bool HasPersistedSelection => CarriedOnly || _gradeRankDefinition is not null;
+	public bool HasPersistedSelection => CarriedOnly || _gradeRankDefinition is not null || RequiredGrade is not null;
+	public bool HasGradeSelection => HasGradeRanks || RequiredGrade is not null;
 	public bool HasGradeRanks => _gradeRankDefinition is not null;
 
 	public void ConfigureGradeRanks(int offset, IReadOnlyList<ITag> tags)
@@ -98,8 +113,11 @@ public class InventoryPlanActionConsume : InventoryPlanAction
 
 	internal void BindSelectedGrade(int grade)
 	{
-		if (_gradeRankDefinition is null) return;
 		if (grade is < 1 or > 7) throw new InvalidOperationException("Select a supported grade before binding component rank.");
+		_boundGrade = grade;
+		if (HasGradeSelection && DesiredTagId > 0 && DesiredTag is null)
+			throw new InvalidOperationException("The configured grade-dependent material tag is missing; repair the requirement before casting.");
+		if (_gradeRankDefinition is null) return;
 		var tags = _rankTags.OrderBy(x => x.Key).Select(x => Gameworld.Tags.Get(x.Value)).ToArray();
 		if (DesiredTag is null || tags.Any(x => x is null) || !tags[0].IsA(DesiredTag) ||
 			tags.Skip(1).Where((tag, index) => !tag.IsA(tags[index])).Any())
@@ -108,6 +126,8 @@ public class InventoryPlanActionConsume : InventoryPlanAction
 	}
 
 	internal bool MeetsPersistedSelection(ICharacter executor, IGameItem item) =>
+		(!HasGradeSelection || DesiredTagId == 0 || DesiredTag is not null) &&
+		(RequiredGrade is null || RequiredGrade == _boundGrade) &&
 		(!CarriedOnly || ReferenceEquals(item.InInventoryOf, executor.Body) && item.ContainedIn is null) &&
 		(_gradeRankDefinition is null || _boundRankTag is not null && item.IsA(_boundRankTag));
 

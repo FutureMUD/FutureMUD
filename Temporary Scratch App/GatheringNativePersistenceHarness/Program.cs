@@ -73,6 +73,8 @@ internal static partial class GNHProgram
 				["--corpse-animation-run"] => RunCorpseAnimationChecks(),
 				["--raise-servitor-stock-run"] => RunRaiseServitorStockChecks(),
 				["--storm-spear-stock-run"] => RunStormSpearStockChecks(),
+				["--flame-knife-stock-run"] => RunFlameKnifeStockChecks(),
+				["--flame-knife-stock-reader", .. string[] flameArguments] => RunFlameKnifeStockReader(flameArguments),
 				["--storm-spear-stock-reader", .. string[] spearArguments] => RunStormSpearStockReader(spearArguments),
 				["--storm-spear-placement-reader", .. string[] placementArguments] => RunStormSpearPlacementReader(placementArguments),
 				["--raise-servitor-stock-reader", .. string[] stockArguments] => RunRaiseServitorStockReader(stockArguments),

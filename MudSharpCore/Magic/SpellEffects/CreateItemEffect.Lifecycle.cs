@@ -37,6 +37,7 @@ public partial class CreateItemEffect
 		Gameworld.SpellOwnedItems is null ? "Spell-owned native item creation is unavailable." :
 		Quantity != 1 || _itemSkinId != 0 || !string.IsNullOrEmpty(LoadString) ? "Lifecycle items require quantity one per output, no skin and no load string." :
 		string.IsNullOrWhiteSpace(LifecycleFamily) || LifecycleFamily.Length > 128 ? "Set a creation family of at most 128 characters." :
+		OutputPolicyError() is { } policyError ? policyError :
 		NativeItemCreationEligibility.Error(ItemPrototype, Gameworld) is { } error ? error :
 		PermanentGrade is not null && NativeItemCreationEligibility.Error(PermanentPrototype, Gameworld) is { } permanentError ? permanentError :
 		PermanentGrade is not null && PermanentPrototype!.IsItemType<ProgLightGameItemComponentProto>() ? "Permanent grade overrides cannot select lights; configure explicit worn-light placement." :
@@ -65,6 +66,12 @@ public partial class CreateItemEffect
 			_unreadableLifecycle = new(root); return;
 		}
 		LifecycleMode = mode; LifecycleFamily = root.Element("Family")?.Value ?? "";
+		try { LoadOutputPolicies(root); }
+		catch (Exception ex) when (ex is FormatException or OverflowException)
+		{
+			_lifecycleLoadError = "Invalid item output policy: " + ex.Message;
+			_unreadableLifecycle = new(root); return;
+		}
 		CountByGrade = root.Element("Count")?.Value == "grade";
 		WornLight = root.Element("Placement")?.Value == "wornlight";
 		PrimaryHand = root.Element("Placement")?.Value == "primaryhand";
@@ -79,7 +86,8 @@ public partial class CreateItemEffect
 			_lifetimeFormula is not null ? new XElement("Seconds", _lifetimeFormula) : null,
 			CountByGrade ? new XElement("Count", "grade") : null,
 			WornLight ? new XElement("Placement", "wornlight") : PrimaryHand ? new XElement("Placement", "primaryhand") : null,
-			PermanentGrade is { } grade ? new XElement("PermanentOutput", new XAttribute("grade", grade), _permanentPrototypeId) : null)
+			PermanentGrade is { } grade ? new XElement("PermanentOutput", new XAttribute("grade", grade), _permanentPrototypeId) : null,
+			SaveOutputPolicies())
 		: null;
 
 	internal bool ValidateInvocation(ICharacter caster, out string? error) => ValidateRecipientInvocation(caster, null, out error);
@@ -90,6 +98,12 @@ public partial class CreateItemEffect
 		if (error is not null || LifecycleMode is null) return error is null;
 		if (Spell is not MagicSpell { InvocationGrade: { } grade } native)
 		{ error = "Lifecycle item creation requires a selected-grade native casting invocation."; return false; }
+		try
+		{
+			if (_eligibilityProgId != 0 && EligibilityProg!.ExecuteBool(caster) != true)
+			{ error = "The configured environment prevents this item creation."; return false; }
+		}
+		catch (Exception ex) { error = "Item eligibility could not be evaluated: " + ex.Message; return false; }
 		if (WornLight && recipient is not null)
 		{
 			if (recipient is not ICharacter character || !ReferenceEquals(character.Gameworld, Gameworld))
@@ -103,7 +117,7 @@ public partial class CreateItemEffect
 		{
 			if (recipient is not ICharacter character || !ReferenceEquals(character.Gameworld, Gameworld))
 			{ error = "Primary-hand placement requires a character recipient in this world."; return false; }
-			var prototype = PermanentGrade == grade ? PermanentPrototype! : ItemPrototype;
+			var prototype = PreparePrototype(grade);
 			var preview = new GameItem(prototype, caster, MudSharp.GameItems.ItemQuality.Standard, deferSpellInitialisation: true);
 			var hand = PrimaryWieldHand(character);
 			if (hand is null || hand.Hands(preview) != 1 || !character.Body.CanGet(preview, 0) || !character.Body.CanWield(preview, hand))
@@ -114,6 +128,7 @@ public partial class CreateItemEffect
 		try
 		{
 			var seconds = LifetimeExpression!.Evaluate(caster, native.CastingTrait, TraitBonusContext.SpellDuration);
+			if (_lifetimeMultiplierProgId != 0) seconds *= LifetimeMultiplierProg!.ExecuteDouble(caster);
 			if (!double.IsFinite(seconds) || seconds <= 0 || seconds > (DateTime.MaxValue - RuntimeClock.UtcNow).TotalSeconds ||
 				TimeSpan.FromSeconds(seconds) <= TimeSpan.Zero)
 				error = "The item lifetime must be finite, positive and representable as an absolute UTC deadline.";
@@ -134,7 +149,7 @@ public partial class CreateItemEffect
 		{ error = "The item recipient must be a supported target in this world."; return false; }
 		var native = (MagicSpell)Spell; var grade = native.InvocationGrade!.Value;
 		var mode = PermanentGrade == grade ? SpellLifecycleMode.Permanent : LifecycleMode!.Value;
-		var prototype = PermanentGrade == grade ? PermanentPrototype! : ItemPrototype;
+		var prototype = PreparePrototype(grade);
 		try
 		{
 			var qualityValue = Math.Floor(ItemQuality.EvaluateDoubleWith(("base", (int)prototype.BaseItemQuality), ("power", (int)power), ("outcome", (int)outcome)));

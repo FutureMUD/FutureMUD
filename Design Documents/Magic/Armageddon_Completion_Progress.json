@@ -491,9 +491,10 @@
       "name": "Permanent tier exception",
       "scenario": "Exercise timed Flame Knife tier and configured highest-tier permanent output with real component",
       "required_result": "Correct source-informed per-tier output; timed gear cannot yield permanent salvage; permanent output properly paid",
-      "status": "controlled_native_dependency_partial_installed_stock_not_run",
+      "status": "bounded_self_stock_native_pass_full_installed_acceptance_pending",
       "evidence": [
-        "Armageddon_Stage3C_NativeItems_Verification.json"
+        "Armageddon_Stage3C_NativeItems_Verification.json",
+        "Armageddon_FlameKnife_Stock_Verification.json"
       ]
     },
     {
@@ -672,9 +673,21 @@
       "group": "Gap",
       "required_behavior": "Timed low-tier fire weapon; mon component-consuming permanent staff output; source-informed prototypes and explicit per-tier ownership/cleanup",
       "selected_sorcerer": true,
-      "status": "pending_runtime_stock_and_native_acceptance",
+      "status": "bounded_self_stock_native_verified_parent_review_pending_full_installer_pending",
       "evidence": [
-        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending",
+        "Armageddon_FlameKnife_Stock_Verification.json"
+      ],
+      "qualification_limits": [
+        "Historical objects462-467 and1386-1393 and their statistics/payloads are unavailable. Six distinct native grade prototypes and eight native permanent staff prototypes are builder-selected burning melee adaptations. Acceptance declares6 damage4 pain2 stun; no historical damage parity or embedded charged staff payload is asserted.",
+        "Temporary deadline=(grade+1)*1500*0.75 seconds, shadow half; nominal heap conversion excludes batching/load. Environment maps source sectors to editable terrain-name progs Water Plane/Shadow Plane, rather than claiming native planar parity.",
+        "Bounded stock targets the caster and uses ordinary inventory/location placement; native explicit wield and actual MeleeWeaponAttack/HelplessDefenseMove deliver and persist burning wounds. Other-recipient drop-at-feet, arbitrary callbacks, autonomous selection/defences, full boot/Telnet and concurrency remain unqualified.",
+        "Printed energy lower bound7 follows approved source tree, distinct from raw C metadata minimum0. Paid controlled grades1-7 are qualified; paid overreach and all stock affordability matrices remain separate gates.",
+        "One actual random staff choice is paid and reloaded; all eight IDs are validated and persisted, but all eight random outcomes and their individual historical properties are not gameplay-qualified.",
+        "Controlled native world/anatomy catalogues, deterministic rolls and specialized caster Save apply. Permanent staff remains ordinary salvage-eligible material, not indestructible. Full production persistence and every lifecycle fault boundary remain separate qualifications.",
+        "Queued servitor control still needs immutable accepted-action controller/grant provenance and execution-time deadline revalidation while animation lives; preserve independent following.",
+        "Full plan incomplete: seven phases,16 decisions,154 candidates,82 Sorcerer spells plus12 support rows and25 native scenarios. Complete installer/acquisition/crafting/chargen/energy/portable production and remaining effect/topology/charm/lifecycle/native-release work remain pending.",
+        "Local commit only; no publication, remote merge, deployment, shared/production database or model/billing changes. Stop for parent independent review."
       ]
     },
     {
@@ -1752,7 +1765,7 @@
       "group": "Gap",
       "required_behavior": "Create a temporary lightning-themed spear. Placement and expiry need explicit handling; questionable source rune references are not treated as spear semantics.",
       "selected_sorcerer": true,
-      "status": "bounded_stock_native_verified_parent_review_pending_full_installer_and_release_pending",
+      "status": "bounded_stock_parent_independently_cleared_full_installer_pending",
       "evidence": [
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending",
         "Armageddon_StormSpear_Stock_Verification.json: paid controlled grades 1/7, real electrical wounds, primary-hand and expiry/restart conservation; authored statistics and controlled-host limits explicit"
@@ -3638,13 +3651,12 @@
     }
   ],
   "next_checkpoint": {
-    "status": "awaiting_parent_bounded_storm_spear_review",
-    "baseline": "b3cd366d435a4d07f3b713e4558df349fa20c010",
-    "receipt": "Armageddon_StormSpear_Stock_Verification.json",
-    "scope": "Review exact local Storm Spear checkpoint, then select next unmet dependency. Queued servitor control provenance/expiry remains concrete and unresolved.",
-    "primary_baseline": "34eb234eb5a1e2784c595b4f848f6f785b426302",
+    "status": "awaiting_parent_flame_knife_independent_review",
+    "base": "d966e8af6b60a8b2ed4de8fa178568f2d8ca1676",
+    "receipt": "Armageddon_FlameKnife_Stock_Verification.json",
+    "full_plan_complete": false,
     "publication_authorized": false,
-    "full_plan_complete": false
+    "queued_servitor_control_gap": "accepted-action immutable controller/grant provenance and execution-time deadline revalidation still pending"
   },
   "deferred_consultation": {
     "source_task": "01a0fc1f-ccd4-7359-95f2-f8c03724b0b1",
@@ -3827,6 +3839,39 @@
         "missing_historical_profile": "Object488/JavaScript damage/material/weight/value not recovered. Stock explicitly binds builder-selected native electrical weapon; no historical damage parity asserted.",
         "grade_gate": "Approved configured native percentage gates retained; grade7=95, independent of historical raw cap90."
       }
+    },
+    {
+      "status": "parent_independently_cleared_bounded_storm_spear",
+      "implementation_commit": "d966e8af6b60a8b2ed4de8fa178568f2d8ca1676",
+      "receipt": "Armageddon_StormSpear_Stock_Verification.json",
+      "limits": [
+        "Historical object 488 and its JavaScript damage, material, weight and value are unavailable. Stock requires a builder-selected native electrical weapon. The acceptance profile explicitly uses 6 damage, 4 pain and 2 stun; historical damage parity is not asserted.",
+        "All grades use the exact native deadline (24+rand(1,6))*90*grade*0.75 seconds. This is the recovered loop's nominal conversion, excluding historical batching and load delay; no grade-seven permanence is introduced.",
+        "Native acceptance uses controlled world/anatomy catalogues, deterministic checks, specialized caster Save and explicit HelplessDefenseMove. It exercises real items, Body inventory, native room/zone/shard rollback, melee damage, wound persistence and fresh-process readers, but not full production boot/Telnet, autonomous attack selection, defences or concurrency.",
+        "The approved grade-seven 95-percent raw-cap gate is verified for overreach from controlled grade six, with no payment below the gate and route preflight at the boundary. A paid overreach cast is not qualified. Paid controlled grade-seven casting is qualified separately.",
+        "The actual native placement fault occurs after Get: a Held callback drops the output. Post-Wield custody revalidation has durable mock regression evidence, but an actual native post-Wield callback scenario was not run.",
+        "Earlier stock/integration packets remain immutable; their other historical native checks were not rerun for Storm Spear. Queued servitor control still needs accepted-action grant provenance and execution-time deadline revalidation while animation lives, preserving independent following.",
+        "Complete installer, all remaining stock/support/acquisition/crafting/chargen/energy wiring, portable production, remaining effect/lifecycle/topology/charm work and all whole-plan native release gates remain required. Seven phases, 16 decisions, 154 candidates, 82 Sorcerer plus 12 support rows and 25 acceptance scenarios are preserved.",
+        "Only a local commit is authorized. No publication, remote merge, deployment, shared/production database, billing, quota reset or model change occurred. Stop for parent independent review before later repertoire work."
+      ]
+    },
+    {
+      "status": "bounded_flame_knife_verified_parent_review_pending",
+      "base": "d966e8af6b60a8b2ed4de8fa178568f2d8ca1676",
+      "receipt": "Armageddon_FlameKnife_Stock_Verification.json",
+      "managed_focused_run": "20261005T005537Z-77c6517b3ec9",
+      "managed_fast_run": "20261005T010243Z-ea7e9b80bfef",
+      "limits": [
+        "Historical objects462-467 and1386-1393 and their statistics/payloads are unavailable. Six distinct native grade prototypes and eight native permanent staff prototypes are builder-selected burning melee adaptations. Acceptance declares6 damage4 pain2 stun; no historical damage parity or embedded charged staff payload is asserted.",
+        "Temporary deadline=(grade+1)*1500*0.75 seconds, shadow half; nominal heap conversion excludes batching/load. Environment maps source sectors to editable terrain-name progs Water Plane/Shadow Plane, rather than claiming native planar parity.",
+        "Bounded stock targets the caster and uses ordinary inventory/location placement; native explicit wield and actual MeleeWeaponAttack/HelplessDefenseMove deliver and persist burning wounds. Other-recipient drop-at-feet, arbitrary callbacks, autonomous selection/defences, full boot/Telnet and concurrency remain unqualified.",
+        "Printed energy lower bound7 follows approved source tree, distinct from raw C metadata minimum0. Paid controlled grades1-7 are qualified; paid overreach and all stock affordability matrices remain separate gates.",
+        "One actual random staff choice is paid and reloaded; all eight IDs are validated and persisted, but all eight random outcomes and their individual historical properties are not gameplay-qualified.",
+        "Controlled native world/anatomy catalogues, deterministic rolls and specialized caster Save apply. Permanent staff remains ordinary salvage-eligible material, not indestructible. Full production persistence and every lifecycle fault boundary remain separate qualifications.",
+        "Queued servitor control still needs immutable accepted-action controller/grant provenance and execution-time deadline revalidation while animation lives; preserve independent following.",
+        "Full plan incomplete: seven phases,16 decisions,154 candidates,82 Sorcerer spells plus12 support rows and25 native scenarios. Complete installer/acquisition/crafting/chargen/energy/portable production and remaining effect/topology/charm/lifecycle/native-release work remain pending.",
+        "Local commit only; no publication, remote merge, deployment, shared/production database or model/billing changes. Stop for parent independent review."
+      ]
     }
   ]
 }

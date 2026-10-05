@@ -1068,3 +1068,13 @@ Seventeen focused component/service tests passed, including normal low/high-grad
 - [ ] Parent independently reviews the local checkpoint before later repertoire work. Queued servitor execution authority, remaining effects/lifecycles, complete installer and full native release gates remain pending.
 
 Controlled anatomy/world catalogues, specialized caster Save, deterministic rolls and helpless defence remain explicit. Full boot/Telnet, autonomous attack selection/defences, concurrency, historical damage parity and a paid overreach cast are not qualified. The actual placement callback is post-Get; post-Wield has durable mock evidence only. See [Armageddon_StormSpear_Stock_Verification.json](Armageddon_StormSpear_Stock_Verification.json).
+
+## Flame Knife checkpoint — 2026-10-05
+
+Storm Spear d966e8af independently cleared by parent with its recorded bounded limits. Flame Knife now authorized: recover own source, implement editable stock and unmet grade-dependent output/component policies, verify paid grades and native weapon/lifecycle behaviour, commit locally and stop for parent review. Seven phases, 16 decisions, 154 candidates, 82 Sorcerer and 12 support rows, and 25 native scenarios remain tracked; full plan incomplete. Servitor queued-control provenance/deadline gap remains open. Primary master 34eb234 remains clean and untouched; no publication/shared database authorization.
+
+### Flame Knife bounded checkpoint verified
+
+Editable stock implements six component-free timed grade prototypes and a mon-only directly carried Conjuration component selecting one of eight permanent staff prototypes. Water terrain refuses creation; shadow halves temporary lifetime. Printed minimum energy7 retained independently of C metadata0. Real native inventory/wield, paid all-seven grades, burning wounds/persistence, exact expiry, actual fresh-process foreign bag reload and permanent survival qualify this controlled caster-target stock. Focused 988 and Fast 7202 passed with zero failures/skips; final guarded native/regression receipts are sealed separately. Historical statistics/charged payloads, other-recipient placement, paid overreach, ordinary defence/selection, full boot/concurrency and complete installed-world acceptance remain pending.
+
+Both source-review P2s corrected: malformed output policies preserve editable XML and refuse; unresolved grade-conditioned tags retain their IDs and cannot consume unrelated items. Source-only review is distinct from native execution. Seven-phase/16-decision/154-candidate/82+12-source/25-scenario ledger preserved. Servitor queued-control execution gap remains open. Stop for parent review after local commit.

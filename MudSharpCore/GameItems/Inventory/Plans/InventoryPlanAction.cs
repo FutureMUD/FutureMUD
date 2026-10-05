@@ -53,6 +53,7 @@ public abstract class InventoryPlanAction : IInventoryPlanAction, IHaveFuturemud
     public abstract bool RequiresFreeHandsToExecute(ICharacter who, IGameItem item);
 
     public ITag DesiredTag => Gameworld.Tags.Get(_desiredTagId);
+	protected long DesiredTagId => _desiredTagId;
 
     public abstract IGameItem ScoutSecondary(ICharacter executor, IGameItem item);
 

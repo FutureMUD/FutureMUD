@@ -45,10 +45,10 @@ internal static partial class GNHProgram
 		gun.Definition = xml.ToString(); db.SaveChanges();
 	}
 
-	private sealed record FirearmSavedItem(long Id, ItemOwnershipReference? Title, long? HeldBody, long? Cell, long? Container);
+	private sealed record FirearmSavedItem(long Id, ItemOwnershipReference? Title, long? HeldBody, long? Cell, long? Container, bool Wielded = false);
 	private sealed record FirearmAuthorityReader(string Database, FixtureIds Fixture, DateTime Now, long Canonical,
 		long Body, double Stamina, long Trait, double Raw, long VictimBody, double Wounds,
-		long Gun, double Condition, long? Chamber, long[] Magazine, FirearmSavedItem[] Items, string Case, long? StaleChamber = null);
+		long Gun, double Condition, long? Chamber, long[] Magazine, FirearmSavedItem[] Items, string Case, long? StaleChamber = null, long? OtherBody = null, double? OtherStamina = null, long? OtherCanonical = null, double? OtherRaw = null);
 
 	private static int RunFirearmAuthorityReader(string[] args)
 	{
@@ -65,6 +65,10 @@ internal static partial class GNHProgram
 				Same(db.CharacterTraits.AsNoTracking().Single(x => x.CharacterId == input.Canonical && x.TraitDefinitionId == input.Trait).Value, input.Raw) &&
 				Same(db.Wounds.AsNoTracking().Where(x => x.BodyId == input.VictimBody).Sum(x => x.CurrentDamage + x.CurrentPain + x.CurrentStun), input.Wounds),
 				"Fresh firearm reader must observe exact native stamina, independent trait and wound rows.");
+			if (input.OtherBody.HasValue)
+				Require(Same(db.Bodies.AsNoTracking().Single(x => x.Id == input.OtherBody).CurrentStamina, input.OtherStamina!.Value) &&
+					Same(db.CharacterTraits.AsNoTracking().Single(x => x.CharacterId == input.OtherCanonical && x.TraitDefinitionId == input.Trait).Value, input.OtherRaw!.Value),
+					"Fresh countershot reader must retain original attacker stamina and canonical follow-on trait rows.");
 			var storedGun = db.GameItemComponents.AsNoTracking().Where(x => x.GameItemId == input.Gun).ToArray()
 				.Select(x => XElement.Parse(x.Definition)).Single(x => x.Element("RoundsInMagazine") is not null);
 			Require(long.Parse(storedGun.Element("ChamberedRound")!.Value) == (input.StaleChamber ?? input.Chamber ?? 0) &&
@@ -89,7 +93,7 @@ internal static partial class GNHProgram
 			Require(!item.Deleted && item.Quantity == 1 && item.OwnershipReference == saved.Title &&
 				item.GetItemType<IHoldable>()!.HeldBy?.Id == saved.HeldBody && item.DirectLocation?.Id == saved.Cell &&
 				item.ContainedIn?.Id == saved.Container, $"Cold native firearm item:{item.Id} quantity:{item.Quantity}/1 title:{item.OwnershipReference}/{saved.Title} held:{item.GetItemType<IHoldable>()!.HeldBy?.Id}/{saved.HeldBody} cell:{item.DirectLocation?.Id}/{saved.Cell} container:{item.ContainedIn?.Id}/{saved.Container}.");
-			if (saved.HeldBody.HasValue) Require(owner.Body.HeldItems.Any(x => ReferenceEquals(x, item)), "Cold native hand membership must contain the exact firearm item.");
+			if (saved.HeldBody.HasValue) Require((saved.Wielded ? owner.Body.WieldedItems : owner.Body.HeldItems).Any(x => ReferenceEquals(x, item)), "Cold native hand/wield membership must contain the exact firearm item.");
 		}
 		var gunItem = world.TryGetItem(input.Gun, true)!;
 		var gun = gunItem.GetItemType<InternalMagazineGunGameItemComponent>()!;

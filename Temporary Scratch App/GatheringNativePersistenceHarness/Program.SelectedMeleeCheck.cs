@@ -50,7 +50,7 @@ internal static partial class GNHProgram
 	}
 
 	private sealed record SelectedMeleeCheckReader(string Database, long Owner, long Trait, double Raw,
-		long Body, double Stamina, long VictimBody, double Wounds, string Case);
+		long Body, double Stamina, long VictimBody, double Wounds, string Case, double? VictimStamina = null);
 	private static int RunSelectedMeleeCheckReader(string[] args)
 	{
 		var input = JsonSerializer.Deserialize<SelectedMeleeCheckReader>(Encoding.UTF8.GetString(Convert.FromBase64String(args.Single())))!;
@@ -60,13 +60,14 @@ internal static partial class GNHProgram
 		Require(Same(trait.Value, input.Raw) && Same(db.Bodies.AsNoTracking().Single(x => x.Id == input.Body).CurrentStamina, input.Stamina) &&
 			Same(db.Wounds.AsNoTracking().Where(x => x.BodyId == input.VictimBody).Sum(x => x.CurrentDamage + x.CurrentPain + x.CurrentStun), input.Wounds),
 			"Fresh selected-melee reader must observe exact canonical trait, stamina and wound rows.");
+		if (input.VictimStamina.HasValue) Require(Same(db.Bodies.AsNoTracking().Single(x => x.Id == input.VictimBody).CurrentStamina, input.VictimStamina.Value), "Fresh defended-melee reader must retain the exact defender stamina row.");
 		Console.WriteLine($"ARMSelectedCheck-reader={input.Case} passed raw:{trait.Value} stamina:{input.Stamina} wounds:{input.Wounds} fresh-process native-rows no-order-replay");
 		return 0;
 	}
 
 	private static int RunSelectedMeleeCheck(TestDatabase database, RetirementHost host, HarnessClock clock,
 		ScriptedAiCharacterInstance animated, ICharacter caster, ICharacter foe, Func<ScriptedAiCharacterInstance> cast,
-		Action<ScriptedAiCharacterInstance> restored, Action<ScriptedAiCharacterInstance, ICharacter, string> order)
+		Action<ScriptedAiCharacterInstance> restored, Action<ScriptedAiCharacterInstance, ICharacter, string> order, bool defendedFailureOnly = false)
 	{
 		using var learningGlobals = new CheckLearningGlobals();
 		var native = host.Native; var world = native.World; var service = world.SpellOwnedCorpseAnimations!;
@@ -103,7 +104,7 @@ internal static partial class GNHProgram
 		var bonus = new FutureProg(world, "armSelectedNativeBonus", ProgVariableTypes.Number,
 			[Tuple.Create(ProgVariableTypes.Character, "actor"), Tuple.Create(ProgVariableTypes.Perceivable, "target")], "return 0");
 		Require(gain.Compile() && applies.Compile() && bonus.Compile(), "Native selected-melee policy progs must compile."); improver.ImprovementProg = gain;
-		var expression = new TraitExpression("1000+variable*0", world) { Id = 99101 }; expressions.Add(expression);
+		var expression = new TraitExpression(defendedFailureOnly ? "-1000+variable*0" : "1000+variable*0", world) { Id = 99101 }; expressions.Add(expression);
 		var template = new Db.CheckTemplate { Name = "Native selected melee Check", ImproveTraits = true, CanBranchIfTraitMissing = false };
 		foreach (var difficulty in Enum.GetValues<Difficulty>()) template.CheckTemplateDifficulties.Add(new() { Difficulty = (int)difficulty });
 		var check = new RecordingSelectedMeleeCheck(new Db.Check { Type = (int)CheckType.MeleeWeaponCheck, TraitExpressionId = expression.Id,
@@ -130,16 +131,39 @@ internal static partial class GNHProgram
 		settings.PreferredMeleeMode = CombatStrategyMode.StandardMelee; settings.ForbiddenIntentions = CombatMoveIntentions.None;
 		foreach (var race in world.Races)
 		{
-			Mock.Get(race).SetupGet(x => x.CombatSettings).Returns(new RacialCombatSettings { CanAttack = true, CanUseWeapons = true, CanDefend = false, DefaultCombatSetting = settings });
+			Mock.Get(race).SetupGet(x => x.CombatSettings).Returns(new RacialCombatSettings { CanAttack = true, CanUseWeapons = true, CanDefend = defendedFailureOnly, DefaultCombatSetting = settings });
 			Mock.Get(race).SetupGet(x => x.RaceUsesStamina).Returns(true);
+		}
+		var defenseCalls = 0;
+		if (defendedFailureOnly)
+		{
+			foe.PreferredDefenseType = DefenseType.Dodge;
+			// The archived anatomy has no hit weights; declare one positive weight per
+			// part and zero targeting bonus for this failing-attack/Dodge control.
+			foreach (var part in foe.Body.Bodyparts)
+			{
+				if (part is MudSharp.Body.PartProtos.BodypartPrototype) SetPrivateMember(part, "RelativeHitChance", 1.0);
+				else Mock.Get(part).SetupGet(x => x.RelativeHitChance).Returns(1);
+			}
+			typeof(PerceiverItem).GetField("_meleeTargetingExpression", BindingFlags.Static | BindingFlags.NonPublic)!
+				.SetValue(null, new ExpressionEngine.Expression("0"));
+			native.WorldMock.Setup(x => x.GetStaticDouble("DodgeMoveStaminaCost")).Returns(2);
+			var dodgeCheck = new Mock<ICheck>();
+			native.WorldMock.Setup(x => x.GetCheck(CheckType.DodgeCheck)).Returns(dodgeCheck.Object);
+			dodgeCheck.Setup(x => x.CheckAgainstAllDifficulties(It.IsAny<IPerceivableHaveTraits>(), It.IsAny<Difficulty>(),
+				It.IsAny<ITraitDefinition>(), It.IsAny<IPerceivable>(), It.IsAny<double>(), It.IsAny<TraitUseType>(), It.IsAny<(string, object)[]>())).Returns(() =>
+			{
+				Require(new StackTrace().GetFrames().Any(x => x.GetMethod()?.DeclaringType == typeof(MeleeWeaponAttack) && x.GetMethod()?.Name == "ResolveDodge"), "Actual selected attack must execute the native Dodge resolver.");
+				++defenseCalls; return Enum.GetValues<Difficulty>().ToDictionary(x => x, _ => CheckOutcome.SimpleOutcome(CheckType.DodgeCheck, Outcome.MajorPass));
+			});
 		}
 		var configured = new HashSet<CommandableAI>();
 		try
 		{
 			SetPrivateMember(definition, "Improver", improver);
-			foreach (var scenario in new[] { "ordered-valid", "ordered-revoked", "applicable-independent", "applicable-revoke", "scoring-independent", "scoring-revoke", "final-setter-independent", "final-setter-aba", "final-setter-revoke", "direct-valid", "direct-scoring-independent" })
+			foreach (var scenario in defendedFailureOnly ? new[] { "ordered-defended-fail", "ordered-revoked" } : new[] { "ordered-valid", "ordered-revoked", "applicable-independent", "applicable-revoke", "scoring-independent", "scoring-revoke", "final-setter-independent", "final-setter-aba", "final-setter-revoke", "direct-valid", "direct-scoring-independent" })
 			{
-				var actor = scenario == "ordered-valid" ? animated : cast(); actor.CombatSettings = settings;
+				var actor = scenario is "ordered-valid" or "ordered-defended-fail" ? animated : cast(); actor.CombatSettings = settings;
 				var body = actor.Body; var ai = actor.AIs.OfType<CommandableAI>().Single();
 				if (configured.Add(ai)) Require(ai.BuildingCommand(caster, new StringStack("included learningstrike")), "Native AI must allowlist the authored selected attack.");
 				var previousMerits = actor.CharacterMerits.ToArray(); SetPrivateField(actor, "_merits", previousMerits.Concat(new IMerit[] { specific, scaled }).ToList());
@@ -209,7 +233,17 @@ internal static partial class GNHProgram
 					Require(move is MeleeWeaponAttack && CommandExecutionAuthority.IsOrdered(move) == !direct, "Actual ChooseMove must select native melee with exact order provenance.");
 					if (scenario == "ordered-revoked") Expire();
 					((MudSharp.Body.Implementations.Body)body).CurrentStamina = 100; Require(Same(actor.CurrentStamina, 100), "Native stamina baseline must be exact.");
+					if (defendedFailureOnly)
+					{
+						foe.CombatSettings = settings;
+						foe.PositionState = MudSharp.Body.Position.PositionStates.PositionStanding.Instance;
+						foe.MeleeRange = true; foe.CombatStrategyMode = CombatStrategyMode.StandardMelee;
+						((MudSharp.Body.Implementations.Body)foe.Body).CurrentStamina = 100;
+						Require(foe.Race.CombatSettings.CanDefend && foe.PreferredDefenseType == DefenseType.Dodge &&
+							foe.CanSpendStamina(DodgeMove.MoveStaminaCost(foe)), "Declared defended fixture must permit its exact native Dodge response.");
+					}
 					world.SaveManager.Flush();
+					defenseCalls = 0;
 					var before = foe.Body.Wounds.Sum(x => x.CurrentDamage + x.CurrentPain + x.CurrentStun); check.Reset(); inResolution = true;
 					try { actor.Combat!.CombatAction(actor, move); } finally { inResolution = false; }
 					var permitted = !scenario.Contains("revoke", StringComparison.Ordinal);
@@ -218,20 +252,23 @@ internal static partial class GNHProgram
 					var expected = early ? 65.0 : scenario is "applicable-revoke" or "scoring-revoke" or "final-setter-independent" or "final-setter-revoke" ? 60.0 : improved ? 45.0 : 40.0;
 					var after = foe.Body.Wounds.Sum(x => x.CurrentDamage + x.CurrentPain + x.CurrentStun);
 					var rolled = check.Latest?[check.ReferenceDifficulty];
+					if (defendedFailureOnly) Console.WriteLine($"ARMSelectedDefense-diagnostic={scenario} defense-calls:{defenseCalls} strategy:{foe.CombatStrategyMode} attack-roll:{rolled?.Outcome} wounds:{after-before} defender-cost:{100-foe.CurrentStamina}");
 					Require(check.Calls == (scenario == "ordered-revoked" ? 0 : 1) && applicabilityCalls == check.Calls && scoringCalls == check.Calls,
 						$"Native selected scoring seams must occur exactly once: {scenario}, check:{check.Calls}, applicability:{applicabilityCalls}, scoring:{scoringCalls}.");
-					Require(rolled is null ? scenario == "ordered-revoked" : rolled.Outcome.IsPass() && rolled.Rolls.Count() == 3 && rolled.Rolls.All(x => x >= 0 && x < 100) && rolled.ImprovedTraits.Count() == (improved ? 1 : 0), "Native rolls and improvement reports must remain truthful after callbacks.");
+					Require(rolled is null ? scenario == "ordered-revoked" : (defendedFailureOnly ? rolled.Outcome.IsFail() : rolled.Outcome.IsPass()) && rolled.Rolls.Count() == 3 && rolled.Rolls.All(x => x >= 0 && x < 100) && rolled.ImprovedTraits.Count() == (improved ? 1 : 0), "Native rolls and improvement reports must remain truthful after callbacks.");
 					Require(Same(actor.TraitRawValue(definition), expected) && setterCalls == (scenario.StartsWith("final-setter", StringComparison.Ordinal) ? 1 : 0),
 						$"Independent native write must survive final learning admission: {scenario}, raw:{actor.TraitRawValue(definition)}, expected:{expected}, setter:{setterCalls}.");
-					Require(permitted ? after > before : Same(after, before), "Revoked learning/attack must not add wounds; admitted attacks must commit native wounds.");
+					Require(permitted && !defendedFailureOnly ? after > before : Same(after, before), "Revoked learning/attack must not add wounds; admitted attacks must commit native wounds.");
 					var stamina = permitted ? 100 - move.StaminaCost : 100;
 					Require(Same(actor.CurrentStamina, stamina) && (!permitted || Same(move.StaminaCost, 1)), "Actual CombatAction must charge exact native cost only for committed attacks.");
 					var cooldown = scenario is "ordered-revoked" or "applicable-revoke" or "scoring-revoke" ? 0 : 1;
 					Require(actor.EffectsOfType<NoTraitGain>().Count() == cooldown, "Already committed learning cooldown must be retained without duplication.");
+					if (defendedFailureOnly) Require(defenseCalls == (permitted ? 1 : 0) && Same(foe.CurrentStamina, 100), "A real Dodge resolves once; the existing failed-attack outcome does not charge Dodge stamina, and a pre-revoked order executes neither check nor defense.");
 					world.SaveManager.Flush();
 					using (var db = NewIndependentContext(database.ConnectionString))
-						if (permitted) Require(db.Wounds.AsNoTracking().Any(x => x.BodyId == foe.Body.Id && x.ActorOriginId == actor.Identity.Id), "Committed wound attribution must use the canonical identity.");
-					RunItemReaderProcess(new SelectedMeleeCheckReader(database.Name, owner.Id, definition.Id, expected, body.Id, stamina, foe.Body.Id, after, scenario), "--selected-melee-check-reader");
+						if (permitted && !defendedFailureOnly) Require(db.Wounds.AsNoTracking().Any(x => x.BodyId == foe.Body.Id && x.ActorOriginId == actor.Identity.Id), "Committed wound attribution must use the canonical identity.");
+					RunItemReaderProcess(new SelectedMeleeCheckReader(database.Name, owner.Id, definition.Id, expected, body.Id, stamina, foe.Body.Id, after, scenario, defendedFailureOnly ? foe.CurrentStamina : null), "--selected-melee-check-reader");
+					if (defendedFailureOnly) Console.WriteLine($"ARMSelectedDefense={scenario} passed actual-ChooseMove-MeleeWeaponAttack-StandardCheck-Dodge failed-native-roll cost:{100-actor.CurrentStamina} defender-cost:{100-foe.CurrentStamina} wounds:{after-before} defense-calls:{defenseCalls}");
 					Console.WriteLine($"ARMSelectedCheck={scenario} passed physical:{actor.InstanceId} canonical:{owner.Id} raw:{expected} improved:{rolled?.ImprovedTraits.Count() ?? 0} cooldown:{cooldown} cost:{100-stamina} wound-delta:{after-before} actual-ChooseMove-MeleeWeaponAttack-StandardCheck-native-merits");
 				}
 				finally { inResolution = false; policyField.SetValue(ai, policy); SetPrivateField(actor, "_merits", previousMerits.ToList()); }

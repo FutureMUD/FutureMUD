@@ -4965,5 +4965,59 @@
       "Whole82-spell/12-support/154-candidate/25-native-scenario plan remains incomplete. No lane integration, publication, merge, deployment or shared/production database."
     ],
     "whole_plan_complete": false
+  },
+  "native_countershot_defended_failure_qualification": {
+    "status": "PASS_BOUNDED_LOCAL_CHECKPOINT_PARENT_REVIEW_PENDING",
+    "base_head": "71728d7fb084584887004490a0cfa60bcfb29678",
+    "acceptance": [
+      {
+        "id": "focused-core",
+        "status": "PASS",
+        "passed": 281
+      },
+      {
+        "id": "full-core",
+        "status": "PASS",
+        "passed": 5150
+      },
+      {
+        "id": "actual-countershot",
+        "status": "PASS",
+        "cases": 4,
+        "readers": 8
+      },
+      {
+        "id": "failed-wielded-load-plan",
+        "status": "PASS",
+        "cases": 1,
+        "readers": 1
+      },
+      {
+        "id": "defended-failing-melee",
+        "status": "PASS",
+        "cases": 2,
+        "readers": 2
+      },
+      {
+        "id": "full-fast-this-checkpoint",
+        "status": "NOT_RUN"
+      },
+      {
+        "id": "whole-plan",
+        "status": "INCOMPLETE"
+      }
+    ],
+    "receipt": "Design Documents/Magic/Armageddon_CountershotAuthority_Verification.json",
+    "foundation_checklist": "Design Documents/Magic/Armageddon_Foundation_Completion_Checklist.md",
+    "next_smallest_gate": "Parent review, then representative container Get merge before Give/component Unload merge controls.",
+    "limits": [
+      "Actual charge command/ChooseMove/CombatAction and automatic FireNoCover StandAndFire response use production ResolveIndependent. Accepted contact before that response retains existing Charge behavior. No new contact ordering contract.",
+      "Actual firearm components, wounds, ordinary-round title/custody, costs and real canonical trait persistence. Shot/cover/recovery/defence outcomes, race/encumbrance, walking speed, kg/ml fixture units, hit weights and targeting bonus are controlled; no admin movement override.",
+      "Fresh firearm readers reconstruct native body inventory/wield, item/component slots/custody after exact raw SQL checks. Melee readers verify selected canonical trait/body stamina/wound SQL. Neither reconstructs full animated actor/AI/controller nor replays orders.",
+      "Second expired queued charge is removed by actual ChooseMove; a returned autonomous move is not executed or qualified. Direct-valid is an explicitly independent Charge control.",
+      "Failed wielded-load plan now refuses truthfully; it does not force a two-handed gun to acquire inaccessible ammunition or qualify all Load callbacks, stack/split/merge, casing, separate projectile or next-round configurations.",
+      "Full Fast/full-world/Telnet NOT_RUN. Whole82/12/154/25 plan remains incomplete. No stock integration, publication, merge, deployment or shared/production DB."
+    ],
+    "whole_plan_complete": false
   }
 }

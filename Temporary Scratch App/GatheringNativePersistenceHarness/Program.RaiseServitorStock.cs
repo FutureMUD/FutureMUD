@@ -64,7 +64,7 @@ internal static partial class GNHProgram
 		Console.WriteLine("ARM03D1Stock-reader=passed fresh-process durable-control-query persisted-stock-identity-formula-and-animation-deadline no-actor-materialization-or-replay");
 		return 0;
 	}
-	private static int RunRaiseServitorStockChecks(bool queuedAuthorityOnly = false, bool queuedCallbackOnly = false, bool orderedCallbacks = false, bool checkLearningOnly = false, bool regressionP2Only = false, bool stackMergeOnly = false, bool selectedMeleeCheckOnly = false, bool firearmAuthorityOnly = false)
+	private static int RunRaiseServitorStockChecks(bool queuedAuthorityOnly = false, bool queuedCallbackOnly = false, bool orderedCallbacks = false, bool checkLearningOnly = false, bool regressionP2Only = false, bool stackMergeOnly = false, bool selectedMeleeCheckOnly = false, bool firearmAuthorityOnly = false, bool countershotAuthorityOnly = false, bool defendedMeleeOnly = false)
 	{
 		using var database = TestDatabase.CreateFresh("futuremud_land_"); ConfigureNativeDatabase(database.ConnectionString);
 		var fixture = FixtureSeed.Create(database, "arm03d1_stock", true);
@@ -78,16 +78,23 @@ internal static partial class GNHProgram
 			SeedConsumables(database, fixture, seed.World.Materials.First().Id);
 			SeedFlameFixture(database);
 		}
-		if (regressionP2Only || firearmAuthorityOnly)
+		if (regressionP2Only || firearmAuthorityOnly || countershotAuthorityOnly)
 		{
 			if (!orderedCallbacks) SeedCreatedWeaponPrototypes(database, seed.World.Materials.First().Id);
 			SeedRegressionP2Fixture(database, seed.World);
 		}
-		if (firearmAuthorityOnly) SeedFirearmAuthorityFixture(database);
+		if (firearmAuthorityOnly || countershotAuthorityOnly) SeedFirearmAuthorityFixture(database);
 		using var orderedGlobals = orderedCallbacks ? new ConsumableGlobals() : null;
 		var host = PrepareRetirementHost(database, fixture, clock, corpseAnimationAnatomy: true,
 			consumablesAnatomy: orderedCallbacks, wielding: orderedCallbacks || regressionP2Only);
 		var native = host.Native; var world = native.World; var caster = native.Actor;
+		if (countershotAuthorityOnly)
+		{
+			// Declare fixture kg/ml conversions before constructing foreign items; native
+			// liquid mixtures cache their weight when created.
+			native.WorldMock.SetupGet(x => x.UnitManager).Returns(Mock.Of<MudSharp.Framework.Units.IUnitManager>(
+				x => x.BaseWeightToKilograms == 1 && x.BaseFluidToLitres == 0.001));
+		}
 		// The fixture player must be present in native identity roots for live command authority.
 		// The partial archive host omits production online-player statistics.
 		((All<ICharacter>)world.Actors).Add(caster); ((All<ICharacter>)world.Characters).Add(caster);
@@ -205,10 +212,12 @@ internal static partial class GNHProgram
 		void Order(ScriptedAiCharacterInstance animation, ICharacter issuer, string command) =>
 			Require(animation.HandleEvent(EventType.CommandIssuedToCharacter, animation, issuer, command), "Stock command event was not handled.");
 		var animated = Cast();
+		if (countershotAuthorityOnly)
+			return RunCountershotAuthority(database, host, clock, animated, caster, foe, Cast, Restored, Order, fixture);
 		if (firearmAuthorityOnly)
 			return RunFirearmAuthority(database, host, clock, animated, caster, foe, Cast, Restored, Order, fixture);
 		if (selectedMeleeCheckOnly)
-			return RunSelectedMeleeCheck(database, host, clock, animated, caster, foe, Cast, Restored, Order);
+			return RunSelectedMeleeCheck(database, host, clock, animated, caster, foe, Cast, Restored, Order, defendedMeleeOnly);
 		if (regressionP2Only)
 			return RunOrderedNpcRegressionP2(database, host, clock, animated, caster, foe, Cast, Restored, Order, fixture, stackMergeOnly);
 		if (checkLearningOnly)

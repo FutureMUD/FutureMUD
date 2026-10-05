@@ -6,6 +6,7 @@ using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.GameItems;
 using MudSharp.Vehicles;
+using MudSharp.NPC.AI;
 
 namespace MudSharp.Effects.Concrete;
 
@@ -689,16 +690,21 @@ public class SelectedCombatAction : CombatEffectBase, ISelectedCombatAction
     }
 
     private readonly CombatActionType _action;
+    private readonly CommandExecutionAuthority _commandAuthority;
 
     private SelectedCombatAction(ICharacter owner, CombatActionType action, IFutureProg applicabilityProg = null) :
         base(owner, owner.Combat, applicabilityProg)
     {
         _action = action;
+        _commandAuthority = CommandExecutionAuthority.CaptureSelected(owner);
     }
 
     public ICombatMove GetMove(ICharacter actor)
     {
-        return _action.GetCombatMove(actor);
+        if (_commandAuthority is not null && !_commandAuthority.MayExecute(actor)) return null;
+        var move = _action.GetCombatMove(actor);
+        _commandAuthority?.Bind(move);
+        return move;
     }
 
     public bool ShouldRemove(CharacterState state)

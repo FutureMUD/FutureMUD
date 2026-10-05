@@ -380,6 +380,10 @@ public abstract class CombatBase : ICombat
 
     public virtual void CombatAction(IPerceiver perceiver, ICombatMove move)
     {
+        // A callback or stale schedule may have retired this exact physical participant.
+        if (!ReferenceEquals(perceiver.Combat, this) || !_combatants.Any(x => ReferenceEquals(x, perceiver))) return;
+        if (!MudSharp.NPC.AI.CommandExecutionAuthority.MayExecute(move, perceiver as ICharacter)) move = null;
+        if (!ReferenceEquals(perceiver.Combat, this) || !_combatants.Any(x => ReferenceEquals(x, perceiver))) return;
         perceiver.RemoveAllEffects(x => x is IEndOnCombatMove e && e.CausesToEnd(move), true);
         if (move == null)
         {
@@ -405,7 +409,15 @@ public abstract class CombatBase : ICombat
 		ICombatMove targetResponse = move is MultiTargetCombatMove
 			? null
 			: move.CharacterTargets.FirstOrDefault()?.ResponseToMove(move, perceiver);
+		// A defensive response can invoke callbacks. Check again immediately before resolution.
+		if (!ReferenceEquals(perceiver.Combat, this) || !_combatants.Any(x => ReferenceEquals(x, perceiver))) return;
+		if (!MudSharp.NPC.AI.CommandExecutionAuthority.MayExecute(move, perceiver as ICharacter))
+		{
+			CombatAction(perceiver, null);
+			return;
+		}
 		CombatMoveResult result = move.ResolveMove(targetResponse);
+		if (!ReferenceEquals(perceiver.Combat, this) || !_combatants.Any(x => ReferenceEquals(x, perceiver))) return;
 		if (!result.DefenderResponseWasUsed) targetResponse = null;
 		if (!ReferenceEquals(result, CombatMoveResult.Irrelevant))
 		{

@@ -17,6 +17,9 @@ public interface ISpellOwnedCorpseAnimationService
 	bool OwnsInstance(long instanceId);
 	/// <summary>Checks an explicit, unexpired creator command grant on an active animation.</summary>
 	bool CanCommand(long instanceId, long commanderIdentityId);
+	/// <summary>Returns immutable provenance for the currently valid grant. Queued orders must retain
+	/// this origin and compare it with the live grant, rather than accepting a replacement grant.</summary>
+	SpellLifecycleOrigin? CommandGrant(long instanceId, long commanderIdentityId) => null;
 	bool TryRetire(long instanceId, SpellRetirementReason reason, out string diagnostic);
 	bool IsBorrowedCorpse(long corpseId);
 	int ReconcileRetirements(DateTime nowUtc, int limit = 100);

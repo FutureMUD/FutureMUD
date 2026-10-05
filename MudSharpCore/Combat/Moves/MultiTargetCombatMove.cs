@@ -6,6 +6,7 @@ using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.Health;
 using MudSharp.RPG.Checks;
+using MudSharp.NPC.AI;
 
 namespace MudSharp.Combat.Moves;
 
@@ -43,6 +44,9 @@ public class MultiTargetCombatMove : CombatMoveBase
 	public override Difficulty RecoveryDifficultySuccess => PrimaryMove.RecoveryDifficultySuccess;
 	public override Difficulty RecoveryDifficultyFailure => PrimaryMove.RecoveryDifficultyFailure;
 	public override double BaseDelay => PrimaryMove.BaseDelay;
+	public override bool UsesStaminaWithResult(CombatMoveResult result) =>
+		!(ReferenceEquals(result, CombatMoveResult.Irrelevant) && CommandExecutionAuthority.IsOrdered(this)) &&
+		base.UsesStaminaWithResult(result);
 
 	public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
 	{
@@ -52,7 +56,9 @@ public class MultiTargetCombatMove : CombatMoveBase
 		var selfWounds = new List<IWound>();
 		for (var i = 0; i < _moves.Count; i++)
 		{
+			if (!CommandExecutionAuthority.MayExecute(this, Assailant)) break;
 			var move = _moves[i];
+			CommandExecutionAuthority.Inherit(this, move);
 			var target = _moveTargets[i];
 			if (target.Combat != Assailant.Combat)
 			{
@@ -60,6 +66,7 @@ public class MultiTargetCombatMove : CombatMoveBase
 			}
 
 			var response = target.ResponseToMove(move, Assailant);
+			if (!CommandExecutionAuthority.MayExecute(move, Assailant)) break;
 			var result = move.ResolveMove(response);
 			_resolutions.Add(new MultiTargetCombatResolution(move, response, result));
 			results.Add(result);

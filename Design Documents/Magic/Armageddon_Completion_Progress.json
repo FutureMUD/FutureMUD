@@ -344,7 +344,9 @@
       "scenario": "Charm a consenting test PC fixture, order allowed IC action then alias to forbidden settings/builder/OOC command",
       "required_result": "Allowed gameplay executes under ordinary gates; all forbidden final commands refuse on PC and NPC; no privilege crossover",
       "status": "not_run",
-      "evidence": []
+      "evidence": [
+        "Armageddon_QueuedCommand_Authority_Verification.json: bounded NPC queued authority foundation only; PC charm scenario not run"
+      ]
     },
     {
       "id": "N14",
@@ -1038,7 +1040,7 @@
       "group": "Gap",
       "required_behavior": "Timed low-tier sand weapon; mon component-consuming permanent staff output; source-informed prototypes and explicit per-tier ownership/cleanup",
       "selected_sorcerer": false,
-      "status": "bounded_self_stock_native_verified_parent_review_pending_full_installer_pending",
+      "status": "bounded_self_stock_parent_independently_cleared_full_installer_pending",
       "evidence": [
         "Armageddon_SandKnife_Stock_Verification.json"
       ],
@@ -3666,12 +3668,12 @@
     }
   ],
   "next_checkpoint": {
-    "status": "awaiting_parent_sand_knife_independent_review",
-    "base": "c9530927beb7413e7aa937041799f8894b6633be",
-    "receipt": "Armageddon_SandKnife_Stock_Verification.json",
+    "status": "awaiting_parent_queued_command_authority_independent_review",
+    "base": "d99a7cb1edbdc9615a1ba25a90f182027f903d5e",
+    "receipt": "Armageddon_QueuedCommand_Authority_Verification.json",
     "full_plan_complete": false,
     "publication_authorized": false,
-    "queued_servitor_control_gap": "accepted-action immutable controller/grant provenance and execution-time deadline revalidation still pending"
+    "queued_servitor_control_gap": "bounded repair verified; parent review pending; complete PC charm remains open"
   },
   "deferred_consultation": {
     "source_task": "01a0fc1f-ccd4-7359-95f2-f8c03724b0b1",
@@ -3922,6 +3924,62 @@
         "Whole plan incomplete: seven phases,16 decisions,154 candidates,82 Sorcerer spells plus12 support rows and25 native scenarios; installer/acquisition/crafting/chargen/energy/portable production and remaining effect/topology/charm/lifecycle/native release work remain pending.",
         "Local commit only; no publication, remote merge, deployment, shared/production database or model/billing changes. Stop for parent independent review."
       ]
+    },
+    {
+      "status": "parent_independently_cleared_bounded_sand_knife",
+      "implementation_commit": "d99a7cb1edbdc9615a1ba25a90f182027f903d5e",
+      "receipt": "Armageddon_SandKnife_Stock_Verification.json",
+      "limits": [
+        "Historical objects456-461 and1378-1385 statistics and embedded payloads are unavailable. Six distinct temporary native weapons and eight permanent native staffs use explicit builder-selected physical profiles; controlled acceptance authors piercing6 damage4 pain2 stun. No historical damage parity or charged staff payload qualification.",
+        "Enough-sand source admits Desert/Earth Plane/Silt/Shallows/Salt Flats, room sandstorm flag or numeric weather condition>=2.5; wrapper excludes Inside/City. Stock maps editable terrain names, a selected native room tag and exact selected current weather event ID. Numeric condition, full climate evolution and historical sector parity are unqualified; native acceptance uses actual Cell/Tag/WeatherEvent with a controlled controller.",
+        "Source temporary heap duration=((grade+1)*3000)/2 maps nominal0.75 seconds/unit to (grade+1)*1500*0.75 seconds, excluding heap batching/load. Sand has no shadow half-duration; tagged Shadow Plane grade6 is paid with full lifetime.",
+        "Five-energy lower bound is explicitly authored native policy for a candidate outside82Sorcerer roster, separate from raw C minimum0/basepower15. Paid controlled grades1-7 are qualified; paid overreach and whole-stock affordability matrices remain separate gates. Immutable82+12 source tree unchanged.",
+        "Bounded caster-only stock uses native normal inventory placement then explicit native Wield and MeleeWeaponAttack/HelplessDefenseMove. Other-recipient/drop-at-feet, privileged source material exemptions, autonomous selection/ordinary defence, arbitrary callbacks, full boot/Telnet and concurrency remain unqualified.",
+        "One actual permanent random pool outcome is paid and reloaded; all eight prototype IDs are validated and persisted, but not every random outcome or individual historical property is gameplay-qualified.",
+        "Controlled native world/anatomy catalogues, deterministic rolls and specialized caster Save apply. Permanent staff is ordinary salvage-eligible material, not indestructible. Full production persistence and every lifecycle fault boundary remain separate qualifications.",
+        "Queued servitor-control gap stays open: immutable accepted-action controller/grant provenance and execution-time deadline revalidation while animation lives, preserving independent following.",
+        "Whole plan incomplete: seven phases,16 decisions,154 candidates,82 Sorcerer spells plus12 support rows and25 native scenarios; installer/acquisition/crafting/chargen/energy/portable production and remaining effect/topology/charm/lifecycle/native release work remain pending.",
+        "Local commit only; no publication, remote merge, deployment, shared/production database or model/billing changes. Stop for parent independent review."
+      ]
+    },
+    {
+      "status": "bounded_queued_command_authority_verified_parent_review_pending",
+      "base": "d99a7cb1edbdc9615a1ba25a90f182027f903d5e",
+      "receipt": "Armageddon_QueuedCommand_Authority_Verification.json",
+      "managed_focused_run": "20261005T032010Z-f570973ac9a9",
+      "managed_fast_run": "20261005T032139Z-c424fb5995be",
+      "limits": [
+        "Bounded queued-command authority repair, not complete PC charm. N13 remains not_run. Future PC IC-command whitelist and per-spell PC-target policy, devices, installer and whole-plan installed-world acceptance remain open.",
+        "Actual paid Raise Servitor stock, real command alias/get, SelectedCombatAction, native strategy, RetrieveItemMove, CombatAction and Body.Get qualify valid retrieval and exact control-deadline rejection while animation and independent following survive. Fresh-process grant readers establish immutable persisted origin and no SelectedCombatAction persistence; no fresh-process replayed actor is claimed.",
+        "Actual AI removal, lifecycle retirement and combat departure are exercised. Retirement/late departure use controlled authorizing-prog callbacks delegating to the original compiled stock prog. Fixture cleanup retrieves foreign goods directly through native Body.Get before retirement; it never executes the rejected ordered move.",
+        "Canonical object replacement, grant replacement/revocation, ambiguous same-ID roots, configuration/whitelist changes, old action reuse in a replacement combat and composite defensive callbacks have real engine regression tests with controlled character/policy fixtures. Every variant is not independently reproduced in native gameplay.",
+        "The native host uses controlled world/anatomy catalogues, explicit active caster registration in native All collections, deterministic CombatRecoveryCheck and RecoveryTimeExpression1, and specialized caster Save. Full production boot/Telnet, autonomous combat balance, concurrency and arbitrary policy/defence callbacks remain unqualified.",
+        "Immutable grant equality intentionally excludes diagnostic lifecycle Version changes while retaining full Origin, creator, creation time, animation deadline and control provenance. No authority transfer/regrant or new database schema is introduced.",
+        "All earlier Sand Knife/Flame Knife/Storm Spear/servitor and prior lifecycle qualification limits remain. Old receipts/helpers/closing proofs and primary checkout are preserved. Failed builds, three failed managed runs and four failed preliminary native attempts retained; native-attempt-04 used the prior DLL after failed build05 and is invalid evidence.",
+        "Whole plan incomplete: seven phases,16 decisions,154 candidates,82 Sorcerer plus12 support rows and25 native scenarios; all eight feature packages, devices, installer/acquisition/crafting/chargen/energy/portable-production and remaining effect/topology/charm/lifecycle/native-release gates remain required.",
+        "Local commit only; no publication, remote merge, deployment, shared/production database or model/billing changes. Stop for parent independent review."
+      ]
     }
-  ]
+  ],
+  "queued_command_authority": {
+    "status": "bounded_native_verified_parent_review_pending",
+    "base": "d99a7cb1edbdc9615a1ba25a90f182027f903d5e",
+    "receipt": "Armageddon_QueuedCommand_Authority_Verification.json",
+    "accepted_provenance": "original physical instance, canonical controller, command text, configured command policy, complete immutable origin; exact combat context for selected action and move",
+    "execution_checks": "before native move construction, CombatAction initial gate and immediately before ResolveMove, and each composite child after defensive response; pure identity/configuration/combat checks surround executable policy",
+    "following": "independent follower link retained when control expires or command policy is removed",
+    "reload": "non-saving selected effect; replaced physical/canonical objects refuse; fresh-process expired grant refuses without new deadline",
+    "PC_charm_complete": false,
+    "qualification_limits": [
+      "Bounded queued-command authority repair, not complete PC charm. N13 remains not_run. Future PC IC-command whitelist and per-spell PC-target policy, devices, installer and whole-plan installed-world acceptance remain open.",
+      "Actual paid Raise Servitor stock, real command alias/get, SelectedCombatAction, native strategy, RetrieveItemMove, CombatAction and Body.Get qualify valid retrieval and exact control-deadline rejection while animation and independent following survive. Fresh-process grant readers establish immutable persisted origin and no SelectedCombatAction persistence; no fresh-process replayed actor is claimed.",
+      "Actual AI removal, lifecycle retirement and combat departure are exercised. Retirement/late departure use controlled authorizing-prog callbacks delegating to the original compiled stock prog. Fixture cleanup retrieves foreign goods directly through native Body.Get before retirement; it never executes the rejected ordered move.",
+      "Canonical object replacement, grant replacement/revocation, ambiguous same-ID roots, configuration/whitelist changes, old action reuse in a replacement combat and composite defensive callbacks have real engine regression tests with controlled character/policy fixtures. Every variant is not independently reproduced in native gameplay.",
+      "The native host uses controlled world/anatomy catalogues, explicit active caster registration in native All collections, deterministic CombatRecoveryCheck and RecoveryTimeExpression1, and specialized caster Save. Full production boot/Telnet, autonomous combat balance, concurrency and arbitrary policy/defence callbacks remain unqualified.",
+      "Immutable grant equality intentionally excludes diagnostic lifecycle Version changes while retaining full Origin, creator, creation time, animation deadline and control provenance. No authority transfer/regrant or new database schema is introduced.",
+      "All earlier Sand Knife/Flame Knife/Storm Spear/servitor and prior lifecycle qualification limits remain. Old receipts/helpers/closing proofs and primary checkout are preserved. Failed builds, three failed managed runs and four failed preliminary native attempts retained; native-attempt-04 used the prior DLL after failed build05 and is invalid evidence.",
+      "Whole plan incomplete: seven phases,16 decisions,154 candidates,82 Sorcerer plus12 support rows and25 native scenarios; all eight feature packages, devices, installer/acquisition/crafting/chargen/energy/portable-production and remaining effect/topology/charm/lifecycle/native-release gates remain required.",
+      "Local commit only; no publication, remote merge, deployment, shared/production database or model/billing changes. Stop for parent independent review."
+    ]
+  }
 }

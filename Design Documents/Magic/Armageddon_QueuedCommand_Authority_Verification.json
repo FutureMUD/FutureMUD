@@ -1,0 +1,2144 @@
+{
+  "schema_version": 1,
+  "stage": "Queued servitor command authority",
+  "status": "bounded_authority_verified_parent_review_pending",
+  "baseline": "d99a7cb1edbdc9615a1ba25a90f182027f903d5e",
+  "branch": "codex/armageddon-completion-phase1",
+  "recorded_utc": "2026-10-05T03:32:54.003214+00:00",
+  "source_review": {
+    "status": "no_remaining_established_P1_P2",
+    "reviewer": "fm_reviewer",
+    "scope": "Independent source-only architecture and repeated narrow closure; root owns all actual execution",
+    "resolved_findings": [
+      "composite child defensive callbacks inherit and revalidate original grant",
+      "exact physical combat membership before and after callbacks; no retired idle resurrection",
+      "pure AI/prog/whitelist checks surround executable policy",
+      "ambiguous canonical roots deny while same identity repeated roots remain valid",
+      "initial and late policy departure refuse before resolution",
+      "accepted original grant prepared before initial approval; replacement grant cannot reuse approval"
+    ],
+    "reviewed_files_digest": "c04cb0cbe237f2896aca39287d87ca58a848380e2756d270d69e84a1d4039d15",
+    "files": [
+      {
+        "path": "FutureMUDLibrary/Magic/ISpellOwnedCorpseAnimationService.cs",
+        "sha256": "b40f27bca8c0615c9c00565a4fdf4fb29ae87bdb04479f6788295c0a69c3b289"
+      },
+      {
+        "path": "MudSharpCore Unit Tests/QueuedCommandAuthorityTests.cs",
+        "sha256": "8e4cb4a1c84bfad932ae156f7a81768c6a1dbdbe782ed53a10749eca4e6e8942"
+      },
+      {
+        "path": "MudSharpCore/Combat/CombatBase.cs",
+        "sha256": "3f5514df4fdb9512d32ea302cebefb106887f8bb0a88a3238ab4d37fb9b2c91f"
+      },
+      {
+        "path": "MudSharpCore/Combat/Moves/MultiTargetCombatMove.cs",
+        "sha256": "8d4abc50d157f4ad2720ace36256ba652cbbe6904e7dac977b1330c4fc48437c"
+      },
+      {
+        "path": "MudSharpCore/Effects/Concrete/SelectedCombatAction.cs",
+        "sha256": "6f5853d7ae994dd68cf89968fa4c72ca4cf0f2fd313580104a20605228d951fa"
+      },
+      {
+        "path": "MudSharpCore/Magic/Lifecycle/SpellOwnedCorpseAnimationService.cs",
+        "sha256": "ff0ed8d859693325bf8eddc0d8ddf12c2d6ca390ec82f55b5c7eaf9dff94777a"
+      },
+      {
+        "path": "MudSharpCore/NPC/AI/CommandableAI.cs",
+        "sha256": "010743fdfdffcf06f5e24a8342524ae25a4e00990916e1adc9e0c3d138d3e7a4"
+      },
+      {
+        "path": "MudSharpCore/NPC/AI/CommandExecutionAuthority.cs",
+        "sha256": "4dcdceaee8b91fd3eb690a765c2d773743ba73449b7ae9e69557fa106d7f6ff5"
+      },
+      {
+        "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.QueuedCommandAuthority.cs",
+        "sha256": "b5885191976b4ad714285f303c8aec18628c196dcc94733881854ca21f318685"
+      },
+      {
+        "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.RaiseServitorStock.cs",
+        "sha256": "b48a77340e27517e34fc9d80bc234bba2518d81f0d15048b29a9c3fa0f51b33a"
+      }
+    ],
+    "limitations": "Controlled player registration and recovery results; full login/player statistics, combat formula accuracy and concurrency not established."
+  },
+  "managed": {
+    "focused": {
+      "run": "20261005T032010Z-f570973ac9a9",
+      "summary": {
+        "schema_version": 1,
+        "run_id": "20261005T032010Z-f570973ac9a9",
+        "repository": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD",
+        "head": "d99a7cb1edbdc9615a1ba25a90f182027f903d5e",
+        "started_utc": "2026-10-05T03:20:10.8558576+00:00",
+        "ended_utc": "2026-10-05T03:20:29.1901043+00:00",
+        "duration_seconds": 18.3342672,
+        "source_start": "d1e975c4bf2b1a76fd967dfb8ad6f792b69f02135ae231ef3e4c6882d14bf64a",
+        "source_end": "d1e975c4bf2b1a76fd967dfb8ad6f792b69f02135ae231ef3e4c6882d14bf64a",
+        "source_stable": true,
+        "sdk": "10.0.401",
+        "runner": "VSTest/TRX (Microsoft.NET.Test.Sdk 17.9.0)",
+        "suite": "fast",
+        "configuration": "Debug",
+        "filter": "FullyQualifiedName~ClanBudgetLengthTests|FullyQualifiedName~VirtualCashLedgerCompatibilityTests|FullyQualifiedName~MediaErasureTests|FullyQualifiedName~NetworkSwitchStateTests|FullyQualifiedName~OutfitTeachingNumericNameTests|FullyQualifiedName~ProjectQueuePreferenceTests|FullyQualifiedName~EmptyPatrolRouteTests|FullyQualifiedName~CombatStrategyRuntimeTests|FullyQualifiedName~SpellAnimationControlTests|FullyQualifiedName~CommandableAiTests|FullyQualifiedName~ItemMorphBootTests|FullyQualifiedName~SpellAnimationReloadTests|FullyQualifiedName~BootLoadingRegressionTests|FullyQualifiedName~SpellAnimationSchedulerTests|FullyQualifiedName~RuntimeSchedulerTests|FullyQualifiedName~Rejuvenation|FullyQualifiedName~MagicSpellPhaseOneTests|FullyQualifiedName~SpellOwnedCorpseAnimationTests|FullyQualifiedName~BodyFormProvisioningTests|FullyQualifiedName~CharacterInstance|FullyQualifiedName~MagicCasting|FullyQualifiedName~SpellOwnedItemTests|FullyQualifiedName~ForeignCustodySaveJournalTests|FullyQualifiedName~PossessionReviewFindingSourceTests|FullyQualifiedName~SpellOwnedNpcRetirementTests|FullyQualifiedName~StormSpearComponentTests|FullyQualifiedName~SpellCreatedConsumableTests|FullyQualifiedName~BodyInventoryInitialisationTests|FullyQualifiedName~Vancian|FullyQualifiedName~FlameKnifeGradeTests|FullyQualifiedName~SandKnifeStockTests|FullyQualifiedName~QueuedCommandAuthorityTests|FullyQualifiedName~MultiTargetCombatMoveTests",
+        "fail_on_skipped": true,
+        "execution_complete": true,
+        "counts_complete": true,
+        "status": "PASS",
+        "counts": {
+          "executed": 1051,
+          "passed": 1051,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 1051
+        },
+        "projects": [
+          "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+        ],
+        "invocations": [
+          {
+            "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+            "framework": "net10.0",
+            "attempt": 1,
+            "status": "PASS",
+            "reason": null,
+            "build": {
+              "name": "build",
+              "arguments": [
+                "build",
+                "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+                "-c",
+                "Debug",
+                "-m:1",
+                "-p:RestoreBuildInParallel=false",
+                "-p:NuGetAudit=false",
+                "-p:NoWarn=NU1902%3BNU1510"
+              ],
+              "started_utc": "2026-10-05T03:20:11.3047960+00:00",
+              "ended_utc": "2026-10-05T03:20:12.7286589+00:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-queued-command\\20261005T032010Z-f570973ac9a9\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\build\\build.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-queued-command\\20261005T032010Z-f570973ac9a9\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\build\\build.stderr.log"
+            },
+            "test": {
+              "name": "test",
+              "arguments": [
+                "test",
+                "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+                "-c",
+                "Debug",
+                "--no-build",
+                "--no-restore",
+                "-m:1",
+                "-f",
+                "net10.0",
+                "-p:NoWarn=NU1902%3BNU1510",
+                "--logger",
+                "trx;LogFileName=results.trx",
+                "--results-directory",
+                "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-queued-command\\20261005T032010Z-f570973ac9a9\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\net10-41544e89\\1",
+                "--filter",
+                "FullyQualifiedName~ClanBudgetLengthTests|FullyQualifiedName~VirtualCashLedgerCompatibilityTests|FullyQualifiedName~MediaErasureTests|FullyQualifiedName~NetworkSwitchStateTests|FullyQualifiedName~OutfitTeachingNumericNameTests|FullyQualifiedName~ProjectQueuePreferenceTests|FullyQualifiedName~EmptyPatrolRouteTests|FullyQualifiedName~CombatStrategyRuntimeTests|FullyQualifiedName~SpellAnimationControlTests|FullyQualifiedName~CommandableAiTests|FullyQualifiedName~ItemMorphBootTests|FullyQualifiedName~SpellAnimationReloadTests|FullyQualifiedName~BootLoadingRegressionTests|FullyQualifiedName~SpellAnimationSchedulerTests|FullyQualifiedName~RuntimeSchedulerTests|FullyQualifiedName~Rejuvenation|FullyQualifiedName~MagicSpellPhaseOneTests|FullyQualifiedName~SpellOwnedCorpseAnimationTests|FullyQualifiedName~BodyFormProvisioningTests|FullyQualifiedName~CharacterInstance|FullyQualifiedName~MagicCasting|FullyQualifiedName~SpellOwnedItemTests|FullyQualifiedName~ForeignCustodySaveJournalTests|FullyQualifiedName~PossessionReviewFindingSourceTests|FullyQualifiedName~SpellOwnedNpcRetirementTests|FullyQualifiedName~StormSpearComponentTests|FullyQualifiedName~SpellCreatedConsumableTests|FullyQualifiedName~BodyInventoryInitialisationTests|FullyQualifiedName~Vancian|FullyQualifiedName~FlameKnifeGradeTests|FullyQualifiedName~SandKnifeStockTests|FullyQualifiedName~QueuedCommandAuthorityTests|FullyQualifiedName~MultiTargetCombatMoveTests"
+              ],
+              "started_utc": "2026-10-05T03:20:12.7310651+00:00",
+              "ended_utc": "2026-10-05T03:20:28.8904643+00:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-queued-command\\20261005T032010Z-f570973ac9a9\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\net10-41544e89\\1\\test.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-queued-command\\20261005T032010Z-f570973ac9a9\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\net10-41544e89\\1\\test.stderr.log"
+            },
+            "report": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-queued-command\\20261005T032010Z-f570973ac9a9\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\net10-41544e89\\1\\results.trx",
+            "binary": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\MudSharpCore Unit Tests\\bin\\Debug\\net10.0\\MudSharpCore Unit Tests.dll",
+            "counts": {
+              "executed": 1051,
+              "passed": 1051,
+              "failed": 0,
+              "skipped": 0,
+              "inconclusive": 0,
+              "other": 0,
+              "total": 1051
+            },
+            "native_counters": {
+              "total": "1051",
+              "executed": "1051",
+              "passed": "1051",
+              "failed": "0",
+              "error": "0",
+              "timeout": "0",
+              "aborted": "0",
+              "inconclusive": "0",
+              "passedButRunAborted": "0",
+              "notRunnable": "0",
+              "notExecuted": "0",
+              "disconnected": "0",
+              "warning": "0",
+              "completed": "0",
+              "inProgress": "0",
+              "pending": "0"
+            }
+          }
+        ],
+        "issues": [],
+        "artifacts": {
+          "run": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-queued-command\\20261005T032010Z-f570973ac9a9\\run.json",
+          "summary": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-queued-command\\20261005T032010Z-f570973ac9a9\\summary.json",
+          "failures": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-queued-command\\20261005T032010Z-f570973ac9a9\\failures.json",
+          "results": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-queued-command\\20261005T032010Z-f570973ac9a9\\test-results.json",
+          "bootstrap": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\bootstrap-284e85f6d2824e2a8beb2cc018103e70\\bootstrap.log"
+        },
+        "build_switches": [
+          "-m:1",
+          "-p:RestoreBuildInParallel=false",
+          "-p:NuGetAudit=false",
+          "-p:NoWarn=NU1902%3BNU1510"
+        ]
+      }
+    },
+    "Fast": {
+      "run": "20261005T032139Z-c424fb5995be",
+      "summary": {
+        "schema_version": 1,
+        "run_id": "20261005T032139Z-c424fb5995be",
+        "repository": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD",
+        "head": "d99a7cb1edbdc9615a1ba25a90f182027f903d5e",
+        "started_utc": "2026-10-05T03:21:39.5718395+00:00",
+        "ended_utc": "2026-10-05T03:24:58.9101880+00:00",
+        "duration_seconds": 199.338368,
+        "source_start": "4377043de39bbb01fb0db519e8b45ab7481923be5b9c07920888570d4de11e9d",
+        "source_end": "4377043de39bbb01fb0db519e8b45ab7481923be5b9c07920888570d4de11e9d",
+        "source_stable": true,
+        "sdk": "10.0.401",
+        "runner": "VSTest/TRX (Microsoft.NET.Test.Sdk 17.9.0)",
+        "suite": "fast",
+        "configuration": "Debug",
+        "filter": null,
+        "fail_on_skipped": true,
+        "execution_complete": true,
+        "counts_complete": true,
+        "status": "PASS",
+        "counts": {
+          "executed": 7252,
+          "passed": 7252,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 7252
+        },
+        "projects": [
+          "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+          "ExpressionEngine Unit Tests/ExpressionEngine Unit Tests.csproj",
+          "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+          "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+          "MudsharpDatabaseLibrary Unit Tests/MudsharpDatabaseLibrary Unit Tests.csproj",
+          "DiscordBotCore Unit Tests/DiscordBotCore Unit Tests.csproj",
+          "RPI Engine Worldfile Converter Tests/RPI Engine Worldfile Converter Tests.csproj",
+          "FutureMUD.Web.Tests/FutureMUD.Web.Tests.csproj",
+          "TerrainPlanner/TerrainPlanner.Tests/TerrainPlanner.Tests.csproj",
+          "scripts/TestReporting.Tests/TestReporting.Tests.csproj"
+        ],
+        "invocations": [
+          {
+            "project": "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+            "framework": "net10.0",
+            "attempt": 1,
+            "status": "PASS",
+            "reason": null,
+            "build": {
+              "name": "build",
+              "arguments": [
+                "build",
+                "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+                "-c",
+                "Debug",
+                "-m:1",
+                "-p:RestoreBuildInParallel=false",
+                "-p:NuGetAudit=false",
+                "-p:NoWarn=NU1902%3BNU1510"
+              ],
+              "started_utc": "2026-10-05T03:21:40.0593244+00:00",
+              "ended_utc": "2026-10-05T03:21:42.2630569+00:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-queued-command\\20261005T032139Z-c424fb5995be\\invocations\\FutureMUDLibrary_Unit_Tests-45c02d6c\\build\\build.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-queued-command\\20261005T032139Z-c424fb5995be\\invocations\\FutureMUDLibrary_Unit_Tests-45c02d6c\\build\\build.stderr.log"
+            },
+            "test": {
+              "name": "test",
+              "arguments": [
+                "test",
+                "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+                "-c",
+                "Debug",
+                "--no-build",
+                "--no-restore",
+                "-m:1",
+                "-f",
+                "net10.0",
+                "-p:NoWarn=NU1902%3BNU1510",
+                "--logger",
+                "trx;LogFileName=results.trx",
+                "--results-directory",
+                "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-queued-command\\20261005T032139Z-c424fb5995be\\invocations\\FutureMUDLibrary_Unit_Tests-45c02d6c\\net10-41544e89\\1"
+              ],
+              "started_utc": "2026-10-05T03:21:59.9015307+00:00",
+              "ended_utc": "2026-10-05T03:22:03.7550826+00:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-queued-command\\20261005T032139Z-c424fb5995be\\invocations\\FutureMUDLibrary_Unit_Tests-45c02d6c\\net10-41544e89\\1\\test.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-queued-command\\20261005T032139Z-c424fb5995be\\invocations\\FutureMUDLibrary_Unit_Tests-45c02d6c\\net10-41544e89\\1\\test.stderr.log"
+            },
+            "report": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-queued-command\\20261005T032139Z-c424fb5995be\\invocations\\FutureMUDLibrary_Unit_Tests-45c02d6c\\net10-41544e89\\1\\results.trx",
+            "binary": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\FutureMUDLibrary Unit Tests\\bin\\Debug\\net10.0\\FutureMUDLibrary Unit Tests.dll",
+            "counts": {
+              "executed": 631,
+              "passed": 631,
+              "failed": 0,
+              "skipped": 0,
+              "inconclusive": 0,
+              "other": 0,
+              "total": 631
+            },
+            "native_counters": {
+              "total": "631",
+              "executed": "631",
+              "passed": "631",
+              "failed": "0",
+              "error": "0",
+              "timeout": "0",
+              "aborted": "0",
+              "inconclusive": "0",
+              "passedButRunAborted": "0",
+              "notRunnable": "0",
+              "notExecuted": "0",
+              "disconnected": "0",
+              "warning": "0",
+              "completed": "0",
+              "inProgress": "0",
+              "pending": "0"
+            }
+          },
+          {
+            "project": "ExpressionEngine Unit Tests/ExpressionEngine Unit Tests.csproj",
+            "framework": "net10.0",
+            "attempt": 1,
+            "status": "PASS",
+            "reason": null,
+            "build": {
+              "name": "build",
+              "arguments": [
+                "build",
+                "ExpressionEngine Unit Tests/ExpressionEngine Unit Tests.csproj",
+                "-c",
+                "Debug",
+                "-m:1",
+                "-p:RestoreBuildInParallel=false",
+                "-p:NuGetAudit=false",
+                "-p:NoWarn=NU1902%3BNU1510"
+              ],
+              "started_utc": "2026-10-05T03:21:42.2644825+00:00",
+              "ended_utc": "2026-10-05T03:21:43.9604114+00:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-queued-command\\20261005T032139Z-c424fb5995be\\invocations\\ExpressionEngine_Unit_Tests-8cdb3e65\\build\\build.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-queued-command\\20261005T032139Z-c424fb5995be\\invocations\\ExpressionEngine_Unit_Tests-8cdb3e65\\build\\build.stderr.log"
+            },
+            "test": {
+              "name": "test",
+              "arguments": [
+                "test",
+                "ExpressionEngine Unit Tests/ExpressionEngine Unit Tests.csproj",
+                "-c",
+                "Debug",
+                "--no-build",
+                "--no-restore",
+                "-m:1",
+                "-f",
+                "net10.0",
+                "-p:NoWarn=NU1902%3BNU1510",
+                "--logger",
+                "trx;LogFileName=results.trx",
+                "--results-directory",
+                "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-queued-command\\20261005T032139Z-c424fb5995be\\invocations\\ExpressionEngine_Unit_Tests-8cdb3e65\\net10-41544e89\\1"
+              ],
+              "started_utc": "2026-10-05T03:21:59.9063355+00:00",
+              "ended_utc": "2026-10-05T03:22:02.0461920+00:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-queued-command\\20261005T032139Z-c424fb5995be\\invocations\\ExpressionEngine_Unit_Tests-8cdb3e65\\net10-41544e89\\1\\test.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-queued-command\\20261005T032139Z-c424fb5995be\\invocations\\ExpressionEngine_Unit_Tests-8cdb3e65\\net10-41544e89\\1\\test.stderr.log"
+            },
+            "report": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-queued-command\\20261005T032139Z-c424fb5995be\\invocations\\ExpressionEngine_Unit_Tests-8cdb3e65\\net10-41544e89\\1\\results.trx",
+            "binary": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\ExpressionEngine Unit Tests\\bin\\Debug\\net10.0\\ExpressionEngine Unit Tests.dll",
+            "counts": {
+              "executed": 36,
+              "passed": 36,
+              "failed": 0,
+              "skipped": 0,
+              "inconclusive": 0,
+              "other": 0,
+              "total": 36
+            },
+            "native_counters": {
+              "total": "36",
+              "executed": "36",
+              "passed": "36",
+              "failed": "0",
+              "error": "0",
+              "timeout": "0",
+              "aborted": "0",
+              "inconclusive": "0",
+              "passedButRunAborted": "0",
+              "notRunnable": "0",
+              "notExecuted": "0",
+              "disconnected": "0",
+              "warning": "0",
+              "completed": "0",
+              "inProgress": "0",
+              "pending": "0"
+            }
+          },
+          {
+            "project": "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+            "framework": "net10.0",
+            "attempt": 1,
+            "status": "PASS",
+            "reason": null,
+            "build": {
+              "name": "build",
+              "arguments": [
+                "build",
+                "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+                "-c",
+                "Debug",
+                "-m:1",
+                "-p:RestoreBuildInParallel=false",
+                "-p:NuGetAudit=false",
+                "-p:NoWarn=NU1902%3BNU1510"
+              ],
+              "started_utc": "2026-10-05T03:21:43.9616133+00:00",
+              "ended_utc": "2026-10-05T03:21:47.9825690+00:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-queued-command\\20261005T032139Z-c424fb5995be\\invocations\\DatabaseSeeder_Unit_Tests-e14dcedb\\build\\build.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-queued-command\\20261005T032139Z-c424fb5995be\\invocations\\DatabaseSeeder_Unit_Tests-e14dcedb\\build\\build.stderr.log"
+            },
+            "test": {
+              "name": "test",
+              "arguments": [
+                "test",
+                "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+                "-c",
+                "Debug",
+                "--no-build",
+                "--no-restore",
+                "-m:1",
+                "-f",
+                "net10.0",
+                "-p:NoWarn=NU1902%3BNU1510",
+                "--logger",
+                "trx;LogFileName=results.trx",
+                "--results-directory",
+                "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-queued-command\\20261005T032139Z-c424fb5995be\\invocations\\DatabaseSeeder_Unit_Tests-e14dcedb\\net10-41544e89\\1"
+              ],
+              "started_utc": "2026-10-05T03:21:59.9122372+00:00",
+              "ended_utc": "2026-10-05T03:24:58.5857575+00:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-queued-command\\20261005T032139Z-c424fb5995be\\invocations\\DatabaseSeeder_Unit_Tests-e14dcedb\\net10-41544e89\\1\\test.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-queued-command\\20261005T032139Z-c424fb5995be\\invocations\\DatabaseSeeder_Unit_Tests-e14dcedb\\net10-41544e89\\1\\test.stderr.log"
+            },
+            "report": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-queued-command\\20261005T032139Z-c424fb5995be\\invocations\\DatabaseSeeder_Unit_Tests-e14dcedb\\net10-41544e89\\1\\results.trx",
+            "binary": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\DatabaseSeeder Unit Tests\\bin\\Debug\\net10.0\\DatabaseSeeder Unit Tests.dll",
+            "counts": {
+              "executed": 1441,
+              "passed": 1441,
+              "failed": 0,
+              "skipped": 0,
+              "inconclusive": 0,
+              "other": 0,
+              "total": 1441
+            },
+            "native_counters": {
+              "total": "1441",
+              "executed": "1441",
+              "passed": "1441",
+              "failed": "0",
+              "error": "0",
+              "timeout": "0",
+              "aborted": "0",
+              "inconclusive": "0",
+              "passedButRunAborted": "0",
+              "notRunnable": "0",
+              "notExecuted": "0",
+              "disconnected": "0",
+              "warning": "0",
+              "completed": "0",
+              "inProgress": "0",
+              "pending": "0"
+            }
+          },
+          {
+            "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+            "framework": "net10.0",
+            "attempt": 1,
+            "status": "PASS",
+            "reason": null,
+            "build": {
+              "name": "build",
+              "arguments": [
+                "build",
+                "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+                "-c",
+                "Debug",
+                "-m:1",
+                "-p:RestoreBuildInParallel=false",
+                "-p:NuGetAudit=false",
+                "-p:NoWarn=NU1902%3BNU1510"
+              ],
+              "started_utc": "2026-10-05T03:21:47.9834398+00:00",
+              "ended_utc": "2026-10-05T03:21:49.4193441+00:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-queued-command\\20261005T032139Z-c424fb5995be\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\build\\build.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-queued-command\\20261005T032139Z-c424fb5995be\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\build\\build.stderr.log"
+            },
+            "test": {
+              "name": "test",
+              "arguments": [
+                "test",
+                "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+                "-c",
+                "Debug",
+                "--no-build",
+                "--no-restore",
+                "-m:1",
+                "-f",
+                "net10.0",
+                "-p:NoWarn=NU1902%3BNU1510",
+                "--logger",
+                "trx;LogFileName=results.trx",
+                "--results-directory",
+                "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-queued-command\\20261005T032139Z-c424fb5995be\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\net10-41544e89\\1"
+              ],
+              "started_utc": "2026-10-05T03:21:59.9158531+00:00",
+              "ended_utc": "2026-10-05T03:23:16.9926226+00:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-queued-command\\20261005T032139Z-c424fb5995be\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\net10-41544e89\\1\\test.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-queued-command\\20261005T032139Z-c424fb5995be\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\net10-41544e89\\1\\test.stderr.log"
+            },
+            "report": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-queued-command\\20261005T032139Z-c424fb5995be\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\net10-41544e89\\1\\results.trx",
+            "binary": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\MudSharpCore Unit Tests\\bin\\Debug\\net10.0\\MudSharpCore Unit Tests.dll",
+            "counts": {
+              "executed": 4886,
+              "passed": 4886,
+              "failed": 0,
+              "skipped": 0,
+              "inconclusive": 0,
+              "other": 0,
+              "total": 4886
+            },
+            "native_counters": {
+              "total": "4886",
+              "executed": "4886",
+              "passed": "4886",
+              "failed": "0",
+              "error": "0",
+              "timeout": "0",
+              "aborted": "0",
+              "inconclusive": "0",
+              "passedButRunAborted": "0",
+              "notRunnable": "0",
+              "notExecuted": "0",
+              "disconnected": "0",
+              "warning": "0",
+              "completed": "0",
+              "inProgress": "0",
+              "pending": "0"
+            }
+          },
+          {
+            "project": "MudsharpDatabaseLibrary Unit Tests/MudsharpDatabaseLibrary Unit Tests.csproj",
+            "framework": "net10.0",
+            "attempt": 1,
+            "status": "PASS",
+            "reason": null,
+            "build": {
+              "name": "build",
+              "arguments": [
+                "build",
+                "MudsharpDatabaseLibrary Unit Tests/MudsharpDatabaseLibrary Unit Tests.csproj",
+                "-c",
+                "Debug",
+                "-m:1",
+                "-p:RestoreBuildInParallel=false",
+                "-p:NuGetAudit=false",
+                "-p:NoWarn=NU1902%3BNU1510"
+              ],
+              "started_utc": "2026-10-05T03:21:49.4203825+00:00",
+              "ended_utc": "2026-10-05T03:21:50.6146298+00:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-queued-command\\20261005T032139Z-c424fb5995be\\invocations\\MudsharpDatabaseLibrary_Unit_Tests-6ef1914c\\build\\build.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-queued-command\\20261005T032139Z-c424fb5995be\\invocations\\MudsharpDatabaseLibrary_Unit_Tests-6ef1914c\\build\\build.stderr.log"
+            },
+            "test": {
+              "name": "test",
+              "arguments": [
+                "test",
+                "MudsharpDatabaseLibrary Unit Tests/MudsharpDatabaseLibrary Unit Tests.csproj",
+                "-c",
+                "Debug",
+                "--no-build",
+                "--no-restore",
+                "-m:1",
+                "-f",
+                "net10.0",
+                "-p:NoWarn=NU1902%3BNU1510",
+                "--logger",
+                "trx;LogFileName=results.trx",
+                "--results-directory",
+                "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-queued-command\\20261005T032139Z-c424fb5995be\\invocations\\MudsharpDatabaseLibrary_Unit_Tests-6ef1914c\\net10-41544e89\\1"
+              ],
+              "started_utc": "2026-10-05T03:21:59.9237928+00:00",
+              "ended_utc": "2026-10-05T03:22:09.3095917+00:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-queued-command\\20261005T032139Z-c424fb5995be\\invocations\\MudsharpDatabaseLibrary_Unit_Tests-6ef1914c\\net10-41544e89\\1\\test.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-queued-command\\20261005T032139Z-c424fb5995be\\invocations\\MudsharpDatabaseLibrary_Unit_Tests-6ef1914c\\net10-41544e89\\1\\test.stderr.log"
+            },
+            "report": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-queued-command\\20261005T032139Z-c424fb5995be\\invocations\\MudsharpDatabaseLibrary_Unit_Tests-6ef1914c\\net10-41544e89\\1\\results.trx",
+            "binary": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\MudsharpDatabaseLibrary Unit Tests\\bin\\Debug\\net10.0\\MudsharpDatabaseLibrary Unit Tests.dll",
+            "counts": {
+              "executed": 67,
+              "passed": 67,
+              "failed": 0,
+              "skipped": 0,
+              "inconclusive": 0,
+              "other": 0,
+              "total": 67
+            },
+            "native_counters": {
+              "total": "67",
+              "executed": "67",
+              "passed": "67",
+              "failed": "0",
+              "error": "0",
+              "timeout": "0",
+              "aborted": "0",
+              "inconclusive": "0",
+              "passedButRunAborted": "0",
+              "notRunnable": "0",
+              "notExecuted": "0",
+              "disconnected": "0",
+              "warning": "0",
+              "completed": "0",
+              "inProgress": "0",
+              "pending": "0"
+            }
+          },
+          {
+            "project": "DiscordBotCore Unit Tests/DiscordBotCore Unit Tests.csproj",
+            "framework": "net10.0",
+            "attempt": 1,
+            "status": "PASS",
+            "reason": null,
+            "build": {
+              "name": "build",
+              "arguments": [
+                "build",
+                "DiscordBotCore Unit Tests/DiscordBotCore Unit Tests.csproj",
+                "-c",
+                "Debug",
+                "-m:1",
+                "-p:RestoreBuildInParallel=false",
+                "-p:NuGetAudit=false",
+                "-p:NoWarn=NU1902%3BNU1510"
+              ],
+              "started_utc": "2026-10-05T03:21:50.6153517+00:00",
+              "ended_utc": "2026-10-05T03:21:52.0889105+00:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-queued-command\\20261005T032139Z-c424fb5995be\\invocations\\DiscordBotCore_Unit_Tests-4ffa2b0e\\build\\build.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-queued-command\\20261005T032139Z-c424fb5995be\\invocations\\DiscordBotCore_Unit_Tests-4ffa2b0e\\build\\build.stderr.log"
+            },
+            "test": {
+              "name": "test",
+              "arguments": [
+                "test",
+                "DiscordBotCore Unit Tests/DiscordBotCore Unit Tests.csproj",
+                "-c",
+                "Debug",
+                "--no-build",
+                "--no-restore",
+                "-m:1",
+                "-f",
+                "net10.0",
+                "-p:NoWarn=NU1902%3BNU1510",
+                "--logger",
+                "trx;LogFileName=results.trx",
+                "--results-directory",
+                "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-queued-command\\20261005T032139Z-c424fb5995be\\invocations\\DiscordBotCore_Unit_Tests-4ffa2b0e\\net10-41544e89\\1"
+              ],
+              "started_utc": "2026-10-05T03:21:59.9277507+00:00",
+              "ended_utc": "2026-10-05T03:22:02.4753196+00:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-queued-command\\20261005T032139Z-c424fb5995be\\invocations\\DiscordBotCore_Unit_Tests-4ffa2b0e\\net10-41544e89\\1\\test.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-queued-command\\20261005T032139Z-c424fb5995be\\invocations\\DiscordBotCore_Unit_Tests-4ffa2b0e\\net10-41544e89\\1\\test.stderr.log"
+            },
+            "report": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-queued-command\\20261005T032139Z-c424fb5995be\\invocations\\DiscordBotCore_Unit_Tests-4ffa2b0e\\net10-41544e89\\1\\results.trx",
+            "binary": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\DiscordBotCore Unit Tests\\bin\\Debug\\net10.0\\DiscordBotCore Unit Tests.dll",
+            "counts": {
+              "executed": 22,
+              "passed": 22,
+              "failed": 0,
+              "skipped": 0,
+              "inconclusive": 0,
+              "other": 0,
+              "total": 22
+            },
+            "native_counters": {
+              "total": "22",
+              "executed": "22",
+              "passed": "22",
+              "failed": "0",
+              "error": "0",
+              "timeout": "0",
+              "aborted": "0",
+              "inconclusive": "0",
+              "passedButRunAborted": "0",
+              "notRunnable": "0",
+              "notExecuted": "0",
+              "disconnected": "0",
+              "warning": "0",
+              "completed": "0",
+              "inProgress": "0",
+              "pending": "0"
+            }
+          },
+          {
+            "project": "RPI Engine Worldfile Converter Tests/RPI Engine Worldfile Converter Tests.csproj",
+            "framework": "net10.0",
+            "attempt": 1,
+            "status": "PASS",
+            "reason": null,
+            "build": {
+              "name": "build",
+              "arguments": [
+                "build",
+                "RPI Engine Worldfile Converter Tests/RPI Engine Worldfile Converter Tests.csproj",
+                "-c",
+                "Debug",
+                "-m:1",
+                "-p:RestoreBuildInParallel=false",
+                "-p:NuGetAudit=false",
+                "-p:NoWarn=NU1902%3BNU1510"
+              ],
+              "started_utc": "2026-10-05T03:21:52.0896133+00:00",
+              "ended_utc": "2026-10-05T03:21:54.5843375+00:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-queued-command\\20261005T032139Z-c424fb5995be\\invocations\\RPI_Engine_Worldfile_Converter_Tests-14d87d34\\build\\build.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-queued-command\\20261005T032139Z-c424fb5995be\\invocations\\RPI_Engine_Worldfile_Converter_Tests-14d87d34\\build\\build.stderr.log"
+            },
+            "test": {
+              "name": "test",
+              "arguments": [
+                "test",
+                "RPI Engine Worldfile Converter Tests/RPI Engine Worldfile Converter Tests.csproj",
+                "-c",
+                "Debug",
+                "--no-build",
+                "--no-restore",
+                "-m:1",
+                "-f",
+                "net10.0",
+                "-p:NoWarn=NU1902%3BNU1510",
+                "--logger",
+                "trx;LogFileName=results.trx",
+                "--results-directory",
+                "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-queued-command\\20261005T032139Z-c424fb5995be\\invocations\\RPI_Engine_Worldfile_Converter_Tests-14d87d34\\net10-41544e89\\1"
+              ],
+              "started_utc": "2026-10-05T03:21:59.9312126+00:00",
+              "ended_utc": "2026-10-05T03:22:03.3818588+00:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-queued-command\\20261005T032139Z-c424fb5995be\\invocations\\RPI_Engine_Worldfile_Converter_Tests-14d87d34\\net10-41544e89\\1\\test.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-queued-command\\20261005T032139Z-c424fb5995be\\invocations\\RPI_Engine_Worldfile_Converter_Tests-14d87d34\\net10-41544e89\\1\\test.stderr.log"
+            },
+            "report": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-queued-command\\20261005T032139Z-c424fb5995be\\invocations\\RPI_Engine_Worldfile_Converter_Tests-14d87d34\\net10-41544e89\\1\\results.trx",
+            "binary": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\RPI Engine Worldfile Converter Tests\\bin\\Debug\\net10.0\\RPI Engine Worldfile Converter Tests.dll",
+            "counts": {
+              "executed": 43,
+              "passed": 43,
+              "failed": 0,
+              "skipped": 0,
+              "inconclusive": 0,
+              "other": 0,
+              "total": 43
+            },
+            "native_counters": {
+              "total": "43",
+              "executed": "43",
+              "passed": "43",
+              "failed": "0",
+              "error": "0",
+              "timeout": "0",
+              "aborted": "0",
+              "inconclusive": "0",
+              "passedButRunAborted": "0",
+              "notRunnable": "0",
+              "notExecuted": "0",
+              "disconnected": "0",
+              "warning": "0",
+              "completed": "0",
+              "inProgress": "0",
+              "pending": "0"
+            }
+          },
+          {
+            "project": "FutureMUD.Web.Tests/FutureMUD.Web.Tests.csproj",
+            "framework": "net10.0",
+            "attempt": 1,
+            "status": "PASS",
+            "reason": null,
+            "build": {
+              "name": "build",
+              "arguments": [
+                "build",
+                "FutureMUD.Web.Tests/FutureMUD.Web.Tests.csproj",
+                "-c",
+                "Debug",
+                "-m:1",
+                "-p:RestoreBuildInParallel=false",
+                "-p:NuGetAudit=false",
+                "-p:NoWarn=NU1902%3BNU1510"
+              ],
+              "started_utc": "2026-10-05T03:21:54.5852682+00:00",
+              "ended_utc": "2026-10-05T03:21:56.6502698+00:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-queued-command\\20261005T032139Z-c424fb5995be\\invocations\\FutureMUD.Web.Tests-ac492d08\\build\\build.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-queued-command\\20261005T032139Z-c424fb5995be\\invocations\\FutureMUD.Web.Tests-ac492d08\\build\\build.stderr.log"
+            },
+            "test": {
+              "name": "test",
+              "arguments": [
+                "test",
+                "FutureMUD.Web.Tests/FutureMUD.Web.Tests.csproj",
+                "-c",
+                "Debug",
+                "--no-build",
+                "--no-restore",
+                "-m:1",
+                "-f",
+                "net10.0",
+                "-p:NoWarn=NU1902%3BNU1510",
+                "--logger",
+                "trx;LogFileName=results.trx",
+                "--results-directory",
+                "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-queued-command\\20261005T032139Z-c424fb5995be\\invocations\\FutureMUD.Web.Tests-ac492d08\\net10-41544e89\\1"
+              ],
+              "started_utc": "2026-10-05T03:21:59.9351284+00:00",
+              "ended_utc": "2026-10-05T03:22:05.5168727+00:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-queued-command\\20261005T032139Z-c424fb5995be\\invocations\\FutureMUD.Web.Tests-ac492d08\\net10-41544e89\\1\\test.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-queued-command\\20261005T032139Z-c424fb5995be\\invocations\\FutureMUD.Web.Tests-ac492d08\\net10-41544e89\\1\\test.stderr.log"
+            },
+            "report": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-queued-command\\20261005T032139Z-c424fb5995be\\invocations\\FutureMUD.Web.Tests-ac492d08\\net10-41544e89\\1\\results.trx",
+            "binary": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\FutureMUD.Web.Tests\\bin\\Debug\\net10.0\\FutureMUD.Web.Tests.dll",
+            "counts": {
+              "executed": 54,
+              "passed": 54,
+              "failed": 0,
+              "skipped": 0,
+              "inconclusive": 0,
+              "other": 0,
+              "total": 54
+            },
+            "native_counters": {
+              "total": "54",
+              "executed": "54",
+              "passed": "54",
+              "failed": "0",
+              "error": "0",
+              "timeout": "0",
+              "aborted": "0",
+              "inconclusive": "0",
+              "passedButRunAborted": "0",
+              "notRunnable": "0",
+              "notExecuted": "0",
+              "disconnected": "0",
+              "warning": "0",
+              "completed": "0",
+              "inProgress": "0",
+              "pending": "0"
+            }
+          },
+          {
+            "project": "TerrainPlanner/TerrainPlanner.Tests/TerrainPlanner.Tests.csproj",
+            "framework": "net10.0",
+            "attempt": 1,
+            "status": "PASS",
+            "reason": null,
+            "build": {
+              "name": "build",
+              "arguments": [
+                "build",
+                "TerrainPlanner/TerrainPlanner.Tests/TerrainPlanner.Tests.csproj",
+                "-c",
+                "Debug",
+                "-m:1",
+                "-p:RestoreBuildInParallel=false",
+                "-p:NuGetAudit=false",
+                "-p:NoWarn=NU1902%3BNU1510"
+              ],
+              "started_utc": "2026-10-05T03:21:56.6509917+00:00",
+              "ended_utc": "2026-10-05T03:21:58.5809224+00:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-queued-command\\20261005T032139Z-c424fb5995be\\invocations\\TerrainPlanner.Tests-1085b5fa\\build\\build.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-queued-command\\20261005T032139Z-c424fb5995be\\invocations\\TerrainPlanner.Tests-1085b5fa\\build\\build.stderr.log"
+            },
+            "test": {
+              "name": "test",
+              "arguments": [
+                "test",
+                "TerrainPlanner/TerrainPlanner.Tests/TerrainPlanner.Tests.csproj",
+                "-c",
+                "Debug",
+                "--no-build",
+                "--no-restore",
+                "-m:1",
+                "-f",
+                "net10.0",
+                "-p:NoWarn=NU1902%3BNU1510",
+                "--logger",
+                "trx;LogFileName=results.trx",
+                "--results-directory",
+                "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-queued-command\\20261005T032139Z-c424fb5995be\\invocations\\TerrainPlanner.Tests-1085b5fa\\net10-41544e89\\1"
+              ],
+              "started_utc": "2026-10-05T03:21:59.9397105+00:00",
+              "ended_utc": "2026-10-05T03:22:21.0495239+00:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-queued-command\\20261005T032139Z-c424fb5995be\\invocations\\TerrainPlanner.Tests-1085b5fa\\net10-41544e89\\1\\test.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-queued-command\\20261005T032139Z-c424fb5995be\\invocations\\TerrainPlanner.Tests-1085b5fa\\net10-41544e89\\1\\test.stderr.log"
+            },
+            "report": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-queued-command\\20261005T032139Z-c424fb5995be\\invocations\\TerrainPlanner.Tests-1085b5fa\\net10-41544e89\\1\\results.trx",
+            "binary": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\TerrainPlanner\\TerrainPlanner.Tests\\bin\\Debug\\net10.0\\TerrainPlanner.Tests.dll",
+            "counts": {
+              "executed": 34,
+              "passed": 34,
+              "failed": 0,
+              "skipped": 0,
+              "inconclusive": 0,
+              "other": 0,
+              "total": 34
+            },
+            "native_counters": {
+              "total": "34",
+              "executed": "34",
+              "passed": "34",
+              "failed": "0",
+              "error": "0",
+              "timeout": "0",
+              "aborted": "0",
+              "inconclusive": "0",
+              "passedButRunAborted": "0",
+              "notRunnable": "0",
+              "notExecuted": "0",
+              "disconnected": "0",
+              "warning": "0",
+              "completed": "0",
+              "inProgress": "0",
+              "pending": "0"
+            }
+          },
+          {
+            "project": "scripts/TestReporting.Tests/TestReporting.Tests.csproj",
+            "framework": "net10.0",
+            "attempt": 1,
+            "status": "PASS",
+            "reason": null,
+            "build": {
+              "name": "build",
+              "arguments": [
+                "build",
+                "scripts/TestReporting.Tests/TestReporting.Tests.csproj",
+                "-c",
+                "Debug",
+                "-m:1",
+                "-p:RestoreBuildInParallel=false",
+                "-p:NuGetAudit=false",
+                "-p:NoWarn=NU1902%3BNU1510"
+              ],
+              "started_utc": "2026-10-05T03:21:58.5816205+00:00",
+              "ended_utc": "2026-10-05T03:21:59.8995731+00:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-queued-command\\20261005T032139Z-c424fb5995be\\invocations\\TestReporting.Tests-25b07e44\\build\\build.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-queued-command\\20261005T032139Z-c424fb5995be\\invocations\\TestReporting.Tests-25b07e44\\build\\build.stderr.log"
+            },
+            "test": {
+              "name": "test",
+              "arguments": [
+                "test",
+                "scripts/TestReporting.Tests/TestReporting.Tests.csproj",
+                "-c",
+                "Debug",
+                "--no-build",
+                "--no-restore",
+                "-m:1",
+                "-f",
+                "net10.0",
+                "-p:NoWarn=NU1902%3BNU1510",
+                "--logger",
+                "trx;LogFileName=results.trx",
+                "--results-directory",
+                "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-queued-command\\20261005T032139Z-c424fb5995be\\invocations\\TestReporting.Tests-25b07e44\\net10-41544e89\\1"
+              ],
+              "started_utc": "2026-10-05T03:21:59.9433986+00:00",
+              "ended_utc": "2026-10-05T03:23:06.2217255+00:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-queued-command\\20261005T032139Z-c424fb5995be\\invocations\\TestReporting.Tests-25b07e44\\net10-41544e89\\1\\test.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-queued-command\\20261005T032139Z-c424fb5995be\\invocations\\TestReporting.Tests-25b07e44\\net10-41544e89\\1\\test.stderr.log"
+            },
+            "report": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-queued-command\\20261005T032139Z-c424fb5995be\\invocations\\TestReporting.Tests-25b07e44\\net10-41544e89\\1\\results.trx",
+            "binary": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\scripts\\TestReporting.Tests\\bin\\Debug\\net10.0\\TestReporting.Tests.dll",
+            "counts": {
+              "executed": 38,
+              "passed": 38,
+              "failed": 0,
+              "skipped": 0,
+              "inconclusive": 0,
+              "other": 0,
+              "total": 38
+            },
+            "native_counters": {
+              "total": "38",
+              "executed": "38",
+              "passed": "38",
+              "failed": "0",
+              "error": "0",
+              "timeout": "0",
+              "aborted": "0",
+              "inconclusive": "0",
+              "passedButRunAborted": "0",
+              "notRunnable": "0",
+              "notExecuted": "0",
+              "disconnected": "0",
+              "warning": "0",
+              "completed": "0",
+              "inProgress": "0",
+              "pending": "0"
+            }
+          }
+        ],
+        "issues": [],
+        "artifacts": {
+          "run": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-queued-command\\20261005T032139Z-c424fb5995be\\run.json",
+          "summary": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-queued-command\\20261005T032139Z-c424fb5995be\\summary.json",
+          "failures": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-queued-command\\20261005T032139Z-c424fb5995be\\failures.json",
+          "results": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\managed-armageddon-20261005-queued-command\\20261005T032139Z-c424fb5995be\\test-results.json",
+          "bootstrap": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\bootstrap-4e51c4b4cd8943229ca355cd7f7eec6e\\bootstrap.log"
+        },
+        "build_switches": [
+          "-m:1",
+          "-p:RestoreBuildInParallel=false",
+          "-p:NuGetAudit=false",
+          "-p:NoWarn=NU1902%3BNU1510"
+        ]
+      }
+    }
+  },
+  "native": {
+    "native-final": {
+      "status": "PASS",
+      "log": ".artifacts/test-runs/armageddon-20261005-queued-command/native-final-native.log",
+      "sha256": "c61f93362ffad6371060b2dc868f77f80781dc1bf08bdd7e9a234abbd93794c7",
+      "markers": [
+        "ARM03B2B-connection-refusals=passed unowned-host shared-default blank-database unregistered-owned-prefix all-refused-before-connect",
+        "ARM03D1Stock-install=passed normal-spell-builder atomic-stock-plus-two-real-AIs two-compiled-progs source-duration-formulas definition-save-reload control-bound-refused-before-payment no-reagent no-automatic-capability duplicate-refused",
+        "ARMQueued-valid=passed actual-CommandableAI real-get-command native-selected-queue native-strategy-consumption native-CombatAction real-Body-Get",
+        "ARMQueued-reader=passed fresh-process immutable-origin exact-current-grant no-deadline-extension no-selected-action-persistence no-actor-materialization",
+        "ARMQueued-reader=passed fresh-process immutable-origin exact-current-grant no-deadline-extension no-selected-action-persistence no-actor-materialization",
+        "ARMQueued-expired-queue=passed exact-control-boundary animation-alive original-order-refused queue-consumed goods-unchanged independent-native-following fresh-process-grant-refusal",
+        "ARMQueued-expired-selected=passed actual-native-CombatAction selected-before-deadline resolved-after-deadline no-Body-Get animation-and-following-preserved",
+        "ARMQueued-policy-retire=passed controlled-authorizing-prog-callback actual-native-retire real-selected-RetrieveItemMove no-resolution no-idle-or-schedule-resurrection same-body-corpse-foreign-gear",
+        "ARMQueued-policy-leave-combat=passed controlled-authorizing-prog-callback actual-native-leave-combat real-selected-RetrieveItemMove no-resolution no-idle-or-schedule-resurrection same-body-corpse-foreign-gear",
+        "ARMQueued-policy-revoked=passed real-native-AI-removal queued-order-refused selected-effect-consumed independent-following-preserved",
+        "ARMQueued-retired-selected=passed actual-native-retirement stale-CombatAction-refused no-new-idle-effect-or-schedule no-selected-work same-canonical-body-corpse-foreign-gear"
+      ],
+      "marker_count": 11,
+      "owned_processes_remaining": 0
+    },
+    "regression-servitor": {
+      "status": "PASS",
+      "log": ".artifacts/test-runs/armageddon-20261005-queued-command/regression-servitor-native.log",
+      "sha256": "dce4681e6bc90c260324639cb9e6fa540c5cb373a165dfa1986bb5cb95eac1e8",
+      "markers": [
+        "ARM03B2B-connection-refusals=passed unowned-host shared-default blank-database unregistered-owned-prefix all-refused-before-connect",
+        "ARM03D1Stock-install=passed normal-spell-builder atomic-stock-plus-two-real-AIs two-compiled-progs source-duration-formulas definition-save-reload control-bound-refused-before-payment no-reagent no-automatic-capability duplicate-refused",
+        "ARM03D1Stock-control-combat=passed creator-not-corpse-owner stranger-refused native-follow-alias unlisted-quit-refused real-hit-command mutual-SimpleMeleeCombat native-combat-schedules",
+        "ARM03D1Stock-native-cell-combat-retire=passed real-Cell-Insert-Extract-Save queued-save-after-hide-and-restore selected-inventory-action-executed consumed-and-pending-action-unsubscribed continuing-three-actor-combat native-combat-leave both-scheduler-queues-cancelled follow-unsubscribed exact-corpse-body-foreign-gear",
+        "ARM03D1Stock-two-deadlines=passed grade3-control-5399s animation-7799s real-affect-seconds independent-follow-link paid-parent-effect-scheduler-expiry same-corpse",
+        "ARM03D1Stock-terrain=passed compiled-stock-prog actual-Silt-and-Shallows-terrains no-command-grant independent-native-follow-link",
+        "ARM03D1Stock-reader=passed fresh-process durable-control-query persisted-stock-identity-formula-and-animation-deadline no-actor-materialization-or-replay",
+        "ARM03D1Stock-reader=passed fresh-process durable-control-query persisted-stock-identity-formula-and-animation-deadline no-actor-materialization-or-replay",
+        "ARM03D1Stock-held-retirement=passed actual-DELETE-refusal real-cell-save native-combat-leave no-queued-actions no-command-grant exact-retry repeated-retirement same-canonical-body-corpse-foreign-item"
+      ],
+      "marker_count": 9,
+      "owned_processes_remaining": 0
+    },
+    "regression-storm": {
+      "status": "PASS",
+      "log": ".artifacts/test-runs/armageddon-20261005-queued-command/regression-storm-native.log",
+      "sha256": "aba33c756af8774c703a6e73b9515d43943a988fc97ba37310195a7ebff43020",
+      "markers": [
+        "ARM03B2B-connection-refusals=passed unowned-host shared-default blank-database unregistered-owned-prefix all-refused-before-connect",
+        "ARMStorm-stock-builder=passed stock-identity duplicate-refusal seven-grades builder-material-edit persisted-reload primaryhand rank-offset-minus-three all-grades-temporary declared-electrical-profile-no-historical-JS-parity",
+        "ARMStorm-prepayment=passed real-low-rank direct-scope ground-container-and-occupied-primary-hand-refused zero-operation zero-debit zero-material-delete zero-output-or-lifecycle-row",
+        "ARMStorm-paid-grade1=passed actual-resource-debit actual-component-delete exact-one-native-weapon primary-hand-wield persisted-grade absolute-source-nominal-deadline seconds:1822.5",
+        "ARMStorm-combat-grade1=passed real-MeleeWeaponAttack actual-electrical-target-wounds persisted-native-wounds declared-6-damage-4-pain-2-stun helpless-defence controlled-roll no-historical-damage-parity",
+        "ARMStorm-wielded-expiry=passed exact-absolute-boundary native-Body-unwield native-item-Delete completed-once unrelated-goods-and-container-survive",
+        "ARMStorm-recipient-grade-gate=passed other-recipient-occupied-primary-refused caster-free-hand-preserved no-payment native-cap90 overreach-raw81-refused overreach-raw85point5-preflight-admitted approved-95-percent-gate controlled-grade-retained-independently no-paid-overreach-claim",
+        "ARMStorm-paid-grade7=passed actual-resource-debit actual-component-delete exact-one-native-weapon primary-hand-wield persisted-grade absolute-source-nominal-deadline seconds:12757.5",
+        "ARMStorm-combat-grade7=passed real-MeleeWeaponAttack actual-electrical-target-wounds persisted-native-wounds declared-6-damage-4-pain-2-stun helpless-defence controlled-roll no-historical-damage-parity",
+        "ARMStorm-reader=passed fresh-process original-stock-formula persisted-deadline no-reset no-early-expiry cold-custody-hold native-custodian-load exact-expiry repeated-reconciliation foreign-bag-and-child-preserved",
+        "ARMStorm-restart-expiry=passed actual-fresh-process native-container-reload grade-seven-temporary unchanged-absolute-deadline exact-owned-leaf-removal foreign-container-and-sibling-survive",
+        "ARMStorm-placement-reader=passed fresh-process real-item no-body-membership exact-one-cell-reference paid-operation-quarantined no-replay-or-refund",
+        "ARMStorm-placement-callback=passed actual-Held-inventory-callback-drops-output post-Get-custody-revalidation paid-NeedsReview no-false-wield normal-save fresh-process single-cell-custody no-replay-or-refund"
+      ],
+      "marker_count": 13,
+      "owned_processes_remaining": 0
+    },
+    "regression-flame": {
+      "status": "PASS",
+      "log": ".artifacts/test-runs/armageddon-20261005-queued-command/regression-flame-native.log",
+      "sha256": "4a968485e0c54694597043bb51a61b5ed51a998161330db8276f9137e7ae47bc",
+      "markers": [
+        "ARM03B2B-connection-refusals=passed unowned-host shared-default blank-database unregistered-owned-prefix all-refused-before-connect",
+        "ARMFlame-stock-builder=passed six-distinct-temporary-grades eight-permanent-staff-pool mon-only-component standard-placement environment-progs persisted-reload duplicate-refusal invalid-edit-preserved",
+        "ARMFlame-prepayment=passed missing-low-rank-ground-contained-mon-component-refused zero-payment zero-operation zero-created-row",
+        "ARMFlame-environment=passed real-native-terrain real-stock-prog water-low-and-mon-refused no-payment",
+        "ARMFlame-paid-grade1=passed actual-payment component-only-at-mon prototype:10 native-standard-get explicit-native-wield mode:TemporaryCleanup deadline:2026-09-15T00:37:30.0000000Z",
+        "ARMFlame-combat-grade1=passed real-MeleeWeaponAttack actual-burning-target-wounds persisted-native-wounds declared-6-damage-4-pain-2-stun helpless-defence controlled-roll no-historical-damage-parity",
+        "ARMFlame-paid-grade2=passed actual-payment component-only-at-mon prototype:11 native-standard-get explicit-native-wield mode:TemporaryCleanup deadline:2026-09-15T01:33:45.0000000Z",
+        "ARMFlame-combat-grade2=passed real-MeleeWeaponAttack actual-burning-target-wounds persisted-native-wounds declared-6-damage-4-pain-2-stun helpless-defence controlled-roll no-historical-damage-parity",
+        "ARMFlame-paid-grade3=passed actual-payment component-only-at-mon prototype:12 native-standard-get explicit-native-wield mode:TemporaryCleanup deadline:2026-09-15T02:48:45.0000000Z",
+        "ARMFlame-combat-grade3=passed real-MeleeWeaponAttack actual-burning-target-wounds persisted-native-wounds declared-6-damage-4-pain-2-stun helpless-defence controlled-roll no-historical-damage-parity",
+        "ARMFlame-paid-grade4=passed actual-payment component-only-at-mon prototype:13 native-standard-get explicit-native-wield mode:TemporaryCleanup deadline:2026-09-15T04:22:30.0000000Z",
+        "ARMFlame-combat-grade4=passed real-MeleeWeaponAttack actual-burning-target-wounds persisted-native-wounds declared-6-damage-4-pain-2-stun helpless-defence controlled-roll no-historical-damage-parity",
+        "ARMFlame-paid-grade5=passed actual-payment component-only-at-mon prototype:14 native-standard-get explicit-native-wield mode:TemporaryCleanup deadline:2026-09-15T06:15:00.0000000Z",
+        "ARMFlame-combat-grade5=passed real-MeleeWeaponAttack actual-burning-target-wounds persisted-native-wounds declared-6-damage-4-pain-2-stun helpless-defence controlled-roll no-historical-damage-parity",
+        "ARMFlame-paid-grade6=passed actual-payment component-only-at-mon prototype:15 native-standard-get explicit-native-wield mode:TemporaryCleanup deadline:2026-09-15T07:20:37.5000000Z",
+        "ARMFlame-combat-grade6=passed real-MeleeWeaponAttack actual-burning-target-wounds persisted-native-wounds declared-6-damage-4-pain-2-stun helpless-defence controlled-roll no-historical-damage-parity",
+        "ARMFlame-threshold-variants=passed all-six-paid-prototypes grades1-to5-exact-wielded-expiry shadow-grade6-half-duration immutable-deadline temporary-value-block",
+        "ARMFlame-paid-grade7=passed actual-payment component-only-at-mon prototype:23 native-standard-get explicit-native-wield mode:Permanent deadline:",
+        "ARMFlame-combat-grade7=passed real-MeleeWeaponAttack actual-burning-target-wounds persisted-native-wounds declared-6-damage-4-pain-2-stun helpless-defence controlled-roll no-historical-damage-parity",
+        "ARMFlame-component-threshold=passed exact-six-prepayment-admitted higher-descendant-seven-paid-and-consumed wrong-lower-tags-refused exact-six-unrelated-preserved",
+        "ARMFlame-reader=passed fresh-process original-stock-formula persisted-deadline no-reset no-early-expiry cold-custody-hold native-custodian-load exact-expiry repeated-reconciliation foreign-bag-and-child-preserved",
+        "ARMFlame-restart-expiry=passed real-fresh-process shadow-temporary-expiry exact-owned-leaf permanent-staff-foreign-bag-and-sibling-survive no-reset-or-replay"
+      ],
+      "marker_count": 22,
+      "owned_processes_remaining": 0
+    },
+    "regression-sand": {
+      "status": "PASS",
+      "log": ".artifacts/test-runs/armageddon-20261005-queued-command/regression-sand-native.log",
+      "sha256": "45445f11b0e6f9f7fc8134b0184cfe1737216cf51fc94a9b4f4b68afb6a9b9c1",
+      "markers": [
+        "ARM03B2B-connection-refusals=passed unowned-host shared-default blank-database unregistered-owned-prefix all-refused-before-connect",
+        "ARMSand-stock-builder=passed six-distinct-temporary-grades eight-permanent-staff-pool mon-only-component standard-placement sufficient-sand-prog authored-energy-floor-five source-C-minimum-zero persisted-reload duplicate-refusal invalid-edit-preserved",
+        "ARMSand-prepayment=passed missing-low-rank-ground-contained-mon-component-refused zero-payment zero-operation zero-created-row",
+        "ARMSand-environment=passed five-native-terrains actual-room-storm-tag selected-native-weather null-unmapped-gale-weather-refused Inside-City-refuse-despite-both-storm-mappings no-payment controlled-controller actual-native-event-and-cell source-condition-not-inferred",
+        "ARMSand-paid-grade1=passed actual-payment component-only-at-mon prototype:10 native-standard-get explicit-native-wield mode:TemporaryCleanup deadline:2026-09-15T00:37:30.0000000Z",
+        "ARMSand-combat-grade1=passed real-MeleeWeaponAttack actual-piercing-target-wounds persisted-native-wounds declared-6-damage-4-pain-2-stun helpless-defence controlled-roll no-historical-damage-parity",
+        "ARMSand-paid-grade2=passed actual-payment component-only-at-mon prototype:11 native-standard-get explicit-native-wield mode:TemporaryCleanup deadline:2026-09-15T01:33:45.0000000Z",
+        "ARMSand-combat-grade2=passed real-MeleeWeaponAttack actual-piercing-target-wounds persisted-native-wounds declared-6-damage-4-pain-2-stun helpless-defence controlled-roll no-historical-damage-parity",
+        "ARMSand-paid-grade3=passed actual-payment component-only-at-mon prototype:12 native-standard-get explicit-native-wield mode:TemporaryCleanup deadline:2026-09-15T02:48:45.0000000Z",
+        "ARMSand-combat-grade3=passed real-MeleeWeaponAttack actual-piercing-target-wounds persisted-native-wounds declared-6-damage-4-pain-2-stun helpless-defence controlled-roll no-historical-damage-parity",
+        "ARMSand-paid-grade4=passed actual-payment component-only-at-mon prototype:13 native-standard-get explicit-native-wield mode:TemporaryCleanup deadline:2026-09-15T04:22:30.0000000Z",
+        "ARMSand-combat-grade4=passed real-MeleeWeaponAttack actual-piercing-target-wounds persisted-native-wounds declared-6-damage-4-pain-2-stun helpless-defence controlled-roll no-historical-damage-parity",
+        "ARMSand-paid-grade5=passed actual-payment component-only-at-mon prototype:14 native-standard-get explicit-native-wield mode:TemporaryCleanup deadline:2026-09-15T06:15:00.0000000Z",
+        "ARMSand-combat-grade5=passed real-MeleeWeaponAttack actual-piercing-target-wounds persisted-native-wounds declared-6-damage-4-pain-2-stun helpless-defence controlled-roll no-historical-damage-parity",
+        "ARMSand-paid-grade6=passed actual-payment component-only-at-mon prototype:15 native-standard-get explicit-native-wield mode:TemporaryCleanup deadline:2026-09-15T08:26:15.0000000Z",
+        "ARMSand-combat-grade6=passed real-MeleeWeaponAttack actual-piercing-target-wounds persisted-native-wounds declared-6-damage-4-pain-2-stun helpless-defence controlled-roll no-historical-damage-parity",
+        "ARMSand-threshold-variants=passed all-six-paid-prototypes grades1-to5-exact-wielded-expiry tagged-shadow-grade6-full-duration no-sand-source-shadow-reduction immutable-deadline temporary-value-block",
+        "ARMSand-paid-grade7=passed actual-payment component-only-at-mon prototype:20 native-standard-get explicit-native-wield mode:Permanent deadline:",
+        "ARMSand-combat-grade7=passed real-MeleeWeaponAttack actual-piercing-target-wounds persisted-native-wounds declared-6-damage-4-pain-2-stun helpless-defence controlled-roll no-historical-damage-parity",
+        "ARMSand-component-threshold=passed exact-six-prepayment-admitted higher-descendant-seven-paid-and-consumed wrong-lower-tags-refused exact-six-unrelated-preserved",
+        "ARMSand-reader=passed fresh-process original-stock-formula persisted-deadline no-reset no-early-expiry cold-custody-hold native-custodian-load exact-expiry repeated-reconciliation foreign-bag-and-child-preserved",
+        "ARMSand-restart-expiry=passed real-fresh-process sand-temporary-expiry exact-owned-leaf permanent-staff-foreign-bag-and-sibling-survive no-reset-or-replay"
+      ],
+      "marker_count": 22,
+      "owned_processes_remaining": 0
+    }
+  },
+  "frozen_inputs": {
+    "path": ".artifacts/test-runs/armageddon-20261005-queued-command/native-final-inputs.json",
+    "sha256": "79fb67c4ee72f71394f984505080c435a158d7b72d4d8a8fc103aafd6cdd2647",
+    "source_count": 760,
+    "binary_count": 19,
+    "shared_copies_aligned": true
+  },
+  "artifact_fingerprints": [
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/begin.json",
+      "sha256": "cfbed21025f62779cbf8947a696674ad020d50e1f17577fa160919df3ed69982"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/build-01-exit.json",
+      "sha256": "70f74ef753733c3fb755878b5dce95f8148de07ead5ae7c21f0b1902e033a114"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/build-01.log",
+      "sha256": "faead28b8ed59a1ba0cdce5b5034826a42ef7f5f3056b4c573ddfda46b7fdaa3"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/build-02-exit.json",
+      "sha256": "ec7769f83debcd1412230112764701e814beccd3e4c0341942f6e71e3ea167af"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/build-02.log",
+      "sha256": "42760fec9eff71844bfd35ff7ad8246832947da9207ddb8e80c7ff718085d68e"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/build-03-exit.json",
+      "sha256": "7d9115263df7b45440cd880e48703cf7d371ebdd5f5886da61f1014bfbcf4f33"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/build-03.log",
+      "sha256": "bb008542db87203c6bd6e0085eee895493687ac0934c00aebc14cc3055aa3907"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/build-04-exit.json",
+      "sha256": "c0b9567b0afd0dcd0780e265f4eac449a8941a86d3ad90e1e2189a1173c9b67c"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/build-04.log",
+      "sha256": "893807c3d5543de08bb15c44b8f882b6d3066e025413edcaeefdf91a60666209"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/build-05-exit.json",
+      "sha256": "73a5e06d4d23845455598c18c2221befe258aefb57d0c13d22f6377e2cab43a7"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/build-05.log",
+      "sha256": "08c2ed4a41e5f660a786d8ec8a6fa74ac07fc2ae3dc5a7adac0551bf518f94d1"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/build-06-exit.json",
+      "sha256": "7ed02efda927eaa5b845229bd7f3d34b4982661120543c7dfc654b4e1e32da6d"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/build-06.log",
+      "sha256": "0f7b63143b639a6eb38e21ef0b9298cf24287eba4d6a52ef2b47b07f1b505bbe"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/build-final-exit.json",
+      "sha256": "7eecf1b6019aee73d8e4464c4bc2c40f7cb3514d887ff9c2542a739f82029544"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/build-final.log",
+      "sha256": "b821519e3b8f1e75050406aeb8a4bf936853d2b634602ed555bb9f116ccce0fd"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/fast-final-after-fingerprints.json",
+      "sha256": "25498edf18372f4b7de6e444cc6e0b7a849d4fdf040500cacb672c0a17e75016"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/fast-final-before-fingerprints.json",
+      "sha256": "99c7e5dbdcd48fd7ac28da1e9906419f5d49dbaa7c110980c6d8294bafbd76b5"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/fast-final-inputs.json",
+      "sha256": "d35641b15c190ce6b34eeeab1aab2345ebf2ef44dc6b3180081a4f8f6dc62c03"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/final-qualification-fingerprints.json",
+      "sha256": "a3f09181fc885164c5d0e7aeb2624424da83825feee4b055724e2d58e32e733a"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/focused-01-before-fingerprints.json",
+      "sha256": "ebd47de35cc6e016ca13ae31efe7319ed5c3dfac3bc6acd33daf6289ac182f2f"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/focused-01-inputs.json",
+      "sha256": "f63afe149eadb816f3159c6745efdbdc1c2308d6978c877365ce7fcbaa809eb8"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/focused-02-after-fingerprints.json",
+      "sha256": "5a7c2abc02369b5b18e12cb1bc4497d44bb985ec0f3755b552709d6985346254"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/focused-02-before-fingerprints.json",
+      "sha256": "64a84b5e1eb91c66b78ef1aab12bcf4a953160bff9b155df38b3eb8a3706f18b"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/focused-02-inputs.json",
+      "sha256": "de29db762f4b4a8ac0f562b81adb008bea22058ac7595ec5ffe7a31081d2163e"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/focused-03-after-fingerprints.json",
+      "sha256": "caa49689f1ae03c375e5d870b372252a65e576d27893a5f457e9fce38f878c5c"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/focused-03-before-fingerprints.json",
+      "sha256": "fbda37f1c6804a3d8e1417b27bd7c3c0c9a988b5fec40227acfc0eb54bd62037"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/focused-03-inputs.json",
+      "sha256": "2c3dc5543a50c6f058011caa4e83e6526506a1f6d49b1c9c05c7bd37f15cbf2c"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/focused-04-after-fingerprints.json",
+      "sha256": "a6cf58a345db928e4cbd93b2fd27c08190845b0bfcea6c609947138cb434bf9d"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/focused-04-before-fingerprints.json",
+      "sha256": "837905c6d7cdff38cdcfc87272ccffeb1b0c822fd6bc52a63f1c4c147b9aa99f"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/focused-04-inputs.json",
+      "sha256": "06a69bad3a421504260ca43646ce337ae2ebd8d9508c888ce83a3972bbcdf45f"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/focused-05-after-fingerprints.json",
+      "sha256": "20911077cff2a5a70e2e0d3bda22d3dd971c734bbcdbdc0439d5a2d9d77ae2db"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/focused-05-before-fingerprints.json",
+      "sha256": "9f11492177bb7750f394b32c52ba4b9e2a59899f6637d605cba65cc784e9d6e6"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/focused-05-inputs.json",
+      "sha256": "53e5f1fa761cd873a26c4c58c2263ce458644c81aa7bfdf01245e3200be513f2"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/focused-final-after-fingerprints.json",
+      "sha256": "7fb56cf887a7225136e3f8a5d815eb20e27cae3ee67007d67bb9d4af1f918511"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/focused-final-before-fingerprints.json",
+      "sha256": "3d741b8798581a18acd4818fd3c1d199a9c8ee264d2f3971548a61cd443599b1"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/focused-final-inputs.json",
+      "sha256": "9ecd752a634c78ad4c3c999a374ed014fcac2e196a75efa3120afa6ddd901d33"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/managed-selection.json",
+      "sha256": "5a1f96969d22c8d688353e1d31d3a7798446d7c03aa46e2520b8ce7aff54a580"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/native-attempt-01-after-fingerprints.json",
+      "sha256": "245fdec23529667ba2a1d083bb58acc939a4e534e1c39d06067536717fc5bca6"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/native-attempt-01-before-fingerprints.json",
+      "sha256": "14bf31f6cdf5e3a2ddd9c806aeba6cbae6f7ddacbd6369360974fe43c40fb13f"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/native-attempt-01-build-fingerprints.json",
+      "sha256": "b3de6c00d4b319510be83c8d95890f90de39545ab3cdc094650d9f7e6b4cec9c"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/native-attempt-01-inputs.json",
+      "sha256": "4d673e1be7a1031d5601d63ce01d233c423626dd7ce4e4da45f58ed81e8bf23e"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/native-attempt-01-native-exit.json",
+      "sha256": "909ae9162460e34fdf72eaaf2e759fd4d21ba6eae9872ed9d5e7c50b448436a7"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/native-attempt-01-native.log",
+      "sha256": "22b0f3abcf6616f9736374a11c2e0f3d8abcc867c4ddbea92abf521dd541f22b"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/native-attempt-01-process-cleanup.json",
+      "sha256": "03e154f084d43e8fa689e0ccd7c6be5a19e972bb457f3dab1895788171170a56"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/native-attempt-02-after-fingerprints.json",
+      "sha256": "5b9d630130bc502b24b2fa256366e64b8e5958b2841b9b1b9f160963832bfa47"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/native-attempt-02-before-fingerprints.json",
+      "sha256": "275f42f44c80afff1c46a4866daa8865beb03ea05a9dc8836df7415ef7149abd"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/native-attempt-02-inputs.json",
+      "sha256": "af0048e1296a6f5e99bcd00ac61832effc6c8423141650f04edfbba9314f175d"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/native-attempt-02-native-exit.json",
+      "sha256": "69debbf7c3f33f41bc786e6d79afd9fbd4bb28a5901ef37aaa361e4420397975"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/native-attempt-02-native.log",
+      "sha256": "621d62c005142501d889fe429c0cc41c7a64781f2443b2876c61f0c474965732"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/native-attempt-02-process-cleanup.json",
+      "sha256": "4c38116768474dc46a6f5520c0b12c7e97fe2556e278dfc4fcdd69f993b2c964"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/native-attempt-03-after-fingerprints.json",
+      "sha256": "bdc2b529208395e0c2a5da6e3c198a9226ec8be9fbbb74642372371e256f2ae8"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/native-attempt-03-before-fingerprints.json",
+      "sha256": "40ffe2646bbad1627e261027b56fe572d175a22c86ff5daefebafeae5d4da8ea"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/native-attempt-03-inputs.json",
+      "sha256": "20db0ce49b9ed912893ffe0607466ed9d03ad3d89c3c56d6e7507d0ac9440bd5"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/native-attempt-03-native-exit.json",
+      "sha256": "f1be3b5ee61e3ee26727934b17ca1670068275c8c573a04db35b0e2b5dd02c2f"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/native-attempt-03-native.log",
+      "sha256": "30b5d9e2b9d153f6dae12330184df99e23cd2cca526edf27fcdd058671515181"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/native-attempt-03-process-cleanup.json",
+      "sha256": "226c141cea0bce732113d7efb2868e1edb186b06d9dade40f24b82c0c578c5b7"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/native-attempt-04-after-fingerprints.json",
+      "sha256": "dba8f2f394a2f7872d321e26cadc6f4d60888986c3c5ac4dbed4fb83f8ec0091"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/native-attempt-04-before-fingerprints.json",
+      "sha256": "dcf685e948389cec9b0774f9d114df076604d95b23215ced966b2d47c7971ec6"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/native-attempt-04-inputs.json",
+      "sha256": "9c85e8a59fce7ba82b9faacce42e3d899e73d06eeccf4d63dd44e024f6d714f7"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/native-attempt-04-native-exit.json",
+      "sha256": "90c570cbdaee0690733c066189356c2a05074de6437e53a3ade1ffcaf468cead"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/native-attempt-04-native.log",
+      "sha256": "37a908c37bcc149cf0a04f1a05df93abb732c0dad41afc9521cd98afa1816d28"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/native-attempt-04-process-cleanup.json",
+      "sha256": "46d459c998350fe24a61ee6b1d7612f5bb46217770aa750d873673ed12dfbc26"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/native-attempt-05-after-fingerprints.json",
+      "sha256": "f0360d4f91c3514bdc70e51c882002271cac0e979af753a5d3951f73bfdfba97"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/native-attempt-05-before-fingerprints.json",
+      "sha256": "fcbb8a5ccdfeb54ebfb95883a844a8e55c5c7e5926756007e97c8d9c9dfefcbc"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/native-attempt-05-inputs.json",
+      "sha256": "f95c06525575e444813fc0ac74eb413ac08a60ee9439b473133de7d206a0017f"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/native-attempt-05-native-exit.json",
+      "sha256": "f38844df7ac3e7600960c6548c48c700dd0eb01b7bfa0289f8435e542cd3375a"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/native-attempt-05-native.log",
+      "sha256": "c6e341bc1bbb3d883bf52a4d556f6e76fab19ebe7c2aa16f1472e4b009b777dd"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/native-attempt-05-process-cleanup.json",
+      "sha256": "1609aed428559e7d09b7fdf1d69b6da970356e2c7c550f0dd3c358c33c27ab15"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/native-final-after-fingerprints.json",
+      "sha256": "bb886d0bbe3ebe584308890b5ddc8c3dd6fed76935de25a67f36304dfac2e48b"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/native-final-before-fingerprints.json",
+      "sha256": "b790731b5d4cc3917ee9d441d6c8655b44f258b336d75e16afc8001f0a8c7e67"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/native-final-build-fingerprints.json",
+      "sha256": "176bedc6ef72309e6a37ef5a7bf1f37aec4c99aca8c517bc41d8e3b59df496a7"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/native-final-inputs.json",
+      "sha256": "79fb67c4ee72f71394f984505080c435a158d7b72d4d8a8fc103aafd6cdd2647"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/native-final-native-exit.json",
+      "sha256": "bdee86991190f4335cd582f31b80728b71f07c941a60d97b384225ca2995c0e9"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/native-final-native.log",
+      "sha256": "c61f93362ffad6371060b2dc868f77f80781dc1bf08bdd7e9a234abbd93794c7"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/native-final-process-cleanup.json",
+      "sha256": "bada6e2de0ffb8f74e9bf3a06294c542a438ccff4764c64358051cf4aee9fe53"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/preliminary-failures.json",
+      "sha256": "e57a7a76e5bef64e498cac92082a53fd22af7066927e584afbcb61760c0aafbe"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/regression-flame-after-fingerprints.json",
+      "sha256": "3543ac5e15d50af3ebc3957c28208ef73a29c025262140af8ce5d9e93dd0dd80"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/regression-flame-before-fingerprints.json",
+      "sha256": "029d8695d400ca609715fcd94d7fa8440fc93d9101f7528aaa3bf8f3f168c82e"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/regression-flame-native-exit.json",
+      "sha256": "e33858fcb2d78bbade5fd94746ca72d894a8153846f58240dfc2380198a73c90"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/regression-flame-native.log",
+      "sha256": "4a968485e0c54694597043bb51a61b5ed51a998161330db8276f9137e7ae47bc"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/regression-flame-process-cleanup.json",
+      "sha256": "76d98171f1589103944d7a80daf3b50c865daf01e8ec26e7a20a929d235c2161"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/regression-sand-after-fingerprints.json",
+      "sha256": "b7bff6d68e536cf5b6d8ac5d65d90920e3ea94770e37d596d0601b9f2ccf911f"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/regression-sand-before-fingerprints.json",
+      "sha256": "42e3ebb2a89c99ab075f56c4dd9ce6a0481e10ff898782cf2dc013a53c6bf3d3"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/regression-sand-native-exit.json",
+      "sha256": "2fa8b4971017cc045d78df8b8a453fc5ec24642fd9f6d05ea8eb9cd2945e1d78"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/regression-sand-native.log",
+      "sha256": "45445f11b0e6f9f7fc8134b0184cfe1737216cf51fc94a9b4f4b68afb6a9b9c1"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/regression-sand-process-cleanup.json",
+      "sha256": "dcd96ae975ad679ff8535b3196e475cac7207caace17c236a953d26ba863e819"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/regression-servitor-after-fingerprints.json",
+      "sha256": "dffe60b7b951561993371a1c5539c2074cd71b9b3ae6a531f29b0bdcc0641c34"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/regression-servitor-before-fingerprints.json",
+      "sha256": "e659597be0f67ec82a0051cba8dcfdbf9de6695636ba36ec253f61f8efc94cfd"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/regression-servitor-native-exit.json",
+      "sha256": "40b9c0684212980df5ddfb21073f40171fd06fdc881637544a0875904b52b311"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/regression-servitor-native.log",
+      "sha256": "dce4681e6bc90c260324639cb9e6fa540c5cb373a165dfa1986bb5cb95eac1e8"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/regression-servitor-process-cleanup.json",
+      "sha256": "5f8223c5c7c3dcc1faa1d5ae7ee5e7ffb2c57706f5bc037cc5d12e0599ec6998"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/regression-storm-after-fingerprints.json",
+      "sha256": "79d7f72434af4f2370c3be7dee3061d9cb23c7583e040933cdff19af86634375"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/regression-storm-before-fingerprints.json",
+      "sha256": "7910cc2d5193fadb0f733e0b50a1f80b2bfd48000ee794023b887a7235fbcdcd"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/regression-storm-native-exit.json",
+      "sha256": "3adab38557bc91f24dd73aedbd713583939c601572ec7965093c6fc22b8b549c"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/regression-storm-native.log",
+      "sha256": "aba33c756af8774c703a6e73b9515d43943a988fc97ba37310195a7ebff43020"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/regression-storm-process-cleanup.json",
+      "sha256": "4032d0e13fb0c744c2120cd81f922efd361c83aa418f8420e4f16f729efaff51"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-queued-command/source-review-final.json",
+      "sha256": "20e9b067b490cf4d1b35a17f71acdb63677b6934fc8bdedddf8cb38d8f0d4dcf"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T024048Z-27e5a8dd1e72/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T024048Z-27e5a8dd1e72/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T024048Z-27e5a8dd1e72/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stdout.log",
+      "sha256": "39ceb70a0f8356505a08dff296a75df6a648321aa2c8385e02c041aedf2a5a3f"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T024048Z-27e5a8dd1e72/run.json",
+      "sha256": "a12edd67a86eee91902dd5f1f4f2fb81f82b43d79174cd69ad054283727800f2"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T024048Z-27e5a8dd1e72/sdk/sdk.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T024048Z-27e5a8dd1e72/sdk/sdk.stdout.log",
+      "sha256": "3db6bca4b50618b2e0d2d55d23b3d0541fe039ab6f731df0e9c47317b400ce52"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T024048Z-27e5a8dd1e72/source-end.json",
+      "sha256": "6659a669d5d864f67f5d4208ae5a8840ce31e053c869fb665b024ede4aba1f83"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T024048Z-27e5a8dd1e72/source-start.json",
+      "sha256": "dd3e3d0196d078369bbdc37961d8554dcfc6800ed956ce7d00c736d1f8873906"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T024048Z-27e5a8dd1e72/summary.json",
+      "sha256": "096b6fd2ceb4bc87e0d440cf70455064093722e2b7c50776d6deb054fabb5b47"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T024048Z-27e5a8dd1e72/summary.txt",
+      "sha256": "6eee3e2f4baf8a8e5843ad6e427d5a36a274fc4a65d1a56422dc303332648c02"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T024048Z-27e5a8dd1e72/test-results.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T025219Z-ddca03940842/failures.json",
+      "sha256": "d29303644f1a9b83243bd1d2abb4defed853716d63650de3f1d551b28ac725da"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T025219Z-ddca03940842/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T025219Z-ddca03940842/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stdout.log",
+      "sha256": "2635b7007dccd5ba8e0ae26a13f6a73fdbfc8f35045d0b6b3dbf5209799f843f"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T025219Z-ddca03940842/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/results.trx",
+      "sha256": "8fffdcac3d44fad3c5af828b202d0df66b95d02a7fb1e708f0fff958f84e97fe"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T025219Z-ddca03940842/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T025219Z-ddca03940842/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stdout.log",
+      "sha256": "19ef13a321938a3bd4509cf09870da5755dd6e64561c3c26b78d4d620396be6b"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T025219Z-ddca03940842/run.json",
+      "sha256": "379f9a041d2b22eed797a6a922f0a460a98416013d6651f990792210659520b0"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T025219Z-ddca03940842/sdk/sdk.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T025219Z-ddca03940842/sdk/sdk.stdout.log",
+      "sha256": "3db6bca4b50618b2e0d2d55d23b3d0541fe039ab6f731df0e9c47317b400ce52"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T025219Z-ddca03940842/source-end.json",
+      "sha256": "93b26c900f2175845bcb00e3a58d255ab4770f6749d501b4491d6ca8b46e1153"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T025219Z-ddca03940842/source-start.json",
+      "sha256": "8ec4afa4b66b845a560e252607f788c3cf35cc7dac428d3fc10a587d6bb95860"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T025219Z-ddca03940842/summary.json",
+      "sha256": "e06ee714696f57462fc68d2074417eb7ba282151071dfbbfa3e6d08dcf86d8e2"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T025219Z-ddca03940842/summary.txt",
+      "sha256": "22f4b0c84b5692d4fb3c1f77e9fc0c743cb00ea45761a7154d1de6c789df584c"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T025219Z-ddca03940842/test-results.json",
+      "sha256": "02f1e0c7c87ba8b7c88239d82f17678cc8a2a7d1d6e2cfe5d68c1e36c9cc4a00"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T030245Z-6b768e1e6762/failures.json",
+      "sha256": "d3c015063ec6005c8ba9f744e85ce71ed5ae02b07059e085bd90620f44215cbf"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T030245Z-6b768e1e6762/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T030245Z-6b768e1e6762/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stdout.log",
+      "sha256": "e23fabb35c366bf76638d1c25ef13e2b0782715236e944c61dd42109ed3b5dca"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T030245Z-6b768e1e6762/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/results.trx",
+      "sha256": "c6213d4d18ddd150d2e7e9e3ff20abb2aa5c4c6dfd77b19e2ba1ae1a87bf0d1d"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T030245Z-6b768e1e6762/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T030245Z-6b768e1e6762/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stdout.log",
+      "sha256": "d114fd44a051df9c6ebe5e5b1ac0e3e460bf0090f06368d05b5775d447160b19"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T030245Z-6b768e1e6762/run.json",
+      "sha256": "16758081aaf4b3e87a7b88f9f189f6d43a98bd1991200fbbd740d0b9246fd5c6"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T030245Z-6b768e1e6762/sdk/sdk.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T030245Z-6b768e1e6762/sdk/sdk.stdout.log",
+      "sha256": "3db6bca4b50618b2e0d2d55d23b3d0541fe039ab6f731df0e9c47317b400ce52"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T030245Z-6b768e1e6762/source-end.json",
+      "sha256": "f25808dd37fabf23366d0621223c84ef16ab68ce92e3d7a1a3c4b9be3f9b2d90"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T030245Z-6b768e1e6762/source-start.json",
+      "sha256": "9655087e3b1d6a57316c45ead2401733917bec1348f351682e4354730d0b0888"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T030245Z-6b768e1e6762/summary.json",
+      "sha256": "f5cd296e94061ee52a87096db41e0b69c51b8de729194800cb93e4cca5f66e27"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T030245Z-6b768e1e6762/summary.txt",
+      "sha256": "b5887cde009292c860cf22fe015415892ba9bc8ffe02d6e0a8ae94f073da00b3"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T030245Z-6b768e1e6762/test-results.json",
+      "sha256": "41524154ecba307e2c3790c6b573e26ade0dcd1869e6dc899cd2b9c2ff5bf868"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T030547Z-9c08c70eb158/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T030547Z-9c08c70eb158/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T030547Z-9c08c70eb158/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stdout.log",
+      "sha256": "5d0fe3018b27538cb9335eea42d14000acd5cd2c16f836ccb2c2c266d50ca2cd"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T030547Z-9c08c70eb158/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/results.trx",
+      "sha256": "3247aa29c9f01db9c9688f785ebcca58852df9d15be04f1c7cb573dc7ee6161c"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T030547Z-9c08c70eb158/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T030547Z-9c08c70eb158/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stdout.log",
+      "sha256": "dbfd391ef86f06ba1f903317c8685cc4fcadd79c9ff649dd54ee78ac4b96fed0"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T030547Z-9c08c70eb158/run.json",
+      "sha256": "4ff71f13b0ea59b102a7dbd234c3038117b40f9a9bc737140c3fbeaf35d4ee50"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T030547Z-9c08c70eb158/sdk/sdk.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T030547Z-9c08c70eb158/sdk/sdk.stdout.log",
+      "sha256": "3db6bca4b50618b2e0d2d55d23b3d0541fe039ab6f731df0e9c47317b400ce52"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T030547Z-9c08c70eb158/source-end.json",
+      "sha256": "a769643418ba031702f58eda03dd7214e86fd7f9b087694a4fc71cc20978a737"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T030547Z-9c08c70eb158/source-start.json",
+      "sha256": "c1f0c3b7ba7e8d128e1afe57d67e3b25096eb409bfcb8de3c171ea1119b46a6c"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T030547Z-9c08c70eb158/summary.json",
+      "sha256": "a866f29919dd17824304e264ce340bdeae209cc2f8e0c122f345fbb57e071640"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T030547Z-9c08c70eb158/summary.txt",
+      "sha256": "d1afa837e34ee6d7f13fbd04843e5ac14eb07cef825a889a37ce0ad8fa76d512"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T030547Z-9c08c70eb158/test-results.json",
+      "sha256": "1727a1f0595084a1dc7244f202c1b60a8574b94778fac97b706a99c073cd3f10"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T032010Z-f570973ac9a9/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T032010Z-f570973ac9a9/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T032010Z-f570973ac9a9/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stdout.log",
+      "sha256": "ad71a8a9cc1558a4b55a5f452330fec4af29cd2fe7ad67a98f939147c5819044"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T032010Z-f570973ac9a9/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/results.trx",
+      "sha256": "f893327c3f63b1f64fc480bdc8d6d938333726bfed0865fa26bf906692a458ca"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T032010Z-f570973ac9a9/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T032010Z-f570973ac9a9/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stdout.log",
+      "sha256": "abe588627da838e21c9cd8e1a7cf91fbd47cef1746c4ff616771b6c15f6abd19"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T032010Z-f570973ac9a9/run.json",
+      "sha256": "ee7aca1ed132a31f17c7a519494ef0972627c4c8d37fc66142182fc910626858"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T032010Z-f570973ac9a9/sdk/sdk.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T032010Z-f570973ac9a9/sdk/sdk.stdout.log",
+      "sha256": "3db6bca4b50618b2e0d2d55d23b3d0541fe039ab6f731df0e9c47317b400ce52"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T032010Z-f570973ac9a9/source-end.json",
+      "sha256": "c20f41d26b9f22070cf66c523b7f8a3d26cf8547bb25f35bcc9925febdc1379d"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T032010Z-f570973ac9a9/source-start.json",
+      "sha256": "f156d287d206aab648d10716a50a54760f28138d3448bc20781ff1792b62b579"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T032010Z-f570973ac9a9/summary.json",
+      "sha256": "d7c8d8abc083ae1b899463f69e25c1c49660b64880538623c57e10d53f909fee"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T032010Z-f570973ac9a9/summary.txt",
+      "sha256": "f28e0363c27d5db118d4a02d9027e9c72ad14b91fc9220bb0414fc1954307015"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T032010Z-f570973ac9a9/test-results.json",
+      "sha256": "5feb8494e7d029b5643ab07cbe898cf5e5c740f6abaef38d0c8c8c2dc9ede1b6"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T032139Z-c424fb5995be/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T032139Z-c424fb5995be/invocations/DatabaseSeeder_Unit_Tests-e14dcedb/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T032139Z-c424fb5995be/invocations/DatabaseSeeder_Unit_Tests-e14dcedb/build/build.stdout.log",
+      "sha256": "e705feaea27613de0ef891561b85b6cb87c357e1fe16d4fafa2bd077c52c4dd7"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T032139Z-c424fb5995be/invocations/DatabaseSeeder_Unit_Tests-e14dcedb/net10-41544e89/1/results.trx",
+      "sha256": "b855e6c109cb309d4ee6128623c8a6dbbaa509330933bfdd2f6eb17b413c701a"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T032139Z-c424fb5995be/invocations/DatabaseSeeder_Unit_Tests-e14dcedb/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T032139Z-c424fb5995be/invocations/DatabaseSeeder_Unit_Tests-e14dcedb/net10-41544e89/1/test.stdout.log",
+      "sha256": "e71bcdd94fc7f1d67c1af0025d2c799a19b4af123df3c9d89d392adf34af93ca"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T032139Z-c424fb5995be/invocations/DiscordBotCore_Unit_Tests-4ffa2b0e/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T032139Z-c424fb5995be/invocations/DiscordBotCore_Unit_Tests-4ffa2b0e/build/build.stdout.log",
+      "sha256": "fa5370d2d2db9df84f8f61bf33024cc4687ac4d731277db2e9fe8f3fc44066f1"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T032139Z-c424fb5995be/invocations/DiscordBotCore_Unit_Tests-4ffa2b0e/net10-41544e89/1/results.trx",
+      "sha256": "5e875127dfc9dbeccc5a30ffa018a83ef7bde270d4dbb99bf5f1e813145b8079"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T032139Z-c424fb5995be/invocations/DiscordBotCore_Unit_Tests-4ffa2b0e/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T032139Z-c424fb5995be/invocations/DiscordBotCore_Unit_Tests-4ffa2b0e/net10-41544e89/1/test.stdout.log",
+      "sha256": "a5ce966170654ff9954a7c6b7dadd5b1e31a3a9ae637e68c1ecf94635b01c455"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T032139Z-c424fb5995be/invocations/ExpressionEngine_Unit_Tests-8cdb3e65/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T032139Z-c424fb5995be/invocations/ExpressionEngine_Unit_Tests-8cdb3e65/build/build.stdout.log",
+      "sha256": "7c69cb0bb9e09a3063f63562c93ae377834aee9cc76837b8190897082eb94bb5"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T032139Z-c424fb5995be/invocations/ExpressionEngine_Unit_Tests-8cdb3e65/net10-41544e89/1/results.trx",
+      "sha256": "68502534c9531ffb2c5a27be8ebb3697f84808a7f722e6efd35fdcfa5c0bf932"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T032139Z-c424fb5995be/invocations/ExpressionEngine_Unit_Tests-8cdb3e65/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T032139Z-c424fb5995be/invocations/ExpressionEngine_Unit_Tests-8cdb3e65/net10-41544e89/1/test.stdout.log",
+      "sha256": "6cf8d5d7e788c3aca58c4496183b1ae7ad4838ca950ea3cb564c6fef5226c592"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T032139Z-c424fb5995be/invocations/FutureMUD.Web.Tests-ac492d08/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T032139Z-c424fb5995be/invocations/FutureMUD.Web.Tests-ac492d08/build/build.stdout.log",
+      "sha256": "90f7aee7477e96bea557710904ac3bc7613ad77fe5b1293e06a86074c5078f06"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T032139Z-c424fb5995be/invocations/FutureMUD.Web.Tests-ac492d08/net10-41544e89/1/results.trx",
+      "sha256": "ba86f5b01e7e4f0a0e64eca0113da5eabaef951c1936da6d5d07547b731d476d"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T032139Z-c424fb5995be/invocations/FutureMUD.Web.Tests-ac492d08/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T032139Z-c424fb5995be/invocations/FutureMUD.Web.Tests-ac492d08/net10-41544e89/1/test.stdout.log",
+      "sha256": "9794b95a941a8f83293d599d10b56616c0ab5d2dd47ebcd35b4f3fabe4a244a6"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T032139Z-c424fb5995be/invocations/FutureMUDLibrary_Unit_Tests-45c02d6c/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T032139Z-c424fb5995be/invocations/FutureMUDLibrary_Unit_Tests-45c02d6c/build/build.stdout.log",
+      "sha256": "8258d752480b41ed8c31069f37a4bb384c2942a4713d6d80df19305fa9cfc448"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T032139Z-c424fb5995be/invocations/FutureMUDLibrary_Unit_Tests-45c02d6c/net10-41544e89/1/results.trx",
+      "sha256": "556f5302e56e9cd80e076b50a606f60166ef0c5b03c72a4e72a385fd651a79e8"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T032139Z-c424fb5995be/invocations/FutureMUDLibrary_Unit_Tests-45c02d6c/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T032139Z-c424fb5995be/invocations/FutureMUDLibrary_Unit_Tests-45c02d6c/net10-41544e89/1/test.stdout.log",
+      "sha256": "4143b39ae2c9421a0839f94ef21f985dcdc975f2401ea86a5952dcfe3c79fbf3"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T032139Z-c424fb5995be/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T032139Z-c424fb5995be/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stdout.log",
+      "sha256": "d3f0c8864b682c66ca30f0343ea2fb322953a382ac0a16877afa1f161eabed23"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T032139Z-c424fb5995be/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/results.trx",
+      "sha256": "1fee2c682c6605d65943d3249d2f2f7369a19128c2356dfab602c24e876d7872"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T032139Z-c424fb5995be/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T032139Z-c424fb5995be/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stdout.log",
+      "sha256": "8c1615185157829dd600fbbf3f651531d686bd603b76ae755b4e393ad12bcab0"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T032139Z-c424fb5995be/invocations/MudsharpDatabaseLibrary_Unit_Tests-6ef1914c/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T032139Z-c424fb5995be/invocations/MudsharpDatabaseLibrary_Unit_Tests-6ef1914c/build/build.stdout.log",
+      "sha256": "392cdbd07220160fca3e7d0fd68fdd9b4ede8b5fd629bd63272e2ae82cb2c2bb"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T032139Z-c424fb5995be/invocations/MudsharpDatabaseLibrary_Unit_Tests-6ef1914c/net10-41544e89/1/results.trx",
+      "sha256": "c333a637644088d30b23a585cbdf178322a905838579c6926530b5274685a0bc"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T032139Z-c424fb5995be/invocations/MudsharpDatabaseLibrary_Unit_Tests-6ef1914c/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T032139Z-c424fb5995be/invocations/MudsharpDatabaseLibrary_Unit_Tests-6ef1914c/net10-41544e89/1/test.stdout.log",
+      "sha256": "2220556a6c70e4865d14d7590fc41a5a26c5eaf6c703db698d0ad4feeec26a90"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T032139Z-c424fb5995be/invocations/RPI_Engine_Worldfile_Converter_Tests-14d87d34/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T032139Z-c424fb5995be/invocations/RPI_Engine_Worldfile_Converter_Tests-14d87d34/build/build.stdout.log",
+      "sha256": "d9c8a34e5cdd527bba6555241bb0ea02b0ed354228874a8850e50e9e3b428e17"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T032139Z-c424fb5995be/invocations/RPI_Engine_Worldfile_Converter_Tests-14d87d34/net10-41544e89/1/results.trx",
+      "sha256": "4890950b360501146ab932edd2d2da3b6368a961d57ea9e1525ba2b2a2a936d2"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T032139Z-c424fb5995be/invocations/RPI_Engine_Worldfile_Converter_Tests-14d87d34/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T032139Z-c424fb5995be/invocations/RPI_Engine_Worldfile_Converter_Tests-14d87d34/net10-41544e89/1/test.stdout.log",
+      "sha256": "edda4e4cb1e96cd6ceadd972554fa758c91ac5ad3722b1b40e121275286e8b01"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T032139Z-c424fb5995be/invocations/TerrainPlanner.Tests-1085b5fa/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T032139Z-c424fb5995be/invocations/TerrainPlanner.Tests-1085b5fa/build/build.stdout.log",
+      "sha256": "737dae438e0786501d8a7e38b5eb860935ffdee3a2a17a75004f5972f2d7dc60"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T032139Z-c424fb5995be/invocations/TerrainPlanner.Tests-1085b5fa/net10-41544e89/1/results.trx",
+      "sha256": "ac053f88baf1615f08d198aeb4d5e9c010a4571e78543af479f8ee5aec60f6e3"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T032139Z-c424fb5995be/invocations/TerrainPlanner.Tests-1085b5fa/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T032139Z-c424fb5995be/invocations/TerrainPlanner.Tests-1085b5fa/net10-41544e89/1/test.stdout.log",
+      "sha256": "eaf4af10088ca80a603a82a2a3762fe0741f8ca1224f4f81a1676abb68803c13"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T032139Z-c424fb5995be/invocations/TestReporting.Tests-25b07e44/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T032139Z-c424fb5995be/invocations/TestReporting.Tests-25b07e44/build/build.stdout.log",
+      "sha256": "08852797bfd07663e15eb2a493640251d7ec46bc2a95f60d61c17413ad1914a7"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T032139Z-c424fb5995be/invocations/TestReporting.Tests-25b07e44/net10-41544e89/1/results.trx",
+      "sha256": "b1c3b15b333590d88cf7e7bc65e73599650c6e6ad1cf37a4ad78f1385db89f9c"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T032139Z-c424fb5995be/invocations/TestReporting.Tests-25b07e44/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T032139Z-c424fb5995be/invocations/TestReporting.Tests-25b07e44/net10-41544e89/1/test.stdout.log",
+      "sha256": "9f87df385d7f27632991aab5f5d16865d1c71da8f7ddfee04b4a1b6205d21d86"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T032139Z-c424fb5995be/run.json",
+      "sha256": "2242dc4d6c0d4ba1b0893cbebe6fe9e75f3cc0c47c9a2fb27c976d2197c5d1b8"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T032139Z-c424fb5995be/sdk/sdk.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T032139Z-c424fb5995be/sdk/sdk.stdout.log",
+      "sha256": "3db6bca4b50618b2e0d2d55d23b3d0541fe039ab6f731df0e9c47317b400ce52"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T032139Z-c424fb5995be/source-end.json",
+      "sha256": "0280bd2a99828c5254407c1c2971f3f288e15581a189df3cd8fff5a0847632f1"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T032139Z-c424fb5995be/source-start.json",
+      "sha256": "742f2750762e15d26cb9fada314872d428272c923291ba7ea6eedd9058aaf9cb"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T032139Z-c424fb5995be/summary.json",
+      "sha256": "19c882ec3515d79332bb17c9d33be0f764334df112da5f233f736c3362d2bf41"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T032139Z-c424fb5995be/summary.txt",
+      "sha256": "4ee11cf78c0b068e32a39ac79e326c89430961dba0d589bf8b559a8c363fdb3b"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-queued-command/20261005T032139Z-c424fb5995be/test-results.json",
+      "sha256": "713ce594a3623d3d425482e1ee2aa024dc424d7871faacff59df8c5156c4524b"
+    }
+  ],
+  "helper_fingerprints": [
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\ArmageddonQueuedCommand-commit-message.txt",
+      "sha256": "b5354894a1382e199819fdcb1310adcd9e700a03bc8075df777ff7f3627e5e8d"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Commit-QueuedCommandCheckpoint.ps1",
+      "sha256": "45b3f0e2b8da9d7dc06520b94d25cd42af7ad68e0eae54b9c77cba6a64f73b9e"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\queued_command_evidence.py",
+      "sha256": "947b7bfca8777d17b04456f56a41cf249b3b18fefa0f36225a4666e197a59907"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\queued_command_handoff.py",
+      "sha256": "7b215234a6253f8304c49d8c698ae527e816cdbcef798ebd8e459a51d98c7b5b"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Run-QueuedCommandAcceptance.ps1",
+      "sha256": "c8e638206cce441d8119d267b0c01c9e0e6c925bdee1088abcbc9cd15bf1ac98"
+    }
+  ],
+  "qualification_limits": [
+    "Bounded queued-command authority repair, not complete PC charm. N13 remains not_run. Future PC IC-command whitelist and per-spell PC-target policy, devices, installer and whole-plan installed-world acceptance remain open.",
+    "Actual paid Raise Servitor stock, real command alias/get, SelectedCombatAction, native strategy, RetrieveItemMove, CombatAction and Body.Get qualify valid retrieval and exact control-deadline rejection while animation and independent following survive. Fresh-process grant readers establish immutable persisted origin and no SelectedCombatAction persistence; no fresh-process replayed actor is claimed.",
+    "Actual AI removal, lifecycle retirement and combat departure are exercised. Retirement/late departure use controlled authorizing-prog callbacks delegating to the original compiled stock prog. Fixture cleanup retrieves foreign goods directly through native Body.Get before retirement; it never executes the rejected ordered move.",
+    "Canonical object replacement, grant replacement/revocation, ambiguous same-ID roots, configuration/whitelist changes, old action reuse in a replacement combat and composite defensive callbacks have real engine regression tests with controlled character/policy fixtures. Every variant is not independently reproduced in native gameplay.",
+    "The native host uses controlled world/anatomy catalogues, explicit active caster registration in native All collections, deterministic CombatRecoveryCheck and RecoveryTimeExpression1, and specialized caster Save. Full production boot/Telnet, autonomous combat balance, concurrency and arbitrary policy/defence callbacks remain unqualified.",
+    "Immutable grant equality intentionally excludes diagnostic lifecycle Version changes while retaining full Origin, creator, creation time, animation deadline and control provenance. No authority transfer/regrant or new database schema is introduced.",
+    "All earlier Sand Knife/Flame Knife/Storm Spear/servitor and prior lifecycle qualification limits remain. Old receipts/helpers/closing proofs and primary checkout are preserved. Failed builds, three failed managed runs and four failed preliminary native attempts retained; native-attempt-04 used the prior DLL after failed build05 and is invalid evidence.",
+    "Whole plan incomplete: seven phases,16 decisions,154 candidates,82 Sorcerer plus12 support rows and25 native scenarios; all eight feature packages, devices, installer/acquisition/crafting/chargen/energy/portable-production and remaining effect/topology/charm/lifecycle/native-release gates remain required.",
+    "Local commit only; no publication, remote merge, deployment, shared/production database or model/billing changes. Stop for parent independent review."
+  ],
+  "whole_plan": {
+    "phases": 7,
+    "approved_decisions": 16,
+    "candidates": 154,
+    "selected_sorcerer_spells": 82,
+    "support_source_rows": 12,
+    "source_tree_rows": 94,
+    "native_acceptance_scenarios": 25,
+    "source_tree_sha256": "ada4e574d1c2243b2bad30cb0d65b98a5413a20ad1d8917965335fb9e481d496"
+  },
+  "prior_fourteen_receipts_1486_artifacts_42_helpers_unchanged": true,
+  "C1_addendum_clarification_and_C1P2_closing_helpers_unchanged": true,
+  "source_tree_preserved": true,
+  "C2_receipt_311_artifacts_6_helpers_and_closing_evidence_preserved": true,
+  "D1_200_artifacts_7_helpers_13_build_logs_and_closing_evidence_preserved": true,
+  "D1P2_91_artifacts_6_helpers_2_build_logs_and_closing_evidence_preserved": true,
+  "D1P1_96_artifacts_6_helpers_4_build_logs_and_closing_evidence_preserved": true,
+  "D1P1M_133_artifacts_6_helpers_2_build_logs_and_closing_evidence_preserved": true,
+  "stock_186_artifacts_6_helpers_13_build_logs_historical_source_and_closing_evidence_preserved": true,
+  "security_92_artifacts_8_helpers_and_postcommit_evidence_preserved": true,
+  "pause_snapshots_and_historical_source_preserved": true,
+  "storm_258_artifacts_10_helpers_and_postcommit_preserved": true,
+  "flame_186_artifacts_12_helpers_and_postcommit_preserved": true,
+  "sand_173_artifacts_12_helpers_and_postcommit_preserved": true
+}

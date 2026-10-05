@@ -72,6 +72,8 @@ internal static partial class GNHProgram
 				["--created-consumables-run"] => RunCreatedConsumablesChecks(),
 				["--corpse-animation-run"] => RunCorpseAnimationChecks(),
 				["--raise-servitor-stock-run"] => RunRaiseServitorStockChecks(),
+				["--queued-command-run"] => RunRaiseServitorStockChecks(queuedAuthorityOnly: true),
+				["--queued-command-reader", .. string[] queuedArguments] => RunQueuedCommandReader(queuedArguments),
 				["--storm-spear-stock-run"] => RunStormSpearStockChecks(),
 				["--flame-knife-stock-run"] => RunFlameKnifeStockChecks(),
 				["--flame-knife-stock-reader", .. string[] flameArguments] => RunFlameKnifeStockReader(flameArguments),

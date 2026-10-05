@@ -127,7 +127,10 @@ public sealed class SpellOwnedCorpseAnimationService(IFuturemud world) : ISpellO
 
 	public bool OwnsInstance(long instanceId) => Find(instanceId) is not null;
 	public bool CanCommand(long instanceId, long commanderIdentityId) =>
-		Find(instanceId) is { } life && HasCommandGrant(life, instanceId, commanderIdentityId, RuntimeClock.UtcNow);
+		CommandGrant(instanceId, commanderIdentityId) is not null;
+	public SpellLifecycleOrigin? CommandGrant(long instanceId, long commanderIdentityId) =>
+		Find(instanceId) is { } life && HasCommandGrant(life, instanceId, commanderIdentityId, RuntimeClock.UtcNow)
+			? life.Origin : null;
 
 	internal static bool HasCommandGrant(SpellOwnedLifecycle life, long instanceId, long commanderIdentityId, DateTime now)
 	{

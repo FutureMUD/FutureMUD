@@ -332,3 +332,11 @@ Remaining follow-up candidates:
 - `CoveringFire` is still behaviourally identical to plain ranged fire. If suppression or ally-cover semantics are intended, it needs its own active behaviour.
 - `FullCover` still attacks according to normal ranged attack percentages despite its name. That may be desired builder flexibility, but it is worth a naming or setting review.
 - Weighted attack selection still may idle when the selected channel has no legal move but another configured channel could act. A broader change here should be made carefully because it changes combat pacing and probability semantics.
+
+### Authority of queued NPC orders
+
+An ordered SelectedCombatAction checks its immutable accepted controller/grant and current command policy before constructing a move. The original native move is tagged with ephemeral authority without wrapping or changing its type. CombatBase rechecks before defender selection and after defender callbacks, immediately before resolution. Multi-target moves pass authority to each child and recheck before each defender and after its response. An ordered composite with no resolved children charges no stamina; completed earlier children retain their ordinary result/cost.
+
+Exact physical combat membership is checked before and after authority callbacks and move resolution. A retired or removed participant cannot recreate idle effects or schedules through rejection fallback. Selected-action consumption still removes combat subscriptions. Queued actions and grant snapshots are never persisted or replayed at reload. Ordinary direct moves keep their existing native types and behavior.
+
+Ordered selected actions and their unchanged native moves also retain the exact combat context. Pure participation checks surround the executable policy, so leaving or replacing combat cannot transfer an old selected action into another fight or authorize a child resolution after a callback.

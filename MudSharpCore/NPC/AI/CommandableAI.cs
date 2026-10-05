@@ -1,4 +1,4 @@
-﻿using MudSharp.Commands;
+using MudSharp.Commands;
 using MudSharp.Events;
 using MudSharp.FutureProg.Statements.Manipulation;
 using MudSharp.Models;
@@ -64,7 +64,17 @@ public class CommandableAI : ArtificialIntelligenceBase
         ICharacter commandCh = (ICharacter)arguments[1];
         string commandText = (string)arguments[2];
 
-        if (_canCommandProg.ExecuteBool(ch, commandCh, commandText) != true)
+        var acceptedProg = _canCommandProg;
+        string acceptedCommand = null;
+        bool PolicyStillMatches() => acceptedCommand is not null &&
+            (ch is not MudSharp.NPC.IArtificialIntelligenceControlledCharacter controlled ||
+                controlled.AIs.Any(x => ReferenceEquals(x, this))) &&
+            ReferenceEquals(_canCommandProg, acceptedProg) &&
+            !_bannedCommands.Contains(acceptedCommand) &&
+            (_includedCommands.Count == 0 || _includedCommands.Contains(acceptedCommand));
+        var acceptedAuthority = CommandExecutionAuthority.Prepare(ch, commandCh, commandText,
+            () => PolicyStillMatches() && acceptedProg.ExecuteBool(ch, commandCh, commandText) == true && PolicyStillMatches());
+        if (acceptedProg.ExecuteBool(ch, commandCh, commandText) != true)
         {
             if (_whyCannotCommandProg != null)
             {
@@ -85,6 +95,7 @@ public class CommandableAI : ArtificialIntelligenceBase
             return true;
         }
 
+        using var authority = CommandExecutionAuthority.Enter(acceptedAuthority);
         string whichCommand = new StringStack(commandText).PopSpeech();
         IExecutable<ICharacter> locatedCommand = ch.CommandTree.Commands.LocateCommand(ch, ref whichCommand);
         if (locatedCommand != null)
@@ -105,6 +116,8 @@ public class CommandableAI : ArtificialIntelligenceBase
             }
         }
 
+        acceptedCommand = locatedCommand?.Name.ToLowerInvariant();
+
         if (!string.IsNullOrEmpty(_commandIssuedEmoteText))
         {
             EmoteOutput emote = new(new Emote(string.Format(_commandIssuedEmoteText, commandText), commandCh,
@@ -114,6 +127,7 @@ public class CommandableAI : ArtificialIntelligenceBase
 
         if (locatedCommand is not null)
         {
+            if (!PolicyStillMatches() || (acceptedAuthority.RequiresGrant && !acceptedAuthority.MayExecute(ch))) return true;
             ch.CommandTree.Commands.Execute(ch, locatedCommand, commandText, ch.State, ch.PermissionLevel, ch.OutputHandler);
         }
         return true;

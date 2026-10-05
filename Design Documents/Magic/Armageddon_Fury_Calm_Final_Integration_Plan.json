@@ -1,0 +1,128 @@
+{
+  "schema": 1,
+  "kind": "proposal_only",
+  "status": "ready_for_main_hook_allocation",
+  "branch": "codex/armageddon-five-stock-spells",
+  "original_base": "1ad24d636925da64e7a82ffa858b0af470e56b0a",
+  "immutable_cleared_content_boundary": "e380f3ebc03eff886092639ccc79e361f328d1c4",
+  "cleared_see_runtime": "25446524d80e980db60649363c114e7a4e135921",
+  "runtime_changes": false,
+  "native_processes_started": false,
+  "release_qualified": false,
+  "plan": "Armageddon_Fury_Calm_Final_Integration_Plan.md",
+  "main_hook_contract": {
+    "commit": "fdba0e03f6b6cf3a3a4df9197e9ff42c2697c255",
+    "git_blob": "c8e9a52e14b19534ce525c252b602d1b5591b601",
+    "path": "Design Documents/Magic/Armageddon_EmotionalRuntime_Hook_Contract.md",
+    "read_method": "read-only git show from original task worktree",
+    "unconditional_shared_combat_dispatch_notification": false,
+    "per_final_admitted_operation_identity_required": true,
+    "post_notification_physical_identity_and_authority_recheck": true
+  },
+  "approved_choices": {
+    "fury_attribute_bonus": "Sentinel_782e8d38f3188191b2829f4dcce1b8c1",
+    "infer_when_clear_otherwise_diagnostic_override": true,
+    "current_stamina_refill": false,
+    "calm_break_admitted_incoming_hostile_attempt_including_miss": "Sentinel_17ba194d1fe481918a659d2d5b9a0972"
+  },
+  "source": {
+    "brief_library_id": "libfile_a4606cd0097081918d6c9d9e220e6da0",
+    "brief_filename": "Armageddon_Magic_Completion_Implementation_Brief.md",
+    "historical_library_id": "libfile_befb4ae78d1c8191aaa2640c49912d9d",
+    "historical_file_id": "file_00000000438871faac40c5042679ce3a",
+    "fury_lines": [87470, 87590],
+    "calm_lines": [83142, 83244],
+    "stack_lines": [81574, 81592],
+    "precise_historical_incoming_attack_hook_recovered": false
+  },
+  "stock": [
+    {
+      "key": "arm.spell.roused_fury",
+      "name": "Roused Fury",
+      "prerequisite": "arm.spell.unravel_enchantment",
+      "prerequisite_raw": 80,
+      "opening": 30,
+      "raw_cap": 90,
+      "branch_raw": 80,
+      "minimum_energy": 20,
+      "unit_seconds": 600,
+      "cap_units": 36,
+      "retained_strength": "old_complete_state",
+      "effect_type_proposal": "sourcefury"
+    },
+    {
+      "key": "arm.spell.still_anger",
+      "name": "Still Anger",
+      "prerequisite": "arm.spell.roused_fury",
+      "prerequisite_raw": 80,
+      "opening": 30,
+      "raw_cap": 90,
+      "branch_raw": 80,
+      "minimum_energy": 7,
+      "unit_seconds": 600,
+      "cap_units": 24,
+      "retained_strength": "strongest_source_grade",
+      "effect_type_proposal": "sourcecalm",
+      "next_key": "arm.spell.mend_flesh",
+      "next_opening": 30,
+      "next_cap": 60
+    }
+  ],
+  "main_owned_contract_proposals": [
+    "AdmittedHostileAttack(IPerceiver Attacker, ICharacter Recipient, Guid OperationIdentity)",
+    "IAdmittedHostileAttackEffect.OnAdmittedHostileAttack(AdmittedHostileAttack attack)",
+    "ICombatSelectiveCessation.CeaseCombatFor(IPerceiver subject, IPerceiver opponent, ICombat expectedCombat)",
+    "CombatCessationChanges observed flags"
+  ],
+  "critical_cessation_case": "After B removal A acquires C: preserve A/C registration and targets; never caster-wide leave from old A->B snapshot.",
+  "current_source_anchors": {
+    "MudSharpCore/Magic/MagicSpell.cs": "6d6ab01e83dcd0e8333b0aae1cf39ceca11bcbff",
+    "MudSharpCore/Magic/Casting/MagicCastingService.cs": "3a59be69720e9bb7182a09c7b30762cd53dc2397",
+    "MudSharpCore/Combat/CombatBase.cs": "31f6a560952abe27e4ae923db2b5820a6c32bb25",
+    "MudSharpCore/Character/CharacterCombat.cs": "25257db409c0d17410df064b0bc05a052c893202",
+    "MudSharpCore/Effects/Concrete/SpellEffects/SpellEmotionalEffect.cs": "012e35d21c13d9b3141fde7fc05ed4c3abcc6951"
+  },
+  "independent_work": [
+    "new editable stock/profile files and narrow builder partial",
+    "pure seeder attribute inference utility and tests",
+    "source policy and detached persistence fixtures",
+    "dedicated FuryCalmStockNativeHarness project and entrypoint"
+  ],
+  "coordination_required_before_live_edits": [
+    "main final admitted incoming-attempt notification",
+    "main selective cessation capability and queued-pair authority",
+    "captured subject/opponent/caster pair call arrangement and callback-bearing setter guards",
+    "direct component/spell attack identities and route-specific admission receipts",
+    "main MagicSpell.cs caller allocation",
+    "Calm child callback/partial declaration allocation",
+    "main confirmation of child-owned source state and normal Calm replacement without parent metadata setter"
+  ],
+  "limits": [
+    "no paid Fury/Calm stock qualification in this checkpoint",
+    "no new runtime/native tests executed for documentation proposal",
+    "no real setting exception bindings invented",
+    "native intensity/save/attribute units and terrain proxy are explicit adaptations",
+    "derived attribute inference is unsupported by reviewed runtime",
+    "full-world capacity/save behavior awaits proof",
+    "unsupported emotional carriers/area/traps/attack payloads must refuse",
+    "release candidate excludes unqualified lane tips"
+  ],
+  "preserved": [
+    "central progress ledger and repertoire dispositions",
+    "installer registry and shared harness dispatch",
+    "historical emotional proposals/receipts",
+    "cleared See/Pierce/water/provision/five-stock source and evidence",
+    "Raise Servitor, Storm Spear, Flame Knife and Sand Knife regressions",
+    "Mend Flesh cap60 and grade7 practice evidence"
+  ],
+  "verification": {
+    "kind": "documentation_proposal_validation",
+    "status": "passed",
+    "summary": ".artifacts/test-runs/fury-calm-final-plan-01/summary.json",
+    "summary_sha256": "8ea883859201cb227cb06ddbcc191a1420392727aa04b1e4c45a72cf21d2f1cc",
+    "plan_sha256": "2d2fcd83aa59a7de5587229f049e4b84e33ce1a5be2011af4ebdcb34e55f4e7c",
+    "linked_documents_checked": 5,
+    "source_anchors_unchanged_from_cleared_boundary": 5,
+    "runtime_or_native_execution_claim": false
+  }
+}

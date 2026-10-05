@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using MudSharp.Character;
 using MudSharp.Body;
+using MudSharp.Body.Traits;
 using MudSharp.Combat;
 using MudSharp.Magic;
 
@@ -38,6 +39,8 @@ internal sealed class CommandExecutionAuthority
 	private bool _validatingPolicy;
 	internal string CommandText { get; }
 	internal bool RequiresGrant => _spellOwned;
+	internal bool IsLearningPrincipal(IHaveTraits user) =>
+		ReferenceEquals(user, _actor) || ReferenceEquals(user, _body);
 
 	private CommandExecutionAuthority(ICharacter actor, ICharacter commander, string command, Func<bool> policy)
 	{

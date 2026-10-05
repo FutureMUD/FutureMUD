@@ -5,6 +5,7 @@ using MudSharp.Character;
 using MudSharp.Combat;
 using MudSharp.Combat.Moves;
 using MudSharp.Construction;
+using MudSharp.Body.Traits;
 
 namespace MudSharp.NPC.AI;
 
@@ -41,6 +42,7 @@ internal sealed class CommandExecutionScope : IDisposable
 		return new CommandExecutionScope(bound?.Authority, bound?.Executor ?? move.Assailant, move, bound is null);
 	}
 	internal static IDisposable EnterIndependent() => new CommandExecutionScope(null, null, null, true);
+	internal static object? LearningContext => Current.Value;
 	internal static Continuation CaptureContinuation(ICharacter executor) =>
 		new(Current.Value?._authority, executor);
 
@@ -61,11 +63,26 @@ internal sealed class CommandExecutionScope : IDisposable
 	{
 		var scope = Current.Value;
 		if (scope?._authority is null || executor is not null && !ReferenceEquals(executor, scope._executor)) return true;
-		if (scope._disposed || scope._rejected) return false;
-		if (scope._move is not null
-			? CommandExecutionAuthority.MayExecute(scope._move, scope._executor)
-			: scope._authority.MayExecutePrincipal()) return true;
-		scope._rejected = true;
+		return scope.Continue();
+	}
+
+	// A check on a foreign defender is independent. Match physical references captured
+	// at execution entry, never a canonical owner or a body's actor after a callback.
+	internal static Func<bool>? CaptureLearningContinuation(IHaveTraits user)
+	{
+		var scope = Current.Value;
+		return scope?._authority?.IsLearningPrincipal(user) == true
+			? scope.Continue : null;
+	}
+
+	private bool Continue()
+	{
+		if (_disposed || _rejected) return false;
+		var valid = _move is not null
+			? CommandExecutionAuthority.MayExecute(_move, _executor)
+			: _authority!.MayExecutePrincipal();
+		if (valid && !_rejected) return true;
+		_rejected = true;
 		return false;
 	}
 

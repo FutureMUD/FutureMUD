@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.Body.Traits;
 using MudSharp.Effects.Concrete;
 using MudSharp.Models;
@@ -25,6 +25,7 @@ public class OGLCheck : StandardCheck
         double externalBonus = 0.0, TraitUseType traitUseType = TraitUseType.Practical,
         params (string Parameter, object value)[] customParameters)
     {
+        using var learning = CheckLearningScope.Enter(checkee);
         ICharacter checkeeAsCharacter = checkee as ICharacter ?? (checkee as IBody)?.Actor;
 
         // Final difficulty
@@ -58,6 +59,7 @@ public class OGLCheck : StandardCheck
         TraitUseType traitUseType = TraitUseType.Practical,
         params (string Parameter, object value)[] customParameters)
     {
+        using var learning = CheckLearningScope.Enter(checkee);
         return Check(checkee, difficulty, tool?.Trait, target, externalBonus, traitUseType, customParameters);
     }
 
@@ -90,6 +92,7 @@ public class OGLCheck : StandardCheck
         TraitUseType traitUseType = TraitUseType.Practical,
         params (string Parameter, object value)[] customParameters)
     {
+        using var learning = CheckLearningScope.Enter(checkee);
         ICharacter checkeeAsCharacter = checkee as ICharacter ?? (checkee as IBody)?.Actor;
 
         // Final difficulty

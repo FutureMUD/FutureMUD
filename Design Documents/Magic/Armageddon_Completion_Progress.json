@@ -39,7 +39,7 @@
   "preparation_baseline": "b0e4339d57bf15bc6e6a6f21fbdd5edc73006e38",
   "implementation_branch": "codex/armageddon-completion-phase1",
   "authorised_scope": "Complete plan in coherent stages; local commits; no publication, merge, deploy or shared/production DB",
-  "selected_stage": "Supported ordered-NPC authority closure in progress; six-route currency milestone qualified; parent review/continuation",
+  "selected_stage": "Bounded intrinsic Check learning implemented and verified; stop for coordinator review; comprehensive ordered action closure remains open",
   "phase1_remaining": [
     "Stock installer selects and qualifies the mental/spiritual native attribute, capacity expression/basis and authored energy coefficients.",
     "Complete installed source/support/crafting/chargen wiring and gathering restrictions/environmental accounting remain later stock/native gates.",
@@ -3544,6 +3544,18 @@
         "Complete installer, all remaining stock/support/acquisition/crafting/chargen/energy wiring, portable production, remaining effect/lifecycle/topology/charm work and all whole-plan native release gates remain required. Seven phases, 16 decisions, 154 candidates, 82 Sorcerer plus 12 support rows and 25 acceptance scenarios are preserved.",
         "Only a local commit is authorized. No publication, remote merge, deployment, shared/production database, billing, quota reset or model change occurred. Stop for parent independent review before later repertoire work."
       ]
+    },
+    {
+      "id": "ordered_intrinsic_check_learning_checkpoint08",
+      "status": "PASS_BOUNDED_CHECK_LEARNING_CHECKPOINT_STOP_FOR_COORDINATOR_REVIEW",
+      "base": "d882cf3527188664fc301b1639b111c78ac77281",
+      "receipt": "Design Documents/Magic/Armageddon_OrderedNpc_CheckLearning_Verification.json",
+      "focused_passed": 42,
+      "fast_passed": 7443,
+      "native_cases": 6,
+      "cold_readers": 6,
+      "stop_for_review": true,
+      "whole_plan_complete": false
     }
   ],
   "implementation_commits": [
@@ -3669,13 +3681,57 @@
     }
   ],
   "next_checkpoint": {
-    "status": "awaiting_parent_bounded_internal_callback_rereview",
-    "base": "1ad24d636925da64e7a82ffa858b0af470e56b0a",
-    "receipt": "Armageddon_QueuedCommand_InternalCallback_Verification.json",
+    "status": "STOP_FOR_COORDINATOR_CHECK_LEARNING_REVIEW",
+    "base": "d882cf3527188664fc301b1639b111c78ac77281",
+    "receipt": "Design Documents/Magic/Armageddon_OrderedNpc_CheckLearning_Verification.json",
+    "report": "Design Documents/Magic/Armageddon_OrderedNpc_CheckLearning_Checkpoint.md",
+    "exact_new_commit_location": "Task Armageddon_CheckLearning_CommitReceipt.json",
     "full_plan_complete": false,
     "publication_authorized": false,
     "comprehensive_queued_authority_cleared": false,
-    "implementation_blockers": "Design Documents/Magic/Armageddon_QueuedCommand_Callback_Audit.md"
+    "remaining": [
+      {
+        "id": "cross-layer-displacement",
+        "status": "REVIEW_P2_UNFIXED",
+        "owner": "this authority lane; separate checkpoint",
+        "seam": "CharacterMovement RoomLayer write before destination entry versus NativeDisplacementReceipt source/destination layer validation",
+        "acceptance": "Native Character/Cell cross-layer and route-gap transition, revoked callback, direct control; captured source or explicit authorized transition"
+      },
+      {
+        "id": "held-noncurrency-merge",
+        "status": "REVIEW_P2_UNFIXED_PLUS_HISTORICAL_CONSERVATION_OPEN",
+        "owner": "this authority/GameItem lane; separate checkpoint",
+        "seam": "BodyInventory prepared merge before GameItem.Get removal callbacks; revalidate owner/compatibility/custody at completion",
+        "acceptance": "Native owner-change/relocation refusal, valid stack survivor and absorbed cleanup, quantity/title/custody and cold reader"
+      },
+      {
+        "id": "firearm-ready-result",
+        "status": "REVIEW_P2_UNFIXED",
+        "owner": "this authority/combat component lane; separate checkpoint",
+        "seam": "FirearmBase.Ready premarks commit before void ChamberRound refusal; ReadyRangedWeaponMove ignores result",
+        "acceptance": "Actual chamber admission refusal and valid/direct controls; ammo, mutation result and stamina; commit at irreversible transition"
+      },
+      {
+        "id": "eat-with-detection",
+        "status": "DEMONSTRATED_NATIVE_GAMEPLAY_BLOCKER_UNFIXED",
+        "owner": "GameItem.SpellRemoval and consumption/removal adapter here; installer lane collects evidence only",
+        "seam": "GameItem.SpellRemoval body custodian blanket Actor.Effects rejection; Food bites reaches0 and nutrition credited before Delete throws",
+        "acceptance": "Keep actor MagicSpellParent+SpellDetectMagickEffect; consumed food removal and native held joins/lifecycle/nutrition persistence with fresh reader; reject actual callback custody changes and retain rollback"
+      },
+      {
+        "id": "component-boarding-countershot",
+        "status": "NOT_COMPLETE",
+        "owner": "later finite authority checkpoints",
+        "acceptance": "Representative native load/chamber/unready/unload, accepted shot condition effects, displacement/boarding and independent real defender countershot"
+      },
+      {
+        "id": "fury-calm-hooks",
+        "status": "SIBLING_PROPOSAL_NOT_ALLOCATED_OR_INTEGRATED",
+        "owner": "sibling stock partials; parent allocates exact caller hooks",
+        "seam": "CharacterCombat engagement/attack/truce, StrategyBase attack policy, CombatBase harmful move admission, harmful spell admission; shared existing authority guards",
+        "integration": "Query actor plus current body effects in narrow policy helper; preserve exact existing precommit authority validation after executable policy callbacks, independent defender/autonomous scopes, selective cessation through native LeaveCombat; separate allocation and checkpoint"
+      }
+    ]
   },
   "deferred_consultation": {
     "source_task": "01a0fc1f-ccd4-7359-95f2-f8c03724b0b1",
@@ -4096,11 +4152,47 @@
     "native_manual_attack": "passed_four_wear_seven_attack_controls_in_nativeattack06_and_nativecurrency06; actual_defender_countershot_not_run",
     "fast_final": "PASS_current_currency_checkpoint",
     "remaining": [
-      "native_displacement_membership_route_boarding_controls",
-      "remaining_component_load_chamber_ready_fire_unload_and_projectile_caller_detachment",
-      "noncurrency_prepared_inventory_merge_conservation_and_native_controls",
-      "actual_defender_countershot",
-      "final_complete_closure_suites_docs_receipt_one_local_commit_parent_review"
+      {
+        "id": "cross-layer-displacement",
+        "status": "REVIEW_P2_UNFIXED",
+        "owner": "this authority lane; separate checkpoint",
+        "seam": "CharacterMovement RoomLayer write before destination entry versus NativeDisplacementReceipt source/destination layer validation",
+        "acceptance": "Native Character/Cell cross-layer and route-gap transition, revoked callback, direct control; captured source or explicit authorized transition"
+      },
+      {
+        "id": "held-noncurrency-merge",
+        "status": "REVIEW_P2_UNFIXED_PLUS_HISTORICAL_CONSERVATION_OPEN",
+        "owner": "this authority/GameItem lane; separate checkpoint",
+        "seam": "BodyInventory prepared merge before GameItem.Get removal callbacks; revalidate owner/compatibility/custody at completion",
+        "acceptance": "Native owner-change/relocation refusal, valid stack survivor and absorbed cleanup, quantity/title/custody and cold reader"
+      },
+      {
+        "id": "firearm-ready-result",
+        "status": "REVIEW_P2_UNFIXED",
+        "owner": "this authority/combat component lane; separate checkpoint",
+        "seam": "FirearmBase.Ready premarks commit before void ChamberRound refusal; ReadyRangedWeaponMove ignores result",
+        "acceptance": "Actual chamber admission refusal and valid/direct controls; ammo, mutation result and stamina; commit at irreversible transition"
+      },
+      {
+        "id": "eat-with-detection",
+        "status": "DEMONSTRATED_NATIVE_GAMEPLAY_BLOCKER_UNFIXED",
+        "owner": "GameItem.SpellRemoval and consumption/removal adapter here; installer lane collects evidence only",
+        "seam": "GameItem.SpellRemoval body custodian blanket Actor.Effects rejection; Food bites reaches0 and nutrition credited before Delete throws",
+        "acceptance": "Keep actor MagicSpellParent+SpellDetectMagickEffect; consumed food removal and native held joins/lifecycle/nutrition persistence with fresh reader; reject actual callback custody changes and retain rollback"
+      },
+      {
+        "id": "component-boarding-countershot",
+        "status": "NOT_COMPLETE",
+        "owner": "later finite authority checkpoints",
+        "acceptance": "Representative native load/chamber/unready/unload, accepted shot condition effects, displacement/boarding and independent real defender countershot"
+      },
+      {
+        "id": "fury-calm-hooks",
+        "status": "SIBLING_PROPOSAL_NOT_ALLOCATED_OR_INTEGRATED",
+        "owner": "sibling stock partials; parent allocates exact caller hooks",
+        "seam": "CharacterCombat engagement/attack/truce, StrategyBase attack policy, CombatBase harmful move admission, harmful spell admission; shared existing authority guards",
+        "integration": "Query actor plus current body effects in narrow policy helper; preserve exact existing precommit authority validation after executable policy callbacks, independent defender/autonomous scopes, selective cessation through native LeaveCombat; separate allocation and checkpoint"
+      }
     ],
     "new_commit": null,
     "whole_plan_complete": false,
@@ -4233,9 +4325,9 @@
       "reviewer_execution": "source_only_native_executed_by_coordinator"
     },
     "shared_check_callback_scope": {
-      "status": "parent_scope_decision_pending_no_Check_cs_edits",
-      "evidence": "Check.cs CheckBonuses effect/merit callbacks around613 can revoke control before TraitUsed around130-145; caller postcheck cannot prevent intrinsic learning/branch mutation",
-      "boundary": "Record existing supported action dependency; do not silently broaden generic check audit or supported commands"
+      "status": "AUTHORIZED_BOUNDED_IMPLEMENTATION_NATIVE_EXAMPLE_PASSED_REVIEW_PENDING",
+      "receipt": "Design Documents/Magic/Armageddon_OrderedNpc_CheckLearning_Verification.json",
+      "public_check_api_changed": false
     },
     "managed_currency_closure_failures_retained": [
       {
@@ -4339,6 +4431,92 @@
       "scope_document": "Design Documents/Magic/Armageddon_OrderedNpc_Review_Scope.md",
       "coverage_inventory": "Design Documents/Magic/Armageddon_OrderedNpc_Review_Snapshot.json",
       "exact_commit_hash_location": "Task Armageddon_OrderedNpc_Checkpoint07_CommitReceipt.json, generated after local commit"
+    },
+    "check_learning_checkpoint": {
+      "base_head": "d882cf3527188664fc301b1639b111c78ac77281",
+      "focused": {
+        "summary": ".artifacts/test-runs/check-learning04/20261005T135439Z-e5f5a3af2728/summary.json",
+        "summary_sha256": "89e798b441ac4bb2d4cdb748a1fc42d5673ebc69837d1f0496f49474bbf25e53",
+        "run_id": "20261005T135439Z-e5f5a3af2728",
+        "status": "PASS",
+        "counts": {
+          "executed": 42,
+          "passed": 42,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 42
+        },
+        "source_fingerprint": "3668f645d09c478ab77db648c1539e9ff77c04c24ed9dc478f1fa9cd23f7dd73",
+        "source_stable": true
+      },
+      "fast": {
+        "summary": ".artifacts/test-runs/check-learning-fast01/20261005T135727Z-69cc2719afb7/summary.json",
+        "summary_sha256": "54851505cc15b2336ab7ab84d3ea33d5b470e0228f5c9025f28ac149fedc9c6e",
+        "run_id": "20261005T135727Z-69cc2719afb7",
+        "status": "PASS",
+        "counts": {
+          "executed": 7443,
+          "passed": 7443,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 7443
+        },
+        "source_fingerprint": "10e6d8cf1ff9144f32795ebb795518e844da094b5e2f2821e4b593ed51f2d8cb",
+        "source_stable": true
+      },
+      "native": {
+        "status": "PASS",
+        "attempt": "native03",
+        "cases": [
+          "valid",
+          "expire",
+          "defender",
+          "autonomous",
+          "casting",
+          "native-retire"
+        ],
+        "fresh_process_readers": 6,
+        "reader_scope": "Independent processes read saved native CharacterTraits; they do not materialize an actor or replay an order",
+        "manifest": ".artifacts/test-runs/armageddon-check-learning-checkpoint08/native03-inputs.json",
+        "manifest_sha256": "0bf698eb72c1a8ef3791a311550dc81e2aee3f7f284ae10edb69ad2e602b748d",
+        "source_files": 4731,
+        "dll_entries": 19,
+        "strict_shared_copy_alignment": true,
+        "before_and_after_fingerprints": "PASS",
+        "owned_database_and_server_cleanup": "PASS",
+        "owned_processes_remaining": 0,
+        "gameplay": "Actual stock animation/canonical owner, real command-event/AI allowlist dispatch into native StandardCheck/Skill/ClassicImprovement, Save and cold row readers; native compiled numeric and kill-retirement progs",
+        "expiry_fault": "Controlled IFutureProg callback advances the owned clock and delegates numerical result to compiled native gain prog",
+        "qualification_limits": [
+          "The native command is an opt-in harness command; a real selected melee attack with a scoring-merit prog fault was not executed here. StandardCheck single/all/multi scoring merit and OGL/BonusAbsent expression paths have managed native-class regressions.",
+          "Branch acquisition, theoretical writes, body rebound/replacement and same-trait callback reentry have managed regressions; fresh native execution of each variant is not claimed.",
+          "Independent participant check is real native check on the fixture foe; actual combat defender response/countershot remains a later checkpoint.",
+          "Cold readers establish durable native trait-row values, not full production boot/Telnet or full native actor reconstruction."
+        ]
+      },
+      "source_review": {
+        "reviewer": "fm_reviewer",
+        "status": "No further established defect in bounded reviewed shape",
+        "fingerprints": {
+          "MudSharpCore/Body/Traits/Subtypes/Skill.cs": "2756376ac97334dd5331c5e4532f6d7edcca9bcc4367e1e8238435e7185b6e86",
+          "MudSharpCore/RPG/Checks/CheckLearningScope.cs": "979f7671d5aafea758d6b9cbac227fecb91138facbffd2203cb6d46c7cb20454",
+          "MudSharpCore/Body/Traits/Trait.cs": "9364483ba73854dcc1588ef11286ea3adc151ddd3a2a2d19ad4776572de393e8"
+        }
+      },
+      "after_fast_fixture_only_change": {
+        "files": [
+          "Temporary Scratch App/GatheringNativePersistenceHarness/Program.OrderedNpcCheckLearning.cs"
+        ],
+        "binaries": [
+          "Temporary Scratch App/GatheringNativePersistenceHarness/bin/Debug/net10.0/GatheringNativePersistenceHarness.dll"
+        ],
+        "production_runtime_and_managed_test_changes": false
+      },
+      "whole_plan_complete": false
     }
   }
 }

@@ -1,4 +1,4 @@
-﻿using ExpressionEngine;
+using ExpressionEngine;
 using MudSharp.Database;
 using MudSharp.Effects;
 using MudSharp.Effects.Concrete;
@@ -410,12 +410,14 @@ Note: The formula for the #3amount#0 expression is a trait expression and also h
             return 0.0;
         }
 
+        if (!CheckLearningScope.CanContinue(person)) return 0.0;
         TimeSpan noGainTimespan = TimeSpan.FromSeconds(Dice.Roll(NoGainSecondsDiceExpression));
         if (person is IHaveEffects phe && noGainTimespan.TotalSeconds > 0)
         {
             phe.AddEffect(new NoTraitGain((IPerceivable)person, trait.Definition), noGainTimespan);
         }
 
+        if (!CheckLearningScope.CanContinue(person)) return 0.0;
         double gain =
             ImprovementProg is not null && person is ICharacter ch ?
             ImprovementProg.ExecuteDouble(ch, trait.Definition) :

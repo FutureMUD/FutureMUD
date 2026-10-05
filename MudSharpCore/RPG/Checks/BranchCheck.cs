@@ -1,4 +1,4 @@
-﻿using MudSharp.Body.Traits;
+using MudSharp.Body.Traits;
 using MudSharp.Body.Traits.Subtypes;
 using MudSharp.Effects.Concrete;
 using MudSharp.Logging;
@@ -29,6 +29,7 @@ public class BranchCheck : FrameworkItem, ICheck
         IPerceivable target = null, double externalBonus = 0,
         params (string Parameter, object value)[] customParameters)
     {
+        using var learning = CheckLearningScope.EnterIfNeeded(checkee);
         // TODO: effects
         double merits = checkee.Merits
                             .OfType<ITraitLearningMerit>()
@@ -45,10 +46,16 @@ public class BranchCheck : FrameworkItem, ICheck
         if (effect == null)
         {
             effect = new IncreasedBranchChance(checkee);
+            if (!CheckLearningScope.CanContinue(checkee))
+                return TargetNumberExpression.Evaluate(checkee, trait) * merits * trait.BranchMultiplier;
             checkee.AddEffect(effect);
         }
 
+        if (!CheckLearningScope.CanContinue(checkee))
+            return TargetNumberExpression.Evaluate(checkee, trait) * merits * trait.BranchMultiplier;
         TraitExpression expr = IncreasedBranchChance.IncreasedCapExpression;
+        if (!CheckLearningScope.CanContinue(checkee))
+            return TargetNumberExpression.Evaluate(checkee, trait) * merits * trait.BranchMultiplier;
         effect.UseSkill(sd);
         return expr.EvaluateWith(checkee, values:
         [

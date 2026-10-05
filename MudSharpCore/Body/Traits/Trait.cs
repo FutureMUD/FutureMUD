@@ -1,4 +1,4 @@
-﻿using MudSharp.Database;
+using MudSharp.Database;
 using MudSharp.RPG.Checks;
 using MudSharp.Body.Traits.Subtypes;
 
@@ -37,13 +37,16 @@ public abstract class Trait : FrameworkItem, ITrait
         get => _value;
         set
         {
+            using var write = CheckLearningScope.EnterValueWrite(this);
             if (value > MaxValue)
             {
                 value = Math.Max(_value, MaxValue);
             }
 
+            if (!write.CanContinue()) return;
             double oldVal = _value;
             _value = value;
+            write.RecordChange(_value != oldVal);
             if (_value != oldVal)
             {
                 TraitChanged(oldVal, _value);

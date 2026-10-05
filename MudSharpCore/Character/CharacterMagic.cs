@@ -185,6 +185,7 @@ public partial class Character : IMagicUser
     {
 		var owner = CastingResourceOwner(resource);
 		if (!ReferenceEquals(owner, this)) return owner.UseResource(resource, amount);
+		using var deviceAdmission = MagicResourceCapacityAdmission.BeginDebit(this, resource, amount);
 		if (IsCastingReserve(resource))
 		{
 			if (!double.IsFinite(amount) || amount < 0 || !double.IsFinite(_magicResourceAmounts[resource]) ||

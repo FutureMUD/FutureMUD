@@ -20,8 +20,6 @@ public sealed partial class MagicCastingService
 	private readonly object _deviceGuard = new();
 	private readonly Dictionary<Guid, DeviceWork> _deviceWork = [];
 	internal Action<IGameItemComponent>? DevicePersistence { get; set; }
-	private sealed record DeviceFocusUse(ChargedMagicDeviceGameItemComponent Device, long ActorId, long BodyId, long OwnerId,
-		IGameItemComponentProto Prototype, string Configuration);
 	private readonly ConcurrentDictionary<MagicCastingIntent, DeviceFocusUse> _deviceFocus = new(ReferenceEqualityComparer.Instance);
 	private sealed record DeviceQuote(IMagicCastingCapability Capability, MagicSpell Spell, ITraitDefinition Trait,
 		StoredSpellSnapshot Snapshot, IReadOnlyList<CastingPayment> Payments, string Configuration, double Raw);
@@ -29,6 +27,7 @@ public sealed partial class MagicCastingService
 		CastingOperation Operation, int Grade, int Count, DateTime Deadline, object Location, string ItemConfiguration)
 	{
 		public VancianTimedAction? Action { get; set; }
+		public DeviceFocusUse? Use { get; set; }
 	}
 	internal void PersistDevice(ChargedMagicDeviceGameItemComponent device)
 	{
@@ -66,23 +65,10 @@ public sealed partial class MagicCastingService
 		{
 			if (!VancianPolicy.Permits(_world.FutureProgs.Get(proto.UseProgId), proto.UseProgId == 0, actor, device.Parent)) return "The item usability policy refuses this body.";
 			// A successful authored callback can still mutate the body, item or configuration.
-			return DeviceIdentityError(actor, identity) ?? DeviceItemError(actor, device, continuing, false);
+			return DeviceStructuralError(actor, identity, continuing);
 		}
 		if (device.Reservation is { } reservation && reservation != continuing) return "This item is reserved; persisted incomplete work requires staff review.";
 		return CastingQuarantineReason(actor, itemIds: [device.Parent.Id], continuingOperation: continuing);
-	}
-	private static DeviceFocusUse CaptureDeviceUse(ICharacter actor, ChargedMagicDeviceGameItemComponent device) =>
-		new(device, actor.InstanceId, actor.Body?.Id ?? 0, Owner(actor).Id, device.Prototype, ((ChargedMagicDeviceGameItemComponentProto)device.Prototype).Configuration);
-	private static string? DeviceIdentityError(ICharacter actor, DeviceFocusUse use) =>
-		actor.InstanceId != use.ActorId || actor.Body?.Id != use.BodyId || Owner(actor).Id != use.OwnerId ||
-		!ReferenceEquals(use.Device.Prototype, use.Prototype) || ((ChargedMagicDeviceGameItemComponentProto)use.Device.Prototype).Configuration != use.Configuration
-			? "The explicit device identity or configuration changed." : null;
-	private string? DeviceFinalError(ICharacter actor, DeviceFocusUse use, Guid? continuing = null, long? focusSpell = null)
-	{
-		// Deliberately no usability or target-filter execution in this final state-only pass.
-		return DeviceIdentityError(actor, use) ?? DeviceItemError(actor, use.Device, continuing, false) ??
-			DeviceEligibilityError(actor, use.Device, focusSpell) ?? VancianMagicService.CastingError(actor) ??
-			SpeechEligibility(actor, MudSharp.Form.Audio.AudioVolume.Decent);
 	}
 	private static bool DeviceTargetReachable(ICharacter actor, IPerceivable? target) => target is null ||
 		target is not PerceivableGroup && actor.CanSee(target) && actor.CanInteractPlanar(target, PlanarInteractionKind.Magic);
@@ -199,7 +185,7 @@ public sealed partial class MagicCastingService
 				var liveQuote = QuoteDeviceProduction(actor, device, capabilityId, spellId, grade, count);
 				if (liveQuote.Configuration != quote.Configuration || liveQuote.Snapshot.PotencyFingerprint != quote.Snapshot.PotencyFingerprint ||
 					!liveQuote.Payments.Select(x => (x.Holder.Id, x.Resource.Id, x.Amount)).SequenceEqual(quote.Payments.Select(x => (x.Holder.Id, x.Resource.Id, x.Amount)))) throw new InvalidOperationException("Production inputs changed while scouting supplies; request a fresh operation.");
-				if ((DeviceIdentityError(actor, use) ?? DeviceItemError(actor, device, evaluateUsability: false)) is { } finalError) throw new InvalidOperationException(finalError);
+				var paymentAdmission = AdmitDevicePayments(actor, quote.Payments, use, focusSpell: spellId);
 				var id = Guid.NewGuid();
 				var payload = DeviceReceipt(device, "DeviceProduction", quote.Payments);
 				var deadline = _clock() + TimeSpan.FromSeconds(checked(proto.SecondsPerCharge * count));
@@ -210,11 +196,12 @@ public sealed partial class MagicCastingService
 				_store.Write(operation); _checkpoint?.Invoke("DevicePaying");
 				if (!device.Reserve(id)) throw new InvalidOperationException("The device was reserved during commitment.");
 				PersistDevice(device);
-				foreach (var payment in quote.Payments)
-					if (!payment.Holder.UseResource(payment.Resource, payment.Amount)) throw new InvalidOperationException("Production payment was declined after commitment.");
+				using (paymentAdmission.OpenScope())
+					foreach (var payment in quote.Payments)
+						if (!payment.Holder.UseResource(payment.Resource, payment.Amount)) throw new InvalidOperationException("Production payment was declined after commitment.");
 				plan.Execute(); Flush(actor); _checkpoint?.Invoke("DevicePaid");
 				operation = operation with { Stage = "DeviceProducing", UpdatedUtc = _clock() }; _store.Write(operation);
-				var work = new DeviceWork(actor, device, quote, operation, grade, count, deadline, actor.Location, proto.Configuration);
+				var work = new DeviceWork(actor, device, quote, operation, grade, count, deadline, actor.Location, proto.Configuration) { Use = CaptureDeviceUse(actor, device) };
 				_deviceWork.Add(id, work);
 				work.Action = new VancianTimedAction(actor, id, "charging a magical device", () => actor.Send(CompleteDeviceProduction(actor, id).Message),
 					() => CancelDeviceProduction(actor, id), () => DeviceWorkError(work) is null, [item]);
@@ -236,8 +223,9 @@ public sealed partial class MagicCastingService
 			out _, continuingOperation: work.Operation.Id) is { } route) return route;
 		if (!ReferenceEquals(capability, work.Quote.Capability) || trait.Id != work.Quote.Trait.Id || CaptureConfiguration(spell) != work.Quote.Configuration) return "The producer route or source configuration changed.";
 		var candidate = StoredSpellSnapshot.CaptureDevice(spell, actor, trait, work.Grade, Acquisition(actor, spell.Id)!.ControlledGrade, work.Quote.Snapshot.Power, _clock());
-		return candidate.CanReproduceDevice(work.Quote.Snapshot, _world) && Owner(actor).TraitRawValue(trait) >= (work.Device.Charges > 0 ? work.Device.RequiredRaw : work.Quote.Raw)
-			? null : "The producer can no longer reproduce the paid potency.";
+		if (!candidate.CanReproduceDevice(work.Quote.Snapshot, _world) || Owner(actor).TraitRawValue(trait) < (work.Device.Charges > 0 ? work.Device.RequiredRaw : work.Quote.Raw))
+			return "The producer can no longer reproduce the paid potency.";
+		return DeviceStructuralError(actor, work.Use!, work.Operation.Id);
 	}
 	public MagicCastingResult CompleteDeviceProduction(ICharacter actor, Guid token)
 	{
@@ -303,20 +291,19 @@ public sealed partial class MagicCastingService
 				if (!proto.Spells.Contains(device.SpellId!.Value) || _store.Operation(next) is not null || _uncertain.ContainsKey(next)) throw new InvalidOperationException("This payload was revoked or the exact charge was already committed.");
 				var spell = device.Snapshot!.CreateSpell(_world, false); ValidateDeviceSpell(spell);
 				var target = SpellTargetCapture.Resolve(actor, spell, device.Snapshot.Power, new StringStack(targets), true) ?? throw new InvalidOperationException("No valid complete target specification.");
-				if (DeviceFinalError(actor, use) is { } targetError) throw new InvalidOperationException(targetError);
 				if (!DeviceTargetReachable(actor, target.Target)) throw new InvalidOperationException("This initial device carrier requires one visible reachable target.");
-				var targetLocation = target.Target?.Location; var targetLayer = target.Target?.RoomLayer;
+				var targetStates = CaptureDeviceTargets(target.Target);
+				if (DeviceStructuralError(actor, use, targets: targetStates) is { } structural) throw new InvalidOperationException(structural);
 				if (!device.Reserve(next)) throw new InvalidOperationException("The charge was reserved by another action.");
 				var itemConfiguration = proto.Configuration;
 				var invocation = new SpellInvocationContext(SpellInvocationSource.ScrollActivation, device.Snapshot.Numbers.Outcome, _ =>
 				{
-					if (DeviceIdentityError(actor, use) is not null || DeviceItemError(actor, device, next) is not null || DeviceEligibilityError(actor, device) is not null ||
-					proto.Configuration != itemConfiguration || !ReferenceEquals(device.Prototype, proto) || device.NextCharge != next ||
-					_store.Operation(next) is not null || VancianMagicService.CastingError(actor) is not null ||
-					SpeechEligibility(actor, MudSharp.Form.Audio.AudioVolume.Decent) is not null) return false;
+					if (DeviceIdentityError(actor, use) is not null ||
+						proto.Configuration != itemConfiguration || !ReferenceEquals(device.Prototype, proto) || device.NextCharge != next ||
+						_store.Operation(next) is not null) return false;
 					var live = SpellTargetCapture.Resolve(actor, spell, device.Snapshot.Power, new StringStack(targets), true);
-					if (live is null || !ReferenceEquals(live.Target, target.Target) || !ReferenceEquals(live.Target?.Location, targetLocation) || live.Target?.RoomLayer != targetLayer ||
-						!DeviceTargetReachable(actor, live.Target) || DeviceFinalError(actor, use, next) is not null || device.NextCharge != next) return false;
+					if (live is null || !ReferenceEquals(live.Target, target.Target) || !DeviceTargetReachable(actor, live.Target) ||
+						DeviceCallbackError(actor, use, next) is not null || DeviceStructuralError(actor, use, next, targetStates) is not null || device.NextCharge != next) return false;
 					var payload = DeviceReceipt(device, "DeviceActivation"); payload.Add(device.Snapshot.Save()); payload.SetAttributeValue("charge", next);
 					payload.SetAttributeValue("claim", Guid.NewGuid());
 					operation = new(next, Owner(actor).Id, actor.InstanceId, actor.Body.Id, device.ProducerCapability, spell.Id, device.ProducerTrait,
@@ -348,7 +335,7 @@ public sealed partial class MagicCastingService
 				return new(MagicCastingStatus.Refused, "That item has no explicit focus mode.");
 			if (intent.Actor.Body is null || intent.Mode == MagicCastingMode.Practice) return new(MagicCastingStatus.Refused, "Focus mode needs a physical body and a manifestation cast.");
 			var proto = (ChargedMagicDeviceGameItemComponentProto)device.Prototype;
-			if (!_deviceFocus.TryAdd(intent, new(device, intent.Actor.InstanceId, intent.Actor.Body.Id, Owner(intent.Actor).Id, proto, proto.Configuration)))
+			if (!_deviceFocus.TryAdd(intent, CaptureDeviceUse(intent.Actor, device)))
 				return new(MagicCastingStatus.Refused, "This focus invocation is already active.");
 			try { return Cast(intent); }
 			finally { _deviceFocus.TryRemove(intent, out _); }
@@ -362,11 +349,13 @@ public sealed partial class MagicCastingService
 			!ReferenceEquals(device.Prototype, use.Prototype) || ((ChargedMagicDeviceGameItemComponentProto)device.Prototype).Configuration != use.Configuration ||
 			device.Role == MagicDeviceRole.Charged || !((ChargedMagicDeviceGameItemComponentProto)device.Prototype).Spells.Contains(intent.SpellId))
 			throw new InvalidOperationException("The explicit focus identity, mode or configuration changed.");
-		if ((DeviceItemError(actor, device) ?? DeviceEligibilityError(actor, device, intent.SpellId)) is { } error) throw new InvalidOperationException(error);
-		if (DeviceFinalError(actor, use, focusSpell: intent.SpellId) is { } finalError) throw new InvalidOperationException(finalError);
+		if (DeviceItemError(actor, device) is { } error) throw new InvalidOperationException(error);
 		if (ResolveRoute(actor, intent.CapabilityId, intent.SpellId, intent.Grade, intent.Overreach, out _, out _, out _, out _, out _, intent.Mode, method: intent.Method) is { } routeError) throw new InvalidOperationException(routeError);
 		var targets = target.Target is PerceivableGroup group ? group.Members : target.Target is { } single ? new[] { single } : [];
 		if (targets.Any(x => !actor.CanSee(x) || !actor.CanInteractPlanar(x, PlanarInteractionKind.Magic))) throw new InvalidOperationException("The focus target is no longer visible and reachable.");
+		use.Targets ??= CaptureDeviceTargets(target.Target);
+		if (DeviceEligibilityError(actor, device, intent.SpellId) is { } eligibility) throw new InvalidOperationException(eligibility);
+		if (DeviceStructuralError(actor, use, targets: use.Targets) is { } finalError) throw new InvalidOperationException(finalError);
 		if (plan is InventoryPlan native && native.Phases.Values.SelectMany(x => x.ScoutedItems).Any(x =>
 			ReferenceEquals(x.Primary, device.Parent) && x.Action.DesiredState is DesiredItemState.Consumed or DesiredItemState.ConsumeCommodity or DesiredItemState.ConsumeLiquid or DesiredItemState.Apply))
 			throw new InvalidOperationException("The spell plan cannot consume its held focus.");

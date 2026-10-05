@@ -25,6 +25,111 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class ChargedMagicDeviceTests
 {
+	[TestMethod]
+	public void FinalCapabilityGetter_TrueEntitlementAfterDroppingDevice_RefusesRawCustody()
+	{
+		var f = new Fixture(); f.Charge(); var calls = 0;
+		f.F.Actor.SetupGet(x => x.Capabilities).Returns(() => { if (++calls == 2) f.Held.Clear(); return f.F.ActiveCapabilities; });
+		var bank = f.Persisted; var balance = f.F.Balances[f.F.Resources[1]]; var receipts = f.F.Store.Operations.Count;
+		var result = f.F.Service.ActivateDevice(f.F.Actor.Object, f.Item.Object, "self");
+		Assert.AreEqual(MagicCastingStatus.Refused, result.Status); Assert.AreEqual(2, calls);
+		Assert.AreEqual(bank, f.Persisted); Assert.AreEqual(balance, f.F.Balances[f.F.Resources[1]]);
+		Assert.AreEqual(receipts, f.F.Store.Operations.Count); Assert.IsNull(f.Device.Reservation);
+	}
+	[TestMethod]
+	[DataRow(false)]
+	[DataRow(true)]
+	public void InsufficientDevicePayment_RefusesWithoutJournalBankOrReservation(bool focus)
+	{
+		var f = new Fixture(); f.Charge(); f.F.Balances[f.F.Resources[1]] = 1;
+		var bank = f.Persisted; var receipts = f.F.Store.Operations.Count;
+		var result = focus ? f.F.Service.CastDeviceFocus(new(f.F.Actor.Object, 1, 2, 2, false, "self"), f.Item.Object) : f.Begin();
+		Assert.AreEqual(MagicCastingStatus.Refused, result.Status, result.Message); Assert.AreEqual(1, f.F.Balances[f.F.Resources[1]]);
+		Assert.AreEqual(bank, f.Persisted); Assert.AreEqual(receipts, f.F.Store.Operations.Count); Assert.IsNull(f.Device.Reservation);
+	}
+	[TestMethod]
+	[DataRow("amount")]
+	[DataRow("holder")]
+	[DataRow("resource")]
+	public void CapacityAdmission_ExactDebitOnly_NoUnrelatedReadsOrReuse(string mismatch)
+	{
+		var holder = new Mock<IHaveMagicResource>(); var otherHolder = new Mock<IHaveMagicResource>();
+		var resource = new Mock<IMagicResource>(); var otherResource = new Mock<IMagicResource>(); var calls = 0;
+		resource.Setup(x => x.ResourceCap(holder.Object)).Returns(() => { calls++; return 45; });
+		var admission = new MagicResourceCapacityAdmission([new(holder.Object, resource.Object, 10, 100)]);
+		using (admission.OpenScope())
+		{
+			Assert.IsTrue(MagicResourceCapacity.TryGetCap(resource.Object, holder.Object, out var live, out _)); Assert.AreEqual(45, live);
+			Assert.ThrowsException<InvalidOperationException>(() => MagicResourceCapacityAdmission.BeginDebit(
+				mismatch == "holder" ? otherHolder.Object : holder.Object, mismatch == "resource" ? otherResource.Object : resource.Object, mismatch == "amount" ? 11 : 10));
+			Assert.ThrowsException<InvalidOperationException>(() => new MagicResourceCapacityAdmission([]).OpenScope());
+			using (MagicResourceCapacityAdmission.BeginDebit(holder.Object, resource.Object, 10))
+			{
+				Assert.IsTrue(MagicResourceCapacity.TryGetCap(resource.Object, holder.Object, out var frozen, out _)); Assert.AreEqual(100, frozen);
+				Assert.IsFalse(MagicResourceCapacity.TryGetCap(resource.Object, holder.Object, out _, out _));
+			}
+			Assert.ThrowsException<InvalidOperationException>(() => MagicResourceCapacityAdmission.BeginDebit(holder.Object, resource.Object, 10));
+		}
+		Assert.IsTrue(MagicResourceCapacity.TryGetCap(resource.Object, holder.Object, out var after, out _)); Assert.AreEqual(45, after);
+		Assert.AreEqual(2, calls); Assert.IsNull(MagicResourceCapacityAdmission.BeginDebit(holder.Object, resource.Object, 10));
+		Assert.ThrowsException<InvalidOperationException>(() => admission.OpenScope());
+	}
+	[TestMethod]
+	public void CapacityAdmission_ExceptionAndConcurrentEscape_DoNotLeakCachedCapacity()
+	{
+		var holder = new Mock<IHaveMagicResource>(); var resource = new Mock<IMagicResource>();
+		resource.Setup(x => x.ResourceCap(holder.Object)).Returns(42);
+		try
+		{
+			using var batch = new MagicResourceCapacityAdmission([new(holder.Object, resource.Object, 10, 100)]).OpenScope();
+			System.Threading.Tasks.Task.Run(() => Assert.ThrowsException<InvalidOperationException>(() => MagicResourceCapacityAdmission.BeginDebit(holder.Object, resource.Object, 10))).GetAwaiter().GetResult();
+			using var debit = MagicResourceCapacityAdmission.BeginDebit(holder.Object, resource.Object, 10);
+			throw new ApplicationException("Owned fixture failure");
+		}
+		catch (ApplicationException) { }
+		Assert.IsNull(MagicResourceCapacityAdmission.BeginDebit(holder.Object, resource.Object, 10));
+		Assert.IsTrue(MagicResourceCapacity.TryGetCap(resource.Object, holder.Object, out var cap, out _)); Assert.AreEqual(42, cap);
+		using var next = new MagicResourceCapacityAdmission([]).OpenScope();
+	}
+	[TestMethod]
+	[DataRow(false, "custody")]
+	[DataRow(true, "custody")]
+	[DataRow(true, "balance")]
+	[DataRow(true, "configuration")]
+	[DataRow(true, "body")]
+	[DataRow(true, "holder")]
+	[DataRow(false, "skill")]
+	[DataRow(true, "skill")]
+	public void FinalCapacityCallback_ValidReturnAfterMutation_RefusesBeforeJournal(bool focus, string mutation)
+	{
+		var f = new Fixture(); f.Charge(); var armed = false;
+		f.F.Actor.SetupGet(x => x.Traits).Returns([f.F.NativeSkill.Object]);
+		f.F.NativeSkill.SetupGet(x => x.RawValue).Returns(() => f.F.Skills[1]);
+		f.F.Checkpoint = stage => { if (stage == "DeviceAdmissionPolicies") armed = true; };
+		var resource = Mock.Get(f.F.Resources[1]);
+		resource.Setup(x => x.ResourceCap(It.IsAny<IHaveMagicResource>())).Returns<IHaveMagicResource>(_ =>
+		{
+			if (!armed) return 100;
+			armed = false;
+			if (mutation == "custody") f.Held.Clear();
+			if (mutation == "balance") f.F.Balances[f.F.Resources[1]] = 1;
+			if (mutation == "skill") f.F.Skills[1] = 5;
+			if (mutation == "configuration") f.Proto.BuildingCommand(f.F.Actor.Object, new StringStack("capacity 6"));
+			if (mutation == "body") f.F.Body.SetupGet(x => x.Id).Returns(901);
+			if (mutation == "holder")
+			{
+				var changedOwner = new Mock<ICharacterInstance>(); changedOwner.SetupGet(x => x.Id).Returns(902);
+				var changedIdentity = new Mock<ICharacterIdentity>(); changedIdentity.SetupGet(x => x.PrimaryInstance).Returns(changedOwner.Object);
+				f.F.Actor.SetupGet(x => x.Identity).Returns(changedIdentity.Object);
+			}
+			return 100;
+		});
+		var receipts = f.F.Store.Operations.Count; var bank = f.Persisted; var balance = f.F.Balances[f.F.Resources[1]];
+		var result = focus ? f.F.Service.CastDeviceFocus(new(f.F.Actor.Object, 1, 2, 2, false, "self"), f.Item.Object) : f.Begin();
+		Assert.AreEqual(MagicCastingStatus.Refused, result.Status, result.Message); Assert.IsFalse(armed);
+		Assert.AreEqual(receipts, f.F.Store.Operations.Count); Assert.AreEqual(bank, f.Persisted); Assert.IsNull(f.Device.Reservation);
+		Assert.AreEqual(mutation == "balance" ? 1 : balance, f.F.Balances[f.F.Resources[1]]);
+	}
 	internal sealed class Fixture
 	{
 		public MagicCastingFixture F { get; } = new();

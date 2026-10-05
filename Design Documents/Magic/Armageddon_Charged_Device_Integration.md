@@ -120,8 +120,9 @@ repair. Terminal receipts remain historical evidence.
 Focused tests cover entitlement, copying, homogeneous recharge, depletion, explicit
 focus, callback changes, live wards/resistance, suppressed improvement and injected
 fault boundaries. Review regressions execute actual usability and target-filter
-callbacks that mutate custody, entitlement, body or configuration. The final state-only
-checks run after authored callbacks without executing another usability/filter callback.
+callbacks that mutate custody, entitlement, body or configuration. Callback admission
+and final structural checks are separate. The latter executes no eligibility, capacity,
+usability, filter, visibility, manipulation, planar, physical or speech policy.
 Native regressions use compiled `silentdrop`/`removemerit` policies at the final charged
 and focus boundaries, two independently loaded host processes, real ordinary
 SaveManager flushes and interface-dispatched same-host/stale-host prototype updates.
@@ -140,9 +141,74 @@ player-login/Telnet or production-world acceptance certificate.
 
 The integrator should add the verified results and explicit limitations to the
 central progress ledger. No schema or `IMagicCastingService` changes are needed.
-The shared casting-service edit is the approved inert-outside-focus `Prepare` hook;
-it passes the existing resolved target into lane-owned final validation.
+The approved inert-outside-focus `Prepare` hook passes the existing resolved target
+into lane-owned validation. The later review adds an approved `Execution` hook after
+area selection and before `Paying`, and wraps native payment in the dedicated admission
+scope. Two one-line shared hooks complete the contract: `TryGetCap` consults an active
+exact debit admission, and `Character.UseResource` enters that debit after canonical
+owner forwarding. Ordinary/direct casting enters no batch and retains its original
+capacity evaluation and native debit behavior. No `MagicSpell` readiness or area predicate
+code changes are included; the stock lane owns those changes.
 Numerical-context optional grade/mastery XML remains backward compatible.
 The general item registration audit classifies this new type as dependency-bound;
 its fixed-count expectations increase by one. No generic stock item with placeholder
 magic IDs is seeded.
+
+## Callback boundary and native payment contract
+
+Charged release resolves the final target, evaluates visibility/planar reach, usability,
+physical/speech and current caster entitlement, then validates the captured structural
+state before claiming a GUID. Focus completes route/target policies during `Prepare`;
+after final area selection it separately evaluates current payment capacities and final
+reach/eligibility, then validates captured balances, resource definitions, canonical
+holders, capability definitions, actor/body/owner, prototype/configuration, held custody,
+reservation and target location/layer/body. Production uses the same payment boundary;
+completion performs route/potency callbacks before its structural check and durable fill.
+Authored mutations are not rolled back; refusal adds no engine payment, charge change
+or journal receipt. Capability grants removed by a successful applicability Prog are
+also detected by the captured raw merit/capability-effect inputs.
+
+The structural getter audit for this source checkpoint is:
+
+- `Character.Body`, instance identity/primary owner and character Location/RoomLayer
+  are stored references/fields. Secondary identity getters forward stored identity
+  references. Character/Body merit and effect enumeration does not call `Applies`.
+- Body held/wielded enumeration reads `_heldItems`/`_wieldedItems`. Item component
+  lookup, Deleted, bank fields and prototype XML serialization do not execute policies.
+- Item target Location/RoomLayer follow stored native spatial-host/custody references:
+  vehicle cargo/access projections, trap reservation host/layer, chair/belt/automation
+  mount/connectable/door/inventory/container links. Their native getter graph does not
+  evaluate FutureProgs, effect applicability, visibility or reach. Character and cell
+  target spatial getters are stored state. Target reach is evaluated earlier.
+- Resource balance reads use the stored resource counter and canonical owner;
+  configured-reserve detection reads catalogue policy IDs. Prototype/resource policy
+  metadata reads and JSON/XML serialization execute no authored policies.
+- Native `UseResource` finite checks, available-balance check, reserve cap clamp,
+  subtraction, fractional amount behavior and `ResourcesChanged`/save-queue notification
+  remain unchanged. SaveManager enqueue and SQL receipt/component CAS writes execute
+  no authored Prog. The already-persisted actor/body/item IDs are captured before policies.
+
+Admission captures exact holder/resource references, amount, pre-policy balance, current
+cap result and resource/capability definitions. Any policy-caused balance, holder, body or
+configuration change refuses before `Paying`. Raw trait values/references are also captured,
+so a cap policy cannot weaken producer proficiency or change an attribute-cap input behind
+an accepted result. `Trait.RawValue` reads the stored field; effective `Value`/`MaxValue`
+are excluded from the structural pass. Insufficient/non-finite inputs refuse too.
+The payment scope is installed **after** the callback-free structural check and receipt
+write, immediately around the existing native `pay()` call (or production's native debit
+loop), and disposed on success or exception. Each native debit must enter with the exact
+holder/resource/amount; only then may one capacity query consume its result. Unrelated
+capacity queries remain live, even with an active batch. Wrong, repeated or nested debit,
+reused scope and inherited execution on another thread refuse rather than falling back
+to policy execution. A nested batch is refused during admission, before any new `Paying`
+receipt, as well as at scope installation. This preserves native canonical forwarding and accounting without
+a parallel resource-debit implementation. Material/effect work remains under the existing
+committed/uncertain journal protocol; failures never trigger automatic replay or refund.
+
+The dedicated native regressions additionally execute a real capability merit applicability
+Prog and a real `SimpleMagicResource.ResourceCapProg` that drop custody only at the last
+evaluation while returning true/100. Positive native direct/focus/production controls,
+canonical-owner forwarding, above-cap clamping, fractional debit and dirty-state database
+persistence exercise the equivalence contract. Scope mismatches, consumption, exception
+restoration, concurrent escape, insufficient balance and callback mutations have focused
+unit coverage. Final exact-source fingerprints/results are supplied outside the repository.

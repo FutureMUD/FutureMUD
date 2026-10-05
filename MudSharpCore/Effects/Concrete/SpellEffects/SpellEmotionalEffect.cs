@@ -76,6 +76,7 @@ public sealed class SpellSourceCalmEffect : SpellEmotionalEffect, IPacifismEffec
 
 public sealed class SpellSourceFuryEffect : SpellEmotionalEffect, IRageEffect, ITraitBonusEffect
 {
+	private bool _removing;
 	public SpellSourceFuryEffect(IPerceivable owner, IMagicSpellEffectParent parent, string group,
 		int unitSeconds, int capUnits, EmotionalRetainedState state, ITraitDefinition enduranceTrait,
 		double unitsPerSourcePoint) : base(owner, parent, group, unitSeconds, capUnits, state)
@@ -99,16 +100,23 @@ public sealed class SpellSourceFuryEffect : SpellEmotionalEffect, IRageEffect, I
 	protected override string SpecificEffectType => "SpellSourceFury";
 	public ITraitDefinition? EnduranceTrait { get; }
 	public double UnitsPerSourcePoint { get; }
-	public override void InitialEffect() => ReconcileStamina();
-	public override void Login() => ReconcileStamina();
-	public override void RemovalEffect() { base.RemovalEffect(); ReconcileStamina(); }
+	public override void InitialEffect() { _removing = false; ReconcileStamina(); }
+	public override void Login() { _removing = false; ReconcileStamina(); }
+	public override void RemovalEffect()
+	{
+		// EffectHandler runs this callback before detaching the child. Exclude only
+		// this departing bonus while the world's capacity prog still sees the list.
+		_removing = true;
+		base.RemovalEffect();
+		ReconcileStamina();
+	}
 	private void ReconcileStamina()
 	{
 		if (Owner is ICharacter { Body: MudSharp.Body.Implementations.Body body }) body.ReconcileEmotionalStaminaCapacity();
 	}
 	public bool IsRaging => DefinitionError is not null || State.Intensity >= 5;
 	public bool IsSuperRaging => DefinitionError is not null || State.Intensity >= 10;
-	public bool AppliesToTrait(ITraitDefinition trait) => DefinitionError is null && ReferenceEquals(trait, EnduranceTrait);
+	public bool AppliesToTrait(ITraitDefinition trait) => !_removing && DefinitionError is null && ReferenceEquals(trait, EnduranceTrait);
 	public bool AppliesToTrait(ITrait trait) => trait is not null && AppliesToTrait(trait.Definition);
 	public double GetBonus(ITrait trait, TraitBonusContext context = TraitBonusContext.None) =>
 		AppliesToTrait(trait) ? State.EndurancePoints * UnitsPerSourcePoint : 0;

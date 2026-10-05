@@ -209,6 +209,20 @@ public class SeeTheUnbodiedSourceSelectionTests
 	}
 
 	[TestMethod]
+	public void MultipleSourceScopes_ExistingLifetimeReadinessRefusesBeforePayment()
+	{
+		using var f = new Fixture();
+		Assert.IsTrue(f.Spell.BuildingCommand(f.F.Actor.Object, new StringStack("effect add detectethereal")));
+		Assert.IsTrue(f.Spell.BuildingCommand(f.F.Actor.Object, new StringStack("effect 2 lifetime accumulate another.ethereal 600 36")));
+		Assert.IsTrue(f.Spell.BuildingCommand(f.F.Actor.Object, new StringStack($"effect 2 source 101 102 {Reference}")));
+		Assert.IsFalse(f.Spell.ReadyForGame);
+		var result = f.Cast(1);
+		Assert.AreEqual(MagicCastingStatus.Refused, result.Status, result.Message); Assert.IsNull(result.OperationId);
+		Assert.AreEqual(100.0, f.F.Balances[f.F.Resources[1]]);
+		Assert.AreEqual(0, f.ConsumptionWrites); Assert.IsFalse(f.Parents.Any());
+	}
+
+	[TestMethod]
 	public void DirectFactory_SourceScopeCannotBypassPreparedMaterialExecution()
 	{
 		using var f = new Fixture(); var parent = new MagicSpellParent(f.F.Actor.Object, f.Spell, f.F.Actor.Object);

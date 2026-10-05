@@ -164,7 +164,7 @@ public class MagicStockOperationReportingTests
 		LiquidMixture? mixture = null; container.SetupGet(x => x.LiquidMixture).Returns(() => mixture!);
 		container.Setup(x => x.MergeLiquid(It.IsAny<LiquidMixture>(), f.Actor.Object, "spell")).Callback<LiquidMixture,ICharacter,string>((incoming,_,__) => { if(merges) mixture=incoming; });
 		var applicationType = typeof(CreateLiquidEffect).GetNestedType("ContainerFill", BindingFlags.NonPublic)!;
-		var application = (IMagicSpellEffectApplicationOperation)Activator.CreateInstance(applicationType, effect, f.Actor.Object, target.Object, 6.0)!;
+		var application = (IMagicSpellEffectApplicationOperation)Activator.CreateInstance(applicationType, effect, f.Actor.Object, target.Object, 6.0, liquid)!;
 		Assert.AreEqual(expected, application.Apply(null!).Status); Assert.AreEqual(merges ? 6 : 0, mixture?.TotalVolume ?? 0);
 		container.SetupGet(x => x.IsOpen).Returns(false);
 		Assert.ThrowsException<InvalidOperationException>(() => application.Apply(null!));
@@ -178,7 +178,7 @@ public class MagicStockOperationReportingTests
 		var item = new Mock<IGameItem>(); var target = new Mock<ICell>(); var effect = (CreateItemEffect)SpellEffectFactory.LoadEffect(XElement.Parse("<Effect type='createitem'><ItemQuality>base</ItemQuality><ItemPrototypeId>12</ItemPrototypeId><ItemSkinId>0</ItemSkinId><Quantity>1</Quantity><LoadString></LoadString><Lifecycle version='1' mode='TemporaryCleanup'><Family>reporting-fixture</Family><Seconds>60</Seconds><Placement>standard</Placement></Lifecycle></Effect>"), f.Spell);
 		owned.Setup(x => x.Create(prototype, f.Actor.Object, ItemQuality.Standard, It.IsAny<SpellLifecycleOrigin>())).Returns(item.Object);
 		var type = typeof(CreateItemEffect).GetNestedType("NativeItemCreation", BindingFlags.NonPublic)!;
-		IMagicSpellEffectApplicationOperation Application(Guid[] ids) => (IMagicSpellEffectApplicationOperation)Activator.CreateInstance(type, ids, effect, f.Actor.Object, target.Object, prototype, ItemQuality.Standard, 1, SpellLifecycleMode.TemporaryCleanup, 60.0, (Guid?)null)!;
+		IMagicSpellEffectApplicationOperation Application(Guid[] ids) => (IMagicSpellEffectApplicationOperation)Activator.CreateInstance(type, ids, effect, f.Actor.Object, target.Object, Enumerable.Repeat(prototype, ids.Length).ToArray(), Enumerable.Repeat(ItemQuality.Standard, ids.Length).ToArray(), 1, SpellLifecycleMode.TemporaryCleanup, 60.0, (Guid?)null)!;
 		Assert.AreEqual(MagicEffectOperationStatus.NoChange, Application([]).Apply(null!).Status);
 		Assert.AreEqual(MagicEffectOperationStatus.Applied, Application([Guid.NewGuid()]).Apply(null!).Status);
 		owned.Verify(x => x.Create(prototype, f.Actor.Object, ItemQuality.Standard, It.IsAny<SpellLifecycleOrigin>()), Times.Once);

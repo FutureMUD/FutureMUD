@@ -38,6 +38,7 @@ public partial class CreateItemEffect
 		Quantity != 1 || _itemSkinId != 0 || !string.IsNullOrEmpty(LoadString) ? "Lifecycle items require quantity one per output, no skin and no load string." :
 		string.IsNullOrWhiteSpace(LifecycleFamily) || LifecycleFamily.Length > 128 ? "Set a creation family of at most 128 characters." :
 		OutputPolicyError() is { } policyError ? policyError :
+		FoodProfileError() is { } foodError ? foodError :
 		NativeItemCreationEligibility.Error(ItemPrototype, Gameworld) is { } error ? error :
 		PermanentGrade is not null && NativeItemCreationEligibility.Error(PermanentPrototype, Gameworld) is { } permanentError ? permanentError :
 		PermanentGrade is not null && PermanentPrototype!.IsItemType<ProgLightGameItemComponentProto>() ? "Permanent grade overrides cannot select lights; configure explicit worn-light placement." :
@@ -73,6 +74,7 @@ public partial class CreateItemEffect
 			_unreadableLifecycle = new(root); return;
 		}
 		CountByGrade = root.Element("Count")?.Value == "grade";
+		LoadFoodProfiles(root.Element("FoodProfiles"));
 		WornLight = root.Element("Placement")?.Value == "wornlight";
 		PrimaryHand = root.Element("Placement")?.Value == "primaryhand";
 		_lifetimeFormula = root.Element("Seconds")?.Value;
@@ -87,7 +89,7 @@ public partial class CreateItemEffect
 			CountByGrade ? new XElement("Count", "grade") : null,
 			WornLight ? new XElement("Placement", "wornlight") : PrimaryHand ? new XElement("Placement", "primaryhand") : null,
 			PermanentGrade is { } grade ? new XElement("PermanentOutput", new XAttribute("grade", grade), _permanentPrototypeId) : null,
-			SaveOutputPolicies())
+			SaveOutputPolicies(), SaveFoodProfiles())
 		: null;
 
 	internal bool ValidateInvocation(ICharacter caster, out string? error) => ValidateRecipientInvocation(caster, null, out error);
@@ -98,6 +100,7 @@ public partial class CreateItemEffect
 		if (error is not null || LifecycleMode is null) return error is null;
 		if (Spell is not MagicSpell { InvocationGrade: { } grade } native)
 		{ error = "Lifecycle item creation requires a selected-grade native casting invocation."; return false; }
+		if (!TryPrepareFoodOutputs(caster, grade, Random.Shared, out _, out error)) return false;
 		try
 		{
 			if (_eligibilityProgId != 0 && EligibilityProg!.ExecuteBool(caster) != true)
@@ -155,7 +158,12 @@ public partial class CreateItemEffect
 			var qualityValue = Math.Floor(ItemQuality.EvaluateDoubleWith(("base", (int)prototype.BaseItemQuality), ("power", (int)power), ("outcome", (int)outcome)));
 			if (!double.IsFinite(qualityValue) || qualityValue < int.MinValue || qualityValue > int.MaxValue || !Enum.IsDefined((ItemQuality)(int)qualityValue))
 			{ error = "The created item quality must resolve to a native quality."; return false; }
-			application = new NativeItemCreation(Enumerable.Range(0, CountByGrade ? grade : 1).Select(_ => Guid.NewGuid()).ToArray(), this, caster, target, prototype, (ItemQuality)(int)qualityValue, grade, mode,
+			var prototypes = _preparedFoodOutputs ?? Enumerable.Repeat(prototype, CountByGrade ? grade : 1).ToArray();
+			var qualities = _preparedFoodOutputs is null ? Enumerable.Repeat(qualityValue, prototypes.Length).ToArray() :
+				prototypes.Select(item => ItemQuality.EvaluateDoubleWith(("base", (int)item.BaseItemQuality), ("power", (int)power), ("outcome", (int)outcome))).Select(Math.Floor).ToArray();
+			if (qualities.Any(value => !double.IsFinite(value) || value < int.MinValue || value > int.MaxValue || !Enum.IsDefined((ItemQuality)(int)value)))
+			{ error = "Every created food quality must resolve to a native quality."; return false; }
+			application = new NativeItemCreation(prototypes.Select(_ => Guid.NewGuid()).ToArray(), this, caster, target, prototypes, qualities.Select(value => (ItemQuality)(int)value).ToArray(), grade, mode,
 				mode == SpellLifecycleMode.Permanent ? null : _preparedLifetimeSeconds, native.InvocationOriginId);
 			return true;
 		}
@@ -169,7 +177,7 @@ public partial class CreateItemEffect
 	}
 
 	private sealed record NativeItemCreation(Guid[] Ids, CreateItemEffect Effect, ICharacter Caster, IPerceivable Target,
-		IGameItemProto Prototype, ItemQuality Quality, int Grade, SpellLifecycleMode Mode, double? Seconds, Guid? Invocation) : IMagicSpellEffectApplicationOperation
+		IGameItemProto[] Prototypes, ItemQuality[] Qualities, int Grade, SpellLifecycleMode Mode, double? Seconds, Guid? Invocation) : IMagicSpellEffectApplicationOperation
 	{
 		public IMagicSpellEffect Create(IMagicSpellEffectParent parent) => Apply(parent).Effect!;
 		public MagicEffectOperation Apply(IMagicSpellEffectParent parent)
@@ -179,8 +187,8 @@ public partial class CreateItemEffect
 			{
 			var origin = new SpellLifecycleOrigin(Ids[i], Effect.Spell.Id, Grade, CharacterInstanceIdentityComparer.IdentityId(Caster),
 				Effect.LifecycleFamily, Mode, now, Seconds is { } seconds ? now.AddSeconds(seconds) : null,
-				$"native-createitem; output={i + 1}/{Ids.Length}; prototype={Prototype.Id}/{Prototype.RevisionNumber}; invocation={Invocation}; parent={(parent as MagicSpellParent)?.Identity}");
-			var item = Effect.Gameworld.SpellOwnedItems!.Create(Prototype, Caster, Quality, origin);
+				$"native-createitem; output={i + 1}/{Ids.Length}; prototype={Prototypes[i].Id}/{Prototypes[i].RevisionNumber}; invocation={Invocation}; parent={(parent as MagicSpellParent)?.Identity}");
+			var item = Effect.Gameworld.SpellOwnedItems!.Create(Prototypes[i], Caster, Qualities[i], origin);
 			Effect.PlaceOwnedItem(item, Caster, Target);
 			}
 			return new(Ids.Length > 0 ? MagicEffectOperationStatus.Applied : MagicEffectOperationStatus.NoChange, null);

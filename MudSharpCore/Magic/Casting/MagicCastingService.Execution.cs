@@ -64,11 +64,11 @@ public sealed partial class MagicCastingService
 				var invocation = new SpellInvocationContext(SpellInvocationSource.ConfiguredCasting, Outcome.NotTested, pay =>
 				{
 					// The quote is advisory. Re-resolve body, permission, target, inventory and prices under the owner guard.
-					var live = Prepare(intent);
+					var live = Prepare(intent, prepared.Spell);
 					if (!Equivalent(prepared, live)) throw new InvalidOperationException("The route, prices, body, target or component inputs changed before commitment; request a fresh cast.");
 					EmitIncantation(actor, resolved.Id, resolved.Delivery);
 					_checkpoint?.Invoke("BeforePayment");
-					var committed = Prepare(intent);
+					var committed = Prepare(intent, prepared.Spell);
 					if (!Equivalent(prepared, committed)) throw new InvalidOperationException("The native incantation changed casting eligibility or inputs before payment.");
 					if (committed.Area is { } areaPlan)
 					{

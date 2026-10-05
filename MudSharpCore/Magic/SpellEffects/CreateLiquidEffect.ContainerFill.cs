@@ -23,7 +23,7 @@ public partial class CreateLiquidEffect
 	private string? _litresFormula;
 	public bool ContainerOnly { get; private set; }
 	public ITraitExpression? LitresExpression { get; internal set; }
-	public string? DefinitionError => _fillLoadError ?? (!ContainerOnly ? null :
+	public string? DefinitionError => _fillLoadError ?? RecipeError() ?? (!ContainerOnly ? null :
 		Liquid is null ? "Configure a source liquid for container filling." :
 		LitresExpression is null || LitresExpression.HasErrors() ? "Configure a valid litres formula." :
 		LitresExpression.NonTraitParameters.Contains("outcome", StringComparer.OrdinalIgnoreCase) ? "Liquid quantity must be determinable before payment; outcome is not supported." :
@@ -34,6 +34,7 @@ public partial class CreateLiquidEffect
 	private void LoadContainerFill(XElement? root)
 	{
 		if (root is null) return;
+		LoadRecipes(root.Element("Recipes"));
 		if ((string?)root.Attribute("version") != "1" || root.Element("Litres") is null ||
 			root.Elements("CompatibleLiquid").Any(x => !long.TryParse(x.Value, out var id) || id <= 0) ||
 			root.Element("BonusPlane") is { } bonus &&
@@ -55,12 +56,13 @@ public partial class CreateLiquidEffect
 	private XElement? SaveContainerFill() => _unreadableFill is not null ? new(_unreadableFill) : !ContainerOnly ? null :
 		new("ContainerFill", new XAttribute("version", 1), new XElement("Litres", _litresFormula),
 			_compatibleLiquids.Order().Select(x => new XElement("CompatibleLiquid", x)),
-			_bonusPlaneId == 0 ? null : new XElement("BonusPlane", new XAttribute("multiplier", _planeMultiplier), _bonusPlaneId));
+			_bonusPlaneId == 0 ? null : new XElement("BonusPlane", new XAttribute("multiplier", _planeMultiplier), _bonusPlaneId), SaveRecipes());
 
 	internal bool ValidateInvocation(ICharacter caster, IPerceivable target, out string? error)
 	{
 		error = DefinitionError;
 		if (error is not null || !ContainerOnly) return error is null;
+		if (!TryPrepareRecipe(caster, out error)) return false;
 		if (!TryContainer(caster, target, out _, out error)) return false;
 		if (_preparedAmount is not null) return true;
 		if (Spell is not MagicSpell { InvocationGrade: not null } native)
@@ -94,14 +96,14 @@ public partial class CreateLiquidEffect
 		return true;
 	}
 
-	private bool Allowed(long id) => id == _liquidId || _compatibleLiquids.Contains(id);
+	private bool Allowed(long id) => id == SelectedLiquid.Id || _compatibleLiquids.Contains(id);
 
 	public bool TryPrepareApplication(ICharacter caster, IPerceivable target, OpposedOutcomeDegree outcome,
 		SpellPower power, TimeSpan resolvedDuration, out IMagicSpellEffectApplication? application, out string? error)
 	{
 		application = null;
 		if (!ValidateInvocation(caster, target, out error)) return false;
-		application = ContainerOnly ? new ContainerFill(this, caster, target, _preparedAmount!.Value) :
+		application = ContainerOnly ? new ContainerFill(this, caster, target, _preparedAmount!.Value, SelectedLiquid) :
 			new LegacyLiquidCreation(this, caster, target, outcome, power);
 		return true;
 	}
@@ -112,14 +114,14 @@ public partial class CreateLiquidEffect
 		public IMagicSpellEffect Create(IMagicSpellEffectParent parent) => Effect.GetOrApplyEffect(Caster, Target, Outcome, Power, parent, []);
 	}
 
-	private sealed record ContainerFill(CreateLiquidEffect Effect, ICharacter Caster, IPerceivable Target, double Amount) : IMagicSpellEffectApplicationOperation
+	private sealed record ContainerFill(CreateLiquidEffect Effect, ICharacter Caster, IPerceivable Target, double Amount, ILiquid Liquid) : IMagicSpellEffectApplicationOperation
 	{
 		public IMagicSpellEffect Create(IMagicSpellEffectParent parent) => Apply(parent).Effect!;
 		public MagicEffectOperation Apply(IMagicSpellEffectParent parent)
 		{
 			if (!Effect.TryContainer(Caster, Target, out var container, out var error)) throw new InvalidOperationException(error);
 			var before = container!.LiquidMixture?.TotalVolume ?? 0;
-			var mixture = new LiquidMixture(Effect.Liquid, Math.Min(Amount, container!.LiquidCapacity - (container.LiquidMixture?.TotalVolume ?? 0)), Effect.Gameworld);
+			var mixture = new LiquidMixture(Liquid, Math.Min(Amount, container!.LiquidCapacity - (container.LiquidMixture?.TotalVolume ?? 0)), Effect.Gameworld);
 			if (container.LiquidMixture is not null && !container.LiquidMixture.CanMerge(mixture))
 				throw new InvalidOperationException("The current mixture refuses the configured liquid.");
 			container.MergeLiquid(mixture, Caster, "spell");

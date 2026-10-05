@@ -168,6 +168,9 @@ public partial class CreateLiquidEffect : IMagicSpellEffectTemplate, IMagicSpell
 	#3compatible <liquid>#0 - toggles an additional allowed existing liquid (source liquid is always allowed)
 	#3bonusplane <plane> <multiplier>|none#0 - scales the prepared amount on one configured plane
 
+	#3recipe <order 1-32> <boolean(character) prog|always> <liquid>#0 - first matching recipe; explicit always fallback last
+	#3recipe <order> remove#0 - removes an ordered recipe
+
 Parameters for amount formula:
 
 	#6power#0 - the power of the spell 0 (Insignificant) to 10 (Recklessly Powerful)
@@ -178,7 +181,7 @@ Parameters for amount formula:
         return SpellEffectPresentation.Describe(actor, "Create Liquid",
             ("Liquid", Liquid?.Name.Colour(Liquid.DisplayColour) ?? "nothing".ColourError()),
             ("Amount", ContainerOnly ? $"{LitresExpression?.OriginalFormulaText} litres".ColourCommand() : $"{AmountFormula.OriginalExpression} native fluid units".ColourCommand()),
-			("Container Fill", ContainerOnly.ToColouredString()),
+			("Container Fill", ContainerOnly.ToColouredString()), ("Recipes", SaveRecipes()?.ToString(SaveOptions.DisableFormatting) ?? "Fixed liquid"),
 			("Compatible", string.Join(", ", _compatibleLiquids.Prepend(_liquidId).Distinct().Select(x => Gameworld.Liquids.Get(x)?.Name ?? $"#{x}"))),
 			("Bonus Plane", _bonusPlaneId == 0 ? "None" : $"{Gameworld.Planes.Get(_bonusPlaneId)?.Name}: {_planeMultiplier}"),
 			("Validation", DefinitionError ?? "Valid"));
@@ -186,6 +189,7 @@ Parameters for amount formula:
 
     public bool BuildingCommand(ICharacter actor, StringStack command)
     {
+		if (command.PeekSpeech().EqualTo("recipe")) return BuildingCommandRecipe(actor, command);
 		if (command.PeekSpeech().ToLowerInvariant() is "containerfill" or "litres" or "compatible" or "bonusplane")
 			return BuildingCommandContainerFill(actor, command);
         switch (command.PopSpeech().ToLowerInvariant())

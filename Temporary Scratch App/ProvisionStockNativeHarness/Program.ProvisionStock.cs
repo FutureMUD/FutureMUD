@@ -146,6 +146,18 @@ internal static partial class GNHProgram
 		Refuse(wine, "missing-target", "missing-item-target");
 		checkpoint = stage => { if (stage == "BeforePayment") Terrain("Silt"); };
 		try { Refuse(food, "", "first-matching-food-profile-changed-before-payment"); } finally { checkpoint = null; Terrain("Desert"); }
+		foreach (var callback in new[] { "eligibility", "lifetimemultiplier" }) {
+			var calls = 0; var admission = new Mock<IFutureProg>(); var id = progs.Select(x => x.Id).Max() + 1;
+			admission.SetupGet(x => x.Id).Returns(id); admission.SetupGet(x => x.Name).Returns("Provision final " + callback);
+			admission.SetupGet(x => x.ReturnType).Returns(callback == "eligibility" ? ProgVariableTypes.Boolean : ProgVariableTypes.Number);
+			admission.Setup(x => x.MatchesParameters(It.IsAny<IEnumerable<ProgVariableTypes>>())).Returns(true);
+			void Mutate() { if (++calls != 3) return; if (callback == "eligibility") Terrain("Silt"); else SetPrivateMember(actor, "Location", Mock.Of<MudSharp.Construction.ICell>(x => x.Gameworld == world)); }
+			admission.Setup(x => x.ExecuteBool(It.IsAny<object[]>())).Returns(() => { Mutate(); return true; });
+			admission.Setup(x => x.ExecuteDouble(It.IsAny<object[]>())).Returns(() => { Mutate(); return 1.0; }); progs.Add(admission.Object);
+			Require(food.BuildingCommand(actor, new StringStack($"effect 1 {callback} {id}")), "Authored admission callback fixture");
+			try { Refuse(food, "", "actual-food-final-" + callback + "-callback-drift"); Require(calls == 3, "Callback did not run only through final native preparation"); }
+			finally { SetPrivateMember(actor, "Location", room); Terrain("Desert"); Require(food.BuildingCommand(actor, new StringStack($"effect 1 {callback} none")), "Restore food callback"); }
+		}
 		var low = Cast(food, 1); var lowMeal = host.Items.Single(x => x.SpellCreationOrigin is not null);
 		Require(lowMeal.SpellCreationOrigin!.DeadlineUtc == RuntimeClock.UtcNow.AddSeconds(1350) && lowMeal.Location == actor.Location, "Source-ground low food deadline/placement");
 		Cast(food, 7); var high = host.Items.Where(x => x.SpellCreationOrigin?.DeadlineUtc == RuntimeClock.UtcNow.AddSeconds(9450)).ToArray(); Require(high.Length == 7 && high.All(x => pool.Any(p => p.Id == x.Prototype.Id)), "Grade-count food independent pool output");

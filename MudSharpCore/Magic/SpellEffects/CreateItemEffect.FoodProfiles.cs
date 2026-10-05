@@ -15,6 +15,8 @@ public partial class CreateItemEffect : IMagicSpellEffectPreparedSelection
 	private ProvisionProfilePolicy.ActorFrame? _foodProfileFrame;
 	private string? _foodProfilePreparedStamp;
 	private int? _preparedFoodProfileOrder;
+	/// <summary>Per-effect random source; revalidation of an admitted choice never calls it.</summary>
+	protected virtual Random FoodProfileRandom => Random.Shared;
 	private IPerceivable? _preparedFoodRecipient;
 	private sealed record FoodSelection(ProvisionProfilePolicy.ActorFrame Frame, string Stamp, int Order,
 		System.Collections.ObjectModel.ReadOnlyCollection<IGameItemProto> Outputs, IPerceivable Recipient) : IMagicSpellEffectPreparedSelectionToken;
@@ -38,7 +40,7 @@ public partial class CreateItemEffect : IMagicSpellEffectPreparedSelection
 		_preparedFoodOutputs = token.Outputs.ToArray(); _foodProfileFrame = token.Frame; _foodProfilePreparedStamp = token.Stamp;
 		_preparedFoodProfileOrder = token.Order; _preparedFoodRecipient = recipient; return true;
 	}
-	private string FoodProfileStamp() => SaveToXml() + ProvisionProfilePolicy.Stamp(Gameworld, _foodProfiles.Values.Select(x => x.Predicate)) +
+	private string FoodProfileStamp() => SaveToXml() + ProvisionProfilePolicy.Stamp(Gameworld, _foodProfiles.Values.Select(x => x.Predicate).Concat([_eligibilityProgId, _lifetimeMultiplierProgId])) +
 		string.Join(";", _foodProfiles.Values.SelectMany(x => x.Prototypes).Select(id => {
 			var item = Gameworld.ItemProtos.Get(id);
 			var food = item?.GetItemType<FoodGameItemComponentProto>(); return item is null ? $"{id}:missing" : $"{id}:{System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(item)}:{item.RevisionNumber}:{item.Status}:{item.BaseItemQuality}:{item.Weight}:{item.Size}:{food?.Bites}:{food?.SatiationPoints}:{food?.WaterLitres}:{food?.ThirstPoints}:{food?.AlcoholLitres}:{food?.TasteString}:{food?.Decorator}";

@@ -100,7 +100,7 @@ public partial class CreateItemEffect
 		if (error is not null || LifecycleMode is null) return error is null;
 		if (Spell is not MagicSpell { InvocationGrade: { } grade } native)
 		{ error = "Lifecycle item creation requires a selected-grade native casting invocation."; return false; }
-		if (!TryPrepareFoodOutputs(caster, grade, Random.Shared, out _, out error)) return false;
+		// Food choice is confirmed after every eligibility and lifetime callback below.
 		try
 		{
 			if (_eligibilityProgId != 0 && EligibilityProg!.ExecuteBool(caster) != true)
@@ -126,8 +126,8 @@ public partial class CreateItemEffect
 			if (hand is null || hand.Hands(preview) != 1 || !character.Body.CanGet(preview, 0) || !character.Body.CanWield(preview, hand))
 			{ error = "The recipient needs a usable free primary hand and capacity for the created weapon."; return false; }
 		}
-		if (LifecycleMode == SpellLifecycleMode.Permanent || PermanentGrade == grade) return true;
-		if (_preparedLifetimeSeconds is not null) return true;
+		if (LifecycleMode == SpellLifecycleMode.Permanent || PermanentGrade == grade) return TryPrepareFoodOutputs(caster, grade, FoodProfileRandom, out _, out error);
+		if (_preparedLifetimeSeconds is not null) return TryPrepareFoodOutputs(caster, grade, FoodProfileRandom, out _, out error);
 		try
 		{
 			var seconds = LifetimeExpression!.Evaluate(caster, native.CastingTrait, TraitBonusContext.SpellDuration);
@@ -138,7 +138,7 @@ public partial class CreateItemEffect
 			else _preparedLifetimeSeconds = seconds;
 		}
 		catch (Exception ex) { error = "Item lifetime could not be prepared: " + ex.Message; }
-		return error is null;
+		return error is null && TryPrepareFoodOutputs(caster, grade, FoodProfileRandom, out _, out error);
 	}
 
 	public bool TryPrepareApplication(ICharacter caster, IPerceivable target, OpposedOutcomeDegree outcome,

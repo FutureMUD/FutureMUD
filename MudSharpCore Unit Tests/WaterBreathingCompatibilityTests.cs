@@ -65,6 +65,19 @@ public class WaterBreathingCompatibilityTests
 	}
 
 	[TestMethod]
+	public void LegacyLung_QueriesApplicabilityAndGrantBeforeRacialCompatibility()
+	{
+		var f = new Fixture("simple"); var calls = new List<string>();
+		var legacy = new Mock<IAdditionalBreathableFluidEffect>();
+		legacy.Setup(x => x.Applies()).Callback(() => calls.Add("applicability")).Returns(true);
+		legacy.Setup(x => x.AppliesToFluid(f.Water)).Callback(() => calls.Add("grant")).Returns(false);
+		f.Effects.Add(legacy.Object);
+		f.Race.Setup(x => x.CanBreatheFluid(f.Water)).Callback(() => calls.Add("racial")).Returns((true, 1.0));
+		Assert.IsTrue(f.Strategy.CanBreathe(f.Body.Object));
+		CollectionAssert.AreEqual(new[] { "applicability", "grant", "racial" }, calls);
+	}
+
+	[TestMethod]
 	public void NonBreather_RemainsWithoutRespiratoryRequirementOrGrantedBreathing()
 	{
 		var f = new Fixture("partless"); f.Effects.Add(f.Scoped); var non = new NonBreather();

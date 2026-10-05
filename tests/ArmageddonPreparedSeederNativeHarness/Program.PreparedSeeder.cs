@@ -26,7 +26,7 @@ internal static class PreparedSeederEntryPoint
 internal static partial class GNHProgram
 {
 	private sealed record PreparedReader(string Database, string Bindings, Dictionary<string, long?> Identities,
-		string? Policy = null, string? WithoutPierceVariant = null, long? Pierce = null, bool ReadOnly = false);
+		string? Policy = null, string? WithoutPierceVariant = null, long? Pierce = null, bool ReadOnly = false, string? ProvisionsPolicy = null);
 	internal static int PreparedSeederMain(string[] args)
 	{
 		OwnedConnections.Install();
@@ -125,14 +125,14 @@ internal static partial class GNHProgram
 		Console.WriteLine("ARMPREP-entrypoint=passed real-question-contract real-SeedData 196-owned-records four-stored-admissions 78-unavailable no-new-provisions no-player-mutation");
 		var retained = PreparedIdentities(database); RunPreparedReader(new(database.Name, json, retained)); Require(players == TraditionPlayers(database), "Entry/rerun/restart mutated players.");
 		QualifyPreparedComposition(database, bindings, json, retained);
-		InstallPreparedLegacyProvisions(database, bindings, retained);
+		QualifyPreparedNewProvisions(database, bindings, retained);
 		string provisionBefore;
 		using (var db = NewIndependentContext(database.ConnectionString)) provisionBefore = PreparedProvisionSnapshot(db);
 		var expanded = RunPrepared(database, bindings); RequirePrepared(expanded);
-		using (var db = NewIndependentContext(database.ConnectionString)) Require(provisionBefore == PreparedProvisionSnapshot(db), "Gated entrypoint changed existing provision definitions/ownership.");
+		using (var db = NewIndependentContext(database.ConnectionString)) Require(provisionBefore == PreparedProvisionSnapshot(db), "Unselected provision module changed existing definitions/ownership.");
 		Require(PreparedIdentities(database).Count == 203 && expanded.Availability.All(x => x.StoredAdmissions.Count == 7) && players == TraditionPlayers(database), "Existing provision preservation lost real closure or changed players.");
 		RunPreparedReader(new(database.Name, json, PreparedIdentities(database)));
-		Console.WriteLine("ARMPREP-preservation=passed actual-builder-three-admissions existing-seven-provision-records-byte-preserved seven-stored-admissions gate-stays-off");
+		Console.WriteLine("ARMPREP-preservation=passed actual-builder-removals existing-seven-provision-records-byte-preserved seven-stored-admissions explicit-selection-only");
 		var utilityIds = expanded.Modules.First().Identities; var traditionIds = expanded.Modules.Last().Identities;
 		Dictionary<string, long> provisionIds;
 		using (var db = NewIndependentContext(database.ConnectionString)) provisionIds = db.SeederManagedRecords.AsNoTracking().Where(x => x.Module == ArmageddonProvisionInstaller.Module).ToDictionary(x => x.StableKey, x => x.LogicalId!.Value);
@@ -158,7 +158,7 @@ internal static partial class GNHProgram
 		Spells = db.MagicSpells.AsNoTracking().Where(x => x.Id == db.SeederManagedRecords.Where(y => y.StableKey == ArmageddonReviewedProvisionContent.SustainMealKey).Select(y => y.LogicalId).First() ||
 			x.Id == db.SeederManagedRecords.Where(y => y.StableKey == ArmageddonReviewedProvisionContent.DrawWineKey).Select(y => y.LogicalId).First()).OrderBy(x => x.Id).ToArray()
 	});
-	private static void InstallPreparedLegacyProvisions(TestDatabase database, ArmageddonPreparedWorldBindings bindings, Dictionary<string, long?> ids)
+	private static ArmageddonProvisionInstallPlan PreparedProvisionSelections(TestDatabase database, ArmageddonPreparedWorldBindings bindings, Dictionary<string, long?> ids)
 	{
 		ArmageddonProvisionInstallPlan plan;
 		using (var db = NewIndependentContext(database.ConnectionString))
@@ -176,7 +176,7 @@ internal static partial class GNHProgram
 			plan = new(true, bindings.Utilities.School, bindings.Utilities.Resource, bindings.Utilities.AlwaysFalseProg,
 				ids[ArmageddonReviewedProvisionContent.SustainMealKey + ".skill"]!.Value, ids[ArmageddonReviewedProvisionContent.DrawWineKey + ".skill"]!.Value, [new(32, 0, foods)], wine.Id, [new(32, 0, wine.Id)]);
 		}
-		RequireInstalled(InstallProvisions(database, plan)); // Explicit historical fixture, outside gated menu installer.
+		return plan; // Existing approved selections only; installation uses the actual prepared entrypoint.
 	}
 	private static void RunPreparedReader(PreparedReader input)
 	{

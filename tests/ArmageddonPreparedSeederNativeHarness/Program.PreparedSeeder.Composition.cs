@@ -24,6 +24,8 @@ internal static partial class GNHProgram
 	}
 	private static void VerifyPreparedReaderPolicy(TestDatabase database, PreparedReader input)
 	{
+		if (input.ProvisionsPolicy is not null)
+			Require(input.ProvisionsPolicy == PreparedProvisionPolicy(database), "Fresh reader changed provision content or stock baselines.");
 		if (input.Policy is null) return;
 		Require(input.Policy == PreparedCapabilityMeritPolicy(database), "Fresh reader changed capability/merit XML or stock baselines.");
 		if (input.WithoutPierceVariant is null) return;

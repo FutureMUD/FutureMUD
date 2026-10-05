@@ -40,14 +40,13 @@ subset for each variant. The selected template must contain real valid methods; 
 are synthesized. Optional `arm.support.component_crafting` needs a real approved native craft using that skill;
 `arm.support.vloran` needs a real native language linked to that skill. Omit unsupported mappings.
 
-New provisions are temporarily gated by `ArmageddonPreparedWorldInstaller.NewProvisionsQualified`.
-Prior native qualification found callback-free eating under Active Sense credited nutrition and left zero-bite food held
-in `Retiring` state across reload. The exact cleared runtime repair is integrated without its main-branch ancestry;
-independently reviewed combined installed-content eating/reload qualification must precede lifting this source gate.
-Leave `Provisions` null. The composition point for the existing production module is retained for that later review.
-Existing seven-record owned provision modules are preserved without reconciling their definitions or ownership;
-incomplete, retired, missing, competing or changed stock identities block dependent reconciliation explicitly.
-Their presence is not a certificate that consumption is repaired.
+Optional new provisions are enabled after independently reviewed installed Active Sense eating/reload qualification.
+Leave `Provisions` null to preserve an existing seven-record owned provision module without reconciling its content.
+Incomplete, retired, missing, competing or changed stock identities still block dependent reconciliation explicitly.
+To select new provisions, first install the ordinary four-admission package and inspect its owned Sustain Meal and
+Draw Wine skill IDs. Then opt in again with those actual IDs and approved existing food/liquid selections below.
+The installer creates no recipes, food prototypes, nutrition values, classes, character skills or item instances.
+The existing owned spell-skill definitions are configuration records, not player grants.
 
 ## Binding document
 
@@ -80,6 +79,33 @@ documents are rejected. The normal API `ArmageddonMagicSeeder.SerializeBindings`
   "Provisions": null
 }
 ```
+
+For an explicit provision selection, replace `"Provisions": null` with this object, substituting actual existing IDs
+and revisions. The final fallback food profile contains exactly three distinct approved native food prototypes, each
+with Holdable and Food components, finite positive bites, finite nonnegative nutrition and no eat/load hooks. Wine
+recipes must select real liquids with finite nonnegative native nutrition. Ordered category profiles/recipes may precede the ordinary fallback; predicates use the existing
+module's compiled caster-Boolean contract. No guessed category or liquid is installed.
+
+```json
+"Provisions": {
+  "Install": true, "School": 0, "Resource": 0, "AlwaysFalseProg": 0,
+  "MealSkill": 0, "WineSkill": 0,
+  "FoodProfiles": [ { "Order": 32, "Predicate": 0,
+    "Foods": [ { "Id": 0, "Revision": 0 }, { "Id": 0, "Revision": 0 }, { "Id": 0, "Revision": 0 } ] } ],
+  "Wine": 0, "WineRecipes": [ { "Order": 32, "Predicate": 0, "Liquid": 0 } ],
+  "WineBonusPlane": null
+}
+```
+
+School, source resource and false prog must match Utilities. Optional WineBonusPlane is an existing positive ID.
+Explicit selection runs the provision module between the skill-only bootstrap and Pierce, then applies capability
+policy once from the complete plan. A pre-commit failure rolls back that module; earlier modules stay committed.
+Loss of post-commit confirmation stops before capability policy changes. Inspect owned records from a fresh context
+and rerun the same selections to recover the same IDs. It never replays player casting or eating actions.
+
+The complete plan respects exact admission removals, disabled casting and builder spell/cost overrides. Reruns report
+the saved admissions and enabled flag, preserving capability/merit and provision stock baselines. Removing Sustain Meal
+or Draw Wine from a variant leaves six saved admissions; it does not grant a replacement or alter other saved entries.
 
 ## Inspect and adapt through native builder commands
 
@@ -158,15 +184,15 @@ activation eligibility and live target resistance/wards are rechecked. Copying a
 
 Successful base composition owns 196 records: 21 utility/device, 171 tradition, four Pierce. It creates six payload
 definitions but only four prerequisite-closed source admissions per unedited variant: Sense, Unravel, Water and Pierce;
-78 source spells lack admission. Mend and Hovering Light definitions do not create entitlement. With an existing valid
-owned provision module, there are 203 records and eight payload definitions; seven admissions/75 unavailable, adding
+78 source spells lack admission. Mend and Hovering Light definitions do not create entitlement. With explicitly selected
+or preserved valid owned provisions, there are 203 records and eight payload definitions; seven admissions/75 unavailable, adding
 Sustain Meal, Draw Wine and Hovering Light. Edited variants can retain fewer/different stored admissions.
 The report gives each stored variant separately, including its enabled flag. Stored admissions are definitions, not
 character acquisition or a gameplay certificate. No classes, role-picker changes, NPC placement, player grants,
 passive regeneration, refills, item instances or charge banks are installed.
 
 Ownership is `SeederManagedRecords` with package `ArmageddonMagicSeeder`, module names
-`reviewed-five-utilities-and-blank-devices`, `partial-source-traditions`, `reviewed-pierce`, and retained `reviewed-provisions`.
+`reviewed-five-utilities-and-blank-devices`, `partial-source-traditions`, `reviewed-pierce`, and optional `reviewed-provisions`.
 Examples of stable keys are `arm.spell.sense_enchantment`, its `.skill`/`.skill.cap` records,
 `arm.capability.sorcerer`, `arm.merit.sorcerer`, and `arm.spell.pierce_concealment`.
 Each module receives a fresh independent context and owns a serializable transaction. Utilities bootstrap real root
@@ -188,9 +214,10 @@ For paid gameplay uncertainty use the existing staff reconciliation command
 
 The dedicated `tests/ArmageddonPreparedSeederNativeHarness` runs on a UUID-named owned disposable database/server with
 source and assembly fingerprints. It exercises actual menu/question/shared-executor paths, positive prepared-world
-composition, genuine module rollback, lost acknowledgement, fresh-process reruns, builder overrides, legacy provision
-preservation, native configuration and ordinary progression/gathering/casting. Its replay mode uses the actual complete
+composition, genuine module rollback, lost acknowledgement, fresh-process reruns, builder overrides, explicit new provision
+selection and unselected provision preservation, native configuration and ordinary progression/gathering/casting. Its replay mode uses the actual complete
 Debug Medieval profile and verifies second-run refusal with an all-table content hash. A blocked first profile must be
 reported as blocked; it does not qualify full replay. All five profile inventories/default declines have focused tests.
 Read exact checkpoint receipts for outcomes. Native controlled-world scenarios do not certify Telnet/login or a full
-running server. The combined consumption qualification/review gate and unattainable stock Mend/device path remain explicit limits.
+running server. Read the separately retained installed Active Sense eating/reload qualification for the consumption repair.
+The unattainable stock Mend/device prerequisite path remains an explicit limit.

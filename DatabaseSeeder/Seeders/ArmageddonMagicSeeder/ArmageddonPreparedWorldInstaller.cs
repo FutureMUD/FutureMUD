@@ -27,10 +27,10 @@ public sealed record ArmageddonPreparedWorldInstallResult(ArmageddonInstallStatu
 
 public static partial class ArmageddonPreparedWorldInstaller
 {
-	// Temporary runtime qualification gate. Lift only after a reviewed callback-free consumption
-	// repair and native Active Sense eating/reload verification; keep module composition unchanged.
-	public static bool NewProvisionsQualified => false;
-	public const string ProvisionReadiness = "New provision installation is temporarily unavailable pending independently reviewed combined Active Sense eating/reload qualification. The prior defect left credited zero-bite food held in Retiring state; separate runtime repair clearance alone does not lift this gate. Existing owned provision definitions and admissions are preserved.";
+	// Callback-free consumption and installed Active Sense eating/reload are independently
+	// qualified. Explicit native selections are still required; no stock content is guessed.
+	public static bool NewProvisionsQualified => true;
+	public const string ProvisionReadiness = "Optional provisions require explicit native food profiles, wine recipes and existing spell-skill bindings. Leaving Provisions null preserves owned provision definitions without reconciling that module.";
 
 	public static ArmageddonPreparedWorldInstallResult Install(Func<FuturemudDatabaseContext> freshContext,
 		ArmageddonPreparedWorldBindings bindings, Action<string, ArmageddonInstallCheckpoint>? checkpoint = null)
@@ -63,7 +63,7 @@ public static partial class ArmageddonPreparedWorldInstaller
 			using (var db = freshContext())
 			{
 				foreach (var spell in PreservedProvisionSpells(db)) spells.Add(spell.Key, spell.Value);
-				messages.Add(spells.ContainsKey(ArmageddonReviewedProvisionContent.SustainMealKey) ? "Preserved existing owned provisions without running the gated provision module." : "No new provision definitions installed.");
+				messages.Add(spells.ContainsKey(ArmageddonReviewedProvisionContent.SustainMealKey) ? "Retained existing owned provision spell identities for composition." : "No existing owned provision definitions.");
 			}
 			var plan = new ArmageddonTraditionInstallPlan(true, bindings.Utilities.School, bindings.Utilities.Resource,
 				bindings.ReserveResource, bindings.Decorator, bindings.Utilities.AlwaysFalseProg, bindings.AlwaysTrueProg,
@@ -74,8 +74,8 @@ public static partial class ArmageddonPreparedWorldInstaller
 			if (!Record(ArmageddonTraditionInstaller.Module, traditions.Status, traditions.Messages, traditions.Identities)) return Result(traditions.Status);
 			// Bootstrap above never reconciles capability/merit policy. Existing policy and stock
 			// baselines stay intact across interruptions; only the complete plan below may reconcile.
-			// Reserved composition point for the reviewed consumption repair. Current readiness
-			// validation rejects new selections; existing provisions are never reconciled here.
+			// Optional explicit selections reconcile the provision module before the complete
+			// capability plan. Null preserves existing provision content without running it.
 			if (bindings.Provisions is { } provision)
 			{
 				if (!NewProvisionsQualified) { messages.Add(ProvisionReadiness); return Result(ArmageddonInstallStatus.Blocked); }

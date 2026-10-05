@@ -168,12 +168,12 @@ public partial class ArmageddonPreparedWorldSeederTests
 			Assert.AreEqual(196, db.SeederManagedRecords.Count());
 		}
 	}
-	[TestMethod] public void NewProvisionSelectionIsBlockedBeforeAnyModuleAndRetiredRecordsArePreserved()
+	[TestMethod] public void MismatchedProvisionSelectionIsBlockedBeforeAnyModuleAndRetiredRecordsArePreserved()
 	{
 		var (db, bindings) = Fixture(); using (db)
 		{
-			Assert.IsFalse(ArmageddonPreparedWorldInstaller.NewProvisionsQualified);
-			var blocked = ArmageddonPreparedWorldInstaller.Install(Factory(db), bindings with { Provisions = new(true, 1, 1, 1, 1, 2, [], 1, []) });
+			Assert.IsTrue(ArmageddonPreparedWorldInstaller.NewProvisionsQualified);
+			var blocked = ArmageddonPreparedWorldInstaller.Install(Factory(db), bindings with { Provisions = new(true, 999, 1, 1, 1, 2, [], 1, []) });
 			Assert.AreEqual(ArmageddonInstallStatus.Blocked, blocked.Status); Assert.AreEqual(0, blocked.Modules.Count); Assert.AreEqual(0, db.SeederManagedRecords.Count());
 			db.SeederManagedRecords.Add(new() { Seeder = ArmageddonMagicInstaller.Package, Module = ArmageddonProvisionInstaller.Module,
 				StableKey = ArmageddonReviewedProvisionContent.SustainMealKey, EntityType = "MagicSpell", LogicalId = 1000, Retired = true }); db.SaveChanges();

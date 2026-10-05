@@ -78,6 +78,7 @@ public class DetectInvisibleLifetimeTests
 		f.Copy(7, SpellPower.VeryStrong).ResolveTriggeredSpell(f.F.Actor.Object, f.F.Actor.Object, SpellPower.VeryStrong);
 		var current = f.Parents.Single();
 		Assert.AreEqual(f.Clock.Now.AddSeconds(28800), f.Scheduler.ScheduledExpiry(current));
+		Assert.AreEqual(TimeSpan.FromSeconds(28800), current.ResolvedDuration, "Only opted-in prepared parents acquire resolved lifetime metadata.");
 		Assert.IsFalse(old.SpellEffects.Any()); Assert.IsFalse(f.Scheduler.IsScheduled(old));
 		Assert.AreEqual(1, f.Handler.Effects.OfType<SpellDetectInvisibleEffect>().Count());
 		f.Clock.Advance(TimeSpan.FromSeconds(28801)); f.Scheduler.CheckSchedules();

@@ -116,6 +116,8 @@ public class DetectInvisibleOperationTests
 		var original = effects.OfType<SpellDetectInvisibleEffect>().Single();
 		spell.ResolveTriggeredSpell(f.Actor.Object, f.Actor.Object, SpellPower.Standard);
 		Assert.AreEqual(exclusive ? 1 : 2, effects.OfType<MagicSpellParent>().Count());
+		Assert.IsTrue(effects.OfType<MagicSpellParent>().All(x => x.ResolvedDuration == TimeSpan.Zero),
+			"Absent-policy prepared parents must preserve their original transient duration default.");
 		Assert.AreEqual(exclusive ? 1 : 2, effects.OfType<SpellDetectInvisibleEffect>().Count());
 		Assert.AreEqual(!exclusive, effects.Contains(original));
 		Assert.AreEqual(balance, f.Balances[f.Resources[1]]);

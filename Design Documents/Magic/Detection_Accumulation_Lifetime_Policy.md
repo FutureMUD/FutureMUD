@@ -22,6 +22,8 @@ The finaliser attaches and proves the new parent, child and native schedule befo
 
 Lifetime resolution belongs only to the phase whose template opts in. For a caster-only policy the empty primary phase preserves its admitted cohort; existing untagged empty-phase behavior remains unchanged. The prepared route captures target and caster cohorts before duration evaluation, resistance and output callbacks, then confirms the relevant snapshot before parent construction. The retained diagnostic `pierce-policy-caster-diagnostic-01` showed the previous prepared empty phase losing source grade7 to grade1; subsequent regressions cover both configured/prepared caster-only construction and post-admission callback mutation on both sides.
 
+Absent-policy prepared parents also retain their original zero transient `ResolvedDuration` field. Their existing scheduler duration is unchanged. Opted-in prepared parents alone receive the resolved policy duration; configured casting retains its pre-existing duration initialization.
+
 Configured application reporting is deferred until parent attachment and cleanup succeed. A paid replacement with the same observed absolute deadline and retained grade/power reports no intended application; extending its deadline or increasing its strength reports applied. The comparison uses actual scheduler expiry, not OriginalDuration or merely allocated children. No-change casts therefore do not earn mastery application samples.
 
 ## Historical clock and native lifecycle adaptation

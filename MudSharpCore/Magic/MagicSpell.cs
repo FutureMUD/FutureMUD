@@ -2071,7 +2071,7 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
 			var lifetime = ResolveLifetime(targetLifetimeAdmission, lifetimeParents);
 			var head = new MagicSpellParent(target, this, magician, lifetime?.Power ?? power, effectOutcome)
 			{
-				ResolvedDuration = lifetime?.Duration ?? duration,
+				ResolvedDuration = lifetime?.Duration ?? TimeSpan.Zero,
 				LifetimeState = lifetime is null ? null : new(lifetime.Admission.Policy, lifetime.Grade)
 			};
 			foreach (var effect in _spellEffects)
@@ -2121,7 +2121,7 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
 		var casterLifetime = ResolveLifetime(casterLifetimeAdmission, lifetimeParents);
 		var casterHead = new MagicSpellParent(magician, this, magician, casterLifetime?.Power ?? power, casterOutcome)
 		{
-			ResolvedDuration = casterLifetime?.Duration ?? duration,
+			ResolvedDuration = casterLifetime?.Duration ?? TimeSpan.Zero,
 			LifetimeState = casterLifetime is null ? null : new(casterLifetime.Admission.Policy, casterLifetime.Grade)
 		};
 		foreach (var effect in _casterSpellEffects)

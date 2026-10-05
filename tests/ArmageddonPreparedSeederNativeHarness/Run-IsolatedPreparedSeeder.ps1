@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param([string]$EvidenceRoot,
-	[ValidateSet('prepared', 'replay')]
+	[ValidateSet('prepared', 'replay', 'sense', 'sense-control')]
 	[string]$Mode = 'prepared')
 
 $ErrorActionPreference = 'Stop'

@@ -31,9 +31,6 @@ internal static partial class GNHProgram
 	private sealed record ProvisionInstallerReader(string Database, FixtureIds Fixture, DateTime Now, ArmageddonMagicInstallPlan Utilities,
 		Dictionary<string, long> UtilityIds, Dictionary<string, long> TraditionIds, InstalledProvisions Installed, long Consumed, long Partial,
 		long Expiring, long Light, long Vessel, double Food, double Alcohol, double PendingAlcohol, double Balance, Guid[] Operations);
-	private sealed record ProvisionCustodyReader(string Database, FixtureIds Fixture, DateTime Now, ArmageddonMagicInstallPlan Utilities,
-		Dictionary<string, long> UtilityIds, Dictionary<string, long> TraditionIds, InstalledProvisions Installed, long Item,
-		double Food, double Balance, string?[] ActorEffects);
 	private static ArmageddonInstallResult InstallProvisions(TestDatabase database, ArmageddonProvisionInstallPlan plan, Action<ArmageddonInstallCheckpoint>? fault = null)
 	{ using var db = NewIndependentContext(database.ConnectionString); return ArmageddonProvisionInstaller.Install(db, plan, fault); }
 	private static InstalledProvisions InstallProvisionExtension(TestDatabase database, ArmageddonTraditionInstallPlan traditions, IReadOnlyDictionary<string, long> ids)
@@ -131,15 +128,7 @@ internal static partial class GNHProgram
 		IGameItem CreatedFood() => host.Items.Last(x => !x.Deleted && x.SpellCreationOrigin is not null && installed.Plan.FoodProfiles.SelectMany(p => p.Foods).Any(p => p.Id == x.Prototype.Id));
 		if (reproduceCustody)
 		{
-			Cast(food); var held = CreatedFood(); native.Body.Get(held, silent: true); FlushCasting(native);
-			var edible = held.GetItemType<IEdible>()!; var beforeFood = actor.NeedsModel.FoodSatiatedHours; var balance = actor.MagicResourceAmounts[native.Resource];
-			var actorEffects = actor.Effects.Select(x => x.GetType().FullName).ToArray(); var bodyEffects = native.Body.Effects.Select(x => x.GetType().FullName).ToArray();
-			Require(actorEffects.Any(x => x!.EndsWith("MagicSpellParent")) && actorEffects.Any(x => x!.EndsWith("SpellDetectMagickEffect")), "Diagnostic did not retain actual Sense effect types.");
-			string? refusal = null; try { native.Body.SilentEat(edible, 0); } catch (InvalidOperationException error) { refusal = error.Message; }
-			FlushCasting(native); using var db = NewIndependentContext(database.ConnectionString); var life = host.Store.Find(held.SpellCreationOrigin!.LifecycleId)!;
-			Require(refusal == "Created item removal needs a native callback-free body custodian." && !held.Deleted && db.GameItems.Any(x => x.Id == held.Id) && edible.BitesRemaining == 0 && actor.NeedsModel.FoodSatiatedHours == beforeFood + 2 && balance == actor.MagicResourceAmounts[native.Resource] && life.State == SpellLifecycleState.Retiring, "Active-Sense native consumption compatibility repro changed unexpectedly.");
-			Console.WriteLine("ARMTRAD-consumption-compatibility=BLOCKED " + JsonSerializer.Serialize(new { refusal, actorEffects, bodyEffects, item = held.Id, bites = edible.BitesRemaining, beforeFood, afterFood = actor.NeedsModel.FoodSatiatedHours, balance, persistedItem = true, lifecycle = life.State.ToString(), life.Diagnostic, cleanControl = "paid installed Unravel before consumption" }));
-			RunItemReaderProcess(new ProvisionCustodyReader(database.Name, fixture, RuntimeClock.UtcNow, utilities, utilityIds.ToDictionary(x => x.Key, x => x.Value), ids.ToDictionary(x => x.Key, x => x.Value), installed, held.Id, actor.NeedsModel.FoodSatiatedHours, balance, actorEffects), "--traditions-custody-reader");
+			QualifySenseFood(host, database, fixture, utilities, utilityIds, ids, installed, Cast, CreatedFood);
 			return;
 		}
 		// Clear the earlier paid Sense effect through its legitimate installed predecessor.
@@ -190,22 +179,5 @@ internal static partial class GNHProgram
 		clock.Advance(TimeSpan.FromSeconds(450)); owned.ReconcileRetirements(RuntimeClock.UtcNow); Require(light.Deleted && !vessel.Deleted && native.Actor.NeedsModel.FoodSatiatedHours == input.Food, "Exact light1800 expiry changed consumed nutrition/wine.");
 		Console.WriteLine("ARMTRAD-provisions-reader=passed fresh-native-process seven-stable-identities six-ready-admissions consumed-absent fractional-bites needs-pending-alcohol reserve completed-receipts exact-food1350 light1800 independent-wine-conservation"); return 0;
 	}
-	private static int ProvisionCustodyRestart(string encoded)
-	{
-		var input = JsonSerializer.Deserialize<ProvisionCustodyReader>(Encoding.UTF8.GetString(Convert.FromBase64String(encoded)))!;
-		using var globals = new ConsumableGlobals(); using var database = TestDatabase.OpenExistingOwned(input.Database); ConfigureNativeDatabase(database.ConnectionString);
-		var clock = new HarnessClock(); clock.Advance(input.Now - clock.GetUtcNow().UtcDateTime); using var time = RuntimeClock.Push(clock);
-		MagicSpellParent.InitialiseEffectType(); SpellDetectMagickEffect.InitialiseEffectType();
-		var host = PrepareRetirementHost(database, input.Fixture, clock, wielding: true, consumablesAnatomy: true, additionalTraitGroups: ["Armageddon Spell"]); var native = host.Native;
-		Require(native.World.Traits.Any(x => x.Group == "ARM02") && native.World.Traits.Count(x => x.Group == "Armageddon Spell") == 82, "Diagnostic group loader did not preserve default/additional native traits.");
-		LoadTraditionNative(native, database, input.Utilities, input.UtilityIds, input.TraditionIds, 6, input.Installed.Identities);
-		var owned = new SpellOwnedItemService(native.World); native.WorldMock.SetupGet(x => x.SpellOwnedItems).Returns(owned);
-		using var db = NewIndependentContext(database.ConnectionString); native.Actor.RestoreCastingEffects(db.Characters.Find(native.Actor.Id)!.EffectData);
-		native.Body.LoadInventory(db.Bodies.Include(x => x.BodiesGameItems).Single(x => x.Id == native.Body.Id));
-		var held = CastingRequired(native.World.TryGetItem(input.Item, true)); held.FinaliseLoadTimeTasks(); var lifecycle = CastingRequired(host.Store.Find(CastingRequired(held.SpellCreationOrigin).LifecycleId));
-		var actorEffects = native.Actor.Effects.Select(x => x.GetType().FullName).ToArray();
-		Require(actorEffects.ToHashSet().SetEquals(input.ActorEffects) && held.GetItemType<IEdible>()!.BitesRemaining == 0 && !held.Deleted && native.Body.HeldItems.Contains(held) && ReferenceEquals(held.InInventoryOf, native.Body) && lifecycle.State == SpellLifecycleState.Retiring &&
-			native.Actor.NeedsModel.FoodSatiatedHours == input.Food && native.Actor.MagicResourceAmounts[native.Resource] == input.Balance, "Fresh diagnostic process lost/doubled active effects, consumed remainder, credited nutrition, paid balance or held custody.");
-		Console.WriteLine("ARMTRAD-consumption-reload=BLOCKED " + JsonSerializer.Serialize(new { actorEffects, bites = held.GetItemType<IEdible>()!.BitesRemaining, food = native.Actor.NeedsModel.FoodSatiatedHours, balance = input.Balance, heldByNativeBody = true, lifecycle = lifecycle.State.ToString(), components = db.GameItemComponents.AsNoTracking().Where(x => x.GameItemId == input.Item).Select(x => x.Definition).ToArray(), note = "Diagnostic reproduction matched; ordinary active-effect consumption remains failed/unqualified." })); return 0;
-	}
+	private static int ProvisionCustodyRestart(string encoded) => SenseFoodRestart(encoded);
 }

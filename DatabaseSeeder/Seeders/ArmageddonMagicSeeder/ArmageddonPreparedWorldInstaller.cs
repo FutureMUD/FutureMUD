@@ -30,7 +30,7 @@ public static partial class ArmageddonPreparedWorldInstaller
 	// Temporary runtime qualification gate. Lift only after a reviewed callback-free consumption
 	// repair and native Active Sense eating/reload verification; keep module composition unchanged.
 	public static bool NewProvisionsQualified => false;
-	public const string ProvisionReadiness = "New provision installation is temporarily unavailable: callback-free eating under Active Sense leaves credited zero-bite food held in Retiring state. Existing owned provision definitions and admissions are preserved; this installer does not certify their consumption.";
+	public const string ProvisionReadiness = "New provision installation is temporarily unavailable pending independently reviewed combined Active Sense eating/reload qualification. The prior defect left credited zero-bite food held in Retiring state; separate runtime repair clearance alone does not lift this gate. Existing owned provision definitions and admissions are preserved.";
 
 	public static ArmageddonPreparedWorldInstallResult Install(Func<FuturemudDatabaseContext> freshContext,
 		ArmageddonPreparedWorldBindings bindings, Action<string, ArmageddonInstallCheckpoint>? checkpoint = null)

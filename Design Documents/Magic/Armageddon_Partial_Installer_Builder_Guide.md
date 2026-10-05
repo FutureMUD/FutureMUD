@@ -41,8 +41,9 @@ are synthesized. Optional `arm.support.component_crafting` needs a real approved
 `arm.support.vloran` needs a real native language linked to that skill. Omit unsupported mappings.
 
 New provisions are temporarily gated by `ArmageddonPreparedWorldInstaller.NewProvisionsQualified`.
-Callback-free eating under Active Sense currently credits nutrition and leaves zero-bite food held in `Retiring` state
-across reload. A reviewed runtime repair and native eating/reload qualification must precede lifting that source gate.
+Prior native qualification found callback-free eating under Active Sense credited nutrition and left zero-bite food held
+in `Retiring` state across reload. The exact cleared runtime repair is integrated without its main-branch ancestry;
+independently reviewed combined installed-content eating/reload qualification must precede lifting this source gate.
 Leave `Provisions` null. The composition point for the existing production module is retained for that later review.
 Existing seven-record owned provision modules are preserved without reconciling their definitions or ownership;
 incomplete, retired, missing, competing or changed stock identities block dependent reconciliation explicitly.
@@ -188,4 +189,4 @@ preservation, native configuration and ordinary progression/gathering/casting. I
 Debug Medieval profile and verifies second-run refusal with an all-table content hash. A blocked first profile must be
 reported as blocked; it does not qualify full replay. All five profile inventories/default declines have focused tests.
 Read exact checkpoint receipts for outcomes. Native controlled-world scenarios do not certify Telnet/login or a full
-running server. The Active Sense consumption defect and unattainable stock Mend/device path remain explicit limits.
+running server. The combined consumption qualification/review gate and unattainable stock Mend/device path remain explicit limits.

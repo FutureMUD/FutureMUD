@@ -34,7 +34,11 @@ internal static partial class GNHProgram
 			"--prepared-run" => PreparedSeederNative(),
 			"--prepared-reader" => PreparedSeederReader(args[1]),
 			"--replay-run" => PreparedSeederReplayNative(),
-			_ => throw new InvalidOperationException("Select the dedicated prepared/replay lane entrypoint.")
+			"--sense-run" => TraditionNative(true, true),
+			"--sense-control-run" => PreparedSenseControlNative(),
+			"--traditions-reader" => TraditionRestart(args[1]),
+			"--traditions-custody-reader" => ProvisionCustodyRestart(args[1]),
+			_ => throw new InvalidOperationException("Select the dedicated prepared/replay/Sense lane entrypoint.")
 		};
 	}
 	private static ArmageddonPreparedWorldInstallResult RunPrepared(TestDatabase database, ArmageddonPreparedWorldBindings bindings,

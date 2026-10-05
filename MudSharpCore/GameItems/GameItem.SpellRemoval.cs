@@ -4,6 +4,9 @@ using System.Data;
 using Microsoft.EntityFrameworkCore;
 using MudSharp.Construction;
 using MudSharp.Database;
+using MudSharp.Effects;
+using MudSharp.Effects.Concrete;
+using MudSharp.Effects.Concrete.SpellEffects;
 using MudSharp.Framework;
 using MudSharp.GameItems.Components;
 using MudSharp.GameItems.Interfaces;
@@ -14,6 +17,32 @@ namespace MudSharp.GameItems;
 
 public partial class GameItem
 {
+	/// <summary>Only native detection effects with their exact save wrapper have no custody callbacks.</summary>
+	internal static bool SpellRemovalEffectsArePassive(IPerceivable custodian)
+	{
+		var effects = custodian.Effects.ToArray();
+		bool PassiveDetection(IEffect effect) =>
+			(effect.GetType() == typeof(SpellDetectMagickEffect) ||
+			 effect.GetType() == typeof(SpellDetectInvisibleEffect) ||
+			 effect.GetType() == typeof(SpellDetectEtherealEffect) ||
+			 effect.GetType() == typeof(SpellInfravisionEffect)) &&
+			effect.ApplicabilityProg is null && ReferenceEquals(effect.Owner, custodian);
+		foreach (var effect in effects)
+		{
+			if (effect.GetType() == typeof(MagicSpellParent) && effect is MagicSpellParent parent)
+			{
+				var children = parent.SpellEffects.ToArray();
+				if (parent.ApplicabilityProg is not null || !ReferenceEquals(parent.Owner, custodian) ||
+					children.Length == 0 || children.Any(child => !PassiveDetection(child) ||
+						!ReferenceEquals(child.ParentEffect, parent) || !effects.Any(x => ReferenceEquals(x, child)))) return false;
+				continue;
+			}
+			if (!PassiveDetection(effect) || effect is not IMagicSpellEffect childEffect ||
+				!effects.Any(x => ReferenceEquals(x, childEffect.ParentEffect))) return false;
+		}
+		return true;
+	}
+
 	/// <summary>Commit exact leaf removal and custodian persistence together before releasing runtime roots.</summary>
 	private void DeleteSpellOwnedItem()
 	{
@@ -26,7 +55,8 @@ public partial class GameItem
 			throw new InvalidOperationException("Created item removal needs a native callback-free container or sheath custodian.");
 		var body = InInventoryOf as NativeBody;
 		if (InInventoryOf is not null && body is null || body is not null &&
-			(body.Effects.Any() || body.Actor.Effects.Any() || body.Actor.PositionTarget is not null || body.PositionTarget is not null))
+			(!SpellRemovalEffectsArePassive(body) || !SpellRemovalEffectsArePassive(body.Actor) ||
+			 body.Actor.PositionTarget is not null || body.PositionTarget is not null))
 			throw new InvalidOperationException("Created item removal needs a native callback-free body custodian.");
 		var location = Location;
 		if (location is not null && location is not ICustodyRollbackLocation)

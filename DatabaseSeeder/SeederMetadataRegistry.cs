@@ -14,13 +14,19 @@ public static class SeederMetadataRegistry
     {
         return seeder.GetType().Name switch
         {
+			nameof(ArmageddonMagicSeeder) => new SeederMetadata(SeederRepeatabilityMode.Idempotent, SeederUpdateCapability.RepairExisting,
+				Array.Empty<SeederPrerequisite>(),
+				RerunSummary: "Default No. Explicit opt-in reconciles owned partial modules with separate commits, preserving builder edits and historical ownership. A later failure leaves completed modules committed.",
+				UpdateSummary: "Prepared-world bindings are validated only on opt-in. Availability is reported from persisted capability admissions; this is not a full preset or player refresh.",
+				OwnershipSummary: "Stable module keys own reviewed definitions only. New provisions are temporarily gated; existing owned provisions are preserved. No stock scrolls, charges, classes, acquisition or reserve refill.",
+				DependencySeederTypes: [typeof(CoreDataSeeder), typeof(SkillPackageSeeder), typeof(UsefulSeeder), typeof(ItemSeeder)]),
 			nameof(EnvironmentalExposureSeeder) => new SeederMetadata(SeederRepeatabilityMode.Idempotent, SeederUpdateCapability.RepairExisting,
 				[Requirement("Core materials and fluids must be installed.", context => context.Materials.Any() && context.Liquids.Any())],
 				RerunSummary: "Reconciles exposure-owned fields, reactions, preparations and demonstrations; preserves builder changes and reports conflicts.",
 				OwnershipSummary: "Optional natural and fantasy exposure content; never enables an existing world or creates live hazardous rooms.",
 				DependencySeederTypes: [typeof(CoreDataSeeder)],
 				OrderAfterSeederTypes: [typeof(HumanSeeder), typeof(AnimalSeeder), typeof(AnimalButcherySeeder), typeof(CultureSeeder),
-					typeof(ItemSeeder), typeof(RobotSeeder), typeof(SupernaturalSeeder), typeof(UsefulSeeder), typeof(HealthSeeder), typeof(PsionicsSeeder)]),
+					typeof(ItemSeeder), typeof(RobotSeeder), typeof(SupernaturalSeeder), typeof(UsefulSeeder), typeof(HealthSeeder), typeof(PsionicsSeeder), typeof(ArmageddonMagicSeeder)]),
 			nameof(PsionicsSeeder) => new SeederMetadata(SeederRepeatabilityMode.Idempotent, SeederUpdateCapability.RepairExisting,
 				[Requirement("A skill scaffold must already exist.", context => context.TraitDefinitions.Any(x => x.Type == 0)),
 				 Requirement("The organic Human race must already exist.", context => context.Races.Any(x => x.Name == "Human"))],

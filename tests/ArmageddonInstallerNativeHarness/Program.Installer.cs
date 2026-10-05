@@ -57,6 +57,33 @@ internal static partial class GNHProgram
 		}
 		return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(string.Join("\n", rows.Order()))));
 	}
+	private static string ForeignOwnershipSnapshot(TestDatabase database)
+	{
+		using var db = NewIndependentContext(database.ConnectionString);
+		return JsonSerializer.Serialize(db.SeederManagedRecords.AsNoTracking().Where(x => x.Seeder == "ARMINSTALLForeign").OrderBy(x => x.Id).ToArray());
+	}
+	private static (long Component, long Item) SeedForeignPrototypeTombstones(TestDatabase database, ArmageddonMagicInstallPlan plan)
+	{
+		using var db = NewIndependentContext(database.ConnectionString);
+		var componentMaximum = db.GameItemComponentProtos.Max(x => x.Id);
+		var itemMaximum = db.GameItemProtos.Max(x => x.Id);
+		Db.EditableItem Approval() => new() { BuilderAccountId = plan.BuilderAccount, BuilderDate = DateTime.UtcNow, RevisionStatus = 4 };
+		foreach (var (offset, revision, retired) in new[] { (1L, 0, false), (9L, 7, true) })
+		{
+			var component = new Db.GameItemComponentProto { Id = componentMaximum + offset, RevisionNumber = revision,
+				Name = "ARMINSTALL foreign deleted holdable " + revision, Type = "Holdable", Description = "Foreign historical holdable fixture.", Definition = "<Definition/>", EditableItem = Approval() };
+			var item = new Db.GameItemProto { Id = itemMaximum + offset, RevisionNumber = revision, Name = "ARMINSTALL foreign deleted item " + revision,
+				Keywords = "foreign fixture", ShortDescription = "a foreign test item", FullDescription = "Owned disposable foreign tombstone fixture.", MaterialId = plan.Material,
+				Size = 1, Weight = 1, BaseItemQuality = 5, MorphEmote = "$0 changes.", EditableItem = Approval() };
+			db.AddRange(component, item); db.SaveChanges();
+			foreach (var (type, id) in new[] { (nameof(Db.GameItemComponentProto), component.Id), (nameof(Db.GameItemProto), item.Id) })
+				db.SeederManagedRecords.Add(new() { Seeder = "ARMINSTALLForeign", Module = "foreign", EntityType = type, StableKey = "foreign." + type + "." + revision,
+					LogicalId = id, RevisionNumber = revision, Retired = retired, SeedBaseline = "{\"Name\":\"foreign historical baseline\"}", AppliedFingerprint = "foreign fingerprint",
+					ManifestVersion = "foreign-1", AppliedAt = DateTime.UnixEpoch });
+			db.SaveChanges(); db.RemoveRange(component, item); db.SaveChanges();
+		}
+		return (componentMaximum + 9, itemMaximum + 9);
+	}
 	private static int InstallerNative()
 	{
 		using var globals = new ConsumableGlobals(); using var database = TestDatabase.CreateFresh("futuremud_land_"); ConfigureNativeDatabase(database.ConnectionString);
@@ -92,26 +119,37 @@ internal static partial class GNHProgram
 				eligibility.Id, db.Liquids.Single(x => x.Name == "ARM03C2 water").Id, light.Id, light.RevisionNumber,
 				hold.Id, hold.RevisionNumber, seed.World.Materials.First().Id, builder.Id);
 		}
+		var foreignMaximum = SeedForeignPrototypeTombstones(database, plan);
+		var foreignOwnership = ForeignOwnershipSnapshot(database);
 		var untouched = PlayerSnapshot(database);
 		Require(InstallOwned(database, plan with { Install = false }).Status == ArmageddonInstallStatus.Declined && untouched == PlayerSnapshot(database), "Optional decline changed player state.");
 		using (var db = NewIndependentContext(database.ConnectionString))
 		{
 			var collision = ArmageddonReviewedUtilityContent.MendFlesh().SpellRow(plan.School, plan.SpellSkills[ArmageddonReviewedUtilityContent.MendFleshKey], plan.AlwaysFalseProg);
 			db.MagicSpells.Add(collision); db.SaveChanges();
-			Require(InstallOwned(database, plan).Status == ArmageddonInstallStatus.Blocked && db.SeederManagedRecords.Count() == 0, "Unowned collision adopted or partially installed.");
+			Require(InstallOwned(database, plan).Status == ArmageddonInstallStatus.Blocked && !db.SeederManagedRecords.Any(x => x.Seeder == ArmageddonMagicInstaller.Package), "Unowned collision adopted or partially installed.");
 			db.MagicSpells.Remove(collision); db.SaveChanges();
 		}
 		foreach (var boundary in new[] { ArmageddonInstallCheckpoint.ContentCreated, ArmageddonInstallCheckpoint.BeforeCommit })
 		{
 			var failed = InstallOwned(database, plan, phase => { if (phase == boundary) throw new IOException("Owned installer interruption " + boundary); });
 			using var db = NewIndependentContext(database.ConnectionString);
-			Require(failed.Status == ArmageddonInstallStatus.Failed && !db.SeederManagedRecords.Any() && !db.MagicSpells.Any(x => x.Name == "Mend Flesh") && untouched == PlayerSnapshot(database), "Real MySQL rollback left partial content or ownership.");
+			Require(failed.Status == ArmageddonInstallStatus.Failed && !db.SeederManagedRecords.Any(x => x.Seeder == ArmageddonMagicInstaller.Package) && !db.MagicSpells.Any(x => x.Name == "Mend Flesh") && untouched == PlayerSnapshot(database) && foreignOwnership == ForeignOwnershipSnapshot(database), "Real MySQL rollback left partial content or changed foreign ownership.");
 			Console.WriteLine("ARMINSTALL-rollback=passed boundary:" + boundary);
 		}
 		var uncertain = InstallOwned(database, plan, phase => { if (phase == ArmageddonInstallCheckpoint.AfterCommit) throw new IOException("Lost installer confirmation"); });
 		Require(uncertain.Status == ArmageddonInstallStatus.CommittedConfirmationFailed && uncertain.Identities.Count == 21, "Uncertain commit receipt was misclassified.");
 		var ids = uncertain.Identities.ToDictionary(x => x.Key, x => x.Value);
+		Require(ids.Where(x => x.Key.StartsWith("arm.component.")).All(x => x.Value > foreignMaximum.Component) &&
+			ids.Where(x => x.Key.StartsWith("arm.item.")).All(x => x.Value > foreignMaximum.Item), "First install reused foreign tombstoned prototype IDs.");
 		RunInstallerReader(new(database.Name, plan, ids));
+		Require(foreignOwnership == ForeignOwnershipSnapshot(database), "First install or restarted rerun changed foreign tombstones.");
+		using (var db = NewIndependentContext(database.ConnectionString))
+		{
+			Require(!db.GameItemProtos.Any(x => x.Id <= foreignMaximum.Item && x.Name.StartsWith("Armageddon blank")) &&
+				!db.GameItemComponentProtos.Any(x => x.Id <= foreignMaximum.Component && x.Type == "ChargedMagicDevice"), "Foreign identity was recreated with different content.");
+		}
+		Console.WriteLine("ARMINSTALL-foreign-tombstones=passed first-install both-prototype-types missing retired revision-zero revision-seven distinct-logical-ids unchanged-foreign-records stable-restarted-rerun");
 		Require(untouched == PlayerSnapshot(database), "Clean install or restarted rerun changed player state.");
 		using (var db = NewIndependentContext(database.ConnectionString))
 		{
@@ -126,7 +164,7 @@ internal static partial class GNHProgram
 		using (var db = NewIndependentContext(database.ConnectionString))
 		{
 			Require(db.MagicSpells.Find(ids[ArmageddonReviewedUtilityContent.MendFleshKey])!.Description == "Keep the builder's prose." &&
-				db.TraitExpressions.Find(ids[ArmageddonReviewedUtilityContent.SenseEnchantmentKey + ".duration"])!.Expression == "42*grade" && db.SeederManagedRecords.Count() == 21, "Rerun lost edits or claimed clone.");
+				db.TraitExpressions.Find(ids[ArmageddonReviewedUtilityContent.SenseEnchantmentKey + ".duration"])!.Expression == "42*grade" && db.SeederManagedRecords.Count(x => x.Seeder == ArmageddonMagicInstaller.Package) == 21, "Rerun lost edits or claimed clone.");
 			var sense = db.MagicSpells.Find(ids[ArmageddonReviewedUtilityContent.SenseEnchantmentKey])!;
 			db.Remove(sense); db.SaveChanges();
 			Require(InstallOwned(database, plan).Status == ArmageddonInstallStatus.Blocked && !db.MagicSpells.AsNoTracking().Any(x => x.Id == sense.Id), "Intentional deletion was resurrected.");

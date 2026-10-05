@@ -56,6 +56,7 @@ public static partial class ArmageddonMagicInstaller
 			{
 				spell = content.SpellRow(plan.School, plan.SpellSkills[content.Key], plan.AlwaysFalseProg);
 				db.MagicSpells.Add(spell); db.SaveChanges();
+				EnsureUnclaimedIdentity(db, Spec(content.Key), spell.Id);
 				spellRecord = new SeederManagedRecord { Seeder = Package, Module = Module, EntityType = nameof(MagicSpell),
 					StableKey = content.Key, LogicalId = spell.Id };
 				db.SeederManagedRecords.Add(spellRecord); records.Add(content.Key, spellRecord);
@@ -77,7 +78,7 @@ public static partial class ArmageddonMagicInstaller
 			var componentKey = $"arm.component.charged_{name}";
 			var component = Apply(db, Spec(componentKey), new GameItemComponentProto
 			{
-				Id = records.TryGetValue(componentKey, out var existing) ? existing.LogicalId!.Value : (db.GameItemComponentProtos.Select(x => (long?)x.Id).Max() ?? 0) + 1,
+				Id = records.TryGetValue(componentKey, out var existing) ? existing.LogicalId!.Value : NextPrototypeId(db, typeof(GameItemComponentProto)),
 				RevisionNumber = existing?.RevisionNumber ?? 0, Name = Spec(componentKey).Name, Type = "ChargedMagicDevice",
 				Description = "Editable dual focus and charged device. Caster eligibility; paid Mend Flesh production. Supplied blank.",
 				Definition = MagicDeviceDefinition.ReviewedBlank(kind, mend), EditableItem = Approval(plan)
@@ -85,7 +86,7 @@ public static partial class ArmageddonMagicInstaller
 			var itemKey = $"arm.item.charged_{name}";
 			var item = new GameItemProto
 			{
-				Id = records.TryGetValue(itemKey, out existing) ? existing.LogicalId!.Value : (db.GameItemProtos.Select(x => (long?)x.Id).Max() ?? 0) + 1,
+				Id = records.TryGetValue(itemKey, out existing) ? existing.LogicalId!.Value : NextPrototypeId(db, typeof(GameItemProto)),
 				RevisionNumber = existing?.RevisionNumber ?? 0, Name = Spec(itemKey).Name,
 				Keywords = $"blank armageddon {name}", ShortDescription = $"a plain {name}",
 				FullDescription = $"This plain {name} can focus Mend Flesh or store one homogeneous bank of legitimately produced charges. It is supplied empty.",

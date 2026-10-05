@@ -172,4 +172,46 @@ public class ArmageddonMagicInstallerTests
 			CollectionAssert.Contains(ids, 98L); CollectionAssert.Contains(ids, 99L); CollectionAssert.DoesNotContain(ids, 1L);
 		}
 	}
+	[DataTestMethod]
+	[DataRow(false, 0)] [DataRow(true, 0)] [DataRow(false, 7)] [DataRow(true, 7)]
+	public void FirstInstallReservesForeignDeletedPrototypeIdentitiesAcrossRetirementAndRevisions(bool retired, int revision)
+	{
+		var (db, plan) = Fixture(); using (db)
+		{
+			var componentId = db.GameItemComponentProtos.Max(x => x.Id) + 1;
+			var itemId = db.GameItemProtos.Max(x => x.Id) + 1;
+			var component = new GameItemComponentProto { Id = componentId, RevisionNumber = revision, Name = "foreign deleted component", Type = "Holdable", Definition = "<Definition/>", EditableItem = new() { RevisionStatus = 4 } };
+			var item = new GameItemProto { Id = itemId, RevisionNumber = revision, Name = "foreign deleted item", MaterialId = 1, EditableItem = new() { RevisionStatus = 4 } };
+			db.AddRange(component, item); db.SaveChanges();
+			foreach (var (type, id) in new[] { (nameof(GameItemComponentProto), componentId), (nameof(GameItemProto), itemId) })
+				db.SeederManagedRecords.Add(new() { Seeder = "ForeignPackage", Module = "foreign", EntityType = type, StableKey = "foreign." + type,
+					LogicalId = id, RevisionNumber = revision, Retired = retired, SeedBaseline = "{\"Name\":\"foreign baseline\"}", AppliedFingerprint = "foreign fingerprint", ManifestVersion = "foreign-1", AppliedAt = DateTime.UnixEpoch });
+			db.SaveChanges(); db.RemoveRange(component, item); db.SaveChanges();
+			var before = JsonSerializer.Serialize(db.SeederManagedRecords.AsNoTracking().OrderBy(x => x.Id).ToArray());
+			var first = Run(db, plan); Installed(first);
+			Assert.IsTrue(first.Identities.Where(x => x.Key.StartsWith("arm.component.")).All(x => x.Value > componentId));
+			Assert.IsTrue(first.Identities.Where(x => x.Key.StartsWith("arm.item.")).All(x => x.Value > itemId));
+			Assert.IsFalse(db.GameItemComponentProtos.Any(x => x.Id == componentId)); Assert.IsFalse(db.GameItemProtos.Any(x => x.Id == itemId));
+			var second = Run(db, plan); Installed(second); CollectionAssert.AreEquivalent(first.Identities.ToArray(), second.Identities.ToArray());
+			Assert.AreEqual(before, JsonSerializer.Serialize(db.SeederManagedRecords.AsNoTracking().Where(x => x.Seeder == "ForeignPackage").OrderBy(x => x.Id).ToArray()));
+		}
+	}
+	[DataTestMethod] [DataRow(nameof(MagicSpell), 1L)] [DataRow(nameof(TraitExpression), 1L)] [DataRow(nameof(FutureProg), 3L)]
+	public void EveryNewClaimChecksRetainedOwnershipAfterPreflight(string entityType, long logicalId)
+	{
+		var (db, plan) = Fixture(); using (db)
+		{
+			var result = ArmageddonMagicInstaller.Install(db, plan, phase =>
+			{
+				if (phase != ArmageddonInstallCheckpoint.PreflightComplete) return;
+				db.SeederManagedRecords.Add(new() { Seeder = "ForeignPackage", EntityType = entityType, StableKey = "foreign.deleted-identity", LogicalId = logicalId, Retired = true });
+				db.SaveChanges();
+			});
+			Assert.AreEqual(ArmageddonInstallStatus.Failed, result.Status); StringAssert.Contains(string.Join(" ", result.Messages), "retained ownership");
+			// In-memory transactions do not roll back earlier rows; assert the guarded
+			// identity is never claimed. Whole-batch rollback is qualified in MySQL.
+			Assert.AreEqual(0, db.SeederManagedRecords.Count(x => x.Seeder == ArmageddonMagicInstaller.Package && x.EntityType == entityType && x.LogicalId == logicalId));
+			Assert.AreEqual(1, db.SeederManagedRecords.Count(x => x.Seeder == "ForeignPackage" && x.EntityType == entityType && x.LogicalId == logicalId && x.Retired));
+		}
+	}
 }

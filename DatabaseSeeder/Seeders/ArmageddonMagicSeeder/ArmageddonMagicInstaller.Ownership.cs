@@ -13,6 +13,25 @@ public static partial class ArmageddonMagicInstaller
 {
 	private sealed record Contribution(Type Type, string Key, string Name, string[] Dependencies, IReadOnlyDictionary<string, long>? Bindings = null);
 	private static string EntityType(Type type) => type.Name;
+	private static long NextPrototypeId(FuturemudDatabaseContext db, Type type)
+	{
+		var nativeMaximum = type == typeof(GameItemProto)
+			? db.GameItemProtos.Select(x => (long?)x.Id).Max() ?? 0
+			: db.GameItemComponentProtos.Select(x => (long?)x.Id).Max() ?? 0;
+		// A missing row does not release its historical identity. Reserve all packages'
+		// logical IDs, regardless of retirement or revision, under the install transaction.
+		var entityType = EntityType(type);
+		var ownedMaximum = db.SeederManagedRecords.Where(x => x.EntityType == entityType)
+			.Select(x => x.LogicalId).Max() ?? 0;
+		return checked(Math.Max(nativeMaximum, ownedMaximum) + 1);
+	}
+	private static void EnsureUnclaimedIdentity(FuturemudDatabaseContext db, Contribution contribution, long id)
+	{
+		var entityType = EntityType(contribution.Type);
+		// New logical identities cannot reuse another revision's retained claim either.
+		if (db.SeederManagedRecords.Any(x => x.EntityType == entityType && x.LogicalId == id))
+			throw new InvalidOperationException($"{contribution.Key}: {entityType} #{id} has retained ownership; refuse identity takeover.");
+	}
 	private static readonly Lazy<JsonDocument> ReviewedManifest = new(() =>
 	{
 		using var stream = typeof(ArmageddonMagicInstaller).Assembly.GetManifestResourceStream("ArmageddonReviewedContentManifest")
@@ -115,6 +134,7 @@ public static partial class ArmageddonMagicInstaller
 			if (db.Set<T>().Any(x => EF.Property<string>(x, nameProperty.Name) == desiredName))
 				throw new InvalidOperationException($"{contribution.Key}: unowned {nameProperty.Name} collision; no automatic adoption.");
 			row = desired; db.Add(row); db.SaveChanges();
+			EnsureUnclaimedIdentity(db, contribution, (long)typeof(T).GetProperty("Id")!.GetValue(row)!);
 			record = new SeederManagedRecord { Seeder = Package, Module = Module, EntityType = EntityType(typeof(T)),
 				StableKey = contribution.Key, LogicalId = (long)typeof(T).GetProperty("Id")!.GetValue(row)!,
 				RevisionNumber = typeof(T).GetProperty("RevisionNumber")?.GetValue(row) as int? };

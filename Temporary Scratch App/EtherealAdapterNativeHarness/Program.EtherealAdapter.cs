@@ -82,10 +82,12 @@ internal static partial class GNHProgram
 		EditableItemHelper.MagicSpellHelper.EditableNewAction(actor, new StringStack($"\"Ethereal Adapter Fixture\" {cap.School.Id}"));
 		var spell = (MagicSpell)spells.Single(x => x.Name == "Ethereal Adapter Fixture");
 		foreach (var edit in new[] { "trigger new self", "effect add detectethereal", $"effect 1 lifetime accumulate {EtherealAdapterGroup} 600 36",
-			"exclusiveeffect", $"trait {skill.Id}", "difficulty easy", $"duration {duration.Id}", $"cost {native.Resource.Id} {cost.Id}",
+			$"trait {skill.Id}", "difficulty easy", $"duration {duration.Id}", $"cost {native.Resource.Id} {cost.Id}",
 			"castemote $0 invokes an ethereal perception enchantment.", "failcastemote $0 falters.", "targetemote $0 surrounds $1 with an enchantment.",
 			"grades fixture", "grades efficiency source 7 1" })
 			Require(spell.BuildingCommand(actor, new StringStack(edit)), "Ordinary ethereal adapter builder: " + edit);
+		if (!spell.AppliedEffectsAreExclusive)
+			Require(spell.BuildingCommand(actor, new StringStack("exclusiveeffect")), "Enable exclusive replacement when absent");
 		Require(spell.ReadyForGame && spell.StockIdentity is null, "Editable adapter readiness; this is not source stock acceptance");
 		using (new FMDB()) { spell.Save(); FMDB.Context.SaveChanges(); }
 		using (var db = NewIndependentContext(database.ConnectionString))

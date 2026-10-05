@@ -307,6 +307,9 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
 	#3castereffect <##> ...#0 - changes the properties of a caster-only spell effect
 	#3material add held|wielded|inroom|consumed|consumedliquid ...#0 - adds a new material requirement to this spell
 	#3material delete <#>#0 - deletes a material requirement
+	#3plan carried <#> on|off#0 - restricts a consumed material to direct inventory
+	#3plan ranks <#> <offset -6..0> <rank 0 tag> ... <highest rank tag>#0 - requires a component rank based on selected grade; tags must form an ascending hierarchy and cover all seven grades
+	#3plan ranks <#> none#0 - removes selected-grade rank requirements
 	#3cost <resource> <trait expression>#0 - sets the trait expression for casting cost for a resource
 	#3cost <resource> remove#0 - removes a casting cost for a resource
 	#3castemote <emote>#0 - sets the cast emote. $0 is caster, $1 is target (if any)
@@ -853,6 +856,10 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
     {
         switch (command.PopSpeech().ToLowerInvariant())
         {
+            case "carried":
+                return BuildingCommandPlanSelection(actor, command, false);
+            case "ranks":
+                return BuildingCommandPlanSelection(actor, command, true);
             case "add":
             case "new":
             case "create":
@@ -864,8 +871,67 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
                 return BuildingCommandPlanDelete(actor, command);
         }
 
-        actor.OutputHandler.Send($"You must either ADD a material to the plan or REMOVE one from the plan.");
+        actor.OutputHandler.Send("Use plan add, remove, carried <number> on|off, or ranks <number> <offset> <rank tags>|none.");
         return false;
+    }
+
+    private bool BuildingCommandPlanSelection(ICharacter actor, StringStack command, bool ranks)
+    {
+        if (!int.TryParse(command.PopSpeech(), out var number) || number < 1 ||
+            InventoryPlanTemplate.Phases.First().Actions.ElementAtOrDefault(number - 1) is not
+                GameItems.Inventory.Plans.InventoryPlanActionConsume action)
+        {
+            actor.OutputHandler.Send("Select the number of a consumed material requirement.");
+            return false;
+        }
+
+        var value = command.PopSpeech();
+        if (!ranks)
+        {
+            if (!command.IsFinished || value.ToLowerInvariant() is not ("on" or "off"))
+            {
+                actor.OutputHandler.Send("Use plan carried <number> on|off.");
+                return false;
+            }
+
+            action.CarriedOnly = value.EqualTo("on");
+        }
+        else if (value.EqualTo("none") && command.IsFinished)
+        {
+            action.ClearGradeRanks();
+        }
+        else
+        {
+            if (!int.TryParse(value, out var offset))
+            {
+                actor.OutputHandler.Send("Use plan ranks <number> <offset -6..0> <rank zero tag> ... <highest rank tag>, or none.");
+                return false;
+            }
+
+            var tags = new List<ITag>();
+            while (!command.IsFinished)
+            {
+                var tag = Gameworld.Tags.GetByIdOrName(command.PopSpeech());
+                if (tag is null)
+                {
+                    actor.OutputHandler.Send("Every rank must name an existing tag. Quote names containing spaces.");
+                    return false;
+                }
+
+                tags.Add(tag);
+            }
+
+            try { action.ConfigureGradeRanks(offset, tags); }
+            catch (Exception ex) when (ex is FormatException or InvalidOperationException)
+            {
+                actor.OutputHandler.Send(ex.Message);
+                return false;
+            }
+        }
+
+        Changed = true;
+        actor.OutputHandler.Send($"Material selection updated: {action.Describe(actor)}");
+        return true;
     }
 
     private bool BuildingCommandPlanDelete(ICharacter actor, StringStack command)

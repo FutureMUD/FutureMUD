@@ -144,6 +144,7 @@ The core syntax is as follows:
 	#3magic spell list#0 - shows all magic spells
 	#3magic spell edit new <name> <school>#0 - creates a new magic spell
 	#3magic spell edit new stock raise-servitor <school> <casting trait> <resource>#0 - creates the configurable Raise Servitor stock spell and its support AIs
+	#3magic spell edit new stock storm-spear <school> <casting trait> <resource> <weapon prototype> <rank 0 tag> <rank 1 tag> <rank 2 tag> <rank 3 tag> <rank 4 tag>#0 - creates temporary primary-hand Storm Spear stock using an authored electrical weapon
 	#3magic spell clone <old> <new>#0 - clones an existing magic spell
 	#3magic spell edit <which>#0 - begins editing a magic spell
 	#3magic spell close#0 - closes an editing magic spell

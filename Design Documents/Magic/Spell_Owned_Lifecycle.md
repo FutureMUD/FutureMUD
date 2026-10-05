@@ -310,8 +310,8 @@ Controlled native acceptance exercises a paid grade-three timed melee weapon and
 paid grade-seven permanent staff, native holding/wielding, callback holds, actual SQL delete
 failure and a second-process custody reload before retry. These are replacement fixtures,
 not installed Armageddon stock, combat statistics or elemental payload acceptance. Food,
-water/wine capacity and mixing, Hovering Light, Storm Spear primary-hand placement and
-the remaining item families remain separate completion requirements.
+water/wine capacity and mixing, Hovering Light and Storm Spear have subsequent bounded
+checkpoints below; the remaining item families remain separate completion requirements.
 
 ### Staff corpse maintenance
 
@@ -602,6 +602,8 @@ command session, timed decay, native NPC death or the later summon adapters.
 
 
 ## Native created consumables and worn lights
+
+The bounded Storm Spear adapter uses the existing exact native leaf-item journal, adding explicit primary-hand placement and persisted carried component rank. It admits one approved plain melee weapon, validates the recipient's dominant wield location and capacity before payment, and checks custody after native Get/Wield callbacks. Redirected custody after payment retains a NeedsReview operation and owned output for reconciliation; it cannot become a successful conflicting wield record. Every stock grade expires, including seven. Lifetime uses the recovered loop's nominal 0.75 seconds per event-heap unit as an exact native deadline; historical batching and object 488 JavaScript damage are not reproduced. The builder must select an authored native electrical weapon profile. Native acceptance and its controlled-world limits are recorded in the Storm Spear checkpoint receipt; full boot, ordinary autonomous attack selection/defences, concurrency and complete installer qualification remain separate gates.
 
 The bounded item adapter also admits exact unscripted Holdable + Food and Holdable + Wearable + ProgLight graphs. Food requires positive finite bites, nonnegative finite nutrition and a native decorator. Lights require native wear profiles without wear scripts and positive finite illumination. Other graphs still require an adapter. Existing ownership, permanent value policy, callback-free retirement, exact single-leaf claims and conservative foreign-dependency holds apply to each output.
 

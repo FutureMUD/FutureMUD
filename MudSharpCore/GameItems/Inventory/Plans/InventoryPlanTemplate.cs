@@ -1261,6 +1261,7 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
             case DesiredItemState.ConsumeCommodity:
                 return ConsumeCommodity(actor, item, ((InventoryPlanActionConsumeCommodity)action).Weight, action?.OriginalReference);
             case DesiredItemState.Consumed:
+				((InventoryPlanActionConsume)action).RevalidateConsumption(actor, item);
                 return ConsumeItem(actor, item, ((InventoryPlanActionConsume)action).Quantity,
                     action?.OriginalReference);
             case DesiredItemState.ConsumeLiquid:

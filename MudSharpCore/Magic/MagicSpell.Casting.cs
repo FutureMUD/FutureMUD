@@ -1,4 +1,5 @@
 using MudSharp.Body.Traits;
+using MudSharp.GameItems.Inventory.Plans;
 using MudSharp.Magic.Casting;
 using MudSharp.Magic.Vancian;
 using MudSharp.RPG.Checks;
@@ -27,6 +28,23 @@ public partial class MagicSpell
 		model.Definition = definition.ToString(SaveOptions.DisableFormatting);
 		var copy = new MagicSpell(model, Gameworld);
 		copy.InvocationGrade = grade;
+		var originalActions = InventoryPlanTemplate.Phases.SelectMany(x => x.Actions).ToArray();
+		if (!originalActions.OfType<InventoryPlanActionConsume>().Any(x => x.HasGradeRanks))
+		{
+			// Legacy/custom plans can have runtime feasibility policy beyond their XML.
+			copy.InventoryPlanTemplate = InventoryPlanTemplate;
+		}
+		else
+		{
+			var copiedActions = copy.InventoryPlanTemplate.Phases.SelectMany(x => x.Actions).Cast<InventoryPlanAction>().ToArray();
+			for (var i = 0; i < copiedActions.Length; i++)
+			{
+				var original = (InventoryPlanAction)originalActions[i];
+				copiedActions[i].PrimaryItemSelector = original.PrimaryItemSelector;
+				copiedActions[i].SecondaryItemSelector = original.SecondaryItemSelector;
+			}
+			foreach (var action in copiedActions.OfType<InventoryPlanActionConsume>()) action.BindSelectedGrade(grade);
+		}
 		copy.SetNoSave(true);
 		foreach (var (resource, expression) in copy._castingCosts.ToArray())
 			copy._castingCosts[resource] = CastingNumerics.Bind(expression, trait, grade, power, $"cost/{resource.Id}", Gameworld, controlledGrade);

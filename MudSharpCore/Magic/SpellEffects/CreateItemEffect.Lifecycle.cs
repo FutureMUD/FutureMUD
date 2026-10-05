@@ -1,6 +1,7 @@
 #nullable enable
 
 using System.Xml.Linq;
+using MudSharp.Body;
 using MudSharp.Body.Traits;
 using MudSharp.Character;
 using MudSharp.Construction;
@@ -30,6 +31,7 @@ public partial class CreateItemEffect
 	public ITraitExpression? LifetimeExpression { get; internal set; }
 	public bool CountByGrade { get; private set; }
 	public bool WornLight { get; private set; }
+	public bool PrimaryHand { get; private set; }
 
 	public string? DefinitionError => _lifecycleLoadError ?? (LifecycleMode is null ? null :
 		Gameworld.SpellOwnedItems is null ? "Spell-owned native item creation is unavailable." :
@@ -40,6 +42,8 @@ public partial class CreateItemEffect
 		PermanentGrade is not null && PermanentPrototype!.IsItemType<ProgLightGameItemComponentProto>() ? "Permanent grade overrides cannot select lights; configure explicit worn-light placement." :
 		CountByGrade && (!ItemPrototype.IsItemType<FoodGameItemComponentProto>() || PermanentGrade is not null) ? "Grade-count creation requires plain food without a permanent grade override." :
 		WornLight && (!ItemPrototype.IsItemType<ProgLightGameItemComponentProto>() || CountByGrade || PermanentGrade is not null) ? "Worn-light placement requires one wearable light without a permanent grade override." :
+		PrimaryHand && (CountByGrade || !ItemPrototype.IsItemType<MeleeWeaponGameItemComponentProto>() ||
+			PermanentGrade is not null && !PermanentPrototype!.IsItemType<MeleeWeaponGameItemComponentProto>()) ? "Primary-hand placement requires one native melee weapon at each output grade." :
 		ItemPrototype.IsItemType<ProgLightGameItemComponentProto>() && !WornLight ? "Lifecycle lights require worn-light placement." :
 		LifecycleMode == SpellLifecycleMode.TemporaryCleanup && (LifetimeExpression is null || LifetimeExpression.HasErrors()) ? "Set a valid lifetime expression in real seconds." :
 		LifetimeExpression?.NonTraitParameters.Contains("outcome", StringComparer.OrdinalIgnoreCase) == true ? "Item lifetime must be determinable before payment; outcome is not supported." :
@@ -52,7 +56,7 @@ public partial class CreateItemEffect
 			!Enum.TryParse<SpellLifecycleMode>((string?)root.Attribute("mode"), true, out var mode) ||
 			mode is not (SpellLifecycleMode.Permanent or SpellLifecycleMode.TemporaryCleanup) ||
 			root.Element("Count") is { } count && count.Value is not ("single" or "grade") ||
-			root.Element("Placement") is { } placement && placement.Value is not ("standard" or "wornlight") ||
+			root.Element("Placement") is { } placement && placement.Value is not ("standard" or "wornlight" or "primaryhand") ||
 			root.Element("PermanentOutput") is { } output &&
 			(!int.TryParse((string?)output.Attribute("grade"), out var grade) || grade is < 1 or > 7 ||
 			 !long.TryParse(output.Value, out var prototypeId) || prototypeId <= 0))
@@ -63,6 +67,7 @@ public partial class CreateItemEffect
 		LifecycleMode = mode; LifecycleFamily = root.Element("Family")?.Value ?? "";
 		CountByGrade = root.Element("Count")?.Value == "grade";
 		WornLight = root.Element("Placement")?.Value == "wornlight";
+		PrimaryHand = root.Element("Placement")?.Value == "primaryhand";
 		_lifetimeFormula = root.Element("Seconds")?.Value;
 		if (_lifetimeFormula is not null) LifetimeExpression = new TraitExpression(_lifetimeFormula, Gameworld);
 		if (root.Element("PermanentOutput") is { } permanent)
@@ -73,7 +78,7 @@ public partial class CreateItemEffect
 		? new("Lifecycle", new XAttribute("version", 1), new XAttribute("mode", mode), new XElement("Family", LifecycleFamily),
 			_lifetimeFormula is not null ? new XElement("Seconds", _lifetimeFormula) : null,
 			CountByGrade ? new XElement("Count", "grade") : null,
-			WornLight ? new XElement("Placement", "wornlight") : null,
+			WornLight ? new XElement("Placement", "wornlight") : PrimaryHand ? new XElement("Placement", "primaryhand") : null,
 			PermanentGrade is { } grade ? new XElement("PermanentOutput", new XAttribute("grade", grade), _permanentPrototypeId) : null)
 		: null;
 
@@ -93,6 +98,16 @@ public partial class CreateItemEffect
 			var profile = ItemPrototype.GetItemType<WearableGameItemComponentProto>().DefaultProfile;
 			if (profile.Profile(character.Body) is not { Count: > 0 } || !character.Body.CanWear(preview, profile))
 			{ error = "The recipient cannot wear the configured light profile."; return false; }
+		}
+		if (PrimaryHand)
+		{
+			if (recipient is not ICharacter character || !ReferenceEquals(character.Gameworld, Gameworld))
+			{ error = "Primary-hand placement requires a character recipient in this world."; return false; }
+			var prototype = PermanentGrade == grade ? PermanentPrototype! : ItemPrototype;
+			var preview = new GameItem(prototype, caster, MudSharp.GameItems.ItemQuality.Standard, deferSpellInitialisation: true);
+			var hand = PrimaryWieldHand(character);
+			if (hand is null || hand.Hands(preview) != 1 || !character.Body.CanGet(preview, 0) || !character.Body.CanWield(preview, hand))
+			{ error = "The recipient needs a usable free primary hand and capacity for the created weapon."; return false; }
 		}
 		if (LifecycleMode == SpellLifecycleMode.Permanent || PermanentGrade == grade) return true;
 		if (_preparedLifetimeSeconds is not null) return true;
@@ -160,7 +175,21 @@ public partial class CreateItemEffect
 	{
 		Gameworld.Add(item);
 		item.SetOwner(target as ICharacter ?? caster);
-		if (WornLight && target is ICharacter recipient)
+		if (PrimaryHand && target is ICharacter wielder)
+		{
+			var hand = PrimaryWieldHand(wielder);
+			if (hand is null || hand.Hands(item) != 1 || !wielder.Body.CanGet(item, 0) || !wielder.Body.CanWield(item, hand))
+				throw new InvalidOperationException("The admitted primary hand is no longer available for the created weapon.");
+			var gotten = wielder.Body.Get(item, 0, null, true, ItemCanGetIgnore.None, null);
+			if (!ReferenceEquals(gotten, item) || !ReferenceEquals(item.InInventoryOf, wielder.Body) ||
+				item.ContainedIn is not null || !wielder.Body.HeldItems.Contains(item))
+				throw new InvalidOperationException("The created weapon changed custody while entering the admitted primary hand.");
+			if (!wielder.Body.Wield(item, hand, silent: true) ||
+				!ReferenceEquals(item.InInventoryOf, wielder.Body) || item.ContainedIn is not null ||
+				!wielder.Body.WieldedItems.Contains(item) || !ReferenceEquals(item.GetItemType<IWieldable>().PrimaryWieldedLocation, hand))
+				throw new InvalidOperationException("The created weapon could not enter the admitted primary hand.");
+		}
+		else if (WornLight && target is ICharacter recipient)
 		{
 			item.Get(recipient.Body);
 			recipient.Body.WearExternally(item, item.GetItemType<IWearable>().DefaultProfile);
@@ -173,6 +202,11 @@ public partial class CreateItemEffect
 		else { item.RoomLayer = target.RoomLayer; item.InsertAtSource(target is IGameItem outputHost ? outputHost.LocationLevelPerceivable : target is ICell ? caster : target, true); }
 		item.HandleEvent(EventType.ItemFinishedLoading, item); item.Login();
 	}
+
+	internal static IWield? PrimaryWieldHand(ICharacter recipient) => recipient.Body.WieldLocs
+		.Where(x => x.Alignment.LeftRightOnly() == recipient.Body.Handedness.LeftRightOnly())
+		.OrderBy(x => x.Id)
+		.FirstOrDefault();
 
 	private bool BuildingCommandLifecycle(ICharacter actor, StringStack command)
 	{
@@ -194,8 +228,8 @@ public partial class CreateItemEffect
 				CountByGrade = count == "grade"; break;
 			case "placement":
 				var placement = command.PopSpeech().ToLowerInvariant();
-				if (placement is not ("standard" or "wornlight")) { actor.OutputHandler.Send("Specify standard or wornlight."); return false; }
-				WornLight = placement == "wornlight"; break;
+				if (placement is not ("standard" or "wornlight" or "primaryhand")) { actor.OutputHandler.Send("Specify standard, wornlight or primaryhand."); return false; }
+				WornLight = placement == "wornlight"; PrimaryHand = placement == "primaryhand"; break;
 			case "lifetime":
 				var expression = new TraitExpression(command.SafeRemainingArgument, Gameworld);
 				if (expression.HasErrors() || expression.NonTraitParameters.Contains("outcome", StringComparer.OrdinalIgnoreCase))

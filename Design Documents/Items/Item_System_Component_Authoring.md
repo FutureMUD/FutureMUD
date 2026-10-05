@@ -622,6 +622,8 @@ Psychometric history is a saved item effect, not a mandatory component. Inventor
 
 ## Native spell-created consumable graphs
 
+For primary-hand temporary weapon placement use an approved plain Holdable + MeleeWeapon prototype within the existing native creation eligibility boundary. Author its actual native weapon type and attacks; Storm Spear stock requires electrical attacks and at least one normal one-hand-capable melee attack. Keep placement and lifetime policy on the spell. Component rank is an explicit native tag hierarchy, not inferred from item quality: five Creation ranks zero through four with each higher tag descending from the previous tag satisfy the stock `max(grade-3,0)` requirement. Use spell `plan carried` and `plan ranks` controls to edit those persisted constraints.
+
 For bounded lifecycle food author a loadable approved prototype with exactly Holdable + Food, finite positive bites, finite nonnegative nutrition, a bites decorator and no OnEatProg. For a worn light use exactly Holdable + Wearable + ProgLight, a native default wear profile without wear scripts and finite positive lux. Both prototypes must be unscripted and have no ordinary morphing/default item hooks. Add count/placement/lifetime policy on the spell, not on a duplicate component timer. Unsupported stacks, recipe payloads and component graphs require their own ownership adapters.
 
 Liquid creation targets existing open LiquidContainer components; it creates no new container. Author unscripted stock containers for the qualified slice, native fluid capacity and the spell's litres/allowed-mixture/optional-plane recipe. Additional callback-bearing containers retain ordinary MergeLiquid callbacks and require separate failure qualification.

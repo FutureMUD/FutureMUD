@@ -185,7 +185,7 @@ public sealed partial class MagicCastingService : IMagicCastingService
 				!cost.Holder.CanUseResource(cost.Resource, cost.Amount)) throw new InvalidOperationException($"Insufficient {cost.Resource.Name} for the combined cost.");
 			if (QuarantineReason(actor, reserveId: cost.Resource.Id) is { } q) throw new InvalidOperationException(q);
 		}
-		var plan = (intent.Mode == MagicCastingMode.Practice ? spell.PracticeInventoryPlanTemplate! : spell.InventoryPlanTemplate).CreatePlan(actor);
+		var plan = (intent.Mode == MagicCastingMode.Practice ? spell.PracticeInventoryPlanTemplate! : copy.InventoryPlanTemplate).CreatePlan(actor);
 		if (plan.PlanIsFeasible() != InventoryPlanFeasibility.Feasible) throw new InvalidOperationException("The actual component plan is infeasible; check materials and free manipulators.");
 		var items = PlanItems(plan);
 		if (items.Length > 512) throw new InvalidOperationException("This component plan exceeds the 512 input receipt bound.");

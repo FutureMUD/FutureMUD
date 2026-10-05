@@ -39,7 +39,7 @@
   "preparation_baseline": "b0e4339d57bf15bc6e6a6f21fbdd5edc73006e38",
   "implementation_branch": "codex/armageddon-completion-phase1",
   "authorised_scope": "Complete plan in coherent stages; local commits; no publication, merge, deploy or shared/production DB",
-  "selected_stage": "Bounded stock Raise Servitor and verified security-master integration implemented and tested; parent review pending",
+  "selected_stage": "Bounded Storm Spear stock implemented and verified; local checkpoint and parent review",
   "phase1_remaining": [
     "Stock installer selects and qualifies the mental/spiritual native attribute, capacity expression/basis and authored energy coefficients.",
     "Complete installed source/support/crafting/chargen wiring and gathering restrictions/environmental accounting remain later stock/native gates.",
@@ -1752,9 +1752,10 @@
       "group": "Gap",
       "required_behavior": "Create a temporary lightning-themed spear. Placement and expiry need explicit handling; questionable source rune references are not treated as spear semantics.",
       "selected_sorcerer": true,
-      "status": "pending_runtime_stock_and_native_acceptance",
+      "status": "bounded_stock_native_verified_parent_review_pending_full_installer_and_release_pending",
       "evidence": [
-        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending",
+        "Armageddon_StormSpear_Stock_Verification.json: paid controlled grades 1/7, real electrical wounds, primary-hand and expiry/restart conservation; authored statistics and controlled-host limits explicit"
       ]
     },
     {
@@ -3287,7 +3288,7 @@
     },
     {
       "id": "phase3D1Stock_raise_servitor",
-      "status": "implemented_verified_parent_review_pending",
+      "status": "parent_independently_cleared_bounded_stock",
       "base": "812020244974323bcc75b2dee2e212e3110ff101",
       "receipt": "Armageddon_Stage3D1Stock_RaiseServitor_Verification.json",
       "managed_runs": {
@@ -3334,11 +3335,12 @@
         "Fresh stock readers prove persisted control/identity/formula/deadline queries without actor materialization. The rerun 39-marker corpse packet supplies the separately qualified paid active/pending/completed morphing restart evidence; these are not full production boots.",
         "Other 262 historical native markers were not rerun. Earlier failures, receipts and the complete seven-phase plan remain preserved. Security master integration is separately authorized only after this clean checkpoint; no Armageddon publication or production/shared database access is authorized."
       ],
-      "implementation_commit": "3507170c1f85e7e2e88855ab91174ca23e531eb2"
+      "implementation_commit": "3507170c1f85e7e2e88855ab91174ca23e531eb2",
+      "parent_verified_head": "3507170c1f85e7e2e88855ab91174ca23e531eb2"
     },
     {
       "id": "security_master_integration_93297ccb",
-      "status": "integration_verified_parent_review_pending",
+      "status": "parent_independently_cleared_bounded_integration",
       "preintegration_commit": "3507170c1f85e7e2e88855ab91174ca23e531eb2",
       "verified_master": "93297ccb8e85fe3d7099f22b8c917cb74b903fa8",
       "verified_tree": "1042a5856eaaa1e7dc7c298909b02624ac239916",
@@ -3423,6 +3425,93 @@
         "Stock qualification still uses controlled world/anatomy catalogues and specialized caster Save. Damage/defence delivery, autonomous historical aggression, guard/rescue, PC-corpse stock casts, arbitrary callbacks, full production boot/Telnet, concurrency and complete N14-N16 acceptance are not qualified.",
         "The seven-phase plan, all 16 approved decisions, 154 candidates, 82 Sorcerer spells plus 12 support rows and 25 native acceptance scenarios remain required. Complete installer, portable production, remaining effects and larger features, stock acquisition/crafting/chargen/energy wiring and release qualification remain pending.",
         "Parent review of the exact bounded stock and integration result is the next gate before later repertoire implementation. Repository publication, remote merge, deployment and production/shared database access are not authorized. No billing, credit or quota-reset action was performed."
+      ],
+      "parent_verified_head": "b3cd366d435a4d07f3b713e4558df349fa20c010"
+    },
+    {
+      "id": "servitor_queued_control_execution_gap",
+      "status": "required_before_full_queued_control_qualification",
+      "finding": "CommandableAI authorizes order acceptance, but queued SelectedCombatAction can execute after the control deadline while animation remains alive.",
+      "required_changes": [
+        "Preserve immutable controller/grant/action provenance through queued selected combat actions.",
+        "Revalidate the exact active grant and control deadline at execution; safely cancel unauthorized work.",
+        "Add a deadline-crossing test proving a previously accepted order cannot execute after control expires while animation and its independent follower link remain."
+      ],
+      "fresh_affect_timing": [
+        "Animation seconds=600*(grade+10)-1",
+        "Control seconds=600*(grade+6)-1"
+      ],
+      "timing_qualification": "Recovered fresh affect conversion with RT_ZAL_HOUR=600; not EVENT units.",
+      "other_required_acceptance": [
+        "Complete actual servitor damage/defence and historical aggression.",
+        "Guard/rescue repairs and qualification for later guard families.",
+        "PC-corpse, full boot/Telnet and concurrency release qualification."
+      ]
+    },
+    {
+      "id": "storm_spear_restart_pause_20261004",
+      "status": "PAUSED_WIP_UNVERIFIED",
+      "base_commit": "b3cd366d435a4d07f3b713e4558df349fa20c010",
+      "implemented_but_not_built": [
+        "Primary-hand CreateItem placement and prepayment checks.",
+        "Persisted consume-action carried scope and grade/rank tag mapping; selected-grade binding and consumption-time revalidation.",
+        "Partial stock factory using an externally authored native electrical weapon prototype, source minimum energy20 and nominal event-heap duration conversion."
+      ],
+      "not_yet_implemented_or_qualified": [
+        "Wire Storm Spear into the normal stock builder and provide editing/help for new material constraints.",
+        "Review and finish the WIP; author durable regression tests.",
+        "Implement fresh disposable native stock acceptance for paid low/high grades, equipment/combat damage, expiry/restart and foreign-possession conservation.",
+        "Run focused/aggregate/native checks, independent review, complete evidence/docs and local checkpoint commit."
+      ],
+      "new_builds_tests_native_checks": "NOT_RUN",
+      "local_commit_created": false,
+      "owned_operations_remaining": 0
+    },
+    {
+      "id": "phase3Stock_storm_spear",
+      "status": "bounded_stock_verified_parent_review_pending",
+      "baseline": "b3cd366d435a4d07f3b713e4558df349fa20c010",
+      "receipt": "Armageddon_StormSpear_Stock_Verification.json",
+      "managed_runs": {
+        "focused": "20261004T235015Z-2cb4ffe7b6c8",
+        "Fast": "20261004T235303Z-87b60589826a"
+      },
+      "managed_counts": {
+        "focused": {
+          "executed": 970,
+          "passed": 970,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 970
+        },
+        "Fast": {
+          "executed": 7184,
+          "passed": 7184,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 7184
+        }
+      },
+      "native_markers": 13,
+      "storm_markers": 12,
+      "qualified_grades": [
+        1,
+        7
+      ],
+      "source_tree_order": 70,
+      "qualification_limits": [
+        "Historical object 488 and its JavaScript damage, material, weight and value are unavailable. Stock requires a builder-selected native electrical weapon. The acceptance profile explicitly uses 6 damage, 4 pain and 2 stun; historical damage parity is not asserted.",
+        "All grades use the exact native deadline (24+rand(1,6))*90*grade*0.75 seconds. This is the recovered loop's nominal conversion, excluding historical batching and load delay; no grade-seven permanence is introduced.",
+        "Native acceptance uses controlled world/anatomy catalogues, deterministic checks, specialized caster Save and explicit HelplessDefenseMove. It exercises real items, Body inventory, native room/zone/shard rollback, melee damage, wound persistence and fresh-process readers, but not full production boot/Telnet, autonomous attack selection, defences or concurrency.",
+        "The approved grade-seven 95-percent raw-cap gate is verified for overreach from controlled grade six, with no payment below the gate and route preflight at the boundary. A paid overreach cast is not qualified. Paid controlled grade-seven casting is qualified separately.",
+        "The actual native placement fault occurs after Get: a Held callback drops the output. Post-Wield custody revalidation has durable mock regression evidence, but an actual native post-Wield callback scenario was not run.",
+        "Earlier stock/integration packets remain immutable; their other historical native checks were not rerun for Storm Spear. Queued servitor control still needs accepted-action grant provenance and execution-time deadline revalidation while animation lives, preserving independent following.",
+        "Complete installer, all remaining stock/support/acquisition/crafting/chargen/energy wiring, portable production, remaining effect/lifecycle/topology/charm work and all whole-plan native release gates remain required. Seven phases, 16 decisions, 154 candidates, 82 Sorcerer plus 12 support rows and 25 acceptance scenarios are preserved.",
+        "Only a local commit is authorized. No publication, remote merge, deployment, shared/production database, billing, quota reset or model change occurred. Stop for parent independent review before later repertoire work."
       ]
     }
   ],
@@ -3549,13 +3638,11 @@
     }
   ],
   "next_checkpoint": {
-    "status": "awaiting_parent_stock_and_security_integration_review",
-    "stock_implementation_commit": "3507170c1f85e7e2e88855ab91174ca23e531eb2",
-    "verified_security_master": "93297ccb8e85fe3d7099f22b8c917cb74b903fa8",
-    "stock_receipt": "Armageddon_Stage3D1Stock_RaiseServitor_Verification.json",
-    "integration_receipt": "Armageddon_SecurityMaster_Integration_Verification.json",
-    "scope": "Parent reviews the exact stock and isolated security integration, then selects the earliest unmet stock-required dependency; no later repertoire slice started.",
-    "primary_checkout_must_remain_unchanged": true,
+    "status": "awaiting_parent_bounded_storm_spear_review",
+    "baseline": "b3cd366d435a4d07f3b713e4558df349fa20c010",
+    "receipt": "Armageddon_StormSpear_Stock_Verification.json",
+    "scope": "Review exact local Storm Spear checkpoint, then select next unmet dependency. Queued servitor control provenance/expiry remains concrete and unresolved.",
+    "primary_baseline": "34eb234eb5a1e2784c595b4f848f6f785b426302",
     "publication_authorized": false,
     "full_plan_complete": false
   },
@@ -3581,7 +3668,8 @@
     "Complete generated-possession economy/salvage and occupant/cross-body detachment/replacement-morph adapters plus approved per-cast counts, Gate follower-risk/control, Guardian guarding, Mount riding and Courier delivery. Safe destinations must use configured fallback OR recoverable holding with diagnostics (brief255); automatic fallback is not mandatory.",
     "Complete installed stock command/world N14/N15 and high-volume N16 with per-cycle restart; controlled native early death/decay/restart, same-template modes and sixteen heavy/runtime cycles are verified.",
     "Implement remaining reusable effects and all eight approved larger features; later charm must retain the per-spell PC toggle, resolved executable whitelist and queued-action provenance.",
-    "Created leaf items now prepare and bind their finite positive selected-grade lifetime before payment. NPC resolved lifetime (including known constant-zero invalid lifetime) and dynamic spawn validation remain post-check application refusals; qualify their prepayment treatment without changing opposed-outcome semantics in a separate boundary."
+    "Created leaf items now prepare and bind their finite positive selected-grade lifetime before payment. NPC resolved lifetime (including known constant-zero invalid lifetime) and dynamic spawn validation remain post-check application refusals; qualify their prepayment treatment without changing opposed-outcome semantics in a separate boundary.",
+    "Raise Servitor queued SelectedCombatAction requires immutable command/grant provenance and execution-time authorization. Test an accepted action crossing the control deadline while animation survives, preserving independent following. Actual damage/defence and historical aggression, later-family guard/rescue, PC-corpse, full boot and concurrency remain required."
   ],
   "phase3_dependency_checklist": [
     {
@@ -3638,7 +3726,8 @@
       "receipt": "Armageddon_Stage3C_NativeItems_Verification.json",
       "acceptance": "Actual native quantity-one private item/components and exact ownership, paid grade3 timed and grade7 permanent replacement weapon fixtures, real component/resource payment, immutable deadline/equipment, refusal of value conversion, callback/provider rollback and fresh-process expiry/quarantine. Stock profiles/event conversion/other item adapters remain pending.",
       "correction_receipt": "Armageddon_Stage3C_NativeItems_P2_Verification.json",
-      "parent_accepted_head": "909bdd4b4e80d71f65311504ad67bf6465e44042"
+      "parent_accepted_head": "909bdd4b4e80d71f65311504ad67bf6465e44042",
+      "storm_spear_receipt": "Armageddon_StormSpear_Stock_Verification.json"
     },
     {
       "id": "created_food_liquid_worn_light",
@@ -3650,7 +3739,7 @@
     },
     {
       "id": "borrowed_corpse_animation_lifecycle",
-      "status": "bounded_stock_raise_servitor_verified_parent_review_pending",
+      "status": "bounded_stock_parent_independently_cleared_full_queued_control_and_combat_pending",
       "acceptance": "Exact created secondary ownership; canonical character, borrowed body and same real corpse retained; functional selected AI; expiry/dispel/death/restart restoration, provider-failure recovery and foreign-possession conservation. Legacy defaults unchanged. Full installed stock and other projection/topology families remain pending.",
       "receipt": "Armageddon_Stage3D1_CorpseAnimation_Verification.json",
       "limits": "Recovered stock affect timing, creator control, native cell/save/combat/queued-action retirement qualified. Controlled catalogues/caster Save remain; damage, PC-stock corpse casts, full boot/Telnet, concurrency and complete installed acceptance pending.",
@@ -3659,7 +3748,8 @@
       "morph_restart_receipt": "Armageddon_Stage3D1P1M_MorphRestart_Verification.json",
       "stock_receipt": "Armageddon_Stage3D1Stock_RaiseServitor_Verification.json",
       "parent_verified_morph_restart_head": "812020244974323bcc75b2dee2e212e3110ff101",
-      "security_integration_receipt": "Armageddon_SecurityMaster_Integration_Verification.json"
+      "security_integration_receipt": "Armageddon_SecurityMaster_Integration_Verification.json",
+      "required_queued_control_check": "servitor_queued_control_execution_gap"
     }
   ],
   "checkpoint_history": [
@@ -3691,6 +3781,52 @@
       "scope": "Preserve the stock preintegration commit, integrate only the verified security master in this isolated branch, qualify affected overlaps and return to parent review before further repertoire work.",
       "primary_checkout_must_remain_unchanged": true,
       "publication_authorized": false
+    },
+    {
+      "status": "awaiting_parent_stock_and_security_integration_review",
+      "stock_implementation_commit": "3507170c1f85e7e2e88855ab91174ca23e531eb2",
+      "verified_security_master": "93297ccb8e85fe3d7099f22b8c917cb74b903fa8",
+      "stock_receipt": "Armageddon_Stage3D1Stock_RaiseServitor_Verification.json",
+      "integration_receipt": "Armageddon_SecurityMaster_Integration_Verification.json",
+      "scope": "Parent reviews the exact stock and isolated security integration, then selects the earliest unmet stock-required dependency; no later repertoire slice started.",
+      "primary_checkout_must_remain_unchanged": true,
+      "publication_authorized": false,
+      "full_plan_complete": false
+    },
+    {
+      "status": "paused_on_user_restart_request",
+      "base": "b3cd366d435a4d07f3b713e4558df349fa20c010",
+      "scope": "Recover actual source semantics afresh; implement native stock/equipment/combat profile; verify installed paid low/high-grade casts, expiry/restart and foreign-possession conservation; commit locally and stop for independent review.",
+      "source_grounding": "fresh_historical_read_complete_with_missing_external_combat_payload_recorded",
+      "primary_checkout_must_remain_unchanged": true,
+      "publication_authorized": false,
+      "full_plan_complete": false,
+      "resume_requires_explicit_Luke_instruction": true,
+      "verification_status": "NOT_RUN_for_current_Storm_Spear_WIP",
+      "pause_manifest": ".artifacts/checkpoints/armageddon-storm-spear-paused-20261004T210637Z/pause.json"
+    },
+    {
+      "status": "resumed_authorized_bounded_storm_spear_implementation",
+      "base": "b3cd366d435a4d07f3b713e4558df349fa20c010",
+      "scope": "Recover actual source semantics afresh; implement native stock/equipment/combat profile; verify installed paid low/high-grade casts, expiry/restart and foreign-possession conservation; commit locally and stop for independent review.",
+      "source_grounding": "complete_fresh_historical_read",
+      "primary_checkout_must_remain_unchanged": true,
+      "publication_authorized": false,
+      "full_plan_complete": false,
+      "resume_requires_explicit_Luke_instruction": true,
+      "verification_status": "NOT_RUN_for_current_Storm_Spear_WIP",
+      "pause_manifest": ".artifacts/checkpoints/armageddon-storm-spear-paused-20261004T210637Z/pause.json",
+      "primary_baseline": "34eb234eb5a1e2784c595b4f848f6f785b426302",
+      "resumption_receipt": ".artifacts/test-runs/armageddon-20261004-storm-spear/resumption.json",
+      "snapshot_verification": "8 repository and 7 support files matched immutable pause snapshots; no recovery required",
+      "upstream_drift": "Read-only primary comparison found only .gitignore; no source overlap or integration performed",
+      "implementation_verification": "17 component and actual casting-service tests passed; final focused, aggregate and native acceptance pending",
+      "source_policy": {
+        "component": "directly carried Creation rank >= max(grade-3,0)",
+        "lifetime_seconds": "(24+rand(1,6))*90*grade*0.75; exact nominal event-loop conversion; all grades temporary",
+        "missing_historical_profile": "Object488/JavaScript damage/material/weight/value not recovered. Stock explicitly binds builder-selected native electrical weapon; no historical damage parity asserted.",
+        "grade_gate": "Approved configured native percentage gates retained; grade7=95, independent of historical raw cap90."
+      }
     }
   ]
 }

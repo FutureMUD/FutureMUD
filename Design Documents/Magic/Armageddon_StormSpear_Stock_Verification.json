@@ -1,0 +1,1670 @@
+{
+  "schema_version": 1,
+  "stage": "Bounded stock Storm Spear",
+  "status": "bounded_stock_verified_parent_review_pending",
+  "baseline": "b3cd366d435a4d07f3b713e4558df349fa20c010",
+  "branch": "codex/armageddon-completion-phase1",
+  "recorded_utc": "2026-10-04T23:59:42.177005+00:00",
+  "source_review": {
+    "status": "three_reported_P2_and_legacy_compatibility_regression_resolved_no_additional_actionable_P1_P2",
+    "scope": "Source-only independent initial closure and narrow compatibility follow-up; coordinator owns execution",
+    "findings_resolved": [
+      "Preparation scouts grade-bound invocation copy and preserves runtime selectors",
+      "Native Get/Wield callback custody revalidation",
+      "Approved grade-seven percentage gate 95",
+      "Legacy/custom plan runtime feasibility preserved when no grade binding is required"
+    ],
+    "files": [
+      {
+        "path": "MudSharpCore/Magic/Casting/MagicCastingService.cs",
+        "sha256": "24f2be5f205a3c8069d0810511e440f9e38a24b8acac6bc7c095a705c92ed9f9"
+      },
+      {
+        "path": "MudSharpCore/Magic/MagicSpell.Casting.cs",
+        "sha256": "e6358f0acbae5c5f8d6167ec132f3d23f9ea5532baf3c31cce116950737be556"
+      },
+      {
+        "path": "MudSharpCore/Magic/ArmageddonStormSpearStock.cs",
+        "sha256": "77b1766c18fac247a54cd4c18f0a4a2c8d95682cad299c970dc3ad02898c57a1"
+      },
+      {
+        "path": "MudSharpCore/Magic/SpellEffects/CreateItemEffect.Lifecycle.cs",
+        "sha256": "ab7bdf1432543db1b6528b911b52111bfc57a7492d5c464527eb5bf7cf064155"
+      },
+      {
+        "path": "MudSharpCore/GameItems/Inventory/Plans/InventoryPlanActionConsume.cs",
+        "sha256": "c3a393788d6cace99957576bc99d30ed347a499a946eb100b8f1f6ecdd1cb419"
+      },
+      {
+        "path": "MudSharpCore Unit Tests/StormSpearComponentTests.cs",
+        "sha256": "ec2c58891dda52c65c4626926eaee02fa2f3f08bab3c0e69c4704a0e99a4cc93"
+      }
+    ]
+  },
+  "managed": {
+    "focused": {
+      "run_id": "20261004T235015Z-2cb4ffe7b6c8",
+      "head": "b3cd366d435a4d07f3b713e4558df349fa20c010",
+      "status": "PASS",
+      "counts": {
+        "executed": 970,
+        "passed": 970,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 970
+      },
+      "filter": "FullyQualifiedName~ClanBudgetLengthTests|FullyQualifiedName~VirtualCashLedgerCompatibilityTests|FullyQualifiedName~MediaErasureTests|FullyQualifiedName~NetworkSwitchStateTests|FullyQualifiedName~OutfitTeachingNumericNameTests|FullyQualifiedName~ProjectQueuePreferenceTests|FullyQualifiedName~EmptyPatrolRouteTests|FullyQualifiedName~CombatStrategyRuntimeTests|FullyQualifiedName~SpellAnimationControlTests|FullyQualifiedName~CommandableAiTests|FullyQualifiedName~ItemMorphBootTests|FullyQualifiedName~SpellAnimationReloadTests|FullyQualifiedName~BootLoadingRegressionTests|FullyQualifiedName~SpellAnimationSchedulerTests|FullyQualifiedName~RuntimeSchedulerTests|FullyQualifiedName~Rejuvenation|FullyQualifiedName~MagicSpellPhaseOneTests|FullyQualifiedName~SpellOwnedCorpseAnimationTests|FullyQualifiedName~BodyFormProvisioningTests|FullyQualifiedName~CharacterInstance|FullyQualifiedName~MagicCasting|FullyQualifiedName~SpellOwnedItemTests|FullyQualifiedName~ForeignCustodySaveJournalTests|FullyQualifiedName~PossessionReviewFindingSourceTests|FullyQualifiedName~SpellOwnedNpcRetirementTests|FullyQualifiedName~StormSpearComponentTests|FullyQualifiedName~SpellCreatedConsumableTests|FullyQualifiedName~BodyInventoryInitialisationTests|FullyQualifiedName~Vancian",
+      "configuration": "Debug",
+      "sdk": "10.0.401",
+      "source_start": "efc5ce85f5a170587e2f4d1916725cfda1bca85a270d183eaa21689d17ae1666",
+      "source_end": "efc5ce85f5a170587e2f4d1916725cfda1bca85a270d183eaa21689d17ae1666",
+      "source_stable": true,
+      "execution_complete": true,
+      "counts_complete": true,
+      "projects": [
+        "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+      ],
+      "issues": [],
+      "summary": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T235015Z-2cb4ffe7b6c8/summary.json",
+      "summary_sha256": "ed7c42f5886b419c8070d23c483854cc349443535a592228b09f6a567993c4c7"
+    },
+    "Fast": {
+      "run_id": "20261004T235303Z-87b60589826a",
+      "head": "b3cd366d435a4d07f3b713e4558df349fa20c010",
+      "status": "PASS",
+      "counts": {
+        "executed": 7184,
+        "passed": 7184,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 7184
+      },
+      "filter": null,
+      "configuration": "Debug",
+      "sdk": "10.0.401",
+      "source_start": "ca751d7d324a7a751a524490b46ee62da10f19d042e69b06ac167ea252b3ee46",
+      "source_end": "ca751d7d324a7a751a524490b46ee62da10f19d042e69b06ac167ea252b3ee46",
+      "source_stable": true,
+      "execution_complete": true,
+      "counts_complete": true,
+      "projects": [
+        "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+        "ExpressionEngine Unit Tests/ExpressionEngine Unit Tests.csproj",
+        "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+        "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+        "MudsharpDatabaseLibrary Unit Tests/MudsharpDatabaseLibrary Unit Tests.csproj",
+        "DiscordBotCore Unit Tests/DiscordBotCore Unit Tests.csproj",
+        "RPI Engine Worldfile Converter Tests/RPI Engine Worldfile Converter Tests.csproj",
+        "FutureMUD.Web.Tests/FutureMUD.Web.Tests.csproj",
+        "TerrainPlanner/TerrainPlanner.Tests/TerrainPlanner.Tests.csproj",
+        "scripts/TestReporting.Tests/TestReporting.Tests.csproj"
+      ],
+      "issues": [],
+      "summary": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T235303Z-87b60589826a/summary.json",
+      "summary_sha256": "5a09716e136186201e1fe8254bffab74a6405f2a3fc1d9627137ae970d9feb98"
+    }
+  },
+  "native": {
+    "label": "native-final",
+    "status": "PASS",
+    "exit_code": 0,
+    "markers": [
+      "ARM03B2B-connection-refusals=passed unowned-host shared-default blank-database unregistered-owned-prefix all-refused-before-connect",
+      "ARMStorm-stock-builder=passed stock-identity duplicate-refusal seven-grades builder-material-edit persisted-reload primaryhand rank-offset-minus-three all-grades-temporary declared-electrical-profile-no-historical-JS-parity",
+      "ARMStorm-prepayment=passed real-low-rank direct-scope ground-container-and-occupied-primary-hand-refused zero-operation zero-debit zero-material-delete zero-output-or-lifecycle-row",
+      "ARMStorm-paid-grade1=passed actual-resource-debit actual-component-delete exact-one-native-weapon primary-hand-wield persisted-grade absolute-source-nominal-deadline seconds:2025",
+      "ARMStorm-combat-grade1=passed real-MeleeWeaponAttack actual-electrical-target-wounds persisted-native-wounds declared-6-damage-4-pain-2-stun helpless-defence controlled-roll no-historical-damage-parity",
+      "ARMStorm-wielded-expiry=passed exact-absolute-boundary native-Body-unwield native-item-Delete completed-once unrelated-goods-and-container-survive",
+      "ARMStorm-recipient-grade-gate=passed other-recipient-occupied-primary-refused caster-free-hand-preserved no-payment native-cap90 overreach-raw81-refused overreach-raw85point5-preflight-admitted approved-95-percent-gate controlled-grade-retained-independently no-paid-overreach-claim",
+      "ARMStorm-paid-grade7=passed actual-resource-debit actual-component-delete exact-one-native-weapon primary-hand-wield persisted-grade absolute-source-nominal-deadline seconds:14175",
+      "ARMStorm-combat-grade7=passed real-MeleeWeaponAttack actual-electrical-target-wounds persisted-native-wounds declared-6-damage-4-pain-2-stun helpless-defence controlled-roll no-historical-damage-parity",
+      "ARMStorm-reader=passed fresh-process original-stock-formula persisted-deadline no-reset no-early-expiry cold-custody-hold native-custodian-load exact-expiry repeated-reconciliation foreign-bag-and-child-preserved",
+      "ARMStorm-restart-expiry=passed actual-fresh-process native-container-reload grade-seven-temporary unchanged-absolute-deadline exact-owned-leaf-removal foreign-container-and-sibling-survive",
+      "ARMStorm-placement-reader=passed fresh-process real-item no-body-membership exact-one-cell-reference paid-operation-quarantined no-replay-or-refund",
+      "ARMStorm-placement-callback=passed actual-Held-inventory-callback-drops-output post-Get-custody-revalidation paid-NeedsReview no-false-wield normal-save fresh-process single-cell-custody no-replay-or-refund"
+    ],
+    "log": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-final-native.log",
+    "log_sha256": "1ae4327f9fca0640f2db55f8a347fd64af3519e5dd5d9c1cb0b6cb5ea06340ba",
+    "owned_databases_cleaned": 1,
+    "cleanup": {
+      "processes": [],
+      "owned_processes_remaining": 0,
+      "checked_utc": "2026-10-04T23:59:19.5261580Z"
+    },
+    "failure": []
+  },
+  "prior_native_attempts": [
+    {
+      "label": "native-attempt1",
+      "status": "FAIL",
+      "exit_code": 1,
+      "markers": [],
+      "log": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt1-native.log",
+      "log_sha256": "0142a52649166c9a8be21f672fc7da90e910b4165e76a63d7e2a3bf8c3ed3e56",
+      "owned_databases_cleaned": 0,
+      "cleanup": null,
+      "failure": []
+    },
+    {
+      "label": "native-attempt2",
+      "status": "FAIL",
+      "exit_code": 1,
+      "markers": [
+        "ARM03B2B-connection-refusals=passed unowned-host shared-default blank-database unregistered-owned-prefix all-refused-before-connect"
+      ],
+      "log": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt2-native.log",
+      "log_sha256": "69b339084e72e80e0feaf05ef81d4c1a8bbcf2f8d8944de2052abca549022316",
+      "owned_databases_cleaned": 1,
+      "cleanup": {
+        "checked_utc": "2026-10-04T23:06:47.4660812Z",
+        "processes": [],
+        "owned_processes_remaining": 0
+      },
+      "failure": [
+        "Harness failed: System.ArgumentException: An item with the same key has already been added. Key: 4"
+      ]
+    },
+    {
+      "label": "native-attempt3",
+      "status": "FAIL",
+      "exit_code": 1,
+      "markers": [
+        "ARM03B2B-connection-refusals=passed unowned-host shared-default blank-database unregistered-owned-prefix all-refused-before-connect"
+      ],
+      "log": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt3-native.log",
+      "log_sha256": "a16abd77935f25d2274a81fc41e2150820c649fe43d89c9aaf7804749abebfba",
+      "owned_databases_cleaned": 1,
+      "cleanup": {
+        "processes": [],
+        "checked_utc": "2026-10-04T23:16:13.3556400Z",
+        "owned_processes_remaining": 0
+      },
+      "failure": [
+        "Harness failed: System.InvalidOperationException: Sequence contains no matching element"
+      ]
+    },
+    {
+      "label": "native-attempt4",
+      "status": "FAIL",
+      "exit_code": 1,
+      "markers": [
+        "ARM03B2B-connection-refusals=passed unowned-host shared-default blank-database unregistered-owned-prefix all-refused-before-connect",
+        "ARMStorm-stock-builder=passed stock-identity duplicate-refusal seven-grades builder-material-edit persisted-reload primaryhand rank-offset-minus-three all-grades-temporary declared-electrical-profile-no-historical-JS-parity",
+        "ARMStorm-prepayment=passed real-low-rank direct-scope ground-container-and-occupied-primary-hand-refused zero-operation zero-debit zero-material-delete zero-output-or-lifecycle-row",
+        "ARMStorm-paid-grade1=passed actual-resource-debit actual-component-delete exact-one-native-weapon primary-hand-wield persisted-grade absolute-source-nominal-deadline seconds:1957.5"
+      ],
+      "log": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt4-native.log",
+      "log_sha256": "028103941b0848a0e81590678f303b455d6875076bb1b29066cf261f48227c48",
+      "owned_databases_cleaned": 1,
+      "cleanup": {
+        "checked_utc": "2026-10-04T23:18:58.1718737Z",
+        "owned_processes_remaining": 0,
+        "processes": []
+      },
+      "failure": [
+        "Harness failed: System.NullReferenceException: Object reference not set to an instance of an object."
+      ]
+    },
+    {
+      "label": "native-attempt5",
+      "status": "FAIL",
+      "exit_code": 1,
+      "markers": [
+        "ARM03B2B-connection-refusals=passed unowned-host shared-default blank-database unregistered-owned-prefix all-refused-before-connect",
+        "ARMStorm-stock-builder=passed stock-identity duplicate-refusal seven-grades builder-material-edit persisted-reload primaryhand rank-offset-minus-three all-grades-temporary declared-electrical-profile-no-historical-JS-parity",
+        "ARMStorm-prepayment=passed real-low-rank direct-scope ground-container-and-occupied-primary-hand-refused zero-operation zero-debit zero-material-delete zero-output-or-lifecycle-row",
+        "ARMStorm-paid-grade1=passed actual-resource-debit actual-component-delete exact-one-native-weapon primary-hand-wield persisted-grade absolute-source-nominal-deadline seconds:1755"
+      ],
+      "log": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt5-native.log",
+      "log_sha256": "8903c26069442b7c7fddf27ee55e7b710dd7c358c46b2c972b6ea7cd7a970d4b",
+      "owned_databases_cleaned": 1,
+      "cleanup": {
+        "checked_utc": "2026-10-04T23:26:44.3231715Z",
+        "owned_processes_remaining": 0,
+        "processes": []
+      },
+      "failure": [
+        "Harness failed: System.InvalidOperationException: Native spear attack delivered no electrical wounds."
+      ]
+    },
+    {
+      "label": "native-attempt6",
+      "status": "FAIL",
+      "exit_code": 1,
+      "markers": [
+        "ARM03B2B-connection-refusals=passed unowned-host shared-default blank-database unregistered-owned-prefix all-refused-before-connect",
+        "ARMStorm-stock-builder=passed stock-identity duplicate-refusal seven-grades builder-material-edit persisted-reload primaryhand rank-offset-minus-three all-grades-temporary declared-electrical-profile-no-historical-JS-parity",
+        "ARMStorm-prepayment=passed real-low-rank direct-scope ground-container-and-occupied-primary-hand-refused zero-operation zero-debit zero-material-delete zero-output-or-lifecycle-row",
+        "ARMStorm-paid-grade1=passed actual-resource-debit actual-component-delete exact-one-native-weapon primary-hand-wield persisted-grade absolute-source-nominal-deadline seconds:1890",
+        "ARMStorm-combat-grade1=passed real-MeleeWeaponAttack actual-electrical-target-wounds persisted-native-wounds declared-6-damage-4-pain-2-stun helpless-defence controlled-roll no-historical-damage-parity"
+      ],
+      "log": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt6-native.log",
+      "log_sha256": "e14fba1d154e6effc452c37fa370801bbd9e533d5e0cf50685cb702e6db516eb",
+      "owned_databases_cleaned": 1,
+      "cleanup": {
+        "owned_processes_remaining": 0,
+        "checked_utc": "2026-10-04T23:28:43.3227258Z",
+        "processes": []
+      },
+      "failure": [
+        "Harness failed: System.InvalidOperationException: Wielded expiry lost foreign goods or native inventory membership."
+      ]
+    },
+    {
+      "label": "native-attempt7",
+      "status": "FAIL",
+      "exit_code": 1,
+      "markers": [
+        "ARM03B2B-connection-refusals=passed unowned-host shared-default blank-database unregistered-owned-prefix all-refused-before-connect",
+        "ARMStorm-stock-builder=passed stock-identity duplicate-refusal seven-grades builder-material-edit persisted-reload primaryhand rank-offset-minus-three all-grades-temporary declared-electrical-profile-no-historical-JS-parity",
+        "ARMStorm-prepayment=passed real-low-rank direct-scope ground-container-and-occupied-primary-hand-refused zero-operation zero-debit zero-material-delete zero-output-or-lifecycle-row",
+        "ARMStorm-paid-grade1=passed actual-resource-debit actual-component-delete exact-one-native-weapon primary-hand-wield persisted-grade absolute-source-nominal-deadline seconds:1755",
+        "ARMStorm-combat-grade1=passed real-MeleeWeaponAttack actual-electrical-target-wounds persisted-native-wounds declared-6-damage-4-pain-2-stun helpless-defence controlled-roll no-historical-damage-parity"
+      ],
+      "log": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt7-native.log",
+      "log_sha256": "2dc2c8362818fc4747d31658189d554739f63be128bee1bbbfe8fe0e830e8386",
+      "owned_databases_cleaned": 1,
+      "cleanup": {
+        "owned_processes_remaining": 0,
+        "checked_utc": "2026-10-04T23:30:38.2053214Z",
+        "processes": []
+      },
+      "failure": [
+        "Harness failed: System.InvalidOperationException: Wielded expiry failed: deleted=False wielded=True blockerDeleted=False bagDeleted=False state=Retiring diagnostic=Native item reconciliation held: Created item removal needs a native callback-free body custodian.."
+      ]
+    },
+    {
+      "label": "native-attempt8",
+      "status": "FAIL",
+      "exit_code": 1,
+      "markers": [
+        "ARM03B2B-connection-refusals=passed unowned-host shared-default blank-database unregistered-owned-prefix all-refused-before-connect",
+        "ARMStorm-stock-builder=passed stock-identity duplicate-refusal seven-grades builder-material-edit persisted-reload primaryhand rank-offset-minus-three all-grades-temporary declared-electrical-profile-no-historical-JS-parity",
+        "ARMStorm-prepayment=passed real-low-rank direct-scope ground-container-and-occupied-primary-hand-refused zero-operation zero-debit zero-material-delete zero-output-or-lifecycle-row",
+        "ARMStorm-paid-grade1=passed actual-resource-debit actual-component-delete exact-one-native-weapon primary-hand-wield persisted-grade absolute-source-nominal-deadline seconds:2025",
+        "ARMStorm-combat-grade1=passed real-MeleeWeaponAttack actual-electrical-target-wounds persisted-native-wounds declared-6-damage-4-pain-2-stun helpless-defence controlled-roll no-historical-damage-parity"
+      ],
+      "log": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt8-native.log",
+      "log_sha256": "5bfde8c74eef54b970514f4bae03af4c5ba03f6a3fb2d3658e9c6668736fc086",
+      "owned_databases_cleaned": 1,
+      "cleanup": {
+        "processes": [],
+        "checked_utc": "2026-10-04T23:33:04.2659093Z",
+        "owned_processes_remaining": 0
+      },
+      "failure": [
+        "Harness failed: System.InvalidOperationException: Wielded expiry failed: deleted=False wielded=True blockerDeleted=False bagDeleted=False state=Retiring diagnostic=Native item reconciliation held: Created item removal needs a native callback-free body custodian.."
+      ]
+    },
+    {
+      "label": "native-attempt9",
+      "status": "FAIL",
+      "exit_code": 1,
+      "markers": [
+        "ARM03B2B-connection-refusals=passed unowned-host shared-default blank-database unregistered-owned-prefix all-refused-before-connect",
+        "ARMStorm-stock-builder=passed stock-identity duplicate-refusal seven-grades builder-material-edit persisted-reload primaryhand rank-offset-minus-three all-grades-temporary declared-electrical-profile-no-historical-JS-parity",
+        "ARMStorm-prepayment=passed real-low-rank direct-scope ground-container-and-occupied-primary-hand-refused zero-operation zero-debit zero-material-delete zero-output-or-lifecycle-row",
+        "ARMStorm-paid-grade1=passed actual-resource-debit actual-component-delete exact-one-native-weapon primary-hand-wield persisted-grade absolute-source-nominal-deadline seconds:1822.5",
+        "ARMStorm-combat-grade1=passed real-MeleeWeaponAttack actual-electrical-target-wounds persisted-native-wounds declared-6-damage-4-pain-2-stun helpless-defence controlled-roll no-historical-damage-parity"
+      ],
+      "log": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt9-native.log",
+      "log_sha256": "50f23deb5e4ba1887481bb7dc3e835465593f87fb65a82bb88ce7e5b3808d706",
+      "owned_databases_cleaned": 1,
+      "cleanup": {
+        "checked_utc": "2026-10-04T23:35:08.1080612Z",
+        "processes": [],
+        "owned_processes_remaining": 0
+      },
+      "failure": [
+        "Harness failed: System.InvalidOperationException: Wielded expiry failed: deleted=False wielded=True blockerDeleted=False bagDeleted=False state=Retiring diagnostic=Native item reconciliation held: Created item removal needs a native callback-free body custodian. bodyEffects= actorEffects=BuilderEditingEffect`1 bodyPositionTarget= actorPositionTarget=."
+      ]
+    },
+    {
+      "label": "native-attempt10",
+      "status": "FAIL",
+      "exit_code": 1,
+      "markers": [
+        "ARM03B2B-connection-refusals=passed unowned-host shared-default blank-database unregistered-owned-prefix all-refused-before-connect",
+        "ARMStorm-stock-builder=passed stock-identity duplicate-refusal seven-grades builder-material-edit persisted-reload primaryhand rank-offset-minus-three all-grades-temporary declared-electrical-profile-no-historical-JS-parity",
+        "ARMStorm-prepayment=passed real-low-rank direct-scope ground-container-and-occupied-primary-hand-refused zero-operation zero-debit zero-material-delete zero-output-or-lifecycle-row",
+        "ARMStorm-paid-grade1=passed actual-resource-debit actual-component-delete exact-one-native-weapon primary-hand-wield persisted-grade absolute-source-nominal-deadline seconds:1957.5",
+        "ARMStorm-combat-grade1=passed real-MeleeWeaponAttack actual-electrical-target-wounds persisted-native-wounds declared-6-damage-4-pain-2-stun helpless-defence controlled-roll no-historical-damage-parity"
+      ],
+      "log": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt10-native.log",
+      "log_sha256": "04583c096f0e4912af2e3a036d4c9d5d46011fdacd63c98f6de63b13125f2c5d",
+      "owned_databases_cleaned": 1,
+      "cleanup": {
+        "checked_utc": "2026-10-04T23:36:55.6686090Z",
+        "processes": [],
+        "owned_processes_remaining": 0
+      },
+      "failure": [
+        "Harness failed: System.InvalidOperationException: Wielded expiry failed: deleted=False wielded=True blockerDeleted=False bagDeleted=False state=Retiring diagnostic=Native item reconciliation held: Foreign custody requires native enclosing location rollback adapters. bodyEffects= actorEffects= bodyPositionTarget= actorPositionTarget=."
+      ]
+    },
+    {
+      "label": "native-attempt11",
+      "status": "FAIL",
+      "exit_code": 1,
+      "markers": [
+        "ARM03B2B-connection-refusals=passed unowned-host shared-default blank-database unregistered-owned-prefix all-refused-before-connect",
+        "ARMStorm-stock-builder=passed stock-identity duplicate-refusal seven-grades builder-material-edit persisted-reload primaryhand rank-offset-minus-three all-grades-temporary declared-electrical-profile-no-historical-JS-parity",
+        "ARMStorm-prepayment=passed real-low-rank direct-scope ground-container-and-occupied-primary-hand-refused zero-operation zero-debit zero-material-delete zero-output-or-lifecycle-row",
+        "ARMStorm-paid-grade1=passed actual-resource-debit actual-component-delete exact-one-native-weapon primary-hand-wield persisted-grade absolute-source-nominal-deadline seconds:2025",
+        "ARMStorm-combat-grade1=passed real-MeleeWeaponAttack actual-electrical-target-wounds persisted-native-wounds declared-6-damage-4-pain-2-stun helpless-defence controlled-roll no-historical-damage-parity",
+        "ARMStorm-wielded-expiry=passed exact-absolute-boundary native-Body-unwield native-item-Delete completed-once unrelated-goods-and-container-survive"
+      ],
+      "log": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt11-native.log",
+      "log_sha256": "26566919bc4f7d3414e98f45dc242f76e70bdefb5b86481c8adef3c76a059dd2",
+      "owned_databases_cleaned": 1,
+      "cleanup": {
+        "owned_processes_remaining": 0,
+        "checked_utc": "2026-10-04T23:40:05.3881890Z",
+        "processes": []
+      },
+      "failure": [
+        "Harness failed: System.InvalidOperationException: Prepayment conservation failed for grade-seven below 95 percent of raw cap90: The paid casting succeeded."
+      ]
+    },
+    {
+      "label": "native-attempt12",
+      "status": "FAIL",
+      "exit_code": 1,
+      "markers": [
+        "ARM03B2B-connection-refusals=passed unowned-host shared-default blank-database unregistered-owned-prefix all-refused-before-connect",
+        "ARMStorm-stock-builder=passed stock-identity duplicate-refusal seven-grades builder-material-edit persisted-reload primaryhand rank-offset-minus-three all-grades-temporary declared-electrical-profile-no-historical-JS-parity",
+        "ARMStorm-prepayment=passed real-low-rank direct-scope ground-container-and-occupied-primary-hand-refused zero-operation zero-debit zero-material-delete zero-output-or-lifecycle-row",
+        "ARMStorm-paid-grade1=passed actual-resource-debit actual-component-delete exact-one-native-weapon primary-hand-wield persisted-grade absolute-source-nominal-deadline seconds:2025",
+        "ARMStorm-combat-grade1=passed real-MeleeWeaponAttack actual-electrical-target-wounds persisted-native-wounds declared-6-damage-4-pain-2-stun helpless-defence controlled-roll no-historical-damage-parity",
+        "ARMStorm-wielded-expiry=passed exact-absolute-boundary native-Body-unwield native-item-Delete completed-once unrelated-goods-and-container-survive"
+      ],
+      "log": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt12-native.log",
+      "log_sha256": "c123d3c9c175ded8bcf8c7fa6766e1025a260620ecb5538efca9489546ed51ab",
+      "owned_databases_cleaned": 1,
+      "cleanup": {
+        "owned_processes_remaining": 0,
+        "checked_utc": "2026-10-04T23:42:18.0473981Z",
+        "processes": []
+      },
+      "failure": [
+        "Harness failed: System.InvalidOperationException: Grade-seven cap-relative overreach boundary quote refused: Casting preflight refused: Insufficient storm_spear_stock mana for the combined cost."
+      ]
+    },
+    {
+      "label": "native-attempt13",
+      "status": "PASS",
+      "exit_code": 0,
+      "markers": [
+        "ARM03B2B-connection-refusals=passed unowned-host shared-default blank-database unregistered-owned-prefix all-refused-before-connect",
+        "ARMStorm-stock-builder=passed stock-identity duplicate-refusal seven-grades builder-material-edit persisted-reload primaryhand rank-offset-minus-three all-grades-temporary declared-electrical-profile-no-historical-JS-parity",
+        "ARMStorm-prepayment=passed real-low-rank direct-scope ground-container-and-occupied-primary-hand-refused zero-operation zero-debit zero-material-delete zero-output-or-lifecycle-row",
+        "ARMStorm-paid-grade1=passed actual-resource-debit actual-component-delete exact-one-native-weapon primary-hand-wield persisted-grade absolute-source-nominal-deadline seconds:1957.5",
+        "ARMStorm-combat-grade1=passed real-MeleeWeaponAttack actual-electrical-target-wounds persisted-native-wounds declared-6-damage-4-pain-2-stun helpless-defence controlled-roll no-historical-damage-parity",
+        "ARMStorm-wielded-expiry=passed exact-absolute-boundary native-Body-unwield native-item-Delete completed-once unrelated-goods-and-container-survive",
+        "ARMStorm-recipient-grade-gate=passed other-recipient-occupied-primary-refused caster-free-hand-preserved no-payment native-cap90 overreach-raw81-refused overreach-raw85point5-preflight-admitted approved-95-percent-gate controlled-grade-retained-independently no-paid-overreach-claim",
+        "ARMStorm-paid-grade7=passed actual-resource-debit actual-component-delete exact-one-native-weapon primary-hand-wield persisted-grade absolute-source-nominal-deadline seconds:12285",
+        "ARMStorm-combat-grade7=passed real-MeleeWeaponAttack actual-electrical-target-wounds persisted-native-wounds declared-6-damage-4-pain-2-stun helpless-defence controlled-roll no-historical-damage-parity",
+        "ARMStorm-reader=passed fresh-process original-stock-formula persisted-deadline no-reset no-early-expiry cold-custody-hold native-custodian-load exact-expiry repeated-reconciliation foreign-bag-and-child-preserved",
+        "ARMStorm-restart-expiry=passed actual-fresh-process native-container-reload grade-seven-temporary unchanged-absolute-deadline exact-owned-leaf-removal foreign-container-and-sibling-survive",
+        "ARMStorm-placement-reader=passed fresh-process real-item no-body-membership exact-one-cell-reference paid-operation-quarantined no-replay-or-refund",
+        "ARMStorm-placement-callback=passed actual-Held-inventory-callback-drops-output post-Get-custody-revalidation paid-NeedsReview no-false-wield normal-save fresh-process single-cell-custody no-replay-or-refund"
+      ],
+      "log": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt13-native.log",
+      "log_sha256": "53cc45d6614a543396e479f8f4de8ed5b7b69bd230288c1445ce93b92d73fc3a",
+      "owned_databases_cleaned": 1,
+      "cleanup": {
+        "processes": [],
+        "owned_processes_remaining": 0,
+        "checked_utc": "2026-10-04T23:44:32.7226636Z"
+      },
+      "failure": []
+    }
+  ],
+  "early_managed_attempts": [
+    {
+      "run_id": "20261004T224702Z-155f65d8b98c",
+      "status": "FAIL",
+      "counts": null,
+      "source_stable": true,
+      "summary": ".artifacts/test-runs/20261004T224702Z-155f65d8b98c/summary.json",
+      "sha256": "043f48e465f1f571fb4eb05075436132c5e3a69076b77b89a3dce9603c717404"
+    },
+    {
+      "run_id": "20261004T224839Z-0d5655c980ae",
+      "status": "PASS",
+      "counts": {
+        "executed": 15,
+        "passed": 15,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 15
+      },
+      "source_stable": true,
+      "summary": ".artifacts/test-runs/20261004T224839Z-0d5655c980ae/summary.json",
+      "sha256": "b83564716d2535883fedfee5be90bb6339d4a68d5cadb6ac6255f8d3659cd5e4"
+    },
+    {
+      "run_id": "20261004T230331Z-7b12d10cb05b",
+      "status": "PASS",
+      "counts": {
+        "executed": 17,
+        "passed": 17,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 17
+      },
+      "source_stable": true,
+      "summary": ".artifacts/test-runs/20261004T230331Z-7b12d10cb05b/summary.json",
+      "sha256": "4380d98ad255c9baf4f84b4f22655c60a445e1ecb84cf5956e4d8ef5bfdd4cfb"
+    },
+    {
+      "run_id": "20261004T230746Z-3c10d0fe8ca6",
+      "status": "FAIL",
+      "counts": {
+        "executed": 19,
+        "passed": 18,
+        "failed": 1,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 19
+      },
+      "source_stable": true,
+      "summary": ".artifacts/test-runs/20261004T230746Z-3c10d0fe8ca6/summary.json",
+      "sha256": "6819992fc526984019024da3600ee0e3d30223f466a9810eadec93f186b03216"
+    },
+    {
+      "run_id": "20261004T231100Z-6a0271b87224",
+      "status": "PASS",
+      "counts": {
+        "executed": 19,
+        "passed": 19,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 19
+      },
+      "source_stable": true,
+      "summary": ".artifacts/test-runs/20261004T231100Z-6a0271b87224/summary.json",
+      "sha256": "e6dfc8c72cc3ed08a4a5c52f01bad6926b9e41c3d289fb2cbb5c64da67d69890"
+    }
+  ],
+  "qualification_limits": [
+    "Historical object 488 and its JavaScript damage, material, weight and value are unavailable. Stock requires a builder-selected native electrical weapon. The acceptance profile explicitly uses 6 damage, 4 pain and 2 stun; historical damage parity is not asserted.",
+    "All grades use the exact native deadline (24+rand(1,6))*90*grade*0.75 seconds. This is the recovered loop's nominal conversion, excluding historical batching and load delay; no grade-seven permanence is introduced.",
+    "Native acceptance uses controlled world/anatomy catalogues, deterministic checks, specialized caster Save and explicit HelplessDefenseMove. It exercises real items, Body inventory, native room/zone/shard rollback, melee damage, wound persistence and fresh-process readers, but not full production boot/Telnet, autonomous attack selection, defences or concurrency.",
+    "The approved grade-seven 95-percent raw-cap gate is verified for overreach from controlled grade six, with no payment below the gate and route preflight at the boundary. A paid overreach cast is not qualified. Paid controlled grade-seven casting is qualified separately.",
+    "The actual native placement fault occurs after Get: a Held callback drops the output. Post-Wield custody revalidation has durable mock regression evidence, but an actual native post-Wield callback scenario was not run.",
+    "Earlier stock/integration packets remain immutable; their other historical native checks were not rerun for Storm Spear. Queued servitor control still needs accepted-action grant provenance and execution-time deadline revalidation while animation lives, preserving independent following.",
+    "Complete installer, all remaining stock/support/acquisition/crafting/chargen/energy wiring, portable production, remaining effect/lifecycle/topology/charm work and all whole-plan native release gates remain required. Seven phases, 16 decisions, 154 candidates, 82 Sorcerer plus 12 support rows and 25 acceptance scenarios are preserved.",
+    "Only a local commit is authorized. No publication, remote merge, deployment, shared/production database, billing, quota reset or model change occurred. Stop for parent independent review before later repertoire work."
+  ],
+  "whole_plan": {
+    "phases": 7,
+    "approved_decisions": 16,
+    "candidates": 154,
+    "selected_sorcerer_spells": 82,
+    "support_source_rows": 12,
+    "source_tree_rows": 94,
+    "native_acceptance_scenarios": 25,
+    "source_tree_sha256": "ada4e574d1c2243b2bad30cb0d65b98a5413a20ad1d8917965335fb9e481d496"
+  },
+  "durable_check": {
+    "id": "phase3Stock_storm_spear",
+    "status": "bounded_stock_verified_parent_review_pending",
+    "baseline": "b3cd366d435a4d07f3b713e4558df349fa20c010",
+    "receipt": "Armageddon_StormSpear_Stock_Verification.json",
+    "managed_runs": {
+      "focused": "20261004T235015Z-2cb4ffe7b6c8",
+      "Fast": "20261004T235303Z-87b60589826a"
+    },
+    "managed_counts": {
+      "focused": {
+        "executed": 970,
+        "passed": 970,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 970
+      },
+      "Fast": {
+        "executed": 7184,
+        "passed": 7184,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 7184
+      }
+    },
+    "native_markers": 13,
+    "storm_markers": 12,
+    "qualified_grades": [
+      1,
+      7
+    ],
+    "source_tree_order": 70,
+    "qualification_limits": [
+      "Historical object 488 and its JavaScript damage, material, weight and value are unavailable. Stock requires a builder-selected native electrical weapon. The acceptance profile explicitly uses 6 damage, 4 pain and 2 stun; historical damage parity is not asserted.",
+      "All grades use the exact native deadline (24+rand(1,6))*90*grade*0.75 seconds. This is the recovered loop's nominal conversion, excluding historical batching and load delay; no grade-seven permanence is introduced.",
+      "Native acceptance uses controlled world/anatomy catalogues, deterministic checks, specialized caster Save and explicit HelplessDefenseMove. It exercises real items, Body inventory, native room/zone/shard rollback, melee damage, wound persistence and fresh-process readers, but not full production boot/Telnet, autonomous attack selection, defences or concurrency.",
+      "The approved grade-seven 95-percent raw-cap gate is verified for overreach from controlled grade six, with no payment below the gate and route preflight at the boundary. A paid overreach cast is not qualified. Paid controlled grade-seven casting is qualified separately.",
+      "The actual native placement fault occurs after Get: a Held callback drops the output. Post-Wield custody revalidation has durable mock regression evidence, but an actual native post-Wield callback scenario was not run.",
+      "Earlier stock/integration packets remain immutable; their other historical native checks were not rerun for Storm Spear. Queued servitor control still needs accepted-action grant provenance and execution-time deadline revalidation while animation lives, preserving independent following.",
+      "Complete installer, all remaining stock/support/acquisition/crafting/chargen/energy wiring, portable production, remaining effect/lifecycle/topology/charm work and all whole-plan native release gates remain required. Seven phases, 16 decisions, 154 candidates, 82 Sorcerer plus 12 support rows and 25 acceptance scenarios are preserved.",
+      "Only a local commit is authorized. No publication, remote merge, deployment, shared/production database, billing, quota reset or model change occurred. Stop for parent independent review before later repertoire work."
+    ]
+  },
+  "primary": {
+    "head": "34eb234eb5a1e2784c595b4f848f6f785b426302",
+    "branch": "master",
+    "status": ""
+  },
+  "frozen_inputs": {
+    "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-final-inputs.json",
+    "sha256": "ec387fd087a96efb7e555db735b2c14c4811f8052071cdcdec550cab5f886366",
+    "sources": 690,
+    "aligned_binaries": 19
+  },
+  "artifact_fingerprints": [
+    {
+      "path": ".artifacts/test-runs/20261004T224702Z-155f65d8b98c/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/20261004T224702Z-155f65d8b98c/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/20261004T224702Z-155f65d8b98c/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stdout.log",
+      "sha256": "7fa87b5ecb1d4384031a5a2a810a35390f072bee64bba75f47e1228d608974de"
+    },
+    {
+      "path": ".artifacts/test-runs/20261004T224702Z-155f65d8b98c/run.json",
+      "sha256": "91a2b77244e91c05a454065176f8c5efc2ea48a388d6676b2dd0ed7b2d64d511"
+    },
+    {
+      "path": ".artifacts/test-runs/20261004T224702Z-155f65d8b98c/sdk/sdk.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/20261004T224702Z-155f65d8b98c/sdk/sdk.stdout.log",
+      "sha256": "3db6bca4b50618b2e0d2d55d23b3d0541fe039ab6f731df0e9c47317b400ce52"
+    },
+    {
+      "path": ".artifacts/test-runs/20261004T224702Z-155f65d8b98c/source-end.json",
+      "sha256": "e9aa89cb7343156535de22bf789c81257397b8e9cc82b7f98daae96bb000c399"
+    },
+    {
+      "path": ".artifacts/test-runs/20261004T224702Z-155f65d8b98c/source-start.json",
+      "sha256": "64a3eb6b03cc06eb4024c2fae5df190355003d192d399cd978e55f31e4f9fe2c"
+    },
+    {
+      "path": ".artifacts/test-runs/20261004T224702Z-155f65d8b98c/summary.json",
+      "sha256": "043f48e465f1f571fb4eb05075436132c5e3a69076b77b89a3dce9603c717404"
+    },
+    {
+      "path": ".artifacts/test-runs/20261004T224702Z-155f65d8b98c/summary.txt",
+      "sha256": "803871f7ba4925c0b15a04872c44ac8605c54b416f11d6f5a5fc1899aaecb004"
+    },
+    {
+      "path": ".artifacts/test-runs/20261004T224702Z-155f65d8b98c/test-results.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/20261004T224839Z-0d5655c980ae/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/20261004T224839Z-0d5655c980ae/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/20261004T224839Z-0d5655c980ae/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stdout.log",
+      "sha256": "ac1c209523108470ae95bb32c9adaa13353e253dfd5fbd38415a747529c9e1a4"
+    },
+    {
+      "path": ".artifacts/test-runs/20261004T224839Z-0d5655c980ae/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/results.trx",
+      "sha256": "d55915ac60787967cb0d3aab6b9d6180b6b81cb199fff78d7019c97dbd82d667"
+    },
+    {
+      "path": ".artifacts/test-runs/20261004T224839Z-0d5655c980ae/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/20261004T224839Z-0d5655c980ae/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stdout.log",
+      "sha256": "9eda8750878ccf45fe693c3394079c8fc27b7805b4b7e2082f0a92521bd9d034"
+    },
+    {
+      "path": ".artifacts/test-runs/20261004T224839Z-0d5655c980ae/run.json",
+      "sha256": "e5938e4f855293916cb8c4a78056241c3c9e147c0ff9ad7d6c37da2ee7fb5eb7"
+    },
+    {
+      "path": ".artifacts/test-runs/20261004T224839Z-0d5655c980ae/sdk/sdk.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/20261004T224839Z-0d5655c980ae/sdk/sdk.stdout.log",
+      "sha256": "3db6bca4b50618b2e0d2d55d23b3d0541fe039ab6f731df0e9c47317b400ce52"
+    },
+    {
+      "path": ".artifacts/test-runs/20261004T224839Z-0d5655c980ae/source-end.json",
+      "sha256": "a8af235b3b631c0f3db45d1ceccdcb38964e597a907a20a45ba9a7713d70d693"
+    },
+    {
+      "path": ".artifacts/test-runs/20261004T224839Z-0d5655c980ae/source-start.json",
+      "sha256": "be782091cbbf9ada911e1275142cff89f0187671af8a4e1340f23800b96f9c6b"
+    },
+    {
+      "path": ".artifacts/test-runs/20261004T224839Z-0d5655c980ae/summary.json",
+      "sha256": "b83564716d2535883fedfee5be90bb6339d4a68d5cadb6ac6255f8d3659cd5e4"
+    },
+    {
+      "path": ".artifacts/test-runs/20261004T224839Z-0d5655c980ae/summary.txt",
+      "sha256": "2dbd264fc985380be68bdc7391c9cd455b746356452a27edf863e0d81e426e84"
+    },
+    {
+      "path": ".artifacts/test-runs/20261004T224839Z-0d5655c980ae/test-results.json",
+      "sha256": "ef776c76781744738bf7f1a9bb01a29abd5c2b8b88be72e155783289fdd974f0"
+    },
+    {
+      "path": ".artifacts/test-runs/20261004T230331Z-7b12d10cb05b/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/20261004T230331Z-7b12d10cb05b/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/20261004T230331Z-7b12d10cb05b/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stdout.log",
+      "sha256": "e996a723e05fd9120472e17cb7c449514fb66a7a3affa3f56f771e722d3b947c"
+    },
+    {
+      "path": ".artifacts/test-runs/20261004T230331Z-7b12d10cb05b/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/results.trx",
+      "sha256": "0541e53f49ac94765d959081ed75eacfd3ab04f9b14296b9036495074f27d8f9"
+    },
+    {
+      "path": ".artifacts/test-runs/20261004T230331Z-7b12d10cb05b/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/20261004T230331Z-7b12d10cb05b/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stdout.log",
+      "sha256": "c29ae594a63a9b7e122c9cc84b659d37b4ca524112f6a46463fb45615fbc9304"
+    },
+    {
+      "path": ".artifacts/test-runs/20261004T230331Z-7b12d10cb05b/run.json",
+      "sha256": "db070b4459d6657133f2121f815e830d20547d1b3955fe069185eac241372ba9"
+    },
+    {
+      "path": ".artifacts/test-runs/20261004T230331Z-7b12d10cb05b/sdk/sdk.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/20261004T230331Z-7b12d10cb05b/sdk/sdk.stdout.log",
+      "sha256": "3db6bca4b50618b2e0d2d55d23b3d0541fe039ab6f731df0e9c47317b400ce52"
+    },
+    {
+      "path": ".artifacts/test-runs/20261004T230331Z-7b12d10cb05b/source-end.json",
+      "sha256": "3d1f8cf0e49b0e983b87ccc370bcb465e4d14fdfac742909f6d6b994fea1dc9a"
+    },
+    {
+      "path": ".artifacts/test-runs/20261004T230331Z-7b12d10cb05b/source-start.json",
+      "sha256": "16617c0b837fb10c1ef886574eb22baa9b64f0cfb41615c2fce56fccdd4682f0"
+    },
+    {
+      "path": ".artifacts/test-runs/20261004T230331Z-7b12d10cb05b/summary.json",
+      "sha256": "4380d98ad255c9baf4f84b4f22655c60a445e1ecb84cf5956e4d8ef5bfdd4cfb"
+    },
+    {
+      "path": ".artifacts/test-runs/20261004T230331Z-7b12d10cb05b/summary.txt",
+      "sha256": "8ed396aca7d0818e04b14b56d97030339306cf93d12dec44c6d68d5ee3c1c3d3"
+    },
+    {
+      "path": ".artifacts/test-runs/20261004T230331Z-7b12d10cb05b/test-results.json",
+      "sha256": "3f0a1e88f8f1a161223596fe9d48e0ca0536a91001e99803336bf1f340b77937"
+    },
+    {
+      "path": ".artifacts/test-runs/20261004T230746Z-3c10d0fe8ca6/failures.json",
+      "sha256": "ac90b9580669a58b0a2c9e54bcddffd9df6cb6534983c24552aef57dd4a88406"
+    },
+    {
+      "path": ".artifacts/test-runs/20261004T230746Z-3c10d0fe8ca6/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/20261004T230746Z-3c10d0fe8ca6/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stdout.log",
+      "sha256": "ebbb0cbc192b7246712a79447ff1790f68365d1bc1aa6f8c95d1835dc66a7403"
+    },
+    {
+      "path": ".artifacts/test-runs/20261004T230746Z-3c10d0fe8ca6/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/results.trx",
+      "sha256": "d68bcb5990c603b5a9298235baa08dc6353d962f7501d0c0a94d1f374459c7c2"
+    },
+    {
+      "path": ".artifacts/test-runs/20261004T230746Z-3c10d0fe8ca6/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/20261004T230746Z-3c10d0fe8ca6/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stdout.log",
+      "sha256": "5134c5ac1b5bbb5a1db8cd17b3886bdf87881ba68ccb0a8d9c6d56963645e65f"
+    },
+    {
+      "path": ".artifacts/test-runs/20261004T230746Z-3c10d0fe8ca6/run.json",
+      "sha256": "47975a1d5b6492ee57b73bb414c692a0b38d1045e2ae11e1c417b19865f20f6e"
+    },
+    {
+      "path": ".artifacts/test-runs/20261004T230746Z-3c10d0fe8ca6/sdk/sdk.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/20261004T230746Z-3c10d0fe8ca6/sdk/sdk.stdout.log",
+      "sha256": "3db6bca4b50618b2e0d2d55d23b3d0541fe039ab6f731df0e9c47317b400ce52"
+    },
+    {
+      "path": ".artifacts/test-runs/20261004T230746Z-3c10d0fe8ca6/source-end.json",
+      "sha256": "e78e64c311dfb0cf61ed4fec6485278dc54841d7099c32d5fa471abb3ad8c464"
+    },
+    {
+      "path": ".artifacts/test-runs/20261004T230746Z-3c10d0fe8ca6/source-start.json",
+      "sha256": "58f55093be71c2e6c19f61bc3d60f625c47ccb51772e043d38bf37b66025957a"
+    },
+    {
+      "path": ".artifacts/test-runs/20261004T230746Z-3c10d0fe8ca6/summary.json",
+      "sha256": "6819992fc526984019024da3600ee0e3d30223f466a9810eadec93f186b03216"
+    },
+    {
+      "path": ".artifacts/test-runs/20261004T230746Z-3c10d0fe8ca6/summary.txt",
+      "sha256": "c4c94cdc99d98622ab65f1be7f84040fbd581e5c7544071650daba7b0f92818d"
+    },
+    {
+      "path": ".artifacts/test-runs/20261004T230746Z-3c10d0fe8ca6/test-results.json",
+      "sha256": "100ff811dd8e71dd97557a256e4595cfb9ded8f0ac910b1ee4ef55ff9f7facfa"
+    },
+    {
+      "path": ".artifacts/test-runs/20261004T231100Z-6a0271b87224/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/20261004T231100Z-6a0271b87224/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/20261004T231100Z-6a0271b87224/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stdout.log",
+      "sha256": "8d14acf3aa6446cf3a3ad09f4ae41a619a897b7c5ddd08235412cf76c7f6a28b"
+    },
+    {
+      "path": ".artifacts/test-runs/20261004T231100Z-6a0271b87224/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/results.trx",
+      "sha256": "bafb9081ecd70fe1af4e0ac1d06f61ca85f01f6980df8eee56df20b8e85e44bc"
+    },
+    {
+      "path": ".artifacts/test-runs/20261004T231100Z-6a0271b87224/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/20261004T231100Z-6a0271b87224/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stdout.log",
+      "sha256": "422a8f4c53b31a7141379cd345f9e84481e08d1f080b2cef029780a1f59be116"
+    },
+    {
+      "path": ".artifacts/test-runs/20261004T231100Z-6a0271b87224/run.json",
+      "sha256": "f9430adc62b579e5e8c42ed9d9f8bf214de30a85362bdaa17212e23dd3b04ffd"
+    },
+    {
+      "path": ".artifacts/test-runs/20261004T231100Z-6a0271b87224/sdk/sdk.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/20261004T231100Z-6a0271b87224/sdk/sdk.stdout.log",
+      "sha256": "3db6bca4b50618b2e0d2d55d23b3d0541fe039ab6f731df0e9c47317b400ce52"
+    },
+    {
+      "path": ".artifacts/test-runs/20261004T231100Z-6a0271b87224/source-end.json",
+      "sha256": "5f8e5e95eade8eed408e84a03825ea311ce6f213fdf350de53963ca492929402"
+    },
+    {
+      "path": ".artifacts/test-runs/20261004T231100Z-6a0271b87224/source-start.json",
+      "sha256": "af2bd1031bb42bfc9cda679d42863aeb67ac2c4e7fb84d55af16a39e9095b6f3"
+    },
+    {
+      "path": ".artifacts/test-runs/20261004T231100Z-6a0271b87224/summary.json",
+      "sha256": "e6dfc8c72cc3ed08a4a5c52f01bad6926b9e41c3d289fb2cbb5c64da67d69890"
+    },
+    {
+      "path": ".artifacts/test-runs/20261004T231100Z-6a0271b87224/summary.txt",
+      "sha256": "5296be9d8a4b2d7788afec3fc285f35846ed4bde18cf689b7039ddb656e57997"
+    },
+    {
+      "path": ".artifacts/test-runs/20261004T231100Z-6a0271b87224/test-results.json",
+      "sha256": "cb909eb6f17bb3717448d424f8eb5a473f8cf8ab62c7f8e7573a9fcfa6ac500b"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/build-native-attempt1.log",
+      "sha256": "ae35502fad52b1c0ef353b5e2c7a9f6064062a02541421a58543891f8522762a"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/build-native-attempt10.log",
+      "sha256": "7354d5260beb45cad1a3353187971521bf50f9408b27419bac84303230aea7f6"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/build-native-attempt11.log",
+      "sha256": "fbd58b3c66400fbab43cb878e695c49381ee2c808443ff65371a0ce55b72b353"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/build-native-attempt12.log",
+      "sha256": "e8ce59ce72097fdc23602b2ba14409690f3a2a46c498c2159c96683949dfd43a"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/build-native-attempt13.log",
+      "sha256": "e3dcf9b9cd796fd2400030a98553eec53a1cad4665648691e845bb1c7c03b184"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/build-native-attempt14.log",
+      "sha256": "055b4f5794f4a9220374f039ddc99497cc7706828c56db45ac153b49b4d05082"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/build-native-attempt15.log",
+      "sha256": "ec3b1f6a4e32b9db3b5642e63710e0c1652ecec5f3d135ce31b1c4985f532570"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/build-native-attempt16.log",
+      "sha256": "70eb3af78f100d3250462a79a8870a02aca1de88f1c8641ea991f06b204910ba"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/build-native-attempt2.log",
+      "sha256": "c90f010aa4dc1178946e282eb71dd71ca70845c992a611c6ec2b2d4f5814f931"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/build-native-attempt3.log",
+      "sha256": "24e065c07abc7841d94f857ff66e82515e3c6d53169fc81c255bc144356b6d8f"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/build-native-attempt4.log",
+      "sha256": "97e75c077cf96f56026a25256165e9941bf55d8654715c6bbf825e32160c6d10"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/build-native-attempt5.log",
+      "sha256": "74a578383661a9cbccf78e1c825f7ba1f4d40d0863a4f9ded49833252cf9ace3"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/build-native-attempt6.log",
+      "sha256": "a0c12ae1f689e8318365c287c3d57a2a4551fc8e9cf6817611052a4b89983e17"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/build-native-attempt7.log",
+      "sha256": "d3c093fd8f2161956e7617171c7da0767dad3668f75141fe71b90a108fa770de"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/build-native-attempt8.log",
+      "sha256": "7354d5260beb45cad1a3353187971521bf50f9408b27419bac84303230aea7f6"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/build-native-attempt9.log",
+      "sha256": "fbd58b3c66400fbab43cb878e695c49381ee2c808443ff65371a0ce55b72b353"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/build-native-final.log",
+      "sha256": "7e075eb24aa705115c42958ed91f3fbb24161410634dc670f44d0836db0c56f1"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt1-after-fingerprints.json",
+      "sha256": "be0b33079a7c5c727b60c98d96aebad533a5fd065891044311919f58bbeffb11"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt1-before-fingerprints.json",
+      "sha256": "083f7963f3591e1581d22b1a2be3d1f3d3359530608d2031cf1cc9ddfcdc3154"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt1-inputs.json",
+      "sha256": "97049fd2212838bd958e9f43ba1a4c33575b4014515487dfd5ff9340dd0c0e65"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt1-native-exit.json",
+      "sha256": "dc71173e74ae288ecd323880c0b0f2fd33888daa487443084fc753544c7c9af9"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt1-native.log",
+      "sha256": "0142a52649166c9a8be21f672fc7da90e910b4165e76a63d7e2a3bf8c3ed3e56"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt10-after-fingerprints.json",
+      "sha256": "0f3a7e72f4b6b02f51a0e6b55d9a6be4a3543eca2281ed4b06ec95ac33487f61"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt10-before-fingerprints.json",
+      "sha256": "f49fc391f49678134f8d94b7391e5bb1f15feb04b8412431f9f7a4d1a445e2ab"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt10-inputs.json",
+      "sha256": "922ed412333fc5b19523b803bc00b25412cab5e124db01c2cea2b61a97b27ce2"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt10-native-exit.json",
+      "sha256": "4a5aca3ab439fb4db39d0151c6295787773b273e0890fb3a6848909d3039907f"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt10-native.log",
+      "sha256": "04583c096f0e4912af2e3a036d4c9d5d46011fdacd63c98f6de63b13125f2c5d"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt10-process-cleanup.json",
+      "sha256": "f548f916cfff9138a9500fa4a2630e0f708ad2991988e28410577c55d0ca9270"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt11-after-fingerprints.json",
+      "sha256": "17cb10e021afdad1c5d93f91da5250efeb8d2e3f044ed3962069807e7a969a97"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt11-before-fingerprints.json",
+      "sha256": "599a8ed28655bdfc1055144592c7b2037ce7b572b430da14f829701c6a119bdc"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt11-inputs.json",
+      "sha256": "bb5132717bdc75057e2cb73e7dd99333268589ba67d8794c3cd64e7f866c7866"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt11-native-exit.json",
+      "sha256": "8a1c472c94e34911141138af6dc7194f229346d081c6912914ef733811e117b8"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt11-native.log",
+      "sha256": "26566919bc4f7d3414e98f45dc242f76e70bdefb5b86481c8adef3c76a059dd2"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt11-process-cleanup.json",
+      "sha256": "8a42111324c9d364ee29bbac8bdf30c8169a29b9ca790c818fd7878dc39437f6"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt12-after-fingerprints.json",
+      "sha256": "f3ebbc48f57d3cc325425765cbaf9f8af6827f2c17cae98862e503b34e7a61ed"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt12-before-fingerprints.json",
+      "sha256": "08b50ed3bf2058d0d944cf9feb376caf30763f2ec06cb4ddbaef09081cf62752"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt12-inputs.json",
+      "sha256": "dacaaad59e3ffb7287d1d5d652718eae34f4dafa49967cd45033fa3f2ddffb7a"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt12-native-exit.json",
+      "sha256": "c1b1e726175a9f33e33f55c2b51676f41f3b008bc6f43ed71dc17ba034f0df0c"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt12-native.log",
+      "sha256": "c123d3c9c175ded8bcf8c7fa6766e1025a260620ecb5538efca9489546ed51ab"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt12-process-cleanup.json",
+      "sha256": "1ea8e8fad5c7c14a022fa54321840528cfa43769d35ad348d7d4652e824b043c"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt13-after-fingerprints.json",
+      "sha256": "5e19ea16488fa8893ebe998588fdda168affeb2e83b6bd3726b6d94a74824451"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt13-before-fingerprints.json",
+      "sha256": "a09891382326c2472936cf02bbf3d49840793f35aad43e4d074894aa080b3261"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt13-inputs.json",
+      "sha256": "0d1cd6d12789b55e43f7768b92005659a58f8ac0e005af783454709f11e900dd"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt13-native-exit.json",
+      "sha256": "84f16f83d078dfa3f6425a635b2fafc2043d78b892ba020b79087afbeebc6b09"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt13-native.log",
+      "sha256": "53cc45d6614a543396e479f8f4de8ed5b7b69bd230288c1445ce93b92d73fc3a"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt13-process-cleanup.json",
+      "sha256": "4d4d4f2929c7d55d92fd27b4c55fab9d6bcd95e9894bc335040374b6ef9bdef4"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt2-after-fingerprints.json",
+      "sha256": "7086f98e52fa043ab4e654e5ee6a6d36f67c7eed1b986266b8fc1287e5986eeb"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt2-before-fingerprints.json",
+      "sha256": "57603f0d6e1fc3a9c5b4df58d52d4611811e5f78c82fb06b1b4e482242885576"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt2-inputs.json",
+      "sha256": "407f9fec326309302edde035a1ab9fb63c3fa09ad1a7f720078fb3a8704007f1"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt2-native-exit.json",
+      "sha256": "c79a4d7306c01abd90a86c10709dbdfa54815cfbab585db3c0d010e7b82fb50c"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt2-native.log",
+      "sha256": "69b339084e72e80e0feaf05ef81d4c1a8bbcf2f8d8944de2052abca549022316"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt2-process-cleanup.json",
+      "sha256": "51e337403125159dc2c51bd0170269e329e16ac0fec4dea20f3e4d84d6a1293d"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt3-after-fingerprints.json",
+      "sha256": "1297f0ce219dbcdc1c22ae7995a0384654cfa4909dcedfddad159c427021bafd"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt3-before-fingerprints.json",
+      "sha256": "8949dfc0146e2b11ceedfc3ba5b1abf6c3eadc4a3180672b7cb108d3db27bb95"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt3-inputs.json",
+      "sha256": "a10b6d17fff34f42917a0a6e2b842ffdbbb527bcc67222f92258d72a060b7e0f"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt3-native-exit.json",
+      "sha256": "6e7d2cee7356d1634cfb446b9e906cdfdc70c6b70ad4cf91e2b842ad77a55cc2"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt3-native.log",
+      "sha256": "a16abd77935f25d2274a81fc41e2150820c649fe43d89c9aaf7804749abebfba"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt3-process-cleanup.json",
+      "sha256": "46c93bd3698e1c1a2748226bbcaea1a157c05c64e4bb55513688e77a193a0052"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt4-after-fingerprints.json",
+      "sha256": "1134701c84d9e55e76de0ce284d867bb356fa62754f21295f575ea45006b2d50"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt4-before-fingerprints.json",
+      "sha256": "bc10ce79e9e03ac61a8224c6c257a0c81cce71578a1eed9565eea429c0630aa8"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt4-inputs.json",
+      "sha256": "dee27153c1a8783539cdedc263b2ddc42430c5b8f08e4e7fb4d329de08424f4c"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt4-native-exit.json",
+      "sha256": "16e86b440c512025970e6819222dfd7949313fa00cf08a11b49d7a33968a4eee"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt4-native.log",
+      "sha256": "028103941b0848a0e81590678f303b455d6875076bb1b29066cf261f48227c48"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt4-process-cleanup.json",
+      "sha256": "7dc9ff573918182b2cbf5abdbcde9bebd262f103d784729d0b19c8da4a854b3a"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt5-after-fingerprints.json",
+      "sha256": "79203e77dd70a4ed7f78acfa8fea103d0594bb5d90a0d40b0656c9ec687f787d"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt5-before-fingerprints.json",
+      "sha256": "ab36dacbfde3923c820614bcc3b14c96f0f9700beb4e93218bc2d44456c4f631"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt5-inputs.json",
+      "sha256": "a4452005e2910f5e1f1deb1bfc4427dbe0f93a00d2b5ff8a4ac26536910c11dd"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt5-native-exit.json",
+      "sha256": "3209aee8d44d3179cedbb5f292891b8b728b7e0342c1c7a5d2c4c2602b8d1e93"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt5-native.log",
+      "sha256": "8903c26069442b7c7fddf27ee55e7b710dd7c358c46b2c972b6ea7cd7a970d4b"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt5-process-cleanup.json",
+      "sha256": "055bdc2975e224d9e7ddb07a598a12db8985fa773263499048c370ec69fab81d"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt6-after-fingerprints.json",
+      "sha256": "0302bc84e1cc32bbb9a63aa900f2d1ff67012d67c34a9a6187ae4deaa62e401b"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt6-before-fingerprints.json",
+      "sha256": "1d9afbafaf6d139ba5a8ca904bdd65fb82c5702d4298fe1ccf52b6ee33226846"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt6-inputs.json",
+      "sha256": "fd37400ec4489fa75bcc79136c868377704a57c913317e269730661fb903d7d1"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt6-native-exit.json",
+      "sha256": "d2600b7c53a9320bf156fd3f41c83381a7b6028e9fbd01bb858fb5a90c85cbca"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt6-native.log",
+      "sha256": "e14fba1d154e6effc452c37fa370801bbd9e533d5e0cf50685cb702e6db516eb"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt6-process-cleanup.json",
+      "sha256": "c69f6206cd7eea363741841830203e4d9d83b31b3caacb3e422586ef79809c97"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt7-after-fingerprints.json",
+      "sha256": "29cd81810f5bdb65f0faca86efc364cc2eacd857a42acbac3ea40aa07b9d9d67"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt7-before-fingerprints.json",
+      "sha256": "fafbbf6dafc5fb1f8bb4d96c3711e3ac4dd7d2bc5e4178cb7d0d6d5d5134ca40"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt7-inputs.json",
+      "sha256": "f2a55064e81b070ce7d20756f1d816ae243a73864039e608be5af1a163633418"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt7-native-exit.json",
+      "sha256": "a3bacfedaa1867208d0c6778612d99afc8034ad32a912babd590122d1c41eff0"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt7-native.log",
+      "sha256": "2dc2c8362818fc4747d31658189d554739f63be128bee1bbbfe8fe0e830e8386"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt7-process-cleanup.json",
+      "sha256": "b81748b74ec6d259d513692931fc4238c41e7198c8ed0e54928bc1a9822eefaf"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt8-after-fingerprints.json",
+      "sha256": "4af1dde6ce7a68bd90a9cf2c45a58976bf604d6aecd8e32d932d6f208a6b2321"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt8-before-fingerprints.json",
+      "sha256": "39079d94eea499c9637960e1fa42ab9c38ad6480ba89c1ce78ea15dc49ba20c0"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt8-inputs.json",
+      "sha256": "0b775ee2087d3408e81fe61b7dde4943a7a2406cf654577a0e7e23cd62d7ef84"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt8-native-exit.json",
+      "sha256": "205ac96d14f27f546a9cb9ddcbae0762c251d0e648e44487a76ba19ac9847818"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt8-native.log",
+      "sha256": "5bfde8c74eef54b970514f4bae03af4c5ba03f6a3fb2d3658e9c6668736fc086"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt8-process-cleanup.json",
+      "sha256": "ff6694bbe3a4013a2fad32adef3a939e87d9041c3ba699b49073c7849abef87b"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt9-after-fingerprints.json",
+      "sha256": "b5ee30fa9a5277535b636a2c8bf0f9010cefa3ef809672a65508cfb60c1812fc"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt9-before-fingerprints.json",
+      "sha256": "69be36d3712652b625ff4c1b46569ea2669fb297a656cb6867f02a6040675ab4"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt9-inputs.json",
+      "sha256": "fafb7b1c6b57ea3b54644290d2db0b107309298aad4a9917ebe7d7c2c99893e2"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt9-native-exit.json",
+      "sha256": "dd3304c3f244dca2403d3a726398909568eceb07699c77d5365abb1e17b3e0de"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt9-native.log",
+      "sha256": "50f23deb5e4ba1887481bb7dc3e835465593f87fb65a82bb88ce7e5b3808d706"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-attempt9-process-cleanup.json",
+      "sha256": "9d2b7903977bc7527c72d0d50a6874c59e4fe139081ae4057660c13736a1a86c"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-final-after-fingerprints.json",
+      "sha256": "d977babac9a62bde0cd20de97894df840c87a5239ed2fd859db3c00e4d35388e"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-final-before-fingerprints.json",
+      "sha256": "cf025f3ec102041485fca8f6f18ef896f6bb8c6a99b23ec29ea2607450d34a83"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-final-inputs.json",
+      "sha256": "ec387fd087a96efb7e555db735b2c14c4811f8052071cdcdec550cab5f886366"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-final-native-exit.json",
+      "sha256": "7819ec9dc3eaa4c02a5217edbbd04bf62fc22a3c994358ac512649f02d7f4b8c"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-final-native.log",
+      "sha256": "1ae4327f9fca0640f2db55f8a347fd64af3519e5dd5d9c1cb0b6cb5ea06340ba"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/native-final-process-cleanup.json",
+      "sha256": "92fa6c225483ff6179f4609e6bdc5bde85b5aa9bf674d02a42fa4f2b23c22d4b"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/prepared-summary.json",
+      "sha256": "23c35fe1a31e5447650b4e084b1afa5309a27cd81dfc1dc0b44f875920030421"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/resumption.json",
+      "sha256": "e5f2741d3727c11fad9d97fe5975cf54a3eac8c56860da6769ea827250ad24e4"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/review-closure.json",
+      "sha256": "67e90a70c0b7458b1b7ea698720ac1ce3552a49a634f901cbbd599b7b12dbdf4"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261004-storm-spear/upstream-drift.patch",
+      "sha256": "f7defa7ef08156ad345a8bf9a0d75396c8d1ce1585765928cde9b97af38ddcb9"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T234637Z-8bcfa2500e8b/failures.json",
+      "sha256": "f410e9eb67c383c2bcfe8a0bb10e81dae660df9ed5ec1b2d5fde201cf2cd2631"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T234637Z-8bcfa2500e8b/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T234637Z-8bcfa2500e8b/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stdout.log",
+      "sha256": "a57193ced0f74b3e44f5267c8a4412c5ceea7edfe72d90b27d48e7389a3f78c2"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T234637Z-8bcfa2500e8b/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/results.trx",
+      "sha256": "4213285325ac93495b746b06a11d1878b5e483971a6c3d7cfb79d0c7cfc86ce3"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T234637Z-8bcfa2500e8b/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T234637Z-8bcfa2500e8b/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stdout.log",
+      "sha256": "554c327e498b915fbcfd781eabd0ca73464f8d32fa0287071233c001ae7f241d"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T234637Z-8bcfa2500e8b/run.json",
+      "sha256": "6c93ccebd34da185e0123ab8ac21957e5066abfc573366896f7ba79f42b201fe"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T234637Z-8bcfa2500e8b/sdk/sdk.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T234637Z-8bcfa2500e8b/sdk/sdk.stdout.log",
+      "sha256": "3db6bca4b50618b2e0d2d55d23b3d0541fe039ab6f731df0e9c47317b400ce52"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T234637Z-8bcfa2500e8b/source-end.json",
+      "sha256": "cef55d31f1b7027e091721db26d11d9db9b895cba28efd65ebeffdcb3998bb83"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T234637Z-8bcfa2500e8b/source-start.json",
+      "sha256": "fc20553606fc4faded17bf807e97cc0f1dbdedface30cec64f670a71131cf788"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T234637Z-8bcfa2500e8b/summary.json",
+      "sha256": "a4674d8978df03441086c7fb668ec5472f8943afbdb6761b0232d1344f6ecd51"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T234637Z-8bcfa2500e8b/summary.txt",
+      "sha256": "668ab58143293379c83210d4a423b4a30e35fb402419273747e5c2d551a4768a"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T234637Z-8bcfa2500e8b/test-results.json",
+      "sha256": "585dd804ebd22326e99d5aa5889918f6c64caa8411b626e5712f14724f0e4d18"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T235015Z-2cb4ffe7b6c8/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T235015Z-2cb4ffe7b6c8/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T235015Z-2cb4ffe7b6c8/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stdout.log",
+      "sha256": "43f5707754c867f1755febace17032097546d047456eb2286489c2b1c7037fab"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T235015Z-2cb4ffe7b6c8/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/results.trx",
+      "sha256": "526f77cb69f388f1e3f409f86b1624cf7f021882439d1e22169250ec25e8a90d"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T235015Z-2cb4ffe7b6c8/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T235015Z-2cb4ffe7b6c8/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stdout.log",
+      "sha256": "ad21d1ab7f732ba29b627def3c17724de4801c6629385a80083c91c7b0643179"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T235015Z-2cb4ffe7b6c8/run.json",
+      "sha256": "e1a2206fa8f1954fd3ea2f11a4cc6a4dbb212853d6651302f27e1c0d8f3fc14a"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T235015Z-2cb4ffe7b6c8/sdk/sdk.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T235015Z-2cb4ffe7b6c8/sdk/sdk.stdout.log",
+      "sha256": "3db6bca4b50618b2e0d2d55d23b3d0541fe039ab6f731df0e9c47317b400ce52"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T235015Z-2cb4ffe7b6c8/source-end.json",
+      "sha256": "3e9e5716d404ee35256787589b6310f36decfbb2d4ae9b15296cfb1bc3f177e5"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T235015Z-2cb4ffe7b6c8/source-start.json",
+      "sha256": "d9cf868c893df964e849e84d09504399a19d87450fa9c20e2b988afc18c44e75"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T235015Z-2cb4ffe7b6c8/summary.json",
+      "sha256": "ed7c42f5886b419c8070d23c483854cc349443535a592228b09f6a567993c4c7"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T235015Z-2cb4ffe7b6c8/summary.txt",
+      "sha256": "14f78932edd6b784dc18c6bf4b6b9869e5bd2cababafd518ca8348288e63f1eb"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T235015Z-2cb4ffe7b6c8/test-results.json",
+      "sha256": "91cc2b2a1737ca6c2a1db40bdbfb6dae1a0212e4d94d5f9a8d279ece9b77b8d6"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T235303Z-87b60589826a/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T235303Z-87b60589826a/invocations/DatabaseSeeder_Unit_Tests-e14dcedb/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T235303Z-87b60589826a/invocations/DatabaseSeeder_Unit_Tests-e14dcedb/build/build.stdout.log",
+      "sha256": "e6430210e288e1e33a641046e4ba4525a3fbbab6c7e0c8d14da2bed3d9ec3cda"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T235303Z-87b60589826a/invocations/DatabaseSeeder_Unit_Tests-e14dcedb/net10-41544e89/1/results.trx",
+      "sha256": "61fa16b054f8c3686d8c28e66d9d8510d9ff4ab153daab50053a11f62e57c979"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T235303Z-87b60589826a/invocations/DatabaseSeeder_Unit_Tests-e14dcedb/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T235303Z-87b60589826a/invocations/DatabaseSeeder_Unit_Tests-e14dcedb/net10-41544e89/1/test.stdout.log",
+      "sha256": "7f0216ad44ec032199e9fdccbb9e0da6b3553f7ce48d325e04547dda480e08c6"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T235303Z-87b60589826a/invocations/DiscordBotCore_Unit_Tests-4ffa2b0e/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T235303Z-87b60589826a/invocations/DiscordBotCore_Unit_Tests-4ffa2b0e/build/build.stdout.log",
+      "sha256": "dbe1a797a86ad21f34cece861ecdb65991b2da7480586133982e55412a3a96f8"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T235303Z-87b60589826a/invocations/DiscordBotCore_Unit_Tests-4ffa2b0e/net10-41544e89/1/results.trx",
+      "sha256": "bc6511684707095d53ab090ae423bb3d41ab7904f5da47795756979c76fc58e4"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T235303Z-87b60589826a/invocations/DiscordBotCore_Unit_Tests-4ffa2b0e/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T235303Z-87b60589826a/invocations/DiscordBotCore_Unit_Tests-4ffa2b0e/net10-41544e89/1/test.stdout.log",
+      "sha256": "0105f9e9491da365427416144b0a43422f9fb593ef386f6c7a44bbf01c92ca27"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T235303Z-87b60589826a/invocations/ExpressionEngine_Unit_Tests-8cdb3e65/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T235303Z-87b60589826a/invocations/ExpressionEngine_Unit_Tests-8cdb3e65/build/build.stdout.log",
+      "sha256": "ecd946422aaba773beb32ada02642e06ea5a77b5282f2703330c2722ff5e8d4b"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T235303Z-87b60589826a/invocations/ExpressionEngine_Unit_Tests-8cdb3e65/net10-41544e89/1/results.trx",
+      "sha256": "75394090a46405cab6b6e6dd385ffba199de21c6783a0a2df1bca5cd6af69f7c"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T235303Z-87b60589826a/invocations/ExpressionEngine_Unit_Tests-8cdb3e65/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T235303Z-87b60589826a/invocations/ExpressionEngine_Unit_Tests-8cdb3e65/net10-41544e89/1/test.stdout.log",
+      "sha256": "5fb49a7e983314ef8ede31521f897844e9b62b3b2409a8de0dac79b584f634a0"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T235303Z-87b60589826a/invocations/FutureMUD.Web.Tests-ac492d08/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T235303Z-87b60589826a/invocations/FutureMUD.Web.Tests-ac492d08/build/build.stdout.log",
+      "sha256": "817d6bf7e403e4551f7946384ef95dd0c7c0aee8c17b49c43c89a60b5a4a0e4b"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T235303Z-87b60589826a/invocations/FutureMUD.Web.Tests-ac492d08/net10-41544e89/1/results.trx",
+      "sha256": "b67aeb073525f96b1370febc245e600c119b7128b345df13146628a9679558db"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T235303Z-87b60589826a/invocations/FutureMUD.Web.Tests-ac492d08/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T235303Z-87b60589826a/invocations/FutureMUD.Web.Tests-ac492d08/net10-41544e89/1/test.stdout.log",
+      "sha256": "4313000b1176afaa96662d9755d093796cb63e7ec6d52a722e4d10f4739bc4f8"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T235303Z-87b60589826a/invocations/FutureMUDLibrary_Unit_Tests-45c02d6c/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T235303Z-87b60589826a/invocations/FutureMUDLibrary_Unit_Tests-45c02d6c/build/build.stdout.log",
+      "sha256": "824031df6dab99b57aac9033895560006cac6e763f0ca74a26bc18d301e88a00"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T235303Z-87b60589826a/invocations/FutureMUDLibrary_Unit_Tests-45c02d6c/net10-41544e89/1/results.trx",
+      "sha256": "398201ceccadcbeb64fc088b22442ef862ef049e2725fc89d19dd0024095a8c1"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T235303Z-87b60589826a/invocations/FutureMUDLibrary_Unit_Tests-45c02d6c/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T235303Z-87b60589826a/invocations/FutureMUDLibrary_Unit_Tests-45c02d6c/net10-41544e89/1/test.stdout.log",
+      "sha256": "a85067644bc75de6dd0cc53121f5a72879482550a35bdb944b10d18c861092c8"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T235303Z-87b60589826a/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T235303Z-87b60589826a/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stdout.log",
+      "sha256": "82c3fe130afde3dd5e391b881bb51596bf4997622084f4a432ba33a1136ab4ea"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T235303Z-87b60589826a/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/results.trx",
+      "sha256": "9b40ae58c2e669c1baa10ff1cfe3640b5df641609ab9c3c4cef14e44e5a49bbe"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T235303Z-87b60589826a/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T235303Z-87b60589826a/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stdout.log",
+      "sha256": "9be00979ba81833dc7e34f9d46538c2fd5319ca03960d5ea276cf2787df7c843"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T235303Z-87b60589826a/invocations/MudsharpDatabaseLibrary_Unit_Tests-6ef1914c/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T235303Z-87b60589826a/invocations/MudsharpDatabaseLibrary_Unit_Tests-6ef1914c/build/build.stdout.log",
+      "sha256": "ede7fd8c28da8cd48bd7761f151843641a8910311b42ba771212c8489ebd495c"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T235303Z-87b60589826a/invocations/MudsharpDatabaseLibrary_Unit_Tests-6ef1914c/net10-41544e89/1/results.trx",
+      "sha256": "4142df2ca791b1abacc3cf3d296324efb17b86b39cf49809e4717d2b488314ec"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T235303Z-87b60589826a/invocations/MudsharpDatabaseLibrary_Unit_Tests-6ef1914c/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T235303Z-87b60589826a/invocations/MudsharpDatabaseLibrary_Unit_Tests-6ef1914c/net10-41544e89/1/test.stdout.log",
+      "sha256": "f4f39f5608d61896a17f5fe7d7397f1ed7d2de963ca19333c69f8caf5979f676"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T235303Z-87b60589826a/invocations/RPI_Engine_Worldfile_Converter_Tests-14d87d34/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T235303Z-87b60589826a/invocations/RPI_Engine_Worldfile_Converter_Tests-14d87d34/build/build.stdout.log",
+      "sha256": "2ebc447d105f8a7839cd7d70f5e82b5ede4f204630ef60ecda489d6cbf6866d9"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T235303Z-87b60589826a/invocations/RPI_Engine_Worldfile_Converter_Tests-14d87d34/net10-41544e89/1/results.trx",
+      "sha256": "7db610b3a8971caf95c7ed0cb7bdbe1fb3d2c4ddc595eed8c316230a9f69c215"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T235303Z-87b60589826a/invocations/RPI_Engine_Worldfile_Converter_Tests-14d87d34/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T235303Z-87b60589826a/invocations/RPI_Engine_Worldfile_Converter_Tests-14d87d34/net10-41544e89/1/test.stdout.log",
+      "sha256": "f66c831e9e4574f9a742387d9ab9a0c9323332123559e3a6dc2447f06f974e35"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T235303Z-87b60589826a/invocations/TerrainPlanner.Tests-1085b5fa/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T235303Z-87b60589826a/invocations/TerrainPlanner.Tests-1085b5fa/build/build.stdout.log",
+      "sha256": "9ff0288f96039d52f7e6d85f615aaab037a804ff830851a892a96162dfb85c5a"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T235303Z-87b60589826a/invocations/TerrainPlanner.Tests-1085b5fa/net10-41544e89/1/results.trx",
+      "sha256": "d1206836f2b443c886891955918fbc32c8a19f093dc9dcca724af1e3381582fc"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T235303Z-87b60589826a/invocations/TerrainPlanner.Tests-1085b5fa/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T235303Z-87b60589826a/invocations/TerrainPlanner.Tests-1085b5fa/net10-41544e89/1/test.stdout.log",
+      "sha256": "d3926fc27d753cd92323794f702cd05bd685fd56c1dee515bc0807d1a0ef4f59"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T235303Z-87b60589826a/invocations/TestReporting.Tests-25b07e44/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T235303Z-87b60589826a/invocations/TestReporting.Tests-25b07e44/build/build.stdout.log",
+      "sha256": "7c28f45d12f6f4f9bf53e81b3dc621af57aea5f60bb7a4de3e479beb86c1e0da"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T235303Z-87b60589826a/invocations/TestReporting.Tests-25b07e44/net10-41544e89/1/results.trx",
+      "sha256": "1ca4cf9c92dc3f03b530f5f2d9a48843af76dce0b7af1f5ef4fde0fce1f51acb"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T235303Z-87b60589826a/invocations/TestReporting.Tests-25b07e44/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T235303Z-87b60589826a/invocations/TestReporting.Tests-25b07e44/net10-41544e89/1/test.stdout.log",
+      "sha256": "0bc6eca4bc2f7ca6fd5a9217605c8dbc309b639ee7aeb2a79e5d189792f3bdbb"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T235303Z-87b60589826a/run.json",
+      "sha256": "05d44ed34272704a0fc680bf09f0971d815cf233351e81a5cde07e876c5e2ad3"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T235303Z-87b60589826a/sdk/sdk.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T235303Z-87b60589826a/sdk/sdk.stdout.log",
+      "sha256": "3db6bca4b50618b2e0d2d55d23b3d0541fe039ab6f731df0e9c47317b400ce52"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T235303Z-87b60589826a/source-end.json",
+      "sha256": "0c76df07ce2ddd4ee2ed8b221067da2564ddce947198f43813ac412212292661"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T235303Z-87b60589826a/source-start.json",
+      "sha256": "450fec1d94d64c86c814a81f8a75ba9c3f1be1b5b92decd0e3107ed9ab768453"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T235303Z-87b60589826a/summary.json",
+      "sha256": "5a09716e136186201e1fe8254bffab74a6405f2a3fc1d9627137ae970d9feb98"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T235303Z-87b60589826a/summary.txt",
+      "sha256": "1a8d0c7638cbc867a5513e3d722a248bd53b5b6fb800fa6d4374b82b27141bc1"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261004-storm-spear/20261004T235303Z-87b60589826a/test-results.json",
+      "sha256": "416199dbd3904167c617b64be09fc8f00c0f96669e4f9e6fdc9f98167b224752"
+    }
+  ],
+  "helper_fingerprints": [
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\storm_spear_evidence.py",
+      "sha256": "e44a827ed405e2fbf49f034a2fa9e65a71be8b09bd37ffa5180c3676a3b26f27"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Run-StormSpearAcceptance.ps1",
+      "sha256": "4faf8bca2a7c6fcf284cb25e6556d5e3e05ba274e88cc22b29e5a2a39aff8dcb"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\storm_spear_handoff.py",
+      "sha256": "a13f533408c3dd26dca470bbdb9301fe227c553cdb760f14ed5d471ab5be39c9"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Commit-StormSpearCheckpoint.ps1",
+      "sha256": "d9a5fe286f87f9eec1d54b5df9ec72bae593a2b8463fe4c95c7660d7366cb342"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Resume-StormSpearCheckpoint.py",
+      "sha256": "2d0ba48f74f45dfca2ffaa28c52532985f707580d76dde66759363ba2e25f04a"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Resume-StormSpearProgress.py",
+      "sha256": "c127dec910f91aa4eeb9437ca8f7d0b7bad4e665b27ac93e2bfc87ddbe9be71b"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Begin-StormSpearCheckpoint.py",
+      "sha256": "528f9715c16498bc95e83b9e998b8a7947f4d4003054f48bbf8e4f3451cde8e9"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_StormSpear_HistoricalSource_ReadReceipt.json",
+      "sha256": "6917feba3f0990b3c0ba1e43af71b0632f53f211261ee99794648bb2dfe12e70"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_StormSpear_Brief_ReadReceipt.json",
+      "sha256": "7a4dfb47f17adf76116e7dc4795c2a244bf6ebaa59f9de0e7bded262323c82c8"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\ArmageddonStormSpear-commit-message.txt",
+      "sha256": "54adaea1cf0ba9748add28c353b21ad54325a33c0866bbda80e9cd8abc6585f4"
+    }
+  ],
+  "historical_source_receipt_sha256": "6917feba3f0990b3c0ba1e43af71b0632f53f211261ee99794648bb2dfe12e70",
+  "publication_deployment_actions": [],
+  "production_or_shared_database_access": [],
+  "billing_or_quota_reset_actions": [],
+  "prior_fourteen_receipts_1486_artifacts_42_helpers_unchanged": true,
+  "C1_addendum_clarification_and_C1P2_closing_helpers_unchanged": true,
+  "source_tree_preserved": true,
+  "C2_receipt_311_artifacts_6_helpers_and_closing_evidence_preserved": true,
+  "D1_200_artifacts_7_helpers_13_build_logs_and_closing_evidence_preserved": true,
+  "D1P2_91_artifacts_6_helpers_2_build_logs_and_closing_evidence_preserved": true,
+  "D1P1_96_artifacts_6_helpers_4_build_logs_and_closing_evidence_preserved": true,
+  "D1P1M_133_artifacts_6_helpers_2_build_logs_and_closing_evidence_preserved": true,
+  "stock_186_artifacts_6_helpers_13_build_logs_historical_source_and_closing_evidence_preserved": true,
+  "security_92_artifacts_8_helpers_and_postcommit_evidence_preserved": true,
+  "pause_snapshots_and_historical_source_preserved": true
+}

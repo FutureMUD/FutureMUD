@@ -233,7 +233,7 @@ public partial class CreateItemEffect : IMagicSpellEffectTemplate, IMagicSpellEf
 	#3lifecycle legacy|permanent|temporarycleanup#0 - sets explicit plain-item creation policy
 	#3family <name>#0 - sets the creation lifecycle family
 	#3count single|grade#0 - creates one output or one plain food object per selected grade
-	#3placement standard|wornlight#0 - places the output normally or wears a native light around a recipient
+	#3placement standard|wornlight|primaryhand#0 - places normally, wears a light or wields a weapon in the recipient's primary hand
 	#3lifetime <formula>#0 - sets the lifetime in real seconds (constant or route-bound grade/power/mastery/traits)
 	#3permanent <grade 1-7> <proto>|none#0 - selects a permanent output at one exact configured grade
 
@@ -253,7 +253,7 @@ Parameters for quality formula:
 			("Lifecycle", LifecycleMode?.ToString().ColourName() ?? "Legacy"),
 			("Family", LifecycleFamily.ColourValue()),
 			("Output Count", CountByGrade ? "Selected Grade" : "One"),
-			("Placement", WornLight ? "Worn Light" : "Standard"),
+			("Placement", WornLight ? "Worn Light" : PrimaryHand ? "Primary Hand" : "Standard"),
 			("Lifetime Seconds", LifetimeExpression?.OriginalFormulaText.ColourCommand() ?? "None"),
 			("Permanent Grade", PermanentGrade?.ToString().ColourValue() ?? "None"),
 			("Permanent Prototype", PermanentPrototype?.EditHeaderColour(actor) ?? "None"),

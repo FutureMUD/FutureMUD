@@ -1026,3 +1026,45 @@ Stock Raise Servitor is sealed separately at `3507170c1f85e7e2e88855ab91174ca23e
 - [ ] Parent reviews the stock and exact local integration before later repertoire work. Complete installer, portable production, remaining lifecycle/effect/topology/charm features, stock wiring and full native release acceptance remain required.
 
 The 39-marker corpse/restart packet and 262 other historical native markers were not rerun after integration. Stock still has the documented controlled-world, caster Save, damage/defence, guard/rescue, PC-corpse, full boot/Telnet and concurrency limits. No remote publication, deployment, production/shared database or billing/reset actions occurred. See [Armageddon_SecurityMaster_Integration_Verification.json](Armageddon_SecurityMaster_Integration_Verification.json).
+
+
+## Parent clearance and next bounded stock family
+
+Parent independently cleared stock Raise Servitor `3507170c` and exact security integration `b3cd366d` within their recorded scope. The 667/6959/47 and 809/7163/9 checks and exact security overlaps remain sealed.
+
+- [x] Recovered fresh-affect timing remains animation `600*(grade+10)-1` seconds and control `600*(grade+6)-1` seconds; these are not EVENT units.
+- [ ] Before full queued-control qualification, retain controller/grant provenance in `SelectedCombatAction`, revalidate authority at execution, and test an accepted action crossing the control deadline while animation lives. Preserve the independent follower link.
+- [ ] Complete servitor damage/defence and historical aggression; repair guard/rescue for later guard families; qualify PC corpses, full boot and concurrency.
+- [ ] Implement the selected next bounded stock family, Storm Spear: fresh historical source grounding, installed paid low/high-grade casts, actual primary-hand equipment/combat use and expiry/restart/foreign-possession conservation. Commit locally, then stop for independent review.
+
+All complete-plan requirements remain pending where previously recorded. No model switch, credit spending/reset, publication or remote merge is authorized for this stage.
+
+
+## Storm Spear pause for Percival restart
+
+Paused at Luke's request on 2026-10-04, with HEAD `b3cd366d435a4d07f3b713e4558df349fa20c010`. Current Storm Spear edits are unfinished and unbuilt; no new build, test, native suite or review was launched for pause completion. Existing cleared stock/integration evidence does not verify this WIP.
+
+Historical source reads and partial primary-hand placement, component rank/scope binding and stock factory are preserved. Builder wiring, material editing/help, regression tests, native paid low/high-grade combat and expiry/restart/conservation acceptance, final evidence and local commit remain required. Missing historical object/JavaScript combat data is explicit; native damage must be an authored adaptation.
+
+Resume only after Luke explicitly says resume. Read `.artifacts/checkpoints/armageddon-storm-spear-paused-20261004T210637Z/RESUME.md` and verify its `pause.json` fingerprints first. Primary was only inspected by this executor; its current clean master is 34eb234eb5a1e2784c595b4f848f6f785b426302, which differs from the earlier snapshot. No owned operation remains.
+
+
+## Storm Spear maintenance resumption
+
+Luke explicitly authorized resumption. Eight repository files and seven support files matched immutable pause snapshots; no recovery was needed. The isolated baseline remains `b3cd366d`; primary is clean master `34eb234e`. Its only new path is `.gitignore`, so no integration was required. No billing, reset, model, publication, remote merge or deployment actions occurred.
+
+Historical spell444 consumes a directly carried Creation component of rank at least `max(grade-3,0)` and equips primary hand. Every grade expires after `(24+d6)*90*grade` heap units. The declared native conversion uses the recovered loop's nominal 0.75 seconds/unit as an exact absolute deadline, excluding historical batching/load delays. The missing object488/JavaScript combat profile remains explicit: bind a builder-selected native electrical weapon; do not claim historical damage parity. Retain the approved native grade7 gate95 independently of source raw cap90.
+
+Seventeen focused component/service tests passed, including normal low/high-grade quotes and material payment. Final relevant suites, aggregate checks and disposable native equipment/combat/restart acceptance remain pending. Failed attempts remain preserved. The earlier pause receipt is a historical checkpoint, not the current authorization state. Full-plan and queued-servitor-control gaps remain unchanged.
+
+
+## Bounded Storm Spear stock - parent review pending
+
+- [x] Editable stock builder and persisted carried Creation rank `max(grade-3,0)`; invocation copies preserve legacy selectors and never bind the shared plan.
+- [x] Exact primary-hand recipient preflight and callback custody checks; every grade expires using the recovered nominal 0.75-second heap-unit conversion. Builder-selected electrical statistics remain an explicit adaptation.
+- [x] Actual paid grades one and seven, native wielding, electrical melee wounds and persisted damage/pain/stun; exact wielded expiry and fresh-process foreign-container expiry conserve unrelated goods. Native Get callback quarantine persists single-cell custody without replay/refund.
+- [x] 970 focused and 7,184 Fast managed cases passed with stable inputs and no failures/skips. Twelve stock native markers plus the connection guard passed; each attempt's failures, database cleanup and fingerprints remain retained.
+- [x] Earlier cleared packets and all seven phases, 16 decisions, 154 candidates, 82+12 source rows and 25 whole-plan scenarios remain preserved. Primary stays clean master `34eb234e`; no source integration or publication occurred.
+- [ ] Parent independently reviews the local checkpoint before later repertoire work. Queued servitor execution authority, remaining effects/lifecycles, complete installer and full native release gates remain pending.
+
+Controlled anatomy/world catalogues, specialized caster Save, deterministic rolls and helpless defence remain explicit. Full boot/Telnet, autonomous attack selection/defences, concurrency, historical damage parity and a paid overreach cast are not qualified. The actual placement callback is post-Get; post-Wield has durable mock evidence only. See [Armageddon_StormSpear_Stock_Verification.json](Armageddon_StormSpear_Stock_Verification.json).

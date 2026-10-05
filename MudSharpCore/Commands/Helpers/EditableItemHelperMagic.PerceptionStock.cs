@@ -7,10 +7,11 @@ namespace MudSharp.Commands.Helpers;
 
 public partial class EditableItemHelper
 {
-	private const string PerceptionStockNames = "#3pierce-concealment#0 and " + WaterBreathingStockName;
+	private const string PerceptionStockNames = "#3pierce-concealment#0, " + WaterBreathingStockName + " and " + SeeTheUnbodiedStockName;
 
 	private static bool TryCreatePerceptionStockSpell(ICharacter actor, StringStack command)
 	{
+		if (TryCreateSeeTheUnbodiedStockSpell(actor, command)) return true;
 		if (TryCreateWaterBreathingStockSpell(actor, command)) return true;
 		if (!command.PeekSpeech().EqualTo("pierce-concealment")) return false;
 		command.PopSpeech();

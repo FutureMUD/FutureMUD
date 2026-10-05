@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Xml.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -78,12 +79,14 @@ public class DetectInvisibleOperationTests
 		Assert.AreEqual(1, f.Rolls);
 	}
 
-	[TestMethod]
-	public void Refresh_ReportsRetainedApplicationButExposesExistingParentRemovalContract()
+	[DataTestMethod]
+	[DataRow(true)]
+	[DataRow(false)]
+	public void Recast_ExclusiveCleansOldChildrenAndNonexclusivePreservesStacking(bool exclusive)
 	{
 		var f = Fixture();
 		var effects = Attachments(f, true);
-		Assert.IsTrue(f.Spells.Single().BuildingCommand(f.Actor.Object, new StringStack("exclusiveeffect")));
+		if (exclusive) Assert.IsTrue(f.Spells.Single().BuildingCommand(f.Actor.Object, new StringStack("exclusiveeffect")));
 		var first = f.Service.Cast(f.Intent());
 		Assert.AreEqual(MagicCastingStatus.Succeeded, first.Status, first.Message);
 		var original = effects.OfType<SpellDetectInvisibleEffect>().Single();
@@ -92,13 +95,30 @@ public class DetectInvisibleOperationTests
 		f.Acquire();
 		var refreshed = f.Service.Cast(f.Intent());
 		Assert.AreEqual(MagicCastingStatus.Succeeded, refreshed.Status, refreshed.Message);
-		// The current shared casting finaliser omits fireRemovalAction. Model that
-		// contract honestly: reporting succeeds, but the old child is left orphaned.
-		Assert.AreEqual(2, effects.OfType<SpellDetectInvisibleEffect>().Count());
-		Assert.IsTrue(effects.Contains(original));
-		Assert.AreEqual(1, effects.OfType<MagicSpellParent>().Count());
-		Assert.AreEqual(1, effects.OfType<MagicSpellParent>().Single().SpellEffects.Count());
+		Assert.AreEqual(exclusive ? 1 : 2, effects.OfType<SpellDetectInvisibleEffect>().Count());
+		Assert.AreEqual(!exclusive, effects.Contains(original));
+		Assert.AreEqual(exclusive ? 1 : 2, effects.OfType<MagicSpellParent>().Count());
+		Assert.IsTrue(effects.OfType<MagicSpellParent>().All(x => x.SpellEffects.Count() == 1));
 		Assert.IsTrue((bool)XElement.Parse(f.Store.Operations[refreshed.OperationId!.Value].Definition).Attribute("applied")!);
+	}
+
+	[DataTestMethod]
+	[DataRow(true)]
+	[DataRow(false)]
+	public void TriggeredPreparedRoute_PreservesExclusiveCleanupAndNonexclusiveStacking(bool exclusive)
+	{
+		var f = Fixture(); var effects = Attachments(f, true); var spell = f.Spells.Single();
+		typeof(MagicSpell).GetField("<EffectDurationExpression>k__BackingField", BindingFlags.Instance | BindingFlags.NonPublic)!
+			.SetValue(spell, new MudSharp.Body.Traits.TraitExpression("60", f.World.Object));
+		if (exclusive) Assert.IsTrue(spell.BuildingCommand(f.Actor.Object, new StringStack("exclusiveeffect")));
+		var balance = f.Balances[f.Resources[1]];
+		spell.ResolveTriggeredSpell(f.Actor.Object, f.Actor.Object, SpellPower.Standard);
+		var original = effects.OfType<SpellDetectInvisibleEffect>().Single();
+		spell.ResolveTriggeredSpell(f.Actor.Object, f.Actor.Object, SpellPower.Standard);
+		Assert.AreEqual(exclusive ? 1 : 2, effects.OfType<MagicSpellParent>().Count());
+		Assert.AreEqual(exclusive ? 1 : 2, effects.OfType<SpellDetectInvisibleEffect>().Count());
+		Assert.AreEqual(!exclusive, effects.Contains(original));
+		Assert.AreEqual(balance, f.Balances[f.Resources[1]]);
 	}
 
 	[DataTestMethod]
@@ -149,7 +169,11 @@ public class DetectInvisibleOperationTests
 			if (unrelatedMutation) effects.Add(Mock.Of<IEffect>());
 		});
 		f.Actor.Setup(x => x.AddEffect(It.IsAny<IEffect>(), It.IsAny<TimeSpan>())).Callback<IEffect, TimeSpan>((effect, _) => effects.Add(effect));
-		f.Actor.Setup(x => x.RemoveEffect(It.IsAny<IEffect>(), It.IsAny<bool>())).Callback<IEffect, bool>((effect, _) => effects.Remove(effect));
+		f.Actor.Setup(x => x.RemoveEffect(It.IsAny<IEffect>(), It.IsAny<bool>())).Callback<IEffect, bool>((effect, fireRemovalAction) =>
+		{
+			if (fireRemovalAction) effect.RemovalEffect();
+			effects.Remove(effect);
+		});
 		f.Actor.Setup(x => x.RemoveAllEffects<MagicSpellParent>(It.IsAny<Predicate<MagicSpellParent>>(), It.IsAny<bool>()))
 			.Callback<Predicate<MagicSpellParent>, bool>((filter, fireRemovalAction) =>
 			{

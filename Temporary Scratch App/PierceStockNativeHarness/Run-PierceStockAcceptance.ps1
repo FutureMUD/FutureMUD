@@ -1,5 +1,5 @@
 [CmdletBinding()]
-param([ValidateSet('pierce-stock','provision-stock','five-stock','regressions')][string]$Mode = 'pierce-stock')
+param([ValidateSet('pierce-stock','pierce-shared-runtime','provision-stock','five-stock','regressions')][string]$Mode = 'pierce-stock')
 
 $ErrorActionPreference = 'Stop'
 
@@ -136,6 +136,7 @@ try {
 	$runExit=$LASTEXITCODE
 	$modes=switch($Mode) {
 		'pierce-stock' { @('--pierce-stock-run') }
+		'pierce-shared-runtime' { @('--pierce-shared-runtime-run') }
 		'provision-stock' { @('--provision-stock-run') }
 		'five-stock' { @('--five-stock-run') }
 		'regressions' { @('--raise-servitor-stock-run','--storm-spear-stock-run','--flame-knife-stock-run','--sand-knife-stock-run') }

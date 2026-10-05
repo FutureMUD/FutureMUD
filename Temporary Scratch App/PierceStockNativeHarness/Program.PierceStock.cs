@@ -30,11 +30,11 @@ internal static partial class GNHProgram
 {
 	internal static int PierceStockMain(string[] args)
 	{
-		if (args.FirstOrDefault() is not ("--pierce-stock-run" or "--pierce-stock-reader")) return ProvisionStockMain(args);
+		if (args.FirstOrDefault() is not ("--pierce-stock-run" or "--pierce-stock-reader" or "--pierce-shared-runtime-run")) return ProvisionStockMain(args);
 		try
 		{
 			OwnedConnections.Install();
-			return args[0] == "--pierce-stock-run" ? RunPierceStock() : ReadPierceStock(args[1]);
+			return args[0] == "--pierce-stock-reader" ? ReadPierceStock(args[1]) : RunPierceStock(args[0] == "--pierce-shared-runtime-run");
 		}
 		catch (Exception error) { Console.Error.WriteLine(error); return 1; }
 	}
@@ -53,7 +53,7 @@ internal static partial class GNHProgram
 		catalogue.Remove(old); catalogue.Add(resource); SetPrivateMember(native, "Resource", resource);
 	}
 
-	private static int RunPierceStock()
+	private static int RunPierceStock(bool sharedRuntimeControls = false)
 	{
 		using var globals = new ConsumableGlobals();
 		using var database = TestDatabase.CreateFresh("futuremud_land_");
@@ -163,6 +163,7 @@ internal static partial class GNHProgram
 			{
 				var enforced = !actor.CanSee(probe);
 				Require(actor.Effects.Contains(blindness), "Detection removed the character-owned blindness effect");
+				Require(actor.CanSee(actor) && actor.CanSee(probe, PerceiveIgnoreFlags.IgnoreCanSee), "Blindness changed existing self/ignore exceptions");
 				Console.WriteLine($"PIERCE-character-blindness= {(enforced ? "passed" : "FAILED")} phase:{phase} character-owned-native-status body-CanSee-contract");
 				return enforced;
 			}
@@ -187,15 +188,27 @@ internal static partial class GNHProgram
 		clock.Advance(TimeSpan.FromSeconds(3001)); scheduler.CheckSchedules();
 		Require(!actor.EffectsOfType<SpellDetectInvisibleEffect>().Any() && !actor.CanSee(probe), "Normal low expiry did not remove perception");
 		Cast(7); var firstHigh = actor.EffectsOfType<MagicSpellParent>().Single(x => x.Spell.Id == spell.Id);
+		var configuredCallbacks = 0;
+		if (sharedRuntimeControls)
+		{
+			var observer = new PierceRemovalProbe(actor, firstHigh, () =>
+			{
+				configuredCallbacks++;
+				var newChild = actor.EffectsOfType<SpellDetectInvisibleEffect>().Single(x => !ReferenceEquals(x.ParentEffect, firstHigh));
+				Require(newChild.ParentEffect.SpellEffects.Contains(newChild), "Configured cleanup callback removed new ownership");
+			});
+			firstHigh.AddSpellEffect(observer); actor.AddEffect(observer);
+		}
 		clock.Advance(TimeSpan.FromSeconds(10)); Cast(7);
 		var refreshed = actor.EffectsOfType<MagicSpellParent>().Single(x => x.Spell.Id == spell.Id);
 		var refreshQualified = !ReferenceEquals(firstHigh, refreshed) && actor.EffectsOfType<SpellDetectInvisibleEffect>().Count() == 1 &&
 			refreshed.SpellEffects.Count() == 1 && scheduler.OriginalDuration(refreshed) == TimeSpan.FromSeconds(21000) &&
 			((IEffectExpiryObserver)scheduler).ScheduledExpiry(firstHigh) is null;
 		Console.WriteLine("PIERCE-exclusive-refresh=" + (refreshQualified ? "passed" : "FAILED old detection child orphaned by shared parent removal without removal action"));
-		// Continue independent checks after recording the acceptance failure. This is
-		// fixture cleanup only; it does not qualify production refresh behaviour.
+		if (sharedRuntimeControls) Require(refreshQualified && configuredCallbacks == 1 && !firstHigh.SpellEffects.Any(), "Shared runtime repair did not clean configured exclusive refresh/callback");
+		// Historical diagnostic continuation remains available in the stock mode.
 		if (!refreshQualified) firstHigh.RemovalEffect();
+		if (sharedRuntimeControls) VerifyPierceSharedRuntime(native, database.ConnectionString, spell, clock, scheduler, probe);
 		state.Write(acquired: casting.Acquisition(actor, spell.Id)! with { ControlledGrade = 1, NextMasteryUtc = DateTime.UnixEpoch });
 		var ward = new SpellPersonalWardEffect(actor, new MagicSpellParent(actor, spell, actor), cap.School,
 			MagicInterdictionMode.Fail, MagicInterdictionCoverage.Incoming, false, null);
@@ -207,16 +220,33 @@ internal static partial class GNHProgram
 		Cast(2, true); Require(casting.Acquisition(actor, spell.Id)!.ControlledGrade == 2, "Ordinary paid intended-operation mastery");
 		Console.WriteLine("PIERCE-mastery=passed paid-ward-no-application-no-advancement paid-retained-refresh-next-grade");
 		state.Write(acquired: casting.Acquisition(actor, spell.Id)! with { ControlledGrade = 7 });
+		if (sharedRuntimeControls)
+		{
+			actor.RemoveAllEffects<MagicSpellParent>(x => x.Spell.Id == spell.Id, true);
+			Require(spell.BuildingCommand(actor, new StringStack("exclusiveeffect")), "Configured nonexclusive toggle");
+			Cast(7); var first = actor.EffectsOfType<MagicSpellParent>().Single(x => x.Spell.Id == spell.Id);
+			clock.Advance(TimeSpan.FromSeconds(1)); Cast(7);
+			var second = actor.EffectsOfType<MagicSpellParent>().Single(x => x.Spell.Id == spell.Id && !ReferenceEquals(x, first));
+			Require(actor.EffectsOfType<SpellDetectInvisibleEffect>().Count() == 2 && scheduler.IsScheduled(first) && scheduler.IsScheduled(second), "Configured nonexclusive stacking replaced old child/deadline");
+			clock.Advance(TimeSpan.FromSeconds(20999.5)); scheduler.CheckSchedules();
+			Require(!actor.Effects.Contains(first) && actor.Effects.Contains(second) && actor.EffectsOfType<SpellDetectInvisibleEffect>().Count() == 1, "Configured first expiry removed live sibling or retained orphan");
+			clock.Advance(TimeSpan.FromSeconds(1)); scheduler.CheckSchedules();
+			Require(!actor.EffectsOfType<SpellDetectInvisibleEffect>().Any() && !actor.CanSee(probe), "Configured nonexclusive final expiry retained perception");
+			Require(spell.BuildingCommand(actor, new StringStack("exclusiveeffect")), "Configured exclusive restore");
+			Console.WriteLine("PIERCE-configured-nonexclusive=passed paid-two-parent-child-deadlines first-expiry-preserves-second final-expiry-no-grant");
+		}
 		var final = Cast(7); var parent = actor.EffectsOfType<MagicSpellParent>().Single(x => x.Spell.Id == spell.Id);
 		probe.Delete(); FlushCasting(native);
 		var descriptor = new PierceReader(database.Name, fixture, RuntimeClock.UtcNow, spell.Id,
 			((IEffectExpiryObserver)scheduler).ScheduledExpiry(parent)!.Value, final.OperationId!.Value, actor.MagicResourceAmounts[native.Resource]);
 		RunItemReaderProcess(descriptor, "--pierce-stock-reader");
 		var blindnessQualified = blindnessBeforeDetection && blindnessAfterDetection;
-		Console.WriteLine("PIERCE-independent-checks=passed builder-edit-reload source-low-high perception body-blindness ward mastery saved-parent fresh-reader expiry; refresh failure retained");
-		Console.WriteLine("PIERCE-acceptance=" + (blindnessQualified && refreshQualified ? "passed" : "BLOCKED native character-owned blindness and/or exclusive parent-child cleanup; shared integration required"));
+		Console.WriteLine("PIERCE-independent-checks=passed builder-edit-reload source-low-high perception body-blindness ward mastery saved-parent fresh-reader expiry");
+		Console.WriteLine("PIERCE-runtime-repairs=" + (blindnessQualified && refreshQualified ? "passed" : "FAILED native blindness or exclusive cleanup"));
+		Console.WriteLine("PIERCE-content-clearance=BLOCKED historical accumulation/max-power policy remains unimplemented; replacement refresh is not an approved substitute");
+		if (sharedRuntimeControls) Console.WriteLine("PIERCE-shared-runtime-acceptance=" + (blindnessQualified && refreshQualified ? "passed" : "FAILED") + " configured prepared callback nonexclusive expiry reload applicable-blindness exceptions");
 		// Keep acceptance nonzero until both external lifecycle/perception contracts are repaired.
-		return blindnessQualified && refreshQualified ? 0 : 1;
+		return sharedRuntimeControls && blindnessQualified && refreshQualified ? 0 : 1;
 	}
 
 	private static int ReadPierceStock(string encoded)

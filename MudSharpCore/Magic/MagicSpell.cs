@@ -1823,7 +1823,7 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
 			void FinaliseParent()
 			{
 				if (resolvedAny && AppliedEffectsAreExclusive)
-					effectTarget.RemoveAllEffects<MagicSpellParent>(x => x.Spell.Id == Id);
+					effectTarget.RemoveAllEffects<MagicSpellParent>(x => x.Spell.Id == Id, fireRemovalAction: true);
 				if (head.SpellEffects.Any()) effectTarget.AddEffect(head, duration);
 			}
 			return resolvedAny;
@@ -2032,7 +2032,7 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
 
 			if (AppliedEffectsAreExclusive)
 			{
-				target.RemoveAllEffects<MagicSpellParent>(x => x.Spell.Id == Id);
+				target.RemoveAllEffects<MagicSpellParent>(x => x.Spell.Id == Id, fireRemovalAction: true);
 			}
 
 			if (head.SpellEffects.Any())

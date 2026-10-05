@@ -84,6 +84,48 @@ public class DetectInvisibleLifetimeTests
 		Assert.IsFalse(f.Parents.Any()); Assert.IsFalse(f.Handler.Effects.OfType<SpellDetectInvisibleEffect>().Any());
 	}
 
+	[DataTestMethod]
+	[DataRow(false)]
+	[DataRow(true)]
+	public void CasterOnlyPolicy_EmptyPrimaryPhasePreservesAdmittedCohort(bool prepared)
+	{
+		using var f = new Fixture(); var template = f.Spell.SpellEffects.Single();
+		((List<IMagicSpellEffectTemplate>)f.Spell.SpellEffects).Clear();
+		((List<IMagicSpellEffectTemplate>)f.Spell.CasterSpellEffects).Add(template);
+		var old = f.AddExisting(6000, 7, SpellPower.Strong);
+		if (prepared) f.Copy(1, SpellPower.Weak).ResolveTriggeredSpell(f.F.Actor.Object, f.F.Actor.Object, SpellPower.Weak);
+		else
+		{
+			var result = f.Cast(1); Assert.AreEqual(MagicCastingStatus.Succeeded, result.Status, result.Message);
+		}
+		var current = f.Parents.Single();
+		Assert.AreEqual(7, current.LifetimeState!.Grade);
+		Assert.AreEqual(SpellPower.Strong, current.Power);
+		Assert.AreEqual(f.Clock.Now.AddSeconds(9000), f.Scheduler.ScheduledExpiry(current));
+		Assert.IsFalse(f.Handler.Effects.Contains(old)); Assert.IsFalse(f.Scheduler.IsScheduled(old));
+		Assert.AreEqual(1, current.SpellEffects.Count());
+	}
+
+	[DataTestMethod]
+	[DataRow(false)]
+	[DataRow(true)]
+	public void PreparedCallback_AfterAdmissionCannotChangeTargetOrCasterCohort(bool casterOnly)
+	{
+		using var f = new Fixture();
+		if (casterOnly)
+		{
+			var template = f.Spell.SpellEffects.Single(); ((List<IMagicSpellEffectTemplate>)f.Spell.SpellEffects).Clear();
+			((List<IMagicSpellEffectTemplate>)f.Spell.CasterSpellEffects).Add(template);
+		}
+		var old = f.AddExisting(6000, 7, SpellPower.Strong); var copy = f.Copy(1, SpellPower.Weak);
+		copy.EffectDurationExpression = new CallbackExpression(f.F.World.Object,
+			() => f.Scheduler.Reschedule(old, TimeSpan.FromSeconds(6600)));
+		Assert.ThrowsException<InvalidOperationException>(() => copy.ResolveTriggeredSpell(f.F.Actor.Object, f.F.Actor.Object, SpellPower.Weak));
+		Assert.AreSame(old, f.Parents.Single()); Assert.AreEqual(1, old.SpellEffects.Count());
+		Assert.AreEqual(f.Clock.Now.AddSeconds(6600), f.Scheduler.ScheduledExpiry(old));
+		Assert.AreEqual(100.0, f.F.Balances[f.F.Resources[1]]);
+	}
+
 	[TestMethod]
 	public void Cohort_SumsSameSourceAcrossCasterAndSpellIdsAndPreservesIndependentGroups()
 	{
@@ -298,6 +340,17 @@ public class DetectInvisibleLifetimeTests
 		: SpellDetectInvisibleEffect(owner, parent)
 	{
 		public override void RemovalEffect() { base.RemovalEffect(); callback(); }
+	}
+
+	private sealed class CallbackExpression(IFuturemud world, Action callback) : TraitExpression("3000", world)
+	{
+		private int _evaluations;
+		public override double EvaluateWith(IHaveTraits owner, ITraitDefinition variable = null!, TraitBonusContext context = TraitBonusContext.None,
+			params (string Name, object Value)[] values)
+		{
+			if (++_evaluations == 2) callback();
+			return 3000;
+		}
 	}
 
 	private sealed class Fixture : IDisposable

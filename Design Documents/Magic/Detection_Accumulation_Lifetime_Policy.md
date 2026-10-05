@@ -20,6 +20,8 @@ An explicit selected grade is required. Configured casting supplies it through t
 
 The finaliser attaches and proves the new parent, child and native schedule before removing previous parents. It rechecks the remaining captured cohort and replacement between every removal callback. Newly created same-cast parents are excluded. A retained partial child receives its bounded parent schedule while previous parents remain for reconciliation. Paid ambiguous mutation uses the existing quarantine/review-required flow, with no automatic replay or refund.
 
+Lifetime resolution belongs only to the phase whose template opts in. For a caster-only policy the empty primary phase preserves its admitted cohort; existing untagged empty-phase behavior remains unchanged. The prepared route captures target and caster cohorts before duration evaluation, resistance and output callbacks, then confirms the relevant snapshot before parent construction. The retained diagnostic `pierce-policy-caster-diagnostic-01` showed the previous prepared empty phase losing source grade7 to grade1; subsequent regressions cover both configured/prepared caster-only construction and post-admission callback mutation on both sides.
+
 Configured application reporting is deferred until parent attachment and cleanup succeed. A paid replacement with the same observed absolute deadline and retained grade/power reports no intended application; extending its deadline or increasing its strength reports applied. The comparison uses actual scheduler expiry, not OriginalDuration or merely allocated children. No-change casts therefore do not earn mastery application samples.
 
 ## Historical clock and native lifecycle adaptation

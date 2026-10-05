@@ -11,6 +11,8 @@ namespace MudSharp.Magic;
 
 public partial class MagicSpell
 {
+	private bool HasCasterLifetimePolicy => _casterSpellEffects.OfType<IMagicSpellEffectLifetimePolicy>().Any(x => x.LifetimePolicy is not null);
+
 	internal string? LifetimeConfigurationError
 	{
 		get

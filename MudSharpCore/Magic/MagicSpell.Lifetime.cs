@@ -118,10 +118,9 @@ public partial class MagicSpell
 		ConfirmLifetimeMembers(admission, admission.Members, exclude);
 		var units = admission.Increment.TotalSeconds / admission.Policy.UnitSeconds;
 		var grade = admission.Grade; var power = admission.Power;
-		var now = RuntimeClock.UtcNow;
 		foreach (var member in admission.Members)
 		{
-			var remaining = member.Expiry - now;
+			var remaining = Gameworld.EffectScheduler.RemainingDuration(member.Parent);
 			if (remaining <= TimeSpan.Zero) continue;
 			// The historical expiry is initiation + unit*duration - 1 second;
 			// floor(delta/unit)+1 becomes ceiling(remaining/unit) after normalising that inclusive endpoint.

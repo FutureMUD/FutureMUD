@@ -264,10 +264,12 @@ def gather(session, phase):
         flush(session)
         rows = [x for x in decoded_text_rows(gathering_query(), [0,1,2]) if x[0] not in old]
         if rows: break
-    receipt.setdefault('gathering',[]).append({'phase':phase,'before':before,'rows':rows,'elapsed_seconds':time.monotonic()-action_start})
+    record = {'phase':phase,'before':before,'rows':rows,'elapsed_seconds':time.monotonic()-action_start}
+    receipt.setdefault('gathering',[]).append(record)
     require(len(rows)==1 and rows[0][1:3]==['Completed','Self'], 'Timed paid Self gathering did not complete exactly once.')
     require(float(rows[0][3])==amount and float(rows[0][4])==1 and rows[0][5:]==['1','1','1'], 'Paid gathering accounting/cost receipt mismatch.')
-    require(installed_state()['balance']==before+amount, 'Paid gathering did not persist exactly its requested credit.')
+    record['after'] = installed_state()['balance']
+    require(record['after']==before+amount, 'Paid gathering did not persist exactly its requested credit.')
     assertions.append(phase+': zero-injection timed paid Self gathering; fixed one-stamina action price')
 
 def cast(session, phase, route):
@@ -291,6 +293,7 @@ def cast(session, phase, route):
         require(len(costs)==1 and float(costs[0].get('amount'))>0, 'Exactly one positive reserve cost required.')
         after = installed_state()
         record['after'] = after
+        record['reserve_debit'] = float(costs[0].get('amount'))
         record['payload'] = dict(payload.attrib)
         require(abs(before['balance']-after['balance']-float(costs[0].get('amount')))<1e-8, 'Native casting did not persist exactly one debit.')
         require(after['grade']==1 and after['enrolments']==1, 'Casting changed controlled grade/enrolment unexpectedly.')
@@ -330,6 +333,20 @@ def exercise_installed(session, phase):
         require(len(before['parents'])==1 and before['parents'][0]['identity']==saved['parents'][0]['identity'], 'Cold restart lost/recreated the saved Sense parent.')
         require(before['parents'][0]['child_types']==saved['parents'][0]['child_types'] and before['parents'][0]['remaining_ms']<=saved['parents'][0]['remaining_ms'], 'Cold restart reset Sense duration/children.')
         assertions.append('cold: saved reserve, permanent acquisition, raw skill, enrolment and Sense identity/children retained without refill')
+        require(before['balance']==0, 'Cold affordability control requires the saved depleted reserve.')
+        old_operations = operations()
+        refusal = session.send(f'armsense cast "Sense Enchantment" grade 1 on self via {installed["capability"]}', read_seconds=1)
+        flush(session)
+        refused_state = installed_state()
+        receipt['cold_depletion_refusal'] = {'output':redact(refusal),'before':before,'after':refused_state,
+                                              'operations_before':old_operations,'operations_after':operations()}
+        require('Insufficient Installed Sense Reserve' in refusal and operations()==old_operations,
+                'Cold depleted invocation did not refuse without a paid operation.')
+        require(all(refused_state[k]==before[k] for k in ('balance','grade','raw_skill','enrolments')) and
+                [x['identity'] for x in refused_state['parents']]==[x['identity'] for x in before['parents']],
+                'Depleted refusal changed saved reserve/acquisition/skill/enrolment or Sense identity.')
+        assertions.append('cold: depleted reserve refused without debit, paid operation or acquisition/effect identity change')
+        gather(session,phase)
     session.send(f"speak \"{installed['language_name']}\"", read_seconds=.5)
     cast(session,phase,'command')
     cast(session,phase,'speech')

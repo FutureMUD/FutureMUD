@@ -1,6 +1,7 @@
 #nullable enable
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Linq;
@@ -19,8 +20,38 @@ using MudSharp.RPG.Checks;
 namespace MudSharp_Unit_Tests;
 
 [TestClass]
+[DoNotParallelize]
 public class FuryCalmPreparedTemplateTests
 {
+	private readonly List<(IDictionary Registry, DictionaryEntry[] Original)> _factorySnapshots = [];
+
+	[TestInitialize]
+	public void RegisterOnlyOwnedPreparationFactories()
+	{
+		// Own this bounded test scope; do not leave unqualified types in the process-wide native registry.
+		_ = SpellEffectFactory.RegisteredLoadTypes;
+		Assert.IsFalse(SpellEffectFactory.RegisteredLoadTypes.Contains("sourcefury"));
+		Assert.IsFalse(SpellEffectFactory.RegisteredLoadTypes.Contains("sourcecalm"));
+		foreach (var name in new[] { "_loadTimeFactories", "_builderFactories" })
+		{
+			var registry = (IDictionary)typeof(SpellEffectFactory).GetField(name, BindingFlags.Static | BindingFlags.NonPublic)!.GetValue(null)!;
+			var entries = new List<DictionaryEntry>(); var enumerator = registry.GetEnumerator();
+			while (enumerator.MoveNext()) entries.Add(enumerator.Entry);
+			_factorySnapshots.Add((registry, entries.ToArray()));
+		}
+		SourceFuryEffect.RegisterPreparationFactory(); SourceCalmEffect.RegisterPreparationFactory();
+	}
+
+	[TestCleanup]
+	public void RestoreNativeFactoryRegistries()
+	{
+		foreach (var (registry, original) in _factorySnapshots)
+		{
+			registry.Clear();
+			foreach (var entry in original) registry.Add(entry.Key, entry.Value);
+		}
+		_factorySnapshots.Clear();
+	}
 	[DataTestMethod]
 	[DataRow(EmotionalSpellKind.Fury), DataRow(EmotionalSpellKind.Calm)]
 	public void Definition_NormalTemplateFactoriesAndClone_PreserveProfileAndControlledPower(EmotionalSpellKind kind)

@@ -80,7 +80,8 @@ public sealed class SourceFuryEffect : SourceEmotionalEffect
 	public SourceFuryEffect(XElement root, IMagicSpell spell) : base(root, spell, EmotionalSpellKind.Fury) { }
 	protected override string EffectType => "sourcefury";
 	public override IMagicSpellEffectTemplate Clone() => new SourceFuryEffect(SaveToXml(), Spell);
-	public static void RegisterFactory()
+	// Deliberately not auto-discovered as RegisterFactory until compatibility/hook allocation.
+	public static void RegisterPreparationFactory()
 	{
 		SpellEffectFactory.RegisterLoadTimeFactory("sourcefury", (root, spell) => new SourceFuryEffect(root, spell));
 		SpellEffectFactory.RegisterBuilderFactory("sourcefury", (_, spell) =>
@@ -94,7 +95,8 @@ public sealed class SourceCalmEffect : SourceEmotionalEffect
 	public SourceCalmEffect(XElement root, IMagicSpell spell) : base(root, spell, EmotionalSpellKind.Calm) { }
 	protected override string EffectType => "sourcecalm";
 	public override IMagicSpellEffectTemplate Clone() => new SourceCalmEffect(SaveToXml(), Spell);
-	public static void RegisterFactory()
+	// Deliberately not auto-discovered as RegisterFactory until compatibility/hook allocation.
+	public static void RegisterPreparationFactory()
 	{
 		SpellEffectFactory.RegisterLoadTimeFactory("sourcecalm", (root, spell) => new SourceCalmEffect(root, spell));
 		SpellEffectFactory.RegisterBuilderFactory("sourcecalm", (_, spell) =>

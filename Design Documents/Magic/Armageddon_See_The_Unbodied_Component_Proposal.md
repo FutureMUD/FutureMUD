@@ -1,6 +1,6 @@
 # See the Unbodied: conditional Divination payment proposal
 
-This proposal is based on `d3480a5a6ac64af1544b0d1efd306802f0cd72f4` and the source qualification committed there. Conditional component selection is awaiting coordinator allocation. No payment or selection implementation is included in this checkpoint.
+This proposal is based on `d3480a5a6ac64af1544b0d1efd306802f0cd72f4` and the source qualification committed there. Conditional component selection is awaiting coordinator allocation. No payment or selection implementation is included in this checkpoint. The separately allocated ethereal reporting/lifetime adapter is now verified at `3cb199240ab1b308e10b653c0ee259abb70367d0`.
 
 The smallest proposed change needs **zero edits to existing shared payment/selection APIs**. `MagicSpell.InventoryPlanTemplate` already has a public setter; invocation copies already expose the selected grade internally. `IMagicSpellEffectPreparedSelection` already supports capture, immutable reuse and confirmation before debit. Native consumed actions already support a runtime primary selector and `BindSelectedGrade`. The configured service constructs its inventory plan after effect selection and captures actual selected input identities for its existing payment journal.
 
@@ -9,6 +9,7 @@ The smallest proposed change needs **zero edits to existing shared payment/selec
 | File | Purpose |
 |---|---|
 | `MudSharpCore/Magic/SpellEffects/DetectEtherealEffect.SourceSelection.cs` (new partial) | Optional persisted source scope; implement the existing prepared-selection interface only when explicitly configured. Capture/freeze self recipient, grade, caster cell/overlay/native terrain identity and definition, authored plan/configuration and the Shadow exemption. Build an invocation-local selected plan through existing APIs. |
+| `MudSharpCore/Magic/SpellEffects/DetectEtherealEffect.Lifetime.cs` and `DetectEtherealEffect.Operation.cs` (owned partials from the adapter checkpoint) | Add source-scope XML/builder hooks and post-debit frozen-environment confirmation through the new source-selection partial. Preserve the verified generic operation/lifetime behavior for absent source scope. |
 | `MudSharpCore/Magic/ArmageddonSeeTheUnbodiedStock.cs` (new) | Builder-editable source stock, explicit Silt and Shadow native identities, exclusive ethereal detection, `1800*grade`, cap36/group and carried Divination rank contract. Pierce **raw80** unlocks See at **opening30**, cap90; the new skill does not require its own raw80 for acquisition. |
 | `MudSharpCore/Magic/MagicSpell.ArmageddonSeeTheUnbodiedBuilder.cs` (new partial) | Narrow stock authoring helpers if existing public builder methods cannot express the authored definition. No shared dispatch registration change. |
 | `MudSharpCore Unit Tests/SeeTheUnbodiedSourceSelectionTests.cs` (new) | Environment, rank, custody, configuration and payment-boundary tests. |
@@ -19,6 +20,8 @@ No changes are proposed to `MagicCastingService*.cs`, `IMagicSpellEffectPrepared
 ## Selection and consumption contract
 
 Source configuration must require a dedicated quantity-one, directly carried Divination consume action with `GradeRank offset=-3` and five explicit hierarchical rank tags0-4. Grades1/2/3 require rank0; grades4/5/6/7 require ranks1/2/3/4. Higher descendants qualify; unrelated goods do not. Low grades never waive the outside-Shadow component. Native consumption of one quantity unit, rather than extraction of an entire historical stack object, is the declared engine adaptation. Other authored payment actions must be preserved; the adapter may omit only the precisely validated dedicated component action.
+
+The existing capability prerequisite builder can express `casting prerequisite add <See spell> <Pierce spell> 1 80`: grade1 is its ordinary acquisition baseline and raw80 belongs to Pierce. Source-shaped efficiency with minimum7 and scale1 charges grade1 **7** and grade7 **50** when the acquired controlled grade is7; the printed minimum is not a flat cost at every grade. No new energy curve is proposed.
 
 Silt refusal precedes the Shadow exemption. Silt and Shadow must bind explicit native terrain definitions, with their source-sector meaning documented; no guessed names, historical integers or implicit plane topology. Use raw cell/overlay/terrain state at commitment, not a callback that can change policy during debit. The exact mapping surface must be checked against native terrain APIs before implementation.
 

@@ -294,35 +294,129 @@ public class InternalMagazineGunGameItemComponent : FirearmBaseGameItemComponent
             plan.FinalisePlan();
             return;
         }
+        var source = ammo.Parent;
+        var sourceAmmo = ammo;
+        var sourceQuantity = source.Quantity;
+        var title = source.OwnershipReference;
+        var sourceHolder = source.GetItemType<IHoldable>();
+        var sourceStack = source.GetItemType<IStackable>();
+        var ammoPrototype = sourceAmmo.Prototype;
+        var holderPrototype = sourceHolder?.Prototype;
+        var stackPrototype = sourceStack?.Prototype;
+        var ammoClass = sourceAmmo.GetType();
+        var holderClass = sourceHolder?.GetType();
+        var stackClass = sourceStack?.GetType();
+        var receiver = loader.Body;
+        var receiverActor = receiver.Actor;
+        var prototype = _prototype;
+        var capacity = prototype.InternalMagazineCapacity;
+        var gunComponent = Parent.GetItemType<InternalMagazineGunGameItemComponent>();
+        var gunBody = Parent.InInventoryOf;
+        var gunContainer = Parent.ContainedIn;
+        var gunCell = Parent.Location;
+        var gunLayer = Parent.RoomLayer;
+        var gunPosition = Parent.RoutePositionMetres;
+        var gunTitle = Parent.OwnershipReference;
+        var chamber = ChamberedRound;
+        var casing = ChamberedCasing;
+        var magazine = _roundsInMagazine.Select(x => (Item: x, Quantity: x.Quantity, Title: x.OwnershipReference,
+            Ammo: x.GetItemType<IAmmo>(), Stack: x.GetItemType<IStackable>(),
+            AmmoPrototype: x.GetItemType<IAmmo>()?.Prototype, StackPrototype: x.GetItemType<IStackable>()?.Prototype)).ToArray();
+        bool MagazineUnchanged() => !Parent.Deleted && !Parent.Destroyed && ReferenceEquals(_prototype, prototype) &&
+            prototype.InternalMagazineCapacity == capacity && ReferenceEquals(Parent.GetItemType<InternalMagazineGunGameItemComponent>(), gunComponent) &&
+            ReferenceEquals(Parent.InInventoryOf, gunBody) && ReferenceEquals(Parent.ContainedIn, gunContainer) &&
+            ReferenceEquals(Parent.Location, gunCell) && Parent.RoomLayer == gunLayer &&
+            Parent.RoutePositionMetres == gunPosition && Parent.OwnershipReference == gunTitle &&
+            ReferenceEquals(loader.Body, receiver) && ReferenceEquals(receiver.Actor, receiverActor) && ReferenceEquals(ChamberedRound, chamber) &&
+            ReferenceEquals(ChamberedCasing, casing) && _roundsInMagazine.Count == magazine.Length &&
+            magazine.Select((x, i) => ReferenceEquals(_roundsInMagazine[i], x.Item) &&
+                x.Item.Quantity == x.Quantity && x.Item.OwnershipReference == x.Title &&
+                ReferenceEquals(x.Item.GetItemType<IAmmo>(), x.Ammo) && ReferenceEquals(x.Item.GetItemType<IStackable>(), x.Stack) &&
+                ReferenceEquals(x.Ammo?.Prototype, x.AmmoPrototype) && ReferenceEquals(x.Stack?.Prototype, x.StackPrototype) &&
+                ComponentUnloadCompletion.OwnedBy(x.Item, Parent)).All(x => x);
+        bool HeldSource(int quantity) => !source.Deleted && !source.Destroyed && source.Quantity == quantity &&
+            source.OwnershipReference == title && ReferenceEquals(source.GetItemType<IAmmo>(), sourceAmmo) &&
+            ReferenceEquals(sourceAmmo.Prototype, ammoPrototype) && ReferenceEquals(sourceHolder?.Prototype, holderPrototype) &&
+            ReferenceEquals(sourceStack?.Prototype, stackPrototype) &&
+            ReferenceEquals(source.GetItemType<IHoldable>(), sourceHolder) && ReferenceEquals(source.GetItemType<IStackable>(), sourceStack) &&
+            ReferenceEquals(sourceHolder?.HeldBy, receiver) && receiver.HeldItems.Any(x => ReferenceEquals(x, source)) &&
+            source.ContainedIn is null && ComponentItemTransfer.DirectLocationOf(source) is null;
+        var space = capacity - magazine.Sum(x => x.Quantity);
+        if (sourceQuantity <= 0 || space <= 0)
+        {
+            plan.FinalisePlan();
+            return;
+        }
+        var floor = ComponentUnloadCompletion.PrepareFloorDestination(loader, loader);
+        if (floor is null || !MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader) || !MagazineUnchanged() || !HeldSource(sourceQuantity))
+        {
+            plan.FinalisePlan();
+            return;
+        }
+        var whole = sourceQuantity <= space;
+        var quantity = Math.Min(sourceQuantity, space);
+        var participant = source;
+        var participantAmmo = sourceAmmo;
+        var participantHolder = sourceHolder;
+        var participantStack = sourceStack;
+        bool ExactParticipant() => MagazineUnchanged() && participant.Quantity == quantity &&
+            participant.OwnershipReference == title && ReferenceEquals(participant.GetItemType<IAmmo>(), participantAmmo) &&
+            ReferenceEquals(participant.GetItemType<IHoldable>(), participantHolder) &&
+            ReferenceEquals(participant.GetItemType<IStackable>(), participantStack) &&
+            ReferenceEquals(participantAmmo.Prototype, ammoPrototype) && ReferenceEquals(participantHolder?.Prototype, holderPrototype) &&
+            ReferenceEquals(participantStack?.Prototype, stackPrototype) &&
+            (whole || HeldSource(sourceQuantity - quantity));
+        bool Ready() => MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader) &&
+            ComponentItemTransfer.IsDetached(participant) && ExactParticipant();
+        static bool MatchesClone(IGameItemComponent actual, Type originalClass, IGameItemComponentProto originalPrototype) => originalClass is null
+            ? actual is null : actual is not null && actual.GetType() == originalClass && ReferenceEquals(actual.Prototype, originalPrototype);
         List<IGameItem> exemptions = new();
-        if (ammo.Parent.Quantity > _prototype.InternalMagazineCapacity - _roundsInMagazine.Sum(x => x.Quantity))
+        if (whole) exemptions.Add(source);
+        var mergeStarted = false;
+        try
         {
-            ammo = ammo.Parent.Get(null, _prototype.InternalMagazineCapacity - _roundsInMagazine.Sum(x => x.Quantity))
-                       .GetItemType<IAmmo>();
+            if (whole) receiver.Take(source);
+            else
+            {
+                participant = source.Get(null, quantity);
+                var splitAmmo = participant.GetItemType<IAmmo>();
+                var splitHolder = participant.GetItemType<IHoldable>();
+                var splitStack = participant.GetItemType<IStackable>();
+                if (!MatchesClone(splitAmmo, ammoClass, ammoPrototype) || !MatchesClone(splitHolder, holderClass, holderPrototype) ||
+                    !MatchesClone(splitStack, stackClass, stackPrototype)) return;
+                participantAmmo = splitAmmo; participantHolder = splitHolder; participantStack = splitStack;
+            }
+            if (!Ready()) return;
+            loader.OutputHandler.Handle(new EmoteOutput(
+                new Emote(prototype.LoadEmote, loader, loader, Parent, participant), flags: OutputFlags.InnerWrap));
+            if (!Ready()) return;
+            IGameItem mergeTarget = null;
+            foreach (var candidate in magazine)
+            {
+                var matches = candidate.Item.CanMerge(participant);
+                if (!Ready()) return;
+                if (matches) { mergeTarget = candidate.Item; break; }
+            }
+            if (mergeTarget is not null)
+            {
+                // Composite ammunition merge cleanup retains its separate qualification gate.
+                mergeStarted = true;
+                mergeTarget.Merge(participant);
+                participant.Delete();
+                Changed = true;
+            }
+            else
+            {
+                ComponentItemTransfer.ContainPrepared(participant, Parent, ExactParticipant,
+                    () => { _roundsInMagazine.Add(participant); Changed = true; },
+                    () => { _roundsInMagazine.RemoveAll(x => ReferenceEquals(x, participant)); Changed = true; });
+            }
         }
-        else
+        finally
         {
-            exemptions.Add(ammo.Parent);
-            loader.Body.Take(ammo.Parent);
+            try { plan.FinalisePlanWithExemptions(exemptions); }
+            finally { if (!mergeStarted && ComponentItemTransfer.IsDetached(participant)) floor(participant); }
         }
-
-        loader.OutputHandler.Handle(new EmoteOutput(
-            new Emote(_prototype.LoadEmote, loader, loader, Parent, ammo.Parent),
-            flags: OutputFlags.InnerWrap));
-        IGameItem mergeTarget = _roundsInMagazine.FirstOrDefault(x => x.CanMerge(ammo.Parent));
-        if (mergeTarget != null)
-        {
-            mergeTarget.Merge(ammo.Parent);
-            ammo.Parent.Delete();
-        }
-        else
-        {
-            _roundsInMagazine.Add(ammo.Parent);
-            ammo.Parent.ContainedIn = Parent;
-        }
-
-        plan.FinalisePlanWithExemptions(exemptions);
-        Changed = true;
     }
 
     public override bool CanUnload(ICharacter loader)

@@ -45,7 +45,7 @@ internal static partial class GNHProgram
 		gun.Definition = xml.ToString(); db.SaveChanges();
 	}
 
-	private sealed record FirearmSavedItem(long Id, ItemOwnershipReference? Title, long? HeldBody, long? Cell, long? Container, bool Wielded = false);
+	private sealed record FirearmSavedItem(long Id, ItemOwnershipReference? Title, long? HeldBody, long? Cell, long? Container, bool Wielded = false, int Quantity = 1);
 	private sealed record FirearmAuthorityReader(string Database, FixtureIds Fixture, DateTime Now, long Canonical,
 		long Body, double Stamina, long Trait, double Raw, long VictimBody, double Wounds,
 		long Gun, double Condition, long? Chamber, long[] Magazine, FirearmSavedItem[] Items, string Case, long? StaleChamber = null, long? OtherBody = null, double? OtherStamina = null, long? OtherCanonical = null, double? OtherRaw = null);
@@ -90,9 +90,9 @@ internal static partial class GNHProgram
 		{
 			var item = (GameItem)world.TryGetItem(saved.Id, true)!; item.FinaliseLoadTimeTasks();
 			if (saved.Cell.HasValue) source.Insert(item, true);
-			Require(!item.Deleted && item.Quantity == 1 && item.OwnershipReference == saved.Title &&
+			Require(!item.Deleted && item.Quantity == saved.Quantity && item.OwnershipReference == saved.Title &&
 				item.GetItemType<IHoldable>()!.HeldBy?.Id == saved.HeldBody && item.DirectLocation?.Id == saved.Cell &&
-				item.ContainedIn?.Id == saved.Container, $"Cold native firearm item:{item.Id} quantity:{item.Quantity}/1 title:{item.OwnershipReference}/{saved.Title} held:{item.GetItemType<IHoldable>()!.HeldBy?.Id}/{saved.HeldBody} cell:{item.DirectLocation?.Id}/{saved.Cell} container:{item.ContainedIn?.Id}/{saved.Container}.");
+				item.ContainedIn?.Id == saved.Container, $"Cold native firearm item:{item.Id} quantity:{item.Quantity}/{saved.Quantity} title:{item.OwnershipReference}/{saved.Title} held:{item.GetItemType<IHoldable>()!.HeldBy?.Id}/{saved.HeldBody} cell:{item.DirectLocation?.Id}/{saved.Cell} container:{item.ContainedIn?.Id}/{saved.Container}.");
 			if (saved.HeldBody.HasValue) Require((saved.Wielded ? owner.Body.WieldedItems : owner.Body.HeldItems).Any(x => ReferenceEquals(x, item)), "Cold native hand/wield membership must contain the exact firearm item.");
 		}
 		var gunItem = world.TryGetItem(input.Gun, true)!;

@@ -5059,5 +5059,51 @@
       "Whole82/12/154/25 plan remains incomplete; Fury endurance decision pending."
     ],
     "whole_plan_complete": false
+  },
+  "native_load_output_custody_qualification": {
+    "status": "PASS_BOUNDED_LOCAL_CHECKPOINT_PARENT_REVIEW_PENDING",
+    "base_head": "bf20ea91179e14f830c34ce4b6f89ac32ebb4542",
+    "acceptance": [
+      {
+        "id": "focused-core",
+        "status": "PASS",
+        "passed": 289
+      },
+      {
+        "id": "full-core",
+        "status": "PASS",
+        "passed": 5157
+      },
+      {
+        "id": "native-load-output-whole-split",
+        "status": "PASS",
+        "cases": 6,
+        "readers": 6
+      },
+      {
+        "id": "ammunition-merge-and-component-unload",
+        "status": "OPEN"
+      },
+      {
+        "id": "whole-plan",
+        "status": "INCOMPLETE"
+      }
+    ],
+    "receipt": "Design Documents/Magic/Armageddon_LoadOutput_Verification.json",
+    "next_smallest_gate": "Composite ammunition merge and component Unload result/cleanup qualification in the same declared internal-magazine fixture; parent owns coherent release assessment.",
+    "decision_update": {
+      "Calm": "APPROVED: break on admitted incoming hostile attack including misses; MAIN hooks planned, not implemented here.",
+      "FuryAttributeBonus": "APPROVED existing seeder inference; installer owns inference, stock owns reviewed emotional effects/lifetime."
+    },
+    "main_hook_contract": "Design Documents/Magic/Armageddon_EmotionalRuntime_Hook_Contract.md",
+    "limits": [
+      "Declared native Holdable/Ammo/Stackable round and capacity2 internal-magazine fixture only. Whole/split successes share that fixture; ammunition Merge/Delete cleanup and component Unload result contract remain OPEN.",
+      "Take throwing before return is now inside finalisation/floor cleanup; unknown returned partial participant if Get throws before returning retains the legacy API limit and is not universally qualified.",
+      "Load uses an explicitly extended builder test whitelist. Stock Raise Servitor excludes load/fire/unload/board. Direct valid and original-exception controls are explicitly independent.",
+      "Cold readers verify raw custody joins and reconstruct native item/body inventory and slot XML. They do not qualify full controller restart collapse/restoration or animated wrapper persistence.",
+      "Full Fast, full-world and Telnet NOT_RUN this checkpoint; no lane integration, publication, merge, deployment or shared/production DB.",
+      "Whole82/12/154/25 plan remains incomplete. MAIN emotional hooks are planning-only here; Fury inference is now approved, owned by installer; stock owns reviewed emotional effects/lifetime."
+    ],
+    "whole_plan_complete": false
   }
 }

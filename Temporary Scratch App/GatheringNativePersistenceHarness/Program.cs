@@ -78,6 +78,7 @@ internal static partial class GNHProgram
 				["--check-learning-run"] => RunRaiseServitorStockChecks(checkLearningOnly: true),
 				["--regression-p2-run"] => RunRaiseServitorStockChecks(regressionP2Only: true),
 				["--stack-merge-run"] => RunRaiseServitorStockChecks(regressionP2Only: true, stackMergeOnly: true),
+				["--load-output-run"] => RunRaiseServitorStockChecks(orderedCallbacks: true, loadOutputOnly: true),
 				["--custody-merge-run"] => RunRaiseServitorStockChecks(regressionP2Only: true, custodyMergeOnly: true),
 				["--countershot-authority-run"] => RunRaiseServitorStockChecks(orderedCallbacks: true, countershotAuthorityOnly: true),
 				["--defended-melee-run"] => RunRaiseServitorStockChecks(orderedCallbacks: true, selectedMeleeCheckOnly: true, defendedMeleeOnly: true),

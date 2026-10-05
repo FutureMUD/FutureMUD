@@ -1,0 +1,357 @@
+{
+  "status": "PASS_BOUNDED_LOCAL_CHECKPOINT_PARENT_REVIEW_PENDING",
+  "utc": "2026-10-05T23:15:13.089551+00:00",
+  "base_head": "bf20ea91179e14f830c34ce4b6f89ac32ebb4542",
+  "focused": {
+    "status": "PASS",
+    "run_id": "20261005T225849Z-a45ebdb0f282",
+    "counts": {
+      "executed": 289,
+      "passed": 289,
+      "failed": 0,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 289
+    },
+    "counts_complete": true,
+    "execution_complete": true,
+    "source_stable": true,
+    "source_start": "1e1a9507db4242852e1a571989e8f56d0b13e3232b0bfea4b44e23d809e1bbb6",
+    "source_end": "1e1a9507db4242852e1a571989e8f56d0b13e3232b0bfea4b44e23d809e1bbb6",
+    "projects": [
+      "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+    ],
+    "filter": "FullyQualifiedName~QueuedCommandAuthorityTests|FullyQualifiedName~PreparedGetStackMergeTests|FullyQualifiedName~PreparedCurrencyTransferTests|FullyQualifiedName~InternalMagazineReloadTests|FullyQualifiedName~PreparedItemReachSnapshotTests",
+    "summary": ".artifacts/test-runs/armageddon-native-load-output/focused02/20261005T225849Z-a45ebdb0f282/summary.json",
+    "sha256": "16092fd309ae785b73dddedf3fa48faaccadcdb50cc0403f9d9c0feef2d7b054"
+  },
+  "full_core": {
+    "status": "PASS",
+    "run_id": "20261005T230433Z-bd589070698a",
+    "counts": {
+      "executed": 5157,
+      "passed": 5157,
+      "failed": 0,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 5157
+    },
+    "counts_complete": true,
+    "execution_complete": true,
+    "source_stable": true,
+    "source_start": "24ac6c81f8c706b1427cadeee5628a859bf27a05cdd4662c53819c1ef0d8b558",
+    "source_end": "24ac6c81f8c706b1427cadeee5628a859bf27a05cdd4662c53819c1ef0d8b558",
+    "projects": [
+      "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+    ],
+    "filter": null,
+    "summary": ".artifacts/test-runs/armageddon-native-load-output/full-core01/20261005T230433Z-bd589070698a/summary.json",
+    "sha256": "7fa7a1a17b4425c8ed389de32e9283b0ebaebc7abc56384dc376c743bc1a135b"
+  },
+  "native": {
+    "status": "PASS",
+    "cases": [
+      "output-rebind",
+      "take-refill",
+      "take-throw",
+      "split-valid",
+      "ordered-valid",
+      "direct-valid"
+    ],
+    "fresh_readers": [
+      "load-output-output-rebind",
+      "load-output-take-refill",
+      "load-output-take-throw",
+      "load-output-split-valid",
+      "load-output-ordered-valid",
+      "load-output-direct-valid"
+    ],
+    "results": [
+      "ARMLoadOutput=output-rebind passed actual-native-Load-output callback:1 taken:1 exact-1-total preserved cold-reader extended-test-whitelist",
+      "ARMLoadOutput=take-refill passed actual-native-Load-output callback:0 taken:1 exact-3-total preserved cold-reader extended-test-whitelist",
+      "ARMLoadOutput=take-throw passed actual-native-Load-output callback:0 taken:1 exact-1-total preserved cold-reader extended-test-whitelist",
+      "ARMLoadOutput=split-valid passed actual-native-Load-output callback:1 taken:0 exact-3-total preserved cold-reader extended-test-whitelist",
+      "ARMLoadOutput=ordered-valid passed actual-native-Load-output callback:1 taken:1 exact-2-total preserved cold-reader extended-test-whitelist",
+      "ARMLoadOutput=direct-valid passed actual-native-Load-output callback:1 taken:1 exact-1-total preserved cold-reader extended-test-whitelist"
+    ],
+    "log": ".artifacts/test-runs/armageddon-native-load-output/qualify02-native.log",
+    "sha256": "7bcbbcb9c74db676ad6d38e9b50fe3224756e1f39073b2ebd64fe6e5ccba9623",
+    "cleanup_sha256": "e08c7d29c8fe6d002a53fa9233950e467254c4515162980e565b324319e9ec7b",
+    "inputs_sha256": "c3196e4e98b182f4ee2e0b4d3eab4fce350746159682a2cd885762c0138bd9ab",
+    "fingerprints_sha256": "d66582aa9434b08322a54d503ba1499bdd80ecf3a5f2fdd6a780a46da33a1e29"
+  },
+  "retained_native_baselines": [
+    {
+      "label": "baseline-native02",
+      "status": "EXPECTED_FAIL_REPRODUCED",
+      "reason": "Output rebind independently places detached round in a cell; old Load adopts it anyway.",
+      "log": ".artifacts/test-runs/armageddon-native-load-output/baseline-native02-native.log",
+      "sha256": "6fa4c5fb542fe311076143630d2087407241139cc6fe3637ce4702a335068c89",
+      "cleanup_sha256": "e1b808a976d7bb9b465946d557f3adfcdf9f92cb328a338bee587ca009bc751c",
+      "inputs_sha256": "b37bcacd649609974f4c317614f3a08c7a2423350203fdfd88600dfd79dc3a8c",
+      "fingerprints_sha256": "f57d6344aa921cb7b689e178660896ca4fd309514b7b152cc9ca68c3b94f9775"
+    },
+    {
+      "label": "baseline-native04",
+      "status": "FAIL_FIXTURE_SETUP_RETAINED",
+      "reason": "First output-rebind and cold reader passed; borrowed unrelated gear was not restored before restoration check. Corrected fixture restoration; no production change for this failure.",
+      "log": ".artifacts/test-runs/armageddon-native-load-output/baseline-native04-native.log",
+      "sha256": "821a0d007b8c47bdd250d6a2a8a9bf1fd366d5d3fb565e2503dc8c8074aa10af",
+      "cleanup_sha256": "8ca883a4f56f2b944282f53e0ba0a686924abf7fcb854a85915ddb4c6c7b6fa9",
+      "inputs_sha256": "aa1f426917fa468b85e1c59f069bccfe0fd46f4e5dace34e3b91a2056b7c0e34",
+      "fingerprints_sha256": "a20283377cb3c7c70219e1a263e5de5bc87f37e27ff98988402adcc5fb4c37ab"
+    },
+    {
+      "label": "baseline-native05",
+      "status": "EXPECTED_FAIL_REPRODUCED",
+      "reason": "Native Body.Take inventory callback refills detached qty1 to qty3; prior post-detach snapshot admits it into declared capacity2.",
+      "log": ".artifacts/test-runs/armageddon-native-load-output/baseline-native05-native.log",
+      "sha256": "ab141ab39bc8d13646b5ea3d45b4511fab75cc574a1584728bd56e8a3b074e72",
+      "cleanup_sha256": "2e8e204907d0ab5ec0e4663d5278460b8074830170557138884ec142d2b590ce",
+      "inputs_sha256": "9a2a88879ccbfea838f943a05bc92e9041663775bb99eb66dfa90bf32b5b82d0",
+      "fingerprints_sha256": "57a9dff0270a27560e95d53b563e727cc82fa5fe281f5f2287356afebc1b58c9"
+    },
+    {
+      "label": "qualify01",
+      "status": "FAIL_FIXTURE_LATE_ID_RETAINED",
+      "reason": "First three cases and cold readers passed. Mock world Add queried split Id before parent initialisation was queued, causing component FK failure; fixed to match real All.Add late-ID registration without production changes.",
+      "log": ".artifacts/test-runs/armageddon-native-load-output/qualify01-native.log",
+      "sha256": "a7609052b57f6e1e8855df3a0d766e2bacfd09f874965c92c4dee96ae519d94b",
+      "cleanup_sha256": "54b705c52d64d19c53785456e01be44af515ee913780201fba3d7de918a9a362",
+      "inputs_sha256": "4a4059549ef9db4ab55576ef1475b3e9fd86b70f93ee7a0f0f370113cfb78d18",
+      "fingerprints_sha256": "dbcb01260729d8b6cb465d540298c90bb7f26ad82a9141db9fd5977ee351f7d5"
+    }
+  ],
+  "retained_managed_failures": [
+    {
+      "status": "FAIL",
+      "run_id": "20261005T223341Z-64e756c3389d",
+      "counts": null,
+      "counts_complete": false,
+      "execution_complete": false,
+      "source_stable": true,
+      "source_start": "d07ef2233c71b4e78397f34d7cce90cddf3c5a8410d40ebe54cdbac3d165845e",
+      "source_end": "d07ef2233c71b4e78397f34d7cce90cddf3c5a8410d40ebe54cdbac3d165845e",
+      "projects": [
+        "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+      ],
+      "filter": "FullyQualifiedName~NativeInternalMagazineLoad_RequiresSuccessfulPlanAndExactHeldCustody",
+      "summary": ".artifacts/test-runs/armageddon-native-load-output/baseline-managed01/20261005T223341Z-64e756c3389d/summary.json",
+      "sha256": "bcd40efceb558b933e1e2af78b74f5fd1c2bb9374b8ab75ce838b38f5a53b669",
+      "retained_disposition": "BUILD_FAILED_TEST_NOT_RUN"
+    },
+    {
+      "status": "FAIL",
+      "run_id": "20261005T223603Z-c9594b015c58",
+      "counts": {
+        "executed": 4,
+        "passed": 3,
+        "failed": 1,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 4
+      },
+      "counts_complete": true,
+      "execution_complete": true,
+      "source_stable": true,
+      "source_start": "0e8a839fc0cee0a75cc96b331cc998878012dc44660be13f74770088eb5be2b2",
+      "source_end": "0e8a839fc0cee0a75cc96b331cc998878012dc44660be13f74770088eb5be2b2",
+      "projects": [
+        "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+      ],
+      "filter": "FullyQualifiedName~NativeInternalMagazineLoad_RequiresSuccessfulPlanAndExactHeldCustody",
+      "summary": ".artifacts/test-runs/armageddon-native-load-output/baseline-managed02/20261005T223603Z-c9594b015c58/summary.json",
+      "sha256": "f80ae5e342a7cb6305f59a560f5ec1e4b630e5f8dc2b06f0019d1cafa9b9f057",
+      "retained_disposition": "EXPECTED_FAIL_REPRODUCED"
+    },
+    {
+      "status": "FAIL",
+      "run_id": "20261005T224714Z-c0de4d70c832",
+      "counts": {
+        "executed": 7,
+        "passed": 4,
+        "failed": 3,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 7
+      },
+      "counts_complete": true,
+      "execution_complete": true,
+      "source_stable": true,
+      "source_start": "f7c475d5dc10daafe8caa8bcc65885af2360b2740614e0343b6259f4a72e6212",
+      "source_end": "f7c475d5dc10daafe8caa8bcc65885af2360b2740614e0343b6259f4a72e6212",
+      "projects": [
+        "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+      ],
+      "filter": "FullyQualifiedName~NativeInternalMagazineLoad_RequiresSuccessfulPlanAndExactHeldCustody",
+      "summary": ".artifacts/test-runs/armageddon-native-load-output/baseline-boundary01/20261005T224714Z-c0de4d70c832/summary.json",
+      "sha256": "ade24373e963c54a3c7ee83f640e77c133b40a3c13495fc3fe2f4d2024d8a1af",
+      "retained_disposition": "EXPECTED_FAIL_REPRODUCED"
+    },
+    {
+      "status": "FAIL",
+      "run_id": "20261005T224001Z-744f477371d9",
+      "counts": null,
+      "counts_complete": false,
+      "execution_complete": false,
+      "source_stable": true,
+      "source_start": "5b39833ae30a1aee04b8ab8b0230fdb2b8ec11e9dd57d713dae924ecf8ce274b",
+      "source_end": "5b39833ae30a1aee04b8ab8b0230fdb2b8ec11e9dd57d713dae924ecf8ce274b",
+      "projects": [
+        "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+      ],
+      "filter": "FullyQualifiedName~QueuedCommandAuthorityTests|FullyQualifiedName~PreparedGetStackMergeTests|FullyQualifiedName~PreparedCurrencyTransferTests|FullyQualifiedName~InternalMagazineReloadTests|FullyQualifiedName~PreparedItemReachSnapshotTests",
+      "summary": ".artifacts/test-runs/armageddon-native-load-output/focused01/20261005T224001Z-744f477371d9/summary.json",
+      "sha256": "3f6a944145e3e98cec177692fa82e7f6a3f3e6e89124ca981e1a6f44053bf312",
+      "retained_disposition": "BUILD_FAILED_TEST_NOT_RUN"
+    }
+  ],
+  "native_build_failures_not_run": [
+    {
+      "label": "baseline-native01",
+      "status": "BUILD_FAIL_NATIVE_NOT_RUN",
+      "log": ".artifacts/test-runs/armageddon-native-load-output/baseline-native01-build.log",
+      "sha256": "2f239d6c63fdff6bd6126d6b6636f83b04f33266ba33a32bc7f98e6eac39911c",
+      "inputs_sha256": "14e116d8d2e3196ee4cf8b3927a7b4e86238bc995697c70410fab47050c6fb94"
+    },
+    {
+      "label": "baseline-native03",
+      "status": "BUILD_FAIL_NATIVE_NOT_RUN",
+      "log": ".artifacts/test-runs/armageddon-native-load-output/baseline-native03-build.log",
+      "sha256": "7673291e6ae1597d4862c1fb1fcf99dc25ab169c0572b32727039958882502fe",
+      "inputs_sha256": "ba92ee054bb391d17dca118655d673f5e2485366617e32e98e17b3ac3010b63f"
+    }
+  ],
+  "binary_capsules": [
+    {
+      "path": ".artifacts/test-runs/armageddon-native-load-output/baseline-boundary01-binary-capsule/manifest.json",
+      "sha256": "1ca1a21f789e376bd3db8bf1362c26aff6ada42ee0495fc23261208c56464690",
+      "files": 604
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-native-load-output/baseline-managed02-binary-capsule/manifest.json",
+      "sha256": "91813270362c4db6b007feb2b523a4fe43b56125338640d2b4510228d447127c",
+      "files": 604
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-native-load-output/baseline-native02-binary-capsule/manifest.json",
+      "sha256": "3185285c35a3158ade20969706f1aa034e2960d96b5d71dea5ed194cecd6cf46",
+      "files": 604
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-native-load-output/baseline-native04-binary-capsule/manifest.json",
+      "sha256": "b06e13f7746f5e779bb0cf235d4bd5bc9b8319622ca5b821349b6a8c3851134a",
+      "files": 604
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-native-load-output/baseline-native05-binary-capsule/manifest.json",
+      "sha256": "01e65ce6846e1e761b0a7af0f74ac7d97ed1cd0fed01496ef079db99ef623670",
+      "files": 604
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-native-load-output/focused02-binary-capsule/manifest.json",
+      "sha256": "322231fe6d8f77ed8d6dea50043a243a2c6e4865b047d786084ff61de8f266dd",
+      "files": 604
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-native-load-output/full-core01-binary-capsule/manifest.json",
+      "sha256": "c323a9eba03757f96143fd90c2acaa562f38ddf55f1dd14e65e41c57c95114fd",
+      "files": 604
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-native-load-output/qualify01-binary-capsule/manifest.json",
+      "sha256": "4bfc8aa463841f4e950c638c2c7013ad0a1f801cbfc7acea1d804a8c66b570b5",
+      "files": 604
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-native-load-output/qualify02-binary-capsule/manifest.json",
+      "sha256": "d6fdab1f591867c02ebcecbcd146b95e7a967d81b37eda1f74751349c78966be",
+      "files": 604
+    }
+  ],
+  "scope": [
+    {
+      "path": "MudSharpCore Unit Tests/InternalMagazineReloadTests.cs",
+      "sha256": "40dad693d0e8f4d55ccf53dde5020d009ee54c9f84b7100d7dc47ce2bcdddd71"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Components/InternalMagazineGunGameItemComponent.cs",
+      "sha256": "7a1870a3dd9b627b87de022a1c19aec25cfe200730a56288d64e7b76a0afa7b3"
+    },
+    {
+      "path": "MudSharpCore/GameItems/ComponentUnloadCompletion.cs",
+      "sha256": "6774ae1a2c52963949a6fd1c8b17e4269260f9bf58c2f42119801dc2aefee8ae"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.cs",
+      "sha256": "d27f92e45e835f1ab660b2a6edf05cabe93efea0f3da3d1e106d8b43c7396932"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.FirearmAuthority.cs",
+      "sha256": "a90783d5a582b80b211a29cdfe6f1d0044f566644ce531008edb3321e1b8eb32"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.LoadOutputCustody.cs",
+      "sha256": "72063cd1d9ca4c98d544a6af12b1539d6a926a96c3a426429085b31ecb14adb4"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.RaiseServitorStock.cs",
+      "sha256": "5c1b65a9c1426b0a12a64332e1f89a8b7b0491608d5fe641a362cda6540dd2d6"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Run-IsolatedAcceptance.ps1",
+      "sha256": "b07b3e2e026fc96b0a0466872574dec8936ca87bd6687e814535edfaa2581771"
+    }
+  ],
+  "source_scope_digest": "ad2acd2415ee0a14d78c24dc9682505de9fc6825401b579b0a189225592c3c34",
+  "review": {
+    "agent": "fm_reviewer",
+    "status": "SOURCE_ONLY_BOUNDED_CLEARANCE",
+    "files": [
+      {
+        "path": "MudSharpCore Unit Tests/InternalMagazineReloadTests.cs",
+        "sha256": "40dad693d0e8f4d55ccf53dde5020d009ee54c9f84b7100d7dc47ce2bcdddd71"
+      },
+      {
+        "path": "MudSharpCore/GameItems/Components/InternalMagazineGunGameItemComponent.cs",
+        "sha256": "7a1870a3dd9b627b87de022a1c19aec25cfe200730a56288d64e7b76a0afa7b3"
+      },
+      {
+        "path": "MudSharpCore/GameItems/ComponentUnloadCompletion.cs",
+        "sha256": "6774ae1a2c52963949a6fd1c8b17e4269260f9bf58c2f42119801dc2aefee8ae"
+      },
+      {
+        "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.LoadOutputCustody.cs",
+        "sha256": "72063cd1d9ca4c98d544a6af12b1539d6a926a96c3a426429085b31ecb14adb4"
+      }
+    ],
+    "resolved_findings": [
+      "Pre-detach quantity/component pin resolves native Take refill snapshot P2.",
+      "Detachment inside try/finally resolves lost floor/finalisation on throwing native Take P2.",
+      "Split native fixture observes exact new detached identity while preserving held residual and total/cold checks.",
+      "Native GameItem typing resolves fixture access compile issue before build.",
+      "Native fixture Add now matches real All.Add delayed identity registration, preventing premature copied component FK flush. Source-only final fixture clearance, no established P1/P2."
+    ],
+    "remaining_established_P1_P2_in_bounded_correction": [],
+    "limits": "Composite merge cleanup and broader split callbacks remain unqualified. Native execution coordinator-owned."
+  },
+  "preserved": {
+    "historical_artifacts": 50560,
+    "task_files": 544,
+    "primary_head": "34eb234eb5a1e2784c595b4f848f6f785b426302",
+    "primary_clean": true
+  },
+  "limits": [
+    "Declared native Holdable/Ammo/Stackable round and capacity2 internal-magazine fixture only. Whole/split successes share that fixture; ammunition Merge/Delete cleanup and component Unload result contract remain OPEN.",
+    "Take throwing before return is now inside finalisation/floor cleanup; unknown returned partial participant if Get throws before returning retains the legacy API limit and is not universally qualified.",
+    "Load uses an explicitly extended builder test whitelist. Stock Raise Servitor excludes load/fire/unload/board. Direct valid and original-exception controls are explicitly independent.",
+    "Cold readers verify raw custody joins and reconstruct native item/body inventory and slot XML. They do not qualify full controller restart collapse/restoration or animated wrapper persistence.",
+    "Full Fast, full-world and Telnet NOT_RUN this checkpoint; no lane integration, publication, merge, deployment or shared/production DB.",
+    "Whole82/12/154/25 plan remains incomplete. MAIN emotional hooks are planning-only here; Fury inference is now approved, owned by installer; stock owns reviewed emotional effects/lifetime."
+  ],
+  "whole_plan_complete": false
+}

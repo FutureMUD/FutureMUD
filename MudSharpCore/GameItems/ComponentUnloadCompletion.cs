@@ -34,11 +34,18 @@ internal static class ComponentUnloadCompletion
 
 	internal static Action? PrepareFloor(ICharacter actor, IGameItem item, ILocateable source)
 	{
+		var deliver = PrepareFloorDestination(actor, source);
+		return deliver is null ? null : () => deliver(item);
+	}
+
+	// Capture the safe point before a load splits its exact participant.
+	internal static Action<IGameItem>? PrepareFloorDestination(ICharacter actor, ILocateable source)
+	{
 		if (!CommandExecutionScope.TryContinue(actor) || source.Location is null) return null;
 		var destination = new SpatialLocation(source.Location, source.RoomLayer,
 			source.Location.RouteDefinition is null ? null : source.RoutePositionMetres ?? source.Location.RouteDefinition.DefaultPositionMetres);
 		if (!RouteSpatialService.Instance.TryValidateLocation(destination, out _) || !CommandExecutionScope.TryContinue(actor)) return null;
-		return () =>
+		return item =>
 		{
 			if (!ComponentItemTransfer.IsDetached(item)) return;
 			if (item is GameItem native)

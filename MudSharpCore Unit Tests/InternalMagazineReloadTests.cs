@@ -17,6 +17,7 @@ using MudSharp.GameItems.Inventory;
 using MudSharp.GameItems.Inventory.Plans;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.NPC.AI;
+using MudSharp.PerceptionEngine;
 
 namespace MudSharp_Unit_Tests;
 
@@ -67,6 +68,10 @@ public partial class QueuedCommandAuthorityTests
 	[DataRow("unknown-held")]
 	[DataRow("held-floor")]
 	[DataRow("held-valid")]
+	[DataRow("output-rebind")]
+	[DataRow("capacity-changed")]
+	[DataRow("take-refill")]
+	[DataRow("take-throw")]
 	public void NativeInternalMagazineLoad_RequiresSuccessfulPlanAndExactHeldCustody(string scenario)
 	{
 		var f = new Fixture();
@@ -78,18 +83,25 @@ public partial class QueuedCommandAuthorityTests
 		Mock.Get(f.Actor.Object.OutputHandler).SetupGet(x => x.Perceiver).Returns(f.Actor.Object);
 		Mock.Get(f.Actor.Object.Location).Setup(x => x.LayerCharacters(It.IsAny<MudSharp.Construction.RoomLayer>())).Returns([f.Actor.Object]);
 		var round = new Mock<IGameItem>(); round.SetupProperty(x => x.ContainedIn, null);
-		round.SetupGet(x => x.Quantity).Returns(1);
+		var quantity = 1; round.SetupGet(x => x.Quantity).Returns(() => quantity);
 		round.Setup(x => x.Equals(It.IsAny<IGameItem>())).Returns<IGameItem>(x => ReferenceEquals(x, round.Object));
-		var floor = scenario == "held-floor";
+		var floor = scenario == "held-floor"; var rebound = false;
 		var hold = new Mock<IHoldable>(); hold.SetupProperty(x => x.HeldBy, floor ? null : f.Body.Object);
 		round.Setup(x => x.GetItemType<IHoldable>()).Returns(hold.Object);
 		round.SetupGet(x => x.InInventoryOf).Returns(() => hold.Object.HeldBy);
-		round.SetupGet(x => x.Location).Returns(() => floor ? f.Actor.Object.Location : null);
+		round.SetupGet(x => x.Location).Returns(() => floor || rebound ? f.Actor.Object.Location : null);
 		var held = new List<IGameItem>(); if (!floor) held.Add(round.Object);
 		var floorItems = floor ? new List<IGameItem> { round.Object } : new List<IGameItem>();
 		Mock.Get(f.Actor.Object.Location).SetupGet(x => x.GameItems).Returns(floorItems);
 		f.Body.SetupGet(x => x.HeldItems).Returns(held);
-		f.Body.Setup(x => x.Take(round.Object)).Callback(() => { held.Remove(round.Object); hold.Object.HeldBy = null; });
+		var expectedError = new InvalidOperationException("one-shot detached callback");
+		f.Body.Setup(x => x.Take(round.Object)).Callback(() =>
+		{
+			held.Remove(round.Object); hold.Object.HeldBy = null;
+			if (scenario == "take-refill") quantity = 3;
+			if (scenario == "take-throw") throw expectedError;
+		});
+		round.Setup(x => x.Drop(f.Actor.Object.Location)).Callback(() => { rebound = true; floorItems.Add(round.Object); }).Returns(round.Object);
 		var ammo = new Mock<IAmmo>(); ammo.SetupGet(x => x.Parent).Returns(round.Object);
 		round.Setup(x => x.GetItemType<IAmmo>()).Returns(ammo.Object);
 		var plan = new Mock<IInventoryPlan>(); plan.Setup(x => x.PlanIsFeasible()).Returns(InventoryPlanFeasibility.Feasible);
@@ -101,16 +113,24 @@ public partial class QueuedCommandAuthorityTests
 		proto.InternalMagazineCapacity = 2; proto.LoadEmote = "@ insert|inserts $2 into $1.";
 		proto.LoadTemplate = proto.LoadTemplateIgnoreEmpty = template.Object;
 		var gun = new InternalMagazineGunGameItemComponent(proto, f.Item.Object, temporary: true); gun.SetNoSave(false);
-		gun.Load(f.Actor.Object);
+		if (scenario == "output-rebind")
+			Mock.Get(f.Actor.Object.OutputHandler).Setup(x => x.Send(It.IsAny<IOutput>(), It.IsAny<bool>(), It.IsAny<bool>()))
+				.Callback(() => { rebound = true; floorItems.Add(round.Object); }).Returns(true);
+		if (scenario == "capacity-changed") plan.Setup(x => x.ExecuteWholePlan()).Callback(() => proto.InternalMagazineCapacity = 0)
+			.Returns(new[] { new InventoryPlanActionResult { OriginalReference = "loaditem", PrimaryTarget = round.Object, ActionState = DesiredItemState.Held } });
+		if (scenario == "take-throw") Assert.AreSame(expectedError, Assert.ThrowsException<InvalidOperationException>(() => gun.Load(f.Actor.Object)));
+		else gun.Load(f.Actor.Object);
 		var accepted = scenario == "held-valid";
-		f.Body.Verify(x => x.Take(round.Object), accepted ? Times.Once : Times.Never);
+		var detached = accepted || scenario is "output-rebind" or "take-refill" or "take-throw";
+		f.Body.Verify(x => x.Take(round.Object), detached ? Times.Once : Times.Never);
 		CollectionAssert.AreEqual(accepted ? new[] { round.Object } : Array.Empty<IGameItem>(), gun.MagazineContents.ToArray());
 		Assert.AreSame(accepted ? f.Item.Object : null, round.Object.ContainedIn);
-		Assert.AreSame(accepted || floor ? null : f.Body.Object, hold.Object.HeldBy);
+		Assert.AreSame(detached || floor ? null : f.Body.Object, hold.Object.HeldBy);
 		Assert.AreEqual(accepted, gun.Changed);
-		Assert.AreEqual(floor, floorItems.Contains(round.Object));
+		Assert.AreEqual(floor || (!accepted && detached), floorItems.Contains(round.Object));
+		Assert.AreEqual(scenario == "take-refill" ? 3 : 1, round.Object.Quantity);
 		plan.Verify(x => x.ExecuteWholePlan(), Times.Once);
-		if (accepted) plan.Verify(x => x.FinalisePlanWithExemptions(It.Is<IList<IGameItem>>(items => items.Count == 1 && ReferenceEquals(items[0], round.Object))), Times.Once);
+		if (detached) plan.Verify(x => x.FinalisePlanWithExemptions(It.Is<IList<IGameItem>>(items => items.Count == 1 && ReferenceEquals(items[0], round.Object))), Times.Once);
 		round.Verify(x => x.Delete(), Times.Never);
 	}
 

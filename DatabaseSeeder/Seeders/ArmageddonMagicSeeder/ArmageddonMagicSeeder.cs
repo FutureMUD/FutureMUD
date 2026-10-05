@@ -16,8 +16,9 @@ public sealed partial class ArmageddonMagicSeeder : IDatabaseSeeder
 	public string Tagline => "Optional reviewed magic definitions; explicit existing-world bindings required";
 	public string FullDescription => "Installs reviewed utilities, blank devices, source traditions and Pierce Magick. " +
 		"This is a partial prepared-world package, not a complete preset. No character attachment, enrolment, " +
-		"acquisition, reserve refill, charges or classes are created. New provisions are temporarily gated off; " +
-		"existing owned provisions are preserved. See Design Documents/Magic/Armageddon_Partial_Installer_Builder_Guide.md.";
+		"acquisition, reserve refill, charges or classes are created. Optional provisions require explicit native " +
+		"food profiles, wine recipes and existing spell-skill bindings; unselected owned provisions are preserved. " +
+		"See Design Documents/Magic/Armageddon_Partial_Installer_Builder_Guide.md.";
 	public bool SafeToRunMoreThanOnce => true;
 	public SeederMetadata Metadata => SeederMetadataRegistry.GetMetadata(this);
 	public ShouldSeedResult ShouldSeedData(FuturemudDatabaseContext context) =>

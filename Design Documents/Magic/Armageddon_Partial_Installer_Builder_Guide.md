@@ -215,12 +215,18 @@ For paid gameplay uncertainty use the existing staff reconciliation command
 The dedicated `tests/ArmageddonPreparedSeederNativeHarness` runs on a UUID-named owned disposable database/server with
 source and assembly fingerprints. It exercises actual menu/question/shared-executor paths, positive prepared-world
 composition, genuine module rollback, lost acknowledgement, fresh-process reruns, builder overrides, explicit new provision
-selection and unselected provision preservation, native configuration and ordinary progression/gathering/casting. Its replay mode uses the actual complete
+selection and unselected provision preservation, native configuration and controlled acquisition/grade, gathering and casting scenarios. Its replay mode uses the actual complete
 Debug Medieval profile and verifies second-run refusal with an all-table content hash. A blocked first profile must be
 reported as blocked; it does not qualify full replay. All five profile inventories/default declines have focused tests.
 Read exact checkpoint receipts for outcomes. Native controlled-world scenarios do not certify Telnet/login or a full
 running server. Read the separately retained installed Active Sense eating/reload qualification for the consumption repair.
 The unattainable stock Mend/device prerequisite path remains an explicit limit.
+
+The separate installed Sense smoke uses legitimate native enrolment, timed paid Self gathering and ordinary paid
+grade-one command/speech casting in a running MUD. Normal random failures remain paid failed operations; bounded retries
+must obtain their energy through gathering and may exhaust without a success certificate. Read its exact receipt for
+achieved outcomes, acquisition/effect persistence and cold-repeat results. This qualification does not establish natural
+child unlocking, overreach mastery or whole-repertoire progression.
 
 The full replay uses production-equivalent lazy-loading contexts with the same owned-connection enforcement; controlled
 native/module contexts remain unchanged. Before Human, it verifies the saved Core Colour values load through the replay

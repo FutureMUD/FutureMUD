@@ -14,7 +14,7 @@ namespace FutureMUD.GatheringNativePersistenceHarness;
 
 internal static partial class GNHProgram
 {
-	private static int PreparedSeederReplayNative()
+	private static int PreparedSeederReplayNative(bool installed = false)
 	{
 		using var database = TestDatabase.CreateFresh("futuremud_land_"); ConfigureNativeDatabase(database.ConnectionString);
 		using (var db = NewIndependentContext(database.ConnectionString))
@@ -57,7 +57,8 @@ internal static partial class GNHProgram
 		}
 		using (var db = NewIndependentContext(database.ConnectionString)) Require(!db.SeederManagedRecords.Any(x => x.Seeder == ArmageddonMagicInstaller.Package), "Standard decline profile installed magic content.");
 		Console.WriteLine("ARMPREP-replay-completion=passed complete-medieval-profile optional-Armageddon-declined");
-		RunPreparedReplayBoot(database, assembly);
+		if (installed) PreparedInstalledWorldAcceptance(database, assembly);
+		else RunPreparedReplayBoot(database, assembly);
 		return 0;
 	}
 	private static FuturemudDatabaseContext NewPreparedReplayContext(string connectionString)
@@ -87,22 +88,22 @@ internal static partial class GNHProgram
 			"Production-equivalent replay context did not load the stored Core Colour values.");
 		Console.WriteLine($"ARMPREP-replay-colour-loading=passed definition:{loaded.Id} stored-values:{stored} no-proxy-navigation:0 replay-navigation:{loaded.CharacteristicValues.Count} no-inserted-values original-failing-characteristic-not-recorded");
 	}
-	private static void RunPreparedReplayBoot(TestDatabase database, Assembly assembly)
+	private static void RunPreparedReplayBoot(TestDatabase database, Assembly assembly, string scriptName = "PreparedReplayBootSmoke.py", string outputPrefix = "prepared-replay-boot-native")
 	{
 		var suppliedScript = Environment.GetEnvironmentVariable("FUTUREMUD_PREPARED_REPLAY_BOOT_SCRIPT");
 		if (string.IsNullOrWhiteSpace(suppliedScript)) return;
 		var repository = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", ".."));
 		var laneRoot = Directory.GetParent(repository)!.FullName;
-		var script = Path.Combine(laneRoot, "PreparedReplayBootSmoke.py");
+		var script = Path.Combine(laneRoot, scriptName);
 		Require(Path.GetFullPath(suppliedScript) == script && File.Exists(script),
 			"The optional boot handoff only accepts this lane's explicit smoke script.");
 		Require(File.ReadAllBytes(script).SequenceEqual(File.ReadAllBytes(Path.Combine(repository,
-			"tests", "ArmageddonPreparedSeederNativeHarness", "PreparedReplayBootSmoke.py"))),
+			"tests", "ArmageddonPreparedSeederNativeHarness", scriptName))),
 			"The executor-local boot script must match the fingerprinted lane source exactly.");
 		var suppliedOutput = Environment.GetEnvironmentVariable("FUTUREMUD_PREPARED_REPLAY_BOOT_OUTPUT")
 			?? throw new InvalidOperationException("Missing owned boot evidence directory.");
 		var output = Path.GetFullPath(suppliedOutput);
-		Require(Path.GetDirectoryName(output) == laneRoot && Path.GetFileName(output).StartsWith("prepared-replay-boot-native", StringComparison.Ordinal),
+		Require(Path.GetDirectoryName(output) == laneRoot && Path.GetFileName(output).StartsWith(outputPrefix, StringComparison.Ordinal),
 			"Boot output must have its own lane-local evidence namespace.");
 		var password = assembly.GetType("DatabaseSeeder.DebugSeederReplayProfiles", true)!
 			.GetField("DebugPassword", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)!.GetRawConstantValue() as string

@@ -35,6 +35,7 @@ internal static partial class GNHProgram
 			"--prepared-run" => PreparedSeederNative(),
 			"--prepared-reader" => PreparedSeederReader(args[1]),
 			"--replay-run" => PreparedSeederReplayNative(),
+			"--installed-run" => PreparedSeederReplayNative(true),
 			"--sense-run" => TraditionNative(true, true),
 			"--sense-control-run" => PreparedSenseControlNative(),
 			"--traditions-reader" => TraditionRestart(args[1]),

@@ -7,9 +7,12 @@ using System.Xml.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using MudSharp.Body.Traits;
+using MudSharp.Body.Position;
+using MudSharp.Character;
 using MudSharp.Form.Material;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
+using MudSharp.FutureProg.Variables;
 using MudSharp.Magic;
 using MudSharp.Magic.SpellEffects;
 using MudSharp.RPG.Checks;
@@ -27,6 +30,51 @@ public class WaterBreathingStockTests
 			[Tuple.Create(ProgVariableTypes.Character, "target"), Tuple.Create(ProgVariableTypes.Character, "caster")],
 			ArmageddonWaterBreathingStock.EligibilitySource);
 		Assert.IsTrue(prog.Compile(), "Normal stock construction requires its compiled Standing filter: " + prog.CompileError);
+	}
+
+	[DataTestMethod]
+	[DataRow(0L, false), DataRow(1L, true), DataRow(2L, false), DataRow(3L, false), DataRow(4L, false),
+	 DataRow(5L, false), DataRow(6L, false), DataRow(7L, false), DataRow(8L, false), DataRow(9L, true),
+	 DataRow(10L, true), DataRow(11L, true), DataRow(12L, false), DataRow(13L, true), DataRow(14L, true),
+	 DataRow(15L, true), DataRow(16L, true), DataRow(17L, true), DataRow(18L, true), DataRow(19L, true), DataRow(20L, true)]
+	public void StockMinimumPosition_AdmitsStandingVariantsAndActiveMovementWithoutOrderingIds(long id, bool allowed)
+	{
+		PositionState.SetupPositions();
+		var caster = new Mock<ICharacter>();
+		caster.SetupGet(x => x.Type).Returns(ProgVariableTypes.Character);
+		caster.SetupGet(x => x.GetObject).Returns(caster.Object);
+		caster.SetupGet(x => x.PositionState).Returns(PositionState.GetState(id));
+		caster.Setup(x => x.GetProperty("incombat")).Returns(new BooleanVariable(false));
+		var prog = StockEligibility();
+		Assert.AreEqual(allowed, prog.ExecuteBool(caster.Object, caster.Object), prog.CompileError);
+		caster.VerifyGet(x => x.PositionState, Times.Once);
+	}
+
+	[TestMethod]
+	public void StockMinimumPosition_CombatAndMissingPositionRefuseWhileTargetPostureIsIndependent()
+	{
+		PositionState.SetupPositions();
+		var caster = new Mock<ICharacter>();
+		caster.SetupGet(x => x.Type).Returns(ProgVariableTypes.Character);
+		caster.SetupGet(x => x.GetObject).Returns(caster.Object);
+		caster.SetupGet(x => x.PositionState).Returns(PositionState.GetState(18));
+		caster.Setup(x => x.GetProperty("incombat")).Returns(new BooleanVariable(true));
+		var prog = StockEligibility();
+		Assert.IsFalse(prog.ExecuteBool(Mock.Of<ICharacter>(), caster.Object));
+		caster.Setup(x => x.GetProperty("incombat")).Returns(new BooleanVariable(false));
+		Assert.IsTrue(prog.ExecuteBool(Mock.Of<ICharacter>(), caster.Object));
+		caster.SetupGet(x => x.PositionState).Returns((IPositionState)null!);
+		Assert.IsFalse(prog.ExecuteBool(Mock.Of<ICharacter>(), caster.Object));
+	}
+
+	private static FutureProg StockEligibility()
+	{
+		FutureProgTestBootstrap.EnsureInitialised();
+		var prog = new FutureProg(FutureProgTestBootstrap.Gameworld, "stock_minimum_position", ProgVariableTypes.Boolean,
+			[Tuple.Create(ProgVariableTypes.Character, "target"), Tuple.Create(ProgVariableTypes.Character, "caster")],
+			ArmageddonWaterBreathingStock.EligibilitySource);
+		Assert.IsTrue(prog.Compile(), prog.CompileError);
+		return prog;
 	}
 
 	[TestMethod]

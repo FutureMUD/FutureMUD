@@ -37,7 +37,7 @@ public partial class EditableItemHelper
 			var spell = ArmageddonWaterBreathingStock.Create(world, school, trait, resource, water);
 			actor.RemoveAllEffects<BuilderEditingEffect<IMagicSpell>>();
 			actor.AddEffect(new BuilderEditingEffect<IMagicSpell>(actor) { EditingItem = spell });
-			actor.OutputHandler.Send($"Created {spell.Name.ColourName()}; you are now editing it. Add capability admission with opening 30, cap 90 and relative grades, and Draw Wine raw80 as its prerequisite. Acquisition is separate. Its water mappings, Standing filter and lifetime remain editable.");
+			actor.OutputHandler.Send($"Created {spell.Name.ColourName()}; you are now editing it. Add capability admission with opening 30, cap 90 and relative grades, and Draw Wine raw80 as its prerequisite. Acquisition is separate. Its water mappings, minimum-Standing filter and lifetime remain editable.");
 		}
 		catch (InvalidOperationException error) { actor.OutputHandler.Send(error.Message.ColourError()); }
 		return true;

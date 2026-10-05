@@ -140,7 +140,7 @@ internal static partial class GNHProgram
 		foreach (var edit in new[] { $"casting trait {skill.Id}", $"casting resources {native.Resource.Id} {native.Resource.Id} passive",
 			$"casting entry add {wine.Id}", $"casting entry trait {wine.Id} {wineSkill.Id}", $"casting entry skill {wine.Id} 30 90 relative",
 			$"casting entry starting {wine.Id} on", $"casting entry add {spell.Id}", $"casting entry skill {spell.Id} 30 90 relative",
-			$"casting prerequisite add {spell.Id} {wine.Id} 0 80", "casting enable on" })
+			$"casting prerequisite add {spell.Id} {wine.Id} 1 80", "casting enable on" })
 			Require(cap.BuildingCommand(actor, new StringStack(edit)), "Fixture-authored capability/dependency: " + edit);
 		actor.RemoveAllEffects<BuilderEditingEffect<IMagicSpell>>(null, true); actor.SetMerits([NativeRuntime.NewCapabilityMerit(cap)]);
 		var staff = Mock.Of<ICharacter>(x => x.Id == 999 && x.IsAdministrator(PermissionLevel.JuniorAdmin));
@@ -148,7 +148,8 @@ internal static partial class GNHProgram
 		var casting = new MagicCastingService(world, clock: () => RuntimeClock.UtcNow, random: () => 0.1,
 			checkpoint: stage => callback?.Invoke(stage), flush: () => FlushCasting(native));
 		native.WorldMock.SetupGet(x => x.MagicCasting).Returns(casting);
-		Require(casting.Enrol(staff, actor, cap.Id, "Water stock native fixture").Allowed, "Stock enrolment");
+		var enrolment = casting.Enrol(staff, actor, cap.Id, "Water stock native fixture");
+		Require(enrolment.Allowed, "Stock enrolment: " + enrolment.Message);
 		Require(casting.Acquisition(actor, wine.Id) is not null && casting.Acquisition(actor, spell.Id) is null, "Stock acquired before source prerequisite");
 		actor.SetTraitValue(wineSkill, 79); casting.NotifyProgress(actor, wineSkill.Id);
 		Require(casting.Acquisition(actor, spell.Id) is null, "Draw Wine raw79 wrongly unlocked Water Breathing");
@@ -186,6 +187,18 @@ internal static partial class GNHProgram
 		Refuse(spell, "missing_water_stock_target", "missing character");
 		actor.PositionState = PositionSitting.Instance; Refuse(spell, "me", "source Standing caster policy");
 		actor.PositionState = PositionStanding.Instance;
+		var eligibility = ((MudSharp.Magic.SpellTriggers.CastingTriggerCharacter)spell.Trigger).TargetFilterProg;
+		foreach (var position in new MudSharp.Body.Position.IPositionState[] { PositionStandingAttention.Instance,
+			PositionStandingEasy.Instance, PositionLeaning.Instance, PositionSquatting.Instance, PositionSwimming.Instance,
+			PositionFloatingInWater.Instance, PositionFlying.Instance, PositionRiding.Instance,
+			PositionClimbing.Instance, PositionHanging.Instance, PositionFloatingInZeroGravity.Instance })
+		{
+			actor.PositionState = position;
+			Require(eligibility.ExecuteBool(actor, actor) && casting.Quote(new(actor, cap.Id, spell.Id, 1, false, "me")).Allowed,
+				"Minimum position wrongly refused active native posture: " + position.Name);
+		}
+		actor.PositionState = PositionStanding.Instance;
+		Console.WriteLine("WATER-STOCK-minimum-position=passed standing-variants leaning squatting flying swimming riding climbing hanging floating native-common-gates-preserved");
 		Require(spell.BuildingCommand(actor, new StringStack($"effect 1 water remove {water.Id}")), "Editable scope removal");
 		Refuse(spell, "me", "unconfigured native water scope");
 		Require(spell.BuildingCommand(actor, new StringStack($"effect 1 water add {water.Id}")), "Editable scope restoration");
@@ -271,9 +284,19 @@ internal static partial class GNHProgram
 		using var time = RuntimeClock.Push(clock); var host = PrepareRetirementHost(database, input.Fixture, clock, wielding: true, consumablesAnatomy: true);
 		var native = host.Native; var actor = native.Actor; var scheduler = new EffectScheduler(native.World, clock);
 		native.WorldMock.SetupGet(x => x.EffectScheduler).Returns(scheduler); PierceRealResource(native, database.ConnectionString);
+		ConfigurePracticeImprovement(native, database.ConnectionString, false);
 		SpellScopedWaterBreathingEffect.InitialiseEffectType();
 		using (var db = NewIndependentContext(database.ConnectionString))
 		{
+			// This minimal host restores only its shared Rejuvenation progs. Load the
+			// persisted content filters explicitly, as the other stock readers do.
+			foreach (var model in db.FutureProgs.Include(x => x.FutureProgsParameters).AsNoTracking()
+				.Where(x => x.Subcategory == ArmageddonWaterBreathingStock.Name || x.Subcategory == ArmageddonDrawWineStock.Name))
+			{
+				var prog = new MudSharp.FutureProg.FutureProg(model, native.World);
+				Require(prog.Compile(), "Fresh stock filter compilation: " + prog.CompileError);
+				if (!native.World.FutureProgs.Has(prog.Id)) ((All<IFutureProg>)native.World.FutureProgs).Add(prog);
+			}
 			// The small shared fixture loads spells before its optional liquid catalogue.
 			// Reload this authored adapter after the real liquids exist, as normal world boot does.
 			var spells = (All<IMagicSpell>)native.World.MagicSpells; spells.Remove(spells.Get(input.Spell));
@@ -281,7 +304,7 @@ internal static partial class GNHProgram
 			Require(spell.ReadyForGame && spell.StockIdentity == ArmageddonWaterBreathingStock.Key &&
 				spell.GradeProfile!.OpeningSkill == 30 && spell.GradeProfile.Efficiency!.MinimumCost == 20 &&
 				spell.GradeProfile.Practice!.Difficulty == Difficulty.Easy && spell.SpellEffects.Single() is SourceWaterBreathingEffect,
-				"Fresh editable stock after native liquid catalogue load");
+				$"Fresh editable stock after native liquid catalogue load: ready={spell.ReadyForGame}; key={spell.StockIdentity}; opening={spell.GradeProfile?.OpeningSkill}; minimum={spell.GradeProfile?.Efficiency?.MinimumCost}; practice={spell.GradeProfile?.Practice?.Difficulty}; effect={spell.SpellEffects.Single().GetType().Name}; readiness={(spell.ReadyForGame ? "ready" : spell.WhyNotReadyForGame(actor))}");
 			actor.RestoreCastingEffects(db.Characters.AsNoTracking().Single(x => x.Id == actor.Id).EffectData);
 		}
 		typeof(MudSharp.Framework.PerceivedItem).GetMethod("ScheduleCachedEffects", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(actor, null);

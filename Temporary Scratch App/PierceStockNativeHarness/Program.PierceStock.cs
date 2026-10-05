@@ -198,16 +198,20 @@ internal static partial class GNHProgram
 				Require(newChild.ParentEffect.SpellEffects.Contains(newChild), "Configured cleanup callback removed new ownership");
 			});
 			firstHigh.AddSpellEffect(observer); actor.AddEffect(observer);
+			actor.RemoveEffect(firstHigh.SpellEffects.Single(x => !ReferenceEquals(x, observer)), true);
 		}
 		clock.Advance(TimeSpan.FromSeconds(10)); Cast(7);
 		var refreshed = actor.EffectsOfType<MagicSpellParent>().Single(x => x.Spell.Id == spell.Id);
 		var refreshQualified = !ReferenceEquals(firstHigh, refreshed) && actor.EffectsOfType<SpellDetectInvisibleEffect>().Count() == 1 &&
-			refreshed.SpellEffects.Count() == 1 && scheduler.OriginalDuration(refreshed) == TimeSpan.FromSeconds(21000) &&
+			refreshed.SpellEffects.Count() == 1 && scheduler.ScheduledExpiry(refreshed) == RuntimeClock.UtcNow.AddSeconds(28800) &&
+			refreshed.LifetimeState?.Grade == 7 && refreshed.LifetimeGroup == ArmageddonPierceConcealmentStock.LifetimeGroup &&
 			((IEffectExpiryObserver)scheduler).ScheduledExpiry(firstHigh) is null;
-		Console.WriteLine("PIERCE-exclusive-refresh=" + (refreshQualified ? "passed" : "FAILED old detection child orphaned by shared parent removal without removal action"));
+		Console.WriteLine("PIERCE-exclusive-accumulation=" + (refreshQualified ? "passed cap48 strongest-source-grade7" : "FAILED"));
 		if (sharedRuntimeControls) Require(refreshQualified && configuredCallbacks == 1 && !firstHigh.SpellEffects.Any(), "Shared runtime repair did not clean configured exclusive refresh/callback");
 		// Historical diagnostic continuation remains available in the stock mode.
 		if (!refreshQualified) firstHigh.RemovalEffect();
+		VerifyPierceLifetimeNative(native, database.ConnectionString, spell, clock, scheduler, Cast, Refuse);
+		refreshed = actor.EffectsOfType<MagicSpellParent>().Single(x => x.LifetimeGroup == ArmageddonPierceConcealmentStock.LifetimeGroup);
 		var selfCasterSpell = sharedRuntimeControls ? VerifyPierceSharedRuntime(native, database.ConnectionString, spell, clock, scheduler, probe) : 0L;
 		state.Write(acquired: casting.Acquisition(actor, spell.Id)! with { ControlledGrade = 1, NextMasteryUtc = DateTime.UnixEpoch });
 		var ward = new SpellPersonalWardEffect(actor, new MagicSpellParent(actor, spell, actor), cap.School,
@@ -223,6 +227,7 @@ internal static partial class GNHProgram
 		if (sharedRuntimeControls)
 		{
 			actor.RemoveAllEffects<MagicSpellParent>(x => x.Spell.Id == spell.Id, true);
+			Require(spell.BuildingCommand(actor, new StringStack("effect 1 lifetime off")), "Normal builder policy off for ordinary nonexclusive control");
 			Require(spell.BuildingCommand(actor, new StringStack("exclusiveeffect")), "Configured nonexclusive toggle");
 			Cast(7); var first = actor.EffectsOfType<MagicSpellParent>().Single(x => x.Spell.Id == spell.Id);
 			clock.Advance(TimeSpan.FromSeconds(1)); Cast(7);
@@ -233,8 +238,11 @@ internal static partial class GNHProgram
 			clock.Advance(TimeSpan.FromSeconds(1)); scheduler.CheckSchedules();
 			Require(!actor.EffectsOfType<SpellDetectInvisibleEffect>().Any() && !actor.CanSee(probe), "Configured nonexclusive final expiry retained perception");
 			Require(spell.BuildingCommand(actor, new StringStack("exclusiveeffect")), "Configured exclusive restore");
+			Require(spell.BuildingCommand(actor, new StringStack($"effect 1 lifetime accumulate {ArmageddonPierceConcealmentStock.LifetimeGroup} 600 48")), "Normal builder accumulation restore");
 			Console.WriteLine("PIERCE-configured-nonexclusive=passed paid-two-parent-child-deadlines first-expiry-preserves-second final-expiry-no-grant");
 		}
+		actor.RemoveAllEffects<MagicSpellParent>(x => x.LifetimeGroup == ArmageddonPierceConcealmentStock.LifetimeGroup, true);
+		using (new FMDB()) { spell.Save(); FMDB.Context.SaveChanges(); }
 		var final = Cast(7); var parent = actor.EffectsOfType<MagicSpellParent>().Single(x => x.Spell.Id == spell.Id);
 		DateTime? selfCasterExpiry = null;
 		if (selfCasterSpell > 0)
@@ -252,10 +260,10 @@ internal static partial class GNHProgram
 		var blindnessQualified = blindnessBeforeDetection && blindnessAfterDetection;
 		Console.WriteLine("PIERCE-independent-checks=passed builder-edit-reload source-low-high perception body-blindness ward mastery saved-parent fresh-reader expiry");
 		Console.WriteLine("PIERCE-runtime-repairs=" + (blindnessQualified && refreshQualified ? "passed" : "FAILED native blindness or exclusive cleanup"));
-		Console.WriteLine("PIERCE-content-clearance=BLOCKED historical accumulation/max-power policy remains unimplemented; replacement refresh is not an approved substitute");
+		Console.WriteLine("PIERCE-content-clearance=passed historical accumulation cap48 strongest-source-grade normal-editable-policy native-clock-offline-adaptations-recorded");
 		if (sharedRuntimeControls) Console.WriteLine("PIERCE-shared-runtime-acceptance=" + (blindnessQualified && refreshQualified ? "passed" : "FAILED") + " configured prepared callback nonexclusive expiry reload applicable-blindness exceptions");
-		// Keep acceptance nonzero until both external lifecycle/perception contracts are repaired.
-		return sharedRuntimeControls && blindnessQualified && refreshQualified ? 0 : 1;
+		// Entry acceptance requires both runtime repairs plus all accumulated-lifetime assertions above.
+		return blindnessQualified && refreshQualified ? 0 : 1;
 	}
 
 	private static int ReadPierceStock(string encoded)
@@ -266,6 +274,7 @@ internal static partial class GNHProgram
 		var clock = new HarnessClock(); clock.Advance(input.Now - clock.GetUtcNow().UtcDateTime); using var time = RuntimeClock.Push(clock);
 		var host = PrepareRetirementHost(database, input.Fixture, clock, wielding: true, consumablesAnatomy: true);
 		var native = host.Native; var world = native.World; var actor = native.Actor;
+		PierceRealResource(native, database.ConnectionString);
 		var scheduler = new EffectScheduler(world, clock); native.WorldMock.SetupGet(x => x.EffectScheduler).Returns(scheduler);
 		SpellDetectInvisibleEffect.InitialiseEffectType();
 		using (var db = NewIndependentContext(database.ConnectionString))
@@ -279,6 +288,7 @@ internal static partial class GNHProgram
 		}
 		typeof(MudSharp.Framework.PerceivedItem).GetMethod("ScheduleCachedEffects", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(actor, null);
 		var parent = actor.EffectsOfType<MagicSpellParent>().Single(x => x.Spell.Id == input.Spell);
+		Require(parent.LifetimeState == new MagicSpellLifetimeState(new(ArmageddonPierceConcealmentStock.LifetimeGroup, 600, 48), 7), "Fresh retained lifetime policy/source grade lost");
 		Require(actor.EffectsOfType<SpellDetectInvisibleEffect>().Count(x => x.Spell.Id == input.Spell) == 1 && parent.SpellEffects.Count() == 1 &&
 			((IEffectExpiryObserver)scheduler).ScheduledExpiry(parent) == input.Expiry, "Fresh process lost exact parent/child/deadline");
 		var state = new MagicCastingStateStore(); var operation = state.Operation(input.Operation)!;
@@ -298,11 +308,12 @@ internal static partial class GNHProgram
 				"Fresh paired expiry leaked phase, removed independent stock parent or refunded");
 			Console.WriteLine("PIERCE-self-caster-reader=passed both-native-phase-parents-children-exact-deadlines restored expiry-removes-both independent-stock-parent-and-reserve-preserved");
 		}
-		clock.Advance(input.Expiry - RuntimeClock.UtcNow + TimeSpan.FromSeconds(1)); scheduler.CheckSchedules(); FlushCasting(native);
+		var restarted = VerifyPierceLifetimeRestart(native, parent, operation.CapabilityId, clock, scheduler);
+		clock.Advance(restarted.Expiry - RuntimeClock.UtcNow + TimeSpan.FromSeconds(1)); scheduler.CheckSchedules(); FlushCasting(native);
 		Require(!actor.EffectsOfType<SpellDetectInvisibleEffect>().Any() && !actor.EffectsOfType<MagicSpellParent>().Any(x => x.Spell.Id == input.Spell) &&
-			(actor.GetPerception(PerceptionTypes.None) & PerceptionTypes.VisualMagical) == PerceptionTypes.None && actor.MagicResourceAmounts[native.Resource] == input.Balance,
+			(actor.GetPerception(PerceptionTypes.None) & PerceptionTypes.VisualMagical) == PerceptionTypes.None && actor.MagicResourceAmounts[native.Resource] == restarted.Balance,
 			"Restart expiry left detection, parent, grant or changed the paid reserve");
-		Console.WriteLine("PIERCE-reader=passed fresh-process stock-edit receipt no-replay no-refund exact-21000-second-deadline expiry-removes-parent-child-perception");
+		Console.WriteLine("PIERCE-reader=passed fresh-process policy-source-grade-power reload paid-accumulation quantised-deadline no-replay no-refund expiry-removes-parent-child-perception");
 		return 0;
 	}
 }

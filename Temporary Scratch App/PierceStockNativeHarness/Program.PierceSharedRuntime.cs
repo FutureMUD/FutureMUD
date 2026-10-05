@@ -44,7 +44,7 @@ internal static partial class GNHProgram
 		Console.WriteLine("PIERCE-applicable-blindness=passed applicable-character-and-body-block inapplicable-character-does-not-block self-and-ignore-exceptions-retained");
 
 		// A separate unowned fixture spell exercises the prepared route with a fixed
-		// duration, independently of the still-pending historical stock lifetime policy.
+		// duration, independently of the opted-in historical stock lifetime policy.
 		MudSharp.Models.MagicSpell model;
 		using (var db = NewIndependentContext(connection))
 		{
@@ -54,7 +54,8 @@ internal static partial class GNHProgram
 			model = db.MagicSpells.AsNoTracking().Single(x => x.Id == original.Id);
 			model.Id = 0; model.Name = "Pierce lifecycle prepared control";
 			model.EffectDurationExpressionId = duration.Id;
-			var definition = XElement.Parse(model.Definition); definition.Element("StockIdentity")?.Remove(); model.Definition = definition.ToString();
+			var definition = XElement.Parse(model.Definition); definition.Element("StockIdentity")?.Remove();
+			definition.Descendants("LifetimePolicy").Remove(); model.Definition = definition.ToString();
 			db.MagicSpells.Add(model); db.SaveChanges();
 		}
 		var spell = new MagicSpell(model, native.World);

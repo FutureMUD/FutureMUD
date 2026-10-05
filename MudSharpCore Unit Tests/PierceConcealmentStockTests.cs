@@ -29,11 +29,15 @@ public class PierceConcealmentStockTests
 		Assert.IsTrue(spell.GradeProfile.Practice!.Enabled);
 		Assert.IsInstanceOfType(spell.SpellEffects.Single(), typeof(IMagicSpellEffectOperation));
 		Assert.AreEqual("detectinvisible", (string)spell.SpellEffects.Single().SaveToXml().Attribute("type")!);
+		Assert.AreEqual(new MagicSpellLifetimePolicy(ArmageddonPierceConcealmentStock.LifetimeGroup, 600, 48),
+			((IMagicSpellEffectLifetimePolicy)spell.SpellEffects.Single()).LifetimePolicy);
 		Assert.IsTrue(spell.BuildingCommand(f.Actor.Object, new StringStack("grades practice difficulty easy")));
 		var saved = (MudSharp.Models.MagicSpell)typeof(MagicSpell).GetMethod("SnapshotModel", BindingFlags.NonPublic | BindingFlags.Instance)!.Invoke(spell, [])!;
 		var reload = new MagicSpell(saved, f.World.Object);
 		Assert.AreEqual(spell.StockIdentity, reload.StockIdentity);
 		Assert.AreEqual(Difficulty.Easy, reload.GradeProfile!.Practice!.Difficulty);
+		Assert.AreEqual(((IMagicSpellEffectLifetimePolicy)spell.SpellEffects.Single()).LifetimePolicy,
+			((IMagicSpellEffectLifetimePolicy)reload.SpellEffects.Single()).LifetimePolicy);
 	}
 
 	[DataTestMethod]

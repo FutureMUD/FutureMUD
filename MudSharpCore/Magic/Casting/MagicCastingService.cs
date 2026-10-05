@@ -124,6 +124,7 @@ public sealed partial class MagicCastingService : IMagicCastingService
 			out var capability, out var admission, out var spell, out var trait, out var difficulty, intent.Mode, method: intent.Method) is { } refusal)
 			throw new InvalidOperationException(refusal);
 		var policy = capability.CastingPolicy!;
+		if (spell.LifetimeConfigurationError is { } lifetimeError) throw new InvalidOperationException(lifetimeError);
 		if (intent.OriginId == Guid.Empty) throw new InvalidOperationException("An invocation origin must be a nonempty correlation ID.");
 		var delivery = ResolveDelivery(intent, spell, capability);
 		if (intent.Targets.Length > 4096) throw new InvalidOperationException("The target specification exceeds 4096 characters.");
@@ -135,6 +136,7 @@ public sealed partial class MagicCastingService : IMagicCastingService
 			intent.Mode == MagicCastingMode.Practice ? new SpellTargetResolution(null, []) :
 			SpellTargetCapture.Resolve(actor, spell, power, new StringStack(intent.Targets), spell.GradeProfile.Incantation is not null);
 		if (target is null) throw new InvalidOperationException("No valid target was resolved.");
+		preparedSelectionSource?.ConfirmPendingLifetimeAdmissions();
 		var targets = target.Target is PerceivableGroup group ? group.Members : target.Target is { } single ? new[] { single } : [];
 		foreach (var individual in targets)
 			if (!actor.CanInteractPlanar(individual, PlanarInteractionKind.Magic)) throw new InvalidOperationException("Your current plane cannot reach a target with magic.");
@@ -149,6 +151,7 @@ public sealed partial class MagicCastingService : IMagicCastingService
 				.Concat(copy.CasterSpellEffects.Select(x => (x, (IEnumerable<IPerceivable>)new[] { actor }))))
 				foreach (var recipient in recipients)
 				{
+					copy.ValidateLifetimeInvocation(actor, recipient);
 					if (effect is MudSharp.Magic.SpellEffects.CreateItemEffect item && !item.ValidateRecipientInvocation(actor, recipient, out var itemError))
 						throw new InvalidOperationException(itemError);
 					if (effect is MudSharp.Magic.SpellEffects.CreateLiquidEffect liquid && !liquid.ValidateInvocation(actor, recipient, out var liquidError))
@@ -157,6 +160,7 @@ public sealed partial class MagicCastingService : IMagicCastingService
 						throw new InvalidOperationException(animationError);
 					if (effect is IMagicSpellEffectPreparedSelection selection) selection.CapturePreparedSelection(actor, recipient);
 				}
+			if (target.Target is ICharacter && !targets.Contains(actor)) copy.ValidateLifetimeInvocation(actor, actor);
 		}
 		List<CastingPayment> payments = [];
 		foreach (var (resource, expression) in copy.CastingCosts)

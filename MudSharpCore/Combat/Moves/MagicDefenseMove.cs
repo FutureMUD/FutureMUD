@@ -81,7 +81,9 @@ public sealed class MagicDefenseMove : CombatMoveBase, IDefenseMove
 	public static ICombatMove? Select(ICharacter defender, ICombatMove attack, ICombatMove? mundane)
 	{
 		var candidates = defender.EffectsOfType<MagicDefense>()
+			.ToList() // Eligibility progs can remove combat effects during selection.
 			.Where(x => x.Available && x.Power.CanDefend(defender, attack))
+			.Where(x => x.Available && defender.Effects.Contains(x))
 			.Select(x => (Effect: x, Chance: x.Power.DefenseMode == MagicDefenseMode.Absorption ? 100.0 :
 				defender.Gameworld.GetCheck(CheckType.GenericSkillCheck).TargetNumber(defender, x.Power.DefenseDifficulty, x.Power.DefenseTrait, attack.Assailant)))
 			.OrderByDescending(x => x.Chance).ThenBy(x => x.Effect.Power.Id).ToList();

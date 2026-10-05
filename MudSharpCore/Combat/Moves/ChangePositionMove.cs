@@ -24,11 +24,9 @@ public class ChangePositionMove : CombatMoveBase
     public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
     {
         // Determine if anybody in the combat opposes them standing up
-        ICombatMove opponent =
-            Assailant.Combat.Combatants.Where(x => x.CombatTarget == Assailant)
-                     .SelectNotNull(x => x.ResponseToMove(this, Assailant))
-                     .Shuffle(Constants.Random)
-                     .FirstOrDefault();
+		var combat = Assailant.Combat;
+		var opponent = InternalResponses(combat).Shuffle(Constants.Random).FirstOrDefault();
+		if (!CanContinueAfterInternalResponse(combat)) return CombatMoveResult.Irrelevant;
         if (opponent == null || opponent is HelplessDefenseMove)
         {
             IPositionState oldPosition = Assailant.PositionState;

@@ -1,12 +1,36 @@
 ﻿using MudSharp.Body;
 using MudSharp.Effects.Concrete;
 using MudSharp.RPG.Checks;
+using MudSharp.NPC.AI;
 
 namespace MudSharp.Combat.Moves;
 
 public abstract class CombatMoveBase : ICombatMove
 {
     private ICharacter _assailant;
+	private bool _executionRejected;
+
+	// Internal defender selection can run authored progs after CombatBase's outer gate.
+	protected bool CanContinueAfterInternalResponse(ICombat combat)
+	{
+		if (_executionRejected) return false;
+		bool Participating() => ReferenceEquals(Assailant.Combat, combat) &&
+			combat.Combatants.Any(x => ReferenceEquals(x, Assailant));
+		if (Participating() && CommandExecutionAuthority.MayExecute(this, Assailant) && Participating()) return true;
+		_executionRejected = true;
+		return false;
+	}
+
+	protected IEnumerable<ICombatMove> InternalResponses(ICombat combat)
+	{
+		// A response can remove combatants; never retain a live collection enumerator across it.
+		foreach (var target in combat.Combatants.Where(x => x.CombatTarget == Assailant).ToArray())
+		{
+			var response = target.ResponseToMove(this, Assailant);
+			if (!CanContinueAfterInternalResponse(combat)) yield break;
+			if (response is not null) yield return response;
+		}
+	}
 
     protected HashSet<ICharacter> _characterTargets = new();
 
@@ -102,6 +126,6 @@ public abstract class CombatMoveBase : ICombatMove
 
     public virtual bool UsesStaminaWithResult(CombatMoveResult result)
     {
-        return true;
+        return !_executionRejected;
     }
 }

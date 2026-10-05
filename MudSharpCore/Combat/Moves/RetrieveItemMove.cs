@@ -32,14 +32,13 @@ public class RetrieveItemMove : CombatMoveBase
             return new CombatMoveResult();
         }
 
-        List<IPerceiver> contestors =
-            Assailant.Combat.Combatants.Where(
-                         x => x.CombatTarget == Assailant &&
-                              x.ResponseToMove(this, Assailant) is OpposeRetrieveItemMove)
-                     .ToList();
+		var combat = Assailant.Combat;
+		var contestors = InternalResponses(combat).OfType<OpposeRetrieveItemMove>().ToList();
+		if (!CanContinueAfterInternalResponse(combat)) return CombatMoveResult.Irrelevant;
         // TODO - contested
 
         TargetItem.RemoveAllEffects(x => x is CombatNoGetEffect);
+		if (!CanContinueAfterInternalResponse(combat)) return CombatMoveResult.Irrelevant;
         Assailant.Body.Get(TargetItem, playerEmote: PlayerEmote);
         Assailant.RemoveAllEffects(x => (x as ICombatGetItemEffect)?.TargetItem == TargetItem);
 

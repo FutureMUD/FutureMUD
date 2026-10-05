@@ -9,6 +9,9 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using MudSharp.Accounts;
 using MudSharp.Body;
+using MudSharp.Body.Position;
+using MudSharp.Body.Position.PositionStates;
+using MudSharp.Body.Traits;
 using MudSharp.Character;
 using MudSharp.Combat;
 using MudSharp.Combat.Moves;
@@ -26,6 +29,7 @@ using MudSharp.Magic;
 using MudSharp.NPC;
 using MudSharp.NPC.AI;
 using MudSharp.PerceptionEngine;
+using MudSharp.RPG.Checks;
 
 namespace MudSharp_Unit_Tests;
 
@@ -260,6 +264,93 @@ public class QueuedCommandAuthorityTests
 	{
 		var f = new Fixture(); f.Order(); f.Engage();
 		Assert.IsNull(f.Queued!.GetMove(f.Actor.Object));
+	}
+
+	[DataTestMethod]
+	[DataRow("get", "expire")]
+	[DataRow("stand", "expire")]
+	[DataRow("change", "expire")]
+	[DataRow("reposition", "expire")]
+	[DataRow("get", "revoke")]
+	[DataRow("stand", "revoke")]
+	[DataRow("change", "revoke")]
+	[DataRow("reposition", "revoke")]
+	[DataRow("get", "leave")]
+	[DataRow("stand", "leave")]
+	[DataRow("change", "leave")]
+	[DataRow("reposition", "leave")]
+	[DataRow("get", "replace")]
+	[DataRow("stand", "replace")]
+	[DataRow("change", "replace")]
+	[DataRow("reposition", "replace")]
+	[DataRow("get", "direct")]
+	[DataRow("stand", "direct")]
+	[DataRow("change", "direct")]
+	[DataRow("reposition", "direct")]
+	public void NativeMove_InternalDefenderCallbackRevalidatesBeforeMutationAndActionCost(string kind, string change)
+	{
+		var f = new Fixture(); var combat = f.Engage();
+		var target = new Mock<ICharacter>(); target.SetupProperty(x => x.Combat);
+		target.SetupGet(x => x.Location).Returns(f.Actor.Object.Location);
+		target.SetupGet(x => x.CombatTarget).Returns(f.Actor.Object);
+		combat.JoinCombat(target.Object);
+		f.Actor.SetupGet(x => x.CombatTarget).Returns(target.Object);
+		f.Actor.SetupGet(x => x.PositionState).Returns(PositionKneeling.Instance);
+		f.Item.Setup(x => x.ColocatedWith(f.Actor.Object)).Returns(true);
+		f.World.Setup(x => x.GetStaticDouble("StandMoveStaminaCost")).Returns(7.0);
+		f.Actor.SetupGet(x => x.Race).Returns(Mock.Of<MudSharp.Character.Heritage.IRace>(x => x.RaceUsesStamina));
+		var name = new Mock<MudSharp.Character.Name.IPersonalName>();
+		name.Setup(x => x.GetName(It.IsAny<MudSharp.Character.Name.NameStyle>())).Returns("ordered actor");
+		f.Actor.SetupGet(x => x.CurrentName).Returns(name.Object);
+		var check = new Mock<ICheck>();
+		check.Setup(x => x.Check(It.IsAny<IPerceivableHaveTraits>(), It.IsAny<Difficulty>(), It.IsAny<IPerceivable>(),
+			It.IsAny<IUseTrait>(), It.IsAny<double>(), It.IsAny<TraitUseType>(), It.IsAny<(string, object)[]>()))
+			.Returns(CheckOutcome.SimpleOutcome(CheckType.CombatRecoveryCheck, Outcome.Pass));
+		f.World.Setup(x => x.GetCheck(CheckType.CombatRecoveryCheck)).Returns(check.Object);
+		ICombatMove MakeMove() => kind switch
+		{
+			"get" => new RetrieveItemMove(f.Actor.Object, f.Item.Object),
+			"stand" => new StandMove { Assailant = f.Actor.Object },
+			"change" => new ChangePositionMove { Assailant = f.Actor.Object, DesiredState = PositionStanding.Instance },
+			_ => new RepositionMove { Assailant = f.Actor.Object, TargetState = PositionStanding.Instance }
+		};
+		ICombatMove move;
+		if (change == "direct") move = MakeMove();
+		else if (kind == "get") { f.Order(); move = f.Queued!.GetMove(f.Actor.Object)!; }
+		else
+		{
+			using (CommandExecutionAuthority.Enter(f.Actor.Object, f.Commander.Object, kind, () => f.Allowed))
+			{ move = MakeMove(); CommandExecutionAuthority.Capture(f.Actor.Object)!.Bind(move); }
+		}
+		var responses = 0;
+		target.Setup(x => x.ResponseToMove(move, f.Actor.Object)).Callback(() =>
+		{
+			if (++responses != 2) return; // Outer response is valid; revoke only inside ResolveMove.
+			switch (change)
+			{
+				case "expire": f.Grant = null; break;
+				case "revoke": f.Owned = false; break;
+				case "leave": f.Actor.Object.Combat = null; break;
+				case "replace": f.Actor.Object.Combat = Mock.Of<ICombat>(); break;
+			}
+		}).Returns((ICombatMove)null!);
+		var recovery = typeof(CombatBase).GetProperty("RecoveryTimeExpression", BindingFlags.NonPublic | BindingFlags.Static)!;
+		var previous = recovery.GetValue(null); recovery.SetValue(null, new TraitExpression("1", f.World.Object));
+		try
+		{
+			f.Actor.Invocations.Clear(); f.Body.Invocations.Clear();
+			combat.CombatAction(f.Actor.Object, move);
+			Assert.AreEqual(2, responses, "The real move must reach its internal defender callback.");
+			var mutations = kind == "get" ? f.Body.Invocations.Count(x => x.Method.Name == "Get") : f.Actor.Invocations.Count(x => x.Method.Name == "MovePosition");
+			Assert.AreEqual(change == "direct" ? 1 : 0, mutations);
+			if (change != "direct")
+			{
+				f.Actor.Verify(x => x.SpendStamina(It.IsAny<double>()), Times.Never);
+				Assert.IsFalse(move.UsesStaminaWithResult(CombatMoveResult.Irrelevant));
+			}
+			else Assert.IsTrue(move.UsesStaminaWithResult(new CombatMoveResult { MoveWasSuccessful = true }));
+		}
+		finally { recovery.SetValue(null, previous); }
 	}
 
 	private static void Set(object target, string name, object value) =>

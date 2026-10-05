@@ -1,0 +1,278 @@
+{
+  "status": "PASS_BOUNDED_LOCAL_CHECKPOINT_PARENT_REVIEW_PENDING",
+  "utc": "2026-10-05T19:17:19.685508+00:00",
+  "base_head": "104ea0691ce26080db55b52696dd7741d50340a2",
+  "problem": "Actual CombatBase retains the outer move scope while querying stamina; callback rejection was not reflected until later Dispose",
+  "repair": "Resolve synchronously marks native unexecuted moves at both refusal exits only when rejected before commit; already committed costs and direct behavior remain intact",
+  "cost_baseline": {
+    "status": "FAIL",
+    "run_id": "20261005T184827Z-bde1296adbb3",
+    "counts": {
+      "executed": 6,
+      "passed": 3,
+      "failed": 3,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 6
+    },
+    "source_start": "51daa59c58bfd3ac66e76efa1cbf0bde1ce8c39a41a8d21b97a3c861ba7f48ab",
+    "source_end": "51daa59c58bfd3ac66e76efa1cbf0bde1ce8c39a41a8d21b97a3c861ba7f48ab",
+    "projects": [
+      "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+    ],
+    "filter": "FullyQualifiedName~QueuedCommandAuthorityTests.CheckCallbackRejection_OuterMoveStillActive_CostAlreadyReflectsCommittedWork",
+    "summary": ".artifacts/test-runs/armageddon-selected-melee-check/cost-reproduce01/20261005T184827Z-bde1296adbb3/summary.json",
+    "summary_sha256": "7e3298f6287e12bfe0df1409b7c83e089cfacb82d46b498e77819ff2286ae9b5"
+  },
+  "focused": {
+    "status": "PASS",
+    "run_id": "20261005T185006Z-033672086f14",
+    "counts": {
+      "executed": 278,
+      "passed": 278,
+      "failed": 0,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 278
+    },
+    "source_start": "3383140d9f81f7beed11b49ff73666c30748e6adffe506de34646385e89b399f",
+    "source_end": "3383140d9f81f7beed11b49ff73666c30748e6adffe506de34646385e89b399f",
+    "projects": [
+      "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+    ],
+    "filter": "FullyQualifiedName~PreparedGetStackMergeTests|FullyQualifiedName~QueuedCommandAuthorityTests|FullyQualifiedName~PreparedCurrencyTransferTests|FullyQualifiedName~ItemSplitAccessTests|FullyQualifiedName~ItemOwnershipDurabilityTests|FullyQualifiedName~SaveManagerFailureRecoveryTests",
+    "summary": ".artifacts/test-runs/armageddon-selected-melee-check/focused01/20261005T185006Z-033672086f14/summary.json",
+    "summary_sha256": "80b287c43362d75bb0cd5aed3e2ebf06ce3267bdc3198629fa74c89b4799a766"
+  },
+  "full_core": {
+    "status": "PASS",
+    "run_id": "20261005T190943Z-590df53b49bc",
+    "counts": {
+      "executed": 5137,
+      "passed": 5137,
+      "failed": 0,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 5137
+    },
+    "source_start": "5e2420c7eea7489438dc8717ac3e62df4a3e5f8f84ea398c3c98a0617fc6f5a4",
+    "source_end": "5e2420c7eea7489438dc8717ac3e62df4a3e5f8f84ea398c3c98a0617fc6f5a4",
+    "projects": [
+      "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+    ],
+    "filter": null,
+    "summary": ".artifacts/test-runs/armageddon-selected-melee-check/full-core01/20261005T190943Z-590df53b49bc/summary.json",
+    "summary_sha256": "d1e4fbd21a319e8cdf81dff1fcda3aee603143d66788f4651c6f1f6a27f064da"
+  },
+  "full_fast": {
+    "status": "PASS",
+    "run_id": "20261005T191206Z-99d4cedf382f",
+    "counts": {
+      "executed": 7503,
+      "passed": 7503,
+      "failed": 0,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 7503
+    },
+    "source_start": "f9652aad3889e8f137e08e1c8b1bbdc8be4fe7c40a145012f59f1f3e4c5bd01a",
+    "source_end": "f9652aad3889e8f137e08e1c8b1bbdc8be4fe7c40a145012f59f1f3e4c5bd01a",
+    "projects": [
+      "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+      "ExpressionEngine Unit Tests/ExpressionEngine Unit Tests.csproj",
+      "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+      "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+      "MudsharpDatabaseLibrary Unit Tests/MudsharpDatabaseLibrary Unit Tests.csproj",
+      "DiscordBotCore Unit Tests/DiscordBotCore Unit Tests.csproj",
+      "RPI Engine Worldfile Converter Tests/RPI Engine Worldfile Converter Tests.csproj",
+      "FutureMUD.Web.Tests/FutureMUD.Web.Tests.csproj",
+      "TerrainPlanner/TerrainPlanner.Tests/TerrainPlanner.Tests.csproj",
+      "scripts/TestReporting.Tests/TestReporting.Tests.csproj"
+    ],
+    "filter": null,
+    "summary": ".artifacts/test-runs/armageddon-selected-melee-check/full-fast01/20261005T191206Z-99d4cedf382f/summary.json",
+    "summary_sha256": "82e9c7e7499ed7d0f1f66d23b932cd319e67e7f103e6ecb4997de59373641dc9"
+  },
+  "native_selected_melee": {
+    "status": "PASS",
+    "cases": [
+      "ordered-valid",
+      "ordered-revoked",
+      "applicable-independent",
+      "applicable-revoke",
+      "scoring-independent",
+      "scoring-revoke",
+      "final-setter-independent",
+      "final-setter-aba",
+      "final-setter-revoke",
+      "direct-valid",
+      "direct-scoring-independent"
+    ],
+    "fresh_process_readers": [
+      "ordered-valid",
+      "ordered-revoked",
+      "applicable-independent",
+      "applicable-revoke",
+      "scoring-independent",
+      "scoring-revoke",
+      "final-setter-independent",
+      "final-setter-aba",
+      "final-setter-revoke",
+      "direct-valid",
+      "direct-scoring-independent"
+    ],
+    "log": ".artifacts/test-runs/armageddon-selected-melee-check/qualify05-native.log",
+    "log_sha256": "2315c7edf1771c744fa0262e4ca604feab9c64667b76b9784780d121b439851a",
+    "cleanup_receipt": ".artifacts/test-runs/armageddon-selected-melee-check/qualify05-process-cleanup.json",
+    "cleanup_receipt_sha256": "83322fd61bf0e7fa891a652f136b9799cf73ba1bd5a2ae407370ed7520200cbe",
+    "inputs": ".artifacts/test-runs/armageddon-selected-melee-check/qualify05-inputs.json",
+    "binary_capsule_manifest": ".artifacts/test-runs/armageddon-selected-melee-check/qualify05-binary-capsule/manifest.json"
+  },
+  "native_stack_strengthening": {
+    "status": "PASS",
+    "cases": [
+      "ordered-valid",
+      "ordered-parser-valid",
+      "direct-valid",
+      "owner",
+      "delete-expire",
+      "delete-refill",
+      "delete-relocate",
+      "delete-title",
+      "description-expire",
+      "description-refill",
+      "delete-provider-refusal",
+      "delete-provider-outer-refill",
+      "delete-outer-success"
+    ],
+    "fresh_process_readers": [
+      "ordered-valid",
+      "ordered-parser-valid",
+      "direct-valid",
+      "owner",
+      "delete-expire",
+      "delete-refill",
+      "delete-relocate",
+      "delete-title",
+      "description-expire",
+      "description-refill",
+      "delete-provider-refusal",
+      "delete-provider-retry",
+      "delete-provider-outer-refill",
+      "delete-outer-success"
+    ],
+    "log": ".artifacts/test-runs/armageddon-selected-melee-check/stack-qualify03-native.log",
+    "log_sha256": "d5fd4ac2a0e6a742e0a98f6f6b2f8c3bcca9d9d4ba5e4ef7c2a6ea7e02b34a57",
+    "cleanup_receipt": ".artifacts/test-runs/armageddon-selected-melee-check/stack-qualify03-process-cleanup.json",
+    "cleanup_receipt_sha256": "0b43ba0b912d2db46a4193b488aefed02988f09ae3fdd6d6be147a96c690b50e",
+    "inputs": ".artifacts/test-runs/armageddon-selected-melee-check/qualify05-inputs.json",
+    "binary_capsule_manifest": ".artifacts/test-runs/armageddon-selected-melee-check/qualify05-binary-capsule/manifest.json"
+  },
+  "source_only_review": {
+    "status": "NO_ESTABLISHED_P1_P2",
+    "reviewer": "fm_reviewer",
+    "seven_file_digest": "0ce3c8edb5761d8e2b59e084ab07c2258eed2465f1dfd48875d0d229a3cb7704"
+  },
+  "qualification_inputs": {
+    "source_count": 5774,
+    "assembly_count": 13,
+    "aligned": true,
+    "manifest": ".artifacts/test-runs/armageddon-selected-melee-check/qualify05-inputs.json",
+    "manifest_sha256": "51be792bd5b6709e8dda778078a98683a52c5e185190a5c31dca2ab47a582cf4",
+    "fingerprints": ".artifacts/test-runs/armageddon-selected-melee-check/qualify05-fingerprints.json"
+  },
+  "preserved_binary_capsules": [
+    {
+      "label": "qualify02",
+      "manifest": ".artifacts/test-runs/armageddon-selected-melee-check/qualify02-binary-capsule-retry/manifest.json"
+    },
+    {
+      "label": "cost-reproduce01",
+      "manifest": ".artifacts/test-runs/armageddon-selected-melee-check/cost-reproduce01-binary-capsule/manifest.json"
+    },
+    {
+      "label": "focused01",
+      "manifest": ".artifacts/test-runs/armageddon-selected-melee-check/focused01-binary-capsule/manifest.json"
+    },
+    {
+      "label": "qualify03",
+      "manifest": ".artifacts/test-runs/armageddon-selected-melee-check/qualify03-binary-capsule/manifest.json"
+    },
+    {
+      "label": "qualify04",
+      "manifest": ".artifacts/test-runs/armageddon-selected-melee-check/qualify04-binary-capsule/manifest.json"
+    },
+    {
+      "label": "qualify05",
+      "manifest": ".artifacts/test-runs/armageddon-selected-melee-check/qualify05-binary-capsule/manifest.json"
+    },
+    {
+      "label": "full-core01",
+      "manifest": ".artifacts/test-runs/armageddon-selected-melee-check/full-core01-binary-capsule/manifest.json"
+    },
+    {
+      "label": "full-fast01",
+      "manifest": ".artifacts/test-runs/armageddon-selected-melee-check/full-fast01-binary-capsule/manifest.json"
+    }
+  ],
+  "retained_failures": [
+    "qualify01-build.log: fixture IEnumerable.Length compile error; no native run",
+    "qualify02-native.log: applicable-revoke preserved raw60/no wounds/no learning but spent1 stamina; owned cleanup PASS",
+    "cost-reproduce01: initial/inside/independent failed; valid/committed/direct passed",
+    "stack-qualify01 failed native cold loader: plain-text PositionEmote marker was invalid XML; numeric Condition0.75 fixture repair; owned cleanup PASS",
+    "stack-qualify02 failed because native survivor Save rewrites Condition from runtime; replaced control with a separate untouched caller item; owned cleanup PASS",
+    "qualify02 binary copy initially hit Windows MAX_PATH; partial copy retained, bounded flat-name retry archived604 files and rehashed"
+  ],
+  "historical_preservation": {
+    "status": "PASS",
+    "prior_artifacts": 15745,
+    "prior_task_files": 476,
+    "primary_head": "34eb234eb5a1e2784c595b4f848f6f785b426302",
+    "primary_clean": true,
+    "note": "Stack104ea independently cleared by parent. Nine old recorded binary paths were overwritten in subsequent earlier builds; their original manifest/log remains available but those original DLLs cannot be rehashed. All executed outputs for this checkpoint now have immutable copies."
+  },
+  "scope_paths": [
+    {
+      "path": "MudSharpCore/NPC/AI/CommandExecutionScope.cs",
+      "sha256": "540520135a932f6dbcc5b5c6121123b91063a1b5a3f76b765478bdbcd6e232de"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/OrderedNpcCheckLearningCombatCostTests.cs",
+      "sha256": "af7908216527a9887f785316209f0986ae9503ce91edeaf76860154a535ebfd5"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.OrderedNpcRegressionP2.cs",
+      "sha256": "56e635169a17b486f82f5f312e10c91bc2454cffe4874c50032703dd829710ff"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.SelectedMeleeCheck.cs",
+      "sha256": "38d55701adcfc9d58c462661b928a9de19e0a75010ec4318e58a415ec3bdcefd"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.RaiseServitorStock.cs",
+      "sha256": "379c0cb6b678f07ec45a7e37cc3e725aa72f47844311001559a46a07ce89b881"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.cs",
+      "sha256": "79af036b9fa8ce13586b703a314fa176c5cfc8ed91da8597dcee208052b2baea"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Run-IsolatedAcceptance.ps1",
+      "sha256": "66f02f1916a49b4e9659adf3b628c460cf870c524bfe55627707c026660f1837"
+    }
+  ],
+  "limits": [
+    "Controlled fixture uses actual ChooseMove, MeleeWeaponAttack, StandardCheck, native merit logic and compiled FutureProgs; fault wrappers inject writes/revocation at actual callbacks",
+    "One declared manual melee profile against a helpless target, guaranteed pass and deterministic improvement; ten cases execute the real Check, pre-revoked execution stops before it",
+    "Only selected MeleeWeaponCheck is actual scoring; penetration/recovery/other checks and race/encumbrance globals remain controlled fixture dependencies",
+    "Fresh selected readers assert exact canonical trait and physical-body stamina/wound SQL rows; no full actor reload, queued order replay or Telnet session is claimed",
+    "Finite flame-knife manual attack family only; autonomous selection, defended/failing attacks and wider combat/component/boarding/countershot remain unqualified",
+    "Full-world/Telnet and complete82-spell/12-support/154-candidate/25-scenario release acceptance remain NOT_RUN/incomplete",
+    "No stock lane integration, publication, deployment, merge or shared/production database"
+  ],
+  "next_smallest_gate": "Parent review, then allocated representative native component load/chamber/ready/fire/unload and accepted-shot condition/cost accounting for one firearm family"
+}

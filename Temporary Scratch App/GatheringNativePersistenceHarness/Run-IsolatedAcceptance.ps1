@@ -1,8 +1,9 @@
 [CmdletBinding()]
-param([switch]$LandOnly, [switch]$RejuvenationOnly, [switch]$CastingOnly, [switch]$PracticeOnly, [switch]$SpeechOnly, [switch]$AreaOnly, [switch]$LifecycleOnly, [switch]$BodyRetirementOnly, [switch]$LegacyRemainsOnly, [switch]$NpcArchiveOnly, [switch]$NpcArchiveMaintenanceOnly, [switch]$SpellOwnedNpcOnly, [switch]$SpellOwnedRetirementOnly, [switch]$SpellOwnedItemOnly, [switch]$CreatedConsumablesOnly, [switch]$CorpseAnimationOnly, [switch]$RaiseServitorStockOnly, [switch]$StormSpearStockOnly, [switch]$FlameKnifeStockOnly, [switch]$SandKnifeStockOnly, [switch]$QueuedCommandOnly, [switch]$QueuedCallbackOnly, [switch]$OrderedNpcCallbacksOnly, [switch]$CheckLearningOnly, [switch]$RegressionP2Only, [switch]$StackMergeOnly, [switch]$OwnershipOnly, [switch]$RefreshSnapshot)
+param([switch]$LandOnly, [switch]$RejuvenationOnly, [switch]$CastingOnly, [switch]$PracticeOnly, [switch]$SpeechOnly, [switch]$AreaOnly, [switch]$LifecycleOnly, [switch]$BodyRetirementOnly, [switch]$LegacyRemainsOnly, [switch]$NpcArchiveOnly, [switch]$NpcArchiveMaintenanceOnly, [switch]$SpellOwnedNpcOnly, [switch]$SpellOwnedRetirementOnly, [switch]$SpellOwnedItemOnly, [switch]$CreatedConsumablesOnly, [switch]$CorpseAnimationOnly, [switch]$RaiseServitorStockOnly, [switch]$StormSpearStockOnly, [switch]$FlameKnifeStockOnly, [switch]$SandKnifeStockOnly, [switch]$QueuedCommandOnly, [switch]$QueuedCallbackOnly, [switch]$OrderedNpcCallbacksOnly, [switch]$CheckLearningOnly, [switch]$RegressionP2Only, [switch]$StackMergeOnly, [switch]$SelectedMeleeCheckOnly, [switch]$OwnershipOnly, [switch]$RefreshSnapshot)
 
 $ErrorActionPreference = 'Stop'
 if ($StackMergeOnly) { $RegressionP2Only = $true }
+if ($SelectedMeleeCheckOnly) { $OrderedNpcCallbacksOnly = $true }
 
 $workspaceRoot = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
 $harnessDll = Join-Path $PSScriptRoot 'bin\Debug\net10.0\GatheringNativePersistenceHarness.dll'
@@ -229,7 +230,7 @@ try {
 		$runExit = $LASTEXITCODE
 	}
 	if ($runExit -eq 0 -and $OrderedNpcCallbacksOnly) {
-		Invoke-OwnedHarness '--ordered-npc-callback-run'
+		if ($SelectedMeleeCheckOnly) { Invoke-OwnedHarness '--selected-melee-check-run' } else { Invoke-OwnedHarness '--ordered-npc-callback-run' }
 		$runExit = $LASTEXITCODE
 	}
 	if ($runExit -eq 0 -and $QueuedCallbackOnly) {

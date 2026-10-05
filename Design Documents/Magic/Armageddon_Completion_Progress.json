@@ -4830,5 +4830,73 @@
       "Container Get/Give/unload, wider component/boarding/countershot and complete Armageddon acceptance remain separate",
       "No other lane merged, no stock breathing/lifetime edits, no publication/deployment/shared or production database"
     ]
+  },
+  "native_selected_melee_check_cost_qualification": {
+    "status": "PASS_BOUNDED_LOCAL_CHECKPOINT_PARENT_REVIEW_PENDING",
+    "base_head": "104ea0691ce26080db55b52696dd7741d50340a2",
+    "acceptance": [
+      {
+        "id": "managed-cost-reproduction",
+        "status": "EXPECTED_FAIL",
+        "passed": 3,
+        "failed": 3
+      },
+      {
+        "id": "focused-core",
+        "status": "PASS",
+        "passed": 278
+      },
+      {
+        "id": "selected-native-and-fresh-persistence",
+        "status": "PASS",
+        "cases": 11,
+        "readers": 11
+      },
+      {
+        "id": "dirty-unrelated-stack-caller",
+        "status": "PASS",
+        "cases": 13,
+        "readers": 14
+      },
+      {
+        "id": "full-core",
+        "status": "PASS",
+        "passed": 5137
+      },
+      {
+        "id": "full-fast",
+        "status": "PASS",
+        "passed": 7503,
+        "projects": 10
+      },
+      {
+        "id": "immutable-binary-copies",
+        "status": "PASS"
+      },
+      {
+        "id": "historical-preservation",
+        "status": "PASS"
+      },
+      {
+        "id": "local-commit",
+        "status": "INCLUDED_IN_ENCLOSING_LOCAL_COMMIT",
+        "receipt": "Task root Armageddon_SelectedMeleeCheck_CommitReceipt.json"
+      },
+      {
+        "id": "full-world-telnet-and-whole-plan",
+        "status": "NOT_RUN"
+      }
+    ],
+    "receipt": "Design Documents/Magic/Armageddon_SelectedMeleeCheck_Verification.json",
+    "next_smallest_gate": "Parent review, then allocated representative native component load/chamber/ready/fire/unload and accepted-shot condition/cost accounting for one firearm family",
+    "limits": [
+      "Controlled fixture uses actual ChooseMove, MeleeWeaponAttack, StandardCheck, native merit logic and compiled FutureProgs; fault wrappers inject writes/revocation at actual callbacks",
+      "One declared manual melee profile against a helpless target, guaranteed pass and deterministic improvement; ten cases execute the real Check, pre-revoked execution stops before it",
+      "Only selected MeleeWeaponCheck is actual scoring; penetration/recovery/other checks and race/encumbrance globals remain controlled fixture dependencies",
+      "Fresh selected readers assert exact canonical trait and physical-body stamina/wound SQL rows; no full actor reload, queued order replay or Telnet session is claimed",
+      "Finite flame-knife manual attack family only; autonomous selection, defended/failing attacks and wider combat/component/boarding/countershot remain unqualified",
+      "Full-world/Telnet and complete82-spell/12-support/154-candidate/25-scenario release acceptance remain NOT_RUN/incomplete",
+      "No stock lane integration, publication, deployment, merge or shared/production database"
+    ]
   }
 }

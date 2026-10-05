@@ -144,11 +144,18 @@ internal sealed class CommandExecutionScope : IDisposable
 	internal static CombatMoveResult Resolve(ICombatMove move, ICombatMove? response)
 	{
 		using var execution = EnterMove(move);
-		if (!TryContinue()) return CombatMoveResult.Irrelevant;
+		if (!TryContinue()) return RefusedResolution(move);
 		var result = move.ResolveMove(response!);
-		if (RejectedBeforeCommit) return CombatMoveResult.Irrelevant;
+		if (RejectedBeforeCommit) return RefusedResolution(move);
 		if (!ReferenceEquals(result, CombatMoveResult.Irrelevant)) MarkCommitted();
 		return result;
+	}
+
+	private static CombatMoveResult RefusedResolution(ICombatMove move)
+	{
+		// CombatBase queries stamina before its outer EnterMove scope is disposed.
+		if (RejectedBeforeCommit && move is CombatMoveBase native) native.RejectUnexecutedCommand();
+		return CombatMoveResult.Irrelevant;
 	}
 
 	internal static CombatMoveResult ResolveIndependent(ICombatMove move, Func<ICombatMove?> response)

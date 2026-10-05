@@ -136,7 +136,7 @@ internal static partial class GNHProgram
 	}
 
 	private sealed record RegressionP2SavedStack(long Id, int Quantity, ItemOwnershipReference? Owner, long? Body, long? Character, long? Cell, bool Deleted = false);
-	private sealed record RegressionP2Reader(string Database, FixtureIds Fixture, DateTime Now, long Destination, RegressionP2SavedStack[] Stacks, string Scenario, int ExpectedTotal = 8);
+	private sealed record RegressionP2Reader(string Database, FixtureIds Fixture, DateTime Now, long Destination, RegressionP2SavedStack[] Stacks, string Scenario, int ExpectedTotal = 8, long? CallerItem = null, double? CallerCondition = null);
 	private static int RunRegressionP2Reader(string[] args)
 	{
 		var input = JsonSerializer.Deserialize<RegressionP2Reader>(Encoding.UTF8.GetString(Convert.FromBase64String(args.Single())))!;
@@ -186,6 +186,12 @@ internal static partial class GNHProgram
 			using var db = NewIndependentContext(database.ConnectionString);
 			Require(db.BodiesGameItems.Count(x => x.GameItemId == item.Id) == (saved.Body.HasValue ? 1 : 0) &&
 				db.CellsGameItems.Count(x => x.GameItemId == item.Id) == (saved.Cell.HasValue ? 1 : 0), "Cold loading lost saved custody joins.");
+		}
+		if (input.CallerItem.HasValue)
+		{
+			using var stored = NewIndependentContext(database.ConnectionString);
+			Require(input.CallerCondition.HasValue && Same(stored.GameItems.AsNoTracking().Single(x => x.Id == input.CallerItem.Value).Condition, input.CallerCondition.Value),
+				"Fresh reader must retain the unrelated caller's dirty field through absorbed-source deletion.");
 		}
 		Require(input.Stacks.Sum(x => x.Quantity) == input.ExpectedTotal, "Cold fixture quantity must remain exactly eight.");
 		Console.WriteLine($"ARMRegression-reader={input.Scenario} passed fresh-native-GameItems native-Body.LoadInventory exact-{input.ExpectedTotal}-quantity title custody");
@@ -289,6 +295,7 @@ internal static partial class GNHProgram
 			};
 			var deletionCallbacks = 0;
 			var inGet = true;
+			Action? dirtyUnrelatedCaller = null;
 			var descriptionCallbacks = 0;
 			if (stackMergeOnly) survivor.GetItemType<StackableGameItemComponent>()!.DescriptionUpdate += (_, _) =>
 			{
@@ -303,6 +310,7 @@ internal static partial class GNHProgram
 				++deletionCallbacks;
 				if (!inGet) return;
 				Require(item.Quantity == 0 && survivor.Quantity == 8, "Deletion observers must see already conserved native stack quantities.");
+				dirtyUnrelatedCaller?.Invoke();
 				if (scenario == "delete-expire")
 				{
 					Expire(actor); getter.Body.Drop(survivor, silent: true);
@@ -322,14 +330,21 @@ internal static partial class GNHProgram
 				++getEvents; eventItem = changed;
 			};
 			getter.Body.OnInventoryChange += getObserver;
-			using var caller = scenario is "delete-provider-outer-refill" or "delete-outer-success" ? new FMDB() : null;
+			// The survivor is saved during merging; use an untouched item for dirty caller work.
+			var callerUnrelatedItem = scenario is "delete-provider-outer-refill" or "delete-outer-success" ? NewItem("ARM03B2B stack", 1) : null;
+			using var caller = callerUnrelatedItem is not null ? new FMDB() : null;
 			var callerContext = caller is not null ? FMDB.Context : null;
 			Db.GameItem? unrelatedCallerRow = null;
 			if (callerContext is not null)
 			{
 				var tracked = callerContext.GameItems.Include(x => x.GameItemComponents).Include(x => x.CellsGameItems).Single(x => x.Id == item.Id);
 				Require(tracked.GameItemComponents.Count == 2 && tracked.CellsGameItems.Single().CellId == source.Id, "Pretrack the live source's native component and exact floor graph.");
-				unrelatedCallerRow = callerContext.GameItems.Find(survivor.Id)!;
+				unrelatedCallerRow = callerContext.GameItems.Find(callerUnrelatedItem!.Id)!;
+				dirtyUnrelatedCaller = () =>
+				{
+					unrelatedCallerRow.Condition = 0.75;
+					callerContext.Entry(unrelatedCallerRow).Property(x => x.Condition).IsModified = true;
+				};
 			}
 			if (scenario is "delete-provider-refusal" or "delete-provider-outer-refill")
 			{
@@ -388,8 +403,10 @@ internal static partial class GNHProgram
 			if (callerContext is not null)
 			{
 				callerContext.SaveChanges();
-				Require(callerContext.Entry(unrelatedCallerRow!).State != EntityState.Detached && ReferenceEquals(callerContext.GameItems.Find(survivor.Id), unrelatedCallerRow),
-					"Immediate deletion must preserve the caller's unrelated tracked survivor row.");
+				Require(callerContext.Entry(unrelatedCallerRow!).State != EntityState.Detached && ReferenceEquals(callerContext.GameItems.Find(callerUnrelatedItem!.Id), unrelatedCallerRow),
+					"Immediate deletion must preserve the caller's unrelated tracked item row.");
+				Require(Same(unrelatedCallerRow!.Condition, 0.75),
+					"Immediate deletion must preserve the unrelated caller's dirty field.");
 				Require(!callerContext.ChangeTracker.Entries<Db.GameItem>().Any(x => x.Entity.Id == item.Id && x.State == EntityState.Deleted),
 					"Failed absorbed deletion must not remain pending in the caller context after independent refill and flush.");
 				if (scenario == "delete-provider-outer-refill") Require(!item.Deleted && item.Quantity == 2 && survivor.Quantity == 8 && ReferenceEquals(item.DirectLocation, source) && item.InInventoryOf is null &&
@@ -414,7 +431,8 @@ internal static partial class GNHProgram
 			}
 			var saved = new[] { survivor, item }.Select(x => new RegressionP2SavedStack(x.Id, x.Quantity, x.OwnershipReference,
 				x.GetItemType<IHoldable>()!.HeldBy?.Id, x.GetItemType<IHoldable>()!.HeldBy is null ? null : getter.Identity.Id, x.DirectLocation?.Id, x.Deleted)).ToArray();
-			RunItemReaderProcess(new RegressionP2Reader(database.Name, fixture, RuntimeClock.UtcNow, destination.Id, saved, scenario, scenario is "delete-refill" or "description-refill" or "delete-provider-outer-refill" ? 10 : 8), "--regression-p2-reader");
+			RunItemReaderProcess(new RegressionP2Reader(database.Name, fixture, RuntimeClock.UtcNow, destination.Id, saved, scenario, scenario is "delete-refill" or "description-refill" or "delete-provider-outer-refill" ? 10 : 8,
+				callerUnrelatedItem?.Id, callerUnrelatedItem is null ? null : 0.75), "--regression-p2-reader");
 			if (scenario == "delete-provider-refusal")
 			{
 				using (CommandExecutionScope.EnterIndependent()) item.Delete();
@@ -424,6 +442,7 @@ internal static partial class GNHProgram
 			}
 			// The outer stack-call fixture ends before unrelated corpse retirement.
 			caller?.Dispose();
+			callerUnrelatedItem?.Delete();
 			foreach (var stack in new[] { survivor, item }.Where(x => !x.Deleted)) { if (stack.GetItemType<IHoldable>()!.HeldBy is { } body) body.Take(stack); stack.Delete(); }
 			Finish(actor); Console.WriteLine($"ARMRegression-get={scenario} passed real-Body.Get removal-callback exact-{(scenario is "delete-refill" or "description-refill" or "delete-provider-outer-refill" ? 10 : 8)}-quantity title runtime-custody native-save cold-native-reader deletion-observers:{deletionCallbacks}");
 		}

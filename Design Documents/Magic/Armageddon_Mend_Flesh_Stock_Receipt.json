@@ -7,7 +7,7 @@
   "printed_source_minimum": 20,
   "verification": {
     "path": "Design Documents/Magic/Armageddon_Five_Stock_Verification_Receipt.json",
-    "sha256": "3606a1240210fb56f3333b43e9022b4aee87bcaa6e0fcbf25ca50cce0c355bb8"
+    "sha256": "96ecd0cdadb17624be6ce1f80d2dddcd81be1a28ed5dbf1de9660cbc8ed42abe"
   },
   "native_claim": "Actual native wounds low2/high98 budget; unhurt applied=false; selected Nilaz filter refusal; own skill cap60 with paid native practice1..7",
   "paid_low_high_costs": [

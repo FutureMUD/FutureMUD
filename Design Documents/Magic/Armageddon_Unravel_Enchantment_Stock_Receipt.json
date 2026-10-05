@@ -7,7 +7,7 @@
   "printed_source_minimum": 7,
   "verification": {
     "path": "Design Documents/Magic/Armageddon_Five_Stock_Verification_Receipt.json",
-    "sha256": "3606a1240210fb56f3333b43e9022b4aee87bcaa6e0fcbf25ca50cce0c355bb8"
+    "sha256": "96ecd0cdadb17624be6ce1f80d2dddcd81be1a28ed5dbf1de9660cbc8ed42abe"
   },
   "native_claim": "Native low/high contest/removal; lost contest and empty target applied=false; builder shorten and fresh-process Completed/unproven no replay/refund/second mutation",
   "paid_low_high_costs": [

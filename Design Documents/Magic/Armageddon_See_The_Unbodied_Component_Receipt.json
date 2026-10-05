@@ -1,0 +1,378 @@
+{
+  "schema_version": 1,
+  "entry_key": "arm.spell.see_the_unbodied",
+  "historical_identity": {
+    "name": "Detect Ethereal",
+    "skill": 44
+  },
+  "status": "ALLOCATED_SOURCE_COMPONENT_ADAPTER_VERIFIED_PARENT_REVIEW_PENDING",
+  "recorded_utc": "2026-10-05T22:24:48.679388+00:00",
+  "branch": "codex/armageddon-five-stock-spells",
+  "isolated_base": "1ad24d636925da64e7a82ffa858b0af470e56b0a",
+  "worktree": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-4\\FutureMUD-five-stock",
+  "allocation_base": "ef30d057772d2d7bc490c674af54afd5e4d6cc27",
+  "implementation_commit": "ef67b48ba404dbb6204cc4e500e6b724b877eca4",
+  "tested_source_head": "7f79eeeb4252f474b414b5965cd72cfc2d1aee15",
+  "new_checkpoint_commits": [
+    {
+      "commit": "ef67b48ba404dbb6204cc4e500e6b724b877eca4",
+      "scope": "Frozen native component adapter, owned tests and dedicated harness"
+    },
+    {
+      "commit": "9dcaf6a67c80e427c39a9f0863de13917113d263",
+      "scope": "Existing multiple-effect lifetime readiness refusal regression; runtime unchanged"
+    },
+    {
+      "commit": "7f79eeeb4252f474b414b5965cd72cfc2d1aee15",
+      "scope": "Cold retries use recorded original grade/targets; runtime unchanged"
+    }
+  ],
+  "completion_clear": false,
+  "independent_review_pending": true,
+  "stock_factory_implemented": false,
+  "conditional_component_selection_implemented": true,
+  "scope": {
+    "source_scope": "Optional version1 XML: explicit existing Silt/Shadow terrain IDs and unique dedicated consume reference; Silt refusal precedes Shadow exemption",
+    "component": "Outside Shadow exactly one carried Divination quantity unit, native rank max(grade-3,0), ancestor ranks0-4/higher descendants",
+    "adaptation": "Quantity unit instead of historical whole-object extraction; explicit terrain IDs rather than guessed topology",
+    "payment": "Current frozen selection/casting journal/native inventory APIs; native selector revalidation after debit and physical-consumption observation before perception",
+    "uncertainty": "Paid NeedsReview preserves old cohort and prevents new perception/mastery; cold retry has no second debit/consume/refund/mastery",
+    "generic_adapter": "Absent scope preserves cleared generic detection; multiple scoped/mixed effects use existing accumulated-lifetime readiness refusal"
+  },
+  "unchanged_shared_surfaces": {
+    "shared_payment_selection_apis": true,
+    "central_ledger": true,
+    "repertoire_disposition": true,
+    "installer_registry": true,
+    "shared_harness_dispatch": true,
+    "main_combat_authority": true,
+    "prior_stock_and_weapon_regressions": true
+  },
+  "remote_action_performed": false,
+  "allocated_source_files": [
+    {
+      "path": "MudSharpCore Unit Tests/SeeTheUnbodiedSourceSelectionTests.cs",
+      "bytes": 23402,
+      "sha256": "a81a1dba80326b46c8631e81f85fbc0bf7e6bab7fc48e3a58e81e84f8fafb4d8"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/DetectEtherealEffect.Lifetime.cs",
+      "bytes": 3221,
+      "sha256": "ed6b780aac2066408b4ec961f22499bfe44aea2412d6b768efabd3c159836402"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/DetectEtherealEffect.Operation.cs",
+      "bytes": 2652,
+      "sha256": "cd6fd5088d67809922acf2bb2db86866bdce4371e757027fd9cbc1ea456cbad8"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/DetectEtherealEffect.SourcePlan.cs",
+      "bytes": 4157,
+      "sha256": "08598a9bc170be5b639f57ddbfcbe1e3832f018ec5322a7d2846d0410088f8e6"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/DetectEtherealEffect.SourceScope.cs",
+      "bytes": 6472,
+      "sha256": "27aea13b2a72c316ecec52efd2e225287c73b2c19e9bb7f8e56c5f0eab956166"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/DetectEtherealEffect.SourceSelection.cs",
+      "bytes": 17184,
+      "sha256": "8889ba064ec62797e579f4a473a7470f2467e44a9ca08cf61ddc1f23c51f31e3"
+    },
+    {
+      "path": "Temporary Scratch App/EtherealComponentAdapterNativeHarness/EtherealComponentAdapterEntry.cs",
+      "bytes": 228,
+      "sha256": "351b7366014bc98798b99c6eb3e5aa74fd2edaae69dcce95ccc8e611facb1da1"
+    },
+    {
+      "path": "Temporary Scratch App/EtherealComponentAdapterNativeHarness/EtherealComponentAdapterNativeHarness.csproj",
+      "bytes": 1640,
+      "sha256": "2458433e6b3a42642bf6b8026fd8b2fbd5238b0c60ae2e19ea2ca99659fc70ea"
+    },
+    {
+      "path": "Temporary Scratch App/EtherealComponentAdapterNativeHarness/Program.EtherealComponentAdapter.cs",
+      "bytes": 25136,
+      "sha256": "7f77fb163d3eda66943b14eacc69fab50ba503664ac768bdbda0856ca52be01f"
+    },
+    {
+      "path": "Temporary Scratch App/EtherealComponentAdapterNativeHarness/Run-EtherealComponentAdapter.ps1",
+      "bytes": 8705,
+      "sha256": "9f04c41e91925acd2b25c9bb157d833c1d3753827da79cb0ac0f85fbabb4e9e3"
+    }
+  ],
+  "source_authority": {
+    "brief_library_id": "libfile_a4606cd0097081918d6c9d9e220e6da0",
+    "codedump_library_id": "libfile_befb4ae78d1c8191aaa2640c49912d9d",
+    "qualification_receipt": {
+      "path": "Design Documents/Magic/Armageddon_See_The_Unbodied_Source_Qualification_Receipt.json",
+      "bytes": 24680,
+      "sha256": "aefb36364a143f47eeea8b271852d104b2b11ac19e86503ddbf925f7f0ff34a6"
+    },
+    "supported_bounded_snapshots": {
+      "path": ".artifacts/test-runs/see-unbodied-source-qualification-01/library-evidence.json",
+      "bytes": 79273,
+      "sha256": "039625cfaef11c975344a0ef101db6a53392cbeefacbac5d5c67a6219b13716d"
+    },
+    "full_file_materialization_claimed": false
+  },
+  "verification": {
+    "strict_fast_suite": {
+      "path": ".artifacts/test-runs/see-component-adapter-final-03/20261005T215859Z-2cfa91aaa8c9/summary.json",
+      "bytes": 41126,
+      "sha256": "0bee309b59179b270f61bb99afb4489bd94f787006a650e8241ffab2bc02c6d5",
+      "head": "7f79eeeb4252f474b414b5965cd72cfc2d1aee15",
+      "counts": {
+        "executed": 7729,
+        "passed": 7729,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 7729
+      },
+      "projects": 10,
+      "source_stable": true,
+      "source_start": "a33917bf91387387c1ee2fd2966a584ee7158a1770e7a1aac984b7ba845530e1",
+      "source_end": "a33917bf91387387c1ee2fd2966a584ee7158a1770e7a1aac984b7ba845530e1"
+    },
+    "final_targeted": {
+      "path": ".artifacts/test-runs/see-component-adapter-targeted-09/20261005T215522Z-424cd39dad1d/summary.json",
+      "bytes": 6312,
+      "sha256": "7369db0332374d11cac38828f9c5b2846bbc2524c8472d7b41deb374886ebe28"
+    },
+    "final_native_build": {
+      "path": ".artifacts/test-runs/see-component-adapter-final-native-build-01.log",
+      "bytes": 15617,
+      "sha256": "14741913f6fdc07fe413c94600e4e814dbfd4813fb7aaf55339140eb327ead97"
+    },
+    "native": {
+      "path": ".artifacts/test-runs/see-component-adapter-final-native-01/summary.json",
+      "bytes": 2662,
+      "sha256": "7651bbaf2d19f11745900d0ebc391be2b69b5a5ff270be1c92f65a14611eb6b2",
+      "source_head": "7f79eeeb4252f474b414b5965cd72cfc2d1aee15",
+      "source_files": 7516,
+      "source_stable": true,
+      "assemblies_stable": true,
+      "all_passed": true,
+      "source_manifest_sha256": "a7770fe91076062754d827651c8cd307019ce1703c84f34e67e74f7bda588452",
+      "assembly_manifest_sha256": "1c7b32543d2d78e2269b651c5625e6938552d26b2d60c1f94d9913d7f8a770ca",
+      "runs": [
+        {
+          "mode": "ethereal-component-adapter",
+          "exit_code": 0,
+          "passed": true,
+          "owned_cleanup": true,
+          "log": ".artifacts/test-runs/see-component-adapter-final-native-01/ethereal-component-adapter.log",
+          "log_evidence": {
+            "path": ".artifacts/test-runs/see-component-adapter-final-native-01/ethereal-component-adapter.log",
+            "bytes": 1059331,
+            "sha256": "fd148078542f25b7000ac67cbde36064d0612c2153b038acaaa1cef2a5240eba"
+          }
+        },
+        {
+          "mode": "ethereal-adapter",
+          "exit_code": 0,
+          "passed": true,
+          "owned_cleanup": true,
+          "log": ".artifacts/test-runs/see-component-adapter-final-native-01/ethereal-adapter.log",
+          "log_evidence": {
+            "path": ".artifacts/test-runs/see-component-adapter-final-native-01/ethereal-adapter.log",
+            "bytes": 440069,
+            "sha256": "f2242f2cd2fc164130413cd74a0dd5f4044f47ab18e337fb6a7325b11a67f93e"
+          }
+        },
+        {
+          "mode": "water-stock",
+          "exit_code": 0,
+          "passed": true,
+          "owned_cleanup": true,
+          "log": ".artifacts/test-runs/see-component-adapter-final-native-01/water-stock.log",
+          "log_evidence": {
+            "path": ".artifacts/test-runs/see-component-adapter-final-native-01/water-stock.log",
+            "bytes": 1295806,
+            "sha256": "2898af869f976322d6f5992c40dde921660d30351da3673d66cda1d98a15d9b8"
+          }
+        },
+        {
+          "mode": "water-adapter",
+          "exit_code": 0,
+          "passed": true,
+          "owned_cleanup": true,
+          "log": ".artifacts/test-runs/see-component-adapter-final-native-01/water-adapter.log",
+          "log_evidence": {
+            "path": ".artifacts/test-runs/see-component-adapter-final-native-01/water-adapter.log",
+            "bytes": 443841,
+            "sha256": "5f52a47dabba8fd2dce77b6e4662ee4b91f50871aa79efe420a5dbf76315bf09"
+          }
+        },
+        {
+          "mode": "pierce-stock",
+          "exit_code": 0,
+          "passed": true,
+          "owned_cleanup": true,
+          "log": ".artifacts/test-runs/see-component-adapter-final-native-01/pierce-stock.log",
+          "log_evidence": {
+            "path": ".artifacts/test-runs/see-component-adapter-final-native-01/pierce-stock.log",
+            "bytes": 677909,
+            "sha256": "0ea260de00ffb0b148359e7ceaeaee61607adb98d6e8974f3f7995c31c81244b"
+          }
+        },
+        {
+          "mode": "pierce-shared-runtime",
+          "exit_code": 0,
+          "passed": true,
+          "owned_cleanup": true,
+          "log": ".artifacts/test-runs/see-component-adapter-final-native-01/pierce-shared-runtime.log",
+          "log_evidence": {
+            "path": ".artifacts/test-runs/see-component-adapter-final-native-01/pierce-shared-runtime.log",
+            "bytes": 974804,
+            "sha256": "b26535f03fe0a1c98c5394bbb3fae89a8f0084c2d4a6a0563a265bc5cc82de7f"
+          }
+        },
+        {
+          "mode": "provision-stock",
+          "exit_code": 0,
+          "passed": true,
+          "owned_cleanup": true,
+          "log": ".artifacts/test-runs/see-component-adapter-final-native-01/provision-stock.log",
+          "log_evidence": {
+            "path": ".artifacts/test-runs/see-component-adapter-final-native-01/provision-stock.log",
+            "bytes": 1218140,
+            "sha256": "d5e139616e5620fdb28ff16082986ed6907601d04c32c18827fad119d890166a"
+          }
+        },
+        {
+          "mode": "five-stock",
+          "exit_code": 0,
+          "passed": true,
+          "owned_cleanup": true,
+          "log": ".artifacts/test-runs/see-component-adapter-final-native-01/five-stock.log",
+          "log_evidence": {
+            "path": ".artifacts/test-runs/see-component-adapter-final-native-01/five-stock.log",
+            "bytes": 2235547,
+            "sha256": "1732c4f2355e208f294884127bec632af77b3a1efa037077c71597bb3dd25fb9"
+          }
+        },
+        {
+          "mode": "regressions",
+          "exit_code": 0,
+          "passed": true,
+          "owned_cleanup": true,
+          "log": ".artifacts/test-runs/see-component-adapter-final-native-01/regressions.log",
+          "log_evidence": {
+            "path": ".artifacts/test-runs/see-component-adapter-final-native-01/regressions.log",
+            "bytes": 3199841,
+            "sha256": "042a319ec3b06e94d844030c823bed33a0dd06214ed38b09ec36434bb8c2f3de"
+          }
+        }
+      ]
+    },
+    "core_assembly_match": {
+      "path": ".artifacts/test-runs/see-component-adapter-final-core-assembly-match.json",
+      "bytes": 461,
+      "sha256": "fb804376cd928ff2f46b607cdc0f44498de335b0975243c51e9b24743a3cdb0f",
+      "source_head": "7f79eeeb4252f474b414b5965cd72cfc2d1aee15",
+      "unit_core_sha256": "21d0a868e498f34ec824b71fb5b8fd2969cc6dfa007b4331bba42ee52783031c",
+      "native_core_sha256": "21d0a868e498f34ec824b71fb5b8fd2969cc6dfa007b4331bba42ee52783031c",
+      "matched": true,
+      "initial_operator_error": "Used project name MudSharpCore.dll instead of actual assembly name MudSharp.dll; incomplete first manifest retained and corrected by verified existing files."
+    },
+    "unit_assembly_manifest": {
+      "path": ".artifacts/test-runs/see-component-adapter-final-unit-assemblies.json",
+      "bytes": 871,
+      "sha256": "e24302b0353d3aa2cd9d47aff4a3831d17ce68f68e9c998351a612003813cd68"
+    },
+    "owned_cleanup": {
+      "path": ".artifacts/test-runs/see-component-adapter-final-owned-cleanup.json",
+      "bytes": 151,
+      "sha256": "59f69c6b739c000b78e838e66ccc55288f0153918745dbccf5f9107238eb4211",
+      "checked_utc": "2026-10-05T22:22:15.1028868Z",
+      "owned_running_processes": [],
+      "owned_temporary_mysql_directories": [],
+      "clean": true
+    },
+    "protected_files": {
+      "path": ".artifacts/test-runs/see-component-adapter-protected-blobs.json",
+      "bytes": 24484,
+      "sha256": "30452b7e50ff7575828e47c5db154c6fe8f734332b3b6157db4279a430c4a35b",
+      "checked_files": 89,
+      "all_unchanged": true
+    }
+  },
+  "native_observations": [
+    "Ordinary editable builders, rank/reference/scope save and native database reload, no stock identity",
+    "High-grade rank0 refusal before payment; paid grades1-7 with native rank5 descendant and exact one-unit conservation",
+    "At controlled grade7 existing integer efficiency costs 7,8,10,12,16,25,50; paid unchanged overreach112.5 without mastery",
+    "Shadow exempts only dedicated action; Silt refuses before payment; genuine quantity-one deletion clears world/body/database",
+    "Accumulate cap36 and strongest grade7; retained-cohort drift and both post-debit Shadow transitions quarantine",
+    "Distinct fresh reader per uncertain receipt reuses original intent, with no second debit/consume/refund/mastery",
+    "Fresh-reader source policy/perception restoration and exact parent/child expiry",
+    "Preserved generic ethereal, water, Pierce, provision, five stock including Mend cap60/grade7 practice, and four reviewed weapon native regressions"
+  ],
+  "native_limits": [
+    "Explicit fixture cell/terrain catalogue, anatomy/race and succeeding cast checks remain mocks",
+    "No production world/database boot or full Silt/Shadow topology acceptance",
+    "See stock factory, acquisition, practice and minimum Standing remain separate qualification",
+    "Full blindness/ward/planar hidden-target behavior, charged carriers and area delivery unqualified",
+    "Source-scoped standard interface factory guarded; arbitrary manual base-class bypass not claimed hardened"
+  ],
+  "preserved_failed_attempts": [
+    {
+      "path": ".artifacts/test-runs/see-component-adapter-targeted-01/20261005T210220Z-238a60869122/summary.json",
+      "bytes": 6431,
+      "sha256": "3ae62ee4845b6cb1a7ae83c5dfccdb697c7e1972b4b763913dbf3a1356d65bb9",
+      "reason": "236 passed/24 failed: rank XML used rank rather than native minimum; corrected"
+    },
+    {
+      "path": ".artifacts/test-runs/see-component-adapter-targeted-03/20261005T211351Z-cab2bfa30c49/summary.json",
+      "bytes": 3943,
+      "sha256": "0b019811f9995204f2a2d2f479e501a9552753f080170d070b6b6ff7b233e870",
+      "reason": "Unsupported MSTest ThrowsExactly compile call; changed to ThrowsException"
+    },
+    {
+      "path": ".artifacts/test-runs/see-component-adapter-targeted-07/20261005T214346Z-83367245310e/summary.json",
+      "bytes": 6427,
+      "sha256": "678f9c65bb72d3b85e6f52c0a7c3e1cf47ec2f9b085a93769752b3968146cc74",
+      "reason": "264 passed/1 failed: existing lifetime readiness refused first; removed redundant guard and assert actual readiness refusal"
+    },
+    {
+      "path": ".artifacts/test-runs/see-component-adapter-native-build-01.log",
+      "bytes": 97478,
+      "sha256": "f602acc04709c2489db7c264f96d8b82668512612e23c25775fd87439ce55f2b",
+      "reason": "Interface plan property/init-only reference compile failure; use native spell template and replace selected action"
+    },
+    {
+      "path": ".artifacts/test-runs/see-component-adapter-native-build-02.log",
+      "bytes": 96573,
+      "sha256": "06151eff09e403d334971b779bdd94e20ad0733f9d645b564e859f84a45322fb",
+      "reason": "Linked helper name collision; renamed owned helper"
+    },
+    {
+      "path": ".artifacts/test-runs/see-component-adapter-native-initial-01.log",
+      "bytes": 365177,
+      "sha256": "20f79953c717cf003c0a5db003063e5aa284c82e0c30f28750b97cce302ff8fc",
+      "reason": "Intermediate-grade expected cost did not follow existing integer efficiency; corrected fixture expectation"
+    },
+    {
+      "path": ".artifacts/test-runs/see-component-adapter-native-initial-02.log",
+      "bytes": 945537,
+      "sha256": "fd891a575279924500cb61ba2f39a5bc03e1778dfe2317e67ce9c210dd5ae074",
+      "reason": "Body.Get merged quantity-one fixture into existing held stack; drop old stack before creating distinct whole item"
+    },
+    {
+      "path": ".artifacts/test-runs/see-component-adapter-final-unit-assemblies-initial-incomplete.json",
+      "bytes": 528,
+      "sha256": "7cde806a429a9d54905993835d348a995eeb6b5ff65c58cb0f36922ce8b50d53",
+      "reason": "Operator requested nonexistent MudSharpCore.dll; corrected to real MudSharp.dll and verified exact unit/native match"
+    }
+  ],
+  "integration": {
+    "note": "Design Documents/Magic/Armageddon_See_The_Unbodied_Component_Integration.md",
+    "shared_api_additions_needed": [],
+    "shared_dispatch_additions_needed": [],
+    "installer_registry_additions_needed": [],
+    "next_checkpoint": "Parent independent review, then source stock construction/posture/acquisition/practice or approved Fury lane allocation"
+  },
+  "separate_fury_decision_note": "Design Documents/Magic/Armageddon_Fury_Attribute_Decision_Note.md"
+}

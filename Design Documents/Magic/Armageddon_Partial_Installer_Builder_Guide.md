@@ -31,7 +31,7 @@ Prepare these native records before opting in:
   concentration expressions, paid methods and the selected reserve destination. Modules validate native method
   structure, prices, source selectors and compiled hooks before committing traditions.
 - An existing water liquid, material and builder account; approved Holdable and light revisions. Light must contain
-  exactly approved Holdable, Wearable and ProgLight components, native wear profiles, positive illumination,
+  exactly approved Holdable, Wearable and `Prog Light` components, native wear profiles, positive illumination,
   no wear/load scripts, morphing, read-only state or default GameItem hooks. Optional Water bonus plane is an existing ID.
 
 **Self-only is the conservative suggestion supported by this checkpoint's native scenario.** It does not change the

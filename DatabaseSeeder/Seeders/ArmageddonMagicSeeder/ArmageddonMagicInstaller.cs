@@ -133,8 +133,8 @@ public static partial class ArmageddonMagicInstaller
 		var components = light.GameItemProtosGameItemComponentProtos.Select(x => db.GameItemComponentProtos.Include(y => y.EditableItem)
 			.AsNoTracking().SingleOrDefault(y => y.Id == x.GameItemComponentProtoId && y.RevisionNumber == x.GameItemComponentRevision)).ToArray();
 		if (components.Length != 3 || components.Any(x => x is null || x.EditableItem.RevisionStatus != (int)RevisionStatus.Current) ||
-			!components.Select(x => x!.Type).Order().SequenceEqual(new[] { "Holdable", "ProgLight", "Wearable" }.Order()))
-		{ messages.Add("Hovering Light requires exactly approved Holdable, Wearable and ProgLight components."); return; }
+			!components.Select(x => x!.Type).Order().SequenceEqual(new[] { "Holdable", "Prog Light", "Wearable" }.Order()))
+		{ messages.Add("Hovering Light requires exactly approved Holdable, Wearable and Prog Light components."); return; }
 		var wearable = XElement.Parse(components.Single(x => x!.Type == "Wearable")!.Definition);
 		var profiles = wearable.Element("Profiles")?.Elements("Profile").Select(x => (long)x).ToArray() ?? [];
 		var defaultProfile = (long?)wearable.Element("Profiles")?.Attribute("Default");
@@ -142,7 +142,7 @@ public static partial class ArmageddonMagicInstaller
 			profiles.Any(x => !db.WearProfiles.Any(y => y.Id == x && (y.Type == "Direct" || y.Type == "Shape"))) ||
 			(long?)wearable.Element("WearableProg") is > 0 || (long?)wearable.Element("WhyCannotWearProg") is > 0)
 			messages.Add("Hovering Light requires existing native wear profiles and no wear scripts.");
-		var illumination = (double?)XElement.Parse(components.Single(x => x!.Type == "ProgLight")!.Definition).Element("IlluminationProvided");
+		var illumination = (double?)XElement.Parse(components.Single(x => x!.Type == "Prog Light")!.Definition).Element("IlluminationProvided");
 		if (illumination is null || !double.IsFinite(illumination.Value) || illumination <= 0) messages.Add("Hovering Light requires finite positive illumination.");
 	}
 }

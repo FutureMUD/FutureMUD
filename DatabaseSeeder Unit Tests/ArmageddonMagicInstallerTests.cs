@@ -16,7 +16,7 @@ using FutureProg = MudSharp.Models.FutureProg;
 namespace MudSharp_Unit_Tests;
 
 [TestClass]
-public class ArmageddonMagicInstallerTests
+public partial class ArmageddonMagicInstallerTests
 {
 	private static (FuturemudDatabaseContext Db, ArmageddonMagicInstallPlan Plan) Fixture()
 	{
@@ -29,9 +29,7 @@ public class ArmageddonMagicInstallerTests
 		var no = Prog(1, "AlwaysFalse", "return false"); var mend = Prog(2, "MendEligibility", "return true");
 		foreach (var name in new[] { "target", "caster" }) mend.FutureProgsParameters.Add(new() { ParameterIndex = mend.FutureProgsParameters.Count, ParameterName = name, ParameterTypeDefinition = ProgVariableTypes.Character.ToStorageString() });
 		db.FutureProgs.AddRange(no, mend);
-		var definitions = new[] { "<Definition/>", "<Definition><Profiles Default='1'><Profile>1</Profile></Profiles><WearableProg>0</WearableProg><WhyCannotWearProg>0</WhyCannotWearProg></Definition>", "<Definition><IlluminationProvided>40</IlluminationProvided></Definition>" };
-		var types = new[] { "Holdable", "Wearable", "ProgLight" };
-		for (var i = 0; i < 3; i++) db.GameItemComponentProtos.Add(new() { Id = i + 1, RevisionNumber = 0, Name = "selected " + types[i], Type = types[i], Definition = definitions[i], EditableItem = new() { RevisionStatus = (int)MudSharp.Framework.Revision.RevisionStatus.Current } });
+		db.GameItemComponentProtos.AddRange(ArmageddonNativeLightFixture.Components(1));
 		var light = new GameItemProto { Id = 1, Name = "selected light", EditableItem = new() { RevisionStatus = (int)MudSharp.Framework.Revision.RevisionStatus.Current } };
 		for (var i = 0; i < 3; i++) light.GameItemProtosGameItemComponentProtos.Add(new() { GameItemComponentProtoId = i + 1 });
 		db.GameItemProtos.Add(light);

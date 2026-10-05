@@ -149,7 +149,7 @@ public abstract class GameItemComponent : LateInitialisingItem, IGameItemCompone
         // Do nothing
     }
 
-    public bool CheckPrototypeForUpdate()
+    public virtual bool CheckPrototypeForUpdate()
     {
         if (Prototype.Status == RevisionStatus.Obsolete || Prototype.Status == RevisionStatus.Revised)
         {

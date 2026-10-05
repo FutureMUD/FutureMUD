@@ -189,7 +189,7 @@ public sealed partial class MagicCastingService : IMagicCastingService
 		}
 		var plan = (intent.Mode == MagicCastingMode.Practice ? spell.PracticeInventoryPlanTemplate! : copy.InventoryPlanTemplate).CreatePlan(actor);
 		if (plan.PlanIsFeasible() != InventoryPlanFeasibility.Feasible) throw new InvalidOperationException("The actual component plan is infeasible; check materials and free manipulators.");
-		var items = PlanItems(plan);
+		var items = ValidateDeviceFocus(intent, plan, PlanItems(plan), target);
 		if (items.Length > 512) throw new InvalidOperationException("This component plan exceeds the 512 input receipt bound.");
 		if (QuarantineReason(actor, itemIds: items) is { } inputError) throw new InvalidOperationException(inputError);
 		var invocation = new ResolvedMagicCastingInvocation(intent.OriginId ?? Guid.NewGuid(), actor.InstanceId, actor.Body.Id, Owner(actor).Id,

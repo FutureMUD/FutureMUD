@@ -11,4 +11,3 @@ Heal compares eligible wounds' damage around the existing native heal operation.
 The repair changes no spell identity, grade profile, receipt schema, opportunity timer, payment, durable recovery, device eligibility or snapshot behavior. The central completion ledger and existing historical receipts remain untouched. This checkpoint requires independent parent review before integration.
 
 Verification: 426 focused unit cases passed on the actual repair source and Debug assemblies; 17 directly cover reporting. Source/assembly SHA-256 values and the retained TRX path are in Armageddon_Stock_Operation_Reporting_Receipt.json. Native five-stock qualification is a separate checkpoint, not claimed here.
-

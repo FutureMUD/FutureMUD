@@ -6,7 +6,7 @@ using MudSharp.Body.Traits;
 namespace MudSharp.Magic.Vancian;
 
 /// <summary>Self-contained spell configuration and numerical source; never resolves a live creator.</summary>
-public sealed class StoredSpellSnapshot
+public sealed partial class StoredSpellSnapshot
 {
 	private readonly string _model;
 	private readonly string? _duration;

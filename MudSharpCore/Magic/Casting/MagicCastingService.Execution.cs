@@ -78,13 +78,14 @@ public sealed partial class MagicCastingService
 						execution.AreaApplications = Array.AsReadOnly(applications.Select(x => new ConfiguredAreaApplication(
 							x.Target, x.Receipt.DamageMultiplier, () => AreaStillEligible(actor, x, areaPlan, prepared.Spell))).ToArray());
 					}
+					var devicePaymentAdmission = AdmitDeviceFocusPayment(intent, committed);
 					operation = new(resolved.Id, owner.Id, actor.InstanceId, actor.Body.Id, resolved.CapabilityId, resolved.SpellId,
 						resolved.TraitId, resolved.ReserveId, "Paying", payload.ToString(SaveOptions.DisableFormatting), now, now);
 					_store.Write(operation,
 						masteryEligible ? acquired with { NextMasteryUtc = now + profile.MasteryInterval } : null,
 						skillEligible ? new(owner.Id, resolved.TraitId, now + profile.SkillInterval, opportunity?.Version ?? 0) : null);
 					_checkpoint?.Invoke("Paying");
-					pay();
+					using (devicePaymentAdmission?.OpenScope()) pay();
 					return true;
 				}) { Configured = execution };
 				prepared.Spell.CastVancian(actor, prepared.Target.Target, resolved.Power, invocation, prepared.Target.Parameters);

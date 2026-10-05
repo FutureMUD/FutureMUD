@@ -18,17 +18,28 @@ public sealed class SpellNumericalContext : ISpellNumericalContext
 	public bool IsStored { get; }
 	public Outcome Outcome { get; }
 	public SpellPower Power { get; }
-	public SpellNumericalContext(int spellLevel, int castingLevel, int casterLevel, SpellPower power, Outcome outcome, bool stored)
+	public int? Grade { get; }
+	public int? Mastery { get; }
+	public SpellNumericalContext(int spellLevel, int castingLevel, int casterLevel, SpellPower power, Outcome outcome, bool stored, int? grade = null, int? mastery = null)
 	{
 		if (spellLevel < 0 || castingLevel < spellLevel || casterLevel < 0 || !Enum.IsDefined(power) || outcome is not (Outcome.MinorPass or Outcome.Pass or Outcome.MajorPass)) throw new FormatException("Invalid spell numerical context.");
 		SpellLevel = spellLevel; CastingLevel = castingLevel; CasterLevel = casterLevel; Power = power; Outcome = outcome; IsStored = stored;
+		if (grade is < 1 || mastery is < 1 || grade.HasValue != mastery.HasValue) throw new FormatException("Invalid configured grade bindings.");
+		Grade = grade; Mastery = mastery;
 	}
-	public void Capture(string location, ITraitExpression expression, ICharacter creator, ITraitDefinition? variable = null, TraitBonusContext bonusContext = TraitBonusContext.None)
+	public void Capture(string location, ITraitExpression expression, ICharacter creator, ITraitDefinition? variable = null, TraitBonusContext bonusContext = TraitBonusContext.None, ITraitDefinition? captureVariable = null, bool captureDeviceRaw = false)
 	{
 		if (!IsStored) return;
 		if (expression is not TraitExpression traitExpression || expression.HasErrors()) throw new InvalidOperationException($"{location}: unsupported or invalid trait expression.");
-		_captured.Add(location, new(location, expression.OriginalFormulaText, expression.Formula.OriginalExpression,
-			variable?.Id ?? 0, bonusContext, traitExpression.CaptureNumericalBindings(creator, variable!, bonusContext)));
+		var bindings = traitExpression.CaptureNumericalBindings(creator, (captureVariable ?? variable)!, bonusContext).ToDictionary(x => x.Key, x => x.Value, StringComparer.OrdinalIgnoreCase);
+		if (captureDeviceRaw)
+			foreach (var trait in expression.Parameters.Values.Select(x => x.Trait).Append(captureVariable ?? variable).Where(x => x is not null).DistinctBy(x => x!.Id))
+			{
+				var raw = creator.TraitRawValue(trait!);
+				if (!double.IsFinite(raw)) throw new InvalidOperationException($"{location}: invalid raw producer trait.");
+				bindings.Add($"$device/raw/{trait!.Id}", raw);
+			}
+		_captured.Add(location, new(location, expression.OriginalFormulaText, expression.Formula.OriginalExpression, variable?.Id ?? 0, bonusContext, bindings.AsReadOnly()));
 	}
 	public double Evaluate(string location, ITraitExpression expression, IHaveTraits actor, ITraitDefinition? variable,
 		TraitBonusContext context, IEnumerable<(string Name, object Value)> values)
@@ -39,6 +50,7 @@ public sealed class SpellNumericalContext : ISpellNumericalContext
 			["spelllevel"] = SpellLevel, ["castinglevel"] = CastingLevel, ["casterlevel"] = CasterLevel,
 			["power"] = (int)Power, ["degrees"] = result.CheckDegrees(), ["success"] = result.SuccessDegrees()
 		};
+		if (Grade is { } grade) { numbers["grade"] = grade; numbers["mastery"] = Mastery!.Value; }
 		foreach (var (name, value) in values) numbers[name] = value;
 		if (!IsStored) return expression.EvaluateWith(actor, variable!, context, numbers.Select(x => (x.Key, x.Value)).ToArray());
 		if (!_captured.TryGetValue(location, out var captured) || captured.Context != context || captured.VariableTrait != (variable?.Id ?? 0))
@@ -60,7 +72,8 @@ public sealed class SpellNumericalContext : ISpellNumericalContext
 	}
 	public XElement Save() => new("Numbers", new XAttribute("version", 1), new XAttribute("spelllevel", SpellLevel),
 		new XAttribute("castinglevel", CastingLevel), new XAttribute("casterlevel", CasterLevel), new XAttribute("power", (int)Power),
-		new XAttribute("outcome", (int)Outcome), new XAttribute("stored", IsStored), _captured.OrderBy(x => x.Key).Select(x =>
+		new XAttribute("outcome", (int)Outcome), new XAttribute("stored", IsStored), Grade is { } grade ? new XAttribute("grade", grade) : null,
+		Mastery is { } mastery ? new XAttribute("mastery", mastery) : null, _captured.OrderBy(x => x.Key).Select(x =>
 			new XElement("Expression", new XAttribute("location", x.Key), new XAttribute("variable", x.Value.VariableTrait),
 				new XAttribute("context", (int)x.Value.Context), new XElement("Original", x.Value.Original), new XElement("Formula", x.Value.Formula),
 				x.Value.Bindings.OrderBy(v => v.Key).Select(v => new XElement("Binding", new XAttribute("name", v.Key), new XAttribute("value", v.Value))))));
@@ -68,7 +81,8 @@ public sealed class SpellNumericalContext : ISpellNumericalContext
 	{
 		if ((int?)root.Attribute("version") != 1) throw new FormatException("Unsupported numerical snapshot version.");
 		var context = new SpellNumericalContext((int)root.Attribute("spelllevel")!, (int)root.Attribute("castinglevel")!, (int)root.Attribute("casterlevel")!,
-			(SpellPower)(int)root.Attribute("power")!, (Outcome)(int)root.Attribute("outcome")!, (bool)root.Attribute("stored")!);
+			(SpellPower)(int)root.Attribute("power")!, (Outcome)(int)root.Attribute("outcome")!, (bool)root.Attribute("stored")!,
+			(int?)root.Attribute("grade"), (int?)root.Attribute("mastery"));
 		foreach (var entry in root.Elements("Expression"))
 		{
 			var bindings = entry.Elements("Binding").ToDictionary(x => (string)x.Attribute("name")!, x => (double)x.Attribute("value")!, StringComparer.OrdinalIgnoreCase);

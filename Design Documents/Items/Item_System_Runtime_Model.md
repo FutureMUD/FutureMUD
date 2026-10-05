@@ -8,6 +8,8 @@ Firearm simulation copies preserve live ammunition, chamber, fire-mode, safety, 
 
 Internal-magazine firearms restore containment for their saved chambered round, magazine rounds and casing when loading component XML. The existing callback-free load helper reconstructs these child references without a gameplay transfer or dirtying the restored items. Reconstruction checks current custody and the child's original database `ContainerId`, captured before its components load. Stale XML cannot reclaim a round returned to a hand or cell, even when the gun loads first. Missing or conflicting children remain absent. Current legitimate containment in the same gun takes precedence over the original database receipt, provided there is no competing direct body, cell or belt claim.
 
+Internal-magazine Load requires a successful Held inventory-plan result and exact ammunition hand custody before detachment or splitting. Feasibility alone cannot admit a target. A refused acquisition finalises its plan and retains the floor item and persisted cell join; a still-floor target must not pass through Body.Take into containment. See [the native failed-plan receipt](../Magic/Armageddon_FirearmPlanResult_Verification.json).
+
 Unready prepares delivery for the captured round or casing, rechecks authority and exact ownership after output, and clears and saves only that slot at admitted detachment. Prepared completion preserves later callback custody and replacement slots. A loaded round inherits the firearm's inventory and spatial host. This qualification covers the internal-magazine family; other firearm loaders retain their own acceptance gates.
 
 ## Ordered NPC custody continuation

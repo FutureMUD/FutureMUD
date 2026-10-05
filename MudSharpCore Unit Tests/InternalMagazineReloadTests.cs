@@ -13,6 +13,8 @@ using MudSharp.Framework;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Components;
 using MudSharp.GameItems.Interfaces;
+using MudSharp.GameItems.Inventory;
+using MudSharp.GameItems.Inventory.Plans;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.NPC.AI;
 
@@ -61,6 +63,57 @@ public class InternalMagazineReloadTests
 
 public partial class QueuedCommandAuthorityTests
 {
+	[DataTestMethod]
+	[DataRow("unknown-held")]
+	[DataRow("held-floor")]
+	[DataRow("held-valid")]
+	public void NativeInternalMagazineLoad_RequiresSuccessfulPlanAndExactHeldCustody(string scenario)
+	{
+		var f = new Fixture();
+		f.Item.SetupGet(x => x.Gameworld).Returns(f.World.Object);
+		var hand = Mock.Of<IGrab>(); f.Body.SetupGet(x => x.HoldLocs).Returns([hand]);
+		f.Body.Setup(x => x.CanUseBodypart(hand)).Returns(CanUseBodypartResult.CanUse);
+		f.Actor.Setup(x => x.CanManipulateItem(f.Item.Object)).Returns((true, string.Empty));
+		f.World.SetupGet(x => x.SaveManager).Returns(Mock.Of<MudSharp.Framework.Save.ISaveManager>());
+		Mock.Get(f.Actor.Object.OutputHandler).SetupGet(x => x.Perceiver).Returns(f.Actor.Object);
+		Mock.Get(f.Actor.Object.Location).Setup(x => x.LayerCharacters(It.IsAny<MudSharp.Construction.RoomLayer>())).Returns([f.Actor.Object]);
+		var round = new Mock<IGameItem>(); round.SetupProperty(x => x.ContainedIn, null);
+		round.SetupGet(x => x.Quantity).Returns(1);
+		round.Setup(x => x.Equals(It.IsAny<IGameItem>())).Returns<IGameItem>(x => ReferenceEquals(x, round.Object));
+		var floor = scenario == "held-floor";
+		var hold = new Mock<IHoldable>(); hold.SetupProperty(x => x.HeldBy, floor ? null : f.Body.Object);
+		round.Setup(x => x.GetItemType<IHoldable>()).Returns(hold.Object);
+		round.SetupGet(x => x.InInventoryOf).Returns(() => hold.Object.HeldBy);
+		round.SetupGet(x => x.Location).Returns(() => floor ? f.Actor.Object.Location : null);
+		var held = new List<IGameItem>(); if (!floor) held.Add(round.Object);
+		var floorItems = floor ? new List<IGameItem> { round.Object } : new List<IGameItem>();
+		Mock.Get(f.Actor.Object.Location).SetupGet(x => x.GameItems).Returns(floorItems);
+		f.Body.SetupGet(x => x.HeldItems).Returns(held);
+		f.Body.Setup(x => x.Take(round.Object)).Callback(() => { held.Remove(round.Object); hold.Object.HeldBy = null; });
+		var ammo = new Mock<IAmmo>(); ammo.SetupGet(x => x.Parent).Returns(round.Object);
+		round.Setup(x => x.GetItemType<IAmmo>()).Returns(ammo.Object);
+		var plan = new Mock<IInventoryPlan>(); plan.Setup(x => x.PlanIsFeasible()).Returns(InventoryPlanFeasibility.Feasible);
+		plan.Setup(x => x.ExecuteWholePlan()).Returns(new[] { new InventoryPlanActionResult
+		{ OriginalReference = "loaditem", PrimaryTarget = round.Object,
+			ActionState = scenario == "unknown-held" ? DesiredItemState.Unknown : DesiredItemState.Held } });
+		var template = new Mock<IInventoryPlanTemplate>(); template.Setup(x => x.CreatePlan(f.Actor.Object)).Returns(plan.Object);
+		var proto = TestObjectFactory.CreateUninitialized<InternalMagazineGunGameItemComponentProto>();
+		proto.InternalMagazineCapacity = 2; proto.LoadEmote = "@ insert|inserts $2 into $1.";
+		proto.LoadTemplate = proto.LoadTemplateIgnoreEmpty = template.Object;
+		var gun = new InternalMagazineGunGameItemComponent(proto, f.Item.Object, temporary: true); gun.SetNoSave(false);
+		gun.Load(f.Actor.Object);
+		var accepted = scenario == "held-valid";
+		f.Body.Verify(x => x.Take(round.Object), accepted ? Times.Once : Times.Never);
+		CollectionAssert.AreEqual(accepted ? new[] { round.Object } : Array.Empty<IGameItem>(), gun.MagazineContents.ToArray());
+		Assert.AreSame(accepted ? f.Item.Object : null, round.Object.ContainedIn);
+		Assert.AreSame(accepted || floor ? null : f.Body.Object, hold.Object.HeldBy);
+		Assert.AreEqual(accepted, gun.Changed);
+		Assert.AreEqual(floor, floorItems.Contains(round.Object));
+		plan.Verify(x => x.ExecuteWholePlan(), Times.Once);
+		if (accepted) plan.Verify(x => x.FinalisePlanWithExemptions(It.Is<IList<IGameItem>>(items => items.Count == 1 && ReferenceEquals(items[0], round.Object))), Times.Once);
+		round.Verify(x => x.Delete(), Times.Never);
+	}
+
 	[DataTestMethod]
 	[DataRow("valid")]
 	[DataRow("expire")]

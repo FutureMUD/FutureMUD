@@ -1,0 +1,131 @@
+{
+  "status": "PASS_BOUNDED_SOURCE_REVIEWED_PARENT_REVIEW_PENDING",
+  "base_head": "71728d7fb084584887004490a0cfa60bcfb29678",
+  "repair": "InternalMagazine.Load rejects a failed plan result or ammunition without exact held custody before Take/split/containment; it finalises the refused plan.",
+  "baseline": {
+    "status": "FAIL",
+    "run_id": "20261005T210634Z-20d7de7df3cd",
+    "counts": {
+      "executed": 3,
+      "passed": 1,
+      "failed": 2,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 3
+    },
+    "source_start": "e09f83ae5d59519458b490c54c25394a0cfd83009c075f31127328a931a37c55",
+    "source_end": "e09f83ae5d59519458b490c54c25394a0cfd83009c075f31127328a931a37c55",
+    "projects": [
+      "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+    ],
+    "filter": "FullyQualifiedName~NativeInternalMagazineLoad_RequiresSuccessfulPlanAndExactHeldCustody",
+    "summary": ".artifacts/test-runs/armageddon-native-countershot/load-result-reproduce01/20261005T210634Z-20d7de7df3cd/summary.json",
+    "summary_sha256": "ce299fccb110fbbb57b70fc6e285a1e4e6e6633aec5740ca93b9c9d644994b70"
+  },
+  "focused": {
+    "status": "PASS",
+    "run_id": "20261005T210715Z-12a3de76a55d",
+    "counts": {
+      "executed": 281,
+      "passed": 281,
+      "failed": 0,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 281
+    },
+    "source_start": "a655f6ff674900e5ea00da50757ffb6b101f9ed8ac1dd28a6deca2c9abfa36f7",
+    "source_end": "a655f6ff674900e5ea00da50757ffb6b101f9ed8ac1dd28a6deca2c9abfa36f7",
+    "projects": [
+      "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+    ],
+    "filter": "FullyQualifiedName~InternalMagazineReloadTests|FullyQualifiedName~QueuedCommandAuthorityTests|FullyQualifiedName~RangedWeaponFeatureTests|FullyQualifiedName~NaturalRangedAttackRuntimeTests",
+    "summary": ".artifacts/test-runs/armageddon-native-countershot/load-result-focused01/20261005T210715Z-12a3de76a55d/summary.json",
+    "summary_sha256": "f3ab9dc4af6ed1e0a87998f656952a92089a35e86035a3006f6cc910315da5aa"
+  },
+  "full_core": {
+    "status": "PASS",
+    "run_id": "20261005T210847Z-032c3feddece",
+    "counts": {
+      "executed": 5150,
+      "passed": 5150,
+      "failed": 0,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 5150
+    },
+    "source_start": "8bf0839783af547ff786923839f9656d4f8216e2689290ffd2f37034367bad8c",
+    "source_end": "8bf0839783af547ff786923839f9656d4f8216e2689290ffd2f37034367bad8c",
+    "projects": [
+      "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+    ],
+    "filter": null,
+    "summary": ".artifacts/test-runs/armageddon-native-countershot/full-core01/20261005T210847Z-032c3feddece/summary.json",
+    "summary_sha256": "38a0bd38aa7c293d2fae811a4d154a98ebf59c9a62d6dea4f63ce396b64ceec2"
+  },
+  "native_control": {
+    "status": "PASS",
+    "case": "wielded-load-refusal",
+    "reader": "wielded-load-refusal",
+    "evidence": {
+      "status": "PASS",
+      "cases": [
+        "ordered-valid",
+        "queued-revoked",
+        "defender-check-expiry",
+        "direct-valid"
+      ],
+      "readers": [
+        "wielded-load-refusal",
+        "countershot-ordered-valid-loaded",
+        "countershot-ordered-valid-resolved",
+        "countershot-queued-revoked-loaded",
+        "countershot-queued-revoked-resolved",
+        "countershot-defender-check-expiry-loaded",
+        "countershot-defender-check-expiry-resolved",
+        "countershot-direct-valid-loaded",
+        "countershot-direct-valid-resolved"
+      ],
+      "results": [
+        "ARMFirearm-plan-acquisition=item:4 acquired:4 held:1 wield-hands:1",
+        "ARMFirearm-plan-acquisition=item:5 acquired: held:0 wield-hands:2",
+        "ARMFirearm-plan-refusal=passed actual-native-plan floor-cell-join-preserved exact-one-loaded no-false-detach cold-reader",
+        "ARMCountershot=ordered-valid passed actual-Charge-ResponseToMove-StandAndFire-ResolveIndependent native-wounds:12 charge-cost:2 defender-cost:3 condition:0.99 checks:1 expiries:0 tactic:1 contact:True independent-raw:40",
+        "ARMCountershot=queued-revoked passed actual-Charge-ResponseToMove-StandAndFire-ResolveIndependent native-wounds:0 charge-cost:0 defender-cost:0 condition:1 checks:0 expiries:0 tactic:0 contact:False independent-raw:40",
+        "ARMCountershot=defender-check-expiry passed actual-Charge-ResponseToMove-StandAndFire-ResolveIndependent native-wounds:12 charge-cost:2 defender-cost:3 condition:0.99 checks:1 expiries:1 tactic:0 contact:True independent-raw:60",
+        "ARMCountershot=direct-valid passed actual-Charge-ResponseToMove-StandAndFire-ResolveIndependent native-wounds:12 charge-cost:2 defender-cost:3 condition:0.99 checks:1 expiries:0 tactic:1 contact:True independent-raw:40"
+      ],
+      "log": ".artifacts/test-runs/armageddon-native-countershot/qualify07-native.log",
+      "log_sha256": "8c484507cc1fb14c584b7c094d040fdca9798470af26081bef5bda5f766afd02",
+      "owned_cleanup": ".artifacts/test-runs/armageddon-native-countershot/qualify07-process-cleanup.json",
+      "cleanup_sha256": "460919902c4acefb601d45891f9581feae5bae3ca1141ae5e61e3ae1523e7b6f",
+      "inputs": ".artifacts/test-runs/armageddon-native-countershot/qualify07-inputs.json",
+      "inputs_sha256": "86c606e796f02d71f9dcf322dd331717dcb61c40bba8ff6f523978b4b4a4ebb8",
+      "fingerprints": ".artifacts/test-runs/armageddon-native-countershot/qualify07-fingerprints.json",
+      "fingerprints_sha256": "446e114183989e5dcdacf65b72f75ad26a968d1bd855e61d1bd1db5134fa126f"
+    }
+  },
+  "source_review": "NO_ESTABLISHED_P1_P2 read-only fm_reviewer; scope limited to result/custody guard",
+  "scope_paths": [
+    {
+      "path": "MudSharpCore Unit Tests/InternalMagazineReloadTests.cs",
+      "sha256": "86063987d47ff14259b6a53b92294c3d6b5f99eb4994e8de3a2326b6b4c3ed28"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Components/InternalMagazineGunGameItemComponent.cs",
+      "sha256": "ef9d52539da9f20b45096faf260dd1f5150f33ab0eb6b7f728345ca61fbaacf7"
+    }
+  ],
+  "final_source_scope_digest": "1f9776db6891dd9ffa02bb8aa407624acdb9f342c97d6fb5ff81fc15002ceed3",
+  "limits": [
+    "Actual charge command/ChooseMove/CombatAction and automatic FireNoCover StandAndFire response use production ResolveIndependent. Accepted contact before that response retains existing Charge behavior. No new contact ordering contract.",
+    "Actual firearm components, wounds, ordinary-round title/custody, costs and real canonical trait persistence. Shot/cover/recovery/defence outcomes, race/encumbrance, walking speed, kg/ml fixture units, hit weights and targeting bonus are controlled; no admin movement override.",
+    "Fresh firearm readers reconstruct native body inventory/wield, item/component slots/custody after exact raw SQL checks. Melee readers verify selected canonical trait/body stamina/wound SQL. Neither reconstructs full animated actor/AI/controller nor replays orders.",
+    "Second expired queued charge is removed by actual ChooseMove; a returned autonomous move is not executed or qualified. Direct-valid is an explicitly independent Charge control.",
+    "Failed wielded-load plan now refuses truthfully; it does not force a two-handed gun to acquire inaccessible ammunition or qualify all Load callbacks, stack/split/merge, casing, separate projectile or next-round configurations.",
+    "Full Fast/full-world/Telnet NOT_RUN. Whole82/12/154/25 plan remains incomplete. No stock integration, publication, merge, deployment or shared/production DB."
+  ],
+  "whole_plan_complete": false
+}

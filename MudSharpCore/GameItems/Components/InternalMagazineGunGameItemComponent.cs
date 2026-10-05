@@ -282,8 +282,18 @@ public class InternalMagazineGunGameItemComponent : FirearmBaseGameItemComponent
 
         IEnumerable<InventoryPlanActionResult> results = plan.ExecuteWholePlan();
         if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return;
-        IAmmo ammo = results.Where(x => (string)x.OriginalReference == "loaditem")
-                          .SelectNotNull(x => x.PrimaryTarget.GetItemType<IAmmo>()).First();
+        var loadResult = results.FirstOrDefault(x => x.OriginalReference is string reference && reference == "loaditem");
+        IAmmo ammo = loadResult?.PrimaryTarget?.GetItemType<IAmmo>();
+        // Feasibility/scouting does not guarantee that the plan acquired its target.
+        // Taking a still-floor item clears its location without extracting cell membership.
+        if (loadResult?.ActionState != DesiredItemState.Held || ammo is null ||
+            !loader.Body.HeldItems.Contains(ammo.Parent) ||
+            !ReferenceEquals(ammo.Parent.GetItemType<IHoldable>()?.HeldBy, loader.Body) ||
+            ammo.Parent.ContainedIn is not null || ComponentItemTransfer.DirectLocationOf(ammo.Parent) is not null)
+        {
+            plan.FinalisePlan();
+            return;
+        }
         List<IGameItem> exemptions = new();
         if (ammo.Parent.Quantity > _prototype.InternalMagazineCapacity - _roundsInMagazine.Sum(x => x.Quantity))
         {

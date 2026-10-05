@@ -61,16 +61,30 @@ public class InternalMagazineGunGameItemComponent : FirearmBaseGameItemComponent
     protected override void LoadFromXml(XElement root)
     {
         base.LoadFromXml(root);
+        if (!RestoreLoadedChild(ChamberedRound?.Parent)) ChamberedRound = null;
         foreach (XElement sub in root.Element("RoundsInMagazine").Elements())
         {
             IGameItem item = Gameworld.TryGetItem(long.Parse(sub.Value), true);
-            if (item != null)
+            if (RestoreLoadedChild(item))
             {
                 _roundsInMagazine.Add(item);
             }
         }
 
         ChamberedCasing = Gameworld.TryGetItem(long.Parse(root.Element("ChamberedCasing")?.Value ?? "0"), true);
+        if (!RestoreLoadedChild(ChamberedCasing)) ChamberedCasing = null;
+    }
+
+    private bool RestoreLoadedChild(IGameItem item)
+    {
+        if (item is null || item.Deleted || item.Destroyed) return false;
+        var alreadyContained = ReferenceEquals(item.ContainedIn, Parent);
+        if (!alreadyContained && item is GameItem native && native.LoadedFromDatabase &&
+            native.ContainerIdAtLoad != Parent.Id) return false;
+        if (alreadyContained ? !ComponentUnloadCompletion.OwnedBy(item, Parent) : !ComponentItemTransfer.IsDetached(item))
+            return false;
+        item.LoadTimeSetContainedIn(Parent);
+        return true;
     }
 
     public override IGameItemComponent Copy(IGameItem newParent, bool temporary = false)
@@ -430,58 +444,29 @@ public class InternalMagazineGunGameItemComponent : FirearmBaseGameItemComponent
 
     public override bool Unready(ICharacter readier)
     {
-        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(readier);
-        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(readier)) return false;
-
-
-        if (!CanUnready(readier))
+        using var execution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(readier);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(readier) || !CanUnready(readier)) return false;
+        var round = ChamberedRound;
+        var casing = ChamberedCasing;
+        var item = round?.Parent ?? casing;
+        if (item is null)
         {
-            readier.Send(WhyCannotUnready(readier));
-            return false;
+            readier.OutputHandler.Handle(new EmoteOutput(new Emote(_prototype.UnreadyEmoteNoChamberedRound, readier, readier, Parent)));
+            return MudSharp.NPC.AI.CommandExecutionScope.TryContinue(readier);
         }
 
-        if (ChamberedRound != null)
-        {
-            readier.OutputHandler.Handle(
-                new EmoteOutput(new Emote(_prototype.UnreadyEmote, readier, readier, Parent,
-                    ChamberedRound.Parent)));
-            ChamberedRound.Parent.ContainedIn = null;
-            if (readier.Body.CanGet(ChamberedRound.Parent, 0))
+        bool ExactSlot() => round is not null ? ReferenceEquals(ChamberedRound, round) : ReferenceEquals(ChamberedCasing, casing);
+        var completion = ComponentUnloadCompletion.PrepareReceive(readier, item);
+        if (completion is null || !ExactSlot() || !ComponentUnloadCompletion.OwnedBy(item, Parent)) return false;
+        readier.OutputHandler.Handle(new EmoteOutput(new Emote(_prototype.UnreadyEmote, readier, readier, Parent, item)));
+        if (!ComponentUnloadCompletion.Detach(readier, item, Parent, () =>
             {
-                readier.Body.Get(ChamberedRound.Parent, silent: true);
-            }
-            else
-            {
-                ChamberedRound.Parent.RoomLayer = readier.RoomLayer;
-                ChamberedRound.Parent.InsertAtSource(readier);
-            }
-
-            ChamberedRound = null;
-        }
-        else if (ChamberedCasing != null)
-        {
-            readier.OutputHandler.Handle(
-                new EmoteOutput(new Emote(_prototype.UnreadyEmote, readier, readier, Parent,
-                    ChamberedCasing)));
-            ChamberedCasing.ContainedIn = null;
-            if (readier.Body.CanGet(ChamberedCasing, 0))
-            {
-                readier.Body.Get(ChamberedCasing, silent: true);
-            }
-            else
-            {
-                ChamberedCasing.RoomLayer = readier.RoomLayer;
-                ChamberedCasing.InsertAtSource(readier);
-            }
-
-            ChamberedCasing = null;
-        }
-        else
-        {
-            readier.OutputHandler.Handle(
-                new EmoteOutput(new Emote(_prototype.UnreadyEmoteNoChamberedRound, readier, readier, Parent)));
-        }
-
+                if (!ExactSlot()) return;
+                if (round is not null) ChamberedRound = null;
+                else ChamberedCasing = null;
+                Changed = true;
+            }, ExactSlot)) return false;
+        completion();
         return true;
     }
 

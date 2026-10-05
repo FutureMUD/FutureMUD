@@ -64,7 +64,7 @@ internal static partial class GNHProgram
 		Console.WriteLine("ARM03D1Stock-reader=passed fresh-process durable-control-query persisted-stock-identity-formula-and-animation-deadline no-actor-materialization-or-replay");
 		return 0;
 	}
-	private static int RunRaiseServitorStockChecks(bool queuedAuthorityOnly = false, bool queuedCallbackOnly = false, bool orderedCallbacks = false, bool checkLearningOnly = false, bool regressionP2Only = false, bool stackMergeOnly = false, bool selectedMeleeCheckOnly = false)
+	private static int RunRaiseServitorStockChecks(bool queuedAuthorityOnly = false, bool queuedCallbackOnly = false, bool orderedCallbacks = false, bool checkLearningOnly = false, bool regressionP2Only = false, bool stackMergeOnly = false, bool selectedMeleeCheckOnly = false, bool firearmAuthorityOnly = false)
 	{
 		using var database = TestDatabase.CreateFresh("futuremud_land_"); ConfigureNativeDatabase(database.ConnectionString);
 		var fixture = FixtureSeed.Create(database, "arm03d1_stock", true);
@@ -78,11 +78,12 @@ internal static partial class GNHProgram
 			SeedConsumables(database, fixture, seed.World.Materials.First().Id);
 			SeedFlameFixture(database);
 		}
-		if (regressionP2Only)
+		if (regressionP2Only || firearmAuthorityOnly)
 		{
-			SeedCreatedWeaponPrototypes(database, seed.World.Materials.First().Id);
+			if (!orderedCallbacks) SeedCreatedWeaponPrototypes(database, seed.World.Materials.First().Id);
 			SeedRegressionP2Fixture(database, seed.World);
 		}
+		if (firearmAuthorityOnly) SeedFirearmAuthorityFixture(database);
 		using var orderedGlobals = orderedCallbacks ? new ConsumableGlobals() : null;
 		var host = PrepareRetirementHost(database, fixture, clock, corpseAnimationAnatomy: true,
 			consumablesAnatomy: orderedCallbacks, wielding: orderedCallbacks || regressionP2Only);
@@ -204,6 +205,8 @@ internal static partial class GNHProgram
 		void Order(ScriptedAiCharacterInstance animation, ICharacter issuer, string command) =>
 			Require(animation.HandleEvent(EventType.CommandIssuedToCharacter, animation, issuer, command), "Stock command event was not handled.");
 		var animated = Cast();
+		if (firearmAuthorityOnly)
+			return RunFirearmAuthority(database, host, clock, animated, caster, foe, Cast, Restored, Order, fixture);
 		if (selectedMeleeCheckOnly)
 			return RunSelectedMeleeCheck(database, host, clock, animated, caster, foe, Cast, Restored, Order);
 		if (regressionP2Only)

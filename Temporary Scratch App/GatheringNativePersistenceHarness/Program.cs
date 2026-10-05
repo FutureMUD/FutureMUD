@@ -78,6 +78,8 @@ internal static partial class GNHProgram
 				["--check-learning-run"] => RunRaiseServitorStockChecks(checkLearningOnly: true),
 				["--regression-p2-run"] => RunRaiseServitorStockChecks(regressionP2Only: true),
 				["--stack-merge-run"] => RunRaiseServitorStockChecks(regressionP2Only: true, stackMergeOnly: true),
+				["--firearm-authority-run"] => RunRaiseServitorStockChecks(orderedCallbacks: true, firearmAuthorityOnly: true),
+				["--firearm-authority-reader", .. string[] firearmArguments] => RunFirearmAuthorityReader(firearmArguments),
 				["--selected-melee-check-run"] => RunRaiseServitorStockChecks(orderedCallbacks: true, selectedMeleeCheckOnly: true),
 				["--selected-melee-check-reader", .. string[] selectedLearningArguments] => RunSelectedMeleeCheckReader(selectedLearningArguments),
 				["--ordered-currency-reader", .. string[] currencyArguments] => RunOrderedCurrencyReader(currencyArguments),

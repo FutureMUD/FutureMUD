@@ -1,0 +1,270 @@
+{
+  "status": "PASS_BOUNDED_LOCAL_CHECKPOINT_PARENT_REVIEW_PENDING",
+  "utc": "2026-10-05T20:24:47.427998+00:00",
+  "base_head": "dc1ef576080613fb23255e977a6e64ac1001da25",
+  "repairs": [
+    "Actual internal-magazine DB load restores child containment through the existing raw callback-free load helper, using immutable original DB containment evidence to reject stale chamber claims even when the gun loads first. Current legitimate containment is retained without dirtying children.",
+    "Unready uses existing exact-slot detach/completion admission, marks the cleared captured slot changed before callback and preserves replaced slots or revoked actions."
+  ],
+  "brief_materialization": {
+    "status": "PASS_LOCAL_BYTES_AND_NATIVE_NTFS_IDENTITY",
+    "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\inputs\\armageddon-gate15\\Armageddon_Magic_Completion_Implementation_Brief.md",
+    "size_bytes": 131071,
+    "sha256": "16b67175354da916da20a388895c7fadab77fb452c63d47b40dd1d03a2a51b42",
+    "receipt": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_Brief_Materialization_Gate15.json",
+    "receipt_sha256": "024ca4745988e99f78bbd2fcf59144ef5e6f7059aaa84b702cbe81410928660b",
+    "verification": ".artifacts/test-runs/armageddon-native-firearm/brief-local-ea-verification.log"
+  },
+  "cold_load_baseline": {
+    "status": "FAIL",
+    "run_id": "20261005T195205Z-e250b76216dc",
+    "counts": {
+      "executed": 4,
+      "passed": 1,
+      "failed": 3,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 4
+    },
+    "source_start": "ad0bf035ffb10aad18d65625ffbc20d1a06f494e3557a33695a0a7fdf2c06105",
+    "source_end": "ad0bf035ffb10aad18d65625ffbc20d1a06f494e3557a33695a0a7fdf2c06105",
+    "projects": [
+      "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+    ],
+    "filter": "FullyQualifiedName~InternalMagazineReloadTests",
+    "summary": ".artifacts/test-runs/armageddon-native-firearm/load-reproduce02/20261005T195205Z-e250b76216dc/summary.json",
+    "summary_sha256": "3180a3c815cdedcd3c0607f432e234f5577a67abe19b608e47db5d861b4548df"
+  },
+  "focused": {
+    "status": "PASS",
+    "run_id": "20261005T200810Z-3554cb1deecc",
+    "counts": {
+      "executed": 278,
+      "passed": 278,
+      "failed": 0,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 278
+    },
+    "source_start": "765d015272490443759d2a4952487fc0cda0d655814b093f60b1e5e8970d056a",
+    "source_end": "765d015272490443759d2a4952487fc0cda0d655814b093f60b1e5e8970d056a",
+    "projects": [
+      "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+    ],
+    "filter": "FullyQualifiedName~InternalMagazineReloadTests|FullyQualifiedName~QueuedCommandAuthorityTests|FullyQualifiedName~RangedWeaponFeatureTests|FullyQualifiedName~NaturalRangedAttackRuntimeTests",
+    "summary": ".artifacts/test-runs/armageddon-native-firearm/focused07/20261005T200810Z-3554cb1deecc/summary.json",
+    "summary_sha256": "ad4013b48a12e6f71455ed52c1a161a4b694f9a74ba00a4d8119e4cc5d9aeed5"
+  },
+  "full_core": {
+    "status": "PASS",
+    "run_id": "20261005T202213Z-d53e695faf72",
+    "counts": {
+      "executed": 5147,
+      "passed": 5147,
+      "failed": 0,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 5147
+    },
+    "source_start": "5e1d251e2acea53f5a72e30641139d32b085ae6a842af4553dce4642adaf92a7",
+    "source_end": "5e1d251e2acea53f5a72e30641139d32b085ae6a842af4553dce4642adaf92a7",
+    "projects": [
+      "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+    ],
+    "filter": null,
+    "summary": ".artifacts/test-runs/armageddon-native-firearm/full-core01/20261005T202213Z-d53e695faf72/summary.json",
+    "summary_sha256": "5b65fbd055e8a8d33c2285e2906a26ba739d48010fc0bf418632b82679b67788"
+  },
+  "full_fast": {
+    "status": "NOT_RUN_THIS_CHECKPOINT",
+    "prior_checkpoint14_passed": 7503,
+    "reason": "Finite changes confined to Core and its tests plus native scratch harness."
+  },
+  "native_firearm": {
+    "status": "PASS",
+    "cases": [
+      "ordered-valid",
+      "queued-revoked",
+      "component-policy-revoked",
+      "postcommit-independent",
+      "ordered-miss",
+      "direct-valid"
+    ],
+    "fresh_process_readers": [
+      "ordered-valid-unreadied",
+      "ordered-valid-historical-stale-chamber",
+      "ordered-valid-loaded-chambered",
+      "ordered-valid-shot-unloaded",
+      "queued-revoked-unreadied",
+      "queued-revoked-loaded-chambered",
+      "queued-revoked-shot-unloaded",
+      "component-policy-revoked-unreadied",
+      "component-policy-revoked-loaded-chambered",
+      "component-policy-revoked-shot-unloaded",
+      "postcommit-independent-unreadied",
+      "postcommit-independent-loaded-chambered",
+      "postcommit-independent-shot-unloaded",
+      "ordered-miss-unreadied",
+      "ordered-miss-loaded-chambered",
+      "ordered-miss-shot-unloaded",
+      "direct-valid-unreadied",
+      "direct-valid-loaded-chambered",
+      "direct-valid-shot-unloaded"
+    ],
+    "case_results": [
+      "ordered-valid passed actual-Load-Ready-Unready-ChooseMove-RangedAttack-CombatAction-Unload cost:3 condition:0.99 wound-delta:12 reactions:0 projectile:5 raw:40",
+      "queued-revoked passed actual-Load-Ready-Unready-ChooseMove-RangedAttack-CombatAction-Unload cost:0 condition:1 wound-delta:0 reactions:0 projectile:8 raw:40",
+      "component-policy-revoked passed actual-Load-Ready-Unready-ChooseMove-RangedAttack-CombatAction-Unload cost:0 condition:1 wound-delta:0 reactions:0 projectile:11 raw:40",
+      "postcommit-independent passed actual-Load-Ready-Unready-ChooseMove-RangedAttack-CombatAction-Unload cost:3 condition:0.99 wound-delta:12 reactions:1 projectile:14 raw:60",
+      "ordered-miss passed actual-Load-Ready-Unready-ChooseMove-RangedAttack-CombatAction-Unload cost:3 condition:0.99 wound-delta:0 reactions:0 projectile:17 raw:40",
+      "direct-valid passed actual-Load-Ready-Unready-ChooseMove-RangedAttack-CombatAction-Unload cost:3 condition:0.99 wound-delta:12 reactions:0 projectile:20 raw:40"
+    ],
+    "log": ".artifacts/test-runs/armageddon-native-firearm/qualify06-native.log",
+    "log_sha256": "fef59b7c284a6e5649f1a7f4c7fa772a83fa1995e3b50e98576061815fed20f6",
+    "cleanup_receipt": ".artifacts/test-runs/armageddon-native-firearm/qualify06-process-cleanup.json",
+    "cleanup_receipt_sha256": "3424ef6348df3223ce9a81bc978b7f0889d128abb4bbc384c489159a292d434f"
+  },
+  "qualification_inputs": {
+    "source_count": 5776,
+    "assemblies": 13,
+    "aligned": true,
+    "manifest": ".artifacts/test-runs/armageddon-native-firearm/qualify06-inputs.json",
+    "manifest_sha256": "dd1481312563244328c4f9b67ea1face5cd3b7062d27ab0a46e87db12a90e041",
+    "fingerprints": ".artifacts/test-runs/armageddon-native-firearm/qualify06-fingerprints.json"
+  },
+  "source_review": {
+    "production_status": "NO_ESTABLISHED_P1_P2",
+    "reviewer": "fm_reviewer",
+    "note": "Production, ten managed regressions and final fixture-only gun-first/recovery/gear-restoration followups cleared source-only; native acceptance independently owned by coordinator.",
+    "final_native_partial_sha256": "41bb58c46135bae0908954cd4814646c2af8e2250ec9050c5d37dd00dfc8f514",
+    "final_seven_file_digest": "e9b81b67ea06962d6ce130740d4b2fa12ac38f0883a31baed659b2917c13399b"
+  },
+  "binary_capsules": [
+    {
+      "label": "cold-reproduce02",
+      "manifest": ".artifacts/test-runs/armageddon-native-firearm/cold-reproduce02-binary-capsule/manifest.json",
+      "manifest_sha256": "49fcdcf8a05e5c8c995639c4c68950c98fdec29133a669ff7f39abc908f5a782"
+    },
+    {
+      "label": "focused02",
+      "manifest": ".artifacts/test-runs/armageddon-native-firearm/focused02-binary-capsule/manifest.json",
+      "manifest_sha256": "089c65b79fb325160e8502034331081c4345c9346bf0ac1a30d42ab8885f5e5a"
+    },
+    {
+      "label": "focused05",
+      "manifest": ".artifacts/test-runs/armageddon-native-firearm/focused05-binary-capsule/manifest.json",
+      "manifest_sha256": "916d1b8cef3bfb5e02f09a7052e4650974e7cb84bda62fa0b0f2eafd64823e7b"
+    },
+    {
+      "label": "focused06",
+      "manifest": ".artifacts/test-runs/armageddon-native-firearm/focused06-binary-capsule/manifest.json",
+      "manifest_sha256": "d4ec217facb29df13f91929a72a4d3d933a982b2efac2b5d783eae3e76ca27c0"
+    },
+    {
+      "label": "focused07",
+      "manifest": ".artifacts/test-runs/armageddon-native-firearm/focused07-binary-capsule/manifest.json",
+      "manifest_sha256": "d99b60087bb2961e64bfe7b2c1ad2f0a2392078db9fd36a4867b134a5116c504"
+    },
+    {
+      "label": "full-core01",
+      "manifest": ".artifacts/test-runs/armageddon-native-firearm/full-core01-binary-capsule/manifest.json",
+      "manifest_sha256": "8385f56abbe4964fb15a2470571ce29a7f5617e16c22ca0186400fbbb69230cb"
+    },
+    {
+      "label": "load-reproduce02",
+      "manifest": ".artifacts/test-runs/armageddon-native-firearm/load-reproduce02-binary-capsule/manifest.json",
+      "manifest_sha256": "e307e55023e3f392042881fe1ed8c5633bb6d285048b7b77bf184fcd7b9ab6f1"
+    },
+    {
+      "label": "qualify01",
+      "manifest": ".artifacts/test-runs/armageddon-native-firearm/qualify01-binary-capsule/manifest.json",
+      "manifest_sha256": "3686fad93670e084af363adcdd0c4f3243207d163deaed0a3644acd2f21c85bf"
+    },
+    {
+      "label": "qualify04",
+      "manifest": ".artifacts/test-runs/armageddon-native-firearm/qualify04-binary-capsule/manifest.json",
+      "manifest_sha256": "0df67470e5b29f1f926989a5a01607410a107856cf1e8228ea9c23aac03e3343"
+    },
+    {
+      "label": "qualify05",
+      "manifest": ".artifacts/test-runs/armageddon-native-firearm/qualify05-binary-capsule/manifest.json",
+      "manifest_sha256": "2ce3846b19d1584686b157cc2cbf3171a807e12aea1ad088f853c21a4b669262"
+    },
+    {
+      "label": "qualify06",
+      "manifest": ".artifacts/test-runs/armageddon-native-firearm/qualify06-binary-capsule/manifest.json",
+      "manifest_sha256": "219e9d4d6460bf3444425b3aaed04d95e4d26db65eac90e918d287f321bb6642"
+    },
+    {
+      "label": "unready-reproduce03",
+      "manifest": ".artifacts/test-runs/armageddon-native-firearm/unready-reproduce03-binary-capsule/manifest.json",
+      "manifest_sha256": "8c9487a300499cc2de888dec984c82bdf7cfd45dd8819c9d2321b3ddbbc1e448"
+    }
+  ],
+  "retained_failures": [
+    "qualify01/cold-reproduce02: actual cold loaded rounds had no containment; managed baseline1pass/3fail reproduced three slots.",
+    "unready-reproduce03: old native Unready failed to mark chamber save changed; cold loaded gun reclaimed returned body-held round.",
+    "load-reproduce01/focused03/focused04: test fixture compile errors; tests NOT_RUN.",
+    "focused05 275pass/3fail and focused06 277pass/1fail: incomplete output/body/world fixture bindings, corrected without weakening assertions.",
+    "qualify04: three reload controls passed; recovery check mock returned null during real CombatAction delay.",
+    "qualify05: actual first selected shot and four fresh readers passed; borrowed-state cleanup assertion preceded restoration of deliberately dropped original gear; fixture assertion moved after original gear restoration. All owned native failures cleaned up successfully."
+  ],
+  "historical_preservation": {
+    "status": "PASS",
+    "artifacts": 23338,
+    "task_files": 482,
+    "primary_head": "34eb234eb5a1e2784c595b4f848f6f785b426302",
+    "primary_clean": true
+  },
+  "scope_paths": [
+    {
+      "path": "MudSharpCore/GameItems/GameItem.cs",
+      "sha256": "f6c80372ce08a9c80ae394c880485d68fc52a6c3c79ad1f4015d921bf3ecaaf7"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Components/InternalMagazineGunGameItemComponent.cs",
+      "sha256": "9d463ab9067b2108431942229450aa0142e1f90853e946936fbde904732a2fe4"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/InternalMagazineReloadTests.cs",
+      "sha256": "13346da67f2ab3ecb03a5630f67b3843527cda5069be16eb86b8f0a6b82bed67"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.FirearmAuthority.cs",
+      "sha256": "41bb58c46135bae0908954cd4814646c2af8e2250ec9050c5d37dd00dfc8f514"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.RaiseServitorStock.cs",
+      "sha256": "de2ad15822d995aae53893565c0ac31dffb12557dfcbc662cc9432043573b1e9"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.cs",
+      "sha256": "0cdd4ffcaa78f527d0ee837878b1f7e3cd30c7d9cc5062932f5854798442c72c"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Run-IsolatedAcceptance.ps1",
+      "sha256": "fbc51d52fa7948edc0064d7d11e8f0358d86e9ee1af44325839ee0eb16e9cebe"
+    }
+  ],
+  "mandatory_remaining_gates": [
+    "Compact defended/failing or autonomous melee control: checkpoint14 qualifies a declared successful attack against a helpless target only.",
+    "Actual independent defender ResponseToMove/countershot after original attacker expiry, with projectile/custody/wound controls. The current postcommit Body.OnWounded trait write does not qualify countershot.",
+    "Representative native vehicle boarding: actual membership/slot/stamina, refused ordered attempt, independent/autonomous compatibility.",
+    "Concrete container Get/Give/component Unload noncurrency merge conservation, absorbed cleanup, claim/expiry and cold reload; reachable evidenced whole/split/merge ammo, old casing/next-round and Musket/Artillery dependencies remain bounded separate gates.",
+    "Separate mandatory release work: PC/NPC charm controller/reload/body switching; possession/reference-safe teardown and borrowed bodies; stock guard/rider/tracker/courier relationships; installed non-admin/per-spell native acceptance and whole-plan release checks.",
+    "Existing separate lanes: structural cleanup, route-aware corpse restoration, Calm shared hooks and stock integration remain open."
+  ],
+  "limits": [
+    "One actual supported manual-cycle internal-magazine firearm, two ordinary nonstack rounds, no casing or separate bullet prototype. No exhaustive gun/defence/vehicle matrix.",
+    "Actual command parsing, compiled AI policy, ChooseMove, native ranged attack/CombatAction, component Load/Ready/Unready/Fire/Unload, native wounds, cost and condition. Shot/cover/recovery checks and race/encumbrance fixture globals are controlled.",
+    "Policy fault wrapper delegates compiled policy and expires original control at actual component Fire precommit admission. Postcommit hook is actual victim Body.OnWounded with one independent native trait write, after wounds install; no defender countershot is claimed.",
+    "Fresh processes assert selected canonical trait/body stamina/wound SQL and actual body inventory, item/component XML/custody reload, including explicit gun-first historical stale-chamber control. No full animated-actor reload, queued order replay or Telnet session.",
+    "Full Fast NOT_RUN for this checkpoint; only Core production/unit and scratch harness changed. Independently cleared checkpoint14 Full Fast7503/0/0 remains historical evidence, not current execution.",
+    "Whole82-spell/12-support/154-candidate/25-native-scenario plan remains incomplete. No lane integration, publication, merge, deployment or shared/production database."
+  ],
+  "whole_plan_complete": false,
+  "next_smallest_gate": "Parent review and allocation of compact defended/failing or autonomous melee control, then independent native defender countershot."
+}

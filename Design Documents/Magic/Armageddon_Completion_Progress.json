@@ -4898,5 +4898,72 @@
       "Full-world/Telnet and complete82-spell/12-support/154-candidate/25-scenario release acceptance remain NOT_RUN/incomplete",
       "No stock lane integration, publication, deployment, merge or shared/production database"
     ]
+  },
+  "native_internal_magazine_firearm_qualification": {
+    "status": "PASS_BOUNDED_LOCAL_CHECKPOINT_PARENT_REVIEW_PENDING",
+    "base_head": "dc1ef576080613fb23255e977a6e64ac1001da25",
+    "acceptance": [
+      {
+        "id": "cold-load-reproduction",
+        "status": "EXPECTED_FAIL",
+        "passed": 1,
+        "failed": 3
+      },
+      {
+        "id": "focused-core",
+        "status": "PASS",
+        "passed": 278
+      },
+      {
+        "id": "full-core",
+        "status": "PASS",
+        "passed": 5147
+      },
+      {
+        "id": "native-firearm-and-fresh-readers",
+        "status": "PASS",
+        "cases": 6,
+        "readers": 19
+      },
+      {
+        "id": "binary-copies-and-historical-preservation",
+        "status": "PASS"
+      },
+      {
+        "id": "full-brief-local-materialization",
+        "status": "PASS"
+      },
+      {
+        "id": "full-fast-this-checkpoint",
+        "status": "NOT_RUN"
+      },
+      {
+        "id": "local-commit",
+        "status": "INCLUDED_IN_ENCLOSING_LOCAL_COMMIT",
+        "receipt": "Task root Armageddon_FirearmAuthority_CommitReceipt.json"
+      },
+      {
+        "id": "whole-plan",
+        "status": "INCOMPLETE"
+      }
+    ],
+    "receipt": "Design Documents/Magic/Armageddon_FirearmAuthority_Verification.json",
+    "mandatory_remaining_gates": [
+      "Compact defended/failing or autonomous melee control: checkpoint14 qualifies a declared successful attack against a helpless target only.",
+      "Actual independent defender ResponseToMove/countershot after original attacker expiry, with projectile/custody/wound controls. The current postcommit Body.OnWounded trait write does not qualify countershot.",
+      "Representative native vehicle boarding: actual membership/slot/stamina, refused ordered attempt, independent/autonomous compatibility.",
+      "Concrete container Get/Give/component Unload noncurrency merge conservation, absorbed cleanup, claim/expiry and cold reload; reachable evidenced whole/split/merge ammo, old casing/next-round and Musket/Artillery dependencies remain bounded separate gates.",
+      "Separate mandatory release work: PC/NPC charm controller/reload/body switching; possession/reference-safe teardown and borrowed bodies; stock guard/rider/tracker/courier relationships; installed non-admin/per-spell native acceptance and whole-plan release checks.",
+      "Existing separate lanes: structural cleanup, route-aware corpse restoration, Calm shared hooks and stock integration remain open."
+    ],
+    "limits": [
+      "One actual supported manual-cycle internal-magazine firearm, two ordinary nonstack rounds, no casing or separate bullet prototype. No exhaustive gun/defence/vehicle matrix.",
+      "Actual command parsing, compiled AI policy, ChooseMove, native ranged attack/CombatAction, component Load/Ready/Unready/Fire/Unload, native wounds, cost and condition. Shot/cover/recovery checks and race/encumbrance fixture globals are controlled.",
+      "Policy fault wrapper delegates compiled policy and expires original control at actual component Fire precommit admission. Postcommit hook is actual victim Body.OnWounded with one independent native trait write, after wounds install; no defender countershot is claimed.",
+      "Fresh processes assert selected canonical trait/body stamina/wound SQL and actual body inventory, item/component XML/custody reload, including explicit gun-first historical stale-chamber control. No full animated-actor reload, queued order replay or Telnet session.",
+      "Full Fast NOT_RUN for this checkpoint; only Core production/unit and scratch harness changed. Independently cleared checkpoint14 Full Fast7503/0/0 remains historical evidence, not current execution.",
+      "Whole82-spell/12-support/154-candidate/25-native-scenario plan remains incomplete. No lane integration, publication, merge, deployment or shared/production database."
+    ],
+    "whole_plan_complete": false
   }
 }

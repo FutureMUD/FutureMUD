@@ -912,6 +912,11 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
             $"Game Item {Id}, Proto {Prototype.Id}r{Prototype.RevisionNumber} - {Prototype.ShortDescription}";
     }
 
+    // The original database containment is evidence for component reconstruction before
+    // another root has loaded this child's hand or cell membership.
+    internal bool LoadedFromDatabase { get; }
+    internal long? ContainerIdAtLoad { get; }
+
     public GameItem(MudSharp.Models.GameItem item, IFuturemud game)
         : base(item.Id)
     {
@@ -919,6 +924,8 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
         Register(new IgnorantItemOutputHandler(this));
         Gameworld = game;
         _id = item.Id;
+		LoadedFromDatabase = true;
+		ContainerIdAtLoad = item.ContainerId;
 		SpellCreationOrigin = game.SpellOwnedItems?.FindOrigin(item.Id);
         Prototype = game.ItemProtos.Get(item.GameItemProtoId, item.GameItemProtoRevision);
         if (Prototype == null)

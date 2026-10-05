@@ -80,7 +80,7 @@ def sql(statement):
     env = os.environ.copy()
     env['MYSQL_PWD'] = sql_password
     command = [str(mysql), '--no-defaults', '--protocol=tcp', '--host=127.0.0.1', f'--port={port}',
-               f'--user={user}', f'--database={database}', '--batch', '--raw', '--skip-column-names',
+               f'--user={user}', f'--database={database}', '--default-character-set=utf8mb4', '--batch', '--raw', '--skip-column-names',
                '--execute=SELECT @@server_uuid, @@port, @@datadir; SELECT RunToken FROM __gathering_harness_ownership; ' + mapped_sql(statement)]
     result = subprocess.run(command, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                             text=True, encoding='utf-8', errors='replace', timeout=40,
@@ -99,6 +99,22 @@ def sql(statement):
     if sql_preflight_queries is not None:
         sql_preflight_queries.append({'sql': mapped_sql(statement), 'rows': len(rows), 'field_counts': sorted({len(x) for x in rows})})
     return rows
+
+def decode_sql_text(value):
+    # mysql's NULL sentinel is distinct from HEX('NULL') and HEX('') in this protocol.
+    require(isinstance(value, str), 'SQL HEX field is not text.')
+    if value == 'NULL': return None
+    require(re.fullmatch(r'(?:[a-fA-F0-9]{2})*', value) is not None, 'Invalid SQL HEX text framing.')
+    return bytes.fromhex(value).decode('utf-8', errors='strict')
+
+
+def decoded_text_rows(statement, columns):
+    rows = sql(statement)
+    for row in rows:
+        require(len(row) > max(columns), 'SQL text row has missing fields.')
+        for column in columns: row[column] = decode_sql_text(row[column])
+    return rows
+
 
 class IoCounters(ctypes.Structure):
     _fields_ = [(name, ctypes.c_ulonglong) for name in ('ReadOperationCount','WriteOperationCount','OtherOperationCount','ReadTransferCount','WriteTransferCount','OtherTransferCount')]
@@ -162,10 +178,10 @@ discord_socket = socket.socket()
 started = time.monotonic()
 
 def avatar_query():
-    return "SELECT a.Id,c.Id,c.Name,c.Location,IFNULL(DATE_FORMAT(c.LastLoginTime,'%Y-%m-%dT%H:%i:%s.%f'),'NULL'),IFNULL(DATE_FORMAT(c.LastLogoutTime,'%Y-%m-%dT%H:%i:%s.%f'),'NULL') FROM Accounts a JOIN Characters c ON c.AccountId=a.Id WHERE a.Name='Admin' AND c.IsAdminAvatar=1 ORDER BY c.Id"
+    return "SELECT a.Id,c.Id,HEX(c.Name),c.Location,IFNULL(DATE_FORMAT(c.LastLoginTime,'%Y-%m-%dT%H:%i:%s.%f'),'NULL'),IFNULL(DATE_FORMAT(c.LastLogoutTime,'%Y-%m-%dT%H:%i:%s.%f'),'NULL') FROM Accounts a JOIN Characters c ON c.AccountId=a.Id WHERE a.Name='Admin' AND c.IsAdminAvatar=1 ORDER BY c.Id"
 
 def character_state():
-    rows = sql(avatar_query())
+    rows = decoded_text_rows(avatar_query(), [2])
     require(len(rows) == 1 and len(rows[0]) == 6, 'Expected one legitimately seeded Admin avatar.')
     return rows[0]
 
@@ -206,22 +222,22 @@ def installed_state():
 
 def operations_query():
     c, s = int(installed['character']), int(installed['spell'])
-    return f'SELECT Id,Stage,HEX(Definition),HEX(Diagnostic) FROM MagicCastingOperations WHERE CharacterId={c} AND MagicSpellId={s} ORDER BY CreatedUtc,Id'
+    return f'SELECT HEX(Id),HEX(Stage),HEX(Definition),HEX(Diagnostic) FROM MagicCastingOperations WHERE CharacterId={c} AND MagicSpellId={s} ORDER BY CreatedUtc,Id'
 
 def operations():
-    return sql(operations_query())
+    return decoded_text_rows(operations_query(), [0,1])
 
 def gathering_ids_query():
-    return f"SELECT Id FROM MagicGatheringOperations WHERE OwnerId={installed['character']}"
+    return f"SELECT HEX(Id) FROM MagicGatheringOperations WHERE OwnerId={installed['character']}"
 
 def gathering_query():
-    return f"SELECT Id,Status,Kind,RequestedAmount,StaminaCost,BodilyCostApplied,DestinationCredited,AccountingPersisted FROM MagicGatheringOperations WHERE OwnerId={installed['character']} AND MagicCapabilityId={installed['capability']} AND DestinationResourceId={installed['resource']}"
+    return f"SELECT HEX(Id),HEX(Status),HEX(Kind),RequestedAmount,StaminaCost,BodilyCostApplied,DestinationCredited,AccountingPersisted FROM MagicGatheringOperations WHERE OwnerId={installed['character']} AND MagicCapabilityId={installed['capability']} AND DestinationResourceId={installed['resource']}"
 
 def spell_query():
     return f"SELECT HEX(Definition) FROM MagicSpells WHERE Id={installed['spell']}"
 
 def configuration_query():
-    return "SELECT SettingName,Definition FROM StaticConfigurations WHERE SettingName IN ('EmailServer','UseDiscordBot','DiscordBotIpAddress','DiscordBotPort') ORDER BY SettingName"
+    return "SELECT HEX(SettingName),HEX(Definition) FROM StaticConfigurations WHERE SettingName IN ('EmailServer','UseDiscordBot','DiscordBotIpAddress','DiscordBotPort') ORDER BY SettingName"
 
 def configuration_updates(discord_port):
     require(type(discord_port) is int and 0 < discord_port < 65536, 'Invalid loopback bridge port.')
@@ -235,7 +251,7 @@ def gather(session, phase):
     c, cap, resource = (int(installed[k]) for k in ('character','capability','resource'))
     before = installed_state()['balance']
     require(before+amount <= float(installed['native_capacity']), 'Gathering would exceed actual seeded attribute capacity.')
-    old = {row[0] for row in sql(gathering_ids_query())}
+    old = {row[0] for row in decoded_text_rows(gathering_ids_query(), [0])}
     session.send(f'armsense gather {cap} methods', read_seconds=.3)
     session.send(f'armsense gather {cap} preview draw {amount}', read_seconds=.3)
     action_start = time.monotonic()
@@ -246,7 +262,7 @@ def gather(session, phase):
     while time.monotonic()<deadline:
         session.read_for(1)
         flush(session)
-        rows = [x for x in sql(gathering_query()) if x[0] not in old]
+        rows = [x for x in decoded_text_rows(gathering_query(), [0,1,2]) if x[0] not in old]
         if rows: break
     receipt.setdefault('gathering',[]).append({'phase':phase,'before':before,'rows':rows,'elapsed_seconds':time.monotonic()-action_start})
     require(len(rows)==1 and rows[0][1:3]==['Completed','Self'], 'Timed paid Self gathering did not complete exactly once.')
@@ -407,12 +423,32 @@ def preflight_schema_sql():
                     'EF/fresh schema store type or nullability mismatch: ' + table['table'] + '.' + column['column'])
 
 
+def preflight_text_transport():
+    # Read-only derived rows prove the actual CLI protocol before any complete replay/MUD.
+    # No configuration or player values are inserted or changed for this fixture.
+    cases = [('01-multiline\tÉcho\n', '<Definition>\n\tÉλ漢😀\nbackslash: \\ and literal \\n\n</Definition>'),
+             ('02-empty', ''), ('03-null', None), ('04-literal-null', 'NULL')]
+    def literal(value):
+        return 'NULL' if value is None else "CONVERT(UNHEX('" + value.encode('utf-8').hex() + "') USING utf8mb4)"
+    derived = ' UNION ALL '.join('SELECT ' + literal(name) + ' AS SettingName,' + literal(value) + ' AS Definition' for name,value in cases)
+    statement = 'SELECT HEX(SettingName),HEX(Definition) FROM (' + derived + ') AS TransportFixture ORDER BY SettingName'
+    raw = sql(statement)
+    require(len(raw)==len(cases) and all(len(row)==2 for row in raw), 'Multiline SQL text lost physical row framing.')
+    decoded = [(decode_sql_text(row[0]),decode_sql_text(row[1])) for row in raw]
+    require(decoded==cases, 'Multiline/tab/non-ASCII/empty/NULL SQL text roundtrip failed.')
+    receipt['sql_transport_preflight'] = {'status':'PASS','physical_rows':len(raw),'fields_per_row':2,
+        'null_distinct_from_empty_and_literal_null':True,'multiline_tab_unicode_roundtrip':True,
+        'player_or_configuration_writes':False,'expected':cases,'decoded':decoded,'raw_hex_rows':raw}
+    assertions.append('Actual owned SQL CLI HEX/UTF-8 protocol preserved multiline, tabs, Unicode, empty, NULL and literal NULL with exact row cardinality')
+
+
 def preflight_installed_sql():
     global sql_preflight_queries
     sql_preflight_queries = []
     receipt['sql_preflight'] = {'status': 'FAIL', 'player_writes': False, 'mud_started': False,
                                 'queries': sql_preflight_queries, 'ef_schema': installed['sql_schema']}
     preflight_schema_sql()
+    preflight_text_transport()
     for key, table in [('character','Characters'), ('body','Bodies'), ('language','Languages'),
                        ('resource','MagicResources'), ('capability','MagicCapabilities'), ('merit','Merits'),
                        ('spell','MagicSpells'), ('source_skill','TraitDefinitions')]:
@@ -427,11 +463,11 @@ def preflight_installed_sql():
     require(int(character_state()[1]) == installed['character'], 'Selected Admin avatar mismatch.')
     before = installed_state()
     require(before == {'balance':0.0,'grade':0,'raw_skill':0.0,'enrolments':0,'parents':[]}, 'Fresh installed player state already mutated.')
-    require(not operations() and not sql(gathering_ids_query()) and not sql(gathering_query()), 'Fresh native operation receipts already exist.')
+    require(not operations() and not decoded_text_rows(gathering_ids_query(), [0]) and not decoded_text_rows(gathering_query(), [0,1,2]), 'Fresh native operation receipts already exist.')
     spell = sql(spell_query())
     require(len(spell) == 1 and len(spell[0]) == 1, 'Selected spell definition cardinality mismatch.')
     xmlhex(spell[0][0])
-    configurations = sql(configuration_query())
+    configurations = decoded_text_rows(configuration_query(), [0,1])
     require(len(configurations) == 4 and len({x[0] for x in configurations}) == 4 and all(len(x)==2 for x in configurations),
             'Expected exactly four external service configuration rows.')
     # EXPLAIN validates the exact UPDATE plans without executing writes. ROW_COUNT and SELECT 1 have no table dependencies.
@@ -449,6 +485,7 @@ def preflight_blank_sql():
                                 'player_writes':False,'mud_started':False,'queries':sql_preflight_queries,
                                 'ef_schema':installed['sql_schema']}
     preflight_schema_sql()
+    preflight_text_transport()
     for query in [avatar_query(),state_query(),operations_query(),gathering_ids_query(),gathering_query(),spell_query(),configuration_query()]:
         require(sql(query) == [], 'Blank-schema SQL query unexpectedly found a player/configuration/operation.')
     for update in configuration_updates(1): sql('EXPLAIN ' + update)
@@ -492,7 +529,7 @@ try:
         discord_socket.bind(('127.0.0.1',0)) # Reserved but not listening: bridge fails locally, sends nowhere.
         discord_port = discord_socket.getsockname()[1]
         configuration = sql('; SELECT ROW_COUNT(); '.join(configuration_updates(discord_port)) + '; SELECT ROW_COUNT(); ' + configuration_query())
-        settings = {row[0]:row[1] for row in configuration if len(row)==2}
+        settings = {decode_sql_text(row[0]):decode_sql_text(row[1]) for row in configuration if len(row)==2}
         require(settings.get('EmailServer') == '<EmailServer><Version>2</Version><Enabled>false</Enabled></EmailServer>' and
                 settings.get('UseDiscordBot') == 'false' and settings.get('DiscordBotIpAddress') == '127.0.0.1' and
                 settings.get('DiscordBotPort') == str(discord_port), 'Owned-only external service isolation configuration failed.')

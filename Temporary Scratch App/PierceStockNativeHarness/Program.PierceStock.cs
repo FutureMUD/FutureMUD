@@ -40,7 +40,7 @@ internal static partial class GNHProgram
 	}
 
 	private sealed record PierceReader(string Database, FixtureIds Fixture, DateTime Now, long Spell,
-		DateTime Expiry, Guid Operation, double Balance);
+		DateTime Expiry, Guid Operation, double Balance, long SelfCasterSpell = 0, DateTime? SelfCasterExpiry = null);
 
 	private static void PierceRealResource(NativeRuntime native, string connection)
 	{
@@ -208,7 +208,7 @@ internal static partial class GNHProgram
 		if (sharedRuntimeControls) Require(refreshQualified && configuredCallbacks == 1 && !firstHigh.SpellEffects.Any(), "Shared runtime repair did not clean configured exclusive refresh/callback");
 		// Historical diagnostic continuation remains available in the stock mode.
 		if (!refreshQualified) firstHigh.RemovalEffect();
-		if (sharedRuntimeControls) VerifyPierceSharedRuntime(native, database.ConnectionString, spell, clock, scheduler, probe);
+		var selfCasterSpell = sharedRuntimeControls ? VerifyPierceSharedRuntime(native, database.ConnectionString, spell, clock, scheduler, probe) : 0L;
 		state.Write(acquired: casting.Acquisition(actor, spell.Id)! with { ControlledGrade = 1, NextMasteryUtc = DateTime.UnixEpoch });
 		var ward = new SpellPersonalWardEffect(actor, new MagicSpellParent(actor, spell, actor), cap.School,
 			MagicInterdictionMode.Fail, MagicInterdictionCoverage.Incoming, false, null);
@@ -236,9 +236,18 @@ internal static partial class GNHProgram
 			Console.WriteLine("PIERCE-configured-nonexclusive=passed paid-two-parent-child-deadlines first-expiry-preserves-second final-expiry-no-grant");
 		}
 		var final = Cast(7); var parent = actor.EffectsOfType<MagicSpellParent>().Single(x => x.Spell.Id == spell.Id);
+		DateTime? selfCasterExpiry = null;
+		if (selfCasterSpell > 0)
+		{
+			CastPierceSelfCaster(native, selfCasterSpell);
+			var pair = actor.EffectsOfType<MagicSpellParent>().Where(x => x.Spell.Id == selfCasterSpell).ToArray();
+			Require(pair.Length == 2, "Final paired saved fixture missing phase");
+			selfCasterExpiry = ((IEffectExpiryObserver)scheduler).ScheduledExpiry(pair[0]);
+			Require(selfCasterExpiry == ((IEffectExpiryObserver)scheduler).ScheduledExpiry(pair[1]), "Final paired fixture deadline mismatch");
+		}
 		probe.Delete(); FlushCasting(native);
 		var descriptor = new PierceReader(database.Name, fixture, RuntimeClock.UtcNow, spell.Id,
-			((IEffectExpiryObserver)scheduler).ScheduledExpiry(parent)!.Value, final.OperationId!.Value, actor.MagicResourceAmounts[native.Resource]);
+			((IEffectExpiryObserver)scheduler).ScheduledExpiry(parent)!.Value, final.OperationId!.Value, actor.MagicResourceAmounts[native.Resource], selfCasterSpell, selfCasterExpiry);
 		RunItemReaderProcess(descriptor, "--pierce-stock-reader");
 		var blindnessQualified = blindnessBeforeDetection && blindnessAfterDetection;
 		Console.WriteLine("PIERCE-independent-checks=passed builder-edit-reload source-low-high perception body-blindness ward mastery saved-parent fresh-reader expiry");
@@ -270,7 +279,7 @@ internal static partial class GNHProgram
 		}
 		typeof(MudSharp.Framework.PerceivedItem).GetMethod("ScheduleCachedEffects", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(actor, null);
 		var parent = actor.EffectsOfType<MagicSpellParent>().Single(x => x.Spell.Id == input.Spell);
-		Require(actor.EffectsOfType<SpellDetectInvisibleEffect>().Count() == 1 && parent.SpellEffects.Count() == 1 &&
+		Require(actor.EffectsOfType<SpellDetectInvisibleEffect>().Count(x => x.Spell.Id == input.Spell) == 1 && parent.SpellEffects.Count() == 1 &&
 			((IEffectExpiryObserver)scheduler).ScheduledExpiry(parent) == input.Expiry, "Fresh process lost exact parent/child/deadline");
 		var state = new MagicCastingStateStore(); var operation = state.Operation(input.Operation)!;
 		Require(operation.Stage == "Completed" && (bool)XElement.Parse(operation.Definition).Attribute("applied")!, "Fresh operation report");
@@ -278,6 +287,17 @@ internal static partial class GNHProgram
 		var retry = casting.Cast(new(actor, operation.CapabilityId, input.Spell, 7, false, "me", OriginId: input.Operation));
 		Require(retry.Status == MagicCastingStatus.Refused && actor.MagicResourceAmounts[native.Resource] == input.Balance &&
 			((IEffectExpiryObserver)scheduler).ScheduledExpiry(parent) == input.Expiry, "Fresh retry replayed, refunded or refreshed");
+		if (input.SelfCasterSpell > 0)
+		{
+			var pair = actor.EffectsOfType<MagicSpellParent>().Where(x => x.Spell.Id == input.SelfCasterSpell).ToArray();
+			Require(pair.Length == 2 && pair.All(x => x.SpellEffects.Count() == 1 && ((IEffectExpiryObserver)scheduler).ScheduledExpiry(x) == input.SelfCasterExpiry) &&
+				actor.EffectsOfType<SpellDetectInvisibleEffect>().Count(x => x.Spell.Id == input.SelfCasterSpell) == 2, "Fresh paired primary/caster parents, children or deadlines lost");
+			clock.Advance(input.SelfCasterExpiry!.Value - RuntimeClock.UtcNow + TimeSpan.FromSeconds(1)); scheduler.CheckSchedules();
+			Require(!actor.EffectsOfType<MagicSpellParent>().Any(x => x.Spell.Id == input.SelfCasterSpell) && !actor.EffectsOfType<SpellDetectInvisibleEffect>().Any(x => x.Spell.Id == input.SelfCasterSpell) &&
+				actor.Effects.Contains(parent) && ((IEffectExpiryObserver)scheduler).ScheduledExpiry(parent) == input.Expiry && actor.MagicResourceAmounts[native.Resource] == input.Balance,
+				"Fresh paired expiry leaked phase, removed independent stock parent or refunded");
+			Console.WriteLine("PIERCE-self-caster-reader=passed both-native-phase-parents-children-exact-deadlines restored expiry-removes-both independent-stock-parent-and-reserve-preserved");
+		}
 		clock.Advance(input.Expiry - RuntimeClock.UtcNow + TimeSpan.FromSeconds(1)); scheduler.CheckSchedules(); FlushCasting(native);
 		Require(!actor.EffectsOfType<SpellDetectInvisibleEffect>().Any() && !actor.EffectsOfType<MagicSpellParent>().Any(x => x.Spell.Id == input.Spell) &&
 			(actor.GetPerception(PerceptionTypes.None) & PerceptionTypes.VisualMagical) == PerceptionTypes.None && actor.MagicResourceAmounts[native.Resource] == input.Balance,

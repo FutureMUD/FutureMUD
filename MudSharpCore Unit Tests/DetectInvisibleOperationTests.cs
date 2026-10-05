@@ -121,6 +121,28 @@ public class DetectInvisibleOperationTests
 		Assert.AreEqual(balance, f.Balances[f.Resources[1]]);
 	}
 
+	[TestMethod]
+	public void ConfiguredSelfCast_ExclusiveRecastPreservesBothPrimaryAndCasterParents()
+	{
+		var f = Fixture(); var effects = Attachments(f, true); var spell = f.Spells.Single();
+		((List<IMagicSpellEffectTemplate>)spell.CasterSpellEffects).Add(SpellEffectFactory.LoadEffect(XElement.Parse("<Effect type='detectinvisible' />"), spell));
+		Assert.IsTrue(spell.BuildingCommand(f.Actor.Object, new StringStack("exclusiveeffect")));
+		var first = f.Service.Cast(f.Intent());
+		Assert.AreEqual(MagicCastingStatus.Succeeded, first.Status, first.Message);
+		var oldParents = effects.OfType<MagicSpellParent>().ToArray();
+		var oldChildren = effects.OfType<SpellDetectInvisibleEffect>().ToArray();
+		Assert.AreEqual(2, oldParents.Length, "Caster phase removed the primary parent created in this same cast.");
+		Assert.AreEqual(2, oldChildren.Length);
+		f.Now = f.Now.AddMinutes(20); f.Balances[f.Resources[1]] = 100; f.Acquire();
+		var second = f.Service.Cast(f.Intent());
+		Assert.AreEqual(MagicCastingStatus.Succeeded, second.Status, second.Message);
+		Assert.AreEqual(2, effects.OfType<MagicSpellParent>().Count());
+		Assert.AreEqual(2, effects.OfType<SpellDetectInvisibleEffect>().Count());
+		Assert.IsTrue(oldParents.All(x => !effects.Contains(x) && !x.SpellEffects.Any()));
+		Assert.IsTrue(oldChildren.All(x => !effects.Contains(x)));
+		Assert.IsTrue(effects.OfType<MagicSpellParent>().All(x => x.SpellEffects.Count() == 1));
+	}
+
 	[DataTestMethod]
 	[DataRow(true)]
 	[DataRow(false)]

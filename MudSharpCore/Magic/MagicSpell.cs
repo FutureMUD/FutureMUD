@@ -1748,6 +1748,7 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
 
 		using var capacityChanges = new SpellCapacityBatch();
 		var rejuvenatedCells = new HashSet<long>();
+		var parentsAppliedThisCast = new HashSet<MagicSpellParent>(ReferenceEqualityComparer.Instance);
 		bool ApplySpellEffect(IPerceivable effectTarget, IEnumerable<IMagicSpellEffectTemplate> effects,
 			OpposedOutcomeDegree effectOutcome, bool echoTarget = false, bool intended = false, Func<bool>? stillEligible = null)
 		{
@@ -1823,8 +1824,12 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
 			void FinaliseParent()
 			{
 				if (resolvedAny && AppliedEffectsAreExclusive)
-					effectTarget.RemoveAllEffects<MagicSpellParent>(x => x.Spell.Id == Id, fireRemovalAction: true);
-				if (head.SpellEffects.Any()) effectTarget.AddEffect(head, duration);
+					effectTarget.RemoveAllEffects<MagicSpellParent>(x => x.Spell.Id == Id && !parentsAppliedThisCast.Contains(x), fireRemovalAction: true);
+				if (head.SpellEffects.Any())
+				{
+					effectTarget.AddEffect(head, duration);
+					parentsAppliedThisCast.Add(head);
+				}
 			}
 			return resolvedAny;
 		}

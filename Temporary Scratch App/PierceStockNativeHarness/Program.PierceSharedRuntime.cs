@@ -1,6 +1,9 @@
 #nullable enable
 
 using Microsoft.EntityFrameworkCore;
+using Moq;
+using MudSharp.Accounts;
+using MudSharp.Character;
 using MudSharp.Effects;
 using MudSharp.Effects.Concrete;
 using MudSharp.Effects.Concrete.SpellEffects;
@@ -8,6 +11,8 @@ using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
 using MudSharp.Framework.Scheduling;
 using MudSharp.Magic;
+using MudSharp.Magic.Capabilities;
+using MudSharp.Magic.Casting;
 using MudSharp.RPG.Checks;
 using System.Xml.Linq;
 
@@ -27,7 +32,7 @@ internal static partial class GNHProgram
 		}
 	}
 
-	private static void VerifyPierceSharedRuntime(NativeRuntime native, string connection, MagicSpell original,
+	private static long VerifyPierceSharedRuntime(NativeRuntime native, string connection, MagicSpell original,
 		HarnessClock clock, EffectScheduler scheduler, IPerceivable visibleThroughDetection)
 	{
 		var actor = native.Actor;
@@ -107,5 +112,49 @@ internal static partial class GNHProgram
 		defaultParent.RemovalEffect();
 		Require(!actor.Effects.Contains(defaultChild), "Explicit fixture default-removal cleanup failed");
 		Console.WriteLine("PIERCE-global-default=passed removal-action-remains-opt-in explicit-owned-fixture-cleanup");
+
+		// Two phases of one self-cast must retain both their new parents. Only prior
+		// cast parents are replacement candidates, regardless of identical spell IDs.
+		Require(spell.BuildingCommand(actor, new StringStack("exclusiveeffect")), "Restore paired fixture exclusive policy");
+		using (new MudSharp.Database.FMDB()) { spell.Save(); MudSharp.Database.FMDB.Context.SaveChanges(); }
+		using (var db = NewIndependentContext(connection))
+		{
+			model = db.MagicSpells.Single(x => x.Id == spell.Id);
+			var definition = XElement.Parse(model.Definition);
+			definition.Element("CasterEffects")!.Add(new XElement("Effect", new XAttribute("type", "detectinvisible")));
+			model.Definition = definition.ToString(); db.SaveChanges();
+			((All<IMagicSpell>)native.World.MagicSpells).Remove(spell);
+			spell = new MagicSpell(model, native.World); ((All<IMagicSpell>)native.World.MagicSpells).Add(spell);
+		}
+		var capability = (SkillLevelBasedMagicCapability)native.Capability;
+		foreach (var command in new[] { $"casting entry add {spell.Id}", $"casting entry skill {spell.Id} 30 90 relative" })
+			Require(capability.BuildingCommand(actor, new StringStack(command)), "Paid paired fixture admission " + command);
+		var staff = Mock.Of<ICharacter>(x => x.Id == 999 && x.IsAdministrator(PermissionLevel.JuniorAdmin));
+		var casting = native.World.MagicCasting as MagicCastingService ?? throw new InvalidOperationException("Native fixture has no casting service");
+		Require(casting.Grant(staff, actor, capability.Id, spell.Id, "native self-caster lifecycle control").Allowed, "Paid paired fixture authorised grant");
+		CastPierceSelfCaster(native, spell.Id);
+		var oldParents = Parents(); var oldChildren = Children();
+		Require(oldParents.Length == 2 && oldChildren.Length == 2 && oldParents.All(x => x.SpellEffects.Count() == 1), "Same-cast caster phase removed new primary parent/child");
+		clock.Advance(TimeSpan.FromSeconds(1)); CastPierceSelfCaster(native, spell.Id);
+		Require(Parents().Length == 2 && Children().Length == 2 && oldParents.All(x => !actor.Effects.Contains(x) && !x.SpellEffects.Any() && !scheduler.IsScheduled(x)) &&
+			oldChildren.All(x => !actor.Effects.Contains(x)), "Paired recast retained old parents/children/schedules or removed new pair");
+		clock.Advance(TimeSpan.FromSeconds(61)); scheduler.CheckSchedules();
+		Require(Parents().Length == 0 && Children().Length == 0, "Paired self-cast expiry left orphaned phase");
+		Console.WriteLine("PIERCE-paid-self-caster=passed primary-and-caster-new-parents-survive each-paid-recast-removes-both-old-parents-children-schedules normal-expiry-no-orphan");
+		return spell.Id;
+	}
+
+	private static void CastPierceSelfCaster(NativeRuntime native, long spellId)
+	{
+		var actor = native.Actor;
+		var casting = native.World.MagicCasting as MagicCastingService ?? throw new InvalidOperationException("Native fixture has no casting service");
+		actor.RemoveAllEffects<MagicSpellLockout>(null, true); actor.AddResource(native.Resource, 118); FlushCasting(native);
+		var before = actor.MagicResourceAmounts[native.Resource];
+		var intent = new MagicCastingIntent(actor, native.Capability.Id, spellId, 1, false, "me");
+		var quote = casting.Quote(intent); Require(quote.Allowed, quote.Reason);
+		var result = casting.Cast(intent);
+		Require(result.Status == MagicCastingStatus.Succeeded && before - actor.MagicResourceAmounts[native.Resource] == quote.Invocation!.Costs.Single().Amount,
+			"Paired fixture ordinary paid cast failed or quote/debit disagreed: " + result.Message);
+		Require((bool)XElement.Parse(new MagicCastingStateStore().Operation(result.OperationId!.Value)!.Definition).Attribute("applied")!, "Paired primary operation not reported Applied");
 	}
 }

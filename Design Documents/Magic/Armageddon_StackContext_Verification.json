@@ -1,0 +1,404 @@
+{
+  "status": "PASS_BOUNDED_LOCAL_CHECKPOINT_PARENT_REVIEW_PENDING",
+  "utc": "2026-10-05T18:22:29.051490+00:00",
+  "base_head": "27c97f359f5cf6d9fab156198aad5cd98a924d99",
+  "problem": "Failed absorbed DELETE reused outer caller context and could delete an independently refilled source on later flush",
+  "repair": "Independent required-write scope disposes failed deletion tracking; successful deletion evicts only exact source root/direct-FK graph from restored caller; quantity requeue and callback admission preserved",
+  "evidence_corrections": [
+    "Cold reader asserts exact stored cell/body IDs before runtime placement and checks durable live row existence",
+    "Deletion observer count is unconditional across Get and retry; seam actions remain guarded by inGet"
+  ],
+  "managed": {
+    "status": "PASS",
+    "counts": {
+      "executed": 272,
+      "passed": 272,
+      "failed": 0,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 272
+    },
+    "run_id": "20261005T181313Z-902ead780aa9",
+    "summary": ".artifacts/test-runs/armageddon-stack-context/focused02/20261005T181313Z-902ead780aa9/summary.json",
+    "summary_sha256": "af91a62f2a77ee255fc2327d6bb02884363d3f0608feb951e3997a44ceaa3c2f",
+    "source_start": "b2b8a9f11aa0bf93d1ae98161162fff102ee3e3af3336074f54c94e953837f90",
+    "source_end": "b2b8a9f11aa0bf93d1ae98161162fff102ee3e3af3336074f54c94e953837f90",
+    "filter": "FullyQualifiedName~PreparedGetStackMergeTests|FullyQualifiedName~QueuedCommandAuthorityTests|FullyQualifiedName~PreparedCurrencyTransferTests|FullyQualifiedName~ItemSplitAccessTests|FullyQualifiedName~ItemOwnershipDurabilityTests|FullyQualifiedName~SaveManagerFailureRecoveryTests",
+    "post_run_delta": "Only native fixture scope closes after its qualified assertions and before unrelated corpse cleanup; production and managed test inputs unchanged",
+    "post_managed_input_diff": {
+      "source_paths": [
+        "Temporary Scratch App/GatheringNativePersistenceHarness/Program.OrderedNpcRegressionP2.cs"
+      ],
+      "assembly_paths": [
+        "Temporary Scratch App/GatheringNativePersistenceHarness/bin/Debug/net10.0/GatheringNativePersistenceHarness.dll"
+      ],
+      "from_manifest_sha256": "5ba04979e36d870bb23b520808a5c272054e4c0027d9f58e9cfefed936db205a",
+      "to_manifest_sha256": "62cca31e2d679a0bb3f136ca7a3037f9fea6b1c09afe6ab1a44fb1a75ac08e3b"
+    }
+  },
+  "native": {
+    "status": "PASS",
+    "cases": [
+      "ordered-valid",
+      "ordered-parser-valid",
+      "direct-valid",
+      "owner",
+      "delete-expire",
+      "delete-refill",
+      "delete-relocate",
+      "delete-title",
+      "description-expire",
+      "description-refill",
+      "delete-provider-refusal",
+      "delete-provider-outer-refill",
+      "delete-outer-success"
+    ],
+    "cold_readers": [
+      "ordered-valid",
+      "ordered-parser-valid",
+      "direct-valid",
+      "owner",
+      "delete-expire",
+      "delete-refill",
+      "delete-relocate",
+      "delete-title",
+      "description-expire",
+      "description-refill",
+      "delete-provider-refusal",
+      "delete-provider-retry",
+      "delete-provider-outer-refill",
+      "delete-outer-success"
+    ],
+    "log": ".artifacts/test-runs/armageddon-stack-context/qualify03-native.log",
+    "log_sha256": "6b413206e1dfb428a50a9f5bcb41648de842ca22e982c19e7ae5d134105222b0",
+    "input_manifest_sha256": "62cca31e2d679a0bb3f136ca7a3037f9fea6b1c09afe6ab1a44fb1a75ac08e3b",
+    "sources": 5772,
+    "assemblies": [
+      {
+        "path": "MudSharpCore/bin/Debug/net10.0/MudSharp.dll",
+        "sha256": "3d08337eeccde1a18a68adfa0fb445402028135f6444ea1f68d9971ac39745a5"
+      },
+      {
+        "path": "MudSharpCore/bin/Debug/net10.0/FutureMUDLibrary.dll",
+        "sha256": "2ff8720a80c752f92bf14a4179be8aba95cca3df057493adc47d757bbfa9567c"
+      },
+      {
+        "path": "MudSharpCore/bin/Debug/net10.0/MudsharpDatabaseLibrary.dll",
+        "sha256": "e0b8351f1cd4e618eb462365de06aeb8dc4ad9ebd820bc6d0f253edb3369323a"
+      },
+      {
+        "path": "MudSharpCore/bin/Debug/net10.0/ExpressionEngine.dll",
+        "sha256": "89813e579118fb883b4b8b0874c6325a9b00bb5d59fd47c7b36844a6a88088d1"
+      },
+      {
+        "path": "MudSharpCore Unit Tests/bin/Debug/net10.0/MudSharp.dll",
+        "sha256": "3d08337eeccde1a18a68adfa0fb445402028135f6444ea1f68d9971ac39745a5"
+      },
+      {
+        "path": "MudSharpCore Unit Tests/bin/Debug/net10.0/FutureMUDLibrary.dll",
+        "sha256": "2ff8720a80c752f92bf14a4179be8aba95cca3df057493adc47d757bbfa9567c"
+      },
+      {
+        "path": "MudSharpCore Unit Tests/bin/Debug/net10.0/MudsharpDatabaseLibrary.dll",
+        "sha256": "e0b8351f1cd4e618eb462365de06aeb8dc4ad9ebd820bc6d0f253edb3369323a"
+      },
+      {
+        "path": "MudSharpCore Unit Tests/bin/Debug/net10.0/ExpressionEngine.dll",
+        "sha256": "89813e579118fb883b4b8b0874c6325a9b00bb5d59fd47c7b36844a6a88088d1"
+      },
+      {
+        "path": "Temporary Scratch App/GatheringNativePersistenceHarness/bin/Debug/net10.0/MudSharp.dll",
+        "sha256": "3d08337eeccde1a18a68adfa0fb445402028135f6444ea1f68d9971ac39745a5"
+      },
+      {
+        "path": "Temporary Scratch App/GatheringNativePersistenceHarness/bin/Debug/net10.0/FutureMUDLibrary.dll",
+        "sha256": "2ff8720a80c752f92bf14a4179be8aba95cca3df057493adc47d757bbfa9567c"
+      },
+      {
+        "path": "Temporary Scratch App/GatheringNativePersistenceHarness/bin/Debug/net10.0/MudsharpDatabaseLibrary.dll",
+        "sha256": "e0b8351f1cd4e618eb462365de06aeb8dc4ad9ebd820bc6d0f253edb3369323a"
+      },
+      {
+        "path": "Temporary Scratch App/GatheringNativePersistenceHarness/bin/Debug/net10.0/ExpressionEngine.dll",
+        "sha256": "89813e579118fb883b4b8b0874c6325a9b00bb5d59fd47c7b36844a6a88088d1"
+      },
+      {
+        "path": "Temporary Scratch App/GatheringNativePersistenceHarness/bin/Debug/net10.0/GatheringNativePersistenceHarness.dll",
+        "sha256": "6869dbb2568cab0f1f3b4bc4a13ef0fdb3926380564c9f4cb1cec66450866310"
+      }
+    ],
+    "outer_refill": "Actual outer FMDB pretracked source/components/floor; trigger refusal; independent refill2; trigger removed; later flush; runtime survivor8/source2 and fresh durable rows/title/exact joins total10",
+    "outer_success": "Actual Futuremud.TryGetItem using native catalogue and empty boot cache returns null and registers nothing inside restored outer FMDB; unrelated tracked survivor identity retained",
+    "retry": "Actual ordinary Delete after provider refusal; observer count remains exactly1 across retry; fresh reader proves exact absorbed source graph absent",
+    "owned_cleanup": {
+      "wrapper_cleanup": true,
+      "checked_ids": [
+        3552,
+        3740,
+        3924,
+        4796,
+        7712,
+        10052,
+        11876,
+        16188,
+        16200,
+        33128,
+        33444,
+        40572,
+        44044,
+        44068,
+        44948,
+        48940
+      ],
+      "status": "PASS",
+      "exit_code": 0,
+      "remaining_owned_processes": []
+    }
+  },
+  "review": {
+    "status": "NO_ESTABLISHED_P1_P2_AFTER_TARGETED_REPAIR",
+    "kind": "independent source-only review; coordinator owns gameplay qualification",
+    "earlier_finding": "Independent successful DELETE left caller-cached source reloadable by actual Futuremud.TryGetItem; fixed by exact source graph eviction",
+    "files": [
+      {
+        "path": "MudSharpCore/GameItems/GameItem.GetStackMerge.cs",
+        "sha256": "6bc0e7fa9931d6c6211088b9ca371e00bb0b8ec4b0ee1c148226a347b1e73fa8"
+      },
+      {
+        "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.OrderedNpcRegressionP2.cs",
+        "sha256": "cbb2c6f8f928ecd0da71401d113f6d0acb305d7c7fd675598c887161d55837f6"
+      }
+    ]
+  },
+  "retained_failure": {
+    "status": "EXPECTED_BASELINE_FAILURE_REPRODUCED",
+    "log": ".artifacts/test-runs/armageddon-stack-context/reproduce-native.log",
+    "failure": "Cold exact source custody assertion fails after refused DELETE, independent refill2 and later outer caller flush",
+    "prior_cases_passed": 11,
+    "prior_readers_passed": 12,
+    "fingerprint": "2cc127f67ab780dc8baf3cf4f9725efa957fb291e8ceb8adbe886c66ba6c457f",
+    "aligned_binaries": false,
+    "qualification": false
+  },
+  "superseded_checks": [
+    "focused01 PASS272 covered first isolation repair before source-graph eviction; superseded by focused02",
+    "qualify01 build PASS9 warnings0 errors; native NOT RUN after review identified cached-success ghost",
+    "qualify02 build PASS144 warnings0 errors; native FAILED during unrelated corpse cleanup after outer-refill cold PASS because fixture caller scope remained open through retirement; outer-success NOT RUN; final fixture closes caller only after stack assertions",
+    "qualify03 build PASS9 warnings0 errors; final native supersedes qualifier02; existing compile warnings retained"
+  ],
+  "historical_preservation": {
+    "status": "PASS",
+    "artifact_files": 15646,
+    "task_files": 467,
+    "baseline_sha256": "15147503877c48eba072109e50e92d1e0b91d185356e9cd81cd7333e91b38502",
+    "previous_stack_commit_receipt_sha256": "49d880f0f800aa2c025e39f387e1443592191fa4f353f26c8c9612620a231226",
+    "primary_head": "34eb234eb5a1e2784c595b4f848f6f785b426302",
+    "primary_clean": true
+  },
+  "limits": [
+    "Finite ordinary whole floor-stack Get with exact Stackable/Holdable leaves only",
+    "Controlled native fixture, actual native runtime-loader Find path with empty boot cache; no full-world/Telnet session",
+    "Full Core and Full Fast NOT RUN for this correction; historical fullCore5131 is not counted as this checkpoint evidence",
+    "Selected-melee Check qualification remains NOT RUN; independent research only before this priority correction",
+    "Container Get/Give/unload, wider component/boarding/countershot and complete Armageddon acceptance remain separate",
+    "No other lane merged, no stock breathing/lifetime edits, no publication/deployment/shared or production database"
+  ],
+  "next_smallest_mandatory_gate": "Resume allocated native selected-melee Check scoring/applicable-merit callbacks and final learning setter stale-write admission, with independent persisted trait reader",
+  "artifacts": [
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-context/baseline.json",
+      "sha256": "15147503877c48eba072109e50e92d1e0b91d185356e9cd81cd7333e91b38502"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-context/focused01/20261005T180630Z-115cb0b014ce/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-context/focused01/20261005T180630Z-115cb0b014ce/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-context/focused01/20261005T180630Z-115cb0b014ce/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stdout.log",
+      "sha256": "aa874125740837b124e7f0ff03bce4f996b7ca17ffb0abe470a0382865526049"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-context/focused01/20261005T180630Z-115cb0b014ce/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/results.trx",
+      "sha256": "fa0dd684129c711b88d60ca9084d96b4a1e0959f6f5f7498841d7f5b94cd32c0"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-context/focused01/20261005T180630Z-115cb0b014ce/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-context/focused01/20261005T180630Z-115cb0b014ce/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stdout.log",
+      "sha256": "e1391fa62cf9f4dfb2f5aeac6a6afd21b4c3de3a751d9cc77a45eee748585df1"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-context/focused01/20261005T180630Z-115cb0b014ce/run.json",
+      "sha256": "af5478550a9407701f5024d2c85189bafaeca2788651b750a1f4f0c3c503ab5e"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-context/focused01/20261005T180630Z-115cb0b014ce/sdk/sdk.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-context/focused01/20261005T180630Z-115cb0b014ce/sdk/sdk.stdout.log",
+      "sha256": "3db6bca4b50618b2e0d2d55d23b3d0541fe039ab6f731df0e9c47317b400ce52"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-context/focused01/20261005T180630Z-115cb0b014ce/source-end.json",
+      "sha256": "746c77ed833bab2995f7e0804e3471b5fab3abcf5eef96ec9ecea3e880f0a0a6"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-context/focused01/20261005T180630Z-115cb0b014ce/source-start.json",
+      "sha256": "243cfb54c469b4c3e19a71f524d78c47ff3152be051ccd95a7dd32486ac7add8"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-context/focused01/20261005T180630Z-115cb0b014ce/summary.json",
+      "sha256": "c2cde588666211f939e67e4d4fbed812d9a1dbb5f5cb63ed10bbf5bfb70de716"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-context/focused01/20261005T180630Z-115cb0b014ce/summary.txt",
+      "sha256": "bb091f1d321d1ee2d96370f5b134fa317d74a65175a8580189acb783369e88d1"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-context/focused01/20261005T180630Z-115cb0b014ce/test-results.json",
+      "sha256": "bfb442a387dd00ebbe51e97f60dae737a2d5954abbef3348080cd7f71641c952"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-context/focused02/20261005T181313Z-902ead780aa9/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-context/focused02/20261005T181313Z-902ead780aa9/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-context/focused02/20261005T181313Z-902ead780aa9/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stdout.log",
+      "sha256": "185b429f562099773cecfbac289b6128e83409ed1dd9e6a8c5a5f9037390a1cf"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-context/focused02/20261005T181313Z-902ead780aa9/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/results.trx",
+      "sha256": "b9e98c35e86a22cbac6875b8efdcd22429bf32b73c47629f75142aa0774e0cf2"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-context/focused02/20261005T181313Z-902ead780aa9/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-context/focused02/20261005T181313Z-902ead780aa9/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stdout.log",
+      "sha256": "4e16983a5ccc97efbe34ed420e870f3fe45e6b4d58008db847b97767c28afb2c"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-context/focused02/20261005T181313Z-902ead780aa9/run.json",
+      "sha256": "efdebab08e0aa9730170bdfad2809030f73630f5f99f40aae9885a26401c0a3f"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-context/focused02/20261005T181313Z-902ead780aa9/sdk/sdk.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-context/focused02/20261005T181313Z-902ead780aa9/sdk/sdk.stdout.log",
+      "sha256": "3db6bca4b50618b2e0d2d55d23b3d0541fe039ab6f731df0e9c47317b400ce52"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-context/focused02/20261005T181313Z-902ead780aa9/source-end.json",
+      "sha256": "e9e3fa22be94954b9078d3cbf375fb59094cc83deeadeafbb86614d8b9a8e1e6"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-context/focused02/20261005T181313Z-902ead780aa9/source-start.json",
+      "sha256": "58c486d72110db85826d2b9af8455e01054de43e301068d211ce4d5e8f9024de"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-context/focused02/20261005T181313Z-902ead780aa9/summary.json",
+      "sha256": "af91a62f2a77ee255fc2327d6bb02884363d3f0608feb951e3997a44ceaa3c2f"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-context/focused02/20261005T181313Z-902ead780aa9/summary.txt",
+      "sha256": "fc64bdae9128b7fb40b23dd6130494635c3c398619c2add0c2c08d6a5a2496fe"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-context/focused02/20261005T181313Z-902ead780aa9/test-results.json",
+      "sha256": "fde88f5a0cff60d4e1ca0006ead8f781c1060be3808e8d93d920e4d7ea2158ee"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-context/qualify01-build.log",
+      "sha256": "01bdd0464a6931344c8bbf1da9f3d023231158b6b765072d0581ae3dcb52e761"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-context/qualify02-build.log",
+      "sha256": "4cd20b14f4c1c5d9bb4fdcf2e3330a7e0a6bb573e3bf56d311140e3d6044f353"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-context/qualify02-fingerprints.json",
+      "sha256": "bfaa6a78421161bdaad6f0d79dc6e74a10e308c4ff7be23b36e293330a910bd3"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-context/qualify02-inputs.json",
+      "sha256": "5ba04979e36d870bb23b520808a5c272054e4c0027d9f58e9cfefed936db205a"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-context/qualify02-native.log",
+      "sha256": "9c4d9cc8f62d02d45b13aa91b0c718dd9a73c33b3a31712eefab7b840d455981"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-context/qualify02-process-cleanup.json",
+      "sha256": "19bdbf117b2e2b8199fdc5db9ecfd902b7ddf884b72d8998167d644b8e01d2e6"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-context/qualify03-build.log",
+      "sha256": "24ebdd7b08cb330b5bdd118bef7161a179332eb02202c99dd7b1c9937ed51ff4"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-context/qualify03-fingerprints.json",
+      "sha256": "ca4446f5583fa6a2982d1040e5a701f4ec423864888f4399287f2d27891ea5d9"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-context/qualify03-inputs.json",
+      "sha256": "62cca31e2d679a0bb3f136ca7a3037f9fea6b1c09afe6ab1a44fb1a75ac08e3b"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-context/qualify03-native.log",
+      "sha256": "6b413206e1dfb428a50a9f5bcb41648de842ca22e982c19e7ae5d134105222b0"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-context/qualify03-process-cleanup.json",
+      "sha256": "7fcc3a0931e0b93923c64d5cbfcabfe1452a21164fbb493a803b395ada6dab99"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-context/reproduce-build.log",
+      "sha256": "00c2346977493314002ef5750c5c6056b2cad4658d6b9db476ecbf47688d2552"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-context/reproduce-fingerprints.json",
+      "sha256": "2cc127f67ab780dc8baf3cf4f9725efa957fb291e8ceb8adbe886c66ba6c457f"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-context/reproduce-inputs.json",
+      "sha256": "833d727bf64bbd0a3c4078d23bf5b31820cde8bcf57d57b89b46e0deaed6635d"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-context/reproduce-native.log",
+      "sha256": "24f70cb95bf20593cd91155967aa6827a4ce5a158a00e0a0c84fb70a76ee5770"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-context/reproduce-process-cleanup.json",
+      "sha256": "ea74747a59cbfb61a34dc0fddce8546d66a13f4b805941297edab5390181694f"
+    }
+  ],
+  "helper_fingerprints": [
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\stack_context_work.py",
+      "sha256": "09353c9c81a6388842d74ed0bc2f1ff0bd29b6e5a75a58342b6fc4d83a10f326"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\stack_context_native.ps1",
+      "sha256": "c3cd630c2dd030d4fdb6f6319e0975a95f3d08222698a4a86329637f85c67fc0"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\stack_context_finish.py",
+      "sha256": "27ba93c0da73db64ca1d308bd66b62dea6256be9437ef09f2e7e046f396761fa"
+    }
+  ]
+}

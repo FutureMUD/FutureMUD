@@ -4764,5 +4764,71 @@
       "No installer/stock ancestry merge, repository publication, deployment or shared database",
       "Sense-food cb687f independently cleared; installer owns repair-only integration plus combined acceptance and Sense expiry/fresh retirement retry"
     ]
+  },
+  "ordinary_floor_get_stack_caller_context_repair": {
+    "status": "PASS_BOUNDED_PARENT_REVIEW_PENDING",
+    "parent": "27c97f359f5cf6d9fab156198aad5cd98a924d99",
+    "acceptance": [
+      {
+        "id": "native-outer-refusal-independent-refill-flush",
+        "status": "PASS",
+        "survivor": 8,
+        "source": 2,
+        "total": 10
+      },
+      {
+        "id": "native-outer-success-actual-loader",
+        "status": "PASS"
+      },
+      {
+        "id": "exact-stored-custody-before-placement",
+        "status": "PASS"
+      },
+      {
+        "id": "unconditional-retry-observer-count",
+        "status": "PASS",
+        "callbacks": 1
+      },
+      {
+        "id": "focused-core",
+        "status": "PASS",
+        "passed": 272,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "id": "finite-native-and-fresh-readers",
+        "status": "PASS",
+        "cases": 13,
+        "readers": 14
+      },
+      {
+        "id": "historical-preservation",
+        "status": "PASS"
+      },
+      {
+        "id": "local-commit",
+        "status": "INCLUDED_IN_ENCLOSING_LOCAL_COMMIT",
+        "receipt": "Task root Armageddon_StackContext_CommitReceipt.json"
+      },
+      {
+        "id": "selected-melee-check-qualification",
+        "status": "NOT_RUN"
+      },
+      {
+        "id": "full-core-fast-world-telnet",
+        "status": "NOT_RUN"
+      }
+    ],
+    "receipt": "Design Documents/Magic/Armageddon_StackContext_Verification.json",
+    "next_smallest_gate": "Resume allocated native selected-melee Check scoring/applicable-merit callbacks and final learning setter stale-write admission, with independent persisted trait reader",
+    "limits": [
+      "Finite ordinary whole floor-stack Get with exact Stackable/Holdable leaves only",
+      "Controlled native fixture, actual native runtime-loader Find path with empty boot cache; no full-world/Telnet session",
+      "Full Core and Full Fast NOT RUN for this correction; historical fullCore5131 is not counted as this checkpoint evidence",
+      "Selected-melee Check qualification remains NOT RUN; independent research only before this priority correction",
+      "Container Get/Give/unload, wider component/boarding/countershot and complete Armageddon acceptance remain separate",
+      "No other lane merged, no stock breathing/lifetime edits, no publication/deployment/shared or production database"
+    ]
   }
 }

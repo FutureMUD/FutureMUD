@@ -18,6 +18,7 @@ using MudSharp.Combat.Moves;
 using MudSharp.Commands;
 using MudSharp.Commands.Trees;
 using MudSharp.Construction;
+using MudSharp.Database;
 using MudSharp.Effects.Concrete;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
@@ -167,6 +168,15 @@ internal static partial class GNHProgram
 					"Absorbed native stack or its persistence joins survived cold reload.");
 				continue;
 			}
+			using (var stored = NewIndependentContext(database.ConnectionString))
+			{
+				Require(stored.GameItems.AsNoTracking().Any(x => x.Id == saved.Id), "Cold live stack item row must survive the caller's later flush.");
+				var cells = stored.CellsGameItems.AsNoTracking().Where(x => x.GameItemId == saved.Id).Select(x => x.CellId).ToArray();
+				var bodies = stored.BodiesGameItems.AsNoTracking().Where(x => x.GameItemId == saved.Id).Select(x => x.BodyId).ToArray();
+				Require(cells.SequenceEqual(saved.Cell.HasValue ? new[] { saved.Cell.Value } : Array.Empty<long>()) &&
+					bodies.SequenceEqual(saved.Body.HasValue ? new[] { saved.Body.Value } : Array.Empty<long>()),
+					"Cold stored custody joins must name the exact expected cell and body before runtime placement.");
+			}
 			var item = (GameItem)world.TryGetItem(saved.Id, true)!; item.FinaliseLoadTimeTasks();
 			if (saved.Cell.HasValue) (saved.Cell == source.Id ? source : destination).Insert(item, true);
 			Require(item.Quantity == saved.Quantity && item.OwnershipReference == saved.Owner &&
@@ -261,7 +271,7 @@ internal static partial class GNHProgram
 			world.Add(item); source.Insert(item, true); item.Login(); world.SaveManager.Flush(); return item;
 		}
 		foreach (var scenario in stackMergeOnly
-			? new[] { "ordered-valid", "ordered-parser-valid", "direct-valid", "owner", "delete-expire", "delete-refill", "delete-relocate", "delete-title", "description-expire", "description-refill", "delete-provider-refusal" }
+			? new[] { "ordered-valid", "ordered-parser-valid", "direct-valid", "owner", "delete-expire", "delete-refill", "delete-relocate", "delete-title", "description-expire", "description-refill", "delete-provider-refusal", "delete-provider-outer-refill", "delete-outer-success" }
 			: new[] { "owner", "survivor-relocation", "source-relocation", "direct-no-merge" })
 		{
 			var actor = stackMergeOnly && scenario == "ordered-valid" ? animated : cast(); var getter = scenario is "direct-no-merge" or "direct-valid" ? caster : actor;
@@ -290,8 +300,8 @@ internal static partial class GNHProgram
 			};
 			if (stackMergeOnly) item.OnDeleted += _ =>
 			{
-				if (!inGet) return;
 				++deletionCallbacks;
+				if (!inGet) return;
 				Require(item.Quantity == 0 && survivor.Quantity == 8, "Deletion observers must see already conserved native stack quantities.");
 				if (scenario == "delete-expire")
 				{
@@ -312,7 +322,16 @@ internal static partial class GNHProgram
 				++getEvents; eventItem = changed;
 			};
 			getter.Body.OnInventoryChange += getObserver;
-			if (scenario == "delete-provider-refusal")
+			using var caller = scenario is "delete-provider-outer-refill" or "delete-outer-success" ? new FMDB() : null;
+			var callerContext = caller is not null ? FMDB.Context : null;
+			Db.GameItem? unrelatedCallerRow = null;
+			if (callerContext is not null)
+			{
+				var tracked = callerContext.GameItems.Include(x => x.GameItemComponents).Include(x => x.CellsGameItems).Single(x => x.Id == item.Id);
+				Require(tracked.GameItemComponents.Count == 2 && tracked.CellsGameItems.Single().CellId == source.Id, "Pretrack the live source's native component and exact floor graph.");
+				unrelatedCallerRow = callerContext.GameItems.Find(survivor.Id)!;
+			}
+			if (scenario is "delete-provider-refusal" or "delete-provider-outer-refill")
 			{
 				using var db = NewIndependentContext(database.ConnectionString);
 				db.Database.ExecuteSqlRaw($"CREATE TRIGGER arm_stack_delete_refusal BEFORE DELETE ON GameItems FOR EACH ROW BEGIN IF OLD.Id = {item.Id} THEN SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'owned stack deletion fixture refusal'; END IF; END");
@@ -320,7 +339,7 @@ internal static partial class GNHProgram
 			void Get(ICharacter ch)
 			{
 				try { acquired = ch.Body.Get(item, 0, null, true, MudSharp.GameItems.ItemCanGetIgnore.None, []); }
-				catch (Exception ex) when (scenario == "delete-provider-refusal" && ex.ToString().Contains("owned stack deletion fixture refusal")) { providerRefusal = ex; }
+				catch (Exception ex) when (scenario is "delete-provider-refusal" or "delete-provider-outer-refill" && ex.ToString().Contains("owned stack deletion fixture refusal")) { providerRefusal = ex; }
 			}
 			if (scenario == "direct-no-merge") ((Body)getter.Body).GetWithoutMerge(item);
 			else if (scenario == "direct-valid") Get(getter);
@@ -328,18 +347,24 @@ internal static partial class GNHProgram
 			else Dispatch(actor, Get);
 			getter.Body.OnInventoryChange -= getObserver;
 			inGet = false;
-			if (scenario == "delete-provider-refusal")
+			if (scenario is "delete-provider-refusal" or "delete-provider-outer-refill")
 			{
 				Require(providerRefusal is not null, "Actual owned SQL trigger must refuse the absorbed DELETE.");
+				if (callerContext is not null)
+				{
+					Require(ReferenceEquals(FMDB.Context, callerContext), "Immediate deletion must restore the outer caller context.");
+					using var independent = CommandExecutionScope.EnterIndependent();
+					item.GetItemType<IStackable>()!.Quantity = 2;
+				}
 				using var db = NewIndependentContext(database.ConnectionString); db.Database.ExecuteSqlRaw("DROP TRIGGER arm_stack_delete_refusal");
 			}
 			if (stackMergeOnly && scenario != "owner")
 			{
-				var retained = scenario is "delete-refill" or "delete-relocate" or "delete-title" or "description-refill" or "delete-provider-refusal";
+				var retained = scenario is "delete-refill" or "delete-relocate" or "delete-title" or "description-refill" or "delete-provider-refusal" or "delete-provider-outer-refill";
 				Require(callbacks == 1 && descriptionCallbacks == 1 && deletionCallbacks == (scenario == "description-refill" ? 0 : 1) && item.Deleted == !retained && !survivor.Deleted &&
-					survivor.Quantity == 8 && item.Quantity == (scenario is "delete-refill" or "description-refill" ? 2 : 0),
+					survivor.Quantity == 8 && item.Quantity == (scenario is "delete-refill" or "description-refill" or "delete-provider-outer-refill" ? 2 : 0),
 					$"Successful native Get must conserve 5+3 once and clean only the unchanged absorbed stack: {scenario}, source={item.Quantity}/{item.Deleted}, survivor={survivor.Quantity}.");
-				Require(scenario == "delete-provider-refusal" ? acquired is null && getEvents == 0 : ReferenceEquals(acquired, survivor) && getEvents == 1 && ReferenceEquals(eventItem, survivor),
+				Require(scenario is "delete-provider-refusal" or "delete-provider-outer-refill" ? acquired is null && getEvents == 0 : ReferenceEquals(acquired, survivor) && getEvents == 1 && ReferenceEquals(eventItem, survivor),
 					"Native Get must return and notify its live survivor exactly once, with no success event after a provider exception.");
 				Require(getter.Body.HeldItems.Count(x => ReferenceEquals(x, survivor)) == 1 &&
 					!getter.Body.HeldItems.Any(x => ReferenceEquals(x, item)), "Merge must retain one survivor and no absorbed hand membership.");
@@ -360,9 +385,36 @@ internal static partial class GNHProgram
 				ReferenceEquals(survivor.GetItemType<IHoldable>()!.HeldBy, getter.Body), "Accepted Get destroyed callback-established survivor custody.");
 			}
 			world.SaveManager.Flush();
+			if (callerContext is not null)
+			{
+				callerContext.SaveChanges();
+				Require(callerContext.Entry(unrelatedCallerRow!).State != EntityState.Detached && ReferenceEquals(callerContext.GameItems.Find(survivor.Id), unrelatedCallerRow),
+					"Immediate deletion must preserve the caller's unrelated tracked survivor row.");
+				Require(!callerContext.ChangeTracker.Entries<Db.GameItem>().Any(x => x.Entity.Id == item.Id && x.State == EntityState.Deleted),
+					"Failed absorbed deletion must not remain pending in the caller context after independent refill and flush.");
+				if (scenario == "delete-provider-outer-refill") Require(!item.Deleted && item.Quantity == 2 && survivor.Quantity == 8 && ReferenceEquals(item.DirectLocation, source) && item.InInventoryOf is null &&
+					getter.Body.HeldItems.Count(x => ReferenceEquals(x, survivor)) == 1 && !getter.Body.HeldItems.Any(x => ReferenceEquals(x, item)),
+					"Independent refill and later caller flush must preserve both live stacks and their exact runtime custody.");
+				else
+				{
+					Require(!callerContext.ChangeTracker.Entries<Db.GameItem>().Any(x => x.Entity.Id == item.Id) &&
+						!callerContext.ChangeTracker.Entries<Db.GameItemComponent>().Any(x => x.Entity.GameItemId == item.Id),
+						"Successful deletion must evict only the source's cached item/component graph.");
+					using (var absent = NewIndependentContext(database.ConnectionString)) Require(!absent.GameItems.Any(x => x.Id == item.Id) &&
+						!absent.GameItemComponents.Any(x => x.GameItemId == item.Id) && !absent.CellsGameItems.Any(x => x.GameItemId == item.Id) &&
+						!absent.BodiesGameItems.Any(x => x.GameItemId == item.Id), "Successful independent deletion must remove the exact durable source graph.");
+					var loader = ArchiveRoots();
+					SetPrivateField(loader, "_items", host.Items);
+					SetPrivateField(loader, "_bootTimeCachedGameItems", new System.Collections.Generic.Dictionary<long, Db.GameItem>());
+					var count = loader.Items.Count();
+					Require(!loader.Items.Has(item.Id) && loader.TryGetItem(item.Id, true) is null && !loader.Items.Has(item.Id) && loader.Items.Count() == count,
+						"Actual Futuremud.TryGetItem in the restored caller must return null and register no absorbed ghost.");
+					Console.WriteLine("ARMRegression-outer-success=passed actual-Futuremud.TryGetItem absent-row no-registration exact-source-graph-eviction unrelated-caller-entry-retained");
+				}
+			}
 			var saved = new[] { survivor, item }.Select(x => new RegressionP2SavedStack(x.Id, x.Quantity, x.OwnershipReference,
 				x.GetItemType<IHoldable>()!.HeldBy?.Id, x.GetItemType<IHoldable>()!.HeldBy is null ? null : getter.Identity.Id, x.DirectLocation?.Id, x.Deleted)).ToArray();
-			RunItemReaderProcess(new RegressionP2Reader(database.Name, fixture, RuntimeClock.UtcNow, destination.Id, saved, scenario, scenario is "delete-refill" or "description-refill" ? 10 : 8), "--regression-p2-reader");
+			RunItemReaderProcess(new RegressionP2Reader(database.Name, fixture, RuntimeClock.UtcNow, destination.Id, saved, scenario, scenario is "delete-refill" or "description-refill" or "delete-provider-outer-refill" ? 10 : 8), "--regression-p2-reader");
 			if (scenario == "delete-provider-refusal")
 			{
 				using (CommandExecutionScope.EnterIndependent()) item.Delete();
@@ -370,8 +422,10 @@ internal static partial class GNHProgram
 				var retry = new[] { saved[0], saved[1] with { Deleted = true, Cell = null, Body = null, Character = null } };
 				RunItemReaderProcess(new RegressionP2Reader(database.Name, fixture, RuntimeClock.UtcNow, destination.Id, retry, "delete-provider-retry"), "--regression-p2-reader");
 			}
+			// The outer stack-call fixture ends before unrelated corpse retirement.
+			caller?.Dispose();
 			foreach (var stack in new[] { survivor, item }.Where(x => !x.Deleted)) { if (stack.GetItemType<IHoldable>()!.HeldBy is { } body) body.Take(stack); stack.Delete(); }
-			Finish(actor); Console.WriteLine($"ARMRegression-get={scenario} passed real-Body.Get removal-callback exact-{(scenario is "delete-refill" or "description-refill" ? 10 : 8)}-quantity title runtime-custody native-save cold-native-reader");
+			Finish(actor); Console.WriteLine($"ARMRegression-get={scenario} passed real-Body.Get removal-callback exact-{(scenario is "delete-refill" or "description-refill" or "delete-provider-outer-refill" ? 10 : 8)}-quantity title runtime-custody native-save cold-native-reader deletion-observers:{deletionCallbacks}");
 		}
 		if (stackMergeOnly) return 0;
 		Mock.Get(native.Body.Race).SetupGet(x => x.RaceUsesStamina).Returns(true);

@@ -1,6 +1,7 @@
 #nullable enable
 
 using System;
+using Microsoft.EntityFrameworkCore;
 using MudSharp.Body;
 using MudSharp.Database;
 using MudSharp.Framework;
@@ -56,9 +57,13 @@ public partial class GameItem
 				// refused DELETE leaves a live zero source, rather than resurrecting its units.
 				Gameworld.SaveManager.Flush();
 				if (!UnchangedAndEmpty()) return false;
-				using (new FMDB())
+				try
 				{
-					try
+					using var caller = new FMDB();
+					// A refused DELETE must not remain tracked as Deleted in a caller's
+					// deferred context and destroy a subsequent independent refill.
+					using (FMDB.BeginIndependentScope(requireWrites: true))
+					using (new FMDB())
 					{
 						sourceStack.Save();
 						survivorStack.Save();
@@ -71,12 +76,19 @@ public partial class GameItem
 							FMDB.Context.SaveChanges();
 						}
 					}
-					catch
-					{
-						sourceStack.MarkCommittedGetQuantityChanged();
-						survivorStack.MarkCommittedGetQuantityChanged();
-						throw;
-					}
+					// Successful independent deletion must also evict only this source's
+					// cached graph, so the caller's native Find loader cannot resurrect it.
+					foreach (var entry in FMDB.Context.ChangeTracker.Entries().Where(entry =>
+						entry.Entity is MudSharp.Models.GameItem item && item.Id == absorbed.Id ||
+						entry.Metadata.GetForeignKeys().Any(key => key.PrincipalEntityType.ClrType == typeof(MudSharp.Models.GameItem) &&
+							key.Properties.Count == 1 && entry.Property(key.Properties[0].Name).CurrentValue is long id && id == absorbed.Id)).ToArray())
+						entry.State = EntityState.Detached;
+				}
+				catch
+				{
+					sourceStack.MarkCommittedGetQuantityChanged();
+					survivorStack.MarkCommittedGetQuantityChanged();
+					throw;
 				}
 			}
 			absorbed.GetItemType<IHoldable>()!.HeldBy = null;

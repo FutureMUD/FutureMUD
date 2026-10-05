@@ -1,0 +1,571 @@
+{
+  "schema_version": 1,
+  "entry_key": "arm.spell.see_the_unbodied",
+  "historical_identity": "Detect Ethereal, skill44",
+  "status": "SOURCE_QUALIFIED_BOUNDED_ADAPTER_ALLOCATION_REQUIRED",
+  "inspected_revision": "96288bf9dc16c6b8ebf8a50bdce09aa5b49161d2",
+  "branch": "codex/armageddon-five-stock-spells",
+  "scope": "Source qualification only; no implementation or stock clearance",
+  "stock_implemented": false,
+  "runtime_changed": false,
+  "unit_tests_run": false,
+  "native_acceptance_run": false,
+  "completion_clear": false,
+  "independent_review_pending": true,
+  "installer_changed": false,
+  "shared_dispatch_changed": false,
+  "water_review_pending": true,
+  "prerequisite_contract": {
+    "key": "arm.spell.pierce_concealment",
+    "raw": 80,
+    "opening": 30,
+    "raw_cap": 90,
+    "branches_at": 80,
+    "printed_minimum": 7,
+    "historical_table_min_mana": 0,
+    "full_path": [
+      "arm.spell.sense_enchantment",
+      "arm.spell.pierce_concealment",
+      "arm.spell.see_the_unbodied"
+    ],
+    "descendants": [
+      "arm.spell.sense_toxin",
+      "arm.spell.borrowed_tongues"
+    ],
+    "native_grade_baseline": "Existing spell-prerequisite API requires ordinary acquisition grade1; no additional mastery threshold inferred."
+  },
+  "source_contract": {
+    "school": "Shadow",
+    "sphere": "Divination",
+    "mood": "Revealing",
+    "ordinary_target": "Self only; other carrier/room/staff wrappers excluded",
+    "posture": "Minimum Standing; explicit native mapping, existing common gates; allocated position query remains under independent Water-checkpoint review",
+    "silt": "Caster Silt refusal",
+    "increment_source_hours": "3*grade",
+    "unit_seconds": 600,
+    "maximum_units": 36,
+    "retain_power": "Strongest existing/new source power across the source-type cohort",
+    "randomness": "No duration draw in this effect",
+    "opposed_save": "None in effect",
+    "component": "Outside Shadow plane consume one directly carried Divination component; stored zero-based rank at least grade-3; grades1..3 still require rank0; no nonpositive-power exemption",
+    "shadow_plane": "Skips component check/consumption, not Silt refusal",
+    "historical_exemptions": "Immortals, named Templars, Elementals and Fiends; no native IDs or automatic exception inferred",
+    "comment_conflict": "Non-cumulative comment contradicted by executable stack_spell_affect(cap36) call."
+  },
+  "native_reuse": [
+    "Existing DetectEtherealEffect / SpellDetectEtherealEffect with VisualEthereal|SenseEthereal and native parent persistence",
+    "Cleared native GradeRank offset=-3 carried-only consumed plan, five hierarchical rank tags0..4, quantity1 and existing payment journal/revalidation",
+    "Existing bounded casting, practice, target-policy, scheduler and accumulated detection APIs; no parallel implementation"
+  ],
+  "engine_adaptations": [
+    "Explicit current native terrain/plane and Divination tag bindings instead of historical IDs",
+    "One native source hour600 real seconds; exact deadlines/normalization and saved remaining-time restart behavior require recorded adaptation",
+    "Native quantity1 consumption instead of extracting an entire source object/stack must be explicit and tested",
+    "Native planar/ward/blindness perception gates remain authoritative; no cross-plane travel or unconditional visibility grant"
+  ],
+  "bounded_gaps": [
+    {
+      "name": "Truthful concrete operation",
+      "evidence": "DetectEtherealEffect is not IMagicSpellEffectOperation; CharacterSpellEffectTemplateBase returns an unattached child.",
+      "allocation": "Owned concrete effect/operation file; any existing shared class declaration change must be explicitly allocated; do not edit status base."
+    },
+    {
+      "name": "Ethereal accumulated lifetime admission",
+      "evidence": "MagicSpell.Lifetime.cs admits DetectInvisible/SourceWaterBreathing templates and concrete child types only.",
+      "allocation": "Separate cap36 group/template/child admission through existing lifecycle; shared bridge allocation required, no broad rewrite."
+    },
+    {
+      "name": "Conditional source component payment",
+      "evidence": "Persisted native consumed action has carried/grade/rank selectors but no inspected per-caster Shadow-plane exemption.",
+      "allocation": "Coordinate conditional prepared native plan selection/payment with owning lane; do not consume in predicate/effect or drop requirement."
+    }
+  ],
+  "source_evidence": {
+    "access": "Supported Library find/read windows saved as readable executor-local JSON; no full-file transfer or bypass",
+    "brief_library_id": "libfile_a4606cd0097081918d6c9d9e220e6da0",
+    "brief_file_id": "file_00000000273481fab2e542daf8801228",
+    "codedump_library_id": "libfile_befb4ae78d1c8191aaa2640c49912d9d",
+    "codedump_file_id": "file_00000000438871faac40c5042679ce3a",
+    "snapshot": {
+      "path": ".artifacts/test-runs/see-unbodied-source-qualification-01/library-evidence.json",
+      "bytes": 79273,
+      "sha256": "039625cfaef11c975344a0ef101db6a53392cbeefacbac5d5c67a6219b13716d",
+      "snapshots": 11
+    },
+    "windows": [
+      {
+        "file": "brief",
+        "start": 512,
+        "end": 536
+      },
+      {
+        "file": "brief",
+        "start": 708,
+        "end": 720
+      },
+      {
+        "file": "codedump",
+        "start": 84522,
+        "end": 84621
+      },
+      {
+        "file": "codedump",
+        "start": 174640,
+        "end": 174659
+      },
+      {
+        "file": "codedump",
+        "start": 217876,
+        "end": 217925
+      },
+      {
+        "file": "codedump",
+        "start": 172947,
+        "end": 173038
+      },
+      {
+        "file": "codedump",
+        "start": 81574,
+        "end": 81594
+      },
+      {
+        "file": "codedump",
+        "start": 174035,
+        "end": 174164
+      }
+    ],
+    "comparison": {
+      "candidate": "Night Eyes",
+      "path": "Same cleared Pierce raw80 parent; opens Clear Eyes/Lift Hex",
+      "source": {
+        "start": 89548,
+        "end": 89692
+      },
+      "reason_deferred": "Fire-plane blindness/offense branch, unusual initial/repeat blindness durations and independent cap24 lifetime; current native infravision also supplies Normal-floor darksight. Avoid combat-authority-sensitive branch before allocated policy."
+    },
+    "superseded_catalogue": "Night Eyes parent, grade2/raw20, 60*g duration, energy base4 and generic retained-focus proposal superseded by source-qualified Sorcerer row."
+  },
+  "inspected_native_files": [
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/StandaloneStatusSpellEffects.cs",
+      "sha256": "f5f8e494198e494b80df2f9a0ebe4d8a3be03ed08cb5d0c3c9c374908ab86c94",
+      "git_blob_sha1": "eb10d91d60af5446004fbc1b552ac5301acc05ed"
+    },
+    {
+      "path": "MudSharpCore/Effects/Concrete/SpellEffects/StandaloneSpellStatusEffects.cs",
+      "sha256": "974ef3c95d10a0b357ec7f28a510135f6a891aa0bff96366872f09defb3ca78f",
+      "git_blob_sha1": "0d6c8df4726066143df64a5cea2c64230bad6471"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/DetectInvisibleEffect.Operation.cs",
+      "sha256": "d9cf75bf7dd751864a882b13da8a72867c69ec81bc33131eb849ace728ca6c52",
+      "git_blob_sha1": "8c6606b77dd2834460ee745cc10ded19cc6845c4"
+    },
+    {
+      "path": "MudSharpCore/Magic/MagicSpell.Lifetime.cs",
+      "sha256": "016f27e47530b883885a3168879d4f7f08f94750f93426161eb51c626158edf5",
+      "git_blob_sha1": "38c3e8db370e336b5e37be7afe6de810058d19a6"
+    },
+    {
+      "path": "MudSharpCore/Effects/Concrete/MagicSpellParent.cs",
+      "sha256": "df45b6b7f71222a37e78ba7af00a62a501c9c8ba436dd7e508c80bb93ead0f80",
+      "git_blob_sha1": "0cce1821b36e488b4c04671acf6dac3f5163808f"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Inventory/Plans/InventoryPlanActionConsume.cs",
+      "sha256": "3af56f00ff2834226159370925654a8474abac7039a088adbc5cc74d3b5f8ecd",
+      "git_blob_sha1": "5e7ce81d6c19b0503b08f76c910bb448274ba20c"
+    },
+    {
+      "path": "MudSharpCore/Magic/ArmageddonStormSpearStock.cs",
+      "sha256": "19792c7026cc4bff99ac93679aa74ec86f3e6047025fab906af892e187f031ce",
+      "git_blob_sha1": "77fd47d8a60336217a4983803135d82c2dc3dd3a"
+    },
+    {
+      "path": "MudSharpCore/Magic/ArmageddonPierceConcealmentStock.cs",
+      "sha256": "2b5deb1ec8ed0882da53452f4e7c2892c7b8c17837581ed0d6d968a0c45e8996",
+      "git_blob_sha1": "87e028ae7aab37c210a8e2351f7b261c30e509ac"
+    },
+    {
+      "path": "MudSharpCore/Magic/ArmageddonWaterBreathingStock.cs",
+      "sha256": "2d8d2644f502a09b55db4175b6751179fb646278dfee7a71393f328ad43ba7b8",
+      "git_blob_sha1": "120eac40ff896d6b19b5a28f71279e802abc95e0"
+    },
+    {
+      "path": "MudSharpCore/Character/Character.cs",
+      "sha256": "6657677214c60edddfe652048dc4c19690dff02dda8293693b97c2d7b8bba221",
+      "git_blob_sha1": "907ca180dd69e4183e780d1e9297d1e990a59c7e"
+    },
+    {
+      "path": "MudSharpCore/FutureProg/Functions/BuiltIn/PositionIdFunction.cs",
+      "sha256": "590844e638972ea8c674160088f766ed2f8fa1364f472589575555899a619252",
+      "git_blob_sha1": "4295db7461b9d6f1c1d9fccbdcd74edcaaccd216"
+    },
+    {
+      "path": "Design Documents/Magic/Armageddon_Sorcerer_Source_Tree.json",
+      "sha256": "c87929ae6d67f138635cc7a5b8dda123a391413f0b2e7aa90ab58e6728cc0b1b",
+      "git_blob_sha1": "3ba7d20c656ef2e2992f8df6376b522d222ce971"
+    }
+  ],
+  "preserved_files": [
+    {
+      "path": "Design Documents/Magic/Armageddon_Completion_Progress.json",
+      "git_blob_sha1": "841c10f13313f158cae79a47b9d04c1ee4bac1e6"
+    },
+    {
+      "path": "Design Documents/Magic/Armageddon_Completion_Progress.md",
+      "git_blob_sha1": "e4d761764e41707f323cadb52fa1e466b81b7433"
+    },
+    {
+      "path": "Design Documents/Magic/Armageddon_Draw_Water_Stock_Receipt.json",
+      "git_blob_sha1": "a50058ae2b2cd657a5fc205fa2f2fa368031cc58"
+    },
+    {
+      "path": "Design Documents/Magic/Armageddon_Emotional_Groundwork_Receipt.json",
+      "git_blob_sha1": "bb794856dd9f69a3138a9aad5347d5e1921c9ece"
+    },
+    {
+      "path": "Design Documents/Magic/Armageddon_Emotional_Stamina_Removal_Receipt.json",
+      "git_blob_sha1": "f811c5cee6704befe68dca0104bea460f9e48133"
+    },
+    {
+      "path": "Design Documents/Magic/Armageddon_Five_Stock_Verification_Receipt.json",
+      "git_blob_sha1": "87e3a0ce9448cfcd360ca54085ffb63410de7fbf"
+    },
+    {
+      "path": "Design Documents/Magic/Armageddon_Hovering_Light_Stock_Receipt.json",
+      "git_blob_sha1": "1730964aa62be7309db9af52e78210d1a9e19227"
+    },
+    {
+      "path": "Design Documents/Magic/Armageddon_Mend_Flesh_Stock_Receipt.json",
+      "git_blob_sha1": "617520809e53c482fe864de8b3363a2e21f3673f"
+    },
+    {
+      "path": "Design Documents/Magic/Armageddon_Pierce_Concealment_Stock_Receipt.json",
+      "git_blob_sha1": "ad1dea1766611c64cf48c4b31f78cbbcdd0d1f9a"
+    },
+    {
+      "path": "Design Documents/Magic/Armageddon_Pierce_Lifetime_Verification_Receipt.json",
+      "git_blob_sha1": "b37f81fc46868366c27510fab19f1ee11db794a5"
+    },
+    {
+      "path": "Design Documents/Magic/Armageddon_Pierce_Shared_Repair_Receipt.json",
+      "git_blob_sha1": "5de9c77313d39091925b1f4b4b7e1570729a79fe"
+    },
+    {
+      "path": "Design Documents/Magic/Armageddon_Provision_Final_Admission_Receipt.json",
+      "git_blob_sha1": "276b2556e0df88c889d04db273e3508527e3c85c"
+    },
+    {
+      "path": "Design Documents/Magic/Armageddon_Provision_Verification_Receipt.json",
+      "git_blob_sha1": "837d63d717cbd7c93c4921f69afcc03844be263f"
+    },
+    {
+      "path": "Design Documents/Magic/Armageddon_Repertoire.json",
+      "git_blob_sha1": "0b958260b05be0ecc15a03234813536f8ff3689e"
+    },
+    {
+      "path": "Design Documents/Magic/Armageddon_Repertoire.md",
+      "git_blob_sha1": "af49021b6dc177865adec91324e1c992e4cae7cc"
+    },
+    {
+      "path": "Design Documents/Magic/Armageddon_Sense_Enchantment_Stock_Receipt.json",
+      "git_blob_sha1": "8501bfb0296c07292e833d71ec5581f853a89859"
+    },
+    {
+      "path": "Design Documents/Magic/Armageddon_Stock_Expiry_Reporting_Correction_Receipt.json",
+      "git_blob_sha1": "5ce02de949e580141395f59351e749f7632c3954"
+    },
+    {
+      "path": "Design Documents/Magic/Armageddon_Stock_Operation_Reporting_Receipt.json",
+      "git_blob_sha1": "dd782aa33fa5654a171420aefd116005b163e5d3"
+    },
+    {
+      "path": "Design Documents/Magic/Armageddon_Unravel_Enchantment_Stock_Receipt.json",
+      "git_blob_sha1": "7e2c25684c91ce02805fad035607d45ae751adc4"
+    },
+    {
+      "path": "Design Documents/Magic/Armageddon_Water_Breathing_Adapter_Receipt.json",
+      "git_blob_sha1": "3766fc3dea3bdacfae6246bb9f3c953d56eddb4d"
+    },
+    {
+      "path": "Design Documents/Magic/Armageddon_Water_Breathing_Compatibility_Receipt.json",
+      "git_blob_sha1": "ea859eb354592ddf8478640e35fede038a7e4cf5"
+    },
+    {
+      "path": "Design Documents/Magic/Armageddon_Water_Breathing_Independent_Selection_Receipt.json",
+      "git_blob_sha1": "ddf64a97ad71a1fd6265e3138aa72b93a27683bf"
+    },
+    {
+      "path": "Design Documents/Magic/Armageddon_Water_Breathing_Source_Qualification_Receipt.json",
+      "git_blob_sha1": "cba61101af9380ad5931dfc5e946ca76abb8c3e6"
+    },
+    {
+      "path": "MudSharpCore/Commands/Helpers/EditableItemHelperMagic.Stock.cs",
+      "git_blob_sha1": "c50d863c210a5452d15f4bc21b268560547839f9"
+    },
+    {
+      "path": "MudSharpCore/Effects/Concrete/SpellEffects/SpellScopedWaterBreathingEffect.cs",
+      "git_blob_sha1": "6f94932887fad09506a29c013a9850a3235737ae"
+    },
+    {
+      "path": "MudSharpCore/Effects/Concrete/SpellEffects/StandaloneSpellStatusEffects.cs",
+      "git_blob_sha1": "0d6c8df4726066143df64a5cea2c64230bad6471"
+    },
+    {
+      "path": "MudSharpCore/Health/Breathing/BlowholeBreather.cs",
+      "git_blob_sha1": "f10131e7502f915462ead2f5916a495ae1a43a0a"
+    },
+    {
+      "path": "MudSharpCore/Health/Breathing/BreathingStrategyHelper.cs",
+      "git_blob_sha1": "2976c255f1313d02eab931e31bd856d74d9f3420"
+    },
+    {
+      "path": "MudSharpCore/Health/Breathing/GillBreather.cs",
+      "git_blob_sha1": "742891f3942962d824a0c36789c5bfd3d3029832"
+    },
+    {
+      "path": "MudSharpCore/Health/Breathing/LungBreather.cs",
+      "git_blob_sha1": "c1f8d99a03f85598bf59393f720e4962ce96c19e"
+    },
+    {
+      "path": "MudSharpCore/Health/Breathing/NonBreather.cs",
+      "git_blob_sha1": "2ea5c996a53089b43d2641eb3ec22abc5bedb0fc"
+    },
+    {
+      "path": "MudSharpCore/Health/Breathing/PartlessBreather.cs",
+      "git_blob_sha1": "359e4ef16e4dd72ba57fcb3a5e2b1cb8f28b3fff"
+    },
+    {
+      "path": "MudSharpCore/Health/Breathing/RespirationDrugEffectExtensions.cs",
+      "git_blob_sha1": "e6eee6f4e526f114f775da824425f2ea0030eb24"
+    },
+    {
+      "path": "MudSharpCore/Magic/ArmageddonDrawWaterStock.cs",
+      "git_blob_sha1": "828fa94d0d877516ada2aa50fc52836c5f0bc9e8"
+    },
+    {
+      "path": "MudSharpCore/Magic/ArmageddonDrawWineStock.cs",
+      "git_blob_sha1": "5a47a2ce221ddbb9c32f8402a85f853f4b525f76"
+    },
+    {
+      "path": "MudSharpCore/Magic/ArmageddonFlameKnifeStock.cs",
+      "git_blob_sha1": "867b66908af8db0d0b0d61c7594a469ed6f7c302"
+    },
+    {
+      "path": "MudSharpCore/Magic/ArmageddonHoveringLightStock.cs",
+      "git_blob_sha1": "6321f9516c8f15392fd9c662b68ab05d45b920dc"
+    },
+    {
+      "path": "MudSharpCore/Magic/ArmageddonMendFleshStock.cs",
+      "git_blob_sha1": "d7c37cabfbeffadfeeda51e24bd075294741f4c6"
+    },
+    {
+      "path": "MudSharpCore/Magic/ArmageddonPierceConcealmentStock.cs",
+      "git_blob_sha1": "87e028ae7aab37c210a8e2351f7b261c30e509ac"
+    },
+    {
+      "path": "MudSharpCore/Magic/ArmageddonRaiseServitorStock.cs",
+      "git_blob_sha1": "d36fb1d4e24c9aaed4019dee0dec8fc18feceb3d"
+    },
+    {
+      "path": "MudSharpCore/Magic/ArmageddonSandKnifeStock.cs",
+      "git_blob_sha1": "9de7cd11864244b159909390e2368d3e3bd78e48"
+    },
+    {
+      "path": "MudSharpCore/Magic/ArmageddonSenseEnchantmentStock.cs",
+      "git_blob_sha1": "239acfa6e096af434a322f6025dc1f1496e5630f"
+    },
+    {
+      "path": "MudSharpCore/Magic/ArmageddonStormSpearStock.cs",
+      "git_blob_sha1": "77fd47d8a60336217a4983803135d82c2dc3dd3a"
+    },
+    {
+      "path": "MudSharpCore/Magic/ArmageddonSustainMealStock.cs",
+      "git_blob_sha1": "7b9a9d0a02bcf91e41eb4c425867678d4272f734"
+    },
+    {
+      "path": "MudSharpCore/Magic/ArmageddonUnravelEnchantmentStock.cs",
+      "git_blob_sha1": "2fe3c767996d8ff7d08e87a1cf5f1137910b16cb"
+    },
+    {
+      "path": "MudSharpCore/Magic/ArmageddonUtilityStock.cs",
+      "git_blob_sha1": "1ff47ca6890fca2fd7561a1afb1538120ae36490"
+    },
+    {
+      "path": "MudSharpCore/Magic/Casting/CastingNumerics.cs",
+      "git_blob_sha1": "1b70a61b9a701f5a094c7a0ad04e871dcb84f772"
+    },
+    {
+      "path": "MudSharpCore/Magic/Casting/ConfiguredCastingExecution.cs",
+      "git_blob_sha1": "0be8ee91d90321dc5154f3d63e042d6ae1973c8a"
+    },
+    {
+      "path": "MudSharpCore/Magic/Casting/MagicCastingService.Acquisition.cs",
+      "git_blob_sha1": "d02d9e7e0b55af25190a590ac6289d75f72264e2"
+    },
+    {
+      "path": "MudSharpCore/Magic/Casting/MagicCastingService.Area.cs",
+      "git_blob_sha1": "bb747c2cffb63bb407f803a61bdbb200920f8964"
+    },
+    {
+      "path": "MudSharpCore/Magic/Casting/MagicCastingService.cs",
+      "git_blob_sha1": "3a59be69720e9bb7182a09c7b30762cd53dc2397"
+    },
+    {
+      "path": "MudSharpCore/Magic/Casting/MagicCastingService.Devices.cs",
+      "git_blob_sha1": "b20e964d10569f1cc418d261eea10e339be3fd46"
+    },
+    {
+      "path": "MudSharpCore/Magic/Casting/MagicCastingService.DeviceState.cs",
+      "git_blob_sha1": "ffe7de0f6192d10afffac5b1ce7fa44c2392a365"
+    },
+    {
+      "path": "MudSharpCore/Magic/Casting/MagicCastingService.Execution.cs",
+      "git_blob_sha1": "3efc3541327ee26a652db39630d2ca2c2b0e724b"
+    },
+    {
+      "path": "MudSharpCore/Magic/Casting/MagicCastingService.Incantation.cs",
+      "git_blob_sha1": "5bd68df74e59e9cc44fc749c615615bee2c3bf89"
+    },
+    {
+      "path": "MudSharpCore/Magic/Casting/MagicCastingService.Practice.cs",
+      "git_blob_sha1": "a3bb95334e4eab9a5f095f9ca7112098330626c5"
+    },
+    {
+      "path": "MudSharpCore/Magic/Casting/MagicCastingService.PreparedSelection.cs",
+      "git_blob_sha1": "70fa4fa63ea113c4258a6d5920ac73a71f59da66"
+    },
+    {
+      "path": "MudSharpCore/Magic/Casting/MagicCastingService.Progression.cs",
+      "git_blob_sha1": "491f98b595093427be943bcd7ebaaf9f13ffa9f5"
+    },
+    {
+      "path": "MudSharpCore/Magic/Casting/MagicCastingService.Resources.cs",
+      "git_blob_sha1": "4e24b59796ac88c74ee3d90591e3d76d08119944"
+    },
+    {
+      "path": "MudSharpCore/Magic/Casting/MagicCastingService.SelectionPayment.cs",
+      "git_blob_sha1": "319a5ee8bc19b316f1b2ce3073cc6ac71b0390fd"
+    },
+    {
+      "path": "MudSharpCore/Magic/Casting/MagicCastingService.Support.cs",
+      "git_blob_sha1": "4c246c675c58634096bb3c1a9e268b805e7ce711"
+    },
+    {
+      "path": "MudSharpCore/Magic/Casting/MagicCastingStateStore.cs",
+      "git_blob_sha1": "f3f5f5a532d34a1fcc0bc3a247323e4ff2fc3e65"
+    },
+    {
+      "path": "MudSharpCore/Magic/Casting/MagicDeviceJournal.cs",
+      "git_blob_sha1": "a47ce3ce43d81e14b54f65776b735f78e516bd0b"
+    },
+    {
+      "path": "MudSharpCore/Magic/Casting/MagicPracticeAction.cs",
+      "git_blob_sha1": "89513bc0fb19fcf4fb8c4268fad32c631120457d"
+    },
+    {
+      "path": "MudSharpCore/Magic/Casting/SpellAreaDamageScope.cs",
+      "git_blob_sha1": "7a874350e36c92f56485736076b1aafdbba3ce65"
+    },
+    {
+      "path": "MudSharpCore/Magic/MagicSpell.Lifetime.cs",
+      "git_blob_sha1": "38c3e8db370e336b5e37be7afe6de810058d19a6"
+    },
+    {
+      "path": "MudSharpCore/Magic/MagicSpell.WaterBreathing.cs",
+      "git_blob_sha1": "6ceb33ae35ba1d876ac264b9b99392cac992ad8c"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/SourceWaterBreathingEffect.cs",
+      "git_blob_sha1": "5f6d7d8fac2e6855980cca254328bc6a5bde5624"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/SourceWaterBreathingEffect.Operation.cs",
+      "git_blob_sha1": "553c6adfceb123947e770b6089a1e9ef00bca8d1"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/SourceWaterBreathingEffect.Selection.cs",
+      "git_blob_sha1": "eb6634ec1a732000a923093fdc326c257b69a81a"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.cs",
+      "git_blob_sha1": "ba0b243fb1e2f8a3d5a61f64a568edb96b8de153"
+    },
+    {
+      "path": "Temporary Scratch App/WaterBreathingAdapterNativeHarness/Program.WaterBreathingAdapter.cs",
+      "git_blob_sha1": "fa89a38ab4919c0eb2bd299e24415d1daf30d3d1"
+    },
+    {
+      "path": "Temporary Scratch App/WaterBreathingAdapterNativeHarness/Run-WaterBreathingAdapter.ps1",
+      "git_blob_sha1": "833e8596f728a38c677ce40a88a68737896864f3"
+    },
+    {
+      "path": "Temporary Scratch App/WaterBreathingAdapterNativeHarness/WaterBreathingAdapterEntry.cs",
+      "git_blob_sha1": "128e01a7eaa6a7a99ac62027cbff99e2c8a368ad"
+    },
+    {
+      "path": "Temporary Scratch App/WaterBreathingAdapterNativeHarness/WaterBreathingAdapterNativeHarness.csproj",
+      "git_blob_sha1": "27ad0d3c0dfb02149139cb3481e8a2bec6247136"
+    },
+    {
+      "path": "Design Documents/Magic/Armageddon_Water_Breathing_Stock_Integration.md",
+      "git_blob_sha1": "fe819bf53f412d064c534a395f8fda0f686c0c94"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/PositionIdFunctionTests.cs",
+      "git_blob_sha1": "8fb22d7742622678394fb592c635b01a02f7e993"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/WaterBreathingStockTests.cs",
+      "git_blob_sha1": "d0d6bf8f58fd1298f174b0ea77524a169e115fcd"
+    },
+    {
+      "path": "MudSharpCore/Commands/Helpers/EditableItemHelperMagic.PerceptionStock.cs",
+      "git_blob_sha1": "12c726a15e48f7ee210cebec3ba9b76152b8ebed"
+    },
+    {
+      "path": "MudSharpCore/Commands/Helpers/EditableItemHelperMagic.WaterBreathingStock.cs",
+      "git_blob_sha1": "0c3900afcabe48f5bf4407b3d74b1c3487aaeb71"
+    },
+    {
+      "path": "MudSharpCore/FutureProg/Functions/BuiltIn/PositionIdFunction.cs",
+      "git_blob_sha1": "4295db7461b9d6f1c1d9fccbdcd74edcaaccd216"
+    },
+    {
+      "path": "MudSharpCore/Magic/ArmageddonWaterBreathingStock.cs",
+      "git_blob_sha1": "120eac40ff896d6b19b5a28f71279e802abc95e0"
+    },
+    {
+      "path": "Temporary Scratch App/WaterBreathingStockNativeHarness/Program.WaterBreathingStock.cs",
+      "git_blob_sha1": "edcc4044f6dd22c7bd0654bb1c30bdd4ea4fc3ea"
+    },
+    {
+      "path": "Temporary Scratch App/WaterBreathingStockNativeHarness/Run-WaterBreathingStock.ps1",
+      "git_blob_sha1": "21242ebda82c4571ecd612042481e05cab85f058"
+    },
+    {
+      "path": "Temporary Scratch App/WaterBreathingStockNativeHarness/WaterBreathingStockEntry.cs",
+      "git_blob_sha1": "5524ee991f4de09489d2776038495cd8c74d3cad"
+    },
+    {
+      "path": "Temporary Scratch App/WaterBreathingStockNativeHarness/WaterBreathingStockNativeHarness.csproj",
+      "git_blob_sha1": "150270147ea0a435365356cf8a2d66cc58b78c2e"
+    },
+    {
+      "path": "Design Documents/Magic/Armageddon_Water_Breathing_Stock_Receipt.json",
+      "git_blob_sha1": "ec797a24cd26bb64b5c78e32a1d99ebcb431631f"
+    }
+  ],
+  "preserved_installer_tree": "5fa3aa5d48a628d72c240469f7f3f5fdb89c43d8",
+  "qualification_note": {
+    "path": "Design Documents/Magic/Armageddon_See_The_Unbodied_Source_Qualification.md",
+    "sha256": "bd5710d3aea889af3860f6e6989d2a60357ddf2727a367c116fd070e086a6ef5"
+  },
+  "verification_limits": [
+    "No entry-specific stock builder, paid/native, practice, restart or expiry acceptance run; generic adapter presence is not completion clearance.",
+    "Full historical setting plane/guild/race/component IDs unavailable as native bindings; explicit builder selections required.",
+    "Water96288bf and its position-query review remain independent; this proposal does not alter their source or evidence.",
+    "Fury/Calm defaults remain unwired; no charged carrier, NPC AI, combat-authority, topology, installer or central-ledger work."
+  ]
+}

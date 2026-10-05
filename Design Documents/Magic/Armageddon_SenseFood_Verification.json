@@ -1,0 +1,579 @@
+{
+  "status": "PASS_BOUNDED_SENSE_FOOD_REPAIR_PARENT_REVIEW_PENDING",
+  "base": "c27d85b1aa31508c0d5e0ab5bd4f7ca6efb80e78",
+  "installer_base": "37de143f202520a4a6f95d27889c2f521f833d04",
+  "utc": "2026-10-05T16:56:20.177190+00:00",
+  "runtime_adapter_sha256": "6e15500daa68b77ddd662fe35cd24a29f6f14c73773d98e0dd62cd32617afbfd",
+  "native_capsule_sha256": "012d01964032c39d29d3d19d362db54568bd1f5209e69895c496682b0d1706c6",
+  "managed": {
+    "focused01": {
+      "path": ".artifacts/test-runs/armageddon-sense-food/focused01/20261005T162207Z-3529fecfef37/summary.json",
+      "sha256": "f67664118297f14906b6e27a443b9dd4d3aa710ba2aedc368ea9316842507e18",
+      "run_id": "20261005T162207Z-3529fecfef37",
+      "counts": {
+        "executed": 57,
+        "passed": 57,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 57
+      },
+      "source_start": "ddd0d536c868d7924433c3447473fc6c16d6b74bb5f89973d20503162e4c136f",
+      "source_end": "ddd0d536c868d7924433c3447473fc6c16d6b74bb5f89973d20503162e4c136f"
+    },
+    "full-core01": {
+      "path": ".artifacts/test-runs/armageddon-sense-food/full-core01/20261005T163012Z-259e3ee4b908/summary.json",
+      "sha256": "f2fd53a6396ea290e4ac000962b114f90eb3b04d8cdb25c27280a3cba927f21e",
+      "run_id": "20261005T163012Z-259e3ee4b908",
+      "counts": {
+        "executed": 5123,
+        "passed": 5123,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 5123
+      },
+      "source_start": "8ed114e184d4219a416ee0b9c8a2ec1d11ec53a1d2c1598a28ebcf8ab2abd341",
+      "source_end": "8ed114e184d4219a416ee0b9c8a2ec1d11ec53a1d2c1598a28ebcf8ab2abd341"
+    }
+  },
+  "native": {
+    "path": ".artifacts/test-runs/armageddon-sense-food/qualify02/native/20261005T165005Z_b7ec9ff720fc42568740f27023450bf2/summary.json",
+    "sha256": "8ace0e845ffea6342309b4d53747f1501c5222e75006f1330f3f6651c5f83f2f",
+    "source_start": "8EF77A8EFE3804DD6390D14608FED949CD258E640FB7C85BA3D95199C2BFEFB5",
+    "source_end": "8EF77A8EFE3804DD6390D14608FED949CD258E640FB7C85BA3D95199C2BFEFB5",
+    "readers": [
+      {
+        "Action": "partial",
+        "Item": 1,
+        "Origin": "9d9800f7-c5d8-4704-bd40-ce1c2e0e5060",
+        "bites": 2.75,
+        "food": 1.625,
+        "Balance": 50,
+        "lifecycle": "Active",
+        "nativeSense": true,
+        "SenseIdentity": "926fb8fe-95ae-4326-b1f8-9c2fdaeda559"
+      },
+      {
+        "Action": "removed",
+        "Item": 1,
+        "Origin": "9d9800f7-c5d8-4704-bd40-ce1c2e0e5060",
+        "bites": 0,
+        "food": 3,
+        "Balance": 50,
+        "lifecycle": "Completed",
+        "nativeSense": true,
+        "SenseIdentity": "926fb8fe-95ae-4326-b1f8-9c2fdaeda559"
+      },
+      {
+        "Action": "removed",
+        "Item": 2,
+        "Origin": "96f52bc0-06b3-416b-8edb-d92e5895d7dc",
+        "bites": 0,
+        "food": 5,
+        "Balance": 50,
+        "lifecycle": "Completed",
+        "nativeSense": true,
+        "SenseIdentity": "926fb8fe-95ae-4326-b1f8-9c2fdaeda559"
+      },
+      {
+        "Action": "held",
+        "Item": 3,
+        "Origin": "2b424cc7-5432-4da4-adb1-4708f4e9be2d",
+        "bites": 0,
+        "food": 7,
+        "Balance": 50,
+        "lifecycle": "Retiring",
+        "nativeSense": true,
+        "SenseIdentity": "926fb8fe-95ae-4326-b1f8-9c2fdaeda559"
+      },
+      {
+        "Action": "removed",
+        "Item": 3,
+        "Origin": "2b424cc7-5432-4da4-adb1-4708f4e9be2d",
+        "bites": 0,
+        "food": 7,
+        "Balance": 50,
+        "lifecycle": "Completed",
+        "nativeSense": true,
+        "SenseIdentity": "926fb8fe-95ae-4326-b1f8-9c2fdaeda559"
+      },
+      {
+        "Action": "held",
+        "Item": 4,
+        "Origin": "dc45cd74-0db5-407a-b7d6-6dd762fda462",
+        "bites": 0,
+        "food": 9,
+        "Balance": 50,
+        "lifecycle": "Retiring",
+        "nativeSense": true,
+        "SenseIdentity": "926fb8fe-95ae-4326-b1f8-9c2fdaeda559"
+      },
+      {
+        "Action": "removed",
+        "Item": 4,
+        "Origin": "dc45cd74-0db5-407a-b7d6-6dd762fda462",
+        "bites": 0,
+        "food": 9,
+        "Balance": 50,
+        "lifecycle": "Completed",
+        "nativeSense": true,
+        "SenseIdentity": "926fb8fe-95ae-4326-b1f8-9c2fdaeda559"
+      },
+      {
+        "Action": "removed",
+        "Item": 5,
+        "Origin": "34cdf67a-ab66-4a93-a827-8e794c8e6797",
+        "bites": 0,
+        "food": 11,
+        "Balance": 50,
+        "lifecycle": "Completed",
+        "nativeSense": true,
+        "SenseIdentity": "926fb8fe-95ae-4326-b1f8-9c2fdaeda559"
+      },
+      {
+        "Action": "cold-finish",
+        "Item": 5,
+        "Origin": "34cdf67a-ab66-4a93-a827-8e794c8e6797",
+        "bites": 0,
+        "food": 11,
+        "Balance": 50,
+        "lifecycle": "Completed",
+        "nativeSense": true,
+        "SenseIdentity": "926fb8fe-95ae-4326-b1f8-9c2fdaeda559"
+      }
+    ],
+    "log": {
+      "path": ".artifacts/test-runs/armageddon-sense-food/qualify02/native.log",
+      "sha256": "d5c54544b401e6d172373fa1404c48b0ea7228b31a160b956448f48d4d0a6436"
+    },
+    "cleanup": {
+      "verified_utc": "2026-10-05T16:54:24.6543426+00:00",
+      "owned_port": 49468,
+      "owned_process_root": "C:\\Users\\luker\\AppData\\Local\\Temp\\futuremud-traditions-mysql_7889ea518cab42058cf70b53e344f99a",
+      "owned_process_root_absent": true,
+      "owned_server_pid": 24640,
+      "owned_server_pid_running": false,
+      "mysql_log_shutdown_complete": true,
+      "owned_harness_pids": [
+        3648,
+        3836,
+        10748,
+        28100,
+        35784,
+        43924,
+        45060,
+        45860,
+        46716,
+        46760,
+        50640
+      ],
+      "owned_harness_processes_remaining": 0,
+      "all_environment_restored": true,
+      "cleanup_confirmed": true
+    }
+  },
+  "failed_checks_retained": [
+    {
+      "attempt": "reproduce01",
+      "status": "BLOCKED_FIXTURE_WINDOWS_TABLE_PATH",
+      "gameplay": "NOT_RUN"
+    },
+    {
+      "attempt": "reproduce02",
+      "status": "BLOCKED_FIXTURE_WINDOWS_TABLE_PATH",
+      "gameplay": "NOT_RUN"
+    },
+    {
+      "attempt": "qualify01",
+      "status": "BUILD_FAILED_MISSING_FIXTURE_IMPORT",
+      "gameplay": "NOT_RUN"
+    }
+  ],
+  "limits": [
+    "Native qualifier is cleared installer37de plus exact root adapter and diagnostic capsule; no combined root/installer branch qualification",
+    "Controlled world/check catalogues; no Telnet login or whole spell matrix",
+    "Deletion retries are on original host after cold observation; positive remaining meal is consumed in a fresh process",
+    "Passive detection count, saved parent identity and child relationship verified; Sense deadline/expiry not qualified here",
+    "No new eating-event-wide atomicity contract; genuine held retirement retains zero bites and one needs credit",
+    "No additional native P2 stale-write injection/selected-melee, valid stack merge, route-aware corpse restoration or broader component/boarding/countershot claim"
+  ],
+  "artifacts": [
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/baseline.json",
+      "sha256": "b0210f7cdac0b47770a0ae58bb69aca3f525ad5c1755acd127dbb5f2d7e9279f"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/focused01/20261005T162207Z-3529fecfef37/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/focused01/20261005T162207Z-3529fecfef37/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/focused01/20261005T162207Z-3529fecfef37/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stdout.log",
+      "sha256": "039f79f9d5a0257c236fedd0195fca6342e32d2dbaec6bd01ff6ee4d88789f22"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/focused01/20261005T162207Z-3529fecfef37/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/results.trx",
+      "sha256": "300f6020f263ae38b0800c7376e007f6864de733c981eb1a11a0ac40de500998"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/focused01/20261005T162207Z-3529fecfef37/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/focused01/20261005T162207Z-3529fecfef37/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stdout.log",
+      "sha256": "208a4dfdf29af7a47a6ed68e19d04381c02287f61c7ddf4b22e9c84c0ef80425"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/focused01/20261005T162207Z-3529fecfef37/run.json",
+      "sha256": "ddeb1e02489c452f424a28c7015230e5fff27291b2b8582f9850c75d36be27f4"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/focused01/20261005T162207Z-3529fecfef37/sdk/sdk.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/focused01/20261005T162207Z-3529fecfef37/sdk/sdk.stdout.log",
+      "sha256": "3db6bca4b50618b2e0d2d55d23b3d0541fe039ab6f731df0e9c47317b400ce52"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/focused01/20261005T162207Z-3529fecfef37/source-end.json",
+      "sha256": "44fc786277ea33214bcfcb2e15c56671af0f308c9e64a98c1031597084069e9d"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/focused01/20261005T162207Z-3529fecfef37/source-start.json",
+      "sha256": "df26ee6c9a314bb0307690162427d1e1f2d4e1c8f485698194ea45cc6bbc8deb"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/focused01/20261005T162207Z-3529fecfef37/summary.json",
+      "sha256": "f67664118297f14906b6e27a443b9dd4d3aa710ba2aedc368ea9316842507e18"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/focused01/20261005T162207Z-3529fecfef37/summary.txt",
+      "sha256": "bfd2000f787b674cb3610a313e3a9f87e59e42f836edce682d1d992a70f01063"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/focused01/20261005T162207Z-3529fecfef37/test-results.json",
+      "sha256": "3ef8671e889974f133a3fd63c2a6f93e077861d0a13a7b3736a176161995a906"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/full-core01/20261005T163012Z-259e3ee4b908/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/full-core01/20261005T163012Z-259e3ee4b908/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/full-core01/20261005T163012Z-259e3ee4b908/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stdout.log",
+      "sha256": "f4fef40ba853f1b5508ea1e94ef0cf4e872e9d285899686e066b31d60e21c0c1"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/full-core01/20261005T163012Z-259e3ee4b908/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/results.trx",
+      "sha256": "6896b6c73616ac0224cba40e89a8ce396a56e0c6fcfd7b89fcbb7d72881db889"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/full-core01/20261005T163012Z-259e3ee4b908/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/full-core01/20261005T163012Z-259e3ee4b908/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stdout.log",
+      "sha256": "239a33e3024e7768e5bea10146981fb9894b2a69bdfc0ce9a328e0336cafb5c3"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/full-core01/20261005T163012Z-259e3ee4b908/run.json",
+      "sha256": "cb63726a4c9213a2d65038aa3780be4400d479d5de56fef23ed916312e619006"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/full-core01/20261005T163012Z-259e3ee4b908/sdk/sdk.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/full-core01/20261005T163012Z-259e3ee4b908/sdk/sdk.stdout.log",
+      "sha256": "3db6bca4b50618b2e0d2d55d23b3d0541fe039ab6f731df0e9c47317b400ce52"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/full-core01/20261005T163012Z-259e3ee4b908/source-end.json",
+      "sha256": "c06a1252e4ef5b6676e6720996115ca3194020f0a5df9ea9a024c3486f3afaf6"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/full-core01/20261005T163012Z-259e3ee4b908/source-start.json",
+      "sha256": "3fc5713454357a51c83fd79b0334e6f5335fde666e27b3fafa4d30ab8d297675"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/full-core01/20261005T163012Z-259e3ee4b908/summary.json",
+      "sha256": "f2fd53a6396ea290e4ac000962b114f90eb3b04d8cdb25c27280a3cba927f21e"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/full-core01/20261005T163012Z-259e3ee4b908/summary.txt",
+      "sha256": "2d5c4e4b64986e618d847525c4f0e6f11f7f6375f76e05f604fbafbd96e71b16"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/full-core01/20261005T163012Z-259e3ee4b908/test-results.json",
+      "sha256": "a5a2a9b8507c8a33f52755691fbdeabceee124e3a798645174d7960444ef4854"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/qualification-integration.json",
+      "sha256": "82f555fad5c2113a4d3026aa1e5a760911a1625322cb65a4ca9ed642bef22c52"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/qualify01/assemblies-after-build.json",
+      "sha256": "e04af12429deb47147f02c1f983e98008a17cf1adf03ad16a25939e21afc7899"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/qualify01/assemblies-before-build.json",
+      "sha256": "e04af12429deb47147f02c1f983e98008a17cf1adf03ad16a25939e21afc7899"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/qualify01/build.log",
+      "sha256": "bf0a428784a9112bc4ea340d786315edf8ac8e75f013f45220de8b4bb4d51dea"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/qualify01/completion.json",
+      "sha256": "60b03bd550dd2272295ca4889dadda3a146332acf45d52242f4a0ca8c6255533"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/qualify01/environment.json",
+      "sha256": "577e93e4f10f919415c39c9860cb48fdce6489f016b9f34512267d0d2cb828b9"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/qualify01/input-match-before.json",
+      "sha256": "cd3871df686f2e4c20e1f9f1fbb9c7a17f83d4d625f42404ff14fa79d6784364"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/qualify01/source-after-build.json",
+      "sha256": "d11fb9e566642e66082682af86096e806257b6e271044c635e1fada14a20692a"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/qualify01/source-before-build.json",
+      "sha256": "d11fb9e566642e66082682af86096e806257b6e271044c635e1fada14a20692a"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/qualify02/assemblies-before-build.json",
+      "sha256": "e04af12429deb47147f02c1f983e98008a17cf1adf03ad16a25939e21afc7899"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/qualify02/assembly-preservation-after.json",
+      "sha256": "f6fa090f92e2a64da5201384f4e035f919345717881467324bacb9254a732a6a"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/qualify02/build.log",
+      "sha256": "b4e010aa15ff3ace1b77c257b2c51cada158c505415607cf17dec50eda05336e"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/qualify02/cleanup.json",
+      "sha256": "8138d48efcdd8eb76d0d32c6d9785b5a8a33de8109fcedada92d7e8f4f2586b6"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/qualify02/completion.json",
+      "sha256": "1354f8393f867e148ecccfca51c8e65309543d441a23407f973208016e224723"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/qualify02/environment.json",
+      "sha256": "db1bcc7490a29a7a4def9a213443181ca6119cec713f94c758b9435b34500053"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/qualify02/input-match-before.json",
+      "sha256": "d4d939c0f7e6868cc5f444ecf3f430416c1bdebd290c7648c7303d583c4324df"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/qualify02/native/20261005T165005Z_b7ec9ff720fc42568740f27023450bf2/assemblies.json",
+      "sha256": "f88eec1529c82fa1bfce46d99ac21fd237e017a5e4b4c80f4d795bab98591956"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/qualify02/native/20261005T165005Z_b7ec9ff720fc42568740f27023450bf2/mysql.err",
+      "sha256": "4a75970a98dc609f998cc15fa75eec784e9bd5c38566fe778cd5bf517b71c676"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/qualify02/native/20261005T165005Z_b7ec9ff720fc42568740f27023450bf2/source-end.json",
+      "sha256": "8ef77a8efe3804dd6390d14608fed949cd258e640fb7c85ba3d95199c2bfefb5"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/qualify02/native/20261005T165005Z_b7ec9ff720fc42568740f27023450bf2/source-start.json",
+      "sha256": "8ef77a8efe3804dd6390d14608fed949cd258e640fb7c85ba3d95199c2bfefb5"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/qualify02/native/20261005T165005Z_b7ec9ff720fc42568740f27023450bf2/summary.json",
+      "sha256": "8ace0e845ffea6342309b4d53747f1501c5222e75006f1330f3f6651c5f83f2f"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/qualify02/native.log",
+      "sha256": "d5c54544b401e6d172373fa1404c48b0ea7228b31a160b956448f48d4d0a6436"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/qualify02/source-after-run.json",
+      "sha256": "b73488d164c3687c1f6028ea01373a3a1d32c853934e3cf47c13bd63ab994239"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/qualify02/source-before-build.json",
+      "sha256": "b73488d164c3687c1f6028ea01373a3a1d32c853934e3cf47c13bd63ab994239"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/reproduce01/build.log",
+      "sha256": "9d36fb147bbc3c830236110a5e7c94feeade49927db0556ba5893b0e44bf8852"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/reproduce01/cleanup.json",
+      "sha256": "9f9bbb5b10b05b2bc90cdef2e5c03e66fce09e8849f78d74981c5b11b24a5517"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/reproduce01/environment.json",
+      "sha256": "91a9dff63f7787b9933e68aa73d7063b5d4f9d7f3ca38599ea87f96e6dd228ca"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/reproduce01/native/20261005T162353Z_366c6a70880f47a483f80caad4d2baf5/assemblies.json",
+      "sha256": "add164b9cf91c3320bba9ecaf1b401e0d0deff7b8d7cbef42e20b37d9a2df977"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/reproduce01/native/20261005T162353Z_366c6a70880f47a483f80caad4d2baf5/mysql.err",
+      "sha256": "76a285677bc1cac7f683bec544813e38c04ddbe3a8ad0616aeb1dcf7a6234471"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/reproduce01/native/20261005T162353Z_366c6a70880f47a483f80caad4d2baf5/source-end.json",
+      "sha256": "a6b6e1d57c8b81428bb0f291803a2881157a059030fb1424de261d44d466e6a3"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/reproduce01/native/20261005T162353Z_366c6a70880f47a483f80caad4d2baf5/source-start.json",
+      "sha256": "a6b6e1d57c8b81428bb0f291803a2881157a059030fb1424de261d44d466e6a3"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/reproduce01/native/20261005T162353Z_366c6a70880f47a483f80caad4d2baf5/summary.json",
+      "sha256": "ebc68d17b32fcb098f9412debd3497356e7a4b9ced9ad519afdf93ec0a13f810"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/reproduce01/native.log",
+      "sha256": "415c1d7228fba56fded2d4f2425f6eadd4bf0ff824ac2a1d9a01f843d542cbff"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/reproduce02/assembly-preservation-after.json",
+      "sha256": "9d8f25e9e23665215fe4652d0c0bd171592e50f44b1441b31c44620ce874ab74"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/reproduce02/assembly-preservation-before.json",
+      "sha256": "8e8652a83a0781095ac9198ec01d1db1f882e8d039fd598a93d31c23c5a9db60"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/reproduce02/cleanup.json",
+      "sha256": "7d3787422d6f2600402a98228518c3949f2972502b12cc8a362b03e091f35440"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/reproduce02/environment.json",
+      "sha256": "80e1860bd4528210b9737073277896d44971249fffdc7fce2893a046db6ee706"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/reproduce02/native/20261005T163001Z_03b58fec297048b290dac482b3c800a2/assemblies.json",
+      "sha256": "e04af12429deb47147f02c1f983e98008a17cf1adf03ad16a25939e21afc7899"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/reproduce02/native/20261005T163001Z_03b58fec297048b290dac482b3c800a2/mysql.err",
+      "sha256": "355e76cc1f0349846b0c5a45438ae7bcc299bbb362c7624a937682e716bc78f2"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/reproduce02/native/20261005T163001Z_03b58fec297048b290dac482b3c800a2/source-end.json",
+      "sha256": "2c124901a5c3aded0c7ca7a20342e175736118f155c7a2f72203af9b449389ab"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/reproduce02/native/20261005T163001Z_03b58fec297048b290dac482b3c800a2/source-start.json",
+      "sha256": "2c124901a5c3aded0c7ca7a20342e175736118f155c7a2f72203af9b449389ab"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/reproduce02/native/20261005T163001Z_03b58fec297048b290dac482b3c800a2/summary.json",
+      "sha256": "e1db123587ddc439b1bdf0483ae82596edc0cd52b7ae774f74d50cd36fbeff1b"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/reproduce02/native.log",
+      "sha256": "c07752a96a10f39540106f54b3e9052231805366fc318c4f82db89ea73d3df62"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/reproduce02/path-length-diagnostic.json",
+      "sha256": "b71e618883626c417e1192adda3a83ca2459481d36d77027048aa971c98464de"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/reproduce02/source-preservation.json",
+      "sha256": "c20e9f8f2dc7f63f7b0b3f9498d891e3b1ec9c6ec4aa6c8ec62592a71f2c4833"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/reproduce03/assembly-preservation-after.json",
+      "sha256": "9d8f25e9e23665215fe4652d0c0bd171592e50f44b1441b31c44620ce874ab74"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/reproduce03/assembly-preservation-before.json",
+      "sha256": "8e8652a83a0781095ac9198ec01d1db1f882e8d039fd598a93d31c23c5a9db60"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/reproduce03/cleanup.json",
+      "sha256": "08f4a40cbf3e9d456a76aa647ceec069dfdfc2abad07605eb8b3955feb276d4f"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/reproduce03/environment.json",
+      "sha256": "13fa9a35f6052d8a07a02e1089a793cd580471be2fced37c8793a6bcd5f6ceed"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/reproduce03/native/20261005T163533Z_6de48538f55e49f497064e5982ae4b7d/assemblies.json",
+      "sha256": "add164b9cf91c3320bba9ecaf1b401e0d0deff7b8d7cbef42e20b37d9a2df977"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/reproduce03/native/20261005T163533Z_6de48538f55e49f497064e5982ae4b7d/mysql.err",
+      "sha256": "54997aeb4ce03db05977d19c4f53b6f4229c575512244db77eaa488715afcc25"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/reproduce03/native/20261005T163533Z_6de48538f55e49f497064e5982ae4b7d/source-end.json",
+      "sha256": "a6b6e1d57c8b81428bb0f291803a2881157a059030fb1424de261d44d466e6a3"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/reproduce03/native/20261005T163533Z_6de48538f55e49f497064e5982ae4b7d/source-start.json",
+      "sha256": "a6b6e1d57c8b81428bb0f291803a2881157a059030fb1424de261d44d466e6a3"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/reproduce03/native/20261005T163533Z_6de48538f55e49f497064e5982ae4b7d/summary.json",
+      "sha256": "5610e7a652c64b4df336fb5bfce50d2612077571f9e465dd042835cb5d897a6d"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/reproduce03/native.log",
+      "sha256": "71ed8b33aace8c5a555070ca6184f446003db822a8cdacf51091bf0825938f5f"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-sense-food/reproduce03/path-length-correction.json",
+      "sha256": "5d40b7827023b091c160c46e318f44141a57906edba3154b49355d4cc14ee5e2"
+    }
+  ],
+  "historical_preservation": {
+    "artifact_files": 9930,
+    "task_files": 446,
+    "immutable_checks": {
+      "Armageddon_p2_CommitReceipt.json": "18a64a957f580da056b1ec1a5f71b0bfbe1e40e8543bfd7b99ecd1bac427a0d4",
+      "Armageddon_check_CommitReceipt.json": "71253de3831151faa5057170271db74b410a6f6c6857c5350cec7e8483a682c5",
+      "Armageddon_RegressionP2_FinalHandoff.json": "5ea6a98fbb7f61472993e9e79649f5953a4d2e8b0aa27cb9fd9e27f6c62633e4"
+    },
+    "mutable_compact_runner_owner_file": ".artifacts/test-runs/.worktree.lock.owner",
+    "checkpoint08_check_learning_receipts_and_133_artifacts_preserved": true,
+    "checkpoint07_commit_receipt_sha256": "fe87cdf94ffed691c104ad6171de6f715ac6377540d3633520a06b794070c629",
+    "checkpoint07_398_artifacts_33_helpers_preserved": true,
+    "primary": {
+      "head": "34eb234eb5a1e2784c595b4f848f6f785b426302",
+      "branch": "master",
+      "status": ""
+    },
+    "prior_fourteen_receipts_1486_artifacts_42_helpers_unchanged": true,
+    "C1_addendum_clarification_and_C1P2_closing_helpers_unchanged": true,
+    "source_tree_preserved": true,
+    "C2_receipt_311_artifacts_6_helpers_and_closing_evidence_preserved": true,
+    "D1_200_artifacts_7_helpers_13_build_logs_and_closing_evidence_preserved": true,
+    "D1P2_91_artifacts_6_helpers_2_build_logs_and_closing_evidence_preserved": true,
+    "D1P1_96_artifacts_6_helpers_4_build_logs_and_closing_evidence_preserved": true,
+    "D1P1M_133_artifacts_6_helpers_2_build_logs_and_closing_evidence_preserved": true,
+    "stock_186_artifacts_6_helpers_13_build_logs_historical_source_and_closing_evidence_preserved": true,
+    "security_92_artifacts_8_helpers_and_postcommit_evidence_preserved": true,
+    "pause_snapshots_and_historical_source_preserved": true,
+    "storm_258_artifacts_10_helpers_and_postcommit_preserved": true,
+    "flame_186_artifacts_12_helpers_and_postcommit_preserved": true,
+    "sand_173_artifacts_12_helpers_and_postcommit_preserved": true,
+    "queued_authority_223_artifacts_5_helpers_and_postcommit_preserved": true,
+    "callback_192_artifacts_6_helpers_and_closing_proofs_preserved": true
+  }
+}

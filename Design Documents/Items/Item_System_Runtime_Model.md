@@ -14,6 +14,8 @@ Accepted spell-owned NPC orders retain the original principal and grant in an ep
 
 The complete supported callback acceptance is still open; see [the working closure checklist](../Magic/Armageddon_OrderedNpc_Closure_Checklist.md) for actual passed/failed/not-run evidence and remaining families.
 
+Created leaf-item removal also admits exact native passive detection effects on the holder, with their matching native spell parent and no applicability programs. Unsupported effects and custody dependencies retain their removal guards. Consumption records the used remainder before retirement; a held exhausted item cannot credit needs again after save/reload or removal retry. See [the lifecycle contract](../Magic/Spell_Owned_Lifecycle.md).
+
 ## Physical manipulation and reach
 
 Ordinary manual actions require at least one current `IBody.HoldLocs` part for which `CanUseBodypart` succeeds. Occupied manipulators still count; inventory and weapon plans keep their stricter free-location requirements. Missing parts and restrained limbs fail at the body capability layer, including wield-only locations.

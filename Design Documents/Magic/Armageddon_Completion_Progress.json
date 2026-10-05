@@ -39,7 +39,7 @@
   "preparation_baseline": "b0e4339d57bf15bc6e6a6f21fbdd5edc73006e38",
   "implementation_branch": "codex/armageddon-completion-phase1",
   "authorised_scope": "Complete plan in coherent stages; local commits; no publication, merge, deploy or shared/production DB",
-  "selected_stage": "Three d882 P2 repairs and separate Check stale-write correction verified; stop for parent review; active-Sense consumption/removal and broader native gates remain open",
+  "selected_stage": "Bounded active-Sense food repair verified against cleared installer37de; local checkpoint for parent review; whole plan incomplete",
   "phase1_remaining": [
     "Stock installer selects and qualifies the mental/spiritual native attribute, capacity expression/basis and authored energy coefficients.",
     "Complete installed source/support/crafting/chargen wiring and gathering restrictions/environmental accounting remain later stock/native gates.",
@@ -3697,7 +3697,7 @@
     }
   ],
   "next_checkpoint": {
-    "status": "STOP_FOR_PARENT_BOUNDED_REGRESSION_REVIEW",
+    "status": "SENSE_FOOD_BOUNDED_REPAIR_PARENT_REVIEW_PENDING",
     "receipt": "Design Documents/Magic/Armageddon_OrderedNpc_CheckStaleWrite_Verification.json",
     "remaining": [
       {
@@ -3707,7 +3707,7 @@
       },
       {
         "id": "eat-with-detection",
-        "status": "DEMONSTRATED_NATIVE_BLOCKER_NEXT_SEPARATE_CHECKPOINT",
+        "status": "BOUNDED_NATIVE_REPAIR_PASS_PARENT_REVIEW_PENDING",
         "scope": "Admit ordinary Sense/detection in spell item removal; preserve custody/reacquisition/dependency refusal and commit-safe persistence/rollback"
       },
       {
@@ -4668,5 +4668,48 @@
         "mode": "SOURCE_ONLY"
       }
     }
+  },
+  "active_sense_food_removal": {
+    "status": "PASS_BOUNDED_SENSE_FOOD_REPAIR_PARENT_REVIEW_PENDING",
+    "base": "c27d85b1aa31508c0d5e0ab5bd4f7ca6efb80e78",
+    "native_installer_base": "37de143f202520a4a6f95d27889c2f521f833d04",
+    "scope": "Exact passive native detection and matching save-wrapper admission; captured custody transaction and callback refusal retained",
+    "checklist": [
+      {
+        "id": "preserve-prior",
+        "status": "PASS"
+      },
+      {
+        "id": "managed-focused",
+        "status": "PASS",
+        "count": 57
+      },
+      {
+        "id": "managed-full-core",
+        "status": "PASS",
+        "count": 5123
+      },
+      {
+        "id": "native-repro",
+        "status": "PASS_REPRODUCED_BUG"
+      },
+      {
+        "id": "native-consumption",
+        "status": "PASS",
+        "readers": 9,
+        "cases": "partial, finish remainder, full, actual callback throw/foreign dependency, zero held no second meal, same-origin retry, fresh-positive-consumption"
+      },
+      {
+        "id": "local-commit",
+        "status": "INCLUDED_IN_ENCLOSING_LOCAL_COMMIT",
+        "evidence": "Task root Armageddon_SenseFood_CommitReceipt.json"
+      }
+    ],
+    "limits": [
+      "No installer or unrelated stock branch merge",
+      "No shared hook edit, repository publication, deployment or shared database",
+      "Valid stack conservation, route-aware corpse restoration, broader gun/boarding/countershot and whole plan remain open"
+    ],
+    "receipt": "Design Documents/Magic/Armageddon_SenseFood_Verification.json"
   }
 }

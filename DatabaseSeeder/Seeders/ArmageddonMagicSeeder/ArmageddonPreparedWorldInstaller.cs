@@ -69,9 +69,11 @@ public static partial class ArmageddonPreparedWorldInstaller
 				bindings.ReserveResource, bindings.Decorator, bindings.Utilities.AlwaysFalseProg, bindings.AlwaysTrueProg,
 				bindings.GatheringTemplate, spells, bindings.SupportSkills, bindings.AllowedMethods);
 			ArmageddonTraditionInstallResult traditions;
-			using (var db = freshContext()) traditions = ArmageddonTraditionInstaller.Install(db, plan,
+			using (var db = freshContext()) traditions = ArmageddonTraditionInstaller.BootstrapDefinitions(db, plan,
 				x => checkpoint?.Invoke(ArmageddonTraditionInstaller.Module, x));
 			if (!Record(ArmageddonTraditionInstaller.Module, traditions.Status, traditions.Messages, traditions.Identities)) return Result(traditions.Status);
+			// Bootstrap above never reconciles capability/merit policy. Existing policy and stock
+			// baselines stay intact across interruptions; only the complete plan below may reconcile.
 			// Reserved composition point for the reviewed consumption repair. Current readiness
 			// validation rejects new selections; existing provisions are never reconciled here.
 			if (bindings.Provisions is { } provision)

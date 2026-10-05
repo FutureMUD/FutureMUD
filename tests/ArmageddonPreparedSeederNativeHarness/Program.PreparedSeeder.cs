@@ -25,7 +25,8 @@ internal static class PreparedSeederEntryPoint
 
 internal static partial class GNHProgram
 {
-	private sealed record PreparedReader(string Database, string Bindings, Dictionary<string, long?> Identities);
+	private sealed record PreparedReader(string Database, string Bindings, Dictionary<string, long?> Identities,
+		string? Policy = null, string? WithoutPierceVariant = null, long? Pierce = null, bool ReadOnly = false);
 	internal static int PreparedSeederMain(string[] args)
 	{
 		OwnedConnections.Install();
@@ -117,18 +118,13 @@ internal static partial class GNHProgram
 		var stopped = RunPrepared(database, bindings, (module, point) => { if (module == ArmageddonTraditionInstaller.Module && point == ArmageddonInstallCheckpoint.BeforeCommit) throw new IOException("Native later module interruption"); });
 		Require(stopped.Status == ArmageddonInstallStatus.Failed && stopped.Modules.Count == 2 && stopped.Modules[0].Status == ArmageddonInstallStatus.Completed && PreparedIdentities(database).Count == 21, "Later rollback discarded committed utilities or left traditions.");
 		var json = ArmageddonMagicSeeder.SerializeBindings(bindings);
+		QualifyFreshPreparedBootstrap(database, bindings, json);
 		var positiveMenu = PreparedMenu(database, true, json);
 		Require(positiveMenu.Contains("4/82") && positiveMenu.Contains("unattainable") && positiveMenu.Contains("Completed"), "Actual opt-in menu misreported closure or failed.");
 		var complete = RunPrepared(database, bindings); RequirePrepared(complete); Require(PreparedIdentities(database).Count == 196 && complete.Availability.All(x => x.StoredAdmissions.Count == 4), "Native four-admission closure wrong.");
 		Console.WriteLine("ARMPREP-entrypoint=passed real-question-contract real-SeedData 196-owned-records four-stored-admissions 78-unavailable no-new-provisions no-player-mutation");
 		var retained = PreparedIdentities(database); RunPreparedReader(new(database.Name, json, retained)); Require(players == TraditionPlayers(database), "Entry/rerun/restart mutated players.");
-		using (var db = NewIndependentContext(database.ConnectionString))
-		{
-			var cap = db.MagicCapabilities.Single(x => x.Id == retained["arm.capability.defiler"]); var original = cap.Definition; var xml = XElement.Parse(original);
-			xml.Element("Casting")!.Elements("Admission").Last().Remove(); cap.Definition = xml.ToString(); db.SaveChanges();
-			var edited = RunPrepared(database, bindings); RequirePrepared(edited); Require(edited.Availability.Single(x => x.Variant == "defiler").StoredAdmissions.Count == 3, "Builder override desired closure reported as actual.");
-			cap.Definition = original; db.SaveChanges();
-		}
+		QualifyPreparedComposition(database, bindings, json, retained);
 		InstallPreparedLegacyProvisions(database, bindings, retained);
 		string provisionBefore;
 		using (var db = NewIndependentContext(database.ConnectionString)) provisionBefore = PreparedProvisionSnapshot(db);
@@ -184,17 +180,48 @@ internal static partial class GNHProgram
 	}
 	private static void RunPreparedReader(PreparedReader input)
 	{
+		// Policy baselines exceed Windows' command-line limit. Keep the bounded receipt in
+		// this run's uniquely named local file until its owned child has stopped.
+		var receipt = Path.Combine(Path.GetTempPath(), "futuremud-prepared-reader_" + Guid.NewGuid().ToString("N") + ".json");
+		File.WriteAllText(receipt, JsonSerializer.Serialize(input), new UTF8Encoding(false));
 		var info = new ProcessStartInfo("dotnet") { UseShellExecute = false, CreateNoWindow = true, RedirectStandardOutput = true, RedirectStandardError = true };
-		info.ArgumentList.Add(Assembly.GetExecutingAssembly().Location); info.ArgumentList.Add("--prepared-reader"); info.ArgumentList.Add(Convert.ToBase64String(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(input))));
-		using var process = Process.Start(info)!; var output = process.StandardOutput.ReadToEndAsync(); var errors = process.StandardError.ReadToEndAsync();
-		if (!process.WaitForExit(60000)) { process.Kill(true); throw new TimeoutException("Owned prepared reader timeout."); }
-		Require(process.ExitCode == 0, output.GetAwaiter().GetResult() + errors.GetAwaiter().GetResult()); Console.Write(output.GetAwaiter().GetResult());
+		info.ArgumentList.Add(Assembly.GetExecutingAssembly().Location); info.ArgumentList.Add("--prepared-reader"); info.ArgumentList.Add(receipt);
+		Process? process = null;
+		try
+		{
+			process = Process.Start(info)!; var output = process.StandardOutput.ReadToEndAsync(); var errors = process.StandardError.ReadToEndAsync();
+			if (!process.WaitForExit(60000))
+			{
+				process.Kill(true); Require(process.WaitForExit(30000), "Owned prepared reader did not stop after timeout.");
+				throw new TimeoutException("Owned prepared reader timeout.");
+			}
+			Require(process.ExitCode == 0, output.GetAwaiter().GetResult() + errors.GetAwaiter().GetResult()); Console.Write(output.GetAwaiter().GetResult());
+		}
+		finally
+		{
+			if (process is { HasExited: false })
+			{
+				process.Kill(true); Require(process.WaitForExit(30000), "Owned prepared reader cleanup did not stop its child.");
+			}
+			process?.Dispose(); File.Delete(receipt);
+		}
 	}
-	private static int PreparedSeederReader(string encoded)
+	private static int PreparedSeederReader(string receipt)
 	{
-		var input = JsonSerializer.Deserialize<PreparedReader>(Encoding.UTF8.GetString(Convert.FromBase64String(encoded)))!;
+		var path = Path.GetFullPath(receipt); var file = new FileInfo(path);
+		Require(string.Equals(file.DirectoryName, Path.GetTempPath().TrimEnd(Path.DirectorySeparatorChar), StringComparison.OrdinalIgnoreCase) &&
+			file.Name.StartsWith("futuremud-prepared-reader_", StringComparison.Ordinal) && file.Extension == ".json" && file.Length <= 2 * 1024 * 1024,
+			"Prepared reader requires a bounded uniquely named local receipt.");
+		var input = JsonSerializer.Deserialize<PreparedReader>(File.ReadAllText(path, Encoding.UTF8))!;
 		using var database = TestDatabase.OpenExistingOwned(input.Database); ConfigureNativeDatabase(database.ConnectionString); var players = TraditionPlayers(database);
+		VerifyPreparedReaderPolicy(database, input);
+		if (input.ReadOnly)
+		{
+			Require(input.Identities.OrderBy(x => x.Key).SequenceEqual(PreparedIdentities(database).OrderBy(x => x.Key)), "Fresh readonly reader changed identities.");
+			Console.WriteLine("ARMPREP-composition-reader=passed fresh-process exact-policy-baselines identities readonly-before-resume"); return 0;
+		}
 		var result = RunPrepared(database, ArmageddonMagicSeeder.ParseBindings(input.Bindings)); RequirePrepared(result);
+		VerifyPreparedReaderPolicy(database, input);
 		Require(input.Identities.OrderBy(x => x.Key).SequenceEqual(PreparedIdentities(database).OrderBy(x => x.Key)) && players == TraditionPlayers(database), "Fresh-process prepared rerun changed identities/players.");
 		Console.WriteLine("ARMPREP-reader=passed fresh-process same-owned-identities no-player-mutation"); return 0;
 	}

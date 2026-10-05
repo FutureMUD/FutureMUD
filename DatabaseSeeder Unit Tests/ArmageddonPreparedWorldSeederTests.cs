@@ -20,16 +20,17 @@ using FutureProg = MudSharp.Models.FutureProg;
 namespace MudSharp_Unit_Tests;
 
 [TestClass]
-public class ArmageddonPreparedWorldSeederTests
+public partial class ArmageddonPreparedWorldSeederTests
 {
+	private static readonly InMemoryDatabaseRoot PreparedStores = new();
 	private static (FuturemudDatabaseContext Db, ArmageddonPreparedWorldBindings Bindings) Fixture()
 	{
 		var (source, traditions) = ArmageddonTraditionInstallerTests.Fixture();
 		using var dependencies = source;
-		// Proxy settings intentionally create separate EF service providers. Anchor this one
-		// disposable fixture store explicitly so all module/caller contexts see the same data.
+		// Proxy settings intentionally create separate EF service providers. Share their root,
+		// while each unique database name isolates a fixture and avoids one provider per case.
 		var db = new FuturemudDatabaseContext(new DbContextOptionsBuilder<FuturemudDatabaseContext>()
-			.UseInMemoryDatabase(Guid.NewGuid().ToString(), new InMemoryDatabaseRoot(), x => x.EnableNullChecks(false))
+			.UseInMemoryDatabase(Guid.NewGuid().ToString(), PreparedStores, x => x.EnableNullChecks(false))
 			.ConfigureWarnings(x => x.Ignore(InMemoryEventId.TransactionIgnoredWarning)).Options);
 		db.MagicSchools.AddRange(source.MagicSchools.AsNoTracking());
 		db.MagicResources.AddRange(source.MagicResources.AsNoTracking());

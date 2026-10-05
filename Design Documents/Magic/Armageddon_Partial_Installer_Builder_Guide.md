@@ -170,8 +170,12 @@ Ownership is `SeederManagedRecords` with package `ArmageddonMagicSeeder`, module
 Examples of stable keys are `arm.spell.sense_enchantment`, its `.skill`/`.skill.cap` records,
 `arm.capability.sorcerer`, `arm.merit.sorcerer`, and `arm.spell.pierce_concealment`.
 Each module receives a fresh independent context and owns a serializable transaction. Utilities bootstrap real root
-definitions, traditions create skills/capabilities/merits, Pierce uses the owned source skill, then traditions reconcile
-the additional admission. A failed/blocked/uncertain module stops the sequence. Earlier completed modules stay committed.
+definitions, then traditions bootstrap 165 skill/cap/improver records without creating or reconciling any capability or
+merit policy. Pierce uses the owned source skill. Only after all selected payload definitions commit do traditions
+reconcile capabilities and merits against the complete stock admission baseline. Existing capability/merit XML and
+baselines remain untouched during bootstrap, including interruption before Pierce commits. Removing Pierce by its
+exact spell ID remains a builder override across reruns; the stored admission report reflects that removal.
+A failed/blocked/uncertain module stops the sequence. Earlier completed modules stay committed.
 
 Do not claim a cross-module rollback. On interruption or lost acknowledgement, inspect each module's durable ownership
 and receipt from a fresh connection; rerun explicitly with the same valid bindings. No automatic retry or replay of

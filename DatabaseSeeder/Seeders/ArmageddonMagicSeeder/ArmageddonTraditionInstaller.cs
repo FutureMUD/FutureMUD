@@ -43,6 +43,10 @@ public static partial class ArmageddonTraditionInstaller
 
 	public static ArmageddonTraditionInstallResult Install(FuturemudDatabaseContext db, ArmageddonTraditionInstallPlan plan,
 		Action<ArmageddonInstallCheckpoint>? checkpoint = null)
+		=> Install(db, plan, false, checkpoint);
+
+	private static ArmageddonTraditionInstallResult Install(FuturemudDatabaseContext db, ArmageddonTraditionInstallPlan plan,
+		bool bootstrapDefinitionsOnly, Action<ArmageddonInstallCheckpoint>? checkpoint)
 	{
 		var messages = new List<string>(); var ids = new Dictionary<string, long>(); var available = new HashSet<string>();
 		ArmageddonTraditionInstallResult Result(ArmageddonInstallStatus status) => new(status, messages.AsReadOnly(), ids,
@@ -79,7 +83,7 @@ public static partial class ArmageddonTraditionInstaller
 				skills.Add(row.Key, trait.Id);
 			}
 			var template = XElement.Parse(db.MagicCapabilities.Single(x => x.Id == plan.GatheringTemplate).Definition);
-			foreach (var variant in Variants)
+			foreach (var variant in bootstrapDefinitionsOnly ? Array.Empty<string>() : Variants)
 			{
 				var spec = definitions.Single(x => x.Key == "arm.capability." + variant);
 				var capability = Apply(db, spec, new MagicCapability { Name = spec.Name, CapabilityModel = "skilllevel", PowerLevel = 1,
@@ -95,7 +99,9 @@ public static partial class ArmageddonTraditionInstaller
 			db.SaveChanges(); foreach (var record in records) ids.Add(record.Key, record.Value.LogicalId!.Value);
 			checkpoint?.Invoke(ArmageddonInstallCheckpoint.BeforeCommit); committing = true; transaction.Commit(); committed = true;
 			checkpoint?.Invoke(ArmageddonInstallCheckpoint.AfterCommit);
-			messages.Add($"Committed 82 distinct spell skill definitions and three partial capability/merit pairs; {available.Count(x => x.StartsWith("arm.spell.", StringComparison.Ordinal))}/82 prerequisite-closed admissions. No player or class refresh.");
+			messages.Add(bootstrapDefinitionsOnly
+				? "Committed 82 distinct spell skill definitions. Capability and merit definitions and ownership baselines were not reconciled; admission policy awaits the complete implemented-spell plan. No player or class refresh."
+				: $"Committed 82 distinct spell skill definitions and three partial capability/merit pairs; {available.Count(x => x.StartsWith("arm.spell.", StringComparison.Ordinal))}/82 prerequisite-closed admissions. No player or class refresh.");
 			foreach (var row in SourceRows.Where(x => x.Kind == "spell" && !available.Contains(x.Key)))
 				messages.Add($"Unavailable {row.Key}: {(plan.ImplementedSpells.ContainsKey(row.Key) ? "source prerequisite path is incomplete" : "implemented spell binding not supplied")}; skill definition is not spell entitlement.");
 			foreach (var row in SourceRows.Where(x => x.Kind == "support" && !available.Contains(x.Key)))

@@ -91,6 +91,11 @@ public class StackableGameItemComponent : GameItemComponent, IStackable
 
     private int _quantity = 1;
 
+	// Only the validated native Get merge may write the pair before publishing either change.
+	internal void SetCommittedGetQuantity(int quantity) => _quantity = quantity;
+	internal void MarkCommittedGetQuantityChanged() => Changed = true;
+	internal void NotifyCommittedGetQuantityChanged() => HandleDescriptionUpdate();
+
     public int Quantity
     {
         get => _quantity;

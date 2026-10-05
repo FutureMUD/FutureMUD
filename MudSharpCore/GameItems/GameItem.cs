@@ -1905,7 +1905,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 		}, unchangedAndEmpty);
 	}
 
-	private void DeleteCore(Func<bool>? beforeNativeRemoval, Func<bool>? mayNotify = null)
+	private void DeleteCore(Func<bool>? beforeNativeRemoval, Func<bool>? mayNotify = null, bool persistedAlready = false)
     {
 		ForeignCustodyTransferContext.EnsureItem(this, destructive: true);
           if (Deleted || _notifyingDeletionObservers) return;
@@ -1937,7 +1937,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 		if (GetItemType<ICorpse>() is not null && Gameworld.SpellOwnedCorpseAnimations?.IsBorrowedCorpse(Id) == true) return;
         if (SpellCreationOrigin?.IsTemporary == true) { DeleteSpellOwnedItem(); return; }
 		if (beforeNativeRemoval is not null && !beforeNativeRemoval()) return;
-          DeleteNative();
+          DeleteNative(persistedAlready);
     }
 
     private void DeleteNative(bool persistedAlready = false)

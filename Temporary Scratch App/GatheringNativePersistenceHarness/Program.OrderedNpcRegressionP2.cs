@@ -134,8 +134,8 @@ internal static partial class GNHProgram
 		return destination;
 	}
 
-	private sealed record RegressionP2SavedStack(long Id, int Quantity, ItemOwnershipReference? Owner, long? Body, long? Character, long? Cell);
-	private sealed record RegressionP2Reader(string Database, FixtureIds Fixture, DateTime Now, long Destination, RegressionP2SavedStack[] Stacks, string Scenario);
+	private sealed record RegressionP2SavedStack(long Id, int Quantity, ItemOwnershipReference? Owner, long? Body, long? Character, long? Cell, bool Deleted = false);
+	private sealed record RegressionP2Reader(string Database, FixtureIds Fixture, DateTime Now, long Destination, RegressionP2SavedStack[] Stacks, string Scenario, int ExpectedTotal = 8);
 	private static int RunRegressionP2Reader(string[] args)
 	{
 		var input = JsonSerializer.Deserialize<RegressionP2Reader>(Encoding.UTF8.GetString(Convert.FromBase64String(args.Single())))!;
@@ -157,6 +157,16 @@ internal static partial class GNHProgram
 		}
 		foreach (var saved in input.Stacks)
 		{
+			if (saved.Deleted)
+			{
+				using var absent = NewIndependentContext(database.ConnectionString);
+				Require(saved.Quantity == 0 && !absent.GameItems.Any(x => x.Id == saved.Id) &&
+					!absent.GameItemComponents.Any(x => x.GameItemId == saved.Id) &&
+					!absent.BodiesGameItems.Any(x => x.GameItemId == saved.Id) &&
+					!absent.CellsGameItems.Any(x => x.GameItemId == saved.Id) && world.TryGetItem(saved.Id, true) is null,
+					"Absorbed native stack or its persistence joins survived cold reload.");
+				continue;
+			}
 			var item = (GameItem)world.TryGetItem(saved.Id, true)!; item.FinaliseLoadTimeTasks();
 			if (saved.Cell.HasValue) (saved.Cell == source.Id ? source : destination).Insert(item, true);
 			Require(item.Quantity == saved.Quantity && item.OwnershipReference == saved.Owner &&
@@ -167,14 +177,14 @@ internal static partial class GNHProgram
 			Require(db.BodiesGameItems.Count(x => x.GameItemId == item.Id) == (saved.Body.HasValue ? 1 : 0) &&
 				db.CellsGameItems.Count(x => x.GameItemId == item.Id) == (saved.Cell.HasValue ? 1 : 0), "Cold loading lost saved custody joins.");
 		}
-		Require(input.Stacks.Sum(x => x.Quantity) == 8, "Cold fixture quantity must remain exactly eight.");
-		Console.WriteLine($"ARMRegression-reader={input.Scenario} passed fresh-native-GameItems native-Body.LoadInventory exact-8-quantity title custody");
+		Require(input.Stacks.Sum(x => x.Quantity) == input.ExpectedTotal, "Cold fixture quantity must remain exactly eight.");
+		Console.WriteLine($"ARMRegression-reader={input.Scenario} passed fresh-native-GameItems native-Body.LoadInventory exact-{input.ExpectedTotal}-quantity title custody");
 		return 0;
 	}
 
 	private static int RunOrderedNpcRegressionP2(TestDatabase database, RetirementHost host, HarnessClock clock,
 		ScriptedAiCharacterInstance animated, ICharacter caster, ICharacter foe, Func<ScriptedAiCharacterInstance> cast,
-		Action<ScriptedAiCharacterInstance> restored, Action<ScriptedAiCharacterInstance, ICharacter, string> order, FixtureIds fixture)
+		Action<ScriptedAiCharacterInstance> restored, Action<ScriptedAiCharacterInstance, ICharacter, string> order, FixtureIds fixture, bool stackMergeOnly = false)
 	{
 		var native = host.Native; var world = native.World; var service = world.SpellOwnedCorpseAnimations!;
 		ConfigureRegressionP2Fixture(host, database);
@@ -208,7 +218,7 @@ internal static partial class GNHProgram
 			if (configuredRegression.Add(ai)) Require(ai.BuildingCommand(caster, new StringStack("included checkpointregression")), "Fixture command allowlist failed.");
 			operation = action; var before = invoked; order(actor, caster, "checkpointregression"); Require(invoked == before + 1, "Actual AI must dispatch exactly once.");
 		}
-		foreach (var scenario in new[] { "ordered", "companion", "gap-expire", "direct" })
+		foreach (var scenario in stackMergeOnly ? Array.Empty<string>() : new[] { "ordered", "companion", "gap-expire", "direct" })
 		{
 			var actor = scenario == "ordered" ? animated : cast();
 			using (var db = NewIndependentContext(database.ConnectionString))
@@ -250,9 +260,11 @@ internal static partial class GNHProgram
 			if (item.GetItemType<IStackable>() is { } stack) stack.Quantity = quantity;
 			world.Add(item); source.Insert(item, true); item.Login(); world.SaveManager.Flush(); return item;
 		}
-		foreach (var scenario in new[] { "owner", "survivor-relocation", "source-relocation", "direct-no-merge" })
+		foreach (var scenario in stackMergeOnly
+			? new[] { "ordered-valid", "ordered-parser-valid", "direct-valid", "owner", "delete-expire", "delete-refill", "delete-relocate", "delete-title", "description-expire", "description-refill", "delete-provider-refusal" }
+			: new[] { "owner", "survivor-relocation", "source-relocation", "direct-no-merge" })
 		{
-			var actor = cast(); var getter = scenario == "direct-no-merge" ? caster : actor;
+			var actor = stackMergeOnly && scenario == "ordered-valid" ? animated : cast(); var getter = scenario is "direct-no-merge" or "direct-valid" ? caster : actor;
 			var survivor = NewItem("ARM03B2B stack", 5); var item = NewItem("ARM03B2B stack", 3);
 			survivor.SetOwner(caster); item.SetOwner(caster);
 			((Body)getter.Body).GetWithoutMerge(survivor);
@@ -265,8 +277,79 @@ internal static partial class GNHProgram
 				if (scenario == "survivor-relocation") { getter.Body.Drop(survivor, silent: true); source.Extract(survivor); destination.Insert(survivor, true); }
 				if (scenario == "source-relocation") { item.GetItemType<IHoldable>()!.HeldBy = null; destination.Insert(item, true); }
 			};
+			var deletionCallbacks = 0;
+			var inGet = true;
+			var descriptionCallbacks = 0;
+			if (stackMergeOnly) survivor.GetItemType<StackableGameItemComponent>()!.DescriptionUpdate += (_, _) =>
+			{
+				if (!inGet) return;
+				++descriptionCallbacks;
+				Require(item.Quantity == 0 && survivor.Quantity == 8, "Description observers must see already conserved native stack quantities.");
+				if (scenario == "description-expire") { Expire(actor); getter.Body.Drop(survivor, silent: true); Require(getter.Body.HeldItems.Any(x => ReferenceEquals(x, survivor)), "Expired reentrant description Drop must refuse."); }
+				if (scenario == "description-refill") { using var independent = CommandExecutionScope.EnterIndependent(); item.GetItemType<IStackable>()!.Quantity = 2; }
+			};
+			if (stackMergeOnly) item.OnDeleted += _ =>
+			{
+				if (!inGet) return;
+				++deletionCallbacks;
+				Require(item.Quantity == 0 && survivor.Quantity == 8, "Deletion observers must see already conserved native stack quantities.");
+				if (scenario == "delete-expire")
+				{
+					Expire(actor); getter.Body.Drop(survivor, silent: true);
+					Require(getter.Body.HeldItems.Any(x => ReferenceEquals(x, survivor)), "Reentrant Drop must still refuse expired command authority.");
+				}
+				using var independent = CommandExecutionScope.EnterIndependent();
+				if (scenario == "delete-refill") item.GetItemType<IStackable>()!.Quantity = 2;
+				if (scenario == "delete-relocate") { item.GetItemType<IHoldable>()!.HeldBy = null; destination.Insert(item, true); }
+				if (scenario == "delete-title") item.SetOwner(foe);
+			};
+			Exception? providerRefusal = null;
+			IGameItem? acquired = null;
+			IGameItem? eventItem = null; var getEvents = 0;
+			MudSharp.Body.InventoryChangeEvent getObserver = (_, state, changed) =>
+			{
+				if (state != MudSharp.Body.InventoryState.Held) return;
+				++getEvents; eventItem = changed;
+			};
+			getter.Body.OnInventoryChange += getObserver;
+			if (scenario == "delete-provider-refusal")
+			{
+				using var db = NewIndependentContext(database.ConnectionString);
+				db.Database.ExecuteSqlRaw($"CREATE TRIGGER arm_stack_delete_refusal BEFORE DELETE ON GameItems FOR EACH ROW BEGIN IF OLD.Id = {item.Id} THEN SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'owned stack deletion fixture refusal'; END IF; END");
+			}
+			void Get(ICharacter ch)
+			{
+				try { acquired = ch.Body.Get(item, 0, null, true, MudSharp.GameItems.ItemCanGetIgnore.None, []); }
+				catch (Exception ex) when (scenario == "delete-provider-refusal" && ex.ToString().Contains("owned stack deletion fixture refusal")) { providerRefusal = ex; }
+			}
 			if (scenario == "direct-no-merge") ((Body)getter.Body).GetWithoutMerge(item);
-			else Dispatch(actor, ch => ch.Body.Get(item, silent: true));
+			else if (scenario == "direct-valid") Get(getter);
+			else if (scenario == "ordered-parser-valid") { order(actor, caster, "get stack"); acquired = eventItem; }
+			else Dispatch(actor, Get);
+			getter.Body.OnInventoryChange -= getObserver;
+			inGet = false;
+			if (scenario == "delete-provider-refusal")
+			{
+				Require(providerRefusal is not null, "Actual owned SQL trigger must refuse the absorbed DELETE.");
+				using var db = NewIndependentContext(database.ConnectionString); db.Database.ExecuteSqlRaw("DROP TRIGGER arm_stack_delete_refusal");
+			}
+			if (stackMergeOnly && scenario != "owner")
+			{
+				var retained = scenario is "delete-refill" or "delete-relocate" or "delete-title" or "description-refill" or "delete-provider-refusal";
+				Require(callbacks == 1 && descriptionCallbacks == 1 && deletionCallbacks == (scenario == "description-refill" ? 0 : 1) && item.Deleted == !retained && !survivor.Deleted &&
+					survivor.Quantity == 8 && item.Quantity == (scenario is "delete-refill" or "description-refill" ? 2 : 0),
+					$"Successful native Get must conserve 5+3 once and clean only the unchanged absorbed stack: {scenario}, source={item.Quantity}/{item.Deleted}, survivor={survivor.Quantity}.");
+				Require(scenario == "delete-provider-refusal" ? acquired is null && getEvents == 0 : ReferenceEquals(acquired, survivor) && getEvents == 1 && ReferenceEquals(eventItem, survivor),
+					"Native Get must return and notify its live survivor exactly once, with no success event after a provider exception.");
+				Require(getter.Body.HeldItems.Count(x => ReferenceEquals(x, survivor)) == 1 &&
+					!getter.Body.HeldItems.Any(x => ReferenceEquals(x, item)), "Merge must retain one survivor and no absorbed hand membership.");
+				Require(!retained || (scenario == "delete-relocate" ? ReferenceEquals(item.DirectLocation, destination) && item.InInventoryOf is null :
+					ReferenceEquals(item.DirectLocation, source) && item.InInventoryOf is null), "Cleanup destroyed callback-established source custody.");
+				Require(survivor.OwnershipReference == new ItemOwnershipReference(caster.FrameworkItemType, caster.Identity.Id) &&
+					item.OwnershipReference == new ItemOwnershipReference(caster.FrameworkItemType, scenario == "delete-title" ? foe.Identity.Id : caster.Identity.Id), "Merge cleanup changed native title.");
+			}
+			else
+			{
 			Require(callbacks == 1 && !item.Deleted && !survivor.Deleted && item.Quantity == 3 && survivor.Quantity == 5 &&
 				survivor.OwnershipReference == new ItemOwnershipReference(caster.FrameworkItemType, scenario == "owner" ? foe.Identity.Id : caster.Identity.Id) &&
 				item.OwnershipReference == new ItemOwnershipReference(caster.FrameworkItemType, caster.Identity.Id),
@@ -275,13 +358,22 @@ internal static partial class GNHProgram
 				ReferenceEquals(item.DirectLocation, scenario == "source-relocation" ? destination : source) && item.InInventoryOf is null, "Accepted Get lost source custody or failed safe fallback.");
 			Require(scenario == "survivor-relocation" ? ReferenceEquals(survivor.DirectLocation, destination) && survivor.InInventoryOf is null :
 				ReferenceEquals(survivor.GetItemType<IHoldable>()!.HeldBy, getter.Body), "Accepted Get destroyed callback-established survivor custody.");
+			}
 			world.SaveManager.Flush();
 			var saved = new[] { survivor, item }.Select(x => new RegressionP2SavedStack(x.Id, x.Quantity, x.OwnershipReference,
-				x.GetItemType<IHoldable>()!.HeldBy?.Id, x.GetItemType<IHoldable>()!.HeldBy is null ? null : getter.Identity.Id, x.DirectLocation?.Id)).ToArray();
-			RunItemReaderProcess(new RegressionP2Reader(database.Name, fixture, RuntimeClock.UtcNow, destination.Id, saved, scenario), "--regression-p2-reader");
-			foreach (var stack in new[] { survivor, item }) { if (stack.GetItemType<IHoldable>()!.HeldBy is { } body) body.Take(stack); stack.Delete(); }
-			Finish(actor); Console.WriteLine($"ARMRegression-get={scenario} passed real-Body.Get removal-callback exact-8-quantity title runtime-custody native-save cold-native-reader");
+				x.GetItemType<IHoldable>()!.HeldBy?.Id, x.GetItemType<IHoldable>()!.HeldBy is null ? null : getter.Identity.Id, x.DirectLocation?.Id, x.Deleted)).ToArray();
+			RunItemReaderProcess(new RegressionP2Reader(database.Name, fixture, RuntimeClock.UtcNow, destination.Id, saved, scenario, scenario is "delete-refill" or "description-refill" ? 10 : 8), "--regression-p2-reader");
+			if (scenario == "delete-provider-refusal")
+			{
+				using (CommandExecutionScope.EnterIndependent()) item.Delete();
+				Require(item.Deleted && deletionCallbacks == 1 && survivor.Quantity == 8, "Failed native deletion must retry without replaying observers or crediting units twice.");
+				var retry = new[] { saved[0], saved[1] with { Deleted = true, Cell = null, Body = null, Character = null } };
+				RunItemReaderProcess(new RegressionP2Reader(database.Name, fixture, RuntimeClock.UtcNow, destination.Id, retry, "delete-provider-retry"), "--regression-p2-reader");
+			}
+			foreach (var stack in new[] { survivor, item }.Where(x => !x.Deleted)) { if (stack.GetItemType<IHoldable>()!.HeldBy is { } body) body.Take(stack); stack.Delete(); }
+			Finish(actor); Console.WriteLine($"ARMRegression-get={scenario} passed real-Body.Get removal-callback exact-{(scenario is "delete-refill" or "description-refill" ? 10 : 8)}-quantity title runtime-custody native-save cold-native-reader");
 		}
+		if (stackMergeOnly) return 0;
 		Mock.Get(native.Body.Race).SetupGet(x => x.RaceUsesStamina).Returns(true);
 		Mock.Get(world.GetCheck(CheckType.CombatRecoveryCheck)).Setup(x => x.Check(It.IsAny<IPerceivableHaveTraits>(), It.IsAny<Difficulty>(), It.IsAny<IPerceivable>(), It.IsAny<IUseTrait>(), It.IsAny<double>(), It.IsAny<TraitUseType>(), It.IsAny<(string, object)[]>()))
 			.Returns(CheckOutcome.SimpleOutcome(CheckType.CombatRecoveryCheck, Outcome.Pass));

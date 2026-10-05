@@ -64,7 +64,7 @@ internal static partial class GNHProgram
 		Console.WriteLine("ARM03D1Stock-reader=passed fresh-process durable-control-query persisted-stock-identity-formula-and-animation-deadline no-actor-materialization-or-replay");
 		return 0;
 	}
-	private static int RunRaiseServitorStockChecks(bool queuedAuthorityOnly = false, bool queuedCallbackOnly = false, bool orderedCallbacks = false, bool checkLearningOnly = false, bool regressionP2Only = false)
+	private static int RunRaiseServitorStockChecks(bool queuedAuthorityOnly = false, bool queuedCallbackOnly = false, bool orderedCallbacks = false, bool checkLearningOnly = false, bool regressionP2Only = false, bool stackMergeOnly = false)
 	{
 		using var database = TestDatabase.CreateFresh("futuremud_land_"); ConfigureNativeDatabase(database.ConnectionString);
 		var fixture = FixtureSeed.Create(database, "arm03d1_stock", true);
@@ -205,7 +205,7 @@ internal static partial class GNHProgram
 			Require(animation.HandleEvent(EventType.CommandIssuedToCharacter, animation, issuer, command), "Stock command event was not handled.");
 		var animated = Cast();
 		if (regressionP2Only)
-			return RunOrderedNpcRegressionP2(database, host, clock, animated, caster, foe, Cast, Restored, Order, fixture);
+			return RunOrderedNpcRegressionP2(database, host, clock, animated, caster, foe, Cast, Restored, Order, fixture, stackMergeOnly);
 		if (checkLearningOnly)
 			return RunOrderedNpcCheckLearning(database, host, clock, animated, caster, foe, Cast, Restored, Order);
 		if (orderedCallbacks)

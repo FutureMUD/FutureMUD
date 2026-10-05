@@ -10,6 +10,7 @@ using MudSharp.Effects.Concrete;
 using MudSharp.Events;
 using MudSharp.Framework.Save;
 using MudSharp.GameItems;
+using MudSharp.GameItems.Components;
 using MudSharp.GameItems.Inventory;
 using MudSharp.GameItems.Inventory.Size;
 using MudSharp.GameItems.Interfaces;
@@ -1701,7 +1702,10 @@ public partial class Body
 		return GetInternal(item, 0, null, silent, ItemCanGetIgnore.None, null, false, triggerEvents);
 	}
 
-	private sealed record PreparedGet(IGrab? Hand, IGameItem? Merge, MudSharp.Character.ICharacter Executor, ICell? Fallback, RoomLayer Layer);
+	private sealed record PreparedGet(IGrab? Hand, IGameItem? Merge, MudSharp.Character.ICharacter Executor, ICell? Fallback, RoomLayer Layer)
+	{
+		public double? RoutePosition { get; init; }
+	}
 
 	// A failed transfer may return only its exact already-detached item, without
 	// authorising another public operation from an expired command callback.
@@ -1744,7 +1748,7 @@ public partial class Body
 		var executor = Actor;
 		var merge = allowMerge ? HeldOrWieldedItems.ToArray().FirstOrDefault(x => x.CanMerge(item)) : null;
 		if (!ReferenceEquals(Actor, executor) || !CommandExecutionScope.TryContinue()) return null;
-		if (merge is not null) return new PreparedGet(null, merge, executor, Location, RoomLayer);
+		if (merge is not null) return new PreparedGet(null, merge, executor, Location, RoomLayer) { RoutePosition = RoutePositionMetres };
 		var hands = HoldLocs.Where(hand => !_heldItems.Any(x => ReferenceEquals(x.Item2, hand)) &&
 			!_wieldedItems.Any(x => ReferenceEquals(x.Item2, hand))).ToArray();
 		var hand = hands.FirstOrDefault(x =>
@@ -1754,13 +1758,16 @@ public partial class Body
 			hands.FirstOrDefault(x => x.CanGrab(item, this) == WearlocGrabResult.Success ||
 				(executor.IsAdministrator() && x.CanGrab(item, this) == WearlocGrabResult.FailTooBig));
 		if (!ReferenceEquals(Actor, executor) || !CommandExecutionScope.TryContinue()) return null;
-		return merge is null && hand is null ? null : new PreparedGet(hand, merge, executor, Location, RoomLayer);
+		return merge is null && hand is null ? null : new PreparedGet(hand, merge, executor, Location, RoomLayer) { RoutePosition = RoutePositionMetres };
 	}
 
 	// This private completion is only for the one item whose custody operation has already committed.
 	// Reentrant public inventory operations still pass their own normal authority checks.
-	private bool CompleteGetPlacement(IGameItem item, PreparedGet placement)
+	private bool CompleteGetPlacement(IGameItem item, PreparedGet placement) => CompleteGetPlacementWithResult(item, placement, out _);
+
+	private bool CompleteGetPlacementWithResult(IGameItem item, PreparedGet placement, out IGameItem acquired, bool consumeNativeStack = false)
 	{
+		acquired = item;
 		bool SourceReady() => !item.Deleted && !item.Destroyed && ComponentItemTransfer.DirectLocationOf(item) is null &&
 			item.ContainedIn is null && ReferenceEquals(item.GetItemType<IHoldable>()?.HeldBy, this);
 		if (!SourceReady()) return false;
@@ -1786,7 +1793,26 @@ public partial class Body
 					(item.Prototype, item.OverrideSdesc, item.OverrideDesc) == sourceDescription &&
 					(merge.Prototype, merge.OverrideSdesc, merge.OverrideDesc) == mergeDescription)
 				{
-					merge.Merge(item);
+					if (consumeNativeStack && merge is MudSharp.GameItems.GameItem nativeMerge && item is MudSharp.GameItems.GameItem nativeSource &&
+						nativeMerge.GetItemType<StackableGameItemComponent>() is not null &&
+						nativeSource.GetItemType<StackableGameItemComponent>() is not null)
+					{
+						acquired = merge;
+						try { nativeMerge.MergeCommittedStackForGet(nativeSource, this); }
+						finally
+						{
+							// Observers may refill or retitle the zero source. Preserve their value at the
+							// captured floor if they did not establish a real inventory/spatial claim.
+							if (SourceReady() && !HeldOrWieldedItems.Any(x => ReferenceEquals(x, item)))
+							{
+								if (placement.Fallback is { } floor) nativeSource.TryDropPrepared(new SpatialLocation(floor, placement.Layer, placement.RoutePosition));
+								else item.Drop(null);
+								if (!item.Deleted && !item.Destroyed && ReferenceEquals(item.Location, placement.Fallback) &&
+									item.InInventoryOf is null && item.ContainedIn is null) placement.Fallback?.Insert(item);
+							}
+						}
+					}
+					else merge.Merge(item);
 					return true;
 				}
 			}
@@ -1829,7 +1855,8 @@ public partial class Body
 		if (placement is null || !CanContinue()) return null;
 		CommandExecutionScope.MarkCommitted(executor);
 		var gottenItem = whole ? item.Get(this) : item.Get(this, quantity);
-		if (!CompleteGetPlacement(gottenItem, placement)) return null;
+		if (!CompleteGetPlacementWithResult(gottenItem, placement, out gottenItem, consumeNativeStack: true)) return null;
+		if (gottenItem.Deleted || gottenItem.Destroyed) return null;
 		var output = new MixedEmoteOutput(new Emote("@ get|gets $0", this, gottenItem), flags: OutputFlags.SuppressObscured);
         InventoryChanged = true;
         if (!silent)

@@ -4711,5 +4711,58 @@
       "Valid stack conservation, route-aware corpse restoration, broader gun/boarding/countershot and whole plan remain open"
     ],
     "receipt": "Design Documents/Magic/Armageddon_SenseFood_Verification.json"
+  },
+  "ordinary_floor_get_stack_conservation": {
+    "status": "PASS_BOUNDED_FLOOR_GET_STACK_CHECKPOINT_PARENT_REVIEW_PENDING",
+    "base": "cb687f704cb7918d9548941c6deb145120ec8883",
+    "scope": "Native ordinary floor Get quantity-pair commit; exact Stackable/Holdable absorbed-source cleanup; survivor return/events; callback and provider refusal preservation",
+    "checklist": [
+      {
+        "id": "native-reproduction",
+        "status": "PASS_REPRODUCED_BUG"
+      },
+      {
+        "id": "final-full-core",
+        "status": "PASS",
+        "count": 5131
+      },
+      {
+        "id": "finite-native",
+        "status": "PASS",
+        "cases": 11,
+        "fresh_readers": 12
+      },
+      {
+        "id": "normal-ordered-parser",
+        "status": "PASS"
+      },
+      {
+        "id": "sql-refusal-cold-retry",
+        "status": "PASS"
+      },
+      {
+        "id": "historical-preservation",
+        "status": "PASS"
+      },
+      {
+        "id": "local-commit",
+        "status": "INCLUDED_IN_ENCLOSING_LOCAL_COMMIT",
+        "receipt": "Task root Armageddon_StackMerge_CommitReceipt.json"
+      },
+      {
+        "id": "other-inventory-component-routes",
+        "status": "NOT_RUN"
+      }
+    ],
+    "receipt": "Design Documents/Magic/Armageddon_StackMerge_Verification.json",
+    "next_smallest_gate": "Actual selected-melee native Check scoring callback/stale-write fault with independent durable trait reader, after parent review/allocation",
+    "limits": [
+      "Floor Get only; container Get, Give, component unload, other public Merge callers remain separate",
+      "Final absorbed deletion supports exact native Stackable/Holdable leaves; unknown/structural components preserve zero source at floor",
+      "Native fixtures are controlled native runtime hosts, not full-world Telnet sessions",
+      "Route-aware corpse restoration, wider component/boarding/countershot, selected-melee native Check fault and whole-plan acceptance NOT RUN",
+      "No installer/stock ancestry merge, repository publication, deployment or shared database",
+      "Sense-food cb687f independently cleared; installer owns repair-only integration plus combined acceptance and Sense expiry/fresh retirement retry"
+    ]
   }
 }

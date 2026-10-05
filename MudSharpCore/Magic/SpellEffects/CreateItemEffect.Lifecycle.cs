@@ -169,9 +169,10 @@ public partial class CreateItemEffect
 	}
 
 	private sealed record NativeItemCreation(Guid[] Ids, CreateItemEffect Effect, ICharacter Caster, IPerceivable Target,
-		IGameItemProto Prototype, ItemQuality Quality, int Grade, SpellLifecycleMode Mode, double? Seconds, Guid? Invocation) : IMagicSpellEffectApplication
+		IGameItemProto Prototype, ItemQuality Quality, int Grade, SpellLifecycleMode Mode, double? Seconds, Guid? Invocation) : IMagicSpellEffectApplicationOperation
 	{
-		public IMagicSpellEffect Create(IMagicSpellEffectParent parent)
+		public IMagicSpellEffect Create(IMagicSpellEffectParent parent) => Apply(parent).Effect!;
+		public MagicEffectOperation Apply(IMagicSpellEffectParent parent)
 		{
 			var now = RuntimeClock.UtcNow;
 			for (var i = 0; i < Ids.Length; ++i)
@@ -182,7 +183,7 @@ public partial class CreateItemEffect
 			var item = Effect.Gameworld.SpellOwnedItems!.Create(Prototype, Caster, Quality, origin);
 			Effect.PlaceOwnedItem(item, Caster, Target);
 			}
-			return null!;
+			return new(Ids.Length > 0 ? MagicEffectOperationStatus.Applied : MagicEffectOperationStatus.NoChange, null);
 		}
 	}
 

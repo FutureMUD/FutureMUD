@@ -693,7 +693,7 @@ public class RemoveDetectEtherealEffect : CharacterSpellEffectRemovalTemplateBas
 	public override IMagicSpellEffectTemplate Clone() => new RemoveDetectEtherealEffect(SaveToXml(), Spell);
 }
 
-public class DetectMagickEffect : CharacterSpellEffectTemplateBase
+public partial class DetectMagickEffect : CharacterSpellEffectTemplateBase, IMagicSpellEffectOperation
 {
 	public static void RegisterFactory()
 	{

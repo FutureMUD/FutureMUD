@@ -1783,7 +1783,16 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
 					if (stillEligible?.Invoke() == false) break;
 					resolvedAny = true;
 					IMagicSpellEffect? child;
-					if (prepared.TryGetValue(effect, out var application)) child = application.Create(head);
+					if (prepared.TryGetValue(effect, out var application))
+					{
+						if (invocation?.Configured is { } reporting && application is IMagicSpellEffectApplicationOperation operation)
+						{
+							var report = operation.Apply(head);
+							child = report.Effect;
+							if (intended && report.Status == MagicEffectOperationStatus.Applied) reporting.AppliedIntendedOperation = true;
+						}
+						else child = application.Create(head);
+					}
 					else if (invocation?.Configured is { } reporting && effect is IMagicSpellEffectOperation operation)
 					{
 						var report = operation.Apply(magician, effectTarget, effectOutcome, power, head, additionalParameters);

@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using MudSharp.FutureProg;
 using MudSharp.Framework.Revision;
 using MudSharp.Magic;
+using MudSharp.RPG.Checks;
 using Db = MudSharp.Models;
 
 namespace FutureMUD.GatheringNativePersistenceHarness;
@@ -69,8 +70,7 @@ internal static partial class GNHProgram
 		var account = db.Accounts.AsNoTracking().Single(x => x.Name == "Admin");
 		var decorator = db.TraitDecorators.AsNoTracking().Single(x => x.Name == "General Skill" && x.Type == "Range");
 		var attribute = db.TraitDefinitions.AsNoTracking().Single(x => x.Name == "Intelligence" && x.Type == 1 && x.OwnerScope == 0);
-		var skillTemplate = db.TraitDefinitions.AsNoTracking().Single(x => x.Name == "Foraging" && x.Type == 0 && x.OwnerScope == 1);
-		Require(skillTemplate.ImproverId is { } improver && db.Improvers.Any(x => x.Id == improver && (x.Type == "classic" || x.Type == "branching")) && skillTemplate.ExpressionId is { }, "Seeded Foraging lacks real cap/use improvement.");
+		var skillTemplate = ResolveInstalledForageTemplate(db, out var forageSelection);
 		var no = db.FutureProgs.AsNoTracking().Single(x => x.FunctionName == "AlwaysFalse");
 		var yes = db.FutureProgs.AsNoTracking().Single(x => x.FunctionName == "AlwaysTrue");
 		var zero = db.FutureProgs.AsNoTracking().Single(x => x.FunctionName == "AlwaysZero");
@@ -131,8 +131,53 @@ internal static partial class GNHProgram
 			ArmageddonTraditionInstaller.Variants.ToDictionary(x => x, _ => (IReadOnlyList<MagicGatheringMethodKind>)new[] { MagicGatheringMethodKind.Self }));
 		var errors = ArmageddonPreparedWorldInstaller.Validate(db, bindings); Require(errors.Count == 0, string.Join("; ", errors));
 		Require(!db.SeederManagedRecords.Any(x => x.Seeder == ArmageddonMagicInstaller.Package), "Builder dependencies were claimed as package records.");
-		transaction.Commit(); preparation = new { seeded_bindings = existing, authored_dependencies = authored, players_untouched = true, starting_reserve = 0,
+		transaction.Commit(); preparation = new { seeded_bindings = existing, forage_selection = forageSelection, authored_dependencies = authored, players_untouched = true, starting_reserve = 0,
 			preparation_kind = "Explicit native builder-format configuration in owned disposable world; not a stock world readiness certificate", bindings };
 		return bindings;
+	}
+
+	private static Db.TraitDefinition ResolveInstalledForageTemplate(MudSharp.Database.FuturemudDatabaseContext db, out object selection)
+	{
+		var types = new[] { (int)CheckType.ForageCheck, (int)CheckType.ForageSpecificCheck, (int)CheckType.ForageTimeCheck };
+		var checks = db.Checks.AsNoTracking().Include(x => x.TraitExpression).ThenInclude(x => x.TraitExpressionParameters)
+			.Where(x => types.Contains(x.Type)).OrderBy(x => x.Type).ToArray();
+		Require(checks.Length == 3, "All three native forage check identities must exist; no arbitrary skill fallback.");
+		var references = new List<long>();
+		foreach (var check in checks)
+		{
+			var matches = MudSharp.Body.Traits.TraitExpression.TraitFormulaRegex.Matches(check.TraitExpression.Expression);
+			Require(matches.Count == 1 && matches[0].Groups["name"].Value.Equals("forage", StringComparison.OrdinalIgnoreCase) &&
+				long.TryParse(matches[0].Groups["reference"].Value, out var id) && id > 0,
+				$"Native forage check {check.Type} has no unique forage trait reference; stop rather than infer a name.");
+			var reference = long.Parse(matches[0].Groups["reference"].Value);
+			var suffix = (CheckType)check.Type switch { CheckType.ForageCheck => "", CheckType.ForageSpecificCheck => "-20", _ => "+20" };
+			Require(check.TraitExpression.Expression.Replace(" ", "").Equals("forage:" + reference + suffix, StringComparison.OrdinalIgnoreCase),
+				$"Native forage check {check.Type} differs from the completed profile's declared semantics.");
+			references.Add(reference);
+		}
+		Require(references.Distinct().Count() == 1, "The native forage checks disagree on trait identity; no fallback.");
+		var trait = db.TraitDefinitions.AsNoTracking().Single(x => x.Id == references[0]);
+		Require(trait.Type == (int)MudSharp.Body.Traits.TraitType.Skill && trait.OwnerScope == (int)MudSharp.Body.Traits.TraitOwnerScope.Character,
+			"Native forage checks must reference an ordinary character-owned skill.");
+		var cap = db.TraitExpressions.AsNoTracking().Include(x => x.TraitExpressionParameters).SingleOrDefault(x => x.Id == trait.ExpressionId);
+		var improver = db.Improvers.AsNoTracking().SingleOrDefault(x => x.Id == trait.ImproverId);
+		Require(cap is not null && !string.IsNullOrWhiteSpace(cap.Expression) && improver is not null &&
+			(improver.Type == "classic" || improver.Type == "branching") && !string.IsNullOrWhiteSpace(improver.Definition),
+			"The resolved native forage skill must have a real existing cap and use improver.");
+		object Expression(Db.TraitExpression row) => new { row.Id, row.Name, row.Expression,
+			parameters = row.TraitExpressionParameters.OrderBy(x => x.Parameter).Select(x => new { x.Parameter, x.TraitDefinitionId, x.CanImprove, x.CanBranch }).ToArray() };
+		selection = new
+		{
+			resolution = "Actual three native check identities and common formula reference; no display-name or stale-ID assumption",
+			trait = new { trait.Id, trait.Name, trait.Type, trait.OwnerScope, trait.Alias, trait.TraitGroup, trait.DecoratorId, trait.ExpressionId, trait.ImproverId },
+			cap = Expression(cap!), improver = new { improver!.Id, improver.Name, improver.Type, improver.Definition },
+			checks = checks.Select(x => new { x.Type, name = ((CheckType)x.Type).ToString(), x.CheckTemplateId, x.MaximumDifficultyForImprovement, expression = Expression(x.TraitExpression) }).ToArray(),
+			seeded_trait_unchanged = true, player_values_not_authored = true, installer_owned = false
+		};
+		var laneRoot = Directory.GetParent(Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..")))!.FullName;
+		var path = Path.Combine(laneRoot, "prepared-installed-sense-forage-selection_" + Guid.NewGuid().ToString("N") + ".json");
+		File.WriteAllText(path, JsonSerializer.Serialize(selection, new JsonSerializerOptions { WriteIndented = true }));
+		Console.WriteLine($"ARMPREP-installed-forage-selection=passed separate-receipt:{path}");
+		return trait;
 	}
 }

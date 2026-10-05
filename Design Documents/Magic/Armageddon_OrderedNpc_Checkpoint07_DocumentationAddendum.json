@@ -1,0 +1,22 @@
+{
+  "recorded_utc": "2026-10-05T13:00:21.612147+00:00",
+  "status": "PASS_documentation_only_after_checkpoint",
+  "checkpoint_sha256": "705ed7fde1320dc2abb0012a77348fe7766d5f5368c19e378717abf989ee8f1b",
+  "final_proof_sha256": "cf3d02f6b02f3ae551193ddf523b7cc06f6965d699a21fb67093bc5479919d57",
+  "changed_path": "Design Documents/Magic/Armageddon_OrderedNpc_Closure_Checklist.md",
+  "before_sha256": "7fed58c22c11f4c1db6893577a0795b48e8fd2f3ad2fa5e5c0939e74e8ad2322",
+  "after_sha256": "922398ff5817ba377d16249e95ffa3223ca6d13ad95d82b6004b9d51712de5cd",
+  "corrections": {
+    "Every auxiliary/weapon/natural callback and actual builder-allowlisted manual attack": "Remaining auxiliary/weapon/natural callbacks and final closure review; actual builder-allowlisted manual attack is qualified in the later checkpoint",
+    "Native get/wear persistence; same/different-cell relocation, deletion and reentrancy; finish eight inventory/plan audit findings below": "Remaining noncurrency merge conservation and full relocation/deletion/reentrancy closure; native get/wear persistence is qualified in the later checkpoint",
+    "Actual defender countershot, remaining component/displacement/currency controls and prior six native modes": "Actual defender countershot and remaining component/displacement/noncurrency controls; all six prior native lanes passed checkpoint07 against identical executable inputs",
+    "Final owning runtime docs, full acceptance reconciliation, immutable receipt, one local commit, parent independent review": "Currency/container owning docs and immutable checkpoint07 receipt completed; full supported-closure acceptance, one local commit and parent independent review remain pending"
+  },
+  "remaining_196_files_and_398_artifacts_verified_unchanged": true,
+  "runtime_or_test_changes": false,
+  "new_commit": null,
+  "helper": {
+    "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\npc_checkpoint07_docs_addendum.py",
+    "sha256": "605db4d10eba5c5c0b33213ee04fd36056b847b1aaf9351e45482ba540ffeb0e"
+  }
+}

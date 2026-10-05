@@ -1,4 +1,4 @@
-﻿using ExpressionEngine;
+using ExpressionEngine;
 using MudSharp.Body;
 using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
@@ -108,9 +108,31 @@ public abstract class RangedWeaponAttackBase : CombatMoveBase, IRangedWeaponAtta
     public override double StaminaCost =>
         Weapon is IFirearm firearm ? firearm.EffectiveStaminaToFire : Weapon.WeaponType.StaminaToFire;
 
+	private bool FireWeapon(ICharacter actor, IPerceiver target, Outcome shotOutcome, Outcome coverOutcome,
+		OpposedOutcome defenseOutcome, IBodypart bodypart, IEmoteOutput defenseEmote, IPerceiver originalTarget)
+	{
+		// Message constructors in the arguments can execute authored eligibility before this call.
+		if (!CanContinueCommand()) return false;
+		var aim = actor.Aim;
+		var targetedPart = actor.TargettedBodypart;
+		var aimLoss = Weapon is IFirearm firearm ? firearm.EffectiveAimLoss : Weapon.WeaponType.AimBonusLostPerShot;
+		if (!CanContinueCommand()) return false;
+		Weapon.Fire(actor, target, shotOutcome, coverOutcome, defenseOutcome, bodypart, defenseEmote, originalTarget);
+		if (MudSharp.NPC.AI.CommandExecutionScope.RejectedBeforeCommit) return false;
+		if (aim is not null && ReferenceEquals(actor.Aim, aim))
+		{
+			if (targetedPart is not null) aim.AimPercentage = 0;
+			else aim.AimPercentage -= shotOutcome == Outcome.MajorPass ? 0.66 * aimLoss : aimLoss;
+		}
+		return true;
+	}
+
     public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
     {
+		using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterMove(this);
+		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
 		defenderMove = MagicDefenseMove.Revalidate(defenderMove, this);
+		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
         IPerceiver target = CharacterTargets.FirstOrDefault() ?? _targets.FirstOrDefault();
         if (Weapon.ReadyToFire && !Weapon.CanFire(Assailant, target))
         {
@@ -123,10 +145,11 @@ public abstract class RangedWeaponAttackBase : CombatMoveBase, IRangedWeaponAtta
             };
         }
 
+		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
         if (target == null)
         {
-            Weapon.Fire(Assailant, null, Outcome.NotTested, Outcome.NotTested,
-                new OpposedOutcome(Outcome.NotTested, Outcome.NotTested), null, null, null);
+            if (!FireWeapon(Assailant, null, Outcome.NotTested, Outcome.NotTested,
+                new OpposedOutcome(Outcome.NotTested, Outcome.NotTested), null, null, null)) return CombatMoveResult.Irrelevant;
             return new CombatMoveResult
             {
                 MoveWasSuccessful = true,
@@ -239,23 +262,31 @@ public abstract class RangedWeaponAttackBase : CombatMoveBase, IRangedWeaponAtta
         {
             if (Assailant == target)
             {
+                if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
                 results = check.MultiDifficultyCheck(Assailant, Difficulty.Automatic, coverDifficulty, target,
                     Weapon.WeaponType.FireTrait);
             }
             else
             {
+                var accuracy = Weapon.WeaponType.AccuracyBonusExpression.EvaluateWith(Assailant, Weapon.WeaponType.FireTrait,
+                    values: [("quality", (int)Weapon.Parent.Quality), ("range", range),
+                        ("inmelee", Assailant.MeleeRange ? 1 : 0), ("aim", Assailant.Aim?.AimPercentage ?? 0)]);
+                var enhancementBonus = 0.0;
+                foreach (var enhancement in Weapon.Parent.EffectsOfType<IMagicWeaponEnhancementEffect>().ToArray())
+                {
+                    if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
+                    var applies = enhancement.AppliesToWeaponAttack(Assailant, target, Weapon.Parent);
+                    if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
+                    if (applies && Weapon.Parent.EffectsOfType<IMagicWeaponEnhancementEffect>().Any(x => ReferenceEquals(x, enhancement)))
+                        enhancementBonus += enhancement.AttackCheckBonus;
+                }
+                if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
                 results = check.MultiDifficultyCheck(Assailant, difficulty, coverDifficulty, target,
                     Weapon.WeaponType.FireTrait,
                     // Bonuses
-                    Weapon.WeaponType.AccuracyBonusExpression.EvaluateWith(Assailant, Weapon.WeaponType.FireTrait,
-                        values: [("quality", (int)Weapon.Parent.Quality), ("range", range),
-                            ("inmelee", Assailant.MeleeRange ? 1 : 0),
-                            ("aim", Assailant.Aim?.AimPercentage ?? 0)]) +
+                    accuracy +
                     ((Weapon as IFirearm)?.EffectiveAccuracyBonus ?? 0.0) +
-                    Weapon.Parent
-                          .EffectsOfType<IMagicWeaponEnhancementEffect>(x =>
-                              x.AppliesToWeaponAttack(Assailant, target, Weapon.Parent))
-                          .Sum(x => x.AttackCheckBonus) +
+                    enhancementBonus +
                     GetPenaltyForTargeting(targetHb.Body, range) +
                     noPressureBonus +
                     positionBonus +
@@ -264,24 +295,9 @@ public abstract class RangedWeaponAttackBase : CombatMoveBase, IRangedWeaponAtta
             }
         }
 
+        if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
         DetermineTargetBodypart(targetHb, results.Item1);
-
-        if (Assailant.Aim != null)
-        {
-            if (Assailant.TargettedBodypart != null)
-            {
-                Assailant.Aim.AimPercentage = 0;
-            }
-            else
-            {
-                var aimLoss = Weapon is IFirearm firearm
-                    ? firearm.EffectiveAimLoss
-                    : Weapon.WeaponType.AimBonusLostPerShot;
-                Assailant.Aim.AimPercentage -= results.Item1 == Outcome.MajorPass
-                    ? 0.66 * aimLoss
-                    : aimLoss;
-            }
-        }
+        if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
 
         if (!SuppressAttackMessage)
         {
@@ -298,8 +314,8 @@ public abstract class RangedWeaponAttackBase : CombatMoveBase, IRangedWeaponAtta
 
         if (results.Item1.IsFail())
         {
-            Weapon.Fire(Assailant, target, results.Item1, results.Item2,
-                new OpposedOutcome(Outcome.Fail, Outcome.Pass), null, null, target);
+            if (!FireWeapon(Assailant, target, results.Item1, results.Item2,
+                new OpposedOutcome(Outcome.Fail, Outcome.Pass), null, null, target)) return CombatMoveResult.Irrelevant;
             return new CombatMoveResult
             {
                 RecoveryDifficulty = RecoveryDifficultyFailure,
@@ -312,17 +328,17 @@ public abstract class RangedWeaponAttackBase : CombatMoveBase, IRangedWeaponAtta
         {
 			using var scope = new MagicDefenseDamageScope(this, magicalDefense);
 			var stopped = magicalDefense.TryDefend(this, results.Item1, out var magicResult);
-			Weapon.Fire(Assailant, target, results.Item1, results.Item2,
+			if (!FireWeapon(Assailant, target, results.Item1, results.Item2,
 				stopped ? new OpposedOutcome(Outcome.Fail, Outcome.Pass) : new OpposedOutcome(results.Item1, Outcome.NotTested),
-				TargetBodypart, null, target);
+				TargetBodypart, null, target)) return CombatMoveResult.Irrelevant;
 			return scope.Finish(stopped ? magicResult : new CombatMoveResult { MoveWasSuccessful = true,
 				RecoveryDifficulty = RecoveryDifficultySuccess, AttackerOutcome = results.Item1.Outcome });
         }
 
         if (defenderMove == null || defenderMove is HelplessDefenseMove || defenderMove is TooExhaustedMove)
         {
-            Weapon.Fire(Assailant, target, results.Item1, results.Item2,
-                new OpposedOutcome(results.Item1, Outcome.NotTested), TargetBodypart, null, target);
+            if (!FireWeapon(Assailant, target, results.Item1, results.Item2,
+                new OpposedOutcome(results.Item1, Outcome.NotTested), TargetBodypart, null, target)) return CombatMoveResult.Irrelevant;
             return new CombatMoveResult
             {
                 MoveWasSuccessful = true,
@@ -355,12 +371,12 @@ public abstract class RangedWeaponAttackBase : CombatMoveBase, IRangedWeaponAtta
             if (opposed.Outcome == OpposedOutcomeDirection.Proponent ||
                 opposed.Outcome == OpposedOutcomeDirection.Stalemate)
             {
-                Weapon.Fire(Assailant, target, results.Item1, results.Item2, opposed, TargetBodypart, new EmoteOutput(
+                if (!FireWeapon(Assailant, target, results.Item1, results.Item2, opposed, TargetBodypart, new EmoteOutput(
                     new Emote(
                         Gameworld.CombatMessageManager.GetFailMessageFor(targetChar, Assailant, Weapon.Parent, null,
                             BuiltInCombatMoveType.DodgeRange, dodgeResult, TargetBodypart), target,
                         target, Assailant, Weapon.Parent), style: OutputStyle.CombatMessage,
-                    flags: OutputFlags.InnerWrap), target);
+                    flags: OutputFlags.InnerWrap), target)) return CombatMoveResult.Irrelevant;
                 return new CombatMoveResult
                 {
                     MoveWasSuccessful = true,
@@ -370,12 +386,12 @@ public abstract class RangedWeaponAttackBase : CombatMoveBase, IRangedWeaponAtta
                 };
             }
 
-            Weapon.Fire(Assailant, target, results.Item1, results.Item2, opposed, TargetBodypart, new EmoteOutput(
+            if (!FireWeapon(Assailant, target, results.Item1, results.Item2, opposed, TargetBodypart, new EmoteOutput(
                 new Emote(
                     Gameworld.CombatMessageManager.GetMessageFor(targetChar, Assailant, Weapon.Parent, null,
                         BuiltInCombatMoveType.DodgeRange, dodgeResult, TargetBodypart), target,
                     target, Assailant, Weapon.Parent), style: OutputStyle.CombatMessage,
-                flags: OutputFlags.InnerWrap), target);
+                flags: OutputFlags.InnerWrap), target)) return CombatMoveResult.Irrelevant;
             return new CombatMoveResult
             {
                 RecoveryDifficulty = RecoveryDifficultyFailure,
@@ -390,12 +406,12 @@ public abstract class RangedWeaponAttackBase : CombatMoveBase, IRangedWeaponAtta
             OpposedOutcome opposed = new(results.Item1, blockResult);
             if (opposed.Outcome == OpposedOutcomeDirection.Proponent)
             {
-                Weapon.Fire(Assailant, target, results.Item1, results.Item2, opposed, TargetBodypart, new EmoteOutput(
+                if (!FireWeapon(Assailant, target, results.Item1, results.Item2, opposed, TargetBodypart, new EmoteOutput(
                     new Emote(
                         Gameworld.CombatMessageManager.GetFailMessageFor(targetChar, Assailant, Weapon.Parent,
                             null, BuiltInCombatMoveType.BlockRange, blockResult, TargetBodypart),
                         target, target, Assailant, Weapon.Parent, block.Shield.Parent),
-                    style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap), target);
+                    style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap), target)) return CombatMoveResult.Irrelevant;
                 (block.Shield as IConditionDegradingComponent)?.UseCondition(
                     new ItemConditionUseContext(ItemConditionUseKind.ShieldBlock, blockResult, (int)opposed.Degree));
                 return new CombatMoveResult
@@ -408,7 +424,7 @@ public abstract class RangedWeaponAttackBase : CombatMoveBase, IRangedWeaponAtta
             }
 
 
-            Weapon.Fire(Assailant, block.Shield.Parent, results.Item1, results.Item2, opposed, TargetBodypart,
+            if (!FireWeapon(Assailant, block.Shield.Parent, results.Item1, results.Item2, opposed, TargetBodypart,
                 new EmoteOutput(
                     new Emote(
                         Gameworld.CombatMessageManager.GetMessageFor(targetChar, Assailant, Weapon.Parent, null,
@@ -416,7 +432,7 @@ public abstract class RangedWeaponAttackBase : CombatMoveBase, IRangedWeaponAtta
                             blockResult, TargetBodypart), target,
                         target, Assailant, Weapon.Parent, block.Shield.Parent),
                     style: OutputStyle.CombatMessage,
-                    flags: OutputFlags.InnerWrap), target);
+                    flags: OutputFlags.InnerWrap), target)) return CombatMoveResult.Irrelevant;
             (block.Shield as IConditionDegradingComponent)?.UseCondition(
                 new ItemConditionUseContext(ItemConditionUseKind.ShieldBlock, blockResult, (int)opposed.Degree));
             return new CombatMoveResult

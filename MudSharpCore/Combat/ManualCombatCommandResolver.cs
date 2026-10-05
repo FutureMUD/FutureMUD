@@ -1,4 +1,5 @@
 ﻿using MudSharp.Combat.Moves;
+using MudSharp.NPC.AI;
 
 namespace MudSharp.Combat;
 
@@ -48,6 +49,9 @@ public static class ManualCombatCommandResolver
 			return ManualCombatMoveResolution.Failed("You cannot use that combat command right now.");
 		}
 
+		if (!CommandExecutionScope.TryContinue(actor))
+			return ManualCombatMoveResolution.Failed("Your authority to execute that order is no longer valid.");
+
 		var result = command.ActionKind switch
 		{
 			ManualCombatActionKind.AuxiliaryAction => ResolveAuxiliary(actor, command, target, returnTooExhaustedMove),
@@ -56,6 +60,8 @@ public static class ManualCombatCommandResolver
 		};
 		if (result.Success)
 		{
+			if (!CommandExecutionScope.TryContinue(actor))
+				return ManualCombatMoveResolution.Failed("Your authority to execute that order is no longer valid.");
 			actor.CombatTarget = target;
 		}
 
@@ -110,6 +116,7 @@ public static class ManualCombatCommandResolver
 
 		var available = actor.Race.UsableAuxiliaryMoves(actor, target, false)
 		                     .FirstOrDefault(x => x.Id == action.Id);
+		if (!CommandExecutionScope.TryContinue(actor)) return ManualCombatMoveResolution.Failed("Your authority to execute that order is no longer valid.");
 		if (available is null)
 		{
 			return ManualCombatMoveResolution.Failed("Your race cannot use that auxiliary move against that target right now.");
@@ -151,10 +158,12 @@ public static class ManualCombatCommandResolver
 		                                             .Where(y => y.Id == attack.Id)
 		                                             .Select(y => (x.Weapon, Attack: y)))
 		                            .ToList();
+		if (!CommandExecutionScope.TryContinue(actor)) return ManualCombatMoveResolution.Failed("Your authority to execute that order is no longer valid.");
 		var possibleNaturalAttacks = actor.Race
 		                                  .UsableNaturalWeaponAttacks(actor, target, false, attack.MoveType)
 		                                  .Where(x => x.Attack.Id == attack.Id)
 		                                  .ToList();
+		if (!CommandExecutionScope.TryContinue(actor)) return ManualCombatMoveResolution.Failed("Your authority to execute that order is no longer valid.");
 
 		var weaponAttack = possibleWeaponAttacks
 		                   .FirstOrDefault(x => actor.CanSpendStamina(MeleeWeaponAttack.MoveStaminaCost(actor, x.Attack)));

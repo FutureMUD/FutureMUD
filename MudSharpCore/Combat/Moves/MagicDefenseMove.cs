@@ -5,6 +5,7 @@ using MudSharp.Effects.Concrete;
 using MudSharp.Health;
 using MudSharp.Magic.Powers;
 using MudSharp.RPG.Checks;
+using MudSharp.NPC.AI;
 
 namespace MudSharp.Combat.Moves;
 
@@ -23,8 +24,11 @@ public sealed class MagicDefenseMove : CombatMoveBase, IDefenseMove
 	public override bool UsesStaminaWithResult(CombatMoveResult result) => _usingFallback ? _fallback?.UsesStaminaWithResult(result) == true : Committed;
 	public static ICombatMove? Revalidate(ICombatMove? defense, ICombatMove attack)
 	{
-		if (defense is not MagicDefenseMove magic || magic.Committed ||
-		    magic.Effect.Available && magic.Assailant.Effects.Contains(magic.Effect) && magic.Power.CanDefend(magic.Assailant, attack)) return defense;
+		if (defense is not MagicDefenseMove magic || magic.Committed) return defense;
+		var permitted = magic.Effect.Available && magic.Assailant.Effects.Contains(magic.Effect) &&
+			magic.Power.CanDefend(magic.Assailant, attack);
+		if (!CommandExecutionScope.TryContinue()) return null;
+		if (permitted && magic.Effect.Available && magic.Assailant.Effects.Contains(magic.Effect)) return defense;
 		magic._usingFallback = true;
 		return magic._fallback ?? new HelplessDefenseMove { Assailant = magic.Assailant };
 	}
@@ -35,7 +39,9 @@ public sealed class MagicDefenseMove : CombatMoveBase, IDefenseMove
 	public bool TryDefend(ICombatMove attack, CheckOutcome roll, out CombatMoveResult result)
 	{
 		result = new CombatMoveResult { AttackerOutcome = roll.Outcome, RecoveryDifficulty = attack.RecoveryDifficultyFailure };
-		if (Committed || !Effect.Available || !Assailant.Effects.Contains(Effect) || !Power.CanDefend(Assailant, attack)) return false;
+		if (Committed || !Effect.Available || !Assailant.Effects.Contains(Effect)) return false;
+		var permitted = Power.CanDefend(Assailant, attack);
+		if (!CommandExecutionScope.TryContinue() || !permitted || !Effect.Available || !Assailant.Effects.Contains(Effect)) return false;
 		if (roll.IsFail()) return true;
 		Committed = true;
 		MagicDefenseDamageScope.Bind(this);
@@ -80,12 +86,16 @@ public sealed class MagicDefenseMove : CombatMoveBase, IDefenseMove
 
 	public static ICombatMove? Select(ICharacter defender, ICombatMove attack, ICombatMove? mundane)
 	{
-		var candidates = defender.EffectsOfType<MagicDefense>()
-			.ToList() // Eligibility progs can remove combat effects during selection.
-			.Where(x => x.Available && x.Power.CanDefend(defender, attack))
-			.Where(x => x.Available && defender.Effects.Contains(x))
-			.Select(x => (Effect: x, Chance: x.Power.DefenseMode == MagicDefenseMode.Absorption ? 100.0 :
-				defender.Gameworld.GetCheck(CheckType.GenericSkillCheck).TargetNumber(defender, x.Power.DefenseDifficulty, x.Power.DefenseTrait, attack.Assailant)))
+		var eligible = new List<MagicDefense>();
+		foreach (var effect in defender.EffectsOfType<MagicDefense>().ToArray())
+		{
+			if (!CommandExecutionScope.TryContinue()) return mundane;
+			var permitted = effect.Available && effect.Power.CanDefend(defender, attack);
+			if (!CommandExecutionScope.TryContinue()) return mundane;
+			if (permitted && effect.Available && defender.Effects.Contains(effect)) eligible.Add(effect);
+		}
+		var candidates = eligible.Select(x => (Effect: x, Chance: x.Power.DefenseMode == MagicDefenseMode.Absorption ? 100.0 :
+			defender.Gameworld.GetCheck(CheckType.GenericSkillCheck).TargetNumber(defender, x.Power.DefenseDifficulty, x.Power.DefenseTrait, attack.Assailant)))
 			.OrderByDescending(x => x.Chance).ThenBy(x => x.Effect.Power.Id).ToList();
 		if (candidates.Count == 0) return mundane;
 		var preferred = defender.PreferredDefenseType;

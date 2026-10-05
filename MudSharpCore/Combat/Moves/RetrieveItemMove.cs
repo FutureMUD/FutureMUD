@@ -1,4 +1,4 @@
-﻿using MudSharp.Effects.Concrete;
+using MudSharp.Effects.Concrete;
 using MudSharp.GameItems;
 using MudSharp.RPG.Checks;
 
@@ -26,6 +26,8 @@ public class RetrieveItemMove : CombatMoveBase
 
     public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
     {
+		using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterMove(this);
+		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
 		if (!TargetItem.ColocatedWith(Assailant) || TargetItem.Destroyed || TargetItem.InInventoryOf != null)
         {
             Assailant.Send("The item that you wanted to get is no longer there.");

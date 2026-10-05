@@ -1,5 +1,6 @@
 using System.Threading;
 using MudSharp.Body;
+using MudSharp.NPC.AI;
 
 #nullable enable
 
@@ -18,13 +19,14 @@ public static class ItemManipulationGuard
 		{
 			return true;
 		}
+		if (!CommandExecutionScope.TryContinue(actor)) return false;
 
 		var remote = Remote.Value;
 		if (remote?.Actor == actor)
 		{
 			if (items.All(x => x is not null && remote.Eligible(x)))
 			{
-				return true;
+				return CommandExecutionScope.TryContinue(actor);
 			}
 
 			reason = "You can no longer reach that object with your telekinesis.";
@@ -43,6 +45,7 @@ public static class ItemManipulationGuard
 		{
 			return false;
 		}
+		if (!CommandExecutionScope.TryContinue(actor)) return false;
 
 		foreach (var item in items)
 		{
@@ -53,6 +56,7 @@ public static class ItemManipulationGuard
 			}
 
 			var result = actor.CanManipulateItem(item);
+			if (!CommandExecutionScope.TryContinue(actor)) return false;
 			if (!result.Truth)
 			{
 				reason = result.Message;
@@ -60,7 +64,7 @@ public static class ItemManipulationGuard
 			}
 		}
 
-		return true;
+		return CommandExecutionScope.TryContinue(actor);
 	}
 
 	// Only the telekinesis operation dispatcher supplies this scope; normal callers cannot opt out of anatomy/access.

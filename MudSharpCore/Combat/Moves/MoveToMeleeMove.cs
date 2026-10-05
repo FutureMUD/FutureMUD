@@ -1,4 +1,4 @@
-﻿using MudSharp.Body.Position;
+using MudSharp.Body.Position;
 using MudSharp.Construction.Boundary;
 using MudSharp.Movement;
 using MudSharp.RPG.Checks;
@@ -39,6 +39,8 @@ public class MoveToMeleeMove : CombatMoveBase
 
     public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
     {
+		using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterMove(this);
+		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
 		if (Assailant.CombatTarget is ICharacter boundaryTarget &&
 		    !VehicleCombatService.Instance.CanCrossVehicleBoundary(Assailant, boundaryTarget, false, false,
 			    out var boundaryReason))
@@ -66,7 +68,8 @@ public class MoveToMeleeMove : CombatMoveBase
         if (response is SkirmishAndFire skirmishAndFire)
         {
             CombatMoveResult outcome = HandleSkirmish(target, skirmishAndFire);
-            skirmishAndFire.ResolveMove(Assailant.ResponseToMove(skirmishAndFire, skirmishAndFire.Assailant));
+			MudSharp.NPC.AI.CommandExecutionScope.ResolveIndependent(skirmishAndFire,
+				() => Assailant.ResponseToMove(skirmishAndFire, skirmishAndFire.Assailant));
             return outcome;
         }
 
@@ -82,7 +85,8 @@ public class MoveToMeleeMove : CombatMoveBase
                 BuiltInCombatMoveType.MoveToMelee, Outcome.NotTested, null);
             Assailant.OutputHandler.Handle(new EmoteOutput(new Emote(message, Assailant, Assailant, target),
                 style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
-            return standAndFire.ResolveMove(Assailant.ResponseToMove(standAndFire, standAndFire.Assailant));
+			return MudSharp.NPC.AI.CommandExecutionScope.ResolveIndependent(standAndFire,
+				() => Assailant.ResponseToMove(standAndFire, standAndFire.Assailant));
         }
 
         if (response == null || response is HelplessDefenseMove)

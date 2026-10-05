@@ -120,7 +120,7 @@ public class SimpleOrganicWound : PerceivedItem, IContinuousExposureWound
         _currentStun = IsNecroticDamage ? 0.0 : Math.Max(0.0, stun * bodypart.StunModifier);
         Bodypart = bodypart;
         _lodged = lodged;
-        _actorOriginId = actorOrigin?.Id ?? 0;
+        _actorOriginId = MudSharp.Character.CharacterInstanceIdentityComparer.IdentityId(actorOrigin);
         _toolOriginId = toolOrigin?.Id ?? 0;
         RealTimeOfWound = RuntimeClock.UtcNow;
         if (actorOrigin?.Combat?.Friendly == true)
@@ -805,7 +805,7 @@ public class SimpleOrganicWound : PerceivedItem, IContinuousExposureWound
         get => Gameworld.TryGetCharacter(_actorOriginId, true);
         set
         {
-            _actorOriginId = value?.Id ?? 0;
+            _actorOriginId = MudSharp.Character.CharacterInstanceIdentityComparer.IdentityId(value);
             Changed = true;
         }
     }

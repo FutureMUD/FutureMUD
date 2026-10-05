@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.Character.Heritage;
 using MudSharp.Effects.Concrete;
 using MudSharp.RPG.Checks;
@@ -20,6 +20,8 @@ public class ExtendGrappleMove : NaturalAttackMove
 
     public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
     {
+		using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterMove(this);
+		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
 		defenderMove = MagicDefenseMove.Revalidate(defenderMove, this);
         if (defenderMove == null)
         {
@@ -106,6 +108,8 @@ public class ExtendGrappleMove : NaturalAttackMove
                 new Emote($"{attackEmote}{counterEmote}", Assailant, Assailant, CharacterTarget),
                 style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
             IGrappling grapple = Assailant.EffectsOfType<IGrappling>().First();
+            if (!CanContinueCommand()) return RefusedContinuationResult();
+            MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted();
             grapple.AddLimb(targetLimb);
             return new CombatMoveResult
             {
@@ -122,6 +126,8 @@ public class ExtendGrappleMove : NaturalAttackMove
             Grappling effect = CharacterTarget.CombinedEffectsOfType<Grappling>().FirstOrDefault(x => x.Target == Assailant);
             if (effect == null)
             {
+                if (!CanContinueCommand()) return RefusedContinuationResult();
+                MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted();
                 effect = new Grappling(CharacterTarget, Assailant);
                 CharacterTarget.AddEffect(effect);
             }
@@ -153,6 +159,8 @@ public class ExtendGrappleMove : NaturalAttackMove
                 }
 
                 ILimb limb = potentialLimbs.GetRandomElement();
+                if (!CanContinueCommand()) return RefusedContinuationResult();
+                MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted();
                 effect.AddLimb(limb);
                 potentialLimbs.Remove(limb);
             }
@@ -197,6 +205,8 @@ public class ExtendGrappleMove : NaturalAttackMove
                 new Emote($"{attackEmote}{failEmote}".Fullstop(), Assailant, Assailant, CharacterTarget),
                 style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
             IGrappling grapple = Assailant.EffectsOfType<IGrappling>().First();
+            if (!CanContinueCommand()) return RefusedContinuationResult();
+            MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted();
             grapple.AddLimb(targetLimb);
             return new CombatMoveResult
             {
@@ -235,6 +245,8 @@ public class ExtendGrappleMove : NaturalAttackMove
                     Assailant, Assailant, CharacterTarget, null), style: OutputStyle.CombatMessage,
                 flags: OutputFlags.InnerWrap));
         IGrappling grapple = Assailant.EffectsOfType<IGrappling>().First();
+        if (!CanContinueCommand()) return RefusedContinuationResult();
+        MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted();
         grapple.AddLimb(targetLimb);
         return new CombatMoveResult
         {

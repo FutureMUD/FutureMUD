@@ -1,4 +1,4 @@
-﻿using MudSharp.RPG.Checks;
+using MudSharp.RPG.Checks;
 
 namespace MudSharp.Combat.Moves;
 
@@ -35,6 +35,8 @@ public class SkirmishResponseMove : CombatMoveBase
 
     public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
     {
+		using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterMove(this);
+		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
         throw new NotImplementedException();
     }
 }

@@ -1,4 +1,4 @@
-﻿
+
 using MudSharp.Construction;
 
 namespace MudSharp.GameItems.Inventory.Plans;
@@ -59,7 +59,7 @@ public class InventoryPlanActionPut : InventoryPlanAction
                                     .SelectNotNull(x => x.GetItemType<IContainer>()))
                     .FirstOrDefault(
                         x =>
-                            x.Parent.IsA(DesiredSecondaryTag) && (SecondaryItemSelector?.Invoke(x.Parent) ?? true) &&
+                            x.Parent.IsA(DesiredSecondaryTag) && (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => SecondaryItemSelector?.Invoke(x.Parent) ?? true, false)) &&
                             (x.Parent.GetItemType<IOpenable>()?.IsOpen ?? true) && x.CanPut(item))?.Parent;
     }
 
@@ -76,7 +76,7 @@ public class InventoryPlanActionPut : InventoryPlanAction
         // In containers first
         IGameItem item =
             containers.SelectMany(x => x.Contents)
-                      .FirstOrDefault(x => x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true));
+                      .FirstOrDefault(x => x.IsA(DesiredTag) && (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(x) ?? true, false)));
         if (item != null)
         {
             return item;
@@ -86,7 +86,7 @@ public class InventoryPlanActionPut : InventoryPlanAction
         item =
             executor.Body.HeldItems.FirstOrDefault(
                 x =>
-                    x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true) &&
+                    x.IsA(DesiredTag) && (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(x) ?? true, false)) &&
                     containers.Any(y => y.CanPut(x)));
         if (item != null)
         {
@@ -97,7 +97,7 @@ public class InventoryPlanActionPut : InventoryPlanAction
         item =
             executor.Body.WieldedItems.FirstOrDefault(
                 x =>
-                    x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true) &&
+                    x.IsA(DesiredTag) && (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(x) ?? true, false)) &&
                     containers.Any(y => y.CanPut(x)));
         if (item != null)
         {
@@ -108,7 +108,7 @@ public class InventoryPlanActionPut : InventoryPlanAction
         item =
             executor.Body.WornItems.FirstOrDefault(
                 x =>
-                    x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true) && executor.Body.CanRemoveItem(x) &&
+                    x.IsA(DesiredTag) && (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(x) ?? true, false)) && executor.Body.CanRemoveItem(x) &&
                     containers.Any(y => y.CanPut(x)));
         if (item != null)
         {
@@ -122,7 +122,7 @@ public class InventoryPlanActionPut : InventoryPlanAction
                         x =>
                             x.ConnectedItems.FirstOrDefault(
                                 y =>
-                                    y.Parent.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(y.Parent) ?? true) &&
+                                    y.Parent.IsA(DesiredTag) && (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(y.Parent) ?? true, false)) &&
                                     containers.Any(z => z.CanPut(y.Parent)))?.Parent)
                     .FirstOrDefault(x => x != null);
         if (item != null)
@@ -136,7 +136,7 @@ public class InventoryPlanActionPut : InventoryPlanAction
                     .SelectNotNull(x => x.Content?.Parent)
                     .FirstOrDefault(
                         x =>
-                            x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true) &&
+                            x.IsA(DesiredTag) && (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(x) ?? true, false)) &&
                             containers.Any(y => y.CanPut(x)));
         if (item != null)
         {
@@ -147,7 +147,7 @@ public class InventoryPlanActionPut : InventoryPlanAction
         item =
             executor.Location.GameItemsInImmediateVicinity(executor).FirstOrDefault(
                 x =>
-                    x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true) &&
+                    x.IsA(DesiredTag) && (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(x) ?? true, false)) &&
                     containers.Any(y => y.CanPut(x)));
         if (item != null)
         {
@@ -161,7 +161,7 @@ public class InventoryPlanActionPut : InventoryPlanAction
                         x =>
                             x.ConnectedItems.FirstOrDefault(
                                 y =>
-                                    y.Parent.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(y.Parent) ?? true) &&
+                                    y.Parent.IsA(DesiredTag) && (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(y.Parent) ?? true, false)) &&
                                     containers.Any(z => z.CanPut(y.Parent)))?.Parent)
                     .FirstOrDefault(x => x != null);
         if (item != null)
@@ -175,7 +175,7 @@ public class InventoryPlanActionPut : InventoryPlanAction
                     .SelectNotNull(x => x.Content?.Parent)
                     .FirstOrDefault(
                         x =>
-                            x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true) &&
+                            x.IsA(DesiredTag) && (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(x) ?? true, false)) &&
                             containers.Any(y => y.CanPut(x)));
         return item;
     }

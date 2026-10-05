@@ -38,12 +38,15 @@ public sealed class MountedImpactNaturalAttackMove : NaturalAttackMove
 
 	public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
 	{
+		using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterMove(this);
+		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
 		if (!_isChargeImpact)
 		{
 			return CombatMoveResult.Irrelevant;
 		}
 
 		var result = base.ResolveMove(defenderMove);
+		if (!CanContinueCommand()) return result;
 		if (!result.MoveWasSuccessful || !result.AttackerOutcome.IsPass() || Target.State.HasFlag(CharacterState.Dead))
 		{
 			return result;

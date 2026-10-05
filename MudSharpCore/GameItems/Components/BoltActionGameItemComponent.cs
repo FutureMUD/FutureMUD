@@ -1,4 +1,4 @@
-﻿using MudSharp.Accounts;
+using MudSharp.Accounts;
 using MudSharp.Body;
 using MudSharp.Body.Traits;
 using MudSharp.Combat;
@@ -96,6 +96,10 @@ public class BoltActionGameItemComponent : FirearmBaseGameItemComponent, IRanged
 
     public override bool CanLoad(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(loader);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return false;
+
+
         if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
         {
             return false;
@@ -119,6 +123,10 @@ public class BoltActionGameItemComponent : FirearmBaseGameItemComponent, IRanged
 
     public override string WhyCannotLoad(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(loader);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return string.Empty;
+
+
         if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
         {
             return manipulationReason;
@@ -153,6 +161,10 @@ public class BoltActionGameItemComponent : FirearmBaseGameItemComponent, IRanged
 
     protected override void ChamberRound(ICharacter loader)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(loader);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return;
+
+
         if (ChamberedRound != null)
         {
             loader.OutputHandler.Handle(new EmoteOutput(
@@ -192,6 +204,10 @@ public class BoltActionGameItemComponent : FirearmBaseGameItemComponent, IRanged
 
     public override void Load(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(loader);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return;
+
+
         if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
         {
             loader?.OutputHandler.Send(manipulationReason);
@@ -208,6 +224,7 @@ public class BoltActionGameItemComponent : FirearmBaseGameItemComponent, IRanged
             ? _prototype.LoadTemplateIgnoreEmpty.CreatePlan(loader)
             : _prototype.LoadTemplate.CreatePlan(loader);
         IEnumerable<InventoryPlanActionResult> results = plan.ExecuteWholePlan();
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return;
         IAmmoClip ammo = results.Where(x => (string)x.OriginalReference == "loaditem")
                           .SelectNotNull(x => x.PrimaryTarget.GetItemType<IAmmoClip>()).First();
 
@@ -216,7 +233,9 @@ public class BoltActionGameItemComponent : FirearmBaseGameItemComponent, IRanged
             new Emote(_prototype.LoadEmote, loader, loader, Parent, ammo.Parent),
             flags: OutputFlags.InnerWrap));
 
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return;
         loader.Body.Take(ammo.Parent);
+        if (ammo.Parent.Deleted || ammo.Parent.Destroyed || ammo.Parent.InInventoryOf is not null || ammo.Parent.ContainedIn is not null || ammo.Parent.Location is not null) return;
         Magazine = ammo;
         ammo.Parent.ContainedIn = Parent;
 
@@ -228,6 +247,10 @@ public class BoltActionGameItemComponent : FirearmBaseGameItemComponent, IRanged
 
     public override bool CanUnload(ICharacter loader)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(loader);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return false;
+
+
         if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
         {
             return false;
@@ -238,6 +261,10 @@ public class BoltActionGameItemComponent : FirearmBaseGameItemComponent, IRanged
 
     public override string WhyCannotUnload(ICharacter loader)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(loader);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return string.Empty;
+
+
         if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
         {
             return manipulationReason;
@@ -253,6 +280,10 @@ public class BoltActionGameItemComponent : FirearmBaseGameItemComponent, IRanged
 
     public override IEnumerable<IGameItem> Unload(ICharacter loader)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(loader);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return [];
+
+
         if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
         {
             return [];
@@ -284,6 +315,10 @@ public class BoltActionGameItemComponent : FirearmBaseGameItemComponent, IRanged
 
     public override bool CanFire(ICharacter actor, IPerceivable target)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return false;
+
+
         if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
         {
             return false;
@@ -294,6 +329,10 @@ public class BoltActionGameItemComponent : FirearmBaseGameItemComponent, IRanged
 
     public override string WhyCannotFire(ICharacter actor, IPerceivable target)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return string.Empty;
+
+
         if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
         {
             return manipulationReason;
@@ -307,6 +346,10 @@ public class BoltActionGameItemComponent : FirearmBaseGameItemComponent, IRanged
     /// <inheritdoc />
     protected override void HandleShellCasingOnFire(ICharacter actor, SpatialLocation originalLocation, IGameItem casing)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return;
+
+
         if (casing != null)
         {
             if (_prototype.EjectOnFire)
@@ -329,6 +372,10 @@ public class BoltActionGameItemComponent : FirearmBaseGameItemComponent, IRanged
 
     public override bool Unready(ICharacter readier)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(readier);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(readier)) return false;
+
+
         if (!CanUnready(readier))
         {
             readier.Send(WhyCannotUnready(readier));

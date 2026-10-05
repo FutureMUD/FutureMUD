@@ -29,6 +29,8 @@ public sealed class MountedWeaponAttackMove : MeleeWeaponAttack
 
 	public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
 	{
+		using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterMove(this);
+		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
 		if (!_isChargeFollowUp || MountedCombatService.Instance.ResolveContext(Assailant) is null)
 		{
 			Assailant.OutputHandler.Send("That attack can only be delivered as part of a mounted charge.");

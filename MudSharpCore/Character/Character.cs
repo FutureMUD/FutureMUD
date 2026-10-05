@@ -2351,6 +2351,8 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
 
     public bool Stop(bool force)
     {
+		using var execution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(this);
+		if (!force && !MudSharp.NPC.AI.CommandExecutionScope.TryContinue(this)) return false;
         // Movement
         if (Movement != null)
         {
@@ -2374,24 +2376,30 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
 
             if (Movement.Phase == MovementPhase.NewRoom)
             {
+				if (!force && !MudSharp.NPC.AI.CommandExecutionScope.TryContinue(this)) return false;
+				MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted(this);
                 QueuedMoveCommands.Clear();
                 OutputHandler.Send("You clear all your pending movement commands.");
                 return false;
             }
 
-            Movement.StopMovement();
+			if (!force && !MudSharp.NPC.AI.CommandExecutionScope.TryContinue(this)) return false;
+			MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted(this);
             QueuedMoveCommands.Clear();
+            Movement.StopMovement();
             return true;
         }
 
         // Effects
         List<IEffect> stoppingEffects =
             Effects.Where(x => x.IsBlockingEffect(string.Empty) && x.CanBeStoppedByPlayer).ToList();
+		if (!force && !MudSharp.NPC.AI.CommandExecutionScope.TryContinue(this)) return false;
         if (!stoppingEffects.Any() && !force)
         {
             // Combat Truces
             if (Combat != null)
             {
+				MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted(this);
                 Combat.TruceRequested(this);
                 return true;
             }
@@ -2403,6 +2411,9 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
         List<IEffect> stoppedList = new();
         foreach (IEffect effect in stoppingEffects)
         {
+			if (!force && !MudSharp.NPC.AI.CommandExecutionScope.TryContinue(this)) break;
+			if (!Effects.Contains(effect)) continue;
+			MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted(this);
             stoppedList.Add(effect);
             RemoveEffect(effect);
             effect.CancelEffect();

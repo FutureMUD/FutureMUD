@@ -235,19 +235,27 @@ public class HumanoidCommunicationStrategy : IBodyCommunicationStrategy
     public virtual void Emote(IBody body, string emote, bool permitSpeech = true,
         OutputFlags additionalConditions = OutputFlags.Normal)
     {
+		var executor = body.Actor;
+		using var execution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(executor);
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(executor)) return;
         PlayerEmote emoteData = new(emote, body.Actor, true, VocalisationOption(body, AudioVolume.Decent)
         );
+		if (!ReferenceEquals(body.Actor, executor) || !MudSharp.NPC.AI.CommandExecutionScope.TryContinue(executor)) return;
         if (emoteData.Valid)
         {
+			MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted(executor);
             body.OutputHandler.Handle(new EmoteOutput(emoteData, flags: additionalConditions));
+			if (!ReferenceEquals(body.Actor, executor) || !MudSharp.NPC.AI.CommandExecutionScope.TryContinue(executor)) return;
             if (emoteData.LanguageTokens.Any())
             {
                 HandleSpeechEvents(body, null, emoteData.LanguageTokens.Select(x => x.LanguageInfo.RawText.Fullstop()).ListToCommaSeparatedValues(" ").ProperSentences(), AudioVolume.Decent, body.CurrentLanguage, body.CurrentAccent);
             }
 			foreach (var token in emoteData.SignedLanguageTokens)
 			{
+				if (!ReferenceEquals(body.Actor, executor) || !MudSharp.NPC.AI.CommandExecutionScope.TryContinue(executor)) return;
 				SignedCommunicationService.HandleEvents(body, null, token.SignText, token.Language, token.Variety,
 					token.Outcome);
+				if (!ReferenceEquals(body.Actor, executor) || !MudSharp.NPC.AI.CommandExecutionScope.TryContinue(executor)) return;
 				AIStoryteller.HandleCharacterSignInRoomEvent(body.Actor, null, token.SignText, token.Language,
 					token.Variety);
 			}

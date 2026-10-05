@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.Construction.Boundary;
 using MudSharp.Form.Material;
 using MudSharp.GameItems;
@@ -54,6 +54,8 @@ public class UnarmedSmashItemAttack : WeaponAttackMove
 
     public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
     {
+		using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterMove(this);
+		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
         CrimeExtensions.CheckPossibleCrimeAllAuthorities(Assailant, CrimeTypes.Vandalism, null, Target, "");
         CheckOutcome check = Gameworld.GetCheck(CheckType.NaturalWeaponAttack).Check(Assailant, Difficulty.Easy, Target, null);
         OpposedOutcome result = new(check, Outcome.NotTested);
@@ -63,9 +65,9 @@ public class UnarmedSmashItemAttack : WeaponAttackMove
             new OpposedOutcome(check.Outcome, Outcome.NotTested).Degree);
 
         IDamage finalDamage = damages.Item1;
-        IEnumerable<IWound> wounds = Target.PassiveSufferDamage(finalDamage);
+        IEnumerable<IWound> wounds = Target.CommandSufferDamage(finalDamage);
         IDamage selfDamage = damages.Item2;
-        IEnumerable<IWound> selfwounds = Assailant.PassiveSufferDamage(selfDamage);
+        IEnumerable<IWound> selfwounds = Assailant.CommandSufferDamage(selfDamage);
         string emote = Gameworld.CombatMessageManager.GetMessageFor(Assailant, Target,
             null, Attack, BuiltInCombatMoveType.UnarmedSmashItem, check.Outcome, Bodypart);
         Assailant.OutputHandler.Handle(

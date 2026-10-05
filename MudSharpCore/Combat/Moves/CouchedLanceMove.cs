@@ -37,6 +37,8 @@ public class CouchedLanceMove : MeleeWeaponAttack
 
 	public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
 	{
+		using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterMove(this);
+		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
 		if (Assailant.RidingMount is null)
 		{
 			Assailant.OutputHandler.Send("You can only couch a lance while mounted and charging.");
@@ -48,6 +50,7 @@ public class CouchedLanceMove : MeleeWeaponAttack
 		Assailant.OffensiveAdvantage += mountSpeed * Math.Max(1, reach) / MaximumChargeReach;
 
 		var result = base.ResolveMove(defenderMove);
+		if (!CanContinueCommand()) return result;
 		var target = PrimaryCharacterTarget;
 		if (target?.RidingMount is not null && result.MoveWasSuccessful && result.AttackerOutcome.IsPass())
 		{

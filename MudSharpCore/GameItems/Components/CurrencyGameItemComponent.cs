@@ -142,6 +142,25 @@ public class CurrencyGameItemComponent : GameItemComponent, ICurrencyPile
 
     public decimal TotalValue => _coins.Sum(x => x.Value * x.Key.Value);
 
+	internal void SetPreviewCoins(ICurrency currency, IReadOnlyDictionary<ICoin, int> coins)
+	{
+		if (!GetNoSave()) throw new InvalidOperationException("Only an unpublished currency preview can be populated without callbacks.");
+		Currency = currency;
+		_coins.Clear();
+		foreach (var coin in coins) _coins.Add(coin.Key, coin.Value);
+	}
+
+	internal void ReplacePreparedCoins(IReadOnlyDictionary<ICoin, int> coins)
+	{
+		// The currency transfer has validated and allocated every final map before committing.
+		// All denomination and custody writes finish before dirty flags or notifications.
+		_coins.Clear();
+		foreach (var coin in coins) _coins.Add(coin.Key, coin.Value);
+	}
+	internal void MarkPreparedCoinsChanged() => Changed = true;
+
+	internal void NotifyCurrencyTransferDebit() => HandleDescriptionUpdate();
+
     public void AddCoins(IEnumerable<Tuple<ICoin, int>> coins)
     {
 		ForeignCustodyTransferContext.EnsureItem(Parent, destructive: true);

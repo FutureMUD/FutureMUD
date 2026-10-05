@@ -1,4 +1,4 @@
-﻿using MudSharp.RPG.Checks;
+using MudSharp.RPG.Checks;
 
 namespace MudSharp.Combat.Moves;
 
@@ -18,7 +18,10 @@ public class EnvenomingAttackMove : NaturalAttackMove
 
     public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
     {
+		using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterMove(this);
+		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
         CombatMoveResult result = base.ResolveMove(defenderMove);
+		if (!CanContinueCommand()) return result;
         IEnvenomingAttack envenoming = (IEnvenomingAttack)Attack;
         if (result.WoundsCaused.Any(x => x.Parent == Target && x.Severity >= envenoming.MinimumWoundSeverity))
         {

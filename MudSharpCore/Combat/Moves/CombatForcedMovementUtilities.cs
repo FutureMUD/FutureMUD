@@ -1,4 +1,4 @@
-﻿using MudSharp.Character.Heritage;
+using MudSharp.Character.Heritage;
 using MudSharp.Construction;
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Construction.Boundary;
@@ -165,8 +165,10 @@ public static class CombatForcedMovementUtilities
 
 	public static void ApplyPushback(ICharacter actor, ICharacter target, int degrees)
 	{
-		var overboard = VehicleCombatService.Instance.ResolveDisplacement(target,
-			VehicleCombatDisplacementType.Push, Math.Max(1, degrees));
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue()) return;
+		var overboard = MudSharp.NPC.AI.CommandExecutionScope.InvokeOwned(target, () => VehicleCombatService.Instance.ResolveDisplacement(target,
+			VehicleCombatDisplacementType.Push, Math.Max(1, degrees)));
+		if (overboard.FellOverboard) MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted();
 		if (overboard.FellOverboard)
 		{
 			BreakCloseContact(actor, target);
@@ -313,8 +315,10 @@ public static class CombatForcedMovementUtilities
 		var displacementType = verb == ForcedMovementVerbs.Pull
 			? VehicleCombatDisplacementType.Pull
 			: VehicleCombatDisplacementType.Push;
-		var overboard = VehicleCombatService.Instance.ResolveDisplacement(target, displacementType,
-			Math.Max(1, successDegrees));
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue()) return false;
+		var overboard = MudSharp.NPC.AI.CommandExecutionScope.InvokeOwned(target, () => VehicleCombatService.Instance.ResolveDisplacement(target, displacementType,
+			Math.Max(1, successDegrees)));
+		if (overboard.FellOverboard) MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted();
 		if (overboard.FellOverboard)
 		{
 			BreakCloseContact(actor, target);
@@ -359,15 +363,36 @@ public static class CombatForcedMovementUtilities
 			}
 
 			var actorLayer = actorTransition.TargetLayer;
+			if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue()) return false;
 			actor.Teleport(exit.Destination, actorLayer, false, false);
-			target.Teleport(exit.Destination, actorLayer, false, false);
+			if (!ReferenceEquals(actor.Location, exit.Destination) || actor.RoomLayer != actorLayer)
+			{
+				BreakCloseContact(actor, target);
+				return false;
+			}
+			if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue())
+			{
+				BreakCloseContact(actor, target);
+				return false;
+			}
+			if (!MudSharp.NPC.AI.CommandExecutionScope.InvokeOwned(target, () => { target.Teleport(exit.Destination, actorLayer, false, false); return MudSharp.NPC.AI.CommandExecutionScope.TryContinue(target) && ReferenceEquals(target.Location, exit.Destination) && target.RoomLayer == actorLayer; }))
+			{
+				BreakCloseContact(actor, target);
+				return false;
+			}
 			ZeroGravityMovementHelper.EnsureFloating(actor);
 			ZeroGravityMovementHelper.EnsureFloating(target);
 			PreserveCloseContact(actor, target, wasMelee, wasClinch, wasGrapple);
 			return true;
 		}
 
-		target.Teleport(exit.Destination, targetTransition.TargetLayer, false, false);
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue()) return false;
+
+			if (!MudSharp.NPC.AI.CommandExecutionScope.InvokeOwned(target, () => { target.Teleport(exit.Destination, targetTransition.TargetLayer, false, false); return MudSharp.NPC.AI.CommandExecutionScope.TryContinue(target) && ReferenceEquals(target.Location, exit.Destination) && target.RoomLayer == targetTransition.TargetLayer; }))
+			{
+				BreakCloseContact(actor, target);
+				return false;
+			}
 		ZeroGravityMovementHelper.EnsureFloating(target);
 		BreakCloseContact(actor, target);
 		ApplyFallIfNeeded(target, false);
@@ -397,8 +422,10 @@ public static class CombatForcedMovementUtilities
 		var displacementType = verb == ForcedMovementVerbs.Pull
 			? VehicleCombatDisplacementType.Pull
 			: VehicleCombatDisplacementType.Push;
-		var overboard = VehicleCombatService.Instance.ResolveDisplacement(target, displacementType,
-			Math.Max(1, successDegrees));
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue()) return false;
+		var overboard = MudSharp.NPC.AI.CommandExecutionScope.InvokeOwned(target, () => VehicleCombatService.Instance.ResolveDisplacement(target, displacementType,
+			Math.Max(1, successDegrees)));
+		if (overboard.FellOverboard) MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted();
 		if (overboard.FellOverboard)
 		{
 			BreakCloseContact(actor, target);
@@ -436,15 +463,37 @@ public static class CombatForcedMovementUtilities
 			else if (actor.Location.IsSwimmingLayer(layer)) actor.PositionState = PositionSwimming.Instance;
 			else if (layer.In(RoomLayer.InTrees, RoomLayer.HighInTrees, RoomLayer.OnRooftops)) actor.PositionState = PositionClimbing.Instance;
 			var routePosition = actor.RoutePositionMetres;
-			actor.Teleport(actor.Location, layer, false, false, routePosition);
-			target.Teleport(actor.Location, layer, false, false, routePosition);
+			if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue()) return false;
+			var destination = actor.Location;
+			actor.Teleport(destination, layer, false, false, routePosition);
+			if (!ReferenceEquals(actor.Location, destination) || actor.RoomLayer != layer)
+			{
+				BreakCloseContact(actor, target);
+				return false;
+			}
+			if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue())
+			{
+				BreakCloseContact(actor, target);
+				return false;
+			}
+			if (!MudSharp.NPC.AI.CommandExecutionScope.InvokeOwned(target, () => { target.Teleport(destination, layer, false, false, routePosition); return MudSharp.NPC.AI.CommandExecutionScope.TryContinue(target) && ReferenceEquals(target.Location, destination) && target.RoomLayer == layer; }))
+			{
+				BreakCloseContact(actor, target);
+				return false;
+			}
 			ZeroGravityMovementHelper.EnsureFloating(actor);
 			ZeroGravityMovementHelper.EnsureFloating(target);
 			PreserveCloseContact(actor, target, wasMelee, wasClinch, wasGrapple);
 			return true;
 		}
 
-		target.Teleport(target.Location, layer, false, false);
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue()) return false;
+
+			if (!MudSharp.NPC.AI.CommandExecutionScope.InvokeOwned(target, () => { var destination = target.Location; target.Teleport(destination, layer, false, false); return MudSharp.NPC.AI.CommandExecutionScope.TryContinue(target) && ReferenceEquals(target.Location, destination) && target.RoomLayer == layer; }))
+			{
+				BreakCloseContact(actor, target);
+				return false;
+			}
 		ZeroGravityMovementHelper.EnsureFloating(target);
 		BreakCloseContact(actor, target);
 		ApplyFallIfNeeded(target, false);

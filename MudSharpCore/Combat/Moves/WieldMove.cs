@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.GameItems;
 
 namespace MudSharp.Combat.Moves;
@@ -17,6 +17,8 @@ public class WieldMove : CombatMoveBase
 
     public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
     {
+		using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterMove(this);
+		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
         if (Assailant.Body.HeldOrWieldedItems.All(x => Item.Parent != x))
         {
             Assailant.Send("You no longer possess the item that you wanted to wield.");

@@ -126,16 +126,22 @@ If omitted, the defense trait defaults to the auxiliary action's check trait and
 
 		if (UseKnockdown)
 		{
+			if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue()) return;
+			using var operation = MudSharp.NPC.AI.CommandExecutionScope.EnterOwnedOperation(tch);
 			tch.DoCombatKnockdown();
 		}
 		else if (tch.CanMovePosition(Position, true))
 		{
+			if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue()) return;
+			using var operation = MudSharp.NPC.AI.CommandExecutionScope.EnterOwnedOperation(tch);
 			tch.SetPosition(Position, PositionModifier.None, null, null);
 		}
 
 		var delay = CalculateAmount(opposed);
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue()) return;
 		if (delay > 0.0)
 		{
+			MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted();
 			Gameworld.Scheduler.DelayScheduleType(tch, ScheduleType.Combat,
 				TimeSpan.FromSeconds(delay * CombatBase.CombatSpeedMultiplier));
 		}

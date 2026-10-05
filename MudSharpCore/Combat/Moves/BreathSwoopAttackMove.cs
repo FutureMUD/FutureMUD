@@ -1,4 +1,4 @@
-﻿using MudSharp.Construction;
+using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.RPG.Checks;
 
@@ -26,6 +26,8 @@ public class BreathSwoopAttackMove : BreathWeaponAttackMove
 
     public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
     {
+		using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterMove(this);
+		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
         ICell startingCell = Assailant.Location;
         RoomLayer startingLayer = Assailant.RoomLayer;
 

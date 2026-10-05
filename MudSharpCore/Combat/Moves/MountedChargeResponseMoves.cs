@@ -10,6 +10,8 @@ public sealed class EvadeMountedChargeMove : CombatMoveBase
 
 	public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
 	{
+		using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterMove(this);
+		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
 		return new CombatMoveResult { MoveWasSuccessful = true };
 	}
 }
@@ -22,6 +24,8 @@ public sealed class CounterMountedChargeMove : CombatMoveBase
 
 	public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
 	{
+		using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterMove(this);
+		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
 		return new CombatMoveResult { MoveWasSuccessful = true };
 	}
 }

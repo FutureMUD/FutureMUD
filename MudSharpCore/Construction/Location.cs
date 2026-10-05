@@ -106,6 +106,12 @@ public abstract class Location : PerceivedItem, ILocation
     public IEnumerable<IHandleEvents> EventHandlers
         => Characters.Cast<IHandleEvents>().Concat(GameItems).Concat(new IHandleEvents[] { this });
 
+	internal void SetPreparedCurrencyMembership(IGameItem item, bool present)
+	{
+		_gameItems.RemoveAll(x => ReferenceEquals(x, item));
+		if (present) _gameItems.Add(item);
+	}
+
     public virtual void Insert(IGameItem thing, bool newStack)
     {
         if (thing != null && !_gameItems.Contains(thing))
@@ -132,6 +138,13 @@ public abstract class Location : PerceivedItem, ILocation
 
         _characters.Add(movingCharacter);
     }
+
+
+	internal void SetNativeCharacterMembership(ICharacter actor, bool present)
+	{
+		_characters.RemoveAll(x => ReferenceEquals(x, actor));
+		if (present) _characters.Add(actor);
+	}
 
     protected void DoEnterEvent(ICharacter character)
     {

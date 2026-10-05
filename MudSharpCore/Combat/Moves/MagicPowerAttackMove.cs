@@ -39,11 +39,18 @@ public class MagicPowerAttackMove : WeaponAttackMove, IMagicPowerAttackMove
 
 	public override CombatMoveResult ResolveMove(ICombatMove? defenderMove)
 	{
+		using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterMove(this);
+		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
 		defenderMove = MagicDefenseMove.Revalidate(defenderMove, this);
+		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
 		var target = PrimaryCharacterTarget;
-		if (_committed || target is null || !AttackPower.CanInvokePower(Assailant, target)) return CombatMoveResult.Irrelevant;
+		if (_committed || target is null) return CombatMoveResult.Irrelevant;
+		var permitted = AttackPower.CanInvokePower(Assailant, target);
+		if (!CanContinueCommand() || !permitted) return CombatMoveResult.Irrelevant;
 		_committed = true;
+		MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted();
 		AttackPower.UseAttackPower(this);
+		if (!CanContinueCommand()) return Failed(Outcome.NotTested);
 		defenderMove ??= new HelplessDefenseMove { Assailant = target };
 		var rolls = Gameworld.GetCheck(Check).CheckAgainstAllDifficulties(Assailant, CheckDifficulty,
 			AttackPower.AttackerTrait, target, Assailant.OffensiveAdvantage);
@@ -70,14 +77,16 @@ public class MagicPowerAttackMove : WeaponAttackMove, IMagicPowerAttackMove
 			if (result.WardSucceeded) { target.Send("Your ward holds the attack at bay."); return Failed(attackRoll.Outcome); }
 			var beaten = new WardBeaten(target, target.Combat);
 			target.AddEffect(beaten);
-			try { defenderMove = target.ResponseToMove(this, Assailant); }
+			try { if (!CanContinueCommand()) return Failed(attackRoll.Outcome); defenderMove = target.ResponseToMove(this, Assailant) ?? new HelplessDefenseMove { Assailant = target }; }
 			finally { target.RemoveEffect(beaten); }
+			if (!CanContinueCommand()) return Failed(attackRoll.Outcome);
 		}
 		CheckOutcome? defenseRoll = null;
 		switch (defenderMove)
 		{
 			case MagicDefenseMove magic:
 				if (magic.TryDefend(this, attackRoll, out var defenseResult)) return defenseResult;
+				if (!CanContinueCommand()) return Failed(attackRoll.Outcome);
 				break;
 			case BlockMove block:
 				defenseRoll = Gameworld.GetCheck(block.Check).Check(target,
@@ -99,6 +108,7 @@ public class MagicPowerAttackMove : WeaponAttackMove, IMagicPowerAttackMove
 				break;
 		}
 		target.DefensiveAdvantage = 0;
+		if (!CanContinueCommand()) return Failed(attackRoll.Outcome);
 		var opposed = new OpposedOutcome(attackRoll, defenseRoll?.Outcome ?? Outcome.NotTested);
 		if (defenseRoll is not null && opposed.Outcome != OpposedOutcomeDirection.Proponent)
 		{
@@ -120,11 +130,11 @@ public class MagicPowerAttackMove : WeaponAttackMove, IMagicPowerAttackMove
 			};
 			if (defenderMove is MagicDefenseMove magic) damage = magic.Absorb(damage);
 			if (damage is null) return Failed(attackRoll.Outcome);
-			wounds.AddRange(target.PassiveSufferDamage(damage));
+			wounds.AddRange(target.CommandSufferDamage(damage));
 			wounds.ProcessPassiveWounds();
 		}
 		MagicAttackEffectResolver.Apply(Assailant, target, AttackPower);
-		AttackPower.ApplyAttackSpell(Assailant, target, attackRoll);
+		if (CanContinueCommand()) AttackPower.ApplyAttackSpell(Assailant, target, attackRoll);
 		return new CombatMoveResult { MoveWasSuccessful = true, AttackerOutcome = attackRoll.Outcome,
 			DefenderOutcome = defenseRoll?.Outcome ?? Outcome.NotTested, WoundsCaused = wounds,
 			RecoveryDifficulty = RecoveryDifficultySuccess };

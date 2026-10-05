@@ -73,6 +73,7 @@ public class SelectedCombatAction : CombatEffectBase, ISelectedCombatAction
 
         public override ICombatMove GetCombatMove(ICharacter actor)
         {
+            if (!CommandExecutionScope.TryContinue(actor)) return null;
             actor.CombatTarget = Target;
             // TODO - override default melee strategy when charging manually
             return new ChargeToMeleeMove { Assailant = actor };
@@ -90,6 +91,7 @@ public class SelectedCombatAction : CombatEffectBase, ISelectedCombatAction
 
         public override ICombatMove GetCombatMove(ICharacter actor)
         {
+            if (!CommandExecutionScope.TryContinue(actor)) return null;
             actor.CombatTarget = Target;
             return new MoveToMeleeMove { Assailant = actor };
         }
@@ -263,7 +265,9 @@ public class SelectedCombatAction : CombatEffectBase, ISelectedCombatAction
         {
             if (Target == null)
             {
-                actor.Aim = new AimInformation(null, actor, Enumerable.Empty<ICellExit>(), Weapon);
+                var aim = new AimInformation(null, actor, Enumerable.Empty<ICellExit>(), Weapon);
+                if (!CommandExecutionScope.TryContinue(actor)) { aim.ReleaseEvents(); return null; }
+                actor.Aim = aim;
                 return new AimRangedWeaponMove(actor, null, Weapon);
             }
 
@@ -271,7 +275,9 @@ public class SelectedCombatAction : CombatEffectBase, ISelectedCombatAction
             {
                 if (actor.Location == Target.Location)
                 {
-                    actor.Aim = new AimInformation(Target, actor, Enumerable.Empty<ICellExit>(), Weapon);
+                    var aim = new AimInformation(Target, actor, Enumerable.Empty<ICellExit>(), Weapon);
+                    if (!CommandExecutionScope.TryContinue(actor)) { aim.ReleaseEvents(); return null; }
+                    actor.Aim = aim;
                 }
                 else
                 {
@@ -284,7 +290,9 @@ public class SelectedCombatAction : CombatEffectBase, ISelectedCombatAction
                         return null;
                     }
 
-                    actor.Aim = new AimInformation(Target, actor, path, Weapon);
+                    var aim = new AimInformation(Target, actor, path, Weapon);
+                    if (!CommandExecutionScope.TryContinue(actor)) { aim.ReleaseEvents(); return null; }
+                    actor.Aim = aim;
                 }
             }
 
@@ -431,6 +439,7 @@ public class SelectedCombatAction : CombatEffectBase, ISelectedCombatAction
 
         public override ICombatMove GetCombatMove(ICharacter actor)
         {
+            if (!CommandExecutionScope.TryContinue(actor)) return null;
             actor.CombatTarget = Target;
             if (Exit is not null)
             {
@@ -702,7 +711,9 @@ public class SelectedCombatAction : CombatEffectBase, ISelectedCombatAction
     public ICombatMove GetMove(ICharacter actor)
     {
         if (_commandAuthority is not null && !_commandAuthority.MayExecute(actor)) return null;
+        using var execution = CommandExecutionScope.EnterFactory(_commandAuthority, actor);
         var move = _action.GetCombatMove(actor);
+        if (!CommandExecutionScope.TryContinue(actor)) return null;
         _commandAuthority?.Bind(move);
         return move;
     }

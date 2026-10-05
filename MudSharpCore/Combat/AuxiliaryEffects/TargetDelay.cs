@@ -73,6 +73,8 @@ If omitted, the defense trait defaults to the auxiliary action's check trait and
 			return;
 		}
 
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue()) return;
+		MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted();
 		Gameworld.Scheduler.DelayScheduleType(tch, ScheduleType.Combat,
 			System.TimeSpan.FromSeconds(delay * CombatBase.CombatSpeedMultiplier));
 		SendEcho(SuccessEcho, attacker, tch);

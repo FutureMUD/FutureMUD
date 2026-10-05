@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.RPG.Checks;
 
 namespace MudSharp.Combat.Moves;
@@ -44,6 +44,8 @@ public class CounterGrappleMove : CombatMoveBase
 
     public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
     {
+		using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterMove(this);
+		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
         throw new ApplicationException("Defensive moves should not be resolved.");
     }
 }

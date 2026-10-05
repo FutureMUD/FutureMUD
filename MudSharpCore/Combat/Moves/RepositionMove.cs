@@ -1,4 +1,4 @@
-﻿using MudSharp.Body.Position;
+using MudSharp.Body.Position;
 using MudSharp.RPG.Checks;
 using MoreLinq;
 
@@ -22,6 +22,8 @@ public class RepositionMove : CombatMoveBase
 
     public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
     {
+		using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterMove(this);
+		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
         // Determine if anybody in the combat opposes them standing up
 		var combat = Assailant.Combat;
 		var opponent = InternalResponses(combat).Shuffle(Constants.Random).FirstOrDefault();

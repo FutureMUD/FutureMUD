@@ -137,8 +137,11 @@ If omitted, the defense trait defaults to the auxiliary action's check trait and
 			return;
 		}
 
-		tch.Body.Take(item);
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue()) return;
+		MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted();
+		using (MudSharp.NPC.AI.CommandExecutionScope.EnterOwnedOperation(tch)) tch.Body.Take(item);
 		PlaceDisarmedItem(item, tch);
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue()) return;
 		var duration = CalculateAmount(opposed);
 		if (duration > 0.0)
 		{
@@ -151,6 +154,9 @@ If omitted, the defense trait defaults to the auxiliary action's check trait and
 
 	internal static void PlaceDisarmedItem(IGameItem item, ICharacter target)
 	{
+		// Native Take callbacks may delete or relocate it. Preserve that completed custody change.
+		if (item.Deleted || item.Destroyed || item.ContainedIn is not null ||
+			item.InInventoryOf is not null || item.Location is not null) return;
 		var body = target.Body;
 		var carrier = body is null ? null : body.WornItems
 			.Concat(body.HeldOrWieldedItems)
@@ -162,6 +168,8 @@ If omitted, the defense trait defaults to the auxiliary action's check trait and
 				style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
 			return;
 		}
+		if (item.Deleted || item.Destroyed || item.ContainedIn is not null ||
+			item.InInventoryOf is not null || item.Location is not null) return;
 		item.RoomLayer = target.RoomLayer;
 		item.InsertAtSource(target);
 	}

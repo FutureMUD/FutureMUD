@@ -1,4 +1,4 @@
-﻿using MudSharp.Effects.Concrete;
+using MudSharp.Effects.Concrete;
 using MudSharp.RPG.Checks;
 using MudSharp.RPG.Merits.Interfaces;
 
@@ -18,6 +18,8 @@ public class TooExhaustedMove : CombatMoveBase, IDefenseMove
 
     public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
     {
+		using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterMove(this);
+		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
         ISecondWindMerit availableSecondWind = Assailant.Merits.OfType<ISecondWindMerit>().FirstOrDefault(x =>
             x.Applies(Assailant) && !Assailant.AffectedBy<ISecondWindExhaustedEffect>(x));
         if (availableSecondWind != null)

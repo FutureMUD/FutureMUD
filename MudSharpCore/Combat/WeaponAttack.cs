@@ -125,7 +125,8 @@ public class WeaponAttack : CombatAction, IWeaponAttack
         bool ignorePosition,
         params BuiltInCombatMoveType[] types)
     {
-        return types.Contains(MoveType) &&
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue()) return false;
+        var permitted = types.Contains(MoveType) &&
                HandednessMatches(attacker, weapon, handedness) &&
                Intentions.HasFlag((attacker as ICharacter)?.CombatSettings.RequiredIntentions ??
                                   CombatMoveIntentions.None) &&
@@ -136,6 +137,7 @@ public class WeaponAttack : CombatAction, IWeaponAttack
                 target is IHaveABody bodyOwner &&
                 bodyOwner.Body.Bodyparts.Any(x => x.Shape == BodypartShape && x.RelativeHitChance > 0.0)) &&
                (UsabilityProg?.ExecuteBool(attacker, weapon, target) ?? true);
+		return MudSharp.NPC.AI.CommandExecutionScope.TryContinue() && permitted;
     }
 
     public MeleeWeaponVerb Verb { get; set; }

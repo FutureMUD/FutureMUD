@@ -39,7 +39,7 @@
   "preparation_baseline": "b0e4339d57bf15bc6e6a6f21fbdd5edc73006e38",
   "implementation_branch": "codex/armageddon-completion-phase1",
   "authorised_scope": "Complete plan in coherent stages; local commits; no publication, merge, deploy or shared/production DB",
-  "selected_stage": "Bounded Storm Spear stock implemented and verified; local checkpoint and parent review",
+  "selected_stage": "Supported ordered-NPC authority closure in progress; six-route currency milestone qualified; parent review/continuation",
   "phase1_remaining": [
     "Stock installer selects and qualifies the mental/spiritual native attribute, capacity expression/basis and authored energy coefficients.",
     "Complete installed source/support/crafting/chargen wiring and gathering restrictions/environmental accounting remain later stock/native gates.",
@@ -4034,5 +4034,311 @@
       "N13 PC charm remains not_run. Seven phases,16 decisions,154 candidates,82 Sorcerer plus12 support rows,25 native scenarios and all eight feature packages/devices/installer/full installed-world gates remain open. All previous qualification limits and immutable receipts/helpers/closing proofs remain.",
       "Local commit only; primary master preserved; no publication, remote merge, deployment, shared/production database or model/billing change. Stop for parent independent re-review."
     ]
+  },
+  "supported_ordered_npc_callback_closure": {
+    "status": "implementation_in_progress_comprehensive_clearance_open",
+    "base_commit": "02b8994ce4d6c6104e0187e9f0026fc575af58fa",
+    "updated_utc": "2026-10-05T12:57:28.454435+00:00",
+    "checklist": "Design Documents/Magic/Armageddon_OrderedNpc_Closure_Checklist.md",
+    "latest_executed_focused": {
+      "run_id": "20261005T123910Z-21d297c20904",
+      "passed": 218,
+      "failed": 0,
+      "skipped": 0,
+      "source_fingerprint": "9bf7a02f812ed6d1e8ad3ff1585a0cfb8ed3eae2d079d0754ff0f9e6f7a03243",
+      "selection": "QueuedCommandAuthority, PreparedCurrencyTransfer, GameItemSpatialPlacement, ForeignCustodySave, SpellOwnedItem"
+    },
+    "later_stock_open_hand_changes": "passed_focused_318_and_native_four_wear; comprehensive_closure_open",
+    "native_wear_attempts": [
+      {
+        "attempt": "native-wear01",
+        "status": "failed_before_wear",
+        "reason": "native_Get_confused_inherited_holder_location_with_direct_location",
+        "owned_cleanup": "passed"
+      },
+      {
+        "attempt": "native-wear02",
+        "status": "failed_before_wear",
+        "reason": "gear_setup_selected_an_occupied_hand",
+        "owned_cleanup": "passed"
+      },
+      {
+        "attempt": "native-wear05",
+        "status": "passed_four_persisted_cases",
+        "owned_cleanup": "passed"
+      },
+      {
+        "attempt": "native-attack02",
+        "status": "failed_wound_origin_character_FK",
+        "owned_cleanup": "passed"
+      },
+      {
+        "attempt": "native-attack03",
+        "status": "five_manual_and_four_wear_cases_passed_autonomous_selection_failed",
+        "owned_cleanup": "passed"
+      },
+      {
+        "attempt": "native-attack04",
+        "status": "five_manual_and_four_wear_cases_passed_autonomous_not_at_melee_range",
+        "owned_cleanup": "passed"
+      },
+      {
+        "attempt": "native-attack05",
+        "status": "four_wear_five_manual_persisted_pass_autonomous_failed_racial_fixture",
+        "owned_cleanup": "database_server_log_pass; wrapper falsely matched unrelated task-3/task-4 workers; preserved untouched"
+      },
+      {
+        "attempt": "native-attack06",
+        "status": "PASS_four_wear_seven_attack_controls",
+        "owned_cleanup": "PASS"
+      }
+    ],
+    "native_manual_attack": "passed_four_wear_seven_attack_controls_in_nativeattack06_and_nativecurrency06; actual_defender_countershot_not_run",
+    "fast_final": "PASS_current_currency_checkpoint",
+    "remaining": [
+      "native_displacement_membership_route_boarding_controls",
+      "remaining_component_load_chamber_ready_fire_unload_and_projectile_caller_detachment",
+      "noncurrency_prepared_inventory_merge_conservation_and_native_controls",
+      "actual_defender_countershot",
+      "final_complete_closure_suites_docs_receipt_one_local_commit_parent_review"
+    ],
+    "new_commit": null,
+    "whole_plan_complete": false,
+    "pc_charm_N13": "not_run",
+    "lane_ownership": {
+      "device": "casting_execution_and_CharacterMagic_resource_hooks",
+      "stock": "shared_stock_and_reporting_files_untouched"
+    },
+    "cleared_stock_series_to_integrate_after_authority_review": "abcbb944ae8b532c1da57e50466878a14bd01ad3",
+    "native_autonomous_failure_diagnosis": "corrected native racial CanAttack/CanUseWeapons fixture; actual autonomous ChooseMove and direct action passed",
+    "running_tests": false,
+    "currency_candidate": "Prepared six-route currency milestone qualified: all source/destination maps and custody commit coherently; native denomination/title/merge/refill/relocation/rebind/event/cold-reload/final-policy spatial controls passed. Actual ordered command exercised is Get; no claim all six ordered parser paths were exercised.",
+    "current_checkpoint": "Six-route currency milestone and compatibility regressions qualified; complete supported NPC closure and one authority-review commit remain pending",
+    "latest_native": {
+      "attempt": "nativecurrency11",
+      "status": "PASS",
+      "passed_cases": 34,
+      "currency_cases": 21,
+      "container_cases": 2,
+      "source_count": 4728,
+      "shared_dll_count": 19,
+      "strict_alignment": true,
+      "manifest_sha256": "7c71020c882a88fe434dc19e4d416cf031634ee1ffa1123881d953e1abbb6faa",
+      "owned_database_and_server_cleanup": "PASS",
+      "owned_processes_remaining": 0
+    },
+    "currency_native_attempts": [
+      {
+        "attempt": "nativecurrency01",
+        "status": "FAIL_Put_admission",
+        "reason": "fixture conversion missing; weight NaN",
+        "owned_cleanup": "PASS",
+        "source_fingerprints": "PASS",
+        "failure_retained": true
+      },
+      {
+        "attempt": "nativecurrency02",
+        "status": "FAIL_Put_admission",
+        "reason": "diagnostic legacy NotContainer default",
+        "owned_cleanup": "PASS",
+        "source_fingerprints": "PASS",
+        "failure_retained": true
+      },
+      {
+        "attempt": "nativecurrency03",
+        "status": "FAIL_Put_admission",
+        "reason": "confirmed NaN weight from zero fixture conversion",
+        "owned_cleanup": "PASS",
+        "source_fingerprints": "PASS",
+        "failure_retained": true
+      },
+      {
+        "attempt": "nativecurrency04",
+        "status": "FAIL_before_currency",
+        "reason": "archive missing conversion configuration row",
+        "owned_cleanup": "PASS",
+        "source_fingerprints": "PASS",
+        "failure_retained": true
+      },
+      {
+        "attempt": "nativecurrency05",
+        "status": "FAIL_ordered_Get_after_seven_direct_paths_pass",
+        "reason": "unquoted exact amount matched legacy item grammar",
+        "owned_cleanup": "PASS",
+        "source_fingerprints": "PASS",
+        "failure_retained": true
+      },
+      {
+        "attempt": "nativecurrency06",
+        "status": "PASS_23_cases",
+        "reason": "quoted native currency command; twelve currency cases",
+        "owned_cleanup": "PASS",
+        "source_fingerprints": "PASS",
+        "failure_retained": false
+      },
+      {
+        "attempt": "nativecurrency07",
+        "status": "PASS_30_cases",
+        "owned_cleanup": "PASS",
+        "source_fingerprints": "PASS",
+        "failure_retained": false
+      },
+      {
+        "attempt": "nativecurrency08",
+        "status": "PASS_31_cases",
+        "owned_cleanup": "PASS",
+        "source_fingerprints": "PASS",
+        "failure_retained": false
+      },
+      {
+        "attempt": "nativecurrency09",
+        "status": "FAIL_before_new_final_policy_case",
+        "reason": "new native policy fixture missing actor.Currency; earlier thirty cases passed; runtime unchanged",
+        "owned_cleanup": "PASS",
+        "source_fingerprints": "PASS",
+        "failure_retained": true
+      },
+      {
+        "attempt": "nativecurrency10",
+        "status": "PASS_32_cases",
+        "owned_cleanup": "PASS",
+        "source_fingerprints": "PASS",
+        "failure_retained": false
+      },
+      {
+        "attempt": "nativecurrency11",
+        "status": "PASS_34_cases",
+        "owned_cleanup": "PASS",
+        "source_fingerprints": "PASS",
+        "failure_retained": false
+      }
+    ],
+    "latest_fast": {
+      "run_id": "20261005T124117Z-f903dfd278c8",
+      "executed": 7402,
+      "passed": 7402,
+      "failed": 0,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 7402,
+      "source_fingerprint": "557e7b43159994c023b341fe798812a7c19e1c1baa173b832e77ac4c8833e8ac",
+      "summary_sha256": "a61d0c695f04a87b4df223316d7253c3e58dab2addc5ef71dbe837e9c29f6d1e"
+    },
+    "aggregate_final": "PASS_current_currency_checkpoint_comprehensive_closure_open",
+    "currency_review": {
+      "status": "no_remaining_established_P1_P2_in_bounded_source_review",
+      "resolved_finding": "Run executable authority callback before captured executor/body/spatial snapshots",
+      "native_regression": "native SetLayer in second final policy evaluation with valid grant; no debit/allocation/OnLoad or saved custody change",
+      "reviewer_execution": "source_only_native_executed_by_coordinator"
+    },
+    "shared_check_callback_scope": {
+      "status": "parent_scope_decision_pending_no_Check_cs_edits",
+      "evidence": "Check.cs CheckBonuses effect/merit callbacks around613 can revoke control before TraitUsed around130-145; caller postcheck cannot prevent intrinsic learning/branch mutation",
+      "boundary": "Record existing supported action dependency; do not silently broaden generic check audit or supported commands"
+    },
+    "managed_currency_closure_failures_retained": [
+      {
+        "run_id": "20261005T113841Z-a5e2156e0d25",
+        "status": "FAIL",
+        "passed": 7381,
+        "failed": 7,
+        "reason": "Five compatibility/fixture/source-assertion failures plus two shared-TEMP permission failures"
+      },
+      {
+        "run_id": "20261005T115001Z-c386275e04c4",
+        "status": "BUILD_FAILED",
+        "tests": "all_ten_not_run",
+        "reason": "Commandable fixture ICharacterInstance cast missing"
+      },
+      {
+        "run_id": "20261005T115256Z-e3d630547b16",
+        "status": "FAIL",
+        "passed": 235,
+        "failed": 9,
+        "reason": "Commandable fixture ID initialization order and two stale Musket source strings"
+      }
+    ],
+    "container_compatibility_checkpoint": {
+      "status": "PASS_bounded_slice_no_remaining_established_P1_P2",
+      "repairs": [
+        "Container.Put accepts only an exact already-extracted native cell source and clears its spatial pointer in the custody commit",
+        "Container cleanup distinguishes direct body claims from body inherited through the destination bag"
+      ],
+      "managed": "14 additional native GameItem regression rows, including extracted source, actual merge call/consumption, callback reacquisition/relocation/revocation and inherited holder",
+      "native": "Two ordinary native floor/held bag controls: CanPut purity, Insert-Extract-Put, real currency merge/15u/exact maps, absorbed source row removal, container XML and ContainerId, independent native cold readers",
+      "historical_failures_retained": [
+        "checkpoint07-sand",
+        "checkpoint07-sand-diagnostic02"
+      ],
+      "root_cause_evidence": "Owned expiry reached Deleted=true and Completed; foreign sibling ContainerId was already null before reader reconciliation because Put refused its Cell.Extract pointer",
+      "sand_repair_qualification": "checkpoint07-sand02 unchanged original Sand helper and reader PASS",
+      "native_build_failures_retained": [
+        "nativebuild25: diagnostic helper missing RuntimeClock namespace",
+        "nativebuild27: new container helper missing ICurrencyPile namespace"
+      ],
+      "after_fast": "Only new native helper currency-namespace import; production runtime and managed tests unchanged"
+    },
+    "stock_owned_next_changes": [
+      "BodyPerception blindness integration",
+      "MagicSpell prepared-parent child cleanup",
+      "Opt-in detection lifetime-policy partial; optional persisted MagicSpellParent group/source-grade metadata; minimal Prepare and normal/prepared-parent construction validation, with defaults and same-cast parent preserved"
+    ],
+    "next_component_review": {
+      "status": "source_design_only_not_implemented_or_native_qualified",
+      "methods": [
+        "InternalMagazineGunGameItemComponent.Load",
+        "InternalMagazineGunGameItemComponent.ChamberRound",
+        "InternalMagazineGunGameItemComponent.Unready",
+        "FirearmBaseGameItemComponent.Ready"
+      ],
+      "recommendation": "Capture exact gun/ammunition/body/prototype/list/quantity/chamber/casing state; check executable callbacks; detach/split only one accepted ammo participant and complete its exact custody; finalise the plan in finally with actual adopted exemptions; use prepared detach/receive for ejection; gate each later participant afresh; Ready reports actual chamber transition",
+      "required_controls": "Whole/partial-stack load, real merge, old round plus casing plus next magazine round, expiry/rebind at output/split/containment, callback relocation/replacement, ordinary direct/independent foreign body, native flush/cold XML and exact ContainerId/residual quantity/no duplicate/no orphan"
+    },
+    "prior_native_lanes_at_currency_checkpoint": [
+      {
+        "attempt": "checkpoint07-servitor02",
+        "status": "PASS",
+        "owned_cleanup": "PASS",
+        "fingerprints": "PASS"
+      },
+      {
+        "attempt": "checkpoint07-queue02",
+        "status": "PASS",
+        "owned_cleanup": "PASS",
+        "fingerprints": "PASS"
+      },
+      {
+        "attempt": "checkpoint07-callback02",
+        "status": "PASS",
+        "owned_cleanup": "PASS",
+        "fingerprints": "PASS"
+      },
+      {
+        "attempt": "checkpoint07-sand02",
+        "status": "PASS",
+        "owned_cleanup": "PASS",
+        "fingerprints": "PASS"
+      },
+      {
+        "attempt": "checkpoint07-flame02",
+        "status": "PASS",
+        "owned_cleanup": "PASS",
+        "fingerprints": "PASS"
+      },
+      {
+        "attempt": "checkpoint07-storm02",
+        "status": "PASS",
+        "owned_cleanup": "PASS",
+        "fingerprints": "PASS"
+      }
+    ],
+    "review_snapshot": {
+      "status": "AUTHORIZED_LOCAL_REVIEW_SNAPSHOT_COMPREHENSIVE_CLOSURE_NOT_COMPLETE",
+      "authorization": "Coordinator superseded prior hold-all-changes requirement; local review snapshot now authorized; no integration or new feature work",
+      "scope_document": "Design Documents/Magic/Armageddon_OrderedNpc_Review_Scope.md",
+      "coverage_inventory": "Design Documents/Magic/Armageddon_OrderedNpc_Review_Snapshot.json",
+      "exact_commit_hash_location": "Task Armageddon_OrderedNpc_Checkpoint07_CommitReceipt.json, generated after local commit"
+    }
   }
 }

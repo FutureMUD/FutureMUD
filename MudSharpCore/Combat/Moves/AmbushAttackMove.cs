@@ -36,6 +36,8 @@ public sealed class AmbushAttackMove(ICharacter owner, INaturalAttack attack, IC
 
 	public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
 	{
+		using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterMove(this);
+		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
 		if (!CanAmbush(Assailant, target, Attack) || !Assailant.CanSpendStamina(StaminaCost)) return CombatMoveResult.Irrelevant;
 		if (Assailant.RoomLayer != target.RoomLayer)
 		{
@@ -47,6 +49,7 @@ public sealed class AmbushAttackMove(ICharacter owner, INaturalAttack attack, IC
 		Assailant.RemoveAllEffects<HideInvis>(fireRemovalAction: true);
 		Assailant.MeleeRange = true;
 		var result = base.ResolveMove(defenderMove);
+		if (!CanContinueCommand()) return result;
 		if (!result.MoveWasSuccessful || Attack is not IAmbushAttack { AttemptSeize: true } ambush ||
 		    target.State.IsDead() || !Assailant.ColocatedWith(target) || CombatForcedMovementUtilities.HasAnyGrapple(Assailant, target)) return result;
 		var offset = (Assailant.CurrentContextualSize(SizeContext.GrappleAttack) - target.CurrentContextualSize(SizeContext.GrappleDefense)) *

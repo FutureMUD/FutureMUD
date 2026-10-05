@@ -1,4 +1,4 @@
-﻿using MudSharp.Body.Position;
+using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Construction.Boundary;
 using MudSharp.RPG.Checks;
@@ -53,6 +53,8 @@ public class AimRangedWeaponMove : CombatMoveBase
 
     public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
     {
+		using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterMove(this);
+		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
         ICheck check = Gameworld.GetCheck(CheckType.AimRangedWeapon);
         Difficulty difficulty = Assailant.GetDifficultyForTool(Weapon.Parent, Weapon.AimDifficulty);
         ICharacter target = CharacterTargets.FirstOrDefault();

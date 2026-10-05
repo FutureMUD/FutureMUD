@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.Body.Traits;
 using MudSharp.Combat;
 using MudSharp.Construction;
@@ -156,6 +156,10 @@ public class CrossbowGameItemComponent : GameItemComponent, IEmplaceableRangedWe
     /// <inheritdoc />
     public bool CanWield(ICharacter actor)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return false;
+
+
 		if (_prototype.RequiresEmplacement)
 		{
 			return false;
@@ -166,6 +170,10 @@ public class CrossbowGameItemComponent : GameItemComponent, IEmplaceableRangedWe
     /// <inheritdoc />
     public string WhyCannotWield(ICharacter actor)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return string.Empty;
+
+
 		if (_prototype.RequiresEmplacement)
 		{
 			return $"{Parent.HowSeen(actor, true)} is an emplaced crossbow and cannot be wielded.";
@@ -181,6 +189,11 @@ public class CrossbowGameItemComponent : GameItemComponent, IEmplaceableRangedWe
 
 	public bool Emplace(ICharacter actor, out string reason)
 	{
+		using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
+		reason = string.Empty;
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return false;
+
+
 		if (!ItemManipulationGuard.CanManipulate(actor, out reason, Parent))
 		{
 			return false;
@@ -204,6 +217,11 @@ public class CrossbowGameItemComponent : GameItemComponent, IEmplaceableRangedWe
 
 	public bool Limber(ICharacter actor, out string reason)
 	{
+		using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
+		reason = string.Empty;
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return false;
+
+
 		if (!ItemManipulationGuard.CanManipulate(actor, out reason, Parent))
 		{
 			return false;
@@ -227,6 +245,10 @@ public class CrossbowGameItemComponent : GameItemComponent, IEmplaceableRangedWe
 
     public bool CanReady(ICharacter readier)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(readier);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(readier)) return false;
+
+
         if (!ItemManipulationGuard.CanManipulate(readier, out var manipulationReason, Parent))
         {
             return false;
@@ -264,6 +286,10 @@ public class CrossbowGameItemComponent : GameItemComponent, IEmplaceableRangedWe
 
     public string WhyCannotReady(ICharacter readier)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(readier);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(readier)) return string.Empty;
+
+
         if (!ItemManipulationGuard.CanManipulate(readier, out var manipulationReason, Parent))
         {
             return manipulationReason;
@@ -310,6 +336,10 @@ public class CrossbowGameItemComponent : GameItemComponent, IEmplaceableRangedWe
 
     public bool Ready(ICharacter readier)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(readier);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(readier)) return false;
+
+
         if (!ItemManipulationGuard.CanManipulate(readier, out var manipulationReason, Parent))
         {
             return false;
@@ -325,6 +355,7 @@ public class CrossbowGameItemComponent : GameItemComponent, IEmplaceableRangedWe
         {
             var plan = _prototype.ReadyTemplate.CreatePlan(readier);
             var results = plan.ExecuteWholePlan();
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(readier)) return false;
             var tool = results.First(x => x.OriginalReference?.ToString() == "spanningtool").PrimaryTarget;
             readier.OutputHandler.Handle(new EmoteOutput(
                 new Emote(_prototype.ReadyEmote, readier, readier, Parent, tool, LoadedAmmo.Parent)));
@@ -336,6 +367,8 @@ public class CrossbowGameItemComponent : GameItemComponent, IEmplaceableRangedWe
                 new Emote("@ wind|winds up $0 until it is ready to fire $1.", readier, Parent, LoadedAmmo.Parent)));
         }
 
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(readier)) return false;
+        MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted(readier);
         IsReadied = true;
         Changed = true;
         return true;
@@ -343,11 +376,19 @@ public class CrossbowGameItemComponent : GameItemComponent, IEmplaceableRangedWe
 
     public bool CanUnready(ICharacter readier)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(readier);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(readier)) return false;
+
+
         return IsReadied;
     }
 
     public string WhyCannotUnready(ICharacter readier)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(readier);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(readier)) return string.Empty;
+
+
         if (!IsReadied)
         {
             return $"{Parent.HowSeen(readier, true)} is not ready to fire, and has no need of being unreadied.";
@@ -358,9 +399,15 @@ public class CrossbowGameItemComponent : GameItemComponent, IEmplaceableRangedWe
 
     public bool Unready(ICharacter readier)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(readier);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(readier)) return false;
+
+
         if (readier == null)
         {
-            IsReadied = false;
+            if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(readier)) return false;
+        MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted(readier);
+        IsReadied = false;
             return true;
         }
 
@@ -372,6 +419,8 @@ public class CrossbowGameItemComponent : GameItemComponent, IEmplaceableRangedWe
 
         readier.OutputHandler.Handle(new EmoteOutput(
             new Emote("@ unwind|unwinds $0 until the bow returns to its neutral position.", readier, Parent)));
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(readier)) return false;
+        MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted(readier);
         IsReadied = false;
         Changed = true;
         return true;
@@ -386,6 +435,10 @@ public class CrossbowGameItemComponent : GameItemComponent, IEmplaceableRangedWe
 
     public bool CanUnload(ICharacter loader)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(loader);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return false;
+
+
         if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
         {
             return false;
@@ -396,6 +449,10 @@ public class CrossbowGameItemComponent : GameItemComponent, IEmplaceableRangedWe
 
     public string WhyCannotUnload(ICharacter loader)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(loader);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return string.Empty;
+
+
         if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
         {
             return manipulationReason;
@@ -417,23 +474,28 @@ public class CrossbowGameItemComponent : GameItemComponent, IEmplaceableRangedWe
 
     public IEnumerable<IGameItem> Unload(ICharacter loader)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(loader);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return [];
+
+
         if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
         {
             return [];
         }
 
         IAmmo ammo = LoadedAmmo;
-        LoadedAmmo = null;
+        if (ammo is null) return [];
+        var receive = (loader.Body as MudSharp.Body.Implementations.Body)?.PrepareComponentUnload(ammo.Parent);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return [];
         loader.OutputHandler.Handle(
             new EmoteOutput(new Emote("@ unload|unloads $0 from $1.", loader, ammo.Parent, Parent)));
-        if (!loader.Body.CanGet(ammo.Parent, 0))
-        {
-            ammo.Parent.InsertAtSource(loader);
-        }
-        else
-        {
-            loader.Body.Get(ammo.Parent, silent: true);
-        }
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader) || !ReferenceEquals(LoadedAmmo, ammo)) return [];
+        MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted(loader);
+        LoadedAmmo = null;
+        ammo.Parent.ContainedIn = null;
+        if (receive is not null) receive();
+        else if (loader.Body.CanGet(ammo.Parent, 0) && MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) loader.Body.Get(ammo.Parent, silent: true);
+        else if (!ammo.Parent.Deleted && ammo.Parent.InInventoryOf is null && ammo.Parent.ContainedIn is null && ammo.Parent.Location is null) ammo.Parent.InsertAtSource(loader);
 
         Changed = true;
         return new[] { ammo.Parent };
@@ -441,6 +503,10 @@ public class CrossbowGameItemComponent : GameItemComponent, IEmplaceableRangedWe
 
     public bool CanLoad(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(loader);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return false;
+
+
         if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
         {
             return false;
@@ -462,6 +528,10 @@ public class CrossbowGameItemComponent : GameItemComponent, IEmplaceableRangedWe
 
     public string WhyCannotLoad(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(loader);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return string.Empty;
+
+
         if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
         {
             return manipulationReason;
@@ -493,6 +563,10 @@ public class CrossbowGameItemComponent : GameItemComponent, IEmplaceableRangedWe
 
     public void Load(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(loader);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return;
+
+
         if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
         {
             loader?.OutputHandler.Send(manipulationReason);
@@ -501,6 +575,7 @@ public class CrossbowGameItemComponent : GameItemComponent, IEmplaceableRangedWe
 
         IInventoryPlan plan = _prototype.LoadTemplate.CreatePlan(loader);
         plan.ExecuteWholePlan();
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return;
         IGameItem ammo =
             loader.Body.HeldItems.FirstOrDefault(
                 x =>
@@ -515,14 +590,18 @@ public class CrossbowGameItemComponent : GameItemComponent, IEmplaceableRangedWe
         IStackable ammoStack = ammo.GetItemType<IStackable>();
         if (ammoStack != null && ammoStack.Quantity > 1)
         {
-            IGameItem newammo = ammoStack.Split(1);
+            if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return;
+        MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted(loader);
+        IGameItem newammo = ammoStack.Split(1);
 			AddToMagazine(newammo.GetItemType<IAmmo>()!);
             loader.OutputHandler.Handle(new EmoteOutput(new Emote("@ load|loads $1 in $0.", loader, Parent, newammo)));
             plan.FinalisePlan();
         }
         else
         {
-            loader.Body.Take(ammo);
+            if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return;
+        loader.Body.Take(ammo);
+        if (ammo.Deleted || ammo.Destroyed || ammo.InInventoryOf is not null || ammo.ContainedIn is not null || ammo.Location is not null) return;
 			AddToMagazine(ammo.GetItemType<IAmmo>()!);
             loader.OutputHandler.Handle(new EmoteOutput(new Emote("@ load|loads $1 in $0.", loader, Parent, ammo)));
             plan.FinalisePlanWithExemptions(new List<IGameItem> { ammo });
@@ -533,6 +612,10 @@ public class CrossbowGameItemComponent : GameItemComponent, IEmplaceableRangedWe
 
     public bool CanFire(ICharacter actor, IPerceivable target)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return false;
+
+
         if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
         {
             return false;
@@ -543,6 +626,10 @@ public class CrossbowGameItemComponent : GameItemComponent, IEmplaceableRangedWe
 
     public string WhyCannotFire(ICharacter actor, IPerceivable target)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return string.Empty;
+
+
         if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
         {
             return manipulationReason;
@@ -569,6 +656,10 @@ public class CrossbowGameItemComponent : GameItemComponent, IEmplaceableRangedWe
     public void Fire(ICharacter actor, IPerceiver target, Outcome shotOutcome, Outcome coverOutcome,
         OpposedOutcome defenseOutcome, IBodypart bodypart, IEmoteOutput defenseEmote, IPerceiver originalTarget)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return;
+
+
         if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
         {
             actor?.OutputHandler.Send(manipulationReason);
@@ -585,7 +676,10 @@ public class CrossbowGameItemComponent : GameItemComponent, IEmplaceableRangedWe
             new Emote("@ pull|pulls the trigger on $1 and send|sends $2 whizzing off towards $0.", actor,
                 target ?? (IPerceivable)new DummyPerceivable("the sky"), Parent, LoadedAmmo.Parent),
             style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return;
+        MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted(actor);
         IAmmo ammo = LoadedAmmo;
+        var shotCompletion = new ProjectileCustodyCompletion(actor, ammo.Parent, target);
 		LoadedAmmo = _magazine.FirstOrDefault();
 		if (LoadedAmmo is not null)
 		{
@@ -593,8 +687,10 @@ public class CrossbowGameItemComponent : GameItemComponent, IEmplaceableRangedWe
 		}
 		IsReadied = LoadedAmmo is not null && _prototype.RepeatsWithoutReady;
         Changed = true;
+        if (ComponentItemTransfer.ReleaseFiredItem(ammo.Parent, Parent) && MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor))
         ammo.Fire(actor, target, shotOutcome, coverOutcome, defenseOutcome, bodypart, ammo.Parent, WeaponType,
             defenseEmote);
+        else shotCompletion.Finish();
         UseCondition(new ItemConditionUseContext(ItemConditionUseKind.RangedFire, shotOutcome,
             (int)(defenseOutcome?.Degree ?? OpposedOutcomeDegree.None)));
     }

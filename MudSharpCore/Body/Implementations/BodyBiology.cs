@@ -906,6 +906,7 @@ public partial class Body
 
     public IEnumerable<IWound> PassiveSufferDamage(IDamage damage, StringBuilder sb)
     {
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue()) return Enumerable.Empty<IWound>();
 		if (damage is not null) damage = MudSharp.Combat.Moves.MagicDefenseDamageScope.Filter(Actor, damage);
         if (damage == null)
         {
@@ -929,6 +930,8 @@ public partial class Body
 				x is not IContinuousExposureWound { ExposureKey: not null });
             if (existingWound == null)
             {
+				if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue()) return Enumerable.Empty<IWound>();
+				MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted();
                 existingWound = HealthStrategy.SufferDamage(Actor, new Damage(damage) { TargetBody = this }, damage.Bodypart).FirstOrDefault();
                 if (existingWound == null)
                 {
@@ -945,6 +948,8 @@ public partial class Body
                 return new[] { existingWound };
             }
 
+			if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue()) return Enumerable.Empty<IWound>();
+			MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted();
             existingWound.OriginalDamage += damage.DamageAmount;
             existingWound.CurrentDamage += damage.DamageAmount;
             existingWound.CurrentPain += damage.PainAmount;
@@ -969,6 +974,7 @@ public partial class Body
 
             foreach (IArmour item in armour)
             {
+                if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue()) return wounds;
                 damage = item.PassiveSufferDamage(damage, ref wounds);
                 sb.AppendLine(
                     $"Armour ({item.Parent.HowSeen(item.Parent)}): Took {wounds.LastOrDefault(x => x.Parent == item.Parent)?.CurrentDamage.ToString("N2") ?? "None"}, Passed on: {(damage == null ? "Nothing" : $"#2{damage.DamageAmount:N2} #3{damage.DamageType.Describe()}#0".SubstituteANSIColour())}");
@@ -994,13 +1000,19 @@ public partial class Body
             }
         }
 
-        foreach (IMagicArmour magicarmour in CombinedEffectsOfType<IMagicArmour>())
+        foreach (IMagicArmour magicarmour in CombinedEffectsOfType<IMagicArmour>().ToArray())
         {
-            if (!magicarmour.Applies() || !magicarmour.AppliesToPart(damage.Bodypart))
+            if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue()) return wounds;
+            var applies = magicarmour.Applies();
+            if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue()) return wounds;
+            var appliesToPart = applies && magicarmour.AppliesToPart(damage.Bodypart);
+            if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue()) return wounds;
+            if (!appliesToPart || !CombinedEffectsOfType<IMagicArmour>().Any(x => ReferenceEquals(x, magicarmour)))
             {
                 continue;
             }
 
+            MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted();
             damage = magicarmour.PassiveSufferDamage(damage, ref wounds);
             if (damage == null)
             {
@@ -1071,6 +1083,8 @@ public partial class Body
             }
         }
 
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue()) return wounds;
+		MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted();
         IWound[] newWounds = HealthStrategy.SufferDamage(Actor, new Damage(damage) { TargetBody = this }, damage.Bodypart).ToArray();
         IWound newWound = newWounds.FirstOrDefault(x => x is not BoneFracture);
         newWound?.SeveredBodypart = severedPart;

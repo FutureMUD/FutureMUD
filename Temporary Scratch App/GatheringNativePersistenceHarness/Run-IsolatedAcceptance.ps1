@@ -1,5 +1,5 @@
 [CmdletBinding()]
-param([switch]$LandOnly, [switch]$RejuvenationOnly, [switch]$CastingOnly, [switch]$PracticeOnly, [switch]$SpeechOnly, [switch]$AreaOnly, [switch]$LifecycleOnly, [switch]$BodyRetirementOnly, [switch]$LegacyRemainsOnly, [switch]$NpcArchiveOnly, [switch]$NpcArchiveMaintenanceOnly, [switch]$SpellOwnedNpcOnly, [switch]$SpellOwnedRetirementOnly, [switch]$SpellOwnedItemOnly, [switch]$CreatedConsumablesOnly, [switch]$CorpseAnimationOnly, [switch]$RaiseServitorStockOnly, [switch]$StormSpearStockOnly, [switch]$FlameKnifeStockOnly, [switch]$SandKnifeStockOnly, [switch]$QueuedCommandOnly, [switch]$QueuedCallbackOnly, [switch]$OwnershipOnly, [switch]$RefreshSnapshot)
+param([switch]$LandOnly, [switch]$RejuvenationOnly, [switch]$CastingOnly, [switch]$PracticeOnly, [switch]$SpeechOnly, [switch]$AreaOnly, [switch]$LifecycleOnly, [switch]$BodyRetirementOnly, [switch]$LegacyRemainsOnly, [switch]$NpcArchiveOnly, [switch]$NpcArchiveMaintenanceOnly, [switch]$SpellOwnedNpcOnly, [switch]$SpellOwnedRetirementOnly, [switch]$SpellOwnedItemOnly, [switch]$CreatedConsumablesOnly, [switch]$CorpseAnimationOnly, [switch]$RaiseServitorStockOnly, [switch]$StormSpearStockOnly, [switch]$FlameKnifeStockOnly, [switch]$SandKnifeStockOnly, [switch]$QueuedCommandOnly, [switch]$QueuedCallbackOnly, [switch]$OrderedNpcCallbacksOnly, [switch]$OwnershipOnly, [switch]$RefreshSnapshot)
 
 $ErrorActionPreference = 'Stop'
 
@@ -151,11 +151,11 @@ try {
 	}
 	Invoke-OwnedHarness '--probe'
 	$runExit = $LASTEXITCODE
-	if (-not $QueuedCallbackOnly -and -not $QueuedCommandOnly -and -not $SandKnifeStockOnly -and -not $FlameKnifeStockOnly -and -not $StormSpearStockOnly -and -not $SpellOwnedItemOnly -and -not $CreatedConsumablesOnly -and -not $RaiseServitorStockOnly -and -not $CorpseAnimationOnly -and -not $OwnershipOnly -and -not $SpellOwnedRetirementOnly -and -not $LandOnly -and -not $RejuvenationOnly -and -not $CastingOnly -and -not $PracticeOnly -and -not $SpeechOnly -and -not $AreaOnly -and -not $LifecycleOnly -and -not $BodyRetirementOnly -and -not $LegacyRemainsOnly -and -not $NpcArchiveOnly -and -not $NpcArchiveMaintenanceOnly -and -not $SpellOwnedNpcOnly -and $runExit -eq 0) {
+	if (-not $OrderedNpcCallbacksOnly -and -not $QueuedCallbackOnly -and -not $QueuedCommandOnly -and -not $SandKnifeStockOnly -and -not $FlameKnifeStockOnly -and -not $StormSpearStockOnly -and -not $SpellOwnedItemOnly -and -not $CreatedConsumablesOnly -and -not $RaiseServitorStockOnly -and -not $CorpseAnimationOnly -and -not $OwnershipOnly -and -not $SpellOwnedRetirementOnly -and -not $LandOnly -and -not $RejuvenationOnly -and -not $CastingOnly -and -not $PracticeOnly -and -not $SpeechOnly -and -not $AreaOnly -and -not $LifecycleOnly -and -not $BodyRetirementOnly -and -not $LegacyRemainsOnly -and -not $NpcArchiveOnly -and -not $NpcArchiveMaintenanceOnly -and -not $SpellOwnedNpcOnly -and $runExit -eq 0) {
 		Invoke-OwnedHarness '--run'
 		$runExit = $LASTEXITCODE
 	}
-	if ($runExit -eq 0 -and -not $QueuedCallbackOnly -and -not $QueuedCommandOnly -and -not $SandKnifeStockOnly -and -not $FlameKnifeStockOnly -and -not $StormSpearStockOnly -and -not $SpellOwnedItemOnly -and -not $CreatedConsumablesOnly -and -not $RaiseServitorStockOnly -and -not $CorpseAnimationOnly -and -not $OwnershipOnly -and -not $SpellOwnedRetirementOnly -and -not $RejuvenationOnly -and -not $CastingOnly -and -not $PracticeOnly -and -not $SpeechOnly -and -not $AreaOnly -and -not $LifecycleOnly -and -not $BodyRetirementOnly -and -not $LegacyRemainsOnly -and -not $NpcArchiveOnly -and -not $NpcArchiveMaintenanceOnly -and -not $SpellOwnedNpcOnly) {
+	if ($runExit -eq 0 -and -not $OrderedNpcCallbacksOnly -and -not $QueuedCallbackOnly -and -not $QueuedCommandOnly -and -not $SandKnifeStockOnly -and -not $FlameKnifeStockOnly -and -not $StormSpearStockOnly -and -not $SpellOwnedItemOnly -and -not $CreatedConsumablesOnly -and -not $RaiseServitorStockOnly -and -not $CorpseAnimationOnly -and -not $OwnershipOnly -and -not $SpellOwnedRetirementOnly -and -not $RejuvenationOnly -and -not $CastingOnly -and -not $PracticeOnly -and -not $SpeechOnly -and -not $AreaOnly -and -not $LifecycleOnly -and -not $BodyRetirementOnly -and -not $LegacyRemainsOnly -and -not $NpcArchiveOnly -and -not $NpcArchiveMaintenanceOnly -and -not $SpellOwnedNpcOnly) {
 		Invoke-OwnedHarness '--land-run'
 		$runExit = $LASTEXITCODE
 	}
@@ -217,6 +217,10 @@ try {
 	}
 	if ($runExit -eq 0 -and $RaiseServitorStockOnly) {
 		Invoke-OwnedHarness '--raise-servitor-stock-run'
+		$runExit = $LASTEXITCODE
+	}
+	if ($runExit -eq 0 -and $OrderedNpcCallbacksOnly) {
+		Invoke-OwnedHarness '--ordered-npc-callback-run'
 		$runExit = $LASTEXITCODE
 	}
 	if ($runExit -eq 0 -and $QueuedCallbackOnly) {

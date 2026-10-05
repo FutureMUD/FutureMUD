@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.Body.Needs;
 using MudSharp.Database;
 using MudSharp.Framework.Save;
@@ -48,7 +48,7 @@ public class HealingSimpleWound : PerceivedItem, IContinuousExposureWound
         DamageType = damageType;
         _bodypart = bodypart;
         _lodged = lodged;
-        _actorOriginId = actorOrigin?.Id ?? 0;
+        _actorOriginId = MudSharp.Character.CharacterInstanceIdentityComparer.IdentityId(actorOrigin);
         _toolOriginId = toolOrigin?.Id ?? 0;
         RealTimeOfWound = RuntimeClock.UtcNow;
         BleedStatus = BleedStatus.NeverBled;
@@ -488,7 +488,7 @@ public class HealingSimpleWound : PerceivedItem, IContinuousExposureWound
         get => Gameworld.TryGetCharacter(_actorOriginId, true);
         set
         {
-            _actorOriginId = value?.Id ?? 0;
+            _actorOriginId = MudSharp.Character.CharacterInstanceIdentityComparer.IdentityId(value);
             Changed = true;
         }
     }

@@ -3,6 +3,7 @@ using ExpressionEngine;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using MudSharp.Accounts;
+using MudSharp.Body;
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Celestial;
 using MudSharp.Character.Name;
@@ -28,6 +29,7 @@ using MudSharp.Magic;
 using MudSharp.Magic.Environment;
 using MudSharp.Models;
 using MudSharp.Movement;
+using MudSharp.NPC.AI;
 using MudSharp.RPG.Checks;
 using MudSharp.RPG.Law;
 using MudSharp.TimeAndDate.Date;
@@ -303,6 +305,34 @@ public partial class Cell : Location, IDisposable, ICell, IRecoverableSaveFailur
                Terrain(null).TerrainLayers.Any(x => x.IsUnderwater());
     }
 
+	internal RoomLayer PrepareCurrencyInsertionLayer(IGameItem item) => HandleEnterLayers(item);
+
+	internal void SetPreparedCurrencyCellMembership(IGameItem item, bool present)
+	{
+		SetPreparedCurrencyMembership(item, present);
+		if (!_isCombatSimulationCell)
+			foreach (var location in new[] { Room as Location, Zone as Location, Shard as Location }.OfType<Location>().Distinct())
+				location.SetPreparedCurrencyMembership(item, present);
+	}
+
+	internal void FinishPreparedCurrencyInsertion(IGameItem item, SpatialLocation point)
+	{
+		bool StillPresent() => !item.Deleted && !item.Destroyed && item.ContainedIn is null && item.InInventoryOf is null &&
+			ReferenceEquals(ComponentItemTransfer.DirectLocationOf(item), this) && item.RoomLayer == point.Layer &&
+			(RouteDefinition is null || item.RoutePositionMetres == point.RoutePositionMetres) && _gameItems.Any(x => ReferenceEquals(x, item));
+		if (!StillPresent()) return;
+		_gameItems = _gameItems.OrderBy(x => !x.HighPriority).ToList();
+		if (!StillPresent()) return;
+		var swimming = IsSwimmingLayer(point.Layer);
+		if (!StillPresent()) return;
+		if (swimming) item.PositionState = PositionFloatingInWater.Instance;
+		else if (ZeroGravityMovementHelper.IsZeroGravity(this, point.Layer) && StillPresent()) ZeroGravityMovementHelper.EnsureFloating(item);
+		if (!StillPresent()) return;
+		CheckFallExitStatus();
+		if (!StillPresent()) return;
+		new MagicPortalTopologyService().RebuildNetworksForItem(Gameworld, item);
+	}
+
     public override void Insert(IGameItem thing, bool newStack)
     {
 		if (thing is not null) ForeignCustodyTransferContext.EnsureCell(this, thing);
@@ -317,7 +347,23 @@ public partial class Cell : Location, IDisposable, ICell, IRecoverableSaveFailur
             return;
         }
 
+        var originalBody = thing.InInventoryOf;
+        var originalContainer = thing.ContainedIn;
+        var originalCell = ComponentItemTransfer.DirectLocationOf(thing);
+        var originalBelt = thing.GetItemType<MudSharp.GameItems.Interfaces.IBeltable>()?.ConnectedTo;
+        var originalLayer = thing.RoomLayer;
+        var originalRoutePosition = thing.RoutePositionMetres;
+        bool SameCustody(IGameItem expectedContainer, IBody expectedBody, ICell expectedCell) =>
+            !thing.Deleted && !thing.Destroyed &&
+            ReferenceEquals(thing.ContainedIn, expectedContainer) &&
+            ReferenceEquals(thing.InInventoryOf, expectedBody) &&
+            ReferenceEquals(ComponentItemTransfer.DirectLocationOf(thing), expectedCell) &&
+            ReferenceEquals(thing.GetItemType<MudSharp.GameItems.Interfaces.IBeltable>()?.ConnectedTo, originalBelt);
+        bool BeforeMove() => SameCustody(originalContainer, originalBody, originalCell) &&
+                             thing.RoomLayer == originalLayer && thing.RoutePositionMetres == originalRoutePosition;
+
         RoomLayer newLayer = HandleEnterLayers(thing);
+        if (!BeforeMove()) return;
 		var explicitlyAssignedPosition = _routeDefinition is not null && ReferenceEquals(thing.Location, this)
 			? thing.RoutePositionMetres
 			: null;
@@ -329,18 +375,42 @@ public partial class Cell : Location, IDisposable, ICell, IRecoverableSaveFailur
 		double? insertionPosition = _routeDefinition is null
 			? null
 			: inheritedPosition ?? explicitlyAssignedPosition ?? _routeDefinition.DefaultPositionMetres;
-		thing.MoveTo(new SpatialLocation(this, newLayer, insertionPosition));
+        if (!BeforeMove()) return;
+        var intendedPoint = new SpatialLocation(this, newLayer, insertionPosition);
+        bool StillAtIntendedPoint(IGameItem expectedContainer, IBody expectedBody) =>
+            SameCustody(expectedContainer, expectedBody, this) &&
+            thing.RoomLayer == intendedPoint.Layer &&
+            (_routeDefinition is null || thing.RoutePositionMetres == intendedPoint.RoutePositionMetres);
+        thing.MoveTo(intendedPoint);
+        if (!StillAtIntendedPoint(originalContainer, originalBody)) return;
 
         if (!newStack)
         {
-			IGameItem mergeTarget = LayerGameItems(newLayer)
-				.Where(x => _routeDefinition is null ||
-				            RouteSpatialService.Instance.GetProximity(thing, x) <= Proximity.Immediate)
-				.FirstOrDefault(thing.CanMerge);
+            IGameItem mergeTarget = null;
+            foreach (var candidate in LayerGameItems(newLayer).ToArray())
+            {
+                if (!StillAtIntendedPoint(originalContainer, originalBody)) return;
+                var nearby = _routeDefinition is null ||
+                             RouteSpatialService.Instance.GetProximity(thing, candidate) <= Proximity.Immediate;
+                if (!StillAtIntendedPoint(originalContainer, originalBody)) return;
+                if (!nearby || candidate.Deleted || candidate.Destroyed) continue;
+                var canMerge = thing.CanMerge(candidate);
+                if (!StillAtIntendedPoint(originalContainer, originalBody)) return;
+                if (canMerge && !candidate.Deleted && !candidate.Destroyed &&
+                    _gameItems.Contains(candidate) && candidate.RoomLayer == newLayer &&
+                    ReferenceEquals(ComponentItemTransfer.DirectLocationOf(candidate), this))
+                {
+                    mergeTarget = candidate;
+                    break;
+                }
+            }
             if (mergeTarget != null)
             {
+                if (!StillAtIntendedPoint(originalContainer, originalBody)) return;
                 mergeTarget.Merge(thing);
+                if (!StillAtIntendedPoint(originalContainer, originalBody)) return;
                 new MagicPortalTopologyService().RebuildNetworksForItem(Gameworld, thing);
+                if (!StillAtIntendedPoint(originalContainer, originalBody)) return;
 				RouteSpatialService.Instance.UntrackPerceivable(thing);
                 thing.Delete();
                 return;
@@ -348,24 +418,40 @@ public partial class Cell : Location, IDisposable, ICell, IRecoverableSaveFailur
         }
 
 
+        if (!StillAtIntendedPoint(originalContainer, originalBody)) return;
         thing.ContainedIn = null;
+        // Clearing containment may publish proximity/environment callbacks. A new holder or
+        // container owns the item; do not overwrite that custody with enclosing cell membership.
+        var clearedBody = originalContainer is null ? originalBody : null;
+        if (!StillAtIntendedPoint(null, clearedBody)) return;
+        if (_gameItems.Contains(thing)) return; // Reentrant insertion already completed membership.
         base.Insert(thing, newStack);
 		if (!_isCombatSimulationCell)
 		{
 			Room.Insert(thing, newStack);
 		}
         _gameItems = _gameItems.OrderBy(x => !x.HighPriority).ToList();
-        if (IsSwimmingLayer(newLayer))
+        if (!StillAtIntendedPoint(null, clearedBody)) return;
+        var swimming = IsSwimmingLayer(newLayer);
+        if (!StillAtIntendedPoint(null, clearedBody)) return;
+        if (swimming)
         {
             thing.PositionState = PositionFloatingInWater.Instance;
         }
-        else if (ZeroGravityMovementHelper.IsZeroGravity(this, newLayer))
+        else
         {
-            ZeroGravityMovementHelper.EnsureFloating(thing);
+            var zeroGravity = ZeroGravityMovementHelper.IsZeroGravity(this, newLayer);
+            if (!StillAtIntendedPoint(null, clearedBody)) return;
+            if (zeroGravity)
+            {
+                ZeroGravityMovementHelper.EnsureFloating(thing);
+            }
         }
 
+        if (!StillAtIntendedPoint(null, clearedBody)) return;
         ContentsChanged = true;
         CheckFallExitStatus();
+        if (!StillAtIntendedPoint(null, clearedBody)) return;
         new MagicPortalTopologyService().RebuildNetworksForItem(Gameworld, thing);
     }
 
@@ -852,7 +938,21 @@ public partial class Cell : Location, IDisposable, ICell, IRecoverableSaveFailur
     public override void Enter(ICharacter movingCharacter, ICellExit exit = null, bool noSave = false,
         RoomLayer roomLayer = RoomLayer.GroundLevel)
     {
-		var explicitlyAssignedPosition = _routeDefinition is not null &&
+		if (!CommandExecutionScope.TryContinue(movingCharacter)) return;
+		EnterCore(movingCharacter, exit, noSave, roomLayer, null);
+	}
+
+	internal bool EnterDisplaced(ICharacter actor, NativeDisplacementReceipt receipt)
+	{
+		if (!receipt.BeginEnter(actor, this)) return false;
+		EnterCore(actor, null, false, receipt.Layer, receipt);
+		return receipt.Continue();
+	}
+
+	private void EnterCore(ICharacter movingCharacter, ICellExit exit, bool noSave, RoomLayer roomLayer,
+		NativeDisplacementReceipt? receipt)
+	{
+		var explicitlyAssignedPosition = receipt is not null ? receipt.RoutePosition : _routeDefinition is not null &&
 		                                 ReferenceEquals(movingCharacter.Location, this)
 			? movingCharacter.RoutePositionMetres
 			: null;
@@ -868,11 +968,14 @@ public partial class Cell : Location, IDisposable, ICell, IRecoverableSaveFailur
 		{
 			movingCharacter.MoveTo(this, roomLayer, exit, noSave);
 		}
+		if (receipt is not null && !receipt.AfterMoveTo(movingCharacter)) return;
 		if (!_isCombatSimulationCell)
 		{
 			Room.Enter(movingCharacter, exit);
+			if (receipt is not null && !receipt.Continue()) return;
 		}
         DoEnterEvent(movingCharacter);
+		if (receipt is not null && !receipt.Continue()) return;
 
         if (exit != null && exit.InboundDirection != CardinalDirection.Unknown)
         {
@@ -882,16 +985,19 @@ public partial class Cell : Location, IDisposable, ICell, IRecoverableSaveFailur
 
         movingCharacter.HandleEvent(EventType.CharacterEnterCell, movingCharacter, this,
             movingCharacter.Movement?.Exit);
-        foreach (IHandleEvents witness in SpatialEventHandlersFor(movingCharacter, exit).Except(movingCharacter))
+		if (receipt is not null && !receipt.Continue()) return;
+        foreach (IHandleEvents witness in SpatialEventHandlersFor(movingCharacter, exit).Except(movingCharacter).ToArray())
         {
             witness.HandleEvent(EventType.CharacterEnterCellWitness, movingCharacter, this,
                 movingCharacter.Movement?.Exit, witness);
+			if (receipt is not null && !receipt.Continue()) return;
         }
 
-        foreach (IGameItem witness in movingCharacter.Body.ExternalItems)
+        foreach (IGameItem witness in movingCharacter.Body.ExternalItems.ToArray())
         {
             witness.HandleEvent(EventType.CharacterEnterCellWitness, movingCharacter, this,
                 movingCharacter.Movement?.Exit, witness);
+			if (receipt is not null && !receipt.Continue()) return;
         }
 
         if (exit is not null && !noSave)
@@ -901,7 +1007,9 @@ public partial class Cell : Location, IDisposable, ICell, IRecoverableSaveFailur
                 !isDraggedMovementTarget);
         }
 
+		if (receipt is not null && !receipt.Continue()) return;
         CheckFallExitStatus();
+		if (receipt is not null && !receipt.Continue()) return;
         if (movingCharacter.CurrentProject.Project == null)
         {
             movingCharacter.TryJoinQueuedProjectLabour();
@@ -926,29 +1034,59 @@ public partial class Cell : Location, IDisposable, ICell, IRecoverableSaveFailur
         return lowest;
     }
 
-    public override void Leave(ICharacter movingCharacter)
-    {
+
+	internal void ReconcileNativeCharacterMembership(ICharacter actor, bool present)
+	{
+		SetNativeCharacterMembership(actor, present);
+		if (!_isCombatSimulationCell)
+		{
+			foreach (var location in new[] { Room as Location, Zone as Location, Shard as Location }.OfType<Location>().Distinct())
+				location.SetNativeCharacterMembership(actor, present || actor.Location?.Characters.Any(x => ReferenceEquals(x, actor)) == true &&
+					(location.Cells.Any(x => ReferenceEquals(x, actor.Location))));
+		}
+		if (present) RouteSpatialService.Instance.TrackPerceivable(actor);
+		else if (ReferenceEquals(actor.Location, this) && !CommandExecutionAuthority.IsCurrentWithoutCellMembership(actor))
+			RouteSpatialService.Instance.UntrackPerceivable(actor);
+	}
+
+	internal bool LeaveDisplaced(ICharacter actor, NativeDisplacementReceipt receipt)
+	{
+		if (!receipt.BeginLeave(actor)) return false;
+		LeaveCore(actor, receipt);
+		return receipt.Continue();
+	}
+
+    public override void Leave(ICharacter movingCharacter) => LeaveCore(movingCharacter, null);
+
+	private void LeaveCore(ICharacter movingCharacter, NativeDisplacementReceipt? receipt)
+	{
         ForceDisembarkVehicleOccupantLeavingWithoutVehicle(movingCharacter);
+		if (receipt is not null && !receipt.Continue()) return;
         base.Leave(movingCharacter);
 		RouteSpatialService.Instance.UntrackPerceivable(movingCharacter);
 		if (!_isCombatSimulationCell)
 		{
 			Room.Leave(movingCharacter);
+			if (receipt is not null && !receipt.Continue()) return;
 		}
         DoLeaveEvent(movingCharacter);
+		if (receipt is not null && !receipt.Continue()) return;
         movingCharacter.HandleEvent(EventType.CharacterLeaveCell, movingCharacter, this,
             movingCharacter.Movement?.Exit);
+		if (receipt is not null && !receipt.Continue()) return;
         foreach (IHandleEvents witness in SpatialEventHandlersFor(movingCharacter, movingCharacter.Movement?.Exit)
-		         .Except(movingCharacter))
+		         .Except(movingCharacter).ToArray())
         {
             witness.HandleEvent(EventType.CharacterLeaveCellWitness, movingCharacter, this,
                 movingCharacter.Movement?.Exit, witness);
+			if (receipt is not null && !receipt.Continue()) return;
         }
 
-        foreach (IGameItem witness in movingCharacter.Body.ExternalItems)
+        foreach (IGameItem witness in movingCharacter.Body.ExternalItems.ToArray())
         {
             witness.HandleEvent(EventType.CharacterLeaveCellWitness, movingCharacter, this,
                 movingCharacter.Movement?.Exit, witness);
+			if (receipt is not null && !receipt.Continue()) return;
         }
 
         CheckFallExitStatus();

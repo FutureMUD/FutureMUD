@@ -1,0 +1,182 @@
+{
+  "checked_utc": "2026-10-05T12:59:02.259731+00:00",
+  "status": "PASS_currency_container_checkpoint_only_comprehensive_closure_open",
+  "checkpoint_sha256": "705ed7fde1320dc2abb0012a77348fe7766d5f5368c19e378717abf989ee8f1b",
+  "verified_changed_files": 197,
+  "verified_artifacts": 398,
+  "primary_checkout_unchanged": true,
+  "head_unchanged": "02b8994ce4d6c6104e0187e9f0026fc575af58fa",
+  "new_commit": null,
+  "executable_sources_and_binaries_unchanged_after_verification": true,
+  "preserved": {
+    "prior_fourteen_receipts_1486_artifacts_42_helpers_unchanged": true,
+    "C1_addendum_clarification_and_C1P2_closing_helpers_unchanged": true,
+    "source_tree_preserved": true,
+    "C2_receipt_311_artifacts_6_helpers_and_closing_evidence_preserved": true,
+    "D1_200_artifacts_7_helpers_13_build_logs_and_closing_evidence_preserved": true,
+    "D1P2_91_artifacts_6_helpers_2_build_logs_and_closing_evidence_preserved": true,
+    "D1P1_96_artifacts_6_helpers_4_build_logs_and_closing_evidence_preserved": true,
+    "D1P1M_133_artifacts_6_helpers_2_build_logs_and_closing_evidence_preserved": true,
+    "stock_186_artifacts_6_helpers_13_build_logs_historical_source_and_closing_evidence_preserved": true,
+    "security_92_artifacts_8_helpers_and_postcommit_evidence_preserved": true,
+    "pause_snapshots_and_historical_source_preserved": true,
+    "storm_258_artifacts_10_helpers_and_postcommit_preserved": true,
+    "flame_186_artifacts_12_helpers_and_postcommit_preserved": true,
+    "sand_173_artifacts_12_helpers_and_postcommit_preserved": true,
+    "queued_authority_223_artifacts_5_helpers_and_postcommit_preserved": true,
+    "callback_192_artifacts_6_helpers_and_closing_proofs_preserved": true
+  },
+  "diff_check_log_sha256": "56795bfd0546f9506f9c3d01ba38fdafa77080264705b99074127a82cac02ed1",
+  "task_progress_sha256": "6176bf6a4cd4f505c2a571552ada7e0e98082fbc87ff7c36f6602e9b7e1673cf",
+  "helper_fingerprints": [
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\npc_cell_insert_proposed.patch",
+      "sha256": "dbd3e834c58a3f08ca547080e2850df3a521e045f3d9e91988507459ecbbab6a"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\npc_checkpoint07_verify.py",
+      "sha256": "17f3612d1951b358ebb60c6bf51a7180746ac522c24051741a20fa184d3e4faa"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\npc_coordinator_checkpoint05.py",
+      "sha256": "4ca323b0ddc83daae84113b89b96124c7636dfe7f017446d57570257c720a7a5"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\npc_coordinator_checkpoint06.py",
+      "sha256": "d843c85ee7aefe4eee39faf00533a9441aaa275352184ceb85f70009d82e248d"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\npc_coordinator_checkpoint07.py",
+      "sha256": "9e3ba59e9ea25f8ea6a0a73dbcfd01693232b219795c7fd11fb1c0a99f830ea7"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\npc_currency_adversarial07_proposal.cs.txt",
+      "sha256": "b0c7ed9f648aa201c2811597f4375d49b472d1a4854ff1cb36c4a5f35631d5af"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\npc_currency_integrate07.py",
+      "sha256": "5e3c532ba985ada39b185191e39fddba93680d96e771c25d5e63a31614d08212"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\npc_currency_native_fixture_proposal.cs",
+      "sha256": "54d64156c4167c591ce76c4019d88026768eabd2dc451c82764a4cffee1107b5"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\npc_currency_native_fixture_proposal.notes.md",
+      "sha256": "1441c711e00affcd52a088265e0034f3ffd2258959f5ce661d65b9d5640b42ee"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\npc_currency_proposed.notes.md",
+      "sha256": "33c7f5dc0a3a584ccc71ae89ef95c9d3e2564f06b358036905ae1ec0ff1587e4"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\npc_currency_proposed.patch",
+      "sha256": "c6b5f95be57980022094c5e6ac378d2254c55ef6160b3d4865d0be918508006e"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\npc_currency_route06.py",
+      "sha256": "ae10f39b03362da927ddd097dc8d953aa9cc747f20a9bb585dc31a4918df6bb1"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\npc_diffcheck07.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\npc_displacement_proposal_builder.py",
+      "sha256": "202cf5ad26c9322ba3b810ad33852229ac16d44ea11f23204a6cfaf6c61550ba"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\npc_displacement_proposed.inputs.json",
+      "sha256": "dab29abf83978d5f2a08730088fbe6b34719f5ad925ec4c222d9f6369cbfb394"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\npc_displacement_proposed.patch",
+      "sha256": "91409b36641799b213917be31230221cbdb0e2a42c6c7bdccd9fd7c11b041898"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\npc_displacement_tests_proposed.cs",
+      "sha256": "97d7972744741183db8680a044a9d1d16eae47a361ef6d8f72ddcb027560d140"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\npc_displacement_tests_proposed.patch",
+      "sha256": "316ae95130de103652565f0efeb0ba6a09077e418960a45614f15fd2fd017368"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\npc_musket_fire_proposal_builder.py",
+      "sha256": "41f43b952e81e69cbe39d65019f14a2379025b67e3d6011a3d6a081709abb352"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\npc_musket_fire_proposed.acceptance.md",
+      "sha256": "f0ac42b8d7f3331b5367b0b38f8e7e6b14118421e22a8d8b033e37ac32eb08f9"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\npc_musket_fire_proposed.inputs.json",
+      "sha256": "62bd8a8c0d53c9c280d3da44cebcdff1e64511677ed5ca6ee82b6611686903aa"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\npc_musket_fire_proposed.patch",
+      "sha256": "ea118232fddf5879cf08a65d9e1dd3bf5f857b5a1b941902db94dfb8f43339b0"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\npc_native_attack05_cleanup_review.json",
+      "sha256": "58d0ada3bf05c26195d5d205b26f1177d7eb85b6717cb8a0e3a134df69b3710a"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\npc_native_attack05_cleanup_review_v2.json",
+      "sha256": "a2a06650e599354a89e195d08137b21ab89fc433c7558d17c09f6b28df9f881e"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\npc_progress_checkpoint04.py",
+      "sha256": "10a3a79e9171e89c5ab5e4848e48a13fddfe167b90ce55097f1b6185baad29a1"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\npc_projectile_proposed.patch",
+      "sha256": "df295638418b9f36910dd0aa42554da46768e04c8efd8cc7521eeeb1c8778345"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\npc_put_proposal.py",
+      "sha256": "1c03b67db4639e19a7c6c7cbd82bdfdbf52d6d9e9887342269850251111b5e41"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\npc_put_proposed.patch",
+      "sha256": "45d8ce1e812d0b46ad587408f25111c6ffbf438d386ce5ac7fcb6c6dd9683984"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\npc_simple_shot_release.py",
+      "sha256": "0c099405c633df813b89dae31dd49535d97522cce51bb8b69048fa9ba5c428f1"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\npc_unload_proposal_builder.py",
+      "sha256": "2a3eece85ad17d300436f8fbb825777449d5aa78ed025a66e3c635359276e3dc"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\npc_unload_proposed.acceptance.md",
+      "sha256": "185ec1d2a8a4175fdc3a70530305b2efec3c4b0a88fb770523708de56b2e5697"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\npc_unload_proposed.inputs.json",
+      "sha256": "88f3dae7be9e810876d548c5a9befd3da78755125885027a77401e151e6ee688"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\npc_unload_proposed.patch",
+      "sha256": "e62d59875e71b414a0915de47cf2191def259b66887647a5b056d5d61e37342d"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\npc_wound_identity_repair.py",
+      "sha256": "baa4564802127a322f4ed1ea45b67001db2748054d982d430bea735ac088b9d0"
+    }
+  ],
+  "remaining": [
+    "native_displacement_membership_route_boarding_controls",
+    "remaining_component_load_chamber_ready_fire_unload_and_projectile_caller_detachment",
+    "noncurrency_prepared_inventory_merge_conservation_and_native_controls",
+    "actual_defender_countershot",
+    "final_complete_closure_suites_docs_receipt_one_local_commit_parent_review"
+  ],
+  "shared_check_callback_scope": {
+    "status": "parent_scope_decision_pending_no_Check_cs_edits",
+    "evidence": "Check.cs CheckBonuses effect/merit callbacks around613 can revoke control before TraitUsed around130-145; caller postcheck cannot prevent intrinsic learning/branch mutation",
+    "boundary": "Record existing supported action dependency; do not silently broaden generic check audit or supported commands"
+  },
+  "whole_plan_complete": false
+}

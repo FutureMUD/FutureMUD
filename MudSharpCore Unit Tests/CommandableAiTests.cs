@@ -1,13 +1,16 @@
 #nullable enable
 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Xml.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using MudSharp.Accounts;
 using MudSharp.Character;
+using MudSharp.Body;
 using MudSharp.Combat;
+using MudSharp.Construction;
 using MudSharp.Commands;
 using MudSharp.Commands.Trees;
 using MudSharp.Effects.Interfaces;
@@ -39,6 +42,24 @@ public class CommandableAiTests
 		allow.Setup(x => x.ExecuteBool(It.IsAny<object[]>())).Returns(condition != "unauthorised");
 		var progs = new All<IFutureProg>(); progs.Add(allow.Object); world.SetupGet(x => x.FutureProgs).Returns(progs);
 		var actor = new Mock<ICharacter>(); actor.SetupGet(x => x.Gameworld).Returns(world.Object);
+		var commander = new Mock<ICharacter>(); commander.SetupGet(x => x.Gameworld).Returns(world.Object);
+		actor.As<ICharacterInstance>(); commander.As<ICharacterInstance>();
+		var cell = new Mock<ICell>(); cell.SetupGet(x => x.Characters).Returns([actor.Object, commander.Object]);
+		var roots = new All<ICharacter>();
+		world.SetupGet(x => x.Actors).Returns(roots);
+		world.SetupGet(x => x.Characters).Returns(new All<ICharacter>());
+		world.SetupGet(x => x.NPCs).Returns(new All<ICharacter>());
+		world.SetupGet(x => x.CachedActors).Returns(new All<ICharacter>());
+		foreach (var (character, id) in new[] { (actor, 1L), (commander, 2L) })
+		{
+			var identity = new Mock<ICharacterIdentity>(); identity.SetupGet(x => x.Id).Returns(id);
+			identity.SetupGet(x => x.Instances).Returns(new List<ICharacterInstance> { (ICharacterInstance)character.Object });
+			var body = new Mock<IBody>(); body.SetupGet(x => x.Actor).Returns(character.Object);
+			character.SetupGet(x => x.Id).Returns(id); character.SetupGet(x => x.Identity).Returns(identity.Object);
+			character.SetupGet(x => x.Body).Returns(body.Object); character.SetupGet(x => x.Location).Returns(cell.Object);
+			character.SetupGet(x => x.State).Returns(CharacterState.Awake);
+		}
+		roots.Add(actor.Object); roots.Add(commander.Object);
 		actor.SetupGet(x => x.OutputHandler).Returns(Mock.Of<IOutputHandler>());
 		actor.SetupGet(x => x.PermissionLevel).Returns(PermissionLevel.NPC);
 		actor.SetupGet(x => x.State).Returns(condition == "state" ? CharacterState.Sleeping : CharacterState.Awake);
@@ -53,7 +74,7 @@ public class CommandableAiTests
 			null, [typeof(MudSharp.Models.ArtificialIntelligence), typeof(IFuturemud)], null)!.Invoke([
 			new MudSharp.Models.ArtificialIntelligence { Id = 1, Name = "test", Type = "Commandable", Definition = new XElement("Definition",
 				new XElement("CanCommandProg", 1), new XElement("IncludedCommands", new XElement("Command", condition == "unlisted" ? "hit" : "follow"))).ToString() }, world.Object]);
-		Assert.IsTrue(ai.HandleEvent(EventType.CommandIssuedToCharacter, actor.Object, Mock.Of<ICharacter>(), condition == "unknown" ? "nonesuch" : "fol caster"));
+		Assert.IsTrue(ai.HandleEvent(EventType.CommandIssuedToCharacter, actor.Object, commander.Object, condition == "unknown" ? "nonesuch" : "fol caster"));
 		Assert.AreEqual(expected, calls);
 	}
 }

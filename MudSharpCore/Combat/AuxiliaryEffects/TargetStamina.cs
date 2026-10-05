@@ -71,6 +71,8 @@ If omitted, the defense trait defaults to the auxiliary action's check trait and
 			return;
 		}
 
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue()) return;
+		MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted();
 		tch.SpendStamina(amount);
 		SendEcho(SuccessEcho, attacker, tch);
 	}

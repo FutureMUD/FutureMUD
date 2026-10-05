@@ -92,39 +92,36 @@ public class CurrencyGameItemComponentProto : GameItemComponentProto, ICurrencyP
 
     public static IGameItem CreateNewCurrencyPile(ICurrency currency, IEnumerable<Tuple<ICoin, int>> coins,
         bool temporary = false)
-    {
-        IGameItem newItem = ItemPrototype.CreateNew();
-        ICurrencyPile currencyItem = newItem.GetItemType<ICurrencyPile>();
-        currencyItem.Currency = currency;
-        currencyItem.AddCoins(coins);
-        newItem.Login();
-        newItem.HandleEvent(EventType.ItemFinishedLoading, newItem);
-        return newItem;
-    }
-
-    public static IGameItem CreateNewCurrencyPile(ICurrency currency, IEnumerable<(ICoin, int)> coins,
-        bool temporary = false)
-    {
-        IGameItem newItem = ItemPrototype.CreateNew();
-        ICurrencyPile currencyItem = newItem.GetItemType<ICurrencyPile>();
-        currencyItem.Currency = currency;
-        currencyItem.AddCoins(coins);
-        newItem.Login();
-        newItem.HandleEvent(EventType.ItemFinishedLoading, newItem);
-        return newItem;
-    }
+	{
+		return CreateNewCurrencyPile(currency, coins.Select(x => (x.Item1, x.Item2)), temporary);
+	}
 
     public static IGameItem CreateNewCurrencyPile(ICurrency currency, IEnumerable<KeyValuePair<ICoin, int>> coins,
         bool temporary = false)
-    {
-        IGameItem newItem = ItemPrototype.CreateNew();
-        ICurrencyPile currencyItem = newItem.GetItemType<ICurrencyPile>();
-        currencyItem.Currency = currency;
-        currencyItem.AddCoins(coins);
-        newItem.Login();
-        newItem.HandleEvent(EventType.ItemFinishedLoading, newItem);
-        return newItem;
-    }
+	{
+		return CreateNewCurrencyPile(currency, coins.Select(x => (x.Key, x.Value)), temporary);
+	}
+
+    public static IGameItem CreateNewCurrencyPile(ICurrency currency, IEnumerable<(ICoin, int)> coins,
+        bool temporary = false)
+	{
+		var counts = coins.GroupBy(x => x.Item1).ToDictionary(x => x.Key, x => checked(x.Sum(y => y.Item2)));
+		if (counts.Any(x => x.Value <= 0)) throw new ArgumentOutOfRangeException(nameof(coins));
+		if (temporary)
+		{
+			var preview = new GameItem(ItemPrototype, null, ItemPrototype.BaseItemQuality,
+				deferSpellInitialisation: false, currencyPreview: true);
+			preview.GetItemType<CurrencyGameItemComponent>().SetPreviewCoins(currency, counts);
+			return preview;
+		}
+		var newItem = ItemPrototype.CreateNew();
+		var currencyItem = newItem.GetItemType<ICurrencyPile>();
+		currencyItem.Currency = currency;
+		currencyItem.AddCoins(counts);
+		newItem.Login();
+		newItem.HandleEvent(EventType.ItemFinishedLoading, newItem);
+		return newItem;
+	}
 
     public override IGameItemComponent CreateNew(IGameItem parent, ICharacter? loader = null, bool temporary = false)
     {

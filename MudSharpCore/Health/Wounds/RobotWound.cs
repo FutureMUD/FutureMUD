@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.Database;
 using MudSharp.Effects.Concrete;
 using MudSharp.Form.Material;
@@ -43,7 +43,7 @@ public class RobotWound : PerceivedItem, IContinuousExposureWound
         Bodypart = bodypart;
         Lodged = lodged;
         _toolOriginId = toolOrigin?.Id ?? 0;
-        _actorOriginId = actorOrigin?.Id ?? 0;
+        _actorOriginId = MudSharp.Character.CharacterInstanceIdentityComparer.IdentityId(actorOrigin);
         RealTimeOfWound = RuntimeClock.UtcNow;
         if (actorOrigin?.Combat?.Friendly == true)
         {
@@ -285,7 +285,7 @@ public class RobotWound : PerceivedItem, IContinuousExposureWound
         get => Gameworld.TryGetCharacter(_actorOriginId, true);
         set
         {
-            _actorOriginId = value?.Id ?? 0;
+            _actorOriginId = MudSharp.Character.CharacterInstanceIdentityComparer.IdentityId(value);
             Changed = true;
         }
     }

@@ -134,7 +134,7 @@ public class InventoryPlanActionConsume : InventoryPlanAction
 	internal void RevalidateConsumption(ICharacter executor, IGameItem item)
 	{
 		if (HasPersistedSelection && (item.Deleted || !MeetsPersistedSelection(executor, item) || !item.IsA(DesiredTag) ||
-			!(PrimaryItemSelector?.Invoke(item) ?? true) || (item.GetItemType<IStackable>()?.Quantity ?? 1) < Quantity))
+			!(MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(item) ?? true, false)) || (item.GetItemType<IStackable>()?.Quantity ?? 1) < Quantity))
 			throw new InvalidOperationException("The selected component no longer meets its carried scope, rank or quantity requirements.");
 	}
 
@@ -151,7 +151,7 @@ public class InventoryPlanActionConsume : InventoryPlanAction
         item =
             executor.Body.HeldItems.FirstOrDefault(
                 x =>
-                    !SpellOwnedItemValuePolicy.ContainsTemporaryValue(x) && x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true) && MeetsPersistedSelection(executor, x) &&
+                    !SpellOwnedItemValuePolicy.ContainsTemporaryValue(x) && x.IsA(DesiredTag) && (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(x) ?? true, false)) && MeetsPersistedSelection(executor, x) &&
                     (x.GetItemType<IStackable>()?.Quantity ?? 1) >= Quantity);
         if (item != null)
         {
@@ -162,7 +162,7 @@ public class InventoryPlanActionConsume : InventoryPlanAction
         item =
             executor.Body.WieldedItems.FirstOrDefault(
                 x =>
-                    !SpellOwnedItemValuePolicy.ContainsTemporaryValue(x) && x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true) && MeetsPersistedSelection(executor, x) &&
+                    !SpellOwnedItemValuePolicy.ContainsTemporaryValue(x) && x.IsA(DesiredTag) && (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(x) ?? true, false)) && MeetsPersistedSelection(executor, x) &&
                     (x.GetItemType<IStackable>()?.Quantity ?? 1) >= Quantity);
         if (item != null)
         {
@@ -173,7 +173,7 @@ public class InventoryPlanActionConsume : InventoryPlanAction
         item =
             executor.Body.WornItems.FirstOrDefault(
                 x =>
-                    !SpellOwnedItemValuePolicy.ContainsTemporaryValue(x) && x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true) && MeetsPersistedSelection(executor, x) && executor.Body.CanRemoveItem(x) &&
+                    !SpellOwnedItemValuePolicy.ContainsTemporaryValue(x) && x.IsA(DesiredTag) && (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(x) ?? true, false)) && MeetsPersistedSelection(executor, x) && executor.Body.CanRemoveItem(x) &&
                     (x.GetItemType<IStackable>()?.Quantity ?? 1) >= Quantity);
         if (item != null)
         {
@@ -187,7 +187,7 @@ public class InventoryPlanActionConsume : InventoryPlanAction
                         x =>
                             x.ConnectedItems.FirstOrDefault(
                                 y =>
-                                    !SpellOwnedItemValuePolicy.ContainsTemporaryValue(y.Parent) && y.Parent.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(y.Parent) ?? true) && MeetsPersistedSelection(executor, y.Parent) &&
+                                    !SpellOwnedItemValuePolicy.ContainsTemporaryValue(y.Parent) && y.Parent.IsA(DesiredTag) && (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(y.Parent) ?? true, false)) && MeetsPersistedSelection(executor, y.Parent) &&
                                     (y.Parent.GetItemType<IStackable>()?.Quantity ?? 1) >= Quantity)?.Parent)
                     .FirstOrDefault(x => x != null);
         if (item != null)
@@ -201,7 +201,7 @@ public class InventoryPlanActionConsume : InventoryPlanAction
                     .SelectNotNull(x => x.Content?.Parent)
                     .FirstOrDefault(
                         x =>
-                            !SpellOwnedItemValuePolicy.ContainsTemporaryValue(x) && x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true) && MeetsPersistedSelection(executor, x) &&
+                            !SpellOwnedItemValuePolicy.ContainsTemporaryValue(x) && x.IsA(DesiredTag) && (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(x) ?? true, false)) && MeetsPersistedSelection(executor, x) &&
                             (x.GetItemType<IStackable>()?.Quantity ?? 1) >= Quantity);
         if (item != null)
         {
@@ -215,7 +215,7 @@ public class InventoryPlanActionConsume : InventoryPlanAction
                     .SelectMany(x => x.Contents)
                     .FirstOrDefault(
                         x =>
-                            !SpellOwnedItemValuePolicy.ContainsTemporaryValue(x) && x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true) && MeetsPersistedSelection(executor, x) &&
+                            !SpellOwnedItemValuePolicy.ContainsTemporaryValue(x) && x.IsA(DesiredTag) && (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(x) ?? true, false)) && MeetsPersistedSelection(executor, x) &&
                             (x.GetItemType<IStackable>()?.Quantity ?? 1) >= Quantity);
         if (item != null)
         {
@@ -226,7 +226,7 @@ public class InventoryPlanActionConsume : InventoryPlanAction
         item =
             (executor.Location?.GameItemsInImmediateVicinity(executor) ?? []).FirstOrDefault(
                 x =>
-                    !SpellOwnedItemValuePolicy.ContainsTemporaryValue(x) && x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true) && MeetsPersistedSelection(executor, x) &&
+                    !SpellOwnedItemValuePolicy.ContainsTemporaryValue(x) && x.IsA(DesiredTag) && (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(x) ?? true, false)) && MeetsPersistedSelection(executor, x) &&
                     x.IsItemType<IHoldable>() &&
                     x.GetItemType<IHoldable>().IsHoldable &&
                     (x.GetItemType<IStackable>()?.Quantity ?? 1) >= Quantity);
@@ -242,7 +242,7 @@ public class InventoryPlanActionConsume : InventoryPlanAction
                         x =>
                             x.ConnectedItems.FirstOrDefault(
                                 y =>
-                                    !SpellOwnedItemValuePolicy.ContainsTemporaryValue(y.Parent) && y.Parent.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(y.Parent) ?? true) && MeetsPersistedSelection(executor, y.Parent) &&
+                                    !SpellOwnedItemValuePolicy.ContainsTemporaryValue(y.Parent) && y.Parent.IsA(DesiredTag) && (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(y.Parent) ?? true, false)) && MeetsPersistedSelection(executor, y.Parent) &&
                                     (y.Parent.GetItemType<IStackable>()?.Quantity ?? 1) >= Quantity)?.Parent)
                     .FirstOrDefault(x => x != null);
         if (item != null)
@@ -256,7 +256,7 @@ public class InventoryPlanActionConsume : InventoryPlanAction
                     .SelectNotNull(x => x.Content?.Parent)
                     .FirstOrDefault(
                         x =>
-                            !SpellOwnedItemValuePolicy.ContainsTemporaryValue(x) && x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true) && MeetsPersistedSelection(executor, x) &&
+                            !SpellOwnedItemValuePolicy.ContainsTemporaryValue(x) && x.IsA(DesiredTag) && (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(x) ?? true, false)) && MeetsPersistedSelection(executor, x) &&
                             (x.GetItemType<IStackable>()?.Quantity ?? 1) >= Quantity);
         if (item != null)
         {
@@ -270,7 +270,7 @@ public class InventoryPlanActionConsume : InventoryPlanAction
                     .SelectMany(x => x.Contents)
                     .FirstOrDefault(
                         x =>
-                            !SpellOwnedItemValuePolicy.ContainsTemporaryValue(x) && x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true) && MeetsPersistedSelection(executor, x) &&
+                            !SpellOwnedItemValuePolicy.ContainsTemporaryValue(x) && x.IsA(DesiredTag) && (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(x) ?? true, false)) && MeetsPersistedSelection(executor, x) &&
                             (x.GetItemType<IStackable>()?.Quantity ?? 1) >= Quantity);
         return item;
     }

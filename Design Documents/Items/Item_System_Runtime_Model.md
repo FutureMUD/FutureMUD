@@ -6,6 +6,14 @@
 
 Firearm simulation copies preserve live ammunition, chamber, fire-mode, safety, and attachment state; explosive impact and trap integration are documented in [Ranged Weapon Balance Pass](../Combat/Ranged_Weapon_Balance_Pass.md).
 
+## Ordered NPC custody continuation
+
+Accepted spell-owned NPC orders retain the original principal and grant in an ephemeral execution scope. Prepared get/wield transfers finish only their exact already-detached participant; reentrant operations keep ordinary authority checks. Callback relocation or deletion takes precedence over the prepared destination. Foreign-body ordinary operations use independent scope unless the owning move explicitly identifies them as inflicted children.
+
+`GameItem.Location` can be inherited from an inventory holder or containing item. Native custody validation therefore uses the direct stored location when deciding whether a tentative holder or container assignment is coherent. Hand preparation also excludes current held/wielded occupancy before consulting grab eligibility. Load transfers accept only an exact successfully detached participant and use a null holder for newly split powder, avoiding an untracked body claim. Delayed musket loading and unjamming retain ephemeral original authority and combat binding; they cannot acquire a replacement grant or replay after restart.
+
+The complete supported callback acceptance is still open; see [the working closure checklist](../Magic/Armageddon_OrderedNpc_Closure_Checklist.md) for actual passed/failed/not-run evidence and remaining families.
+
 ## Physical manipulation and reach
 
 Ordinary manual actions require at least one current `IBody.HoldLocs` part for which `CanUseBodypart` succeeds. Occupied manipulators still count; inventory and weapon plans keep their stricter free-location requirements. Missing parts and restrained limbs fail at the body capability layer, including wield-only locations.
@@ -842,3 +850,9 @@ Consumed material plan grade <number> <grade 1-7>|all is persisted, displayed an
 ## Sand Knife owned outputs
 
 Sand Knife owns one item per paid invocation, keeping selected grade, prototype, caster provenance and an absolute deadline for temporary grades1-6. Mon consumes a directly carried Creation component and produces ordinary permanent material with no deadline. Native Get followed by explicit Wield is qualified with persisted piercing wounds. Wielded expiry and fresh-process foreign-container reconciliation remove only the exact owned temporary leaf; foreign bag, permanent staff and sibling goods survive. One random permanent pool outcome is qualified; every outcome, charged payload, ordinary combat selection/defence, arbitrary callback fault, full boot and concurrency remain separate gates.
+
+## Prepared native container adoption
+
+Cell.Extract removes native cell membership while retaining the direct location pointer for removal listeners. Container.Put accepts that exact already-extracted native source as well as an ordinarily detached item. It captures the source cell, layer and route position, then rechecks membership and all direct body/container/belt claims after callbacks and executable authority validation. The containment commit clears the stale source position together with destination membership. A callback that reacquires, relocates, deletes or claims the item wins. Global component detachment checks retain their stricter contract.
+
+Children of a held or worn container inherit its body; inherited InInventoryOf is not a competing direct body claim. Container cleanup checks holdable/wearable/prosthetic/implant claims instead, preserving the exact child membership and ContainerId. Ordinary merging retains the existing survivor and consumes an unclaimed absorbed source. The bounded checkpoint qualifies native floor and held bags with exact currency maps, absorbed-row deletion, container XML and independent fresh-process reconstruction; broader noncurrency prepared-inventory merge conservation remains a separate open gate.

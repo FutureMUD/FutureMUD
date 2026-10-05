@@ -34,7 +34,7 @@ using MudSharp.RPG.Checks;
 namespace MudSharp_Unit_Tests;
 
 [TestClass]
-public class QueuedCommandAuthorityTests
+public partial class QueuedCommandAuthorityTests
 {
 	[DataTestMethod]
 	[DataRow("valid", true)]
@@ -356,6 +356,50 @@ public class QueuedCommandAuthorityTests
 	private static void Set(object target, string name, object value) =>
 		target.GetType().GetField(name, BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(target, value);
 
+	[DataTestMethod]
+	[DataRow("expire")]
+	[DataRow("leave")]
+	[DataRow("replace")]
+	[DataRow("direct")]
+	public void QueuedManualFactory_UsabilityCallbackCannotRetargetAfterAuthorityLoss(string change)
+	{
+		var f = new Fixture();
+		var combat = f.Engage();
+		var target = new Mock<ICharacter>(); target.SetupProperty(x => x.Combat); combat.JoinCombat(target.Object);
+		var auxiliary = new Mock<IAuxiliaryCombatAction>(); auxiliary.SetupGet(x => x.Id).Returns(42);
+		var race = new Mock<MudSharp.Character.Heritage.IRace>();
+		race.Setup(x => x.UsableAuxiliaryMoves(f.Actor.Object, target.Object, false)).Returns([auxiliary.Object]);
+		f.Actor.SetupGet(x => x.Race).Returns(race.Object); f.Actor.Setup(x => x.CanSpendStamina(It.IsAny<double>())).Returns(true);
+		var command = new Mock<IManualCombatCommand>(); command.SetupGet(x => x.ActionKind).Returns(ManualCombatActionKind.AuxiliaryAction);
+		command.SetupGet(x => x.AuxiliaryAction).Returns(auxiliary.Object);
+		command.Setup(x => x.IsUsableBy(f.Actor.Object, target.Object)).Callback(() =>
+		{
+			if (change == "expire") f.Grant = null;
+			if (change == "leave") f.Actor.Object.Combat = null;
+			if (change == "replace") f.Actor.Object.Combat = Mock.Of<ICombat>();
+		}).Returns(true);
+		f.Commands.Add(["manual"], new Command<ICharacter>((actor, _) =>
+			actor.TakeOrQueueCombatAction(SelectedCombatAction.GetEffectManualCombatCommand(actor, command.Object, target.Object)),
+			states: CharacterState.Awake, name: "Manual"));
+		Set(f.Ai, "_includedCommands", new List<string> { "get", "manual" });
+		var property = typeof(CombatBase).GetProperty("GraceMoveStaminaCost", BindingFlags.NonPublic | BindingFlags.Static)!;
+		var previous = property.GetValue(null); property.SetValue(null, new TraitExpression("1", f.World.Object));
+		try
+		{
+			SelectedCombatAction selected;
+			if (change == "direct") selected = SelectedCombatAction.GetEffectManualCombatCommand(f.Actor.Object, command.Object, target.Object);
+			else
+			{
+				Assert.IsTrue(f.Ai.HandleEvent(EventType.CommandIssuedToCharacter, f.Actor.Object, f.Commander.Object, "manual target"));
+				selected = f.Queued!;
+			}
+			var move = selected.GetMove(f.Actor.Object);
+			Assert.AreEqual(change == "direct", move is not null);
+			f.Actor.VerifySet(x => x.CombatTarget = target.Object, change == "direct" ? Times.Once() : Times.Never());
+		}
+		finally { property.SetValue(null, previous); }
+	}
+
 	private sealed class Fixture
 	{
 		public Mock<IFuturemud> World { get; } = new();
@@ -371,6 +415,7 @@ public class QueuedCommandAuthorityTests
 		public List<ICharacter> CellCharacters { get; } = [];
 		public List<IArtificialIntelligence> Ais { get; } = [];
 		public CommandableAI Ai { get; }
+		public CharacterCommandManager Commands { get; } = new();
 		public SelectedCombatAction? Queued { get; private set; }
 		public bool Allowed { get; set; } = true;
 		public bool MutatingAction { get; set; }
@@ -421,7 +466,7 @@ public class QueuedCommandAuthorityTests
 			World.SetupGet(x => x.SpellOwnedCorpseAnimations).Returns(service.Object);
 			Prog.SetupGet(x => x.Id).Returns(1); Prog.Setup(x => x.ExecuteBool(It.IsAny<object[]>())).Returns(() => Allowed);
 			var progs = new All<IFutureProg>(); progs.Add(Prog.Object); World.SetupGet(x => x.FutureProgs).Returns(progs);
-			var manager = new CharacterCommandManager();
+			var manager = Commands;
 			manager.Add(["get", "g"], new Command<ICharacter>((actor, _) =>
 				actor.TakeOrQueueCombatAction(MutatingAction ? SelectedCombatAction.GetEffectMoveToMelee(actor, Commander.Object) : SelectedCombatAction.GetEffectGetItem(actor, Item.Object, null)),
 				states: CharacterState.Awake, name: "Get"));

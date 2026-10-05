@@ -1,4 +1,4 @@
-﻿using MudSharp.GameItems;
+using MudSharp.GameItems;
 
 namespace MudSharp.Combat.Moves;
 
@@ -12,6 +12,8 @@ public class RemoveItemMove : CombatMoveBase
 
     public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
     {
+		using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterMove(this);
+		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
         if (!Assailant.Body.WornItems.Contains(Item))
         {
             Assailant.Send("You are no longer wearing the item that you wanted to remove.");

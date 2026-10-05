@@ -1,4 +1,4 @@
-﻿
+
 using MudSharp.Construction;
 
 namespace MudSharp.GameItems.Inventory.Plans;
@@ -55,7 +55,7 @@ public class InventoryPlanActionSheath : InventoryPlanAction
             executor.Inventory.SelectNotNull(x => x.GetItemType<ISheath>())
                     .FirstOrDefault(
                         x =>
-                            x.Parent.IsA(DesiredSecondaryTag) && (SecondaryItemSelector?.Invoke(x.Parent) ?? true) &&
+                            x.Parent.IsA(DesiredSecondaryTag) && (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => SecondaryItemSelector?.Invoke(x.Parent) ?? true, false)) &&
                             (x.Content == null || x.Content.Parent == item) && x.MaximumSize >= item.Size)?.Parent;
     }
 
@@ -65,7 +65,7 @@ public class InventoryPlanActionSheath : InventoryPlanAction
             executor.Inventory.SelectNotNull(x => x.GetItemType<ISheath>())
                     .Where(
                         x =>
-                            x.Parent.IsA(DesiredSecondaryTag) && (SecondaryItemSelector?.Invoke(x.Parent) ?? true) &&
+                            x.Parent.IsA(DesiredSecondaryTag) && (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => SecondaryItemSelector?.Invoke(x.Parent) ?? true, false)) &&
                             x.Content == null)
                     .ToList();
 
@@ -73,7 +73,7 @@ public class InventoryPlanActionSheath : InventoryPlanAction
         IGameItem item =
             executor.Inventory.SelectNotNull(x => x.GetItemType<ISheath>())
                     .SelectNotNull(x => x.Content?.Parent)
-                    .FirstOrDefault(x => x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true));
+                    .FirstOrDefault(x => x.IsA(DesiredTag) && (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(x) ?? true, false)));
         if (item != null)
         {
             return item;
@@ -83,7 +83,7 @@ public class InventoryPlanActionSheath : InventoryPlanAction
         item =
             executor.Body.WieldedItems.FirstOrDefault(
                 x =>
-                    x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true) &&
+                    x.IsA(DesiredTag) && (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(x) ?? true, false)) &&
                     sheaths.Any(y => y.MaximumSize >= x.Size));
         if (item != null)
         {
@@ -94,7 +94,7 @@ public class InventoryPlanActionSheath : InventoryPlanAction
         item =
             executor.Body.HeldItems.FirstOrDefault(
                 x =>
-                    x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true) && x.IsItemType<IWieldable>() &&
+                    x.IsA(DesiredTag) && (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(x) ?? true, false)) && x.IsItemType<IWieldable>() &&
                     sheaths.Any(y => y.MaximumSize >= x.Size));
         if (item != null)
         {
@@ -105,7 +105,7 @@ public class InventoryPlanActionSheath : InventoryPlanAction
         item =
             executor.Body.WornItems.FirstOrDefault(
                 x =>
-                    x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true) && executor.Body.CanRemoveItem(x) &&
+                    x.IsA(DesiredTag) && (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(x) ?? true, false)) && executor.Body.CanRemoveItem(x) &&
                     x.IsItemType<IWieldable>() && sheaths.Any(y => y.MaximumSize >= x.Size));
         if (item != null)
         {
@@ -119,7 +119,7 @@ public class InventoryPlanActionSheath : InventoryPlanAction
                         x =>
                             x.ConnectedItems.FirstOrDefault(
                                 y =>
-                                    y.Parent.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(y.Parent) ?? true) &&
+                                    y.Parent.IsA(DesiredTag) && (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(y.Parent) ?? true, false)) &&
                                     y.Parent.IsItemType<IWieldable>() &&
                                     sheaths.Any(z => z.MaximumSize >= y.Parent.Size))?.Parent)
                     .FirstOrDefault(x => x != null);
@@ -135,7 +135,7 @@ public class InventoryPlanActionSheath : InventoryPlanAction
                     .SelectMany(x => x.Contents)
                     .FirstOrDefault(
                         x =>
-                            x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true) &&
+                            x.IsA(DesiredTag) && (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(x) ?? true, false)) &&
                             x.IsItemType<IWieldable>() && sheaths.Any(y => y.MaximumSize >= x.Size));
         if (item != null)
         {
@@ -146,7 +146,7 @@ public class InventoryPlanActionSheath : InventoryPlanAction
         item =
             executor.Location.GameItemsInImmediateVicinity(executor).FirstOrDefault(
                 x =>
-                    x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true) && x.IsItemType<IWieldable>() &&
+                    x.IsA(DesiredTag) && (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(x) ?? true, false)) && x.IsItemType<IWieldable>() &&
                     x.IsItemType<IHoldable>() &&
                     x.GetItemType<IHoldable>().IsHoldable &&
                     sheaths.Any(y => y.MaximumSize >= x.Size));
@@ -162,7 +162,7 @@ public class InventoryPlanActionSheath : InventoryPlanAction
                         x =>
                             x.ConnectedItems.FirstOrDefault(
                                 y =>
-                                    y.Parent.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(y.Parent) ?? true) &&
+                                    y.Parent.IsA(DesiredTag) && (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(y.Parent) ?? true, false)) &&
                                     y.Parent.IsItemType<IWieldable>() &&
                                     sheaths.Any(z => z.MaximumSize >= y.Parent.Size))?.Parent)
                     .FirstOrDefault(x => x != null);
@@ -177,7 +177,7 @@ public class InventoryPlanActionSheath : InventoryPlanAction
                     .SelectNotNull(x => x.Content?.Parent)
                     .FirstOrDefault(
                         x =>
-                            x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true) &&
+                            x.IsA(DesiredTag) && (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(x) ?? true, false)) &&
                             sheaths.Any(y => y.MaximumSize >= x.Size));
         if (item != null)
         {
@@ -191,7 +191,7 @@ public class InventoryPlanActionSheath : InventoryPlanAction
                     .SelectMany(x => x.Contents)
                     .FirstOrDefault(
                         x =>
-                            x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true) &&
+                            x.IsA(DesiredTag) && (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(x) ?? true, false)) &&
                             x.IsItemType<IWieldable>() && sheaths.Any(y => y.MaximumSize >= x.Size));
         return item;
     }

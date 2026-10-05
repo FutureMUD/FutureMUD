@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.Combat.ScatterStrategies;
 using MudSharp.Construction.Boundary;
 using MudSharp.Effects.Concrete;
@@ -83,7 +83,7 @@ public abstract class NaturalRangedAttackMoveBase : WeaponAttackMove, IRangedAtt
         var targetMaterial = (target as IGameItem)?.Material as ISolid;
         Tuple<IDamage, IDamage> damages = GetDamagePlusSelfDamage(target, Bodypart, bodypart, targetMaterial, attackOutcome, Attack.Profile.DamageType,
             Attack.Profile.BaseAngleOfIncidence, NaturalAttack, degree);
-		return targetWithWounds.PassiveSufferDamage(damages.Item1).ToList();
+		return targetWithWounds.CommandSufferDamage(damages.Item1).ToList();
     }
 
     protected virtual CombatMoveResult HandleMiss(IPerceiver originalTarget, CheckOutcome attackOutcome)
@@ -138,7 +138,7 @@ public abstract class NaturalRangedAttackMoveBase : WeaponAttackMove, IRangedAtt
         OpposedOutcome opposed = new(attackOutcome, blockCheck);
         if (opposed.Outcome == OpposedOutcomeDirection.Opponent)
         {
-            (block.Shield as IConditionDegradingComponent)?.UseCondition(
+            if (CanContinueCommand()) (block.Shield as IConditionDegradingComponent)?.UseCondition(
                 new ItemConditionUseContext(ItemConditionUseKind.ShieldBlock, blockCheck, (int)opposed.Degree));
             return new CombatMoveResult
             {
@@ -150,7 +150,7 @@ public abstract class NaturalRangedAttackMoveBase : WeaponAttackMove, IRangedAtt
 
         List<IWound> wounds = ApplySuccessfulHit(target, attackOutcome, opposed.Degree, TargetBodypart).ToList();
         wounds.ProcessPassiveWounds();
-        (block.Shield as IConditionDegradingComponent)?.UseCondition(
+        if (CanContinueCommand()) (block.Shield as IConditionDegradingComponent)?.UseCondition(
             new ItemConditionUseContext(ItemConditionUseKind.ShieldBlock, blockCheck, (int)opposed.Degree));
         return new CombatMoveResult
         {
@@ -185,6 +185,8 @@ public abstract class NaturalRangedAttackMoveBase : WeaponAttackMove, IRangedAtt
 
     public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
     {
+		using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterMove(this);
+		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
 		defenderMove = MagicDefenseMove.Revalidate(defenderMove, this);
 		using var scope = new MagicDefenseDamageScope(this, defenderMove);
 		return scope.Finish(ResolveAttackWithDefense(defenderMove));

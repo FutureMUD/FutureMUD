@@ -14,7 +14,10 @@ public class BlackPowderPhysicalLoadingSourceTests
 	{
 		var source = ReadSource("MudSharpCore", "GameItems", "Components", "MusketGameItemComponent.cs");
 
-		StringAssert.Contains(source, "powderSource.GetByWeight(loader.Body");
+		StringAssert.Contains(source, "ComponentItemTransfer.TakeByWeight(loader, powderSource");
+		var transfer = ReadSource("MudSharpCore", "GameItems", "ComponentItemTransfer.cs");
+		StringAssert.Contains(transfer, "source.GetByWeight(null, weight)");
+		StringAssert.Contains(transfer, "ReferenceEquals(source.InInventoryOf, actor.Body)");
 		StringAssert.Contains(source, "ContainLoadedItem(wad)");
 		StringAssert.Contains(source, "_matchCord = installed");
 		StringAssert.Contains(source, "_ignitionStone = installed");
@@ -28,8 +31,8 @@ public class BlackPowderPhysicalLoadingSourceTests
 		StringAssert.Contains(source, "RestoreToolAttachment(loader, cleaningRod, restoreCleaningRodAttachment)");
 		StringAssert.Contains(source, "RestoreToolAttachment(loader, ramrod, restoreRamrodAttachment)");
 		StringAssert.Contains(source, "RestoreToolAttachment(actor, ramrod, restoreToolAttachment)");
-		StringAssert.Contains(source, "item.InInventoryOf?.Take(item)");
-		StringAssert.Contains(source, "item.Location?.Extract(item)");
+		StringAssert.Contains(source, "ComponentItemTransfer.ContainPrepared(item, Parent");
+		StringAssert.Contains(transfer, "CommandExecutionScope.TryContinue() && IsDetached(item)");
 		Assert.IsFalse(source.Contains("ReleaseSplitSourceFromHands", StringComparison.Ordinal));
 		StringAssert.Contains(source, "IsReadied || !IsLoaded");
 		StringAssert.Contains(source, "stone.IsA(_prototype.IgnitionSourceTag)");
@@ -74,8 +77,8 @@ public class BlackPowderPhysicalLoadingSourceTests
 		StringAssert.Contains(source, "_primerCharge");
 		StringAssert.Contains(source, "_fuse");
 		StringAssert.Contains(source, "CreateStagePlan(loader)");
-		StringAssert.Contains(source, "powderSource.GetByWeight(loader.Body");
-		StringAssert.Contains(source, "primerSource.GetByWeight(loader.Body");
+		StringAssert.Contains(source, "ComponentItemTransfer.TakeByWeight(loader, powderSource");
+		StringAssert.Contains(source, "ComponentItemTransfer.TakeByWeight(loader, primerSource");
 		StringAssert.Contains(source, "CharacterState.Able.HasFlag(actor.State)");
 		StringAssert.Contains(source, "ArtilleryLoadingStage.Empty => \"sponge and clear\"");
 		StringAssert.Contains(source, "CreateTaggedPlan(actor, _prototype.LinstockTag, \"linstock\")");

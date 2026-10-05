@@ -67,6 +67,10 @@ The current runtime model is:
 - `CurrencyGameItemComponent` and `ICurrencyPile` bridge abstract value into physical carried money
 - physical currency manipulation selects coins from one legal-owner group and preserves that durable ownership reference on the reconstructed pile
 
+Body currency Get (floor or container), Put, Drop, and Give (living body or corpse) prepare all selected source piles and the exact destination before changing money. Preparation pins denomination maps, legal ownership, native custody and membership, the actor and recipient bodies, open-container state, and the selected hand or compatible merge survivor. The final gate executes authority policy before checking the captured body and spatial snapshots, so a valid policy that moves the actor cannot commit money from the old location or layer. The final commit debits every source and credits one survivor with coherent destination membership before loading hooks, ownership notifications, inventory events or witnesses run. An absorbed candidate carries no coins from that transfer; ordinary merge and Drop `newStack` behavior are retained.
+
+Currency Can/Why queries use unpublished previews: they do not register items, enqueue persistence, install hooks, execute load programs or notify owners. Committed loading and cleanup finish even if ordered-NPC control expires, while reentrant commands from that original order retain their normal authority checks. Empty-source cleanup removes only the captured membership and rechecks after deletion observers; a refill or new custody claim survives. This is an in-process callback boundary, not a database transaction or crash-recovery guarantee.
+
 Important consequences of the current implementation:
 
 - player-facing parsing is regex-driven through division abbreviations

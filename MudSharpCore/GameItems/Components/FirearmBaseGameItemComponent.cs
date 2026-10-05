@@ -1,4 +1,4 @@
-﻿using MudSharp.GameItems;
+using MudSharp.GameItems;
 using MudSharp.Accounts;
 using MudSharp.Body;
 using MudSharp.Body.Traits;
@@ -139,6 +139,10 @@ public abstract class FirearmBaseGameItemComponent : GameItemComponent, IFirearm
 
     public bool CanSwitch(ICharacter actor, string setting)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return false;
+
+
 		if (!ItemManipulationGuard.CanManipulate(actor, out _, Parent))
 		{
 			return false;
@@ -162,6 +166,10 @@ public abstract class FirearmBaseGameItemComponent : GameItemComponent, IFirearm
 
     public string WhyCannotSwitch(ICharacter actor, string setting)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return string.Empty;
+
+
 		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
 		{
 			return manipulationReason;
@@ -198,6 +206,10 @@ public abstract class FirearmBaseGameItemComponent : GameItemComponent, IFirearm
 
     public bool Switch(ICharacter actor, string setting)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return false;
+
+
 		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
 		{
 			return false;
@@ -298,6 +310,10 @@ public abstract class FirearmBaseGameItemComponent : GameItemComponent, IFirearm
     /// <inheritdoc />
     public bool CanReady(ICharacter readier)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(readier);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(readier)) return false;
+
+
         if (!ItemManipulationGuard.CanManipulate(readier, out var manipulationReason, Parent))
         {
             return false;
@@ -314,6 +330,10 @@ public abstract class FirearmBaseGameItemComponent : GameItemComponent, IFirearm
 
     public string WhyCannotReady(ICharacter readier)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(readier);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(readier)) return string.Empty;
+
+
         if (!ItemManipulationGuard.CanManipulate(readier, out var manipulationReason, Parent))
         {
             return manipulationReason;
@@ -331,6 +351,10 @@ public abstract class FirearmBaseGameItemComponent : GameItemComponent, IFirearm
 
     public bool Ready(ICharacter readier)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(readier);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(readier)) return false;
+
+
         if (!ItemManipulationGuard.CanManipulate(readier, out var manipulationReason, Parent))
         {
             return false;
@@ -344,6 +368,8 @@ public abstract class FirearmBaseGameItemComponent : GameItemComponent, IFirearm
 
         readier.OutputHandler.Handle(new EmoteOutput(new Emote(_prototype.ReadyEmote, readier, readier, Parent),
             flags: OutputFlags.InnerWrap));
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(readier)) return false;
+        MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted(readier);
         ChamberRound(readier);
         return true;
     }
@@ -353,16 +379,28 @@ public abstract class FirearmBaseGameItemComponent : GameItemComponent, IFirearm
     /// <inheritdoc />
     public bool CanUnready(ICharacter readier)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(readier);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(readier)) return false;
+
+
         return true;
     }
 
     public string WhyCannotUnready(ICharacter readier)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(readier);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(readier)) return string.Empty;
+
+
         throw new ApplicationException($"Should always be able to unready a {GetType().FullName}.");
     }
 
     public virtual bool Unready(ICharacter readier)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(readier);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(readier)) return false;
+
+
         if (!CanUnready(readier))
         {
             readier.Send(WhyCannotUnready(readier));
@@ -371,19 +409,18 @@ public abstract class FirearmBaseGameItemComponent : GameItemComponent, IFirearm
 
         if (ChamberedRound != null)
         {
+            var round = ChamberedRound;
+            var receive = (readier.Body as MudSharp.Body.Implementations.Body)?.PrepareComponentUnload(round.Parent);
+            if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(readier)) return false;
             readier.OutputHandler.Handle(new EmoteOutput(new Emote(_prototype.UnreadyEmote, readier, readier, Parent,
                 ChamberedRound.Parent)));
-            ChamberedRound.Parent.ContainedIn = null;
-            if (readier.Body.CanGet(ChamberedRound.Parent, 0))
-            {
-                readier.Body.Get(ChamberedRound.Parent, silent: true);
-            }
-            else
-            {
-                ChamberedRound.Parent.InsertAtSource(readier);
-            }
-
+            if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(readier) || !ReferenceEquals(ChamberedRound, round)) return false;
+            MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted(readier);
             ChamberedRound = null;
+            round.Parent.ContainedIn = null;
+            if (receive is not null) receive();
+            else if (readier.Body.CanGet(round.Parent, 0) && MudSharp.NPC.AI.CommandExecutionScope.TryContinue(readier)) readier.Body.Get(round.Parent, silent: true);
+            else if (!round.Parent.Deleted && round.Parent.InInventoryOf is null && round.Parent.ContainedIn is null && round.Parent.Location is null) round.Parent.InsertAtSource(readier);
         }
         else
         {
@@ -412,6 +449,10 @@ public abstract class FirearmBaseGameItemComponent : GameItemComponent, IFirearm
     /// <inheritdoc />
     public virtual void Fire(ICharacter actor, IPerceiver target, Outcome shotOutcome, Outcome coverOutcome, OpposedOutcome defenseOutcome, IBodypart bodypart, IEmoteOutput defenseEmote, IPerceiver originalTarget)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return;
+
+
         if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
         {
             actor?.OutputHandler.Send(manipulationReason);
@@ -445,20 +486,36 @@ public abstract class FirearmBaseGameItemComponent : GameItemComponent, IFirearm
         var originalLocation = RouteSpatialService.Instance.GetEffectiveLocation(actor);
         while (ChamberedRound is not null && firedRounds < configuredRounds)
         {
-            var ammo = ChamberedRound;
+            if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) break;
+        MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted(actor);
+        var ammo = ChamberedRound;
+			var ammoContainer = ammo.Parent.ContainedIn;
+			var shotCompletion = new ProjectileCustodyCompletion(actor, ammo.Parent, target, originalLocation);
             ChamberedRound = null;
+			if (!ComponentItemTransfer.ReleaseFiredItem(ammo.Parent, ammoContainer ?? Parent)) break;
+			if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor))
+			{
+				shotCompletion.Finish();
+				firedRounds++;
+				break;
+			}
             var firstBullet = ammo.GetFiredItem;
             var usesSeparateProjectile = firstBullet is not null;
             var projectileCount = usesSeparateProjectile
                 ? Math.Clamp(ammo.AmmoType.ProjectileCount, 1, 32)
                 : 1;
-            var shell = ammo.GetFiredWasteItem;
+            var shell = MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor) ? ammo.GetFiredWasteItem : null;
             for (var projectileIndex = 0; projectileIndex < projectileCount; projectileIndex++)
             {
                 var bullet = projectileIndex == 0
                     ? firstBullet ?? ammo.Parent
                     : ammo.GetFiredItem;
-                WeaponPoisonDeliveryHelper.CopyPoisonCoating(ammo.Parent, bullet);
+                if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor))
+        {
+				new ProjectileCustodyCompletion(actor, bullet, target, originalLocation).Finish();
+				break;
+        }
+        WeaponPoisonDeliveryHelper.CopyPoisonCoating(ammo.Parent, bullet);
                 var projectileOutcome = FirearmMath.ProjectileOutcome(shotOutcome, CurrentFireMode, firedRounds,
                     projectileIndex, ammo.AmmoType.SpreadPenalty,
                     CombinedAttachmentModifiers.RecoilMultiplier);
@@ -470,22 +527,22 @@ public abstract class FirearmBaseGameItemComponent : GameItemComponent, IFirearm
 					WeaponType, projectileIndex == 0 ? defenseEmote : null,
 					new RangedFireContext(projectileIndex, projectileCount, ammo.AmmoType.ScatterType,
 						CombinedAttachmentModifiers.DamageMultiplier));
-				if (!bullet.Deleted && bullet.IsItemType<IImpactDetonator>())
+				if (MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor) && !bullet.Deleted && bullet.IsItemType<IImpactDetonator>())
 				{
-					if (bullet.Location is null && target?.Location is not null)
+					if (ComponentItemTransfer.IsDetached(bullet) && target?.Location is not null)
 					{
 						bullet.InsertAtSource(target, true);
-						bullet.PositionTarget = target;
+						if (MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) bullet.PositionTarget = target;
 					}
 
-					if (bullet.Location is not null)
+					if (MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor) && bullet.Location is not null)
 					{
 						bullet.GetItemType<IDetonatable>()?.Detonate();
 					}
 				}
             }
 
-            if (usesSeparateProjectile)
+            if (usesSeparateProjectile && ComponentItemTransfer.IsDetached(ammo.Parent))
             {
                 ammo.Parent.Delete();
             }
@@ -496,14 +553,14 @@ public abstract class FirearmBaseGameItemComponent : GameItemComponent, IFirearm
                     (int)ammo.AmmoType.Loudness + CombinedAttachmentModifiers.LoudnessOffset),
                 (int)AudioVolume.Silent, (int)AudioVolume.DangerouslyLoud);
             firedRounds++;
-            if (CycleType == FirearmCycleType.SelfLoading)
+            if (MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor) && CycleType == FirearmCycleType.SelfLoading)
             {
                 ChamberRound(actor);
             }
         }
 
         Changed = true;
-        UseCondition(new ItemConditionUseContext(ItemConditionUseKind.RangedFire, shotOutcome,
+        if (firedRounds > 0) UseCondition(new ItemConditionUseContext(ItemConditionUseKind.RangedFire, shotOutcome,
             (int)(defenseOutcome?.Degree ?? OpposedOutcomeDegree.None)));
         if (loudestShot > AudioVolume.Silent)
         {
@@ -514,10 +571,13 @@ public abstract class FirearmBaseGameItemComponent : GameItemComponent, IFirearm
 
     protected virtual void HandleShellCasingOnFire(ICharacter actor, SpatialLocation originalLocation, IGameItem shell)
     {
-        if (shell != null)
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
+
+
+        if (shell is not null && !shell.Deleted && !shell.Destroyed && shell.Location is null && shell.InInventoryOf is null && shell.ContainedIn is null)
         {
             originalLocation.Cell.Handle(new EmoteOutput(new Emote("@ tumble|tumbles to the ground.", shell), flags: OutputFlags.Insigificant));
-			shell.InsertAtSpatialLocation(originalLocation);
+			if (!shell.Deleted && !shell.Destroyed && shell.Location is null && shell.InInventoryOf is null && shell.ContainedIn is null) shell.InsertAtSpatialLocation(originalLocation);
         }
     }
 
@@ -538,12 +598,20 @@ public abstract class FirearmBaseGameItemComponent : GameItemComponent, IFirearm
     /// <inheritdoc />
     public bool CanWield(ICharacter actor)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return false;
+
+
         return _prototype.CanWieldProg?.ExecuteBool(false, actor, Parent) ?? true;
     }
 
     /// <inheritdoc />
     public string WhyCannotWield(ICharacter actor)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return string.Empty;
+
+
         return _prototype.WhyCannotWieldProg?.ExecuteString(actor, Parent) ?? "You can't wield that for an unknown reason.";
     }
 

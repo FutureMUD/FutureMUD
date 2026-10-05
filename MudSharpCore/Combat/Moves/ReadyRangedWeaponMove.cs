@@ -1,4 +1,4 @@
-﻿using MudSharp.RPG.Checks;
+using MudSharp.RPG.Checks;
 
 namespace MudSharp.Combat.Moves;
 
@@ -19,6 +19,8 @@ public class ReadyRangedWeaponMove : CombatMoveBase
 
     public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
     {
+		using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterMove(this);
+		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
         if (!Weapon.CanReady(Assailant))
         {
             return CombatMoveResult.Irrelevant;

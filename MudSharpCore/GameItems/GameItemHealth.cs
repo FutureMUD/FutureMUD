@@ -145,6 +145,7 @@ public partial class GameItem : IHaveWounds
 
     public IEnumerable<IWound> PassiveSufferDamage(IDamage damage)
     {
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue()) return Enumerable.Empty<IWound>();
         if (damage == null)
         {
             return Enumerable.Empty<IWound>();
@@ -181,6 +182,8 @@ public partial class GameItem : IHaveWounds
         }
 
         damage = destroyable?.GetActualDamage(damage) ?? damage;
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue()) return wounds;
+		MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted();
         List<IWound> newWounds = HealthStrategy.SufferDamage(this, damage, null).ToList();
         foreach (IWound newWound in newWounds.ToArray())
         {

@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.Effects.Concrete;
 using MudSharp.Health;
 using MudSharp.RPG.Checks;
@@ -79,6 +79,8 @@ public class StartClinchMove : WeaponAttackMove
 
     public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
     {
+		using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterMove(this);
+		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
 		defenderMove = MagicDefenseMove.Revalidate(defenderMove, this);
 		if (!VehicleCombatService.Instance.CanCrossVehicleBoundary(Assailant, CharacterTarget, false, false,
 			    out var boundaryReason))

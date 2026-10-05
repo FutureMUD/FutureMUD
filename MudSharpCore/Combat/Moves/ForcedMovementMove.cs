@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.RPG.Checks;
@@ -68,15 +68,19 @@ public class ForcedMovementMove : CombatMoveBase
 
 	public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
 	{
+		using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterMove(this);
+		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
 		if (RequiresFlight && (!CombatForcedMovementUtilities.HasControlledGrapple(Assailant, CharacterTarget) ||
 		    !CombatForcedMovementUtilities.CanCarryFlying(Assailant, CharacterTarget) || !Assailant.CanSpendStamina(StaminaCost)))
 		{
 			_releasedInsteadOfCarrying = true;
-			var released = new DropGrappledTargetMove(Assailant, CharacterTarget).ResolveMove(null);
+			var child = new DropGrappledTargetMove(Assailant, CharacterTarget);
+			var released = MudSharp.NPC.AI.CommandExecutionScope.ResolveOwned(this, child, () => null);
 			released.DefenderResponseWasUsed = false;
 			return released;
 		}
 		defenderMove = MagicDefenseMove.Revalidate(defenderMove, this);
+		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
 		if (defenderMove is null)
 		{
 			defenderMove = new HelplessDefenseMove { Assailant = CharacterTarget, PrimaryTarget = Assailant };

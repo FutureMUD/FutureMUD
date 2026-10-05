@@ -1,4 +1,5 @@
-﻿using MudSharp.Body;
+using MudSharp.NPC.AI;
+using MudSharp.Body;
 using MudSharp.Combat;
 using MudSharp.Construction;
 using MudSharp.Effects.Concrete;
@@ -48,6 +49,7 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
 #nullable enable
     public static IInventoryPlanAction? ParseActionFromBuilderInput(ICharacter actor, StringStack command)
     {
+        using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
         DesiredItemState state;
         switch (command.PopSpeech().ToLowerInvariant())
         {
@@ -374,11 +376,13 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
 
     public IInventoryPlan CreatePlan(ICharacter actor)
     {
+        using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
         return new InventoryPlan(actor, this);
     }
 
     public void FinalisePlan(ICharacter executor, bool restore, IInventoryPlan plan, IList<IGameItem> exemptItems)
     {
+        using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(executor);
         // Advisory and unexecuted plans own no restoration effects. Their finalizer
         // must not traverse the actor's mutable effect list from the GC thread.
         if (plan.AssociatedEffects.Count == 0)
@@ -442,6 +446,7 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
     public IEnumerable<InventoryPlanActionResult> PeekPlanResults(ICharacter actor, IInventoryPlanPhase phase,
         IInventoryPlan plan)
     {
+        using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
         List<InventoryPlanActionResult> results = new();
         List<(IInventoryPlanAction Action, IGameItem Primary, IGameItem Secondary)> targets = phase.ScoutedItems;
 
@@ -693,7 +698,9 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
     public IEnumerable<InventoryPlanActionResult> ExecutePhase(ICharacter actor, IInventoryPlanPhase phase,
         IInventoryPlan plan)
     {
+        using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
         List<InventoryPlanActionResult> results = new();
+        if (!CommandExecutionScope.TryContinue(actor)) return results;
         List<(IInventoryPlanAction Action, IGameItem Primary, IGameItem Secondary)> targets = phase.ScoutedItems.Where(x => x.Primary != null).ToList();
         if (!targets.Any())
         {
@@ -734,6 +741,7 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
             int count = numAvailWieldingLocs + numAvailHoldingWieldLocs;
             foreach (IGameItem item in actor.Body.HeldOrWieldedItems.Where(x => targets.All(y => y.Primary != x)).ToList())
             {
+            if (!CommandExecutionScope.TryContinue(actor)) return results;
                 IBodypart wieldLoc = actor.Body.HoldOrWieldLocFor(item);
                 if (wieldLoc == null || !actor.Body.WieldLocs.Contains(wieldLoc))
                 {
@@ -754,6 +762,7 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
                 bool foundSheath = false;
                 foreach (ISheath sheath in actor.Inventory.SelectNotNull(x => x.GetItemType<ISheath>()))
                 {
+            if (!CommandExecutionScope.TryContinue(actor)) return results;
                     if (actor.Body.CanSheathe(item, sheath.Parent))
                     {
                         results.Add(TakeAction(actor, item, sheath.Parent, DesiredItemState.Sheathed, null, false));
@@ -767,6 +776,7 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
                 {
                     foreach (IContainer container in actor.Inventory.SelectNotNull(x => x.GetItemType<IContainer>()))
                     {
+            if (!CommandExecutionScope.TryContinue(actor)) return results;
                         if (actor.Body.CanPut(item, container.Parent, null, 0, false))
                         {
                             results.Add(TakeAction(actor, item, container.Parent, DesiredItemState.InContainer, null,
@@ -795,6 +805,7 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
             int count = numAvailHoldingLocs + numAvailHoldingWieldLocs;
             foreach (IGameItem item in actor.Body.HeldOrWieldedItems.Where(x => targets.All(y => y.Primary != x)).ToList())
             {
+            if (!CommandExecutionScope.TryContinue(actor)) return results;
                 IBodypart holdLoc = actor.Body.HoldOrWieldLocFor(item);
                 if (holdLoc == null || !actor.Body.HoldLocs.Contains(holdLoc))
                 {
@@ -815,6 +826,7 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
                 bool foundSheath = false;
                 foreach (ISheath sheath in actor.Inventory.SelectNotNull(x => x.GetItemType<ISheath>()))
                 {
+            if (!CommandExecutionScope.TryContinue(actor)) return results;
                     if (actor.Body.CanSheathe(item, sheath.Parent))
                     {
                         results.Add(TakeAction(actor, item, sheath.Parent, DesiredItemState.Sheathed, null, false));
@@ -828,6 +840,7 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
                 {
                     foreach (IContainer container in actor.Inventory.SelectNotNull(x => x.GetItemType<IContainer>()))
                     {
+            if (!CommandExecutionScope.TryContinue(actor)) return results;
                         if (actor.Body.CanPut(item, container.Parent, null, 0, false))
                         {
                             results.Add(TakeAction(actor, item, container.Parent, DesiredItemState.InContainer, null,
@@ -854,6 +867,7 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
         // in room actions first
         foreach ((IInventoryPlanAction Action, IGameItem Primary, IGameItem Secondary) target in targets.Where(x => x.Action.DesiredState == DesiredItemState.InRoom).ToList())
         {
+            if (!CommandExecutionScope.TryContinue(actor)) return results;
             MarkItemForRestoration(actor, target.Primary, plan);
             results.Add(TakeAction(actor, target.Primary, null, DesiredItemState.InRoom, target.Action, false));
         }
@@ -868,6 +882,7 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
                     x.Action.DesiredState == DesiredItemState.Attached ||
                     x.Action.DesiredState == DesiredItemState.Worn).ToList())
         {
+            if (!CommandExecutionScope.TryContinue(actor)) return results;
             MarkItemForRestoration(actor, target.Primary, plan);
             results.Add(TakeAction(actor, target.Primary, target.Secondary, target.Action.DesiredState, target.Action,
                 false));
@@ -879,6 +894,7 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
                      x.Action.DesiredState == DesiredItemState.WieldedOneHandedOnly ||
                      x.Action.DesiredState == DesiredItemState.WieldedTwoHandedOnly).ToList())
         {
+            if (!CommandExecutionScope.TryContinue(actor)) return results;
             MarkItemForRestoration(actor, target.Primary, plan);
             results.Add(TakeAction(actor, target.Primary, null, target.Action.DesiredState, target.Action, false));
         }
@@ -886,6 +902,7 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
         // held items next to last
         foreach ((IInventoryPlanAction Action, IGameItem Primary, IGameItem Secondary) target in targets.Where(x => x.Action.DesiredState == DesiredItemState.Held).ToList())
         {
+            if (!CommandExecutionScope.TryContinue(actor)) return results;
             MarkItemForRestoration(actor, target.Primary, plan);
             results.Add(TakeAction(actor, target.Primary, null, DesiredItemState.Held, target.Action, false));
         }
@@ -893,6 +910,7 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
         // apply actions next
         foreach ((IInventoryPlanAction Action, IGameItem Primary, IGameItem Secondary) target in targets.Where(x => x.Action.DesiredState == DesiredItemState.Apply).ToList())
         {
+            if (!CommandExecutionScope.TryContinue(actor)) return results;
             results.Add(TakeAction(actor, target.Primary, null, target.Action.DesiredState, target.Action, false));
         }
 
@@ -901,6 +919,7 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
                          x.Action.DesiredState == DesiredItemState.Consumed ||
                          x.Action.DesiredState == DesiredItemState.ConsumeLiquid).ToList())
         {
+            if (!CommandExecutionScope.TryContinue(actor)) return results;
             results.Add(TakeAction(actor, target.Primary, null, target.Action.DesiredState, target.Action, false));
         }
 
@@ -910,6 +929,7 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
     public IEnumerable<(IInventoryPlanAction Action, InventoryPlanFeasibility Reason)> InfeasibleActions(
         ICharacter actor, IInventoryPlanPhase phase)
     {
+        using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
         List<(IInventoryPlanAction Action, InventoryPlanFeasibility Reason)> actions = new();
         List<(IInventoryPlanAction Action, IGameItem Primary, IGameItem Secondary)> targets = phase.ScoutedItems;
 
@@ -1027,6 +1047,7 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
 
     public InventoryPlanFeasibility PlanIsFeasible(ICharacter actor, IInventoryPlanPhase phase)
     {
+        using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
         List<(IInventoryPlanAction Action, IGameItem Primary, IGameItem Secondary)> targets = phase.ScoutedItems;
 
         if (targets.Any(x => x.Primary == null))
@@ -1134,6 +1155,7 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
 
     private void MarkItemForRestoration(ICharacter actor, IGameItem item, IInventoryPlan plan)
     {
+        if (!CommandExecutionScope.TryContinue(actor)) return;
         if (actor == null)
         {
             throw new ArgumentNullException(nameof(actor));
@@ -1238,6 +1260,8 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
         DesiredItemState state,
         IInventoryPlanAction action, bool silent)
     {
+		if (!CommandExecutionScope.TryContinue(actor)) return new InventoryPlanActionResult
+			{ PrimaryTarget = item, ActionState = DesiredItemState.Unknown, OriginalReference = action?.OriginalReference };
         switch (state)
         {
             case DesiredItemState.Held:
@@ -1290,7 +1314,7 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
             {
                 PrimaryTarget = item,
                 SecondaryTarget = target,
-                ActionState = DesiredItemState.Attached,
+                ActionState = DesiredItemState.Unknown,
                 OriginalReference = originalReference
             };
         }
@@ -1301,8 +1325,22 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
             return getResult;
         }
 
-        actor.Body.Take(item);
-        target.GetItemType<IBelt>().AddConnectedItem(item.GetItemType<IBeltable>());
+        var belt = target.GetItemType<IBelt>();
+        var beltable = item.GetItemType<IBeltable>();
+        if (belt is null || beltable is null || !CommandExecutionScope.TryContinue(actor)) return RefusedItem(item, originalReference);
+        var restore = (actor.Body as MudSharp.Body.Implementations.Body)?.PrepareDetachedItemReturn(item);
+        if (restore is null || !CommandExecutionScope.TryContinue(actor)) return RefusedItem(item, originalReference);
+		var targetHolder = target.InInventoryOf;
+		var targetContainer = target.ContainedIn;
+		var targetCell = ComponentItemTransfer.DirectLocationOf(target);
+		actor.Body.Take(item);
+		if (!ComponentItemTransfer.IsDetached(item)) return RefusedItem(item, originalReference);
+		if (!CommandExecutionScope.TryContinue(actor) || target.Deleted || target.Destroyed ||
+			!ReferenceEquals(target.InInventoryOf, targetHolder) || !ReferenceEquals(target.ContainedIn, targetContainer) ||
+			!ReferenceEquals(ComponentItemTransfer.DirectLocationOf(target), targetCell) ||
+			(!actor.Location.GameItemsInImmediateVicinity(actor).Contains(target) && !actor.Inventory.Contains(target)))
+		{ restore(); return RefusedItem(item, originalReference); }
+        belt.AddConnectedItem(beltable);
         if (!silent)
         {
             actor.OutputHandler.Handle(new EmoteOutput(new Emote("@ attach|attaches $0 to $1.", actor, item, target)));
@@ -1312,7 +1350,7 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
         {
             PrimaryTarget = item,
             SecondaryTarget = target,
-            ActionState = DesiredItemState.Attached,
+            ActionState = ReferenceEquals(beltable.ConnectedTo, belt) ? DesiredItemState.Attached : DesiredItemState.Unknown,
             OriginalReference = originalReference
         };
     }
@@ -1325,7 +1363,7 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
             return new InventoryPlanActionResult
             {
                 PrimaryTarget = item,
-                ActionState = DesiredItemState.Held,
+                ActionState = ObservedHeldState(actor, item),
                 OriginalReference = originalReference
             };
         }
@@ -1337,7 +1375,7 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
                 return new InventoryPlanActionResult
                 {
                     PrimaryTarget = item,
-                    ActionState = DesiredItemState.Wielded,
+                    ActionState = actor.Body.WieldedItems.Contains(item) ? DesiredItemState.Wielded : DesiredItemState.Unknown,
                     OriginalReference = originalReference
                 };
             }
@@ -1346,7 +1384,7 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
             return new InventoryPlanActionResult
             {
                 PrimaryTarget = item,
-                ActionState = DesiredItemState.Held,
+                ActionState = ObservedHeldState(actor, item),
                 OriginalReference = originalReference
             };
         }
@@ -1359,7 +1397,7 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
                 return new InventoryPlanActionResult
                 {
                     PrimaryTarget = item,
-                    ActionState = DesiredItemState.Held,
+                    ActionState = ObservedHeldState(actor, item),
                     OriginalReference = originalReference
                 };
             }
@@ -1385,7 +1423,7 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
 				return new InventoryPlanActionResult
 				{
 					PrimaryTarget = gottenItem,
-					ActionState = DesiredItemState.Held,
+					ActionState = ObservedHeldState(actor, gottenItem),
 					OriginalReference = originalReference
 				};
 			}
@@ -1394,7 +1432,7 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
 			return new InventoryPlanActionResult
 			{
 				PrimaryTarget = item,
-				ActionState = DesiredItemState.Held,
+				ActionState = ObservedHeldState(actor, item),
 				OriginalReference = originalReference
 			};
 		}
@@ -1436,7 +1474,7 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
 				{
 					PrimaryTarget = gottenItem,
 					SecondaryTarget = container.Parent,
-					ActionState = DesiredItemState.Held,
+					ActionState = ObservedHeldState(actor, gottenItem),
 					OriginalReference = originalReference
 				};
 			}
@@ -1447,7 +1485,7 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
 			{
 				PrimaryTarget = item,
 				SecondaryTarget = container.Parent,
-				ActionState = DesiredItemState.Held,
+				ActionState = ObservedHeldState(actor, item),
 				OriginalReference = originalReference
 			};
         }
@@ -1463,7 +1501,7 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
                 {
                     PrimaryTarget = item,
                     SecondaryTarget = sheathe,
-                    ActionState = DesiredItemState.Held,
+                    ActionState = ObservedHeldState(actor, item),
                     OriginalReference = originalReference
                 };
             }
@@ -1473,7 +1511,7 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
                 {
                     PrimaryTarget = item,
                     SecondaryTarget = sheathe,
-                    ActionState = DesiredItemState.Wielded,
+                    ActionState = actor.Body.WieldedItems.Contains(item) ? DesiredItemState.Wielded : DesiredItemState.Unknown,
                     OriginalReference = originalReference
                 };
             }
@@ -1483,6 +1521,9 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
         if (beltable?.ConnectedTo != null)
         {
             IBelt belt = beltable.ConnectedTo;
+            if (!CommandExecutionScope.TryContinue(actor)) return RefusedItem(item, originalReference);
+            var receive = (actor.Body as MudSharp.Body.Implementations.Body)?.PrepareComponentUnload(item);
+            if (receive is null || !CommandExecutionScope.TryContinue(actor)) return RefusedItem(item, originalReference);
             if (!silent)
             {
                 actor.OutputHandler.Handle(
@@ -1490,13 +1531,16 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
                         beltable.ConnectedTo.Parent)));
             }
 
-            beltable.ConnectedTo.RemoveConnectedItem(beltable);
-            actor.Body.Get(item, quantity, silent: true, ignoreFlags: ItemCanGetIgnore.IgnoreInventoryPlans);
+            if (!CommandExecutionScope.TryContinue(actor) || !ReferenceEquals(beltable.ConnectedTo, belt)) return RefusedItem(item, originalReference);
+            CommandExecutionScope.MarkCommitted(actor);
+            belt.RemoveConnectedItem(beltable);
+            if (beltable.ConnectedTo is not null) return RefusedItem(item, originalReference);
+            receive();
             return new InventoryPlanActionResult
             {
                 PrimaryTarget = item,
                 SecondaryTarget = belt.Parent,
-                ActionState = DesiredItemState.Held,
+                ActionState = ObservedHeldState(actor, item),
                 OriginalReference = originalReference
             };
         }
@@ -1518,6 +1562,10 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
 		return GetItem(actor, item, originalReference, quantity, silent, wieldOK,
 			holdAction?.UseRetrievedItemAsResult ?? false);
     }
+
+    private static DesiredItemState ObservedHeldState(ICharacter actor, IGameItem item) =>
+        actor.Body.HeldItems.Contains(item) && ReferenceEquals(item.InInventoryOf, actor.Body)
+            ? DesiredItemState.Held : DesiredItemState.Unknown;
 
     private InventoryPlanActionResult WieldItem(ICharacter actor, IGameItem item, bool silent, object originalReference,
         AttackHandednessOptions option)
@@ -1541,7 +1589,7 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
                     return new InventoryPlanActionResult
                     {
                         PrimaryTarget = item,
-                        ActionState = state,
+                        ActionState = actor.Body.WieldedItems.Contains(item) && (option == AttackHandednessOptions.Any || actor.Body.WieldedHandCount(item) == (option == AttackHandednessOptions.OneHandedOnly ? 1 : 2)) ? state : DesiredItemState.Unknown,
                         OriginalReference = originalReference
                     };
                 case AttackHandednessOptions.OneHandedOnly:
@@ -1550,7 +1598,7 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
                         return new InventoryPlanActionResult
                         {
                             PrimaryTarget = item,
-                            ActionState = state,
+                            ActionState = actor.Body.WieldedItems.Contains(item) && (option == AttackHandednessOptions.Any || actor.Body.WieldedHandCount(item) == (option == AttackHandednessOptions.OneHandedOnly ? 1 : 2)) ? state : DesiredItemState.Unknown,
                             OriginalReference = originalReference
                         };
                     }
@@ -1562,7 +1610,7 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
                         return new InventoryPlanActionResult
                         {
                             PrimaryTarget = item,
-                            ActionState = state,
+                            ActionState = actor.Body.WieldedItems.Contains(item) && (option == AttackHandednessOptions.Any || actor.Body.WieldedHandCount(item) == (option == AttackHandednessOptions.OneHandedOnly ? 1 : 2)) ? state : DesiredItemState.Unknown,
                             OriginalReference = originalReference
                         };
                     }
@@ -1600,7 +1648,7 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
             PrimaryTarget = item,
             SecondaryTarget = getResult.SecondaryTarget,
             TertiaryTarget = getResult.TertiaryTarget,
-            ActionState = state,
+            ActionState = actor.Body.WieldedItems.Contains(item) && (option == AttackHandednessOptions.Any || actor.Body.WieldedHandCount(item) == (option == AttackHandednessOptions.OneHandedOnly ? 1 : 2)) ? state : DesiredItemState.Unknown,
             OriginalReference = originalReference
         };
     }
@@ -1615,7 +1663,7 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
                 return new InventoryPlanActionResult
                 {
                     PrimaryTarget = item,
-                    ActionState = DesiredItemState.Worn,
+                    ActionState = actor.Body.WornItems.Contains(item) ? DesiredItemState.Worn : DesiredItemState.Unknown,
                     OriginalReference = originalReference
                 };
             }
@@ -1643,7 +1691,7 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
             PrimaryTarget = item,
             SecondaryTarget = getResult.SecondaryTarget,
             TertiaryTarget = getResult.TertiaryTarget,
-            ActionState = DesiredItemState.Worn,
+            ActionState = actor.Body.WornItems.Contains(item) ? DesiredItemState.Worn : DesiredItemState.Unknown,
             OriginalReference = originalReference
         };
     }
@@ -1655,7 +1703,7 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
             return new InventoryPlanActionResult
             {
                 PrimaryTarget = item,
-                ActionState = DesiredItemState.InRoom,
+                ActionState = !item.Deleted && ReferenceEquals(ComponentItemTransfer.DirectLocationOf(item), actor.Location) && item.InInventoryOf is null && item.ContainedIn is null ? DesiredItemState.InRoom : DesiredItemState.Unknown,
                 OriginalReference = originalReference
             };
         }
@@ -1672,7 +1720,7 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
             PrimaryTarget = item,
             SecondaryTarget = getResult.SecondaryTarget,
             TertiaryTarget = getResult.TertiaryTarget,
-            ActionState = DesiredItemState.InRoom,
+            ActionState = !item.Deleted && ReferenceEquals(ComponentItemTransfer.DirectLocationOf(item), actor.Location) && item.InInventoryOf is null && item.ContainedIn is null ? DesiredItemState.InRoom : DesiredItemState.Unknown,
             OriginalReference = originalReference
         };
     }
@@ -1686,7 +1734,7 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
             {
                 PrimaryTarget = item,
                 SecondaryTarget = container,
-                ActionState = DesiredItemState.InContainer,
+                ActionState = ReferenceEquals(item.ContainedIn, container) ? DesiredItemState.InContainer : DesiredItemState.Unknown,
                 OriginalReference = originalReference
             };
         }
@@ -1702,7 +1750,7 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
         {
             PrimaryTarget = item,
             SecondaryTarget = container,
-            ActionState = DesiredItemState.InContainer,
+            ActionState = ReferenceEquals(item.ContainedIn, container) ? DesiredItemState.InContainer : DesiredItemState.Unknown,
             OriginalReference = originalReference
         };
     }
@@ -1716,7 +1764,7 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
             {
                 PrimaryTarget = item,
                 SecondaryTarget = sheath,
-                ActionState = DesiredItemState.Sheathed,
+                ActionState = ReferenceEquals(item.ContainedIn, sheath) ? DesiredItemState.Sheathed : DesiredItemState.Unknown,
                 OriginalReference = originalReference
             };
         }
@@ -1732,15 +1780,18 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
         {
             PrimaryTarget = item,
             SecondaryTarget = sheath,
-            ActionState = DesiredItemState.Sheathed,
+            ActionState = ReferenceEquals(item.ContainedIn, sheath) ? DesiredItemState.Sheathed : DesiredItemState.Unknown,
             OriginalReference = originalReference
         };
     }
 
     private InventoryPlanActionResult ConsumeCommodity(ICharacter actor, IGameItem item, double weight, object originalReference)
     {
+		if (!CommandExecutionScope.TryContinue(actor)) return RefusedItem(item, originalReference);
         IGameItem container = item.ContainedIn;
         ICommodity commodity = item.GetItemType<ICommodity>();
+		if (!CommandExecutionScope.TryContinue(actor)) return RefusedItem(item, originalReference);
+		CommandExecutionScope.MarkCommitted(actor);
         if (commodity.Weight <= weight)
         {
             item.ContainedIn?.Take(item);
@@ -1765,8 +1816,11 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
         object originalReference)
     {
 		SpellOwnedItemValuePolicy.RequireOrdinaryValue(item, "component consumption");
+		if (!CommandExecutionScope.TryContinue(actor)) return RefusedItem(item, originalReference);
         IGameItem container = item.ContainedIn;
         IStackable stack = item.GetItemType<IStackable>();
+		if (!CommandExecutionScope.TryContinue(actor)) return RefusedItem(item, originalReference);
+		CommandExecutionScope.MarkCommitted(actor);
         if (stack != null)
         {
             stack.Quantity -= quantity;
@@ -1797,22 +1851,32 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
             InventoryPlanActionConsumeLiquid action, object originalReference)
     {
         ILiquidContainer container = item.GetItemType<ILiquidContainer>();
-        foreach (LiquidInstance instance in action.LiquidToTake.Instances)
+		var mixture = container?.LiquidMixture;
+		if (mixture is null || !CommandExecutionScope.TryContinue(actor)) return RefusedItem(item, originalReference);
+		foreach (LiquidInstance instance in action.LiquidToTake.Instances.ToArray())
         {
-            LiquidInstance equivalent = container.LiquidMixture.Instances.FirstOrDefault(x => x.CanMergeWith(instance));
+			if (!CommandExecutionScope.TryContinue(actor) || !ReferenceEquals(container.LiquidMixture, mixture))
+				return RefusedItem(item, originalReference);
+            LiquidInstance equivalent = mixture.Instances.FirstOrDefault(x => x.CanMergeWith(instance));
+			if (!CommandExecutionScope.TryContinue(actor) || !ReferenceEquals(container.LiquidMixture, mixture))
+				return RefusedItem(item, originalReference);
             if (equivalent == null)
             {
                 continue;
             }
 
-            container.LiquidMixture.RemoveLiquidVolume(equivalent, instance.Amount);
-            if (container.LiquidMixture?.IsEmpty != false)
+			CommandExecutionScope.MarkCommitted(actor);
+            mixture.RemoveLiquidVolume(equivalent, instance.Amount);
+			// The synchronous mixture callback can replace the container contents. This
+			// removal committed only against the captured mixture, never its replacement.
+			if (!ReferenceEquals(container.LiquidMixture, mixture)) return RefusedItem(item, originalReference);
+			container.Changed = true;
+            if (mixture.IsEmpty)
             {
                 container.LiquidMixture = null;
                 break;
             }
 
-            container.Changed = true;
         }
 
         return new InventoryPlanActionResult
@@ -1822,6 +1886,9 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
             OriginalReference = originalReference
         };
     }
+
+	private static InventoryPlanActionResult RefusedItem(IGameItem item, object originalReference) => new()
+		{ PrimaryTarget = item, ActionState = DesiredItemState.Unknown, OriginalReference = originalReference };
 
     private InventoryPlanActionResult ApplyItem(ICharacter actor, IGameItem item, InventoryPlanActionApply action, object originalReference)
     {

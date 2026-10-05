@@ -14,6 +14,8 @@ public class WearItemMove : CombatMoveBase
 
     public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
     {
+        using var execution = MudSharp.NPC.AI.CommandExecutionScope.EnterMove(this);
+        if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
         if (!Assailant.Body.HeldOrWieldedItems.Contains(Item))
         {
             Assailant.Send("You are no longer in possession of the item that you wanted to wear.");
@@ -21,6 +23,7 @@ public class WearItemMove : CombatMoveBase
         }
 
         Assailant.Body.Wear(Item, SpecificProfile, PlayerEmote);
+        if (MudSharp.NPC.AI.CommandExecutionScope.RejectedBeforeCommit) return CombatMoveResult.Irrelevant;
         return new CombatMoveResult
         {
             MoveWasSuccessful = true

@@ -2296,18 +2296,25 @@ The syntax is simply #3flee#0 to toggle it on, and the same again to return to y
                 mode = actor.MeleeRange ? CombatStrategyMode.StandardMelee : CombatStrategyMode.StandardRange;
             }
 
+			if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return;
+			MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted(actor);
             actor.CombatStrategyMode = mode;
             actor.Send("You are no longer attempting to flee.");
+			if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return;
             actor.AcquireTarget();
             return;
         }
 
         if (actor.Combat.Friendly)
         {
+			if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return;
+			MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted(actor);
             actor.Combat.TruceRequested(actor);
             return;
         }
 
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return;
+		MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted(actor);
         actor.CombatStrategyMode = CombatStrategyMode.Flee;
         actor.Send("You resolve to flee combat by any means necessary!");
         actor.OutputHandler.Handle(new EmoteOutput(

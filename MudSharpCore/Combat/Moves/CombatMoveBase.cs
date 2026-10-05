@@ -9,6 +9,19 @@ public abstract class CombatMoveBase : ICombatMove
 {
     private ICharacter _assailant;
 	private bool _executionRejected;
+	internal void RejectUnexecutedCommand() => _executionRejected = true;
+	protected bool CanContinueCommand() => CommandExecutionScope.TryContinue();
+	protected CombatMoveResult RefusedContinuationResult() => CommandExecutionScope.HasCommitted
+		? new CombatMoveResult() : CombatMoveResult.Irrelevant;
+
+	protected bool ApplyOwnedMutation(ICharacter executor, Action mutation)
+	{
+		using var owned = CommandExecutionScope.EnterOwnedOperation(executor);
+		if (!CommandExecutionScope.TryContinue()) return false;
+		CommandExecutionScope.MarkCommitted();
+		mutation();
+		return true;
+	}
 
 	// Internal defender selection can run authored progs after CombatBase's outer gate.
 	protected bool CanContinueAfterInternalResponse(ICombat combat)

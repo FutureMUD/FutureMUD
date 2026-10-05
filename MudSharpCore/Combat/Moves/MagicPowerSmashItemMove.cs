@@ -30,6 +30,8 @@ public sealed class MagicPowerSmashItemMove : WeaponAttackMove, IMagicPowerAttac
 	public override bool UsesStaminaWithResult(CombatMoveResult result) => _committed && !ReferenceEquals(result, CombatMoveResult.Irrelevant);
 	public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
 	{
+		using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterMove(this);
+		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
 		if (_committed || !Power.CanInvokePower(Assailant, Target)) return CombatMoveResult.Irrelevant;
 		_committed = true;
 		Power.UseAttackPower(this);
@@ -43,7 +45,7 @@ public sealed class MagicPowerSmashItemMove : WeaponAttackMove, IMagicPowerAttac
 		{
 			var degree = (int)new OpposedOutcome(roll, Outcome.NotTested).Degree;
 			var damage = Math.Max(0, Attack.Profile.DamageExpression.EvaluateWith(Assailant, values: [("degree", degree), ("quality", 5)])) * 2 * Attack.Profile.BaseAngleOfIncidence / Math.PI;
-			wounds.AddRange(Target.PassiveSufferDamage(new Damage { ActorOrigin = Assailant, DamageType = Attack.Profile.DamageType,
+			wounds.AddRange(Target.CommandSufferDamage(new Damage { ActorOrigin = Assailant, DamageType = Attack.Profile.DamageType,
 				DamageAmount = damage, AngleOfIncidentRadians = Attack.Profile.BaseAngleOfIncidence, PenetrationOutcome = Outcome.NotTested }));
 			wounds.ProcessPassiveWounds();
 			Assailant.Send($"Your attack causes {wounds.Select(x => x.Describe(WoundExaminationType.Glance, Outcome.MajorPass)).ListToString().IfNullOrWhiteSpace("no real damage")} to {Target.HowSeen(Assailant)}.");

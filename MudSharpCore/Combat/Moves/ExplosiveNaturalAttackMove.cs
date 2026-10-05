@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.Combat.ScatterStrategies;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
@@ -47,7 +47,7 @@ public class ExplosiveNaturalAttackMove : NaturalRangedAttackMoveBase
 		ExplosiveDamage damage = BuildExplosionDamage(attackOutcome, bodypart);
 
 		return SelectExplosionVictims(target, ExplosiveAttack.MaximumProximity)
-					 .SelectMany(x => x.Target.PassiveSufferDamage(damage, x.Proximity, Body.Facing.Front))
+					 .SelectMany(x => x.Target.CommandSufferDamage(damage, x.Proximity, Body.Facing.Front))
 					 .ToList();
 	}
 
@@ -91,7 +91,7 @@ public class ExplosiveNaturalAttackMove : NaturalRangedAttackMoveBase
     {
 		var damage = BuildExplosionDamage(attackOutcome, null);
 		SelectScatterExplosionVictims(scatter, Assailant.Gameworld, damage.MaximumProximity)
-			.SelectMany(x => x.Target.PassiveSufferDamage(
+			.SelectMany(x => x.Target.CommandSufferDamage(
 				damage,
 				x.Proximity,
 				(Body.Facing)RandomUtilities.Random(0, 3)))

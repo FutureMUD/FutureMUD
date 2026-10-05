@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.RPG.Checks;
 
 namespace MudSharp.Combat.Moves;
@@ -48,6 +48,8 @@ public class DodgeRangeMove : CombatMoveBase
 
     public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
     {
+		using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterMove(this);
+		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
         // Defensive moves are only obliged to provide a difficulty for recovery, not undertake any other action
         throw new NotSupportedException("Defense Moves should not call ResolveMove.");
     }

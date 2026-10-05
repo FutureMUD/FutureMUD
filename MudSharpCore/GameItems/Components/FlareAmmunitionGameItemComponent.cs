@@ -61,25 +61,42 @@ public class FlareAmmunitionGameItemComponent : AmmunitionGameItemComponent
         OpposedOutcome defenseOutcome, IBodypart bodypart, IGameItem ammo, IRangedWeaponType weaponType,
         IEmoteOutput defenseEmote, RangedFireContext context = null)
     {
-        if (target == null && actor.Location.CurrentOverlay.OutdoorsType == CellOutdoorsType.Outdoors)
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
+        var completion = new ProjectileCustodyCompletion(actor, ammo, target);
+        try
         {
-            // Firing at the sky
-            actor.Location.Zone.AddEffect(
-                new FlareEffect(actor.Location.Zone, _flarePrototype.FlareIllumination,
-                    _flarePrototype.FlareZoneDescription, _flarePrototype.FlareZoneDescriptionColour,
-                    _flarePrototype.FlareEndEmote), _flarePrototype.FlareDuration);
-            actor.Location.Zone.RecalculateLightLevel();
-
-            EmoteOutput emote = new(new Emote(_flarePrototype.FlareBeginEmote, actor));
-            foreach (ICell cell in actor.Location.Zone.Cells.Where(x =>
-                         x.CurrentOverlay.OutdoorsType == CellOutdoorsType.Outdoors))
+            if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor) || !completion.IsUnclaimed) return;
+            var originCell = actor.Location;
+            if (target == null && originCell.CurrentOverlay.OutdoorsType == CellOutdoorsType.Outdoors)
             {
-                cell.Handle(emote);
+                var zone = originCell.Zone;
+                var cells = zone.Cells.ToArray();
+                var effect = new FlareEffect(zone, _flarePrototype.FlareIllumination,
+                    _flarePrototype.FlareZoneDescription, _flarePrototype.FlareZoneDescriptionColour,
+                    _flarePrototype.FlareEndEmote);
+                if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor) || !completion.IsUnclaimed) return;
+                MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted(actor);
+                zone.AddEffect(effect, _flarePrototype.FlareDuration);
+                if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor) || !completion.IsUnclaimed) return;
+                zone.RecalculateLightLevel();
+                EmoteOutput emote = new(new Emote(_flarePrototype.FlareBeginEmote, actor));
+                foreach (ICell cell in cells)
+                {
+                    if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor) || !completion.IsUnclaimed) return;
+                    var outdoors = cell.CurrentOverlay.OutdoorsType == CellOutdoorsType.Outdoors;
+                    if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor) || !completion.IsUnclaimed) return;
+                    if (outdoors) cell.Handle(emote);
+                }
             }
-        }
 
-        base.Fire(actor, target, shotOutcome, coverOutcome, defenseOutcome, bodypart, ammo, weaponType, defenseEmote,
-            context);
+            if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor) || !completion.IsUnclaimed) return;
+            FirePrepared(actor, target, shotOutcome, coverOutcome, defenseOutcome, bodypart, ammo, weaponType,
+                defenseEmote, context, completion);
+        }
+        finally
+        {
+            completion.Finish();
+        }
     }
 
     #endregion

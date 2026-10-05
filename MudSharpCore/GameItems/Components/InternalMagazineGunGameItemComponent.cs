@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
 using MudSharp.Body;
 using MudSharp.Body.Traits;
 using MudSharp.Combat;
@@ -110,6 +110,10 @@ public class InternalMagazineGunGameItemComponent : FirearmBaseGameItemComponent
 
     public override bool CanLoad(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(loader);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return false;
+
+
         if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
         {
             return false;
@@ -133,6 +137,10 @@ public class InternalMagazineGunGameItemComponent : FirearmBaseGameItemComponent
 
     public override string WhyCannotLoad(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(loader);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return string.Empty;
+
+
         if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
         {
             return manipulationReason;
@@ -168,6 +176,10 @@ public class InternalMagazineGunGameItemComponent : FirearmBaseGameItemComponent
 
     protected override void ChamberRound(ICharacter loader)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(loader);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return;
+
+
         if (ChamberedRound != null)
         {
             loader.OutputHandler.Handle(new EmoteOutput(
@@ -212,6 +224,10 @@ public class InternalMagazineGunGameItemComponent : FirearmBaseGameItemComponent
 
     public override void Load(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(loader);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return;
+
+
         if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
         {
             loader?.OutputHandler.Send(manipulationReason);
@@ -229,6 +245,7 @@ public class InternalMagazineGunGameItemComponent : FirearmBaseGameItemComponent
             : _prototype.LoadTemplate.CreatePlan(loader);
 
         IEnumerable<InventoryPlanActionResult> results = plan.ExecuteWholePlan();
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return;
         IAmmo ammo = results.Where(x => (string)x.OriginalReference == "loaditem")
                           .SelectNotNull(x => x.PrimaryTarget.GetItemType<IAmmo>()).First();
         List<IGameItem> exemptions = new();
@@ -264,6 +281,10 @@ public class InternalMagazineGunGameItemComponent : FirearmBaseGameItemComponent
 
     public override bool CanUnload(ICharacter loader)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(loader);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return false;
+
+
         if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
         {
             return false;
@@ -274,6 +295,10 @@ public class InternalMagazineGunGameItemComponent : FirearmBaseGameItemComponent
 
     public override string WhyCannotUnload(ICharacter loader)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(loader);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return string.Empty;
+
+
         if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
         {
             return manipulationReason;
@@ -289,51 +314,47 @@ public class InternalMagazineGunGameItemComponent : FirearmBaseGameItemComponent
 
     public override IEnumerable<IGameItem> Unload(ICharacter loader)
     {
-        if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
-        {
-            return [];
-        }
-
-        if (!CanUnload(loader))
-        {
-            loader.Send(WhyCannotUnload(loader));
-            return Enumerable.Empty<IGameItem>();
-        }
-
-        List<IGameItem> results = new();
-        if (_roundsInMagazine.Count > 1)
-        {
-            loader.OutputHandler.Handle(
-                new EmoteOutput(new Emote(_prototype.UnloadEmote, loader, loader, Parent,
-                    new PerceivableGroup(_roundsInMagazine))));
-        }
-        else
-        {
-            loader.OutputHandler.Handle(new EmoteOutput(new Emote(_prototype.UnloadEmote, loader, loader, Parent,
-                _roundsInMagazine.First())));
-        }
-
-        foreach (IGameItem item in _roundsInMagazine.ToList())
-        {
-            results.Add(item);
-            if (loader.Body.CanGet(item, 0))
-            {
-                loader.Body.Get(item, silent: true);
-            }
-            else
-            {
-                item.RoomLayer = loader.RoomLayer;
-                item.InsertAtSource(loader);
-            }
-        }
-
-        _roundsInMagazine.Clear();
-        Changed = true;
-        return results;
+		using var execution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(loader);
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return [];
+		var canUnload = CanUnload(loader);
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return [];
+		if (!canUnload)
+		{
+			var reason = WhyCannotUnload(loader);
+			if (MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) loader.Send(reason);
+			return [];
+		}
+		var snapshot = _roundsInMagazine.ToArray();
+		var results = new List<IGameItem>();
+		var announced = false;
+		foreach (var item in snapshot)
+		{
+			if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) break;
+			if (!_roundsInMagazine.Any(x => ReferenceEquals(x, item)) || !ComponentUnloadCompletion.OwnedBy(item, Parent)) continue;
+			var completion = ComponentUnloadCompletion.PrepareReceive(loader, item);
+			if (completion is null || !MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) break;
+			if (!announced)
+			{
+				var perceivable = snapshot.Length > 1 ? (IPerceivable)new PerceivableGroup(snapshot) : item;
+				loader.OutputHandler.Handle(new EmoteOutput(new Emote(_prototype.UnloadEmote, loader, loader, Parent, perceivable)));
+				announced = true;
+			}
+			if (!_roundsInMagazine.Any(x => ReferenceEquals(x, item)) || !ComponentUnloadCompletion.Detach(loader, item, Parent,
+				() => _roundsInMagazine.RemoveAll(x => ReferenceEquals(x, item)),
+				() => _roundsInMagazine.Any(x => ReferenceEquals(x, item)))) break;
+			Changed = true;
+			results.Add(item);
+			completion();
+		}
+		return results;
     }
 
     public override bool CanFire(ICharacter actor, IPerceivable target)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return false;
+
+
         if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
         {
             return false;
@@ -344,6 +365,10 @@ public class InternalMagazineGunGameItemComponent : FirearmBaseGameItemComponent
 
     public override string WhyCannotFire(ICharacter actor, IPerceivable target)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return string.Empty;
+
+
         if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
         {
             return manipulationReason;
@@ -357,6 +382,10 @@ public class InternalMagazineGunGameItemComponent : FirearmBaseGameItemComponent
     /// <inheritdoc />
     protected override void HandleShellCasingOnFire(ICharacter actor, SpatialLocation originalLocation, IGameItem casing)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return;
+
+
         if (casing != null)
         {
             if (_prototype.EjectOnFire)
@@ -379,6 +408,10 @@ public class InternalMagazineGunGameItemComponent : FirearmBaseGameItemComponent
 
     public override bool Unready(ICharacter readier)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(readier);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(readier)) return false;
+
+
         if (!CanUnready(readier))
         {
             readier.Send(WhyCannotUnready(readier));

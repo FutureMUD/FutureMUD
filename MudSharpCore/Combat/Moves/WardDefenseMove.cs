@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.RPG.Checks;
 
 namespace MudSharp.Combat.Moves;
@@ -58,6 +58,8 @@ public class WardDefenseMove : CombatMoveBase, IDefenseMove
 
     public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
     {
+		using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterMove(this);
+		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
         throw new NotSupportedException("Defense Moves should not call ResolveMove.");
     }
 

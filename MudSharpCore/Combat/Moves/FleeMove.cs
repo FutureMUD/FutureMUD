@@ -1,4 +1,4 @@
-﻿using MudSharp.Body.Position;
+using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Construction.Boundary;
 using MudSharp.Effects.Concrete;
@@ -46,6 +46,8 @@ public class FleeMove : CombatMoveBase
 
     public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
     {
+		using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterMove(this);
+		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
         if (Assailant.PositionState.MoveRestrictions == MovementAbility.Restricted)
         {
             Assailant.MovePosition(Assailant.PositionState.TransitionOnMovement, PositionModifier.None, null, null,

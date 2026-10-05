@@ -17,7 +17,10 @@ public class PullToMeleeUnarmedMove : NaturalAttackMove
 
 	public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
 	{
+		using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterMove(this);
+		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
 		var result = base.ResolveMove(defenderMove);
+		if (!CanContinueCommand()) return result;
 		var target = PrimaryCharacterTarget;
 		if (target is null || !ShouldResolvePull(result, target))
 		{

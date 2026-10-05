@@ -1,4 +1,5 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
+using MudSharp.NPC.AI;
 using MudSharp.Combat;
 using MudSharp.Combat.Simulation;
 using MudSharp.Combat.Moves;
@@ -545,10 +546,13 @@ public partial class Character
 
     public override bool Engage(IPerceiver target, bool ranged, bool preserveHide = false)
     {
+		using var execution = CommandExecutionScope.EnterBodyOperation(this);
+		if (!CommandExecutionScope.TryContinue(this)) return false;
         if (!CanEngage(target))
         {
             return false;
         }
+        if (!CommandExecutionScope.TryContinue(this)) return false;
 		RemoveAllEffects<MudSharp.Effects.Concrete.AttentionSuppressionEffect>();
 
         ICombat combat;
@@ -565,12 +569,14 @@ public partial class Character
             target.Combat.EndCombat(true);
         }
 
+        if (!CommandExecutionScope.TryContinue(this)) return false;
         bool ambush = target.CanSee(this);
         if (!preserveHide)
         {
             RemoveAllEffects(x => x.IsEffectType<IHideEffect>());
         }
 
+        if (!CommandExecutionScope.TryContinue(this)) return false;
         OutputFlags engageFlags = preserveHide ? OutputFlags.SuppressObscured : OutputFlags.Normal;
 
         // Merge/Create combats and ensure both assailant and target are in the same fight
@@ -589,17 +595,23 @@ public partial class Character
         {
             OutputHandler.Handle(
                 new EmoteOutput(new Emote("@ engage|engages $0 in combat!", this, target), flags: engageFlags));
+            if (!CommandExecutionScope.TryContinue(this)) return false;
             target.HandleEvent(EventType.EngagedInCombat, this, target);
+            if (!CommandExecutionScope.TryContinue(this)) return false;
             HandleEvent(EventType.EngageInCombat, this, target);
-            foreach (IHandleEvents witness in Location.EventHandlersFor(this))
+            foreach (IHandleEvents witness in Location.EventHandlersFor(this).ToArray())
             {
+                if (!CommandExecutionScope.TryContinue(this)) return false;
                 witness.HandleEvent(EventType.EngagedInCombatWitness, this, target, witness);
             }
 
             combat = target.Combat ?? new SimpleMeleeCombat(Gameworld);
         }
 
+        if (!CommandExecutionScope.TryContinue(this)) return false;
+        CommandExecutionScope.MarkCommitted(this);
         combat.JoinCombat(this, ranged ? Difficulty.Automatic : Difficulty.Easy, preserveHide);
+        if (!CommandExecutionScope.TryContinue(this)) return false;
         combat.JoinCombat(target, ambush ? Difficulty.ExtremelyHard : Difficulty.Normal);
 
         if (!combat.Friendly)
@@ -618,6 +630,7 @@ public partial class Character
             }
         }
 
+        if (!CommandExecutionScope.TryContinue(this)) return false;
         // Handle target changes
         IPerceiver oldTarget = CombatTarget;
         CombatTarget = target;
@@ -628,6 +641,7 @@ public partial class Character
             oldTarget?.HandleEvent(EventType.NoLongerTargettedInCombat, this, oldTarget, target);
         }
 
+        if (!CommandExecutionScope.TryContinue(this)) return false;
         if (target.CombatTarget == this && target.MeleeRange)
         {
             EngageAlreadyInMelee();
@@ -649,6 +663,7 @@ public partial class Character
             }
         }
 
+        if (!CommandExecutionScope.TryContinue(this)) return false;
         EffectHandler.RemoveAllEffects(x =>
             x.GetSubtype<Rescue>()?.RescueTarget == CombatTarget ||
             (x.GetSubtype<GuardCharacter>()?.Targets.Contains(CombatTarget) ?? false));
@@ -746,6 +761,7 @@ public partial class Character
 
     public override bool TakeOrQueueCombatAction(ISelectedCombatAction action)
     {
+        if (!CommandExecutionScope.TryContinue(this)) return false;
         if (AffectedBy<IdleCombatant>())
         {
             Combat?.CombatAction(this, action.GetMove(this));
@@ -765,6 +781,7 @@ public partial class Character
         get => _meleeRange;
         set
         {
+            if (!CommandExecutionScope.TryContinue(this)) return;
             if (_meleeRange != value && CombatStrategyMode != CombatStrategyMode.Flee)
             {
                 CombatStrategyMode = value ? CombatSettings.PreferredMeleeMode : CombatSettings.PreferredRangedMode;
@@ -773,9 +790,12 @@ public partial class Character
             if (value)
             {
                 Movement?.CancelForMoverOnly(this);
+                if (!CommandExecutionScope.TryContinue(this)) return;
                 QueuedMoveCommands.Clear();
                 EffectHandler.RemoveAllEffects(x => x.IsEffectType<IRemoveOnMeleeCombat>(), true);
+                if (!CommandExecutionScope.TryContinue(this)) return;
                 Body.RemoveAllEffects(x => x.IsEffectType<IRemoveOnMeleeCombat>(), true);
+                if (!CommandExecutionScope.TryContinue(this)) return;
                 Cover?.ReleaseEvents();
                 Cover = null;
             }
@@ -784,6 +804,7 @@ public partial class Character
                 HandleEvent(EventType.NoLongerEngagedInMelee, this);
             }
 
+            if (!CommandExecutionScope.TryContinue(this)) return;
             _meleeRange = value;
         }
     }

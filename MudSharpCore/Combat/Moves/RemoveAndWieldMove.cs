@@ -1,4 +1,4 @@
-﻿using MudSharp.GameItems;
+using MudSharp.GameItems;
 using MudSharp.RPG.Checks;
 
 namespace MudSharp.Combat.Moves;
@@ -18,6 +18,8 @@ public class RemoveAndWieldMove : CombatMoveBase
 
     public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
     {
+		using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterMove(this);
+		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
         Assailant.Body.RemoveItem(Item.Parent, null, ignoreFlags: ItemCanGetIgnore.IgnoreWeight);
         Assailant.Body.Wield(Item.Parent);
         return new CombatMoveResult

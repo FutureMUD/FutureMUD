@@ -246,8 +246,10 @@ def configuration_updates(discord_port):
             "UPDATE StaticConfigurations SET Definition='127.0.0.1' WHERE SettingName='DiscordBotIpAddress'",
             f"UPDATE StaticConfigurations SET Definition='{discord_port}' WHERE SettingName='DiscordBotPort'"]
 
-def gather(session, phase):
-    amount = int(installed['gather_amount'])
+def gather(session, phase, amount=None, reason='phase casting budget'):
+    maximum = int(installed['gather_amount'])
+    amount = maximum if amount is None else amount
+    require(type(amount) is int and 0 < amount <= maximum, 'Gathering amount exceeds the finite authored acceptance budget.')
     c, cap, resource = (int(installed[k]) for k in ('character','capability','resource'))
     before = installed_state()['balance']
     require(before+amount <= float(installed['native_capacity']), 'Gathering would exceed actual seeded attribute capacity.')
@@ -264,7 +266,7 @@ def gather(session, phase):
         flush(session)
         rows = [x for x in decoded_text_rows(gathering_query(), [0,1,2]) if x[0] not in old]
         if rows: break
-    record = {'phase':phase,'before':before,'rows':rows,'elapsed_seconds':time.monotonic()-action_start}
+    record = {'phase':phase,'before':before,'requested_amount':amount,'reason':reason,'rows':rows,'elapsed_seconds':time.monotonic()-action_start}
     receipt.setdefault('gathering',[]).append(record)
     require(len(rows)==1 and rows[0][1:3]==['Completed','Self'], 'Timed paid Self gathering did not complete exactly once.')
     require(float(rows[0][3])==amount and float(rows[0][4])==1 and rows[0][5:]==['1','1','1'], 'Paid gathering accounting/cost receipt mismatch.')
@@ -277,6 +279,12 @@ def cast(session, phase, route):
     command = f'armsense cast "Sense Enchantment" grade 1 on self via {cap}' if route=='command' else f'say wek fm-self fm-magic fm-detect fm-open on self via {cap}'
     for attempt in range(1,4):
         before = installed_state()
+        if before['balance']==0:
+            # The installed grade-one Say route costs 50, independently checked below.
+            # Fund one permitted paid attempt through the same native two-second Self action.
+            gather(session,phase,50,'depleted bounded casting attempt')
+            before = installed_state()
+        require(before['balance']>=50, 'Installed grade-one casting budget is insufficient before its bounded paid attempt.')
         old = {x[0] for x in operations()}
         output = session.send(command, read_seconds=1)
         flush(session)
@@ -290,7 +298,7 @@ def cast(session, phase, route):
         require(payload.get('grade')=='1' and payload.get('controlledGrade')=='1' and payload.get('masteryEligible')=='false', 'Unexpected grade/overreach/mastery receipt.')
         require(speech is not None and speech.get('kind')==('GeneratedCasting' if route=='command' else 'PlayerInput') and speech.get('method')=='Say' and speech.get('language')==str(installed['language']), 'Native speech route/language receipt mismatch.')
         costs = [x for x in payload.findall('Cost') if x.get('resource')==str(resource)]
-        require(len(costs)==1 and float(costs[0].get('amount'))>0, 'Exactly one positive reserve cost required.')
+        require(len(costs)==1 and float(costs[0].get('amount'))==50, 'Installed grade-one Say route must retain exactly one source-bound 50-unit reserve cost.')
         after = installed_state()
         record['after'] = after
         record['reserve_debit'] = float(costs[0].get('amount'))
@@ -302,6 +310,10 @@ def cast(session, phase, route):
             assertions.append(phase+': '+route+' real grade-one casting, one paid operation/debit, native Sense effect')
             return
         require(payload.get('outcome') in ('MinorFail','Fail','MajorFail'), 'Non-random native effect failure requires investigation.')
+        require([(x['identity'],x['child_types']) for x in after['parents']]==[(x['identity'],x['child_types']) for x in before['parents']],
+                'Ordinary paid random failure changed native Sense effect identity/children.')
+        record['ordinary_paid_failure'] = True
+        assertions.append(phase+': '+route+' ordinary paid random failure retained its debit and existing Sense identity/children')
     raise RuntimeError('Three ordinary paid random failures exhausted the finite casting bound; no success certificate.')
 
 def exercise_installed(session, phase):

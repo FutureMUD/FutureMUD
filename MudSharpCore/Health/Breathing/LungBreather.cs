@@ -25,9 +25,7 @@ public class LungBreather : IBreathingStrategy
         }
 
         IFluid breathingFluid = BreathingFluid(body);
-        bool additionalBreathing = body.CombinedEffectsOfType<IAdditionalBreathableFluidEffect>()
-            .Any(x => x.Applies() && x.AppliesToFluid(breathingFluid));
-        if (!BreathingStrategyHelper.CanBreatheFluid(body, breathingFluid) && !additionalBreathing)
+        if (!BreathingStrategyHelper.CanBreatheFluid(body, breathingFluid, includeLegacyMagic: true))
         {
             return false;
         }

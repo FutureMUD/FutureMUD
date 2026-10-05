@@ -12,19 +12,25 @@ public partial class DispelMagicEffect
 		SpellPower power, IMagicSpellEffectParent parent, SpellAdditionalParameter[] additionalParameters)
 	{
 		if (target is null) return new(MagicEffectOperationStatus.Rejected, null);
+		if (Mode == DispelMagicMode.Shorten && ShortenDuration.Ticks <= 0)
+			return new(MagicEffectOperationStatus.NoChange, null);
 		var targets = target.EffectsOfType<IDispelMagicProxyEffect>().SelectMany(x => x.AdditionalDispelTargets)
 			.Where(x => x is not null).Prepend(target).Distinct().ToArray();
 		var before = targets.SelectMany(owner => owner.EffectsOfType<MagicSpellParent>()
 			.Where(parent => MatchesParent(caster, parent) && MatchesContest(power, outcome, parent))
-			.Select(parent => (Owner: owner, Parent: parent, Duration: Duration(parent)))).ToArray();
+			.Select(parent => (Owner: owner, Parent: parent, Boundary: Boundary(parent)))).ToArray();
 		GetOrApplyEffect(caster, target, outcome, power, parent, additionalParameters);
-		return new(before.Any(x => !x.Owner.EffectsOfType<MagicSpellParent>().Contains(x.Parent) ||
-			Mode == DispelMagicMode.Shorten && Duration(x.Parent) < x.Duration)
-			? MagicEffectOperationStatus.Applied : MagicEffectOperationStatus.NoChange, null);
+		if (before.Any(x => !x.Owner.EffectsOfType<MagicSpellParent>().Contains(x.Parent) ||
+			Mode == DispelMagicMode.Shorten && x.Boundary is {} original && Boundary(x.Parent) is {} current && current < original))
+			return new(MagicEffectOperationStatus.Applied, null);
+		// A real observed removal/expiry reduction wins even if another scheduler target
+		// is unobservable. Otherwise preserve uncertainty rather than invent application.
+		return new(Mode == DispelMagicMode.Shorten && before.Any(x => x.Boundary is null || Boundary(x.Parent) is null)
+			? MagicEffectOperationStatus.Unknown : MagicEffectOperationStatus.NoChange, null);
 	}
 
-	// Scheduled duration is stable during ordinary clock countdown. Comparing remaining
-	// time would report a no-op as applied merely because time elapsed between reads.
-	private double Duration(MagicSpellParent parent) => parent is SubstanceExposureEffect { IsTimed: true } substance
-		? substance.RemainingSeconds : Gameworld.EffectScheduler.OriginalDuration(parent).TotalSeconds;
+	private decimal? Boundary(MagicSpellParent parent) => parent is SubstanceExposureEffect substance
+		? substance.IsTimed ? (decimal)substance.RemainingSeconds : decimal.MaxValue
+		: Gameworld.EffectScheduler is IEffectExpiryObserver observer
+			? observer.ScheduledExpiry(parent)?.Ticks ?? decimal.MaxValue : null;
 }

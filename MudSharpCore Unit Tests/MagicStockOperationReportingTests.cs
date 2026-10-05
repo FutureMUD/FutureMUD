@@ -123,9 +123,9 @@ public class MagicStockOperationReportingTests
 
 	[DataTestMethod]
 	[DataRow(0, false, MagicEffectOperationStatus.NoChange)]
-	[DataRow(1, false, MagicEffectOperationStatus.NoChange)]
-	[DataRow(1, true, MagicEffectOperationStatus.Applied)]
-	public void Dispel_CountdownAloneIsNotApplication(int mode, bool shortens, MagicEffectOperationStatus expected)
+	[DataRow(1, false, MagicEffectOperationStatus.Unknown)]
+	[DataRow(1, true, MagicEffectOperationStatus.Unknown)]
+	public void Dispel_CountdownAndUnobservableSchedulerDoNotInventApplication(int mode, bool shortens, MagicEffectOperationStatus expected)
 	{
 		var f = new MagicCastingFixture(); var parent = new MagicSpellParent(f.Actor.Object, f.Spell, f.Actor.Object);
 		f.Actor.Setup(x => x.EffectsOfType<MagicSpellParent>(It.IsAny<Predicate<MagicSpellParent>>())).Returns([parent]);

@@ -47,3 +47,8 @@ Stop after this local checkpoint for coordinator review. The finite continuation
 ## Checkpoint09: three bounded d882 P2 corrections
 
 Cross-layer receipt travel, callback-time ordinary Get compatibility/title/custody, and actual firearm-ready result/stamina are repaired. Focused253 and FullFast7475 passed. Thirteen native cases and four fresh native stack readers passed; failed attempts, exact frozen inputs and owned cleanup are retained. The [checkpoint report](Armageddon_OrderedNpc_RegressionP2_Checkpoint.md) states the limits. The separately requested Check stale-write correction is co-tested and kept in its own commit. Valid native stack absorbed-source conservation, active-Sense consumption/removal, the broader component/boarding/countershot matrix and actual selected-melee Check fault remain open. Stop for parent review; whole-plan completion remains false.
+
+
+## Checkpoint10: separate valid-callback stale Check write correction
+
+Trait mutation generations preserve independent/direct and ABA callback writes while refusing stale owned learning candidates, truthful reporting and enclosing commit state. Thirteen new cases passed within Focused253 and FullFast7475. The [separate correction report](Armageddon_OrderedNpc_CheckStaleWrite_Checkpoint.md) states that new native stale-write injection and actual selected-melee fault remain NOT RUN; historical configured-cast scope does not prove an actual cast. Stop for parent review. Active-Sense removal, valid-stack conservation and the broader component/boarding/countershot/full-plan gates remain open. Calm pair cessation requires current post-victim-removal state and another-opponent regression; shared hooks remain untouched and endurance/break defaults await Luke.

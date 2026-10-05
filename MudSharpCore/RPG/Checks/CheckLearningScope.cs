@@ -48,7 +48,13 @@ internal sealed class CheckLearningScope : IDisposable
 			// inside cap callbacks are separate writes, even to this same canonical trait.
 			CurrentWrite.Value = null;
 		}
-		internal bool CanContinue() => _write?.Scope?._continue?.Invoke() != false;
+		internal bool CanContinue()
+		{
+			if (_write?.Scope?._continue?.Invoke() == false) return false;
+			// Authority/cap callbacks may make a separate valid write to the same trait.
+			// Refuse this stale candidate even when the original order remains valid.
+			return _write is null || _write.MutationVersion == (_write.Trait as Trait)?.ValueMutationVersion;
+		}
 		internal void Resume() { if (_write is not null) CurrentWrite.Value = _write; }
 		internal void RecordChange(bool changed) { if (_write is not null) _write.Applied = changed; }
 		public void Dispose() { if (_write is not null) CurrentWrite.Value = _write; }
@@ -61,10 +67,12 @@ internal sealed class CheckLearningScope : IDisposable
 		private readonly TraitWrite? _previous;
 		internal readonly ITrait Trait;
 		internal readonly CheckLearningScope? Scope;
+		internal readonly ulong? MutationVersion;
 		internal bool Applied;
 		internal TraitWrite(ITrait trait, IHaveTraits user)
 		{
 			Trait = trait;
+			MutationVersion = (trait as Trait)?.ValueMutationVersion;
 			Scope = ReferenceEquals(Current.Value?._user, user) ? Current.Value : null;
 			_previous = CurrentWrite.Value;
 			CurrentWrite.Value = this;

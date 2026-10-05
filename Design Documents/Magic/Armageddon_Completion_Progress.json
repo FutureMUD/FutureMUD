@@ -39,7 +39,7 @@
   "preparation_baseline": "b0e4339d57bf15bc6e6a6f21fbdd5edc73006e38",
   "implementation_branch": "codex/armageddon-completion-phase1",
   "authorised_scope": "Complete plan in coherent stages; local commits; no publication, merge, deploy or shared/production DB",
-  "selected_stage": "Three d882 P2 repairs verified; separate Check stale-write correction co-tested and pending its own local commit; stop for parent review",
+  "selected_stage": "Three d882 P2 repairs and separate Check stale-write correction verified; stop for parent review; active-Sense consumption/removal and broader native gates remain open",
   "phase1_remaining": [
     "Stock installer selects and qualifies the mental/spiritual native attribute, capacity expression/basis and authored energy coefficients.",
     "Complete installed source/support/crafting/chargen wiring and gathering restrictions/environmental accounting remain later stock/native gates.",
@@ -3564,6 +3564,14 @@
       "focused_passed": 253,
       "fast_passed": 7475,
       "whole_plan_complete": false
+    },
+    {
+      "id": "Armageddon_OrderedNpc_CheckStaleWrite",
+      "status": "PASS_MANAGED_STALE_WRITE_CORRECTION_REVIEW_PENDING",
+      "receipt": "Design Documents/Magic/Armageddon_OrderedNpc_CheckStaleWrite_Verification.json",
+      "focused_passed": 253,
+      "fast_passed": 7475,
+      "whole_plan_complete": false
     }
   ],
   "implementation_commits": [
@@ -3690,7 +3698,7 @@
   ],
   "next_checkpoint": {
     "status": "STOP_FOR_PARENT_BOUNDED_REGRESSION_REVIEW",
-    "receipt": "Design Documents/Magic/Armageddon_OrderedNpc_RegressionP2_Verification.json",
+    "receipt": "Design Documents/Magic/Armageddon_OrderedNpc_CheckStaleWrite_Verification.json",
     "remaining": [
       {
         "id": "historical-stack-conservation",
@@ -3724,7 +3732,7 @@
       }
     ],
     "priority_after_review": "Persisted active-Sense food consumption/removal before broader optional authority coverage",
-    "exact_local_commit_receipt": "Task Armageddon_p2_CommitReceipt.json",
+    "exact_local_commit_receipt": "Task Armageddon_check_CommitReceipt.json",
     "full_plan_complete": false,
     "publication_authorized": false,
     "comprehensive_queued_authority_cleared": false
@@ -4600,6 +4608,65 @@
           "scope": "PC charm N13, stock/device/provision integration, eight larger features, production/repertoire/installer and all remaining native release gates. Sibling installer reports Pierce and seven of82 closed admissions, prepared-world entry/guide only; new provision installation remains gated on active-Sense persisted removal repair. Installer owns SeederMetadataRegistry.cs and DebugSeederReplay.cs; no runtime overlap"
         }
       ]
+    },
+    "check_stale_write_correction": {
+      "status": "PASS_MANAGED_STALE_WRITE_CORRECTION_REVIEW_PENDING",
+      "focused": {
+        "status": "PASS",
+        "run_id": "20261005T152618Z-c64b8b2ab84a",
+        "summary": ".artifacts/test-runs/regression-p2-focused08/20261005T152618Z-c64b8b2ab84a/summary.json",
+        "summary_sha256": "7ba919b998a2304ef21a9187458737b1316234586d9c913d440be0387719daa2",
+        "counts": {
+          "executed": 253,
+          "passed": 253,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 253
+        },
+        "source_start": "3a2ee9f211821a8d1445d458655ca1774f796853a4654de3f9a173c2e13cf199",
+        "source_stable": true,
+        "projects": [
+          "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+        ]
+      },
+      "fast": {
+        "status": "PASS",
+        "run_id": "20261005T152716Z-7ef0af812f3c",
+        "summary": ".artifacts/test-runs/regression-p2-fast03/20261005T152716Z-7ef0af812f3c/summary.json",
+        "summary_sha256": "070eacd971a3364ddb005dd5efc0b0ff1553057d77067ed14895cf71fc6e33c0",
+        "counts": {
+          "executed": 7475,
+          "passed": 7475,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 7475
+        },
+        "source_start": "42af0b0dd04619837d181cde70bd2b2a8068133710efc1dbf8782315f78c7139",
+        "source_stable": true,
+        "projects": [
+          "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+          "ExpressionEngine Unit Tests/ExpressionEngine Unit Tests.csproj",
+          "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+          "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+          "MudsharpDatabaseLibrary Unit Tests/MudsharpDatabaseLibrary Unit Tests.csproj",
+          "DiscordBotCore Unit Tests/DiscordBotCore Unit Tests.csproj",
+          "RPI Engine Worldfile Converter Tests/RPI Engine Worldfile Converter Tests.csproj",
+          "FutureMUD.Web.Tests/FutureMUD.Web.Tests.csproj",
+          "TerrainPlanner/TerrainPlanner.Tests/TerrainPlanner.Tests.csproj",
+          "scripts/TestReporting.Tests/TestReporting.Tests.csproj"
+        ]
+      },
+      "new_regression_cases": 13,
+      "native_new_stale_write_injection": "NOT_RUN",
+      "source_review": {
+        "status": "No remaining established P1/P2 in bounded correction",
+        "reviewer": "fm_reviewer",
+        "mode": "SOURCE_ONLY"
+      }
     }
   }
 }

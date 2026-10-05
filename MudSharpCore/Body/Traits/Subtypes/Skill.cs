@@ -51,10 +51,11 @@ public class Skill : Trait, ISkill
 		}
 		// Evaluate the clamped getter before claiming the final native assignment:
 		// cap callbacks can legitimately write the same canonical skill independently.
+		var mutationVersion = ValueMutationVersion;
 		var nextValue = castingCap.HasValue
 			? _value + Math.Min(improvement, castingCap.Value - _value)
 			: Value + improvement;
-		if (!CheckLearningScope.CanContinue(user)) return false;
+		if (!CheckLearningScope.CanContinue(user) || ValueMutationVersion != mutationVersion) return false;
 		using var write = CheckLearningScope.EnterTraitWrite(this, user);
 		Value = nextValue;
         return write.Applied;

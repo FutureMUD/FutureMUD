@@ -18,6 +18,8 @@ public abstract class Trait : FrameworkItem, ITrait
     protected IHaveTraits _owner;
 
     protected double _value;
+	private ulong _valueMutationVersion;
+	internal ulong ValueMutationVersion => _valueMutationVersion;
 
     protected Trait(MudSharp.Models.Trait trait, IHaveTraits owner)
     {
@@ -46,6 +48,7 @@ public abstract class Trait : FrameworkItem, ITrait
             if (!write.CanContinue()) return;
             double oldVal = _value;
             _value = value;
+			if (_value != oldVal) ++_valueMutationVersion;
             write.RecordChange(_value != oldVal);
             if (_value != oldVal)
             {

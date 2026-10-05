@@ -23,13 +23,15 @@ namespace FutureMUD.GatheringNativePersistenceHarness;
 internal static partial class GNHProgram
 {
 	private static void LoadTraditionNative(NativeRuntime native, TestDatabase database, ArmageddonMagicInstallPlan utilityPlan,
-		IReadOnlyDictionary<string, long> utilityIds, IReadOnlyDictionary<string, long> ids, int admissions = 3, IReadOnlyDictionary<string, long>? provisionIds = null)
+		IReadOnlyDictionary<string, long> utilityIds, IReadOnlyDictionary<string, long> ids, int admissions = 3,
+		IReadOnlyDictionary<string, long>? provisionIds = null, IReadOnlyDictionary<string, long>? perceptionIds = null)
 	{
 		var world = native.World; using var db = NewIndependentContext(database.ConnectionString);
 		var progs = (All<IFutureProg>)world.FutureProgs;
 		var progIds = utilityIds.Where(x => x.Key.EndsWith(".eligibility")).Select(x => x.Value)
 			.Append(utilityPlan.AlwaysFalseProg).Append(utilityPlan.MendEligibilityProg).Append(db.FutureProgs.Single(x => x.FunctionName == "traditionAlwaysTrue").Id)
 			.Concat(provisionIds?.Where(x => x.Key.EndsWith(".eligibility")).Select(x => x.Value) ?? [])
+			.Concat(perceptionIds?.Where(x => x.Key.EndsWith(".eligibility")).Select(x => x.Value) ?? [])
 			.Concat(db.FutureProgs.Where(x => x.Subcategory == "Installed Provisions").Select(x => x.Id)).ToArray();
 		foreach (var model in db.FutureProgs.Include(x => x.FutureProgsParameters).AsNoTracking().Where(x => progIds.Contains(x.Id)))
 			if (progs.Get(model.Id) is null) { var prog = new FutureProg(model, world); Require(prog.Compile(), prog.CompileError); progs.Add(prog); }
@@ -52,7 +54,9 @@ internal static partial class GNHProgram
 		SetPrivateField(native.Actor, "_characterTraits", db.CharacterTraits.AsNoTracking().Where(x => x.CharacterId == native.Actor.Id).ToArray()
 			.Select(x => CastingRequired(traits.Get(x.TraitDefinitionId)).LoadTrait(new MudSharp.Models.Trait { Value = x.Value, AdditionalValue = x.AdditionalValue }, native.Actor)).ToList());
 		var spells = (All<IMagicSpell>)world.MagicSpells;
-		foreach (var id in utilityPlan.SpellSkills.Keys.Select(x => utilityIds[x]).Concat(provisionIds?.Where(x => x.Key is ArmageddonReviewedProvisionContent.SustainMealKey or ArmageddonReviewedProvisionContent.DrawWineKey).Select(x => x.Value) ?? []))
+		foreach (var id in utilityPlan.SpellSkills.Keys.Select(x => utilityIds[x])
+			.Concat(provisionIds?.Where(x => x.Key is ArmageddonReviewedProvisionContent.SustainMealKey or ArmageddonReviewedProvisionContent.DrawWineKey).Select(x => x.Value) ?? [])
+			.Concat(perceptionIds?.Where(x => x.Key == ArmageddonReviewedPierceContent.Key).Select(x => x.Value) ?? []))
 		{
 			if (spells.Get(id) is { } previous) spells.Remove(previous);
 			var spell = new MagicSpell(db.MagicSpells.AsNoTracking().Single(x => x.Id == id), world);

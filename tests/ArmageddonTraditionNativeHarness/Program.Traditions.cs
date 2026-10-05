@@ -49,6 +49,8 @@ internal static partial class GNHProgram
 			"--traditions-provisions-run" => TraditionNative(true), "--traditions-provisions-reader" => ProvisionInstallerRestart(args[1]),
 			"--traditions-custody-run" => TraditionNative(true, true),
 			"--traditions-custody-reader" => ProvisionCustodyRestart(args[1]),
+			"--traditions-pierce-run" => TraditionNative(true, false, true),
+			"--traditions-pierce-reader" => InstalledPierceRestart(args[1]),
 			"--traditions-direct-run" => RunCastingAcceptanceChecks(),
 			"--traditions-progression-run" => RunCompletionProgressionAcceptanceChecks(),
 			"--traditions-support-run" => RunSupportProgressionAcceptanceChecks(),
@@ -67,7 +69,7 @@ internal static partial class GNHProgram
 		using var db = NewIndependentContext(database.ConnectionString);
 		return PlayerSnapshot(database) + JsonSerializer.Serialize(db.PerceiverMerits.AsNoTracking().OrderBy(x => x.MeritId).ToArray());
 	}
-	private static int TraditionNative(bool provisions = false, bool reproduceCustody = false)
+	private static int TraditionNative(bool provisions = false, bool reproduceCustody = false, bool pierce = false)
 	{
 		using var globals = new ConsumableGlobals(); using var database = TestDatabase.CreateFresh("futuremud_land_"); ConfigureNativeDatabase(database.ConnectionString);
 		var fixture = FixtureSeed.Create(database, "arm_traditions_lane", true); var clock = new HarnessClock(); using var time = RuntimeClock.Push(clock);
@@ -162,12 +164,15 @@ internal static partial class GNHProgram
 		Require(players == TraditionPlayers(database), "Reconciliation touched players.");
 		Console.WriteLine("ARMTRAD-ownership=passed stable-IDs builder-edit clone deletion retirement competing-claim full-transaction no-player-refresh");
 		var expanded = provisions ? InstallProvisionExtension(database, plan, ids) : null;
+		var perception = pierce ? InstallPierceExtension(database, expanded!, ids) : null;
+		if (perception is not null) expanded = expanded! with { Traditions = perception.Traditions };
 		if (expanded is not null) plan = expanded.Traditions;
 		var host = PrepareRetirementHost(database, fixture, clock, wielding: true, consumablesAnatomy: true); var native = host.Native;
 		Require(native.World.Traits.Any(x => x.Group == "ARM02") && !native.World.Traits.Any(x => x.Group == "Armageddon Spell"), "Default shared fixture trait selection changed.");
-		LoadTraditionNative(native, database, utilityPlan, utilities.Identities, ids, expanded is null ? 3 : 6, expanded?.Identities);
+		LoadTraditionNative(native, database, utilityPlan, utilities.Identities, ids, expanded is null ? 3 : perception is null ? 6 : 7, expanded?.Identities, perception?.Identities);
 		VerifyInstalledTraditionProgression(native, database, plan, ids, clock);
-		if (expanded is not null) VerifyProvisionExtension(host, database, fixture, clock, utilityPlan, utilities.Identities, ids, expanded, reproduceCustody);
+		if (perception is not null) VerifyInstalledPierce(host, database, fixture, clock, utilityPlan, utilities.Identities, ids, expanded!, perception);
+		else if (expanded is not null) VerifyProvisionExtension(host, database, fixture, clock, utilityPlan, utilities.Identities, ids, expanded, reproduceCustody);
 		return 0;
 	}
 

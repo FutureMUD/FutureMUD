@@ -35,3 +35,8 @@ MudSharpCore/Combat/Moves/MultiTargetCombatMove.cs 9464a2749878b05d8e0f45865f8d5
 MudSharpCore/GameItems/Components/FirearmBaseGameItemComponent.cs 6e3d34e0578ee87a80b843fc9e6d2b2a6bc7a4d695ad8937cf7a93b9671639e0
 MudSharpCore/Effects/Concrete/PsychicEmotionEffect.cs 6c1da57fe2f612526999fdc6399379d1bb98b3f544995e9532e81d56f7b3cfb3
 ```
+
+
+## Implementation follow-up
+
+The planning evidence above is retained. The shared runtime allocation is now implemented in the [emotional combat hooks dependency checkpoint](Armageddon_Emotional_Combat_Hooks.md), with bounded managed/native qualification and explicit unsupported caller scope. Actual stock emotional activation remains pending.

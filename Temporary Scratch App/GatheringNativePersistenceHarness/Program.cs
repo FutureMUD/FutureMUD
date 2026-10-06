@@ -58,6 +58,10 @@ internal static partial class GNHProgram
 			return args switch
 			{
 				["--probe"] => Probe(),
+				["--emotional-melee-run"] => RunEmotionalHooks("melee"),
+				["--emotional-firearm-run"] => RunEmotionalHooks("firearm"),
+				["--emotional-countershot-run"] => RunEmotionalHooks("countershot"),
+				["--emotional-cessation-run"] => RunEmotionalHooks("cessation"),
 				["--schema"] => InspectFreshSchema(),
 				["--run"] => RunAcceptanceChecks(),
 				["--casting-run"] => RunAllCastingAcceptanceChecks(),

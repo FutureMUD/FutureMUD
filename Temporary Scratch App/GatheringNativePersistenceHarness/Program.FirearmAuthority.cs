@@ -193,6 +193,11 @@ internal static partial class GNHProgram
 			var shot = (GameItem)gun.ChamberedRound!.Parent; var spare = gun.MagazineContents.Single();
 			Require(rounds.Contains(shot) && rounds.Contains(spare) && shot != spare && rounds.All(x => x.ContainedIn == gunItem), "Native reload must conserve exact distinct chamber and magazine identities.");
 			Read("loaded-chambered");
+			if (_emotionalHooks && scenario == "ordered-valid")
+			{
+				RunEmotionalFirearmControls(actor, foe, gun);
+				shot = (GameItem)gun.ChamberedRound!.Parent; spare = gun.MagazineContents.Single(); Read("emotional-controls-restored");
+			}
 			void Expire()
 			{
 				var origin = service.CommandGrant(actor.InstanceId, caster.Id)!;
@@ -232,7 +237,9 @@ internal static partial class GNHProgram
 				Require(move is RangedWeaponAttackMove && CommandExecutionAuthority.IsOrdered(move) == !direct, "Actual ChooseMove must select native ranged attack with exact controller provenance.");
 				if (scenario == "queued-revoked") Expire();
 				body.CurrentStamina = 100; world.SaveManager.Flush(); var before = foe.Body.Wounds.Sum(x => x.CurrentDamage + x.CurrentPain + x.CurrentStun);
+				using var emotional = _emotionalHooks ? new EmotionalProbeLease(foe) : null;
 				resolving = true; try { actor.Combat!.CombatAction(actor, move); } finally { resolving = false; }
+				emotional?.Verify("firearm-" + scenario, scenario is not ("queued-revoked" or "component-policy-revoked"));
 				var fired = scenario is not ("queued-revoked" or "component-policy-revoked");
 				var hit = fired && scenario != "ordered-miss"; var after = foe.Body.Wounds.Sum(x => x.CurrentDamage + x.CurrentPain + x.CurrentStun);
 				Require(Same(actor.CurrentStamina, fired ? 97 : 100) && Same(gunItem.Condition, fired ? 0.99 : 1), $"Accepted shots must pay exactly3 stamina and0.01 condition once: {scenario} stamina:{actor.CurrentStamina} condition:{gunItem.Condition}.");

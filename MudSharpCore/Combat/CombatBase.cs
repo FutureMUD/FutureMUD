@@ -14,7 +14,7 @@ using MudSharp.RPG.Checks;
 
 namespace MudSharp.Combat;
 
-public abstract class CombatBase : ICombat
+public abstract partial class CombatBase : ICombat
 {
     protected HashSet<ICell> CombatCells { get; } = new();
     protected static ITraitExpression RecoveryTimeExpression { get; set; }

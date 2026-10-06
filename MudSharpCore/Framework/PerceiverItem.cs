@@ -17,7 +17,7 @@ using System.Globalization;
 
 namespace MudSharp.Framework;
 
-public abstract class PerceiverItem : PerceivedItem, IPerceiver
+public abstract partial class PerceiverItem : PerceivedItem, IPerceiver
 {
     protected PerceiverItem()
     {
@@ -131,6 +131,7 @@ public abstract class PerceiverItem : PerceivedItem, IPerceiver
             }
 
             _combat = value;
+            CombatMutationVersion++;
             if (_combat != null)
             {
                 PerceiverJoinCombat();
@@ -161,6 +162,7 @@ public abstract class PerceiverItem : PerceivedItem, IPerceiver
 
             if (this is ICharacter current && !CommandExecutionScope.TryContinue(current)) return;
             _combatTarget = value;
+            CombatMutationVersion++;
         }
     }
 
@@ -183,6 +185,7 @@ public abstract class PerceiverItem : PerceivedItem, IPerceiver
 
             if (this is ICharacter current && !CommandExecutionScope.TryContinue(current)) return;
             _aim = value;
+            CombatMutationVersion++;
             if (_aim != null)
             {
                 _aim.AimInvalidated -= Aim_AimInvalidated;

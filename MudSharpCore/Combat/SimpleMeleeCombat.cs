@@ -7,7 +7,7 @@ using MudSharp.RPG.Checks;
 
 namespace MudSharp.Combat;
 
-public class SimpleMeleeCombat : CombatBase
+public class SimpleMeleeCombat : CombatBase, ICombatSelectiveCessation
 {
     public SimpleMeleeCombat(IFuturemud gameworld)
     {

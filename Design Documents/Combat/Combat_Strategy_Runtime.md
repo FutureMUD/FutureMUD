@@ -344,3 +344,8 @@ Ordered selected actions and their unchanged native moves also retain the exact 
 The outer CombatBase gate does not cover callbacks invoked later inside ResolveMove. RetrieveItemMove, StandMove, ChangePositionMove and RepositionMove snapshot internal response targets and recheck immutable command authority plus exact combat participation after each response and immediately before mutation. Retrieve additionally checks after removing no-get effects. Rejected moves return Irrelevant and charge no action stamina; valid direct commands retain their existing behavior. Magic-defense selection snapshots effects before eligibility Progs and discards effects removed by those callbacks, allowing actual combat departure to finish without a collection-enumeration exception.
 
 This is a bounded correction. Remaining attack/manual/message/defence-Prog callback gaps and independent-defender boundaries are explicit in [the callback audit](../Magic/Armageddon_QueuedCommand_Callback_Audit.md); comprehensive queued-command authority remains open.
+
+
+## Optional emotional combat hooks
+
+SimpleMeleeCombat and ProgCombat provide prepared selective cessation while preserving ordinary ICombat/LeaveCombat APIs. Admitted attack notification is opt-in and occurs at supported native attack/component boundaries, including misses. Native mutation generations protect exact captured fields from ABA and callback-created replacements. See [the API, caller scope and bounded qualification](../Magic/Armageddon_Emotional_Combat_Hooks.md). Actual stock Fury/Calm activation remains pending.

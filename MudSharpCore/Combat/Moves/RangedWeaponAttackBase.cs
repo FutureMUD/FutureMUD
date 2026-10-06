@@ -131,6 +131,7 @@ public abstract class RangedWeaponAttackBase : CombatMoveBase, IRangedWeaponAtta
     {
 		using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterMove(this);
 		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
+		using var hostileAttempt = HostileAttackAdmission.BeginAttempt(Assailant, CharacterTargets.FirstOrDefault());
 		defenderMove = MagicDefenseMove.Revalidate(defenderMove, this);
 		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
         IPerceiver target = CharacterTargets.FirstOrDefault() ?? _targets.FirstOrDefault();

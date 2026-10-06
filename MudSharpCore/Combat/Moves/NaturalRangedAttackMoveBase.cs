@@ -187,6 +187,7 @@ public abstract class NaturalRangedAttackMoveBase : WeaponAttackMove, IRangedAtt
     {
 		using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterMove(this);
 		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
+		using var hostileAttempt = HostileAttackAdmission.BeginAttempt(Assailant, CharacterTargets.FirstOrDefault());
 		defenderMove = MagicDefenseMove.Revalidate(defenderMove, this);
 		using var scope = new MagicDefenseDamageScope(this, defenderMove);
 		return scope.Finish(ResolveAttackWithDefense(defenderMove));
@@ -228,6 +229,8 @@ public abstract class NaturalRangedAttackMoveBase : WeaponAttackMove, IRangedAtt
 
 		ICharacter targetCharacter = characterTarget;
         defenderMove ??= new HelplessDefenseMove { Assailant = targetCharacter };
+		if (!HostileAttackAdmission.TryNotify(Assailant, targetCharacter, () => CanContinueCommand() &&
+			TargetIsInRange(Assailant, targetCharacter, RangedAttack.RangeInRooms))) return CombatMoveResult.Irrelevant;
         Dictionary<Difficulty, CheckOutcome> attackRoll = Gameworld.GetCheck(Check)
                                   .CheckAgainstAllDifficulties(Assailant, CheckDifficulty, null, targetCharacter,
                                       Assailant.OffensiveAdvantage);

@@ -877,3 +877,8 @@ Absorbed floor-stack deletion owns an independent required-write database scope.
 ## Internal-magazine post-detach recovery
 
 Native Unload and Ready ejection enclose exact slot detachment and receipt in captured floor recovery. Clearing the owner slot marks its component dirty before containment notifications. Body exact title/quantity/component validation runs inside its recovery boundary, so changed detached value is conserved at the original safe point. Recovery applies only to an unclaimed detached item; current independent hand, container, belt or spatial custody wins. A secondary recovery exception preserves the original gameplay exception, while an otherwise failing recovery propagates normally. A failed floor-membership observer can leave a captured floor pointer requiring an explicit independent membership retry; automatic recovery through a failing observer is not promised. See [bounded gameplay and cold persistence qualification](../Magic/Armageddon_AmmoDetachRecovery_Checkpoint.md).
+
+
+## Opt-in hostile firearm admission
+
+FirearmBaseGameItemComponent notifies opted-in physical recipient/body effects after exact accepted-round admission and before shot commitment, then validates captured ammunition and participants again. Empty triggers emit nothing. Independent admission-callback chamber replacement preserves both accepted and replacement ammunition and refuses stale shot work. Operation identity is shared with its executing ranged move and separate from independent countershots. See [bounded caller scope and qualification](../Magic/Armageddon_Emotional_Combat_Hooks.md); other ranged component families require their own receipts.

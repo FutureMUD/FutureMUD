@@ -80,6 +80,7 @@ public class MeleeWeaponAttack : WeaponAttackMove
     {
 		using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterMove(this);
 		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
+		using var hostileAttempt = HostileAttackAdmission.BeginAttempt(Assailant, PrimaryCharacterTarget);
 		defenderMove = MagicDefenseMove.Revalidate(defenderMove, this);
 		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
 		using var scope = new MagicDefenseDamageScope(this, defenderMove);
@@ -106,6 +107,8 @@ public class MeleeWeaponAttack : WeaponAttackMove
         var magicAttackBonus = ApplicableWeaponEnhancements(Weapon.Parent, defenderMove.Assailant)
             .Sum(x => x.AttackCheckBonus);
         if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
+		if (!HostileAttackAdmission.TryNotify(Assailant, defenderMove.Assailant as ICharacter,
+			CanContinueCommand)) return CombatMoveResult.Irrelevant;
         Dictionary<Difficulty, CheckOutcome> attackRoll = Gameworld.GetCheck(Check)
                                   .CheckAgainstAllDifficulties(Assailant, CheckDifficulty,
                                       Weapon.WeaponType.AttackTrait,

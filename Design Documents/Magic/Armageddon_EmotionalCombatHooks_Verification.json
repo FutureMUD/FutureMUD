@@ -1,0 +1,1819 @@
+{
+  "schema_version": 1,
+  "baseline": "39eb9d32d2012f56ac3ef33c441b5dac7c3535e3",
+  "branch": "codex/fury-calm-runtime-hooks",
+  "brief": {
+    "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\inputs\\armageddon-gate15\\Armageddon_Magic_Completion_Implementation_Brief.md",
+    "sha256": "16b67175354da916da20a388895c7fadab77fb452c63d47b40dd1d03a2a51b42"
+  },
+  "managed": {
+    "run_id": "20261006T112740Z-c0847c54f557",
+    "status": "PASS",
+    "counts": {
+      "executed": 424,
+      "passed": 424,
+      "failed": 0,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 424
+    },
+    "filter": "FullyQualifiedName~EmotionalCombatHooksTests|FullyQualifiedName~QueuedCommandAuthorityTests|FullyQualifiedName~OrderedNpcCheckLearningCombatCostTests|FullyQualifiedName~MultiTargetCombatMoveTests|FullyQualifiedName~NaturalRangedAttackRuntimeTests|FullyQualifiedName~MagicCombatPowerTests|FullyQualifiedName~CombatStrategyRuntimeTests|FullyQualifiedName~CombatSimulationTests|FullyQualifiedName~CombatTargetRetentionTests",
+    "source_start": "1f472d5fe4b43aef54cff37a7fbdcc4061c5af9e021209fe640fee1018e210f9",
+    "source_end": "1f472d5fe4b43aef54cff37a7fbdcc4061c5af9e021209fe640fee1018e210f9",
+    "source_stable": true,
+    "execution_complete": true,
+    "counts_complete": true
+  },
+  "managed_summary": {
+    "path": ".artifacts/test-runs/20261006T112740Z-c0847c54f557/summary.json",
+    "sha256": "9ab3afc7013d62f10483431ad71bd7a03d323b280abff35c06c7fa9faa30c8fd",
+    "bytes": 6653
+  },
+  "retained_managed_packets": [
+    {
+      "run_id": "20261006T111419Z-0a5bcf7b90e0",
+      "status": "FAIL",
+      "counts": null,
+      "source_stable": true,
+      "summary": {
+        "path": ".artifacts/test-runs/20261006T111419Z-0a5bcf7b90e0/summary.json",
+        "sha256": "fd44d959a839c9dc6af6f0648b940ce48ccd252552b475e3d79893d819e901f4",
+        "bytes": 3816
+      }
+    },
+    {
+      "run_id": "20261006T111605Z-eb5dfc7a761c",
+      "status": "FAIL",
+      "counts": null,
+      "source_stable": true,
+      "summary": {
+        "path": ".artifacts/test-runs/20261006T111605Z-eb5dfc7a761c/summary.json",
+        "sha256": "e9c0fcaa0ca394fa359f4d379233731d5c7fdbdd233adb3a71c80472126e05b6",
+        "bytes": 3710
+      }
+    },
+    {
+      "run_id": "20261006T111855Z-09fc7db62060",
+      "status": "PASS",
+      "counts": {
+        "executed": 18,
+        "passed": 18,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 18
+      },
+      "source_stable": true,
+      "summary": {
+        "path": ".artifacts/test-runs/20261006T111855Z-09fc7db62060/summary.json",
+        "sha256": "ae41da3f2f72dc3c7edf3fca6e942372a05de5e3bee354561e9baead747138b7",
+        "bytes": 5891
+      }
+    },
+    {
+      "run_id": "20261006T112043Z-f0cc9db963d6",
+      "status": "FAIL",
+      "counts": {
+        "executed": 421,
+        "passed": 420,
+        "failed": 1,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 421
+      },
+      "source_stable": true,
+      "summary": {
+        "path": ".artifacts/test-runs/20261006T112043Z-f0cc9db963d6/summary.json",
+        "sha256": "9ca30579f936114f87e0aecfaf9c38c0e5ec75d696c02d0b41fbb39e86fe24d6",
+        "bytes": 6766
+      }
+    },
+    {
+      "run_id": "20261006T112430Z-8d7f99618af3",
+      "status": "PASS",
+      "counts": {
+        "executed": 423,
+        "passed": 423,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 423
+      },
+      "source_stable": true,
+      "summary": {
+        "path": ".artifacts/test-runs/20261006T112430Z-8d7f99618af3/summary.json",
+        "sha256": "891c4b427445ee7da12a82412d960ec899fb7e58fbac5f6be9334d2f6ac0ee1f",
+        "bytes": 6653
+      }
+    },
+    {
+      "run_id": "20261006T112740Z-c0847c54f557",
+      "status": "PASS",
+      "counts": {
+        "executed": 424,
+        "passed": 424,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 424
+      },
+      "source_stable": true,
+      "summary": {
+        "path": ".artifacts/test-runs/20261006T112740Z-c0847c54f557/summary.json",
+        "sha256": "9ab3afc7013d62f10483431ad71bd7a03d323b280abff35c06c7fa9faa30c8fd",
+        "bytes": 6653
+      }
+    }
+  ],
+  "native_packets": [
+    {
+      "label": "native01",
+      "source_fingerprint": "504ab4117409635c6db84f37dda6a7df1c0035f18302ac43d7227e66291dcb38",
+      "source_files": 7173,
+      "aligned_roles": [
+        {
+          "assembly": "MudSharp.dll",
+          "native_sha256": "3c2a0b50514867249c6e13ef4d2d0b6f90e06620dc380e443a817747942895ff",
+          "managed_sha256": "3c2a0b50514867249c6e13ef4d2d0b6f90e06620dc380e443a817747942895ff",
+          "aligned": true
+        },
+        {
+          "assembly": "FutureMUDLibrary.dll",
+          "native_sha256": "1f8bf0bae04f1c87cecaa9e58092c9958adf7e7db5e6b22844ca219ca5bb2741",
+          "managed_sha256": "1f8bf0bae04f1c87cecaa9e58092c9958adf7e7db5e6b22844ca219ca5bb2741",
+          "aligned": true
+        },
+        {
+          "assembly": "MudsharpDatabaseLibrary.dll",
+          "native_sha256": "8f2da49d9afa58e4637f3f4ef254272a7f5aa634b2ad763e588edfc19009aabc",
+          "managed_sha256": "8f2da49d9afa58e4637f3f4ef254272a7f5aa634b2ad763e588edfc19009aabc",
+          "aligned": true
+        },
+        {
+          "assembly": "ExpressionEngine.dll",
+          "native_sha256": "6da4a380a0ac9dcca240602855524156183455382da16c6360249cdf87dda702",
+          "managed_sha256": "6da4a380a0ac9dcca240602855524156183455382da16c6360249cdf87dda702",
+          "aligned": true
+        }
+      ],
+      "capsule_files": 177,
+      "capsule_manifest": {
+        "path": ".artifacts/emotional-hooks/native01-frozen.json",
+        "sha256": "6cc5df2a5d6d1e703fe79b2df5d08dfaa0890735f9657299bd333ef2cb734b58",
+        "bytes": 1454772
+      },
+      "log": {
+        "path": ".artifacts/emotional-hooks/native01-native.log",
+        "sha256": "5a4dece1e347b2588d7f3adb6e0ec7ea55b123d23af5216f46207fbefd397949",
+        "bytes": 267686
+      },
+      "rehash": {
+        "source_stable": true,
+        "source_fingerprint": "504ab4117409635c6db84f37dda6a7df1c0035f18302ac43d7227e66291dcb38",
+        "capsule_mismatches": [],
+        "status": "PASS"
+      },
+      "cleanup": {
+        "new_mysql_processes_remaining": [],
+        "environment": [
+          {
+            "restored": true,
+            "originally_present": true,
+            "name": "TEMP"
+          },
+          {
+            "restored": true,
+            "originally_present": true,
+            "name": "TMP"
+          },
+          {
+            "restored": true,
+            "originally_present": true,
+            "name": "GIT_CONFIG_COUNT"
+          },
+          {
+            "restored": true,
+            "originally_present": true,
+            "name": "GIT_CONFIG_KEY_0"
+          },
+          {
+            "restored": true,
+            "originally_present": true,
+            "name": "GIT_CONFIG_VALUE_0"
+          },
+          {
+            "restored": true,
+            "originally_present": false,
+            "name": "FUTUREMUD_CAPACITY_ACCEPTANCE_OUTPUT"
+          },
+          {
+            "restored": true,
+            "originally_present": false,
+            "name": "FUTUREMUD_GATHERING_TEST_CONNECTION"
+          },
+          {
+            "restored": true,
+            "originally_present": false,
+            "name": "FUTUREMUD_OWNED_MYSQL_UUID"
+          },
+          {
+            "restored": true,
+            "originally_present": false,
+            "name": "FUTUREMUD_OWNED_MYSQL_PORT"
+          },
+          {
+            "restored": true,
+            "originally_present": false,
+            "name": "FUTUREMUD_OWNED_MYSQL_DATADIR"
+          },
+          {
+            "restored": true,
+            "originally_present": false,
+            "name": "FUTUREMUD_SNAPSHOT_CONNECTION_STRING"
+          }
+        ],
+        "exit_code": 1,
+        "native_pass": false,
+        "wrapper_cleanup": true
+      }
+    },
+    {
+      "label": "native02",
+      "source_fingerprint": "e07b5c4c7cd4fbd521db01cd977a4b36ac205c7411b1b2569aaade5cf63e2aee",
+      "source_files": 7173,
+      "aligned_roles": [
+        {
+          "assembly": "MudSharp.dll",
+          "native_sha256": "3c2a0b50514867249c6e13ef4d2d0b6f90e06620dc380e443a817747942895ff",
+          "managed_sha256": "3c2a0b50514867249c6e13ef4d2d0b6f90e06620dc380e443a817747942895ff",
+          "aligned": true
+        },
+        {
+          "assembly": "FutureMUDLibrary.dll",
+          "native_sha256": "1f8bf0bae04f1c87cecaa9e58092c9958adf7e7db5e6b22844ca219ca5bb2741",
+          "managed_sha256": "1f8bf0bae04f1c87cecaa9e58092c9958adf7e7db5e6b22844ca219ca5bb2741",
+          "aligned": true
+        },
+        {
+          "assembly": "MudsharpDatabaseLibrary.dll",
+          "native_sha256": "8f2da49d9afa58e4637f3f4ef254272a7f5aa634b2ad763e588edfc19009aabc",
+          "managed_sha256": "8f2da49d9afa58e4637f3f4ef254272a7f5aa634b2ad763e588edfc19009aabc",
+          "aligned": true
+        },
+        {
+          "assembly": "ExpressionEngine.dll",
+          "native_sha256": "6da4a380a0ac9dcca240602855524156183455382da16c6360249cdf87dda702",
+          "managed_sha256": "6da4a380a0ac9dcca240602855524156183455382da16c6360249cdf87dda702",
+          "aligned": true
+        }
+      ],
+      "capsule_files": 177,
+      "capsule_manifest": {
+        "path": ".artifacts/emotional-hooks/native02-frozen.json",
+        "sha256": "deeaa1872bded5f5abb226a734ae5bb7543981ab84cf6ffd9a536c6c0d0b17b4",
+        "bytes": 1454772
+      },
+      "log": {
+        "path": ".artifacts/emotional-hooks/native02-native.log",
+        "sha256": "545276134691f2b4fd493d375b9821d04777c6bd3aa1ffa8873c3461000eaa82",
+        "bytes": 1610175
+      },
+      "rehash": {
+        "source_stable": true,
+        "source_fingerprint": "e07b5c4c7cd4fbd521db01cd977a4b36ac205c7411b1b2569aaade5cf63e2aee",
+        "capsule_mismatches": [],
+        "status": "PASS"
+      },
+      "cleanup": {
+        "native_pass": false,
+        "exit_code": 1,
+        "environment": [
+          {
+            "restored": true,
+            "name": "TEMP",
+            "originally_present": true
+          },
+          {
+            "restored": true,
+            "name": "TMP",
+            "originally_present": true
+          },
+          {
+            "restored": true,
+            "name": "GIT_CONFIG_COUNT",
+            "originally_present": false
+          },
+          {
+            "restored": true,
+            "name": "GIT_CONFIG_KEY_0",
+            "originally_present": false
+          },
+          {
+            "restored": true,
+            "name": "GIT_CONFIG_VALUE_0",
+            "originally_present": false
+          },
+          {
+            "restored": true,
+            "name": "FUTUREMUD_CAPACITY_ACCEPTANCE_OUTPUT",
+            "originally_present": false
+          },
+          {
+            "restored": true,
+            "name": "FUTUREMUD_GATHERING_TEST_CONNECTION",
+            "originally_present": false
+          },
+          {
+            "restored": true,
+            "name": "FUTUREMUD_OWNED_MYSQL_UUID",
+            "originally_present": false
+          },
+          {
+            "restored": true,
+            "name": "FUTUREMUD_OWNED_MYSQL_PORT",
+            "originally_present": false
+          },
+          {
+            "restored": true,
+            "name": "FUTUREMUD_OWNED_MYSQL_DATADIR",
+            "originally_present": false
+          },
+          {
+            "restored": true,
+            "name": "FUTUREMUD_SNAPSHOT_CONNECTION_STRING",
+            "originally_present": false
+          }
+        ],
+        "wrapper_cleanup": true,
+        "new_mysql_processes_remaining": []
+      }
+    },
+    {
+      "label": "native03",
+      "source_fingerprint": "00988ffaadf5f7533e9f575dd175c8adfb2536108b0720a7c6db8ddd826c1f84",
+      "source_files": 7173,
+      "aligned_roles": [
+        {
+          "assembly": "MudSharp.dll",
+          "native_sha256": "3c2a0b50514867249c6e13ef4d2d0b6f90e06620dc380e443a817747942895ff",
+          "managed_sha256": "3c2a0b50514867249c6e13ef4d2d0b6f90e06620dc380e443a817747942895ff",
+          "aligned": true
+        },
+        {
+          "assembly": "FutureMUDLibrary.dll",
+          "native_sha256": "1f8bf0bae04f1c87cecaa9e58092c9958adf7e7db5e6b22844ca219ca5bb2741",
+          "managed_sha256": "1f8bf0bae04f1c87cecaa9e58092c9958adf7e7db5e6b22844ca219ca5bb2741",
+          "aligned": true
+        },
+        {
+          "assembly": "MudsharpDatabaseLibrary.dll",
+          "native_sha256": "8f2da49d9afa58e4637f3f4ef254272a7f5aa634b2ad763e588edfc19009aabc",
+          "managed_sha256": "8f2da49d9afa58e4637f3f4ef254272a7f5aa634b2ad763e588edfc19009aabc",
+          "aligned": true
+        },
+        {
+          "assembly": "ExpressionEngine.dll",
+          "native_sha256": "6da4a380a0ac9dcca240602855524156183455382da16c6360249cdf87dda702",
+          "managed_sha256": "6da4a380a0ac9dcca240602855524156183455382da16c6360249cdf87dda702",
+          "aligned": true
+        }
+      ],
+      "capsule_files": 177,
+      "capsule_manifest": {
+        "path": ".artifacts/emotional-hooks/native03-frozen.json",
+        "sha256": "316103ed09564a1c5970754ae6095915787e8cfc3236c9a5c1a45a1cf9591a3a",
+        "bytes": 1454772
+      },
+      "log": {
+        "path": ".artifacts/emotional-hooks/native03-native.log",
+        "sha256": "ae4340741b7a80342991c4dff635a8202c760c65744576bd6784a1d279e1206d",
+        "bytes": 3749375
+      },
+      "rehash": {
+        "source_stable": true,
+        "source_fingerprint": "00988ffaadf5f7533e9f575dd175c8adfb2536108b0720a7c6db8ddd826c1f84",
+        "capsule_mismatches": [],
+        "status": "PASS"
+      },
+      "cleanup": {
+        "native_pass": false,
+        "wrapper_cleanup": true,
+        "exit_code": 1,
+        "environment": [
+          {
+            "restored": true,
+            "originally_present": true,
+            "name": "TEMP"
+          },
+          {
+            "restored": true,
+            "originally_present": true,
+            "name": "TMP"
+          },
+          {
+            "restored": true,
+            "originally_present": false,
+            "name": "GIT_CONFIG_COUNT"
+          },
+          {
+            "restored": true,
+            "originally_present": false,
+            "name": "GIT_CONFIG_KEY_0"
+          },
+          {
+            "restored": true,
+            "originally_present": false,
+            "name": "GIT_CONFIG_VALUE_0"
+          },
+          {
+            "restored": true,
+            "originally_present": false,
+            "name": "FUTUREMUD_CAPACITY_ACCEPTANCE_OUTPUT"
+          },
+          {
+            "restored": true,
+            "originally_present": false,
+            "name": "FUTUREMUD_GATHERING_TEST_CONNECTION"
+          },
+          {
+            "restored": true,
+            "originally_present": false,
+            "name": "FUTUREMUD_OWNED_MYSQL_UUID"
+          },
+          {
+            "restored": true,
+            "originally_present": false,
+            "name": "FUTUREMUD_OWNED_MYSQL_PORT"
+          },
+          {
+            "restored": true,
+            "originally_present": false,
+            "name": "FUTUREMUD_OWNED_MYSQL_DATADIR"
+          },
+          {
+            "restored": true,
+            "originally_present": false,
+            "name": "FUTUREMUD_SNAPSHOT_CONNECTION_STRING"
+          }
+        ],
+        "new_mysql_processes_remaining": []
+      }
+    },
+    {
+      "label": "native04",
+      "source_fingerprint": "360fb23755222e7cac63baba1ba1963bbc4f83d1970e5d100e13f32b5db3114e",
+      "source_files": 7173,
+      "aligned_roles": [
+        {
+          "assembly": "MudSharp.dll",
+          "native_sha256": "3c2a0b50514867249c6e13ef4d2d0b6f90e06620dc380e443a817747942895ff",
+          "managed_sha256": "3c2a0b50514867249c6e13ef4d2d0b6f90e06620dc380e443a817747942895ff",
+          "aligned": true
+        },
+        {
+          "assembly": "FutureMUDLibrary.dll",
+          "native_sha256": "1f8bf0bae04f1c87cecaa9e58092c9958adf7e7db5e6b22844ca219ca5bb2741",
+          "managed_sha256": "1f8bf0bae04f1c87cecaa9e58092c9958adf7e7db5e6b22844ca219ca5bb2741",
+          "aligned": true
+        },
+        {
+          "assembly": "MudsharpDatabaseLibrary.dll",
+          "native_sha256": "8f2da49d9afa58e4637f3f4ef254272a7f5aa634b2ad763e588edfc19009aabc",
+          "managed_sha256": "8f2da49d9afa58e4637f3f4ef254272a7f5aa634b2ad763e588edfc19009aabc",
+          "aligned": true
+        },
+        {
+          "assembly": "ExpressionEngine.dll",
+          "native_sha256": "6da4a380a0ac9dcca240602855524156183455382da16c6360249cdf87dda702",
+          "managed_sha256": "6da4a380a0ac9dcca240602855524156183455382da16c6360249cdf87dda702",
+          "aligned": true
+        }
+      ],
+      "capsule_files": 177,
+      "capsule_manifest": {
+        "path": ".artifacts/emotional-hooks/native04-frozen.json",
+        "sha256": "d40aeb969ca6c4afaf8973405f68dbb4497776ba3afc1d8855872c5478cd68d0",
+        "bytes": 1454772
+      },
+      "log": {
+        "path": ".artifacts/emotional-hooks/native04-native.log",
+        "sha256": "51a032b3148021e01fc451142699fd6368f56066e51c7118f2e9ee250460e325",
+        "bytes": 10162912
+      },
+      "rehash": {
+        "source_stable": true,
+        "source_fingerprint": "360fb23755222e7cac63baba1ba1963bbc4f83d1970e5d100e13f32b5db3114e",
+        "capsule_mismatches": [],
+        "status": "PASS"
+      },
+      "cleanup": {
+        "exit_code": 0,
+        "new_mysql_processes_remaining": [],
+        "wrapper_cleanup": true,
+        "native_pass": true,
+        "environment": [
+          {
+            "originally_present": true,
+            "name": "TEMP",
+            "restored": true
+          },
+          {
+            "originally_present": true,
+            "name": "TMP",
+            "restored": true
+          },
+          {
+            "originally_present": false,
+            "name": "GIT_CONFIG_COUNT",
+            "restored": true
+          },
+          {
+            "originally_present": false,
+            "name": "GIT_CONFIG_KEY_0",
+            "restored": true
+          },
+          {
+            "originally_present": false,
+            "name": "GIT_CONFIG_VALUE_0",
+            "restored": true
+          },
+          {
+            "originally_present": false,
+            "name": "FUTUREMUD_CAPACITY_ACCEPTANCE_OUTPUT",
+            "restored": true
+          },
+          {
+            "originally_present": false,
+            "name": "FUTUREMUD_GATHERING_TEST_CONNECTION",
+            "restored": true
+          },
+          {
+            "originally_present": false,
+            "name": "FUTUREMUD_OWNED_MYSQL_UUID",
+            "restored": true
+          },
+          {
+            "originally_present": false,
+            "name": "FUTUREMUD_OWNED_MYSQL_PORT",
+            "restored": true
+          },
+          {
+            "originally_present": false,
+            "name": "FUTUREMUD_OWNED_MYSQL_DATADIR",
+            "restored": true
+          },
+          {
+            "originally_present": false,
+            "name": "FUTUREMUD_SNAPSHOT_CONNECTION_STRING",
+            "restored": true
+          }
+        ]
+      }
+    }
+  ],
+  "runtime_binding_to_final_managed_outputs": [
+    {
+      "assembly": "MudSharp.dll",
+      "final_managed_output_sha256": "3c2a0b50514867249c6e13ef4d2d0b6f90e06620dc380e443a817747942895ff",
+      "final_native_sha256": "3c2a0b50514867249c6e13ef4d2d0b6f90e06620dc380e443a817747942895ff",
+      "unchanged": true
+    },
+    {
+      "assembly": "FutureMUDLibrary.dll",
+      "final_managed_output_sha256": "1f8bf0bae04f1c87cecaa9e58092c9958adf7e7db5e6b22844ca219ca5bb2741",
+      "final_native_sha256": "1f8bf0bae04f1c87cecaa9e58092c9958adf7e7db5e6b22844ca219ca5bb2741",
+      "unchanged": true
+    },
+    {
+      "assembly": "MudsharpDatabaseLibrary.dll",
+      "final_managed_output_sha256": "8f2da49d9afa58e4637f3f4ef254272a7f5aa634b2ad763e588edfc19009aabc",
+      "final_native_sha256": "8f2da49d9afa58e4637f3f4ef254272a7f5aa634b2ad763e588edfc19009aabc",
+      "unchanged": true
+    },
+    {
+      "assembly": "ExpressionEngine.dll",
+      "final_managed_output_sha256": "6da4a380a0ac9dcca240602855524156183455382da16c6360249cdf87dda702",
+      "final_native_sha256": "6da4a380a0ac9dcca240602855524156183455382da16c6360249cdf87dda702",
+      "unchanged": true
+    }
+  ],
+  "final_managed_output_manifest": {
+    "path": ".artifacts/emotional-hooks/harness-build-04-outputs.json",
+    "sha256": "c77979cb7946107b5314c0aeacbf073f3dff9e0cd285ce5a0de569268d418f6e",
+    "bytes": 25210
+  },
+  "final_native": {
+    "label": "native04",
+    "status": "PASS",
+    "scenario_count": 22,
+    "attack_notification_controls": 18,
+    "multi_target_cases": 2,
+    "cessation_cases": 6,
+    "attack_receipts": [
+      [
+        "multitarget-first-False",
+        "count:1 operation:b5610dc0-2182-4634-a437-5c433873d609 body:3 instance:2 sibling-preserved:true"
+      ],
+      [
+        "multitarget-secondary-False",
+        "count:1 operation:6e740cd9-0070-47e7-b181-c1b62540bdd2 body:4 instance:5 sibling-preserved:true"
+      ],
+      [
+        "multitarget-first-True",
+        "count:1 operation:126f6514-e17a-435a-9a97-051522e67cdb body:3 instance:2 sibling-preserved:true"
+      ],
+      [
+        "multitarget-secondary-True",
+        "count:0 operation: body:5 instance:7 sibling-preserved:true"
+      ],
+      [
+        "melee-ordered-defended-fail",
+        "count:1 operation:799640de-547a-4820-8952-53b8857bbfeb body:3 instance:2 sibling-preserved:true"
+      ],
+      [
+        "melee-ordered-revoked",
+        "count:0 operation: body:3 instance:2 sibling-preserved:true"
+      ],
+      [
+        "firearm-empty-trigger",
+        "count:0 operation: body:3 instance:2 sibling-preserved:true"
+      ],
+      [
+        "firearm-notification-replacement-ammo",
+        "count:1 operation:3ef43d09-d059-4957-acbe-cdaf90b2ab4e body:3 instance:2 sibling-preserved:true"
+      ],
+      [
+        "firearm-ordered-valid",
+        "count:1 operation:c967a30d-b60c-4de9-b6c2-f9c85a22d046 body:3 instance:2 sibling-preserved:true"
+      ],
+      [
+        "firearm-queued-revoked",
+        "count:0 operation: body:3 instance:2 sibling-preserved:true"
+      ],
+      [
+        "firearm-component-policy-revoked",
+        "count:0 operation: body:3 instance:2 sibling-preserved:true"
+      ],
+      [
+        "firearm-postcommit-independent",
+        "count:1 operation:d5946384-98e8-4f35-8726-dbc24153a7cf body:3 instance:2 sibling-preserved:true"
+      ],
+      [
+        "firearm-ordered-miss",
+        "count:1 operation:77e2fc3b-ebff-4e8b-bcaa-a9917d066576 body:3 instance:2 sibling-preserved:true"
+      ],
+      [
+        "firearm-direct-valid",
+        "count:1 operation:ee246a17-c370-4a05-a4d2-6f251388f976 body:3 instance:2 sibling-preserved:true"
+      ],
+      [
+        "countershot-ordered-valid",
+        "count:1 operation:65df0b37-e047-4b94-836b-5f56783d120a body:2 instance:3 sibling-preserved:true"
+      ],
+      [
+        "countershot-queued-revoked",
+        "count:0 operation: body:2 instance:4 sibling-preserved:true"
+      ],
+      [
+        "countershot-defender-check-expiry",
+        "count:1 operation:d081802a-6ed2-4b74-b347-37e011c545fa body:2 instance:5 sibling-preserved:true"
+      ],
+      [
+        "countershot-direct-valid",
+        "count:1 operation:14481384-5ea1-48ad-8f0e-5473334d0da4 body:2 instance:6 sibling-preserved:true"
+      ]
+    ],
+    "multi_target_receipts": [
+      [
+        "two-admitted-children",
+        "primary:1 secondary:1 actual-wrapper:MultiTargetWeaponAttackMove"
+      ],
+      [
+        "skipped-child",
+        "primary:1 secondary:0 actual-wrapper:MultiTargetWeaponAttackMove"
+      ]
+    ],
+    "cessation_receipts": [
+      [
+        "pair",
+        "changes:SubjectRemoved, OpponentPairCleared original-members:0 subject-instance:5 subject-body:5"
+      ],
+      [
+        "third-party",
+        "changes:SubjectRemoved original-members:2 subject-instance:8 subject-body:8"
+      ],
+      [
+        "leave-replacement",
+        "changes:SubjectRemoved, OpponentPairCleared original-members:0 subject-instance:11 subject-body:11"
+      ],
+      [
+        "target-aba",
+        "changes:None original-members:2 subject-instance:14 subject-body:14"
+      ],
+      [
+        "combat-aba",
+        "changes:None original-members:2 subject-instance:17 subject-body:17"
+      ],
+      [
+        "prog-replacement",
+        "changes:SubjectRemoved, OpponentPairCleared original-members:0 subject-instance:20 subject-body:20"
+      ]
+    ],
+    "reader_receipts": [
+      [
+        "ARMSelectedCheck-reader",
+        "ordered-defended-fail passed raw:45 stamina:99 wounds:24 fresh-process native-rows no-order-replay"
+      ],
+      [
+        "ARMSelectedCheck-reader",
+        "ordered-revoked passed raw:40 stamina:100 wounds:24 fresh-process native-rows no-order-replay"
+      ],
+      [
+        "ARMFirearm-reader",
+        "ordered-valid-unreadied passed native-body-inventory firearm-XML chamber: magazine:1 stamina:100 condition:1 wounds:0 raw:40 no-order-replay"
+      ],
+      [
+        "ARMFirearm-reader",
+        "ordered-valid-historical-stale-chamber passed native-body-inventory firearm-XML chamber: magazine:1 stamina:100 condition:1 wounds:0 raw:40 no-order-replay"
+      ],
+      [
+        "ARMFirearm-reader",
+        "ordered-valid-loaded-chambered passed native-body-inventory firearm-XML chamber:5 magazine:1 stamina:100 condition:1 wounds:0 raw:40 no-order-replay"
+      ],
+      [
+        "ARMFirearm-reader",
+        "ordered-valid-emotional-controls-restored passed native-body-inventory firearm-XML chamber:5 magazine:1 stamina:100 condition:1 wounds:0 raw:40 no-order-replay"
+      ],
+      [
+        "ARMFirearm-reader",
+        "ordered-valid-shot-unloaded passed native-body-inventory firearm-XML chamber: magazine:0 stamina:97 condition:0.99 wounds:12 raw:40 no-order-replay"
+      ],
+      [
+        "ARMFirearm-reader",
+        "queued-revoked-unreadied passed native-body-inventory firearm-XML chamber: magazine:1 stamina:100 condition:1 wounds:12 raw:40 no-order-replay"
+      ],
+      [
+        "ARMFirearm-reader",
+        "queued-revoked-loaded-chambered passed native-body-inventory firearm-XML chamber:8 magazine:1 stamina:100 condition:1 wounds:12 raw:40 no-order-replay"
+      ],
+      [
+        "ARMFirearm-reader",
+        "queued-revoked-shot-unloaded passed native-body-inventory firearm-XML chamber:8 magazine:0 stamina:100 condition:1 wounds:12 raw:40 no-order-replay"
+      ],
+      [
+        "ARMFirearm-reader",
+        "component-policy-revoked-unreadied passed native-body-inventory firearm-XML chamber: magazine:1 stamina:100 condition:1 wounds:12 raw:40 no-order-replay"
+      ],
+      [
+        "ARMFirearm-reader",
+        "component-policy-revoked-loaded-chambered passed native-body-inventory firearm-XML chamber:11 magazine:1 stamina:100 condition:1 wounds:12 raw:40 no-order-replay"
+      ],
+      [
+        "ARMFirearm-reader",
+        "component-policy-revoked-shot-unloaded passed native-body-inventory firearm-XML chamber:11 magazine:0 stamina:100 condition:1 wounds:12 raw:40 no-order-replay"
+      ],
+      [
+        "ARMFirearm-reader",
+        "postcommit-independent-unreadied passed native-body-inventory firearm-XML chamber: magazine:1 stamina:100 condition:1 wounds:12 raw:40 no-order-replay"
+      ],
+      [
+        "ARMFirearm-reader",
+        "postcommit-independent-loaded-chambered passed native-body-inventory firearm-XML chamber:14 magazine:1 stamina:100 condition:1 wounds:12 raw:40 no-order-replay"
+      ],
+      [
+        "ARMFirearm-reader",
+        "postcommit-independent-shot-unloaded passed native-body-inventory firearm-XML chamber: magazine:0 stamina:97 condition:0.99 wounds:24 raw:60 no-order-replay"
+      ],
+      [
+        "ARMFirearm-reader",
+        "ordered-miss-unreadied passed native-body-inventory firearm-XML chamber: magazine:1 stamina:100 condition:1 wounds:24 raw:40 no-order-replay"
+      ],
+      [
+        "ARMFirearm-reader",
+        "ordered-miss-loaded-chambered passed native-body-inventory firearm-XML chamber:17 magazine:1 stamina:100 condition:1 wounds:24 raw:40 no-order-replay"
+      ],
+      [
+        "ARMFirearm-reader",
+        "ordered-miss-shot-unloaded passed native-body-inventory firearm-XML chamber: magazine:0 stamina:97 condition:0.99 wounds:24 raw:40 no-order-replay"
+      ],
+      [
+        "ARMFirearm-reader",
+        "direct-valid-unreadied passed native-body-inventory firearm-XML chamber: magazine:1 stamina:100 condition:1 wounds:24 raw:40 no-order-replay"
+      ],
+      [
+        "ARMFirearm-reader",
+        "direct-valid-loaded-chambered passed native-body-inventory firearm-XML chamber:20 magazine:1 stamina:100 condition:1 wounds:24 raw:40 no-order-replay"
+      ],
+      [
+        "ARMFirearm-reader",
+        "direct-valid-shot-unloaded passed native-body-inventory firearm-XML chamber: magazine:0 stamina:97 condition:0.99 wounds:36 raw:40 no-order-replay"
+      ],
+      [
+        "ARMFirearm-reader",
+        "wielded-load-refusal passed native-body-inventory firearm-XML chamber: magazine:1 stamina:100 condition:1 wounds:0 raw:40 no-order-replay"
+      ],
+      [
+        "ARMFirearm-reader",
+        "countershot-ordered-valid-loaded passed native-body-inventory firearm-XML chamber:7 magazine:1 stamina:100 condition:1 wounds:0 raw:40 no-order-replay"
+      ],
+      [
+        "ARMFirearm-reader",
+        "countershot-ordered-valid-resolved passed native-body-inventory firearm-XML chamber: magazine:1 stamina:97 condition:0.99 wounds:12 raw:40 no-order-replay"
+      ],
+      [
+        "ARMFirearm-reader",
+        "countershot-queued-revoked-loaded passed native-body-inventory firearm-XML chamber:10 magazine:1 stamina:100 condition:1 wounds:12 raw:40 no-order-replay"
+      ],
+      [
+        "ARMFirearm-reader",
+        "countershot-queued-revoked-resolved passed native-body-inventory firearm-XML chamber:10 magazine:1 stamina:100 condition:1 wounds:12 raw:40 no-order-replay"
+      ],
+      [
+        "ARMFirearm-reader",
+        "countershot-defender-check-expiry-loaded passed native-body-inventory firearm-XML chamber:13 magazine:1 stamina:100 condition:1 wounds:12 raw:40 no-order-replay"
+      ],
+      [
+        "ARMFirearm-reader",
+        "countershot-defender-check-expiry-resolved passed native-body-inventory firearm-XML chamber: magazine:1 stamina:97 condition:0.99 wounds:24 raw:60 no-order-replay"
+      ],
+      [
+        "ARMFirearm-reader",
+        "countershot-direct-valid-loaded passed native-body-inventory firearm-XML chamber:16 magazine:1 stamina:100 condition:1 wounds:24 raw:40 no-order-replay"
+      ],
+      [
+        "ARMFirearm-reader",
+        "countershot-direct-valid-resolved passed native-body-inventory firearm-XML chamber: magazine:1 stamina:97 condition:0.99 wounds:36 raw:40 no-order-replay"
+      ]
+    ]
+  },
+  "retained_failures": [
+    "Two managed builds failed for fixture DescriptionType namespace; core fixture build failed for init-only Gameworld.",
+    "Broadened managed packet 420/1 failed expired-bound-order reflection control: NaturalRanged read its target before authority refusal. All five moves/component now gate before attempt pinning; final 424/0 passed.",
+    "Native01 failed recasting the already borrowed corpse before retiring the initial fixture actor.",
+    "Native02 passed two admitted children, then failed because repeated included-command builder toggled off the shared AI allowlist.",
+    "Native03 passed melee and empty-trigger notification controls, then failed Ready because returned ammunition occupied its required free hand. Native Load before Ready restores the proper fixture precondition."
+  ],
+  "build_logs": [
+    {
+      "path": ".artifacts/emotional-hooks/build-01.log",
+      "sha256": "ecc718065138e56271635e361dfdc6df67e0a479cb2fe99aa2b8e873c363d712",
+      "bytes": 141493
+    },
+    {
+      "path": ".artifacts/emotional-hooks/core-build-03.log",
+      "sha256": "fd0ca95b765d137187c9123b36e8c577966e916e2a93bedd9a8a3ffb8678fe8c",
+      "bytes": 35533
+    },
+    {
+      "path": ".artifacts/emotional-hooks/core-build-04.log",
+      "sha256": "d623b9521dcf25377a3a17bbafeb186b652219bd41bc128efc8da1fad618c599",
+      "bytes": 34765
+    },
+    {
+      "path": ".artifacts/emotional-hooks/harness-build-02.log",
+      "sha256": "7435e947b151d40ffd0a762c2c2cb074145bdfb15437017c70f70624dd3b5f65",
+      "bytes": 117084
+    },
+    {
+      "path": ".artifacts/emotional-hooks/harness-build-03.log",
+      "sha256": "79fdaa952d5f51bac639491447eb6b481c7d058427dd0bb17f5d18c118539530",
+      "bytes": 14525
+    },
+    {
+      "path": ".artifacts/emotional-hooks/harness-build-04.log",
+      "sha256": "a16cd665fd8f45bf9ef4c310228d0a3e17b42608b47968dc0d24e06902d37cda",
+      "bytes": 1108
+    },
+    {
+      "path": ".artifacts/emotional-hooks/harness-build-05.log",
+      "sha256": "37e47b1240c41062d6e910fac7454279b72a8965e7f0be8f3bf6bd1a264eacce",
+      "bytes": 14525
+    },
+    {
+      "path": ".artifacts/emotional-hooks/harness-build-06.log",
+      "sha256": "c743e25628ea4690bd7e564f50fc1a81e076a529771bff285108a1be101322bf",
+      "bytes": 14525
+    },
+    {
+      "path": ".artifacts/emotional-hooks/harness-build-07.log",
+      "sha256": "f11368a4700af6735e56fcbf563aa242d6d748453b2bb2e5af4392055d4dc1c0",
+      "bytes": 14525
+    },
+    {
+      "path": ".artifacts/emotional-hooks/harness-build-08.log",
+      "sha256": "505f365560249cdee2a847cd4bfb38bf5f62eb730871525ef44a8c9aafc2bf93",
+      "bytes": 14525
+    }
+  ],
+  "source_files": [
+    {
+      "path": "FutureMUDLibrary/Combat/AdmittedHostileAttack.cs",
+      "sha256": "ad566f9835110a4f2a4194146e1a31170e5a0474532226fe8b0791a2e725059c",
+      "bytes": 325
+    },
+    {
+      "path": "FutureMUDLibrary/Combat/ICombatSelectiveCessation.cs",
+      "sha256": "04fbb163791be376835b21455643423242c47a2bc356d1870635065050608119",
+      "bytes": 706
+    },
+    {
+      "path": "FutureMUDLibrary/Effects/Interfaces/IAdmittedHostileAttackEffect.cs",
+      "sha256": "23cc115b5c7e3c588cc618fbd506c7113e1bda5db888a3ae9c6b86f7d14f9ae0",
+      "bytes": 209
+    },
+    {
+      "path": "MudSharpCore Unit Tests/EmotionalCombatHooksTests.cs",
+      "sha256": "abf6f0be4fd7543a563787e5e488290089c1a92e14a9135f77bc3336009e162e",
+      "bytes": 15282
+    },
+    {
+      "path": "MudSharpCore/Character/CharacterCombat.cs",
+      "sha256": "bf42e457a5175221f06401b59fb3987ef99199f2c2be3346d9794cd4b634bc58",
+      "bytes": 31667
+    },
+    {
+      "path": "MudSharpCore/Combat/CombatBase.SelectiveCessation.cs",
+      "sha256": "1fe79a3ad0d6c0a23d436fb0865577e08e318c9cbb0ad03c8c0f9eded3fc0e93",
+      "bytes": 6727
+    },
+    {
+      "path": "MudSharpCore/Combat/CombatBase.cs",
+      "sha256": "166dfc9d3228968679217f74ae90d1c742c73adf755b15828295265f0f3c884c",
+      "bytes": 22675
+    },
+    {
+      "path": "MudSharpCore/Combat/HostileAttackAdmission.cs",
+      "sha256": "1e255fcd2e61a929e5b0c23986e9c111384f4fb053414caed98404c57108f731",
+      "bytes": 5803
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/MagicPowerAttackMove.cs",
+      "sha256": "3fb4bfed74e508791088cf9cd8efa04898d6ceb5ee3cca7a46781904280161bc",
+      "bytes": 8197
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/MeleeWeaponAttack.cs",
+      "sha256": "74dd1734d8d444427cb455e1662f22e9cba0a10c85b5515cb51e96a505a10ca2",
+      "bytes": 40939
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/NaturalAttackMove.cs",
+      "sha256": "c59e29c018050c094d96be9ba3567755a165ca5e3b9c6c7b143478b3ec157ef4",
+      "bytes": 35775
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/NaturalRangedAttackMoveBase.cs",
+      "sha256": "1692d99c2fe34d7cf055f2df206bbc34f4491bd83aced7e0dc12e5b1f28a52d8",
+      "bytes": 14020
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/RangedWeaponAttackBase.cs",
+      "sha256": "458c852f675a9f659d8a2990dce324a14b4998c893a9ebec38823b8bd057581a",
+      "bytes": 24259
+    },
+    {
+      "path": "MudSharpCore/Combat/ProgCombat.cs",
+      "sha256": "2229f59fec32ee05a26aeaee587ce09ff0232b37216059e3535c430d76108285",
+      "bytes": 12826
+    },
+    {
+      "path": "MudSharpCore/Combat/SimpleMeleeCombat.cs",
+      "sha256": "90a13bdec2e0d6c8d1ec802ecdba56fd93fc5d6b70aeb9ffd7bc24ec4988dbae",
+      "bytes": 9576
+    },
+    {
+      "path": "MudSharpCore/Framework/PerceiverItem.SelectiveCessation.cs",
+      "sha256": "f94ac270e2675f17f6d2dbd7c7fae2bc7e7f8f070912dcb5d9d6b9af03a9cd94",
+      "bytes": 1479
+    },
+    {
+      "path": "MudSharpCore/Framework/PerceiverItem.cs",
+      "sha256": "279c42ecb8b11f6d104378ffc0891f50e969102c92f5ccb8b6d863eff8c7b187",
+      "bytes": 31534
+    },
+    {
+      "path": "MudSharpCore/GameItems/Components/FirearmBaseGameItemComponent.cs",
+      "sha256": "9d2e25888f8f238c33f29c111c559859f526a79b7f853d3cb5e6574e372c3cbc",
+      "bytes": 33831
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.CountershotAuthority.cs",
+      "sha256": "2d324b9cd5c0e4a35cef70ecc879789fc0c500d8cc5732e1e7a8563393b16255",
+      "bytes": 19571
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.EmotionalHooks.cs",
+      "sha256": "0270a1d351aef71cfcbe6c92c08c8524874137299f308146f1f0f83496d175e6",
+      "bytes": 14320
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.FirearmAuthority.cs",
+      "sha256": "9af7fb6ff0380dcfca07221978527e8c434f4b8a61e7ba5faea9392d8cfd5f2f",
+      "bytes": 22025
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.RaiseServitorStock.cs",
+      "sha256": "71be9f763f0abc0212bfdf1811f01700fa74d974f61998953a7a07db9ff4ae8d",
+      "bytes": 29225
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.SelectedMeleeCheck.cs",
+      "sha256": "aa734b39d2e819f214daa3c821b8ac0b8165340417877a837968b6baa39922f4",
+      "bytes": 23624
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.cs",
+      "sha256": "e80f58855d6558348ed3a5c3204a374b15905d9d73f5ec514f0fff7d71378921",
+      "bytes": 70031
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Run-IsolatedAcceptance.ps1",
+      "sha256": "9cfed2aef98469ea7cc0c403accebd3c4c95aa92bb9a24c217bbdc339ac018bc",
+      "bytes": 17008
+    }
+  ],
+  "preservation": {
+    "old_head": "eb9295cc5f84ddece84edfcbbfc0fc8c76ad2db3",
+    "old_tracked_clean_unchanged": true,
+    "brief_unchanged": true,
+    "selected_old_receipts_and_helpers": [
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_AmmoConservation_CommitReceipt.json",
+        "sha256": "51c107204593a6a1ba4be94d278cfc0e2e665042f54a6cd6b92d58d88a63f381",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_AmmoConservation_StagePaths.json",
+        "sha256": "2ce3bcfe0bfccfd9e031b3be1d893d879dc50da1a09e3f209432bc137550148a",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_AmmoDetachRecovery_CommitReceipt.json",
+        "sha256": "2741fd5924f93916b6715a11d373ec522ec557db448f7ed8295119c13a73a218",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_AmmoDetachRecovery_StagePaths.json",
+        "sha256": "37ef40ee71f91e51537a58bf636d6934471475b255cca9f03d65358cfd9e7391",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_Brief_Materialization_Gate15.json",
+        "sha256": "024ca4745988e99f78bbd2fcf59144ef5e6f7059aaa84b702cbe81410928660b",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_check_CommitReceipt.json",
+        "sha256": "71253de3831151faa5057170271db74b410a6f6c6857c5350cec7e8483a682c5",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_check_PreCommit.json",
+        "sha256": "58c70b4692fb464e4955104b25c06df0eaa6d983add77c6940e4e5b8ac5d33bc",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_check_Staged.json",
+        "sha256": "8a09e1341dc444cb906e1fc3328696c1c547541006eeacc63eda0a5a74bd442e",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_CheckLearning_CommitReceipt.json",
+        "sha256": "b4cb2c0a21402c5a89cf6e18dca726388597f0887b3ed9bcf6ac006989b6c563",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_CheckLearning_Continuation_Queue.json",
+        "sha256": "7c3c132615dc42a7eb3136030711aa86cc1b36f092325324d18a9514cb239c5e",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_CheckLearning_PreCommit.json",
+        "sha256": "a70df576bc7d1bde08bc0979e6998813a56c833ec97004cb9a638169b11eca24",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_CheckLearning_Staged.json",
+        "sha256": "c5195184a53c974d4ac9231303e07c3ed03b07a4f25b99846c118cba7ee8f789",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_CountershotAuthority_CommitReceipt.json",
+        "sha256": "8f0cbe6b3a9e3c8649148200dd91b9a062363bb2754fa7063a05513adc2a0e9f",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_CustodyMerge_CommitReceipt.json",
+        "sha256": "9dac74c0adc44ad0040387f618589c850dd735864d927d670032fa02ed3030eb",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_Discovery_Receipt.json",
+        "sha256": "515d98e52269a08024cce4ce7b75de777eb453fc41c1c7026fbd1abb2b3c3adb",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_FirearmAuthority_CommitReceipt.json",
+        "sha256": "555726bc3216022237f50a7c92fb844c9c74cac6dfc28cba8f993a6c1025084e",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_FirearmPlanResult_CommitReceipt.json",
+        "sha256": "6fadcb54a3962fc8e70904c3b20781f335a44f42d45a5e414d8959e8609d69e3",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_FlameKnife_FinalState.json",
+        "sha256": "9e7f223500d21b32be4c28ae612503b5ba10d35f41c41c61e3533cbf927d679c",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_FlameKnife_HistoricalSource_ReadReceipt.json",
+        "sha256": "5538372608edbad83acec3c7c8310fa85443448bb1c0c17413ad88384cc43200",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_FlameKnife_SourceEnergy_ReadReceipt.json",
+        "sha256": "040e42c77e2c0aa2fdc8a07cd67c305009d39726193f65df2f22041dfdc58918",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_Implementation_Receipt.json",
+        "sha256": "1581e08e8db6670511d1c24f85be7c6961aa71454ec7261aae25bde5a8f1716a",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_Implementation_Receipt_Before_Legacy_Remains.json",
+        "sha256": "d913428f07ecca840d7be633c6a9fded3ff12ec62e273e38a844352e373392c3",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_Implementation_Receipt_Before_Ordinary_Retirement.json",
+        "sha256": "06d591e0476e07539e4da37cd008d796f0df36d49d0d9fc7c58cd85e96694246",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_Library_Read_Receipt.json",
+        "sha256": "cc78b4eba8d0d3546954671eb54aa42e958b307a3edbea59406c50ec1c641ecb",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_LoadOutput_CommitReceipt.json",
+        "sha256": "3cfdd52bb0a25ab32d493dd65469dd25d8c77708a3dc5a9883eea76b93285cfd",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_NativeEmbark_CommitReceipt.json",
+        "sha256": "530e57b3374bcc70d9bec49def51b71017751a99ca842fcb729759598fc3c44c",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_OrderedNpc_CheckLearning_Verification.json",
+        "sha256": "552364e3a4d9d1ea1692405fa8438b1e0b21c44f887be7793cb96d9d7a470a59",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_OrderedNpc_Checkpoint07_CommitReceipt.json",
+        "sha256": "fe87cdf94ffed691c104ad6171de6f715ac6377540d3633520a06b794070c629",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_OrderedNpc_Checkpoint07_DocumentationAddendum.json",
+        "sha256": "de1b24f0cdb4b0541a90bc7f26cc69b78402497885de23a4695ab42dd28ad557",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_OrderedNpc_Checkpoint07_FinalState.json",
+        "sha256": "cf3d02f6b02f3ae551193ddf523b7cc06f6965d699a21fb67093bc5479919d57",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_OrderedNpc_Checkpoint07_PreCommit.json",
+        "sha256": "e6487526578eae44bb543ba408c6c6e80885e75ff72d2ab210ea43f0e93b6d9d",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_OrderedNpc_Checkpoint07_Staged.json",
+        "sha256": "29a8dd51da3ecc44e8ea44a3d754eb5376bae27cac203270a0f6c996b397bc4e",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_OrderedNpc_CheckStaleWrite_Verification.json",
+        "sha256": "05b5e92f63ce31e7e2f2bf1f6c02cc24680c0f66445d7d2cb00aad6b7b550a36",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_OrderedNpc_Coordinator_Checkpoint05.json",
+        "sha256": "6c0e349c2529aba32afb43df5781a95cff26e8247363d15953c1f79e3c189c5c",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_OrderedNpc_Coordinator_Checkpoint06.json",
+        "sha256": "1dd6a24c94dd042f10d5cdf4b96a657cd783d7ab8d239bf0af4f9ae3e488cddc",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_OrderedNpc_Coordinator_Checkpoint07.json",
+        "sha256": "705ed7fde1320dc2abb0012a77348fe7766d5f5368c19e378717abf989ee8f1b",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_OrderedNpc_RegressionP2_Verification.json",
+        "sha256": "5df19bc83b994700b40fc6d837fa54b7a3ad8e0fd26d24ce7f89bc8e37b94516",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_p2_CommitReceipt.json",
+        "sha256": "18a64a957f580da056b1ec1a5f71b0bfbe1e40e8543bfd7b99ecd1bac427a0d4",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_p2_PreCommit.json",
+        "sha256": "87e51bc96f5dbb33ee95595482a45b4f226e4afb3cec9e2a2c2e3f1ecc704b6f",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_p2_Staged.json",
+        "sha256": "e017b5cbede4b8c5714d9695010c1c6a0dfc74847a0c8410ca8044136128aee9",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_ProductionRestart_CommitReceipt.json",
+        "sha256": "61bb8d26240ff305af8f7ab27d0e0b9f1bfdb294c4d005a34c810e001ee197a3",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_QueuedCallback_FinalState.json",
+        "sha256": "bd8c4c172e04e3e3fcb6db772efcfa3d750c2d0a304d81675415f80dec4f12b4",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_QueuedCommand_FinalState.json",
+        "sha256": "81298d62ba3e5ade64ddc80a3be801dde1793afc52c987145db5cbbde7b9de49",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_RegressionP2_FinalHandoff.json",
+        "sha256": "5ea6a98fbb7f61472993e9e79649f5953a4d2e8b0aa27cb9fd9e27f6c62633e4",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_RegressionP2_PreviousCheckHelpers.json",
+        "sha256": "57a0caf01545f10702da1f55bb723bc5453746a3e274709044a18fda90dad608",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_SandKnife_Environment_ReadReceipt.json",
+        "sha256": "80d63b7655dc01589364c27d3402111b63aa9bfebb528f8d05952b4b80529882",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_SandKnife_FinalState.json",
+        "sha256": "4a6da78f2c594869d8e8adc1fc6a69a67c81805aa5bdc85ab47faa0bf8ee7848",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_SandKnife_HistoricalSource_ReadReceipt.json",
+        "sha256": "84f6d8fcf48ecd87a2579a9e4a2d3ee9fe82a2bb23f6a8024d539b4b195a2975",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_SandKnife_SourceEnergy_ReadReceipt.json",
+        "sha256": "8462498b393f99d49df0575f88520ca6c1660050155d8ca9b31ad5f814493859",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_SecurityMaster_Integration_FinalState.json",
+        "sha256": "e3ffef92f7d28415b44852c97fc743832676d7a6e64c72e87a3deeed2751b1d7",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_SelectedMeleeCheck_CommitReceipt.json",
+        "sha256": "c8d9d25442b0f3fd97f433eb05e5ce28a7f2a7991b6d4ff935df241e98915743",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_SelectedMeleeCheck_Verification.json",
+        "sha256": "f3127f947ac4aff87b9d371123fd53c24983af03f5c364dd516a41002a5cafb7",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_SenseFood_CommitReceipt.json",
+        "sha256": "20b28134a6b13db51fb2d08b44bdf06e4417aff9135d66885a7e22ba6881ebb4",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_SenseFood_PreCommit.json",
+        "sha256": "e16b8a1bc9823ff928210054d6f3777581920f99260c696342c1dbcbe052e985",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_SenseFood_Verification.json",
+        "sha256": "524159c19ab845e8f2bca525e8307d63d59de3a9f5c035724d3514a05ca9eea8",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_StackContext_CommitReceipt.json",
+        "sha256": "ba93536a559650321914bac392fa7f960e6313e9b38636cfd54a04b7e5a17200",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_StackContext_PreCommit.json",
+        "sha256": "f402043615fc8a0a8da30715917337da472f3410131573a0f35e75309a94712a",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_StackContext_Verification.json",
+        "sha256": "9299da47536495724942eeb5284e09e6d1118479a4a2f34bd68745f97c053b7d",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_StackMerge_CommitReceipt.json",
+        "sha256": "49d880f0f800aa2c025e39f387e1443592191fa4f353f26c8c9612620a231226",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_StackMerge_PreCommit.json",
+        "sha256": "5da6ac127cee077fe1a1515d0d2f5cc1e47f348e8f2315014d3242e24c6ebf92",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_StackMerge_Verification.json",
+        "sha256": "bce82b0000c413afd0c9f448a48f5afb594e24d7dbe12f82f413dcaea84d42fb",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_Stage1C_Implementation_Receipt.json",
+        "sha256": "379cbc082c042b8581bc79bd8d92b5cff2fef58112c3fe83d455e02d381de6c6",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_Stage2A_Effect_Interruption_Final_State.json",
+        "sha256": "bad5f1e0a25cfb9f38037e5e29dba8b2a5661279cb0eac767a02ff1e8af4616d",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_Stage2A_Effect_Interruption_Implementation_Receipt.json",
+        "sha256": "9eed0cf3a9b040d3c877b8325e5426ee056d07e0ea3048951baf881d56ead8dc",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_Stage2A_Final_State.json",
+        "sha256": "d42d36683f41c621250358153f21c918d53fe12cd2ff7d0066ba44be13902fe5",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_Stage2A_Initial_Implementation_Receipt.json",
+        "sha256": "879b28dc5e42724e84717b3df9bc3a16647418433deef8c92b11350d62bb6de6",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_Stage3A_Final_State.json",
+        "sha256": "8946e70a94b521b036675f9b90857ea96c8595297ea685569f5a0b1be82bb8f0",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_Stage3A_LegacyRemains_Final_State.json",
+        "sha256": "0dab8c0c9f8f49ab8244dfea77f6abd8fc34a408935530d2ea44b4b069a4d100",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_Stage3A_OrdinaryRetirement_Final_State.json",
+        "sha256": "86fdaca25a82142e7ee4bf1cc9046334b92a8057387eb6287174a052a81fe278",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_Stage3A_RuntimeRemains_Final_State.json",
+        "sha256": "dbc107abae50a69d456d0d9636b5807cf564346fe9db7ccbe7a1094a497070a6",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_Stage3A_RuntimeRemains_Verification.json",
+        "sha256": "3c1c464c50d8f662862e1e0d8990ded630a13b76a12d0b50d6b5b4719e96e384",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_Stage3B_Archival_Final_State.json",
+        "sha256": "b25b3fd8807ca43e513e5ce627bdacd45bc5bd53a2f5b6791a3028a43c95752d",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_Stage3B_Archival_Verification.json",
+        "sha256": "f80b3ddb1d02b201a2c15da874007ca143a36e06ef101e18d12e6ef726682190",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_Stage3B_HistoricalAuthorship_FinalState.json",
+        "sha256": "1aa2c1792acf7895a3f6a323a16a5bd37bc277b9f0f579c38bd4877dabf55c77",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_Stage3B_HistoricalAuthorship_Verification.json",
+        "sha256": "2bc797acb30accdeb7f7f57a77cccd7b2545f073f8220e595d191debcde287ff",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_Stage3B_Maintenance_FinalState.json",
+        "sha256": "3bb0295887122691906d7bcbc7af001931cf4fd62b362fe40d91252c47c3ddbd",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_Stage3B_Maintenance_Verification.json",
+        "sha256": "af660c635e9641151b618b6eabebd84fa85148071adb385be257b11844447430",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_Stage3B_NativeNpc_FinalState.json",
+        "sha256": "0f040e69ab30b8a63cd14a280da91f22eceab9712adaacb6f76e752227eadc75",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_Stage3B_NativeNpc_Verification.json",
+        "sha256": "02ee665e21bd8b0af361a26f7daedb3f0d51716158e8464b98ae97e1d2772281",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_Stage3B_NpcAdmission_Capacity_Addendum.json",
+        "sha256": "606d7dc21c99075478ae9ac2bb11f591f4306fc3af38d55ed112036135839053",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_Stage3B_NpcAdmission_FinalState.json",
+        "sha256": "a5895aea25e4ea4ae57a0fada3269e6cad6826aa2839bb87c874d3389e620aa9",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_Stage3B_NpcAdmission_Verification.json",
+        "sha256": "a78217cde264083abe34b61e30a41373a02b9fbd8158267c6abe63d379820585",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_Stage3B_NpcRetirement_DirtyState_P2_FinalState.json",
+        "sha256": "f917a3cb0897c653ee606894f666529d7e7a5da35f868caa6c64c74a2efcc86e",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_Stage3B_NpcRetirement_DirtyState_P2_Verification.json",
+        "sha256": "76b34d6bcc186f9ec1f4b336ea289b45213ee7db36526e0dfe598b5056ab421a",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_Stage3B_NpcRetirement_FinalState.json",
+        "sha256": "527e251f261947928e032deeab5b482dda2159843646bb8eb8d6e8733f768d51",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_Stage3B_NpcRetirement_P2_FinalState.json",
+        "sha256": "f06aded7023cea3951deb976bfdb5fa4edb0ba08ce9d9ebeb6389b0136a7ce47",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_Stage3B_NpcRetirement_P2_Verification.json",
+        "sha256": "56156cdf0095098d431d6d504341b69c23e0fbdcb9966d6cc486d5f24e2fe2e4",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_Stage3B_NpcRetirement_Verification.json",
+        "sha256": "8def1dc929143e270da15ba6d40ed73bae00b41bb9dc0fe216a67310052d51a5",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_Stage3C_ConsumablesLight_FinalState.json",
+        "sha256": "278b3ddaca5b3810ddb136f9194303a8aaefb5383261a4621b225e8cc2a21ec2",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_Stage3C_NativeItems_ClosedState.json",
+        "sha256": "c60ec8624f8757455d17358de7ed97e2ad0590a614d13f86e24e54be7d293c8a",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_Stage3C_NativeItems_FinalState.json",
+        "sha256": "7b6ee762d54c49315f3d21ab460724c7ecd6dae400cab819bdcab9ab95a60848",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_Stage3C_NativeItems_P2_FinalState.json",
+        "sha256": "424536f74c083151760eb0b30e8c250cb9adac1c22ba9250a8754efdc28ecc5e",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_Stage3D1_CorpseAnimation_FinalState.json",
+        "sha256": "1fddb44c73a854f2a939b46c5ddbc2499dbb73f43267293d9a86888ebf2042c3",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_Stage3D1P1_SavedParent_FinalState.json",
+        "sha256": "a42d3e308695be471b8e7bb5fe03a175f476eae150b63e65e13ef71b714699df",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_Stage3D1P1M_MorphRestart_FinalState.json",
+        "sha256": "817e0ed52211307185fa56b1d0c57ee43a6bd85746cc05940e721daaae13e1a9",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_Stage3D1P2_Scheduler_FinalState.json",
+        "sha256": "93a77924a41c81e2579f68588d870c0dfc7ded6cce8038d14d80fff893fa5f59",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_Stage3D1Stock_HistoricalTiming_ReadReceipt.json",
+        "sha256": "bf54bea2f542ae3931107fd1235a0d5b79c9ca73b5761613f8debcc31ccd70b8",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_Stage3D1Stock_RaiseServitor_FinalState.json",
+        "sha256": "6ac429e0feb62346a808db9baa80e1434752b39c961fe97a44c4a863239d4f23",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_StormSpear_Brief_ReadReceipt.json",
+        "sha256": "7a4dfb47f17adf76116e7dc4795c2a244bf6ebaa59f9de0e7bded262323c82c8",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_StormSpear_FinalState.json",
+        "sha256": "3dbed49ec3ca70b4fd0e021c096a935e9cf5d94b718ca7a644b3b45ef35aa527",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_StormSpear_HistoricalSource_ReadReceipt.json",
+        "sha256": "6917feba3f0990b3c0ba1e43af71b0632f53f211261ee99794648bb2dfe12e70",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_StormSpear_Pause_20261004.json",
+        "sha256": "9523922fa0f1e62e0f810f2760fa2b3411fe06dc203e34750a4bb392bc738c7d",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\boot_build.ps1",
+        "sha256": "af5f2423735a962e71a936a3e078062dd69ebb4ac8c8c30b97c643604cf5a49d",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\boot_cases22.py",
+        "sha256": "8b79a810c0e23b56ab03e8dfcb7b18d861e61a8b5beebcc4efc4280e5f1f315d",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\boot_check22.py",
+        "sha256": "d3faaa41fa15dc96f7385a5190056a0c8ac0f694bf32037ed811ed6399c0ab9d",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\boot_commit22.ps1",
+        "sha256": "794571ab65eec16883996ede5ee576baff8de883f49c1854c272ae2c17d44e03",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\boot_fixture22a.py",
+        "sha256": "041a83f877f335dfc00bc0db52074f384d533d34f654b1d5ad74f351d1cb08fc",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\boot_focused22.ps1",
+        "sha256": "77dc9dac32b6d81834c30dc76bf06d1630db7b096e95aaa07132f02a6e44345b",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\boot_freeze.py",
+        "sha256": "e05ba7a482b60ff7a4e1f5e377ad0b3ab4699d328ed2c928f9c7cafbc4613be2",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\boot_fullfast22.ps1",
+        "sha256": "783aae6f8535c32c34682fbbabe57beaabfd556f6073f4236c1e3b77f4181476",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\boot_native.ps1",
+        "sha256": "0ad29ff92f6ae75d85330396cc58947fcf9e8500d41dd84864c131696f43ec32",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\boot_native_checked22.ps1",
+        "sha256": "09baf460bad41e080b84bc750d2774dcd0bf1f9490addedfb7cd24ee75f2fdcd",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\boot_prepare22.py",
+        "sha256": "a6095b8de7bcf3f68a8814460e2e27ec1e5360b76cd3e132930a886bdfd01435",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\boot_report22.py",
+        "sha256": "ead711978ab08f9c9864b2b5ebae9507a71d94702e16e4cc591b8823353a0c14",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\boot_review22.py",
+        "sha256": "25ff18230f96700002e9da630c124a074d7e29c15e6a34b5b40ac0fd7c5d43c9",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\boot_review_final22.py",
+        "sha256": "89e923313c5c993a583ebfa56c27c1f81ba590da02fd436b96b469b4985f2157",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\boot_seal22.py",
+        "sha256": "b355a8cff2df84e3a5b43b28366119172f7fae1db453cd23b5cc5b3faff56a06",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\boot_source22.py",
+        "sha256": "ffedd9ac4cd0ee243ebe739b3220e09369a28e0c3ec13c358a49cee61c18dc14",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\boot_source_extended22.py",
+        "sha256": "f764bc464695eb0ee45e73ab7bf46e8c6cabecbf62146a8c424486872f5a5cfb",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\boot_verify22.py",
+        "sha256": "d3d3a7123a823ad54c04c538761542504201cde0e94f2edcde727ccaa8f7801a",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\boot_wire22.py",
+        "sha256": "b616692df1402ec4fd1e72f0da7becd085309d585e5754101d0bd12dff0eb40e",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\boot_work.py",
+        "sha256": "a587bfd08dfb73156d4ba3d2adf1a672bd326ed158fe19b1253978b41f2990d7",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\embark_build.ps1",
+        "sha256": "92c07541046eb9fc57150089c6b4021e7a1764cc2901e41e14ca5c046660a4f3",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\embark_commit21.ps1",
+        "sha256": "284586fd65a2deca31796e9c69f2f438f024481dbc4896a1912f540ac6ab3820",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\embark_focused21.ps1",
+        "sha256": "69a2f9865fd28a51c47c65883d9f610c4d0df25c9db625f804ab6300fd964820",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\embark_freeze.py",
+        "sha256": "a4300a583fd2410238070a82547b3d923d8061d4c16e95a5229f1d1f3f2e0be9",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\embark_implement21.py",
+        "sha256": "77095e4ac0dc05b8168bcd44c56af7997c73f6347afff91d30249ac137f0adfc",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\embark_native.ps1",
+        "sha256": "895463daf2cd183aacb5e20b15f448590e63a205c1a41501f58d0886092edf94",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\embark_native_checked21.ps1",
+        "sha256": "ea00973142738f3137cdad4e3bbae81831b611af1b91df4daf96b7de861d27c0",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\embark_prepare21.py",
+        "sha256": "86c3521dc7ea25f55099a5e7c41fb2d45356ce1e86c381784c37b4f37c866a49",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\embark_report21.py",
+        "sha256": "84601ce82e55f6a08fda9284e4d4df57bfeffb58ad358a8a17b1280fa14cb6eb",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\embark_seal21.py",
+        "sha256": "440ba055e9f2538becee4740b881de26dd1eb924027c4d09b85f4f212843cedd",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\embark_source21.py",
+        "sha256": "6e48f4eabc68862c7c7daedc11521a80d1bfc8ffe7f9399b0cf64df1c8432c2c",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\embark_verify21.py",
+        "sha256": "f147a9f6a904abf98b68d224c5f796e2b6064431642bb67bbbbaac461940e17f",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\embark_work.py",
+        "sha256": "ae940896a805421a8d0520b53d8f46c83ad13ef82d504afbc89a59e9aa6c592e",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\recovery_build.ps1",
+        "sha256": "7c254537d294661962a40829173fad727e72f4d2ac3648ae01e443c91b8f4bd5",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\recovery_case_native.ps1",
+        "sha256": "0c5faab6e8d61dba5fbd77bcd5f9f2de8883b6fbfb088d344efcfe28ef7b731c",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\recovery_commit20.ps1",
+        "sha256": "d0d017da2ca8bdabdd011836ec46b7490a04c6c986bd3c88b9fe8aef9553e638",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\recovery_fast.ps1",
+        "sha256": "5ee9c9eef75079ac37db1c0310be5c98b4f78246e8c701cbea88600d5f3085f0",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\recovery_fix.py",
+        "sha256": "87c4fce10090cd0327c4e53c6496fb2027d44f8efef8e7107e821458a0cda6d2",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\recovery_fixture.py",
+        "sha256": "2c5cd8998795c4d3412113f7125b1aa6462799f44a821f561bab265594f9bf6f",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\recovery_focused.ps1",
+        "sha256": "a0b4b64fb1eb79a17eaef307e61cca2f5c00396e91e0fc4d584cd9ec7eb187ce",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\recovery_freeze.py",
+        "sha256": "f382ee5942e845e85c0cf078b5598d18b76105e10922fba0495c632669b5ea40",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\recovery_native.ps1",
+        "sha256": "c2ff35ac736fea59383b135fb569f66c08dff9fe01c8ef7eb593351d33e58d8a",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\recovery_post_fast.py",
+        "sha256": "c43fbd0fff6ec9757b59b9f246793c81d2172882bbbeef012fc53e1b8ee008a1",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\recovery_report20.py",
+        "sha256": "f1c80ac68d1da89fd3275db95167885ee162f79bf9742c54a3e507698cb1e933",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\recovery_report_addendum.py",
+        "sha256": "35676625b033169d50c46452d18343dac5315e5eb61b551f935abe7e0fbf4a64",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\recovery_seal20.py",
+        "sha256": "1c19583d907b8421da4c244b983401243d79cc8953e33fa57758ad9d57b54de1",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\recovery_source.py",
+        "sha256": "6e360e98c32f68664d6d84d9fa3a83169d3b5d6ea8d63238c74d4c4fd78b84d2",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\recovery_tests.py",
+        "sha256": "b733618fa22b67b520bcbb7ea410b7e643d4b1e3a33b857ce9e565221e763c0d",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\recovery_verify_inputs.py",
+        "sha256": "971f083049d8be9f5bb9d115f8225a2fb916c629f172e2a5cfa9edf18afc2bb1",
+        "unchanged": true
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\recovery_work.py",
+        "sha256": "bea3b26ec5c99bb0bd3493cc8636dd51cf3645b0bb4905bae88755d1544ac217",
+        "unchanged": true
+      }
+    ]
+  },
+  "review": "Independent focused review found no established remaining P1/P2 in runtime or bounded native fixture. It did not execute native checks or clear stock activation/universal families.",
+  "limits": [
+    "No production opted-in effect, stock Fury/Calm paid casting bridge, lifetime/save/load or installer mapping is activated. Fury does not refill stamina.",
+    "Native cases are bounded actual gameplay in the existing catalogue harness; they do not equal the authoritative 25 native scenarios or full server/Telnet acceptance.",
+    "Natural/magic seams have managed coverage; native scope is melee, declared internal-magazine firearm, independent countershot, Simple/Prog cessation.",
+    "Specialized bypassing overrides, other ranged components including bows/crossbows/Musket/artillery, auxiliary/contact maneuvers, direct spell/DoT and arbitrary custom combats/perceivers remain unqualified.",
+    "Observer exceptions propagate after consumed-ticket committed detach. Captured old Aim releases across removal failure; arbitrary later callback continuation is not universally promised.",
+    "Full Fast, full-world/Telnet, stock emotional activation/reload and exhaustive family acceptance are NOT_RUN here.",
+    "Historical Musket/artillery continuation is deferred by the current allocation; no issues780-783 fix, version change, publication, merge, deployment or shared/production database work."
+  ],
+  "whole_plan_complete": false,
+  "package_enabled": false
+}

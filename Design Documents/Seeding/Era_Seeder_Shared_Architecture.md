@@ -57,7 +57,7 @@ If an era needs different behaviour, express it through configuration or a small
 
 ## Industrialised era registry and installer boundary
 
-The later-era programme is registered centrally by `ItemSeeder.IndustrialisedArchitecture.cs`. Canonical ordinary-item keys are `industrial`, `modern`, `nuclear` and `information`; `revolution`, `atomic` and `computer` are compatibility aliases used by the established vehicle catalogue. Registry presence is not activation: all four entries remain non-selectable until their executable manifest modules contain real, validated stock.
+The later-era programme is registered centrally by `ItemSeeder.IndustrialisedArchitecture.cs`. Canonical ordinary-item keys are `industrial`, `modern`, `nuclear` and `information`; `revolution`, `atomic` and `computer` are compatibility aliases used by the established vehicle catalogue. At revision `39eb9d32d2012f56ac3ef33c441b5dac7c3535e3`, Industrial is selectable; Modern, Nuclear and Information remain non-selectable. Selectability does not prove all development catalogues are ready: Industrial food has a separate production-readiness preflight. See the [source and authoring guide](Seeders/ItemSeeder.md) for the exact boundary.
 
 The installer experience remains inside ItemSeeder. ItemSeeder asks for the world technology profile and any custom composition, maps public era names to internal helpers, and reports missing prerequisites. UsefulSeeder continues to own reusable component prototypes, and domain TSV loaders may live in dedicated helper files. Do not add a second user-facing later-era package or expose UsefulSeeder implementation questions as a substitute for the ItemSeeder profile.
 

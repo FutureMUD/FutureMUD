@@ -1,0 +1,359 @@
+{
+  "schema_version": 1,
+  "status": "PURE_EXTRACTION_VERIFIED_PARENT_REVIEW_PENDING",
+  "recorded_utc": "2026-10-06T11:43:47.340079+00:00",
+  "cleared_base": "56b3427916987e7f6650216f89caae88dab87c55",
+  "tested_source_commit": "caf7072e329f3704e9e7ac15e0fd45e71f3c9abf",
+  "branch": "codex/armageddon-water-see-integrated-39eb",
+  "worktree": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-4\\FutureMUD-water-see-integrated",
+  "public_contract": {
+    "class": "MudSharp.Magic.ArmageddonReviewedWaterSeeContent",
+    "path": "FutureMUDLibrary/Magic/Stock/ArmageddonReviewedWaterSeeContent.cs",
+    "methods": [
+      "ArmageddonUtilitySpellContent WaterBreathing(IReadOnlyList<long> waterLiquids)",
+      "ArmageddonUtilitySpellContent SeeTheUnbodied(long siltTerrain, long shadowTerrain, IReadOnlyList<long> divinationRanks)"
+    ],
+    "ids_copied_before_definition_capture": true,
+    "fresh_xml_each_build": true,
+    "persistence_calls": false,
+    "world_catalogue_or_tag_ancestry_inference": false,
+    "validation_owner": "Native wrappers preserve their exact pre-write catalogue identity/tag ancestry checks; installer validates its own bound native definitions."
+  },
+  "source_files": [
+    {
+      "path": "FutureMUDLibrary Unit Tests/ArmageddonReviewedWaterSeeContentTests.cs",
+      "bytes": 7272,
+      "sha256": "d3aaa740c77a4ede9135639de739beaf4edb7ec2164566996dd1ccb066c1e408",
+      "git_blob": "4821636fd1b81315e5b31e53997d69c5a68a5ebd"
+    },
+    {
+      "path": "FutureMUDLibrary/Magic/Stock/ArmageddonReviewedWaterSeeContent.cs",
+      "bytes": 7428,
+      "sha256": "9eba218d6ad0b103fe3174983e72992b99289482935b00f753fe095629b1e207",
+      "git_blob": "c5e199ed376d187c64bf7948b85bd7ee788f57f6"
+    },
+    {
+      "path": "MudSharpCore/Magic/ArmageddonSeeTheUnbodiedStock.cs",
+      "bytes": 2566,
+      "sha256": "781c9ae6fb1339a2f32a68b95ec14b40ac3a7bee6c98a4c21659ae180a706e8f",
+      "git_blob": "151b5a777b9ca6f3c81f511d549d9bcc47ec1761"
+    },
+    {
+      "path": "MudSharpCore/Magic/ArmageddonWaterBreathingStock.cs",
+      "bytes": 1835,
+      "sha256": "3caa0ce53e7451033e21b05baa016ac6ac79952c8b6c45863a2ada24dc92b86d",
+      "git_blob": "adffbebc256fa7bff8fe3d436afbdecdb19d834f"
+    }
+  ],
+  "protected_boundaries": {
+    "cleared_base": "56b3427916987e7f6650216f89caae88dab87c55",
+    "frozen_source": "caf7072e329f3704e9e7ac15e0fd45e71f3c9abf",
+    "protected_paths": [
+      {
+        "path": "MudSharpCore/Magic/MagicSpell.Lifetime.cs",
+        "cleared_blob_or_tree": "41b9384e81d2e97ff75492507b75b347bfe0aec1",
+        "extracted_blob_or_tree": "41b9384e81d2e97ff75492507b75b347bfe0aec1"
+      },
+      {
+        "path": "MudSharpCore/Magic/SpellEffects",
+        "cleared_blob_or_tree": "edaed302a0f51d10a9ad0ba64e76ae75fa6d5954",
+        "extracted_blob_or_tree": "edaed302a0f51d10a9ad0ba64e76ae75fa6d5954"
+      },
+      {
+        "path": "MudSharpCore/Magic/Casting",
+        "cleared_blob_or_tree": "e47b2db806382c4edd82a0b94528d6dd2fbb73c6",
+        "extracted_blob_or_tree": "e47b2db806382c4edd82a0b94528d6dd2fbb73c6"
+      },
+      {
+        "path": "MudSharpCore/Health/Breathing",
+        "cleared_blob_or_tree": "b2861b592241b6f71204ec84a0f1e4b51271727e",
+        "extracted_blob_or_tree": "b2861b592241b6f71204ec84a0f1e4b51271727e"
+      },
+      {
+        "path": "MudSharpCore/Commands/Helpers",
+        "cleared_blob_or_tree": "e5aba50e6f8fd6b009e7c74ae7a0eb4064ccf83e",
+        "extracted_blob_or_tree": "e5aba50e6f8fd6b009e7c74ae7a0eb4064ccf83e"
+      },
+      {
+        "path": "DatabaseSeeder",
+        "cleared_blob_or_tree": "20940b431f6446b0e37c6b5207c32d181df57a24",
+        "extracted_blob_or_tree": "20940b431f6446b0e37c6b5207c32d181df57a24"
+      },
+      {
+        "path": "FutureMUDLibrary/Magic/Stock/ArmageddonUtilitySpellContent.cs",
+        "cleared_blob_or_tree": "70c1d5a3343e6399e0fe5bf2db78039c989d2bec",
+        "extracted_blob_or_tree": "70c1d5a3343e6399e0fe5bf2db78039c989d2bec"
+      },
+      {
+        "path": "Design Documents/Magic/Armageddon_Completion_Progress.md",
+        "cleared_blob_or_tree": "e7d7a092fb3f9e360cda307328cc822454fbd931",
+        "extracted_blob_or_tree": "e7d7a092fb3f9e360cda307328cc822454fbd931"
+      },
+      {
+        "path": "Design Documents/Magic/Armageddon_Completion_Progress.json",
+        "cleared_blob_or_tree": "04f84c284846fbee0f8c87d6285d79e8cada2514",
+        "extracted_blob_or_tree": "04f84c284846fbee0f8c87d6285d79e8cada2514"
+      }
+    ],
+    "native_wrapper_validation": [
+      {
+        "path": "MudSharpCore/Magic/ArmageddonWaterBreathingStock.cs",
+        "validation_block_identical": true,
+        "public_create_signature_identical": true
+      },
+      {
+        "path": "MudSharpCore/Magic/ArmageddonSeeTheUnbodiedStock.cs",
+        "validation_block_identical": true,
+        "public_create_signature_identical": true
+      }
+    ]
+  },
+  "baseline_capture": {
+    "source_commit": "56b3427916987e7f6650216f89caae88dab87c55",
+    "tested_code_commit": "55922a080637a06a7b00964c0c2c1bb389dc9b8d",
+    "core_sha256": "34b68f0e85a20a5082b3ac17292b412524047abfc862c64e7b045fcc8172a423",
+    "actual_xml_and_eligibility_captured_from_cleared_assembly": true,
+    "descriptions_from_cleared_declared_source": true,
+    "water_xml_sha256": "1bd104111bb00a58c4ac3772a9f987bfec2c20d9906aef7ea8bbd3c66f687582",
+    "see_xml_sha256": "e7fd8f8326f44b24ab05a30e7ea7848e26a92f5b5093e812f79bee6b00ac6e7d",
+    "evidence": {
+      "path": ".artifacts/test-runs/water-see-factory-01/baseline/cleared-definitions.json",
+      "bytes": 7187,
+      "sha256": "57a9fcfefc00bbf2186640e85d70bdcd996ee2c6bd3ff97eedd800d5627a1495"
+    }
+  },
+  "tests": {
+    "library": {
+      "path": ".artifacts/test-runs/water-see-factory-01/library-final/20261006T113620Z-97b320f209d1/summary.json",
+      "bytes": 6273,
+      "sha256": "484c081d236ba34376519295349df051aa48aceb7d83bddce6efdce945cd70cb",
+      "status": "PASS",
+      "head": "caf7072e329f3704e9e7ac15e0fd45e71f3c9abf",
+      "configuration": "Debug",
+      "filter": null,
+      "counts": {
+        "executed": 652,
+        "passed": 652,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 652
+      },
+      "source_start": "48f5ad5733332f77cd9c9e47412743e5f4b1721ae680267b5228b279ab5c1401",
+      "source_end": "48f5ad5733332f77cd9c9e47412743e5f4b1721ae680267b5228b279ab5c1401",
+      "source_stable": true
+    },
+    "core_stocks": {
+      "path": ".artifacts/test-runs/water-see-factory-01/core-stocks-final-02/20261006T113743Z-79b97d1b9b35/summary.json",
+      "bytes": 6481,
+      "sha256": "e46b7f1206fc43f8f21c6bd782cb9a56ec769083a7b1a9bd57fb99cfe5d0592b",
+      "status": "PASS",
+      "head": "caf7072e329f3704e9e7ac15e0fd45e71f3c9abf",
+      "configuration": "Debug",
+      "filter": "FullyQualifiedName~WaterBreathingStockTests|FullyQualifiedName~SeeTheUnbodiedStockTests",
+      "counts": {
+        "executed": 68,
+        "passed": 68,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 68
+      },
+      "source_start": "43aee57ac0ee3e4bdc1425f8918d1a18079dab2fbff6af8d9163c069338606e5",
+      "source_end": "43aee57ac0ee3e4bdc1425f8918d1a18079dab2fbff6af8d9163c069338606e5",
+      "source_stable": true
+    }
+  },
+  "native": {
+    "source_head": "caf7072e329f3704e9e7ac15e0fd45e71f3c9abf",
+    "qualification_scope": "Pure Water/See factory extraction: existing two stock modes verify actual native builders, edits and reload against frozen delegation",
+    "stock_clearance": "Bounded source stock qualification; explicit-self syntax adaptation and full-world/hidden-target visibility limits; parent independent review pending",
+    "source_files": 7679,
+    "source_stable": true,
+    "assemblies_stable": true,
+    "all_passed": true,
+    "source_manifest_sha256": "b87d29b59fb47c25ec7464efd8b93cb34885ce13edbb91b78bfcd47cd744068f",
+    "assembly_manifest_sha256": "b1ce635766508fbcc3dc0a76f4c0cef35ccd09822788b63339a4eaf6861c463e",
+    "runs": [
+      {
+        "mode": "water-stock",
+        "exit_code": 0,
+        "passed": true,
+        "owned_cleanup": true,
+        "log": ".artifacts/test-runs/water-see-factory-01/native/water-stock.log",
+        "log_evidence": {
+          "path": ".artifacts/test-runs/water-see-factory-01/native/water-stock.log",
+          "bytes": 1295806,
+          "sha256": "0575392ed145d3e7a560899ef464c3a81d803e3dc2dc9376cbaa946ff82aaa20"
+        }
+      },
+      {
+        "mode": "see-unbodied-stock",
+        "exit_code": 0,
+        "passed": true,
+        "owned_cleanup": true,
+        "log": ".artifacts/test-runs/water-see-factory-01/native/see-unbodied-stock.log",
+        "log_evidence": {
+          "path": ".artifacts/test-runs/water-see-factory-01/native/see-unbodied-stock.log",
+          "bytes": 1867667,
+          "sha256": "ad8f400f20fa87c0e58fe4c639afffac307bba05452945ad9262a70313febdda"
+        }
+      }
+    ]
+  },
+  "unit_native_assembly_identity": {
+    "core": [
+      {
+        "path": "MudSharpCore Unit Tests/bin/Debug/net10.0/MudSharp.dll",
+        "bytes": 31242240,
+        "sha256": "b32642e6fe84dd5366baa2a03d672eadac0aebb6604c2e09cc938eb86ca5e58b"
+      },
+      {
+        "path": "Temporary Scratch App/SeeTheUnbodiedStockNativeHarness/bin/Debug/net10.0/MudSharp.dll",
+        "bytes": 31242240,
+        "sha256": "b32642e6fe84dd5366baa2a03d672eadac0aebb6604c2e09cc938eb86ca5e58b"
+      }
+    ],
+    "library": [
+      {
+        "path": "FutureMUDLibrary Unit Tests/bin/Debug/net10.0/FutureMUDLibrary.dll",
+        "bytes": 2915328,
+        "sha256": "d5e8a295ca78308f254fc97fbf2f7692144eed20cc33d14a0defeb2da235a2c5"
+      },
+      {
+        "path": "MudSharpCore Unit Tests/bin/Debug/net10.0/FutureMUDLibrary.dll",
+        "bytes": 2915328,
+        "sha256": "d5e8a295ca78308f254fc97fbf2f7692144eed20cc33d14a0defeb2da235a2c5"
+      },
+      {
+        "path": "Temporary Scratch App/SeeTheUnbodiedStockNativeHarness/bin/Debug/net10.0/FutureMUDLibrary.dll",
+        "bytes": 2915328,
+        "sha256": "d5e8a295ca78308f254fc97fbf2f7692144eed20cc33d14a0defeb2da235a2c5"
+      }
+    ],
+    "frozen_source": "caf7072e329f3704e9e7ac15e0fd45e71f3c9abf",
+    "all_match": true
+  },
+  "cleanup": {
+    "checked_utc": "2026-10-06T11:42:34.7412884Z",
+    "owned_ports": [
+      60614,
+      60959
+    ],
+    "owned_mysql_process_count": 0,
+    "owned_native_process_count": 0,
+    "temporary_prefix_directory_count": 0,
+    "queries_complete": true,
+    "read_only": true
+  },
+  "supporting_evidence": [
+    {
+      "path": ".artifacts/test-runs/water-see-factory-01/baseline/Program.cs",
+      "bytes": 1114,
+      "sha256": "674f2a73d2a962df17b70a134dba1f15a0565de1df10d95873bd3a67900ef012"
+    },
+    {
+      "path": ".artifacts/test-runs/water-see-factory-01/baseline/Capture.csproj",
+      "bytes": 19351,
+      "sha256": "f225654f5a54d0e1159822c2c3b4d8b5d2dd3d82529f0c6454b24d87bd224bad"
+    },
+    {
+      "path": ".artifacts/test-runs/water-see-factory-01/baseline/cleared-definitions.json",
+      "bytes": 7187,
+      "sha256": "57a9fcfefc00bbf2186640e85d70bdcd996ee2c6bd3ff97eedd800d5627a1495"
+    },
+    {
+      "path": ".artifacts/test-runs/water-see-factory-01/baseline/captured-assembly-proof.json",
+      "bytes": 204,
+      "sha256": "e331bf78c5a0e0d36187d63e8f725f25bf3bc214d3e084de20b3b5dc41902984"
+    },
+    {
+      "path": ".artifacts/test-runs/water-see-factory-01/assembly-match.json",
+      "bytes": 1207,
+      "sha256": "7cc87df6876af612ab3c823b5ac25fc19776d0051d0ff7962e9cea6434898331"
+    },
+    {
+      "path": ".artifacts/test-runs/water-see-factory-01/protected-boundaries.json",
+      "bytes": 2564,
+      "sha256": "15d5e2c879142ad65bbdb43d9f7cdaec102207beec711859dd4c3558a130e325"
+    },
+    {
+      "path": ".artifacts/test-runs/water-see-factory-01/native-build.log",
+      "bytes": 25743,
+      "sha256": "219b3c9ae555012cf1e2eae17a6b18f6900021a9b121852b6f3d29373f58463c"
+    },
+    {
+      "path": ".artifacts/test-runs/water-see-factory-01/run-native.ps1",
+      "bytes": 3802,
+      "sha256": "fdecc5f645477ecae9b354579f2bc040ce5debf5b1b1597f1f9df43dd4e2536e"
+    },
+    {
+      "path": ".artifacts/test-runs/water-see-factory-01/native/summary.json",
+      "bytes": 1139,
+      "sha256": "91c8253b633b398a8f2acfbf542cedc2df470a001f1ff1a85ba8d1fab015f75e"
+    },
+    {
+      "path": ".artifacts/test-runs/water-see-factory-01/native/source-before.json",
+      "bytes": 1293265,
+      "sha256": "b87d29b59fb47c25ec7464efd8b93cb34885ce13edbb91b78bfcd47cd744068f"
+    },
+    {
+      "path": ".artifacts/test-runs/water-see-factory-01/native/source-after.json",
+      "bytes": 1293265,
+      "sha256": "b87d29b59fb47c25ec7464efd8b93cb34885ce13edbb91b78bfcd47cd744068f"
+    },
+    {
+      "path": ".artifacts/test-runs/water-see-factory-01/native/assemblies-before.json",
+      "bytes": 15556,
+      "sha256": "b1ce635766508fbcc3dc0a76f4c0cef35ccd09822788b63339a4eaf6861c463e"
+    },
+    {
+      "path": ".artifacts/test-runs/water-see-factory-01/native/assemblies-after.json",
+      "bytes": 15556,
+      "sha256": "b1ce635766508fbcc3dc0a76f4c0cef35ccd09822788b63339a4eaf6861c463e"
+    },
+    {
+      "path": ".artifacts/test-runs/water-see-factory-01/final-owned-cleanup.json",
+      "bytes": 268,
+      "sha256": "445725964ac1d9659de8aeb530dc99eda3f9f6d2fe86e41493854bce1f087239"
+    },
+    {
+      "path": ".artifacts/test-runs/water-see-factory-01/core-stocks-final/20261006T113649Z-e0347581803c/summary.json",
+      "bytes": 2604,
+      "sha256": "631bc663d10ff6849153b98f1d6cb1f82f2e4bcc9eeb87c2672ed09a1da5a9c7"
+    }
+  ],
+  "preserved_blocked_attempt": {
+    "evidence": {
+      "path": ".artifacts/test-runs/water-see-factory-01/core-stocks-final/20261006T113649Z-e0347581803c/summary.json",
+      "bytes": 2604,
+      "sha256": "631bc663d10ff6849153b98f1d6cb1f82f2e4bcc9eeb87c2672ed09a1da5a9c7"
+    },
+    "status": "BLOCKED",
+    "reason": "RESOURCE_BUSY: initial core selection started while library reporter still held the worktree lock; blocked before tests/builds. Retained without counting as verification; serial rerun passed68/68."
+  },
+  "qualified": [
+    "Exact cleared XML and eligibility parity; unchanged descriptions/emotes/cost/duration/source lifetime/component/rank/practice fields",
+    "Copied caller lists and independent returned XML trees; malformed scalar/collection shapes rejected by pure contribution",
+    "652 library tests including21 new parity/input-freezing cases",
+    "68 existing runtime stock tests: native binding refusal, compiled eligibility, builder edits, clone/save/reload and source admission",
+    "Actual native Water/See stock builders, duplicate/malformed row conservation, edit/database reload, existing paid/custody/persistence/practice/expiry checks"
+  ],
+  "not_rerun": [
+    "The full ten-project/ten-mode published integration suite remains historical evidence at cleared56b342791. This extraction changes no lifecycle/casting/inventory/installer and qualifies the affected library and two runtime stocks only."
+  ],
+  "limits": [
+    "Installer module, rows, provenance and acquisition/admission wiring remain independently owned and unqualified by this extraction",
+    "Prior world-boot, physiology, hidden-target visibility, topology, explicit-self syntax and clock/quantity adaptations remain unchanged",
+    "No new gameplay, lifecycle, emotional runtime, charged-carrier or weapon coverage introduced",
+    "Release seeder gate and installer/ledger files unchanged; no publication or activation"
+  ],
+  "integration_handoff": {
+    "implementation_commit": "caf7072e329f3704e9e7ac15e0fd45e71f3c9abf",
+    "receipt_commit": "Documentation-only commit following tested source; final-checkpoint artifact identifies its exact SHA",
+    "cherry_pick": "Only this extraction source commit plus optional receipt on an ancestor containing cleared56b342791",
+    "review": "Parent independent review pending"
+  }
+}

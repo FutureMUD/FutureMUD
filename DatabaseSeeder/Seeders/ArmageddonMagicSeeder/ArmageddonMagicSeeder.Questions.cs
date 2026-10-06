@@ -26,7 +26,7 @@ public sealed partial class ArmageddonMagicSeeder
 		Converters = { new JsonStringEnumConverter<MagicGatheringMethodKind>(allowIntegerValues: false) }
 	};
 	private static bool IsYes(string answer) => answer.Trim().Equals("yes", StringComparison.OrdinalIgnoreCase);
-	public IEnumerable<SeederQuestion> Questions =>
+	public IEnumerable<SeederQuestion> Questions => !Enabled ? Array.Empty<SeederQuestion>() :
 	[
 		new(InstallQuestion, "Install/reconcile the PARTIAL Armageddon package in this prepared world? yes/no (default no)",
 			(_, _) => true, (answer, _) => answer.Trim().Equals("no", StringComparison.OrdinalIgnoreCase) || IsYes(answer)

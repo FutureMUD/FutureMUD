@@ -1,4 +1,4 @@
-# Optional Armageddon installer: prepared-world checkpoint
+# Development-only Armageddon installer: disabled in Release
 
 Authority: `Armageddon_Magic_Completion_Implementation_Brief.md`, Library ID
 `libfile_a4606cd0097081918d6c9d9e220e6da0`, particularly N22/N23 and the installer/builder-guide requirements.
@@ -7,7 +7,12 @@ The central progress ledger and repertoire tables remain integration-owner docum
 
 ## Scope and readiness
 
-The reflected DatabaseSeeder menu includes **Armageddon Magic (partial, prepared world)**.
+The Armageddon package is **disabled in Release until completion**. It is absent from the enabled seeder/menu catalogue,
+exposes no installation questions and refuses direct readiness/installation calls before database access.
+There is no runtime or environment switch to enable the incomplete package in a shipped build.
+This gate preserves existing authored world data and generic engine capabilities; it does not remove installed content.
+
+Debug development builds retain **Armageddon Magic (partial, prepared world)** for internal/disposable qualification.
 Its package opt-in defaults to **No on every visit**, even after a historical Yes.
 Confirming the ordinary package screen opens two questions: explicit opt-in and an ID-only JSON binding document.
 No declines or standard replay profiles install package content. Generic answer-memory housekeeping still runs.

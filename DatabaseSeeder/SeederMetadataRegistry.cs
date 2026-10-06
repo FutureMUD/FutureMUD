@@ -14,6 +14,10 @@ public static class SeederMetadataRegistry
     {
         return seeder.GetType().Name switch
         {
+			nameof(ArmageddonMagicSeeder) when !seeder.Enabled => new SeederMetadata(SeederRepeatabilityMode.OneShot, SeederUpdateCapability.None,
+				Array.Empty<SeederPrerequisite>(), RerunSummary: ArmageddonMagicSeeder.ReleaseDisabledMessage,
+				UpdateSummary: ArmageddonMagicSeeder.ReleaseDisabledMessage,
+				OwnershipSummary: "Disabled entrypoint preserves existing authored world data; it neither installs nor reconciles package records."),
 			nameof(ArmageddonMagicSeeder) => new SeederMetadata(SeederRepeatabilityMode.Idempotent, SeederUpdateCapability.RepairExisting,
 				Array.Empty<SeederPrerequisite>(),
 				RerunSummary: "Default No. Explicit opt-in reconciles owned partial modules with separate commits, preserving builder edits and historical ownership. A later failure leaves completed modules committed.",

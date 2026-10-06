@@ -8,13 +8,19 @@ using MudSharp.Database;
 
 namespace DatabaseSeeder.Seeders;
 
-/// <summary>Optional prepared-world entry point. Each module owns its transaction and receipt.</summary>
+/// <summary>Development-only prepared-world entry point. Each module owns its transaction and receipt.</summary>
 public sealed partial class ArmageddonMagicSeeder : IDatabaseSeeder
 {
+	public const string ReleaseDisabledMessage = "Armageddon magic package is disabled in Release until completion. Existing world data and generic magic runtime remain available.";
+#if DEBUG
+	public bool Enabled => true;
+#else
+	public bool Enabled => false;
+#endif
 	public int SortOrder => 305;
 	public string Name => "Armageddon Magic (partial, prepared world)";
-	public string Tagline => "Optional reviewed magic definitions; explicit existing-world bindings required";
-	public string FullDescription => "Installs reviewed utilities, blank devices, source traditions and Pierce Magick. " +
+	public string Tagline => Enabled ? "Development-only reviewed magic definitions; explicit existing-world bindings required" : ReleaseDisabledMessage;
+	public string FullDescription => !Enabled ? ReleaseDisabledMessage : "Development-only: installs reviewed utilities, blank devices, source traditions and Pierce Magick. " +
 		"This is a partial prepared-world package, not a complete preset. No character attachment, enrolment, " +
 		"acquisition, reserve refill, charges or classes are created. Optional provisions require explicit native " +
 		"food profiles, wine recipes and existing spell-skill bindings; unselected owned provisions are preserved. " +
@@ -22,9 +28,11 @@ public sealed partial class ArmageddonMagicSeeder : IDatabaseSeeder
 	public bool SafeToRunMoreThanOnce => true;
 	public SeederMetadata Metadata => SeederMetadataRegistry.GetMetadata(this);
 	public ShouldSeedResult ShouldSeedData(FuturemudDatabaseContext context) =>
-		context.SeederManagedRecords.AsNoTracking().Any(x => x.Seeder == ArmageddonMagicInstaller.Package)
+		!Enabled ? ShouldSeedResult.PrerequisitesNotMet : context.SeederManagedRecords.AsNoTracking().Any(x => x.Seeder == ArmageddonMagicInstaller.Package)
 			? ShouldSeedResult.ExtraPackagesAvailable : ShouldSeedResult.ReadyToInstall;
-	public SeederAssessment AssessSeedData(FuturemudDatabaseContext context) => new(
+	public SeederAssessment AssessSeedData(FuturemudDatabaseContext context) => !Enabled
+		? new(SeederAssessmentStatus.Blocked, ReleaseDisabledMessage, Array.Empty<string>(), Array.Empty<string>(), Array.Empty<string>())
+		: new(
 		ShouldSeedData(context) == ShouldSeedResult.ReadyToInstall ? SeederAssessmentStatus.ReadyToInstall : SeederAssessmentStatus.UpdateAvailable,
 		"Optional configuration/decline available. Opt-in requires a prepared world and validated explicit bindings; no full-preset readiness is implied.",
 		Array.Empty<string>(), [ArmageddonPreparedWorldInstaller.ProvisionReadiness],
@@ -33,6 +41,7 @@ public sealed partial class ArmageddonMagicSeeder : IDatabaseSeeder
 
 	public string SeedData(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers)
 	{
+		if (!Enabled) return ReleaseDisabledMessage;
 		if (!questionAnswers.TryGetValue(InstallQuestion, out var answer) || !IsYes(answer))
 			return "Armageddon partial package declined. No package content or player state changed. Generic answer-memory housekeeping may still run.";
 		if (!questionAnswers.TryGetValue(BindingsQuestion, out var json)) throw new InvalidOperationException("Explicit Armageddon bindings are missing.");

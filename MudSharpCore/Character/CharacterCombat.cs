@@ -806,8 +806,13 @@ public partial class Character
 
             if (!CommandExecutionScope.TryContinue(this)) return;
             _meleeRange = value;
+            CombatMutationVersion++;
         }
     }
+
+	// Selective cessation publishes the captured state before any leave notification.
+	internal void ClearMeleeRangeForCessation() => _meleeRange = false;
+	internal long CombatInstanceIdentity => _instanceId != 0 ? _instanceId : _id;
 
     #endregion
 

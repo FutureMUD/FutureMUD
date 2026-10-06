@@ -196,7 +196,9 @@ internal static partial class GNHProgram
 				if (scenario == "queued-revoked") Expire();
 				var wounds = body.Wounds.Sum(x => x.CurrentDamage + x.CurrentPain + x.CurrentStun);
 				body.CurrentStamina = defenderBody.CurrentStamina = 100; world.SaveManager.Flush();
+				using var emotional = _emotionalHooks ? new EmotionalProbeLease(actor) : null;
 				resolving = true; try { actor.Combat!.CombatAction(actor, move); } finally { resolving = false; }
+				emotional?.Verify("countershot-" + scenario, scenario != "queued-revoked");
 				var admitted = scenario != "queued-revoked"; var after = body.Wounds.Sum(x => x.CurrentDamage + x.CurrentPain + x.CurrentStun);
 				Require(actor.IsEmbodied && ReferenceEquals(actor.Combat, defender.Combat) && actor.Combat is not null &&
 					actor.Combat.Combatants.Any(x => ReferenceEquals(x, actor)) && actor.Combat.Combatants.Any(x => ReferenceEquals(x, defender)),

@@ -7,7 +7,7 @@ using MudSharp.RPG.Checks;
 
 namespace MudSharp.Combat;
 
-public class ProgCombat : CombatBase
+public class ProgCombat : CombatBase, ICombatSelectiveCessation
 {
     public IFutureProg OnJoinProg { get; }
     public IFutureProg OnLeaveProg { get; }

@@ -449,6 +449,7 @@ public abstract class FirearmBaseGameItemComponent : GameItemComponent, IFirearm
     {
         using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
         if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return;
+		using var hostileAttempt = MudSharp.Combat.HostileAttackAdmission.EnterComponent(actor, target as ICharacter);
 
 
         if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
@@ -487,12 +488,19 @@ public abstract class FirearmBaseGameItemComponent : GameItemComponent, IFirearm
             var ammo = ChamberedRound;
 			var acceptedRound = PrepareAcceptedRoundOnFire(actor, ammo);
 			if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor) || !ReferenceEquals(ChamberedRound, ammo) || !acceptedRound()) break;
-        MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted(actor);
 			var prepareCasing = PrepareShellCasingOnFire(actor, originalLocation);
 			var canCycle = PrepareCyclingOnFire(actor);
+			if (!MudSharp.Combat.HostileAttackAdmission.TryNotify(actor, target as ICharacter,
+				() => ReferenceEquals(ChamberedRound, ammo) && acceptedRound()))
+			{
+				MudSharp.Combat.HostileAttackAdmission.RecordShotAdmissionRefused();
+				break;
+			}
+			MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted(actor);
 			var ammoContainer = Parent;
 			var shotCompletion = new ProjectileCustodyCompletion(actor, ammo.Parent, target, originalLocation);
             ChamberedRound = null;
+			MudSharp.Combat.HostileAttackAdmission.RecordShotCommitted();
 			if (!ComponentItemTransfer.ReleaseFiredItem(ammo.Parent, ammoContainer ?? Parent)) break;
 			if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor))
 			{

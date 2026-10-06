@@ -5284,5 +5284,56 @@
     ],
     "whole_plan_complete": false,
     "package_enabled": false
+  },
+  "emotional_combat_hooks": {
+    "baseline": "39eb9d32d2012f56ac3ef33c441b5dac7c3535e3",
+    "branch": "codex/fury-calm-runtime-hooks",
+    "status": "shared_hooks_implemented_bounded_managed_and_native_pass_stock_activation_pending",
+    "managed_counts": {
+      "executed": 424,
+      "passed": 424,
+      "failed": 0,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 424
+    },
+    "native_cases": 22,
+    "native_attack_controls": 18,
+    "receipt": "Design Documents/Magic/Armageddon_EmotionalCombatHooks_Verification.json",
+    "contract": "Design Documents/Magic/Armageddon_Emotional_Combat_Hooks.md",
+    "next_gate": "Parent/stock integration of actual Fury/Calm effects and paid bridge, with unsupported cessation refused before payment",
+    "whole_plan_complete": false,
+    "package_enabled": false,
+    "limits": [
+      "No production opted-in effect, stock Fury/Calm paid casting bridge, lifetime/save/load or installer mapping is activated. Fury does not refill stamina.",
+      "Native cases are bounded actual gameplay in the existing catalogue harness; they do not equal the authoritative 25 native scenarios or full server/Telnet acceptance.",
+      "Natural/magic seams have managed coverage; native scope is melee, declared internal-magazine firearm, independent countershot, Simple/Prog cessation.",
+      "Specialized bypassing overrides, other ranged components including bows/crossbows/Musket/artillery, auxiliary/contact maneuvers, direct spell/DoT and arbitrary custom combats/perceivers remain unqualified.",
+      "Observer exceptions propagate after consumed-ticket committed detach. Captured old Aim releases across removal failure; arbitrary later callback continuation is not universally promised.",
+      "Full Fast, full-world/Telnet, stock emotional activation/reload and exhaustive family acceptance are NOT_RUN here.",
+      "Historical Musket/artillery continuation is deferred by the current allocation; no issues780-783 fix, version change, publication, merge, deployment or shared/production database work."
+    ]
+  },
+  "emotional_shot_refusal_correction": {
+    "baseline": "9353e2ad4b0d0e95289069dc166a52ad6db45c71",
+    "branch": "codex/fury-calm-runtime-hooks",
+    "checkpoint_hold": true,
+    "next_priority": "Cell/room migration after the current checkpoints; parent owns allocation",
+    "whole_plan_complete": false,
+    "package_enabled": false,
+    "status": "implemented_managed_native_pass_hold_for_parent",
+    "managed_counts": {
+      "executed": 426,
+      "passed": 426,
+      "failed": 0,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 426
+    },
+    "native_cases": 9,
+    "fresh_readers": 23,
+    "receipt": "Design Documents/Magic/Armageddon_EmotionalShotRefusal_Verification.json"
   }
 }

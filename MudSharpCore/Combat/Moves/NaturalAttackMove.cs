@@ -69,6 +69,7 @@ public class NaturalAttackMove : WeaponAttackMove
     {
 		using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterMove(this);
 		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
+		using var hostileAttempt = HostileAttackAdmission.BeginAttempt(Assailant, PrimaryCharacterTarget);
 		defenderMove = MagicDefenseMove.Revalidate(defenderMove, this);
 		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
 		using var scope = new MagicDefenseDamageScope(this, defenderMove);
@@ -92,6 +93,8 @@ public class NaturalAttackMove : WeaponAttackMove
 
         WorsenCombatPosition(defenderMove.Assailant, Assailant);
         if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
+		if (!HostileAttackAdmission.TryNotify(Assailant, defenderMove.Assailant as ICharacter,
+			CanContinueCommand)) return CombatMoveResult.Irrelevant;
         Dictionary<Difficulty, CheckOutcome> attackRoll = Gameworld.GetCheck(Check)
                                   .CheckAgainstAllDifficulties(Assailant, CheckDifficulty, null, defenderMove.Assailant,
                                       Assailant.OffensiveAdvantage);

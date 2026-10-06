@@ -1,0 +1,1087 @@
+{
+  "schema_version": 1,
+  "entry_keys": [
+    "arm.spell.water_breathing",
+    "arm.spell.see_the_unbodied"
+  ],
+  "status": "PUBLISHED_BASE_INTEGRATION_VERIFIED_PARENT_REVIEW_PENDING",
+  "recorded_utc": "2026-10-06T11:01:30.469563+00:00",
+  "published_base": "39eb9d32d2012f56ac3ef33c441b5dac7c3535e3",
+  "branch": "codex/armageddon-water-see-integrated-39eb",
+  "worktree": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-4\\FutureMUD-water-see-integrated",
+  "tested_source_commit": "55922a080637a06a7b00964c0c2c1bb389dc9b8d",
+  "implementation_commits": [
+    "cb59ffafaf098b0b89c860b747bcc9f65cc1f13a",
+    "560ea460a6df2a8c06752b73420c6aa20a1bf86c",
+    "2099cda8791466b6425c85d1f12313269190ed1c",
+    "c859a2526dfabad58899cc6801956b8eabbb6a67",
+    "4e2453af623aa82ab316109f43debe360f64bc2a",
+    "b590edb7718ad1496998fc151504b12b23855eb1",
+    "cabce2e544e91ff678479da07de1a315caf4f7f6",
+    "a357a623fa73b7216fad569f7c23f3863e90e554",
+    "96a5d62d19fa8008df8b41dd677d85b3cca2ebca",
+    "3cb199240ab1b308e10b653c0ee259abb70367d0",
+    "ef67b48ba404dbb6204cc4e500e6b724b877eca4",
+    "9dcaf6a67c80e427c39a9f0863de13917113d263",
+    "7f79eeeb4252f474b414b5965cd72cfc2d1aee15",
+    "25446524d80e980db60649363c114e7a4e135921"
+  ],
+  "companion_documentation_commits": [
+    "9603af8120cd1d6b82347f617bff2811bef93d34",
+    "65b43d533ec87fe9a1e4a0126e06e56910c62492",
+    "35615ecc3c2a7bcf5971b54bf284d9526e3dbd51",
+    "e3dcdc0157b1680dadf081cedfbb5b7bbdf9183e",
+    "4944fe4bd4d23781d997f3311f2ed4dcabd4dab7",
+    "96288bf9dc16c6b8ebf8a50bdce09aa5b49161d2",
+    "d3480a5a6ac64af1544b0d1efd306802f0cd72f4",
+    "e8318ddc312a2c1b3d488ac2f3efb8cb4472a8e2",
+    "96f769b012035e82b303096ed4b2fed848de2994",
+    "ef30d057772d2d7bc490c674af54afd5e4d6cc27",
+    "c4a6e4ffe0e5fe9b72759bebe4a9b9e55d9a3ab3",
+    "e380f3ebc03eff886092639ccc79e361f328d1c4"
+  ],
+  "original_to_integrated_commits": [
+    {
+      "integrated_commit": "e363c2a36c72b63a211859f9a5b457d24a2d91e5",
+      "original_commit": "9603af8120cd1d6b82347f617bff2811bef93d34",
+      "subject": "Qualify Water Breathing source and bounded adapter gaps"
+    },
+    {
+      "integrated_commit": "65ac1c8a6a7eb2d9844e6d3cca283e646901393f",
+      "original_commit": "cb59ffafaf098b0b89c860b747bcc9f65cc1f13a",
+      "subject": "Prepare immutable Water Breathing selection and shared ownership proposal"
+    },
+    {
+      "integrated_commit": "042259d4b6f45a3e300772f6eb3f7a465cd96db0",
+      "original_commit": "65b43d533ec87fe9a1e4a0126e06e56910c62492",
+      "subject": "Record Water Breathing selection verification and shared edit allocation"
+    },
+    {
+      "integrated_commit": "73dd433941be769940541691ce7db8f4b6d59811",
+      "original_commit": "560ea460a6df2a8c06752b73420c6aa20a1bf86c",
+      "subject": "Wire editable source Water Breathing through native selection and lifetime APIs"
+    },
+    {
+      "integrated_commit": "62d57b02b2b7a5b238dc51e7655520d82dd34343",
+      "original_commit": "2099cda8791466b6425c85d1f12313269190ed1c",
+      "subject": "Preserve legacy lung applicability evaluation order"
+    },
+    {
+      "integrated_commit": "3aaed0b52ea69289e76eadbd2c7d71ba964191b7",
+      "original_commit": "35615ecc3c2a7bcf5971b54bf284d9526e3dbd51",
+      "subject": "Record Water Breathing adapter qualification and integration boundary"
+    },
+    {
+      "integrated_commit": "f758b5e5e411ea7608fb48af1309ae4af1e5bb36",
+      "original_commit": "c859a2526dfabad58899cc6801956b8eabbb6a67",
+      "subject": "Explicitly mark source Water Breathing unsupported for stored scrolls"
+    },
+    {
+      "integrated_commit": "ac9b2fb2b35b7aa13c1f9400744d16c531a07514",
+      "original_commit": "e3dcdc0157b1680dadf081cedfbb5b7bbdf9183e",
+      "subject": "Record passing Water Breathing compatibility correction verification"
+    },
+    {
+      "integrated_commit": "c42c449f09df2c289b8709fe86a2b1b18e8f37a8",
+      "original_commit": "4e2453af623aa82ab316109f43debe360f64bc2a",
+      "subject": "Draft Water Breathing stock pending Standing query allocation"
+    },
+    {
+      "integrated_commit": "f4b0242e29cbb577ab3dbc4bb67a547c0f731e0f",
+      "original_commit": "4944fe4bd4d23781d997f3311f2ed4dcabd4dab7",
+      "subject": "Record Water Breathing stock Standing-query blocker and frozen verification"
+    },
+    {
+      "integrated_commit": "2ef35229d312f854e82a1a6c48520bbf4c2d1f42",
+      "original_commit": "b590edb7718ad1496998fc151504b12b23855eb1",
+      "subject": "Expose pure native position identity to editable FutureProgs"
+    },
+    {
+      "integrated_commit": "6803cdd1c1a5d36c7e4835fcfdf10dbb0aa957d8",
+      "original_commit": "cabce2e544e91ff678479da07de1a315caf4f7f6",
+      "subject": "Repair Water Breathing stock minimum-position policy and native qualification"
+    },
+    {
+      "integrated_commit": "18c89f92dadabed05fa7cd2915efc602a76f160e",
+      "original_commit": "96288bf9dc16c6b8ebf8a50bdce09aa5b49161d2",
+      "subject": "Record source-bound Water Breathing stock acceptance and preserved regressions"
+    },
+    {
+      "integrated_commit": "4a3fcbd3fdaa2f235cf656b819978aa3d30c9280",
+      "original_commit": "d3480a5a6ac64af1544b0d1efd306802f0cd72f4",
+      "subject": "Qualify See the Unbodied as next closed source branch and bound adapter gaps"
+    },
+    {
+      "integrated_commit": "dc2940593992704d489135feca3676ebd5c64e11",
+      "original_commit": "e8318ddc312a2c1b3d488ac2f3efb8cb4472a8e2",
+      "subject": "Propose invocation-local See the Unbodied component selection"
+    },
+    {
+      "integrated_commit": "75ae51c20a7fe560b0f187cd18940f19d50c590b",
+      "original_commit": "a357a623fa73b7216fad569f7c23f3863e90e554",
+      "subject": "Add typed cumulative ethereal operation and dedicated native verification"
+    },
+    {
+      "integrated_commit": "b0fe08b8a8bdade705b6e64dab77392ddc03264c",
+      "original_commit": "96a5d62d19fa8008df8b41dd677d85b3cca2ebca",
+      "subject": "Preserve native builder default exclusive ethereal replacement"
+    },
+    {
+      "integrated_commit": "f2ed0f8016cb13c58d8b3e229bbe4cb96d6bcd02",
+      "original_commit": "3cb199240ab1b308e10b653c0ee259abb70367d0",
+      "subject": "Correct native source energy expectation and verify paid quarantine before fixture reconciliation"
+    },
+    {
+      "integrated_commit": "f1636b75d6cab3f5decd2d906dedea6f5dc60d50",
+      "original_commit": "96f769b012035e82b303096ed4b2fed848de2994",
+      "subject": "Record verified ethereal adapter and conditional-component integration proposal"
+    },
+    {
+      "integrated_commit": "9a93157bd3ac3e83502b8316ecb846cb0fff323d",
+      "original_commit": "ef30d057772d2d7bc490c674af54afd5e4d6cc27",
+      "subject": "Clarify exact source selection hooks and conditional payment commitment ordering"
+    },
+    {
+      "integrated_commit": "3e6773d4005859a96b146613d29d55943ec04cc1",
+      "original_commit": "ef67b48ba404dbb6204cc4e500e6b724b877eca4",
+      "subject": "Add frozen native Divination component adapter for ethereal detection"
+    },
+    {
+      "integrated_commit": "af2b6e9f5dcaa6fadbbf98350e32df1b6a05c84e",
+      "original_commit": "9dcaf6a67c80e427c39a9f0863de13917113d263",
+      "subject": "Verify native lifetime readiness refuses competing source scopes before payment"
+    },
+    {
+      "integrated_commit": "9f35c34097a6a8951989fadf2b18a9a88fe56b3d",
+      "original_commit": "7f79eeeb4252f474b414b5965cd72cfc2d1aee15",
+      "subject": "Verify cold component retries with the exact recorded casting intent"
+    },
+    {
+      "integrated_commit": "5644059f23a9d8815ef0a7a504d07bf2be8a6ced",
+      "original_commit": "c4a6e4ffe0e5fe9b72759bebe4a9b9e55d9a3ab3",
+      "subject": "Record frozen component adapter verification and approved Fury attribute decision"
+    },
+    {
+      "integrated_commit": "26d6ee66b627b348816979a2fe65df990509c62d",
+      "original_commit": "25446524d80e980db60649363c114e7a4e135921",
+      "subject": "Add editable See the Unbodied source stock and dedicated native qualification"
+    },
+    {
+      "integrated_commit": "d171775fa5d88fc7f547e58639a7f3abfe14d197",
+      "original_commit": "e380f3ebc03eff886092639ccc79e361f328d1c4",
+      "subject": "Record source-bound See stock qualification and preserved native regressions"
+    },
+    {
+      "integrated_commit": "55922a080637a06a7b00964c0c2c1bb389dc9b8d",
+      "original_commit": null,
+      "subject": "Normalize imported Water adapter runner trailing whitespace"
+    }
+  ],
+  "mechanical_conflicts": [],
+  "runtime_repairs": [],
+  "integration_adjustments": [
+    {
+      "commit": "55922a080637a06a7b00964c0c2c1bb389dc9b8d",
+      "scope": "Remove one inherited trailing blank line from Water adapter runner; no behavioral change"
+    }
+  ],
+  "emotional_runtime_or_preparation_imported": false,
+  "inherited_fury_decision_note": "Documentation-only companion record; no emotional policy, body/capacity, effect, stock profile, factory or gameplay imported.",
+  "source_files": [
+    {
+      "path": "MudSharpCore Unit Tests/DetectEtherealLifetimeTests.cs",
+      "bytes": 26330,
+      "sha256": "63b971658cfca690ef712559158fd0c0507c5e12d780aa097ba5759824454f20",
+      "retained_blob": "eafc522cb72933290722bcc728d80c1d0599981b",
+      "integrated_blob": "eafc522cb72933290722bcc728d80c1d0599981b"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/DetectEtherealOperationTests.cs",
+      "bytes": 11122,
+      "sha256": "123f35a89b2edbb42b1c7ad8b04e44ed4a190701dee2f9fdd34afaf126544b91",
+      "retained_blob": "e69e6b9b19b5a67f48deef502d6b5b27a6c0d8d5",
+      "integrated_blob": "e69e6b9b19b5a67f48deef502d6b5b27a6c0d8d5"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/PositionIdFunctionTests.cs",
+      "bytes": 5234,
+      "sha256": "3831856a2471ffe6de6e0a9f7ee3f68a2644c782caf6564a81dfd04fc19fb2a4",
+      "retained_blob": "8fb22d7742622678394fb592c635b01a02f7e993",
+      "integrated_blob": "8fb22d7742622678394fb592c635b01a02f7e993"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/SeeTheUnbodiedSourceSelectionTests.cs",
+      "bytes": 23803,
+      "sha256": "a914b0c915f308f932f33dba297ec0f6944e8173c7cc530e02fc335c78515de7",
+      "retained_blob": "39256ed852c82e6aa47702ab407b270d11754859",
+      "integrated_blob": "39256ed852c82e6aa47702ab407b270d11754859"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/SeeTheUnbodiedStockTests.cs",
+      "bytes": 12953,
+      "sha256": "db2109067b980009d4886cc11837c099a22d365ed3841740d10f82ffce938f36",
+      "retained_blob": "6356d068cabc1fd794995a851714259e74a7ca04",
+      "integrated_blob": "6356d068cabc1fd794995a851714259e74a7ca04"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/WaterBreathingAdapterTests.cs",
+      "bytes": 17227,
+      "sha256": "d365a0a8fbafd532772a00654f41cf15e7bf4c7533599cf79c02006a95235d33",
+      "retained_blob": "c766a18d41bedfd58d5b7fc9e58b2c95a4ca2214",
+      "integrated_blob": "c766a18d41bedfd58d5b7fc9e58b2c95a4ca2214"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/WaterBreathingCompatibilityTests.cs",
+      "bytes": 7695,
+      "sha256": "cf650e80ffe38b6dcd78e2df59dafbe3fbf9f339a01d59b8fb3a409281109cb7",
+      "retained_blob": "ced411fbf091d7098171dadc8cda0f79c4743597",
+      "integrated_blob": "ced411fbf091d7098171dadc8cda0f79c4743597"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/WaterBreathingSourceSelectionTests.cs",
+      "bytes": 6589,
+      "sha256": "5adfb6fa4de23092dc66eed4863c109d6de9135b2404fd2ce20dcc81f4e8dc3c",
+      "retained_blob": "6c7db960b757f0f3c6016493021a60861c8ab9f9",
+      "integrated_blob": "6c7db960b757f0f3c6016493021a60861c8ab9f9"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/WaterBreathingStockTests.cs",
+      "bytes": 7163,
+      "sha256": "f8ae1d8cf15c6ef5b8fdfed27001d2a3a4648602c30a6b3da30e6fdcd275dd9c",
+      "retained_blob": "d0d6bf8f58fd1298f174b0ea77524a169e115fcd",
+      "integrated_blob": "d0d6bf8f58fd1298f174b0ea77524a169e115fcd"
+    },
+    {
+      "path": "MudSharpCore/Commands/Helpers/EditableItemHelperMagic.PerceptionStock.cs",
+      "bytes": 1827,
+      "sha256": "12a0f36e863a93001d753d872bcd302aae81a578991fff50c65e008036c7b957",
+      "retained_blob": "16927a312177d21d90cb6e8e39fdaa09ba3e0018",
+      "integrated_blob": "16927a312177d21d90cb6e8e39fdaa09ba3e0018"
+    },
+    {
+      "path": "MudSharpCore/Commands/Helpers/EditableItemHelperMagic.SeeTheUnbodiedStock.cs",
+      "bytes": 2212,
+      "sha256": "0e04fcd0c3a8432e5462fab4e71cab7bf8a48b704b9188dfe6fd046dba4d6680",
+      "retained_blob": "3606beb543bb77fdbbefc3f3dae62d5e76f6bc5b",
+      "integrated_blob": "3606beb543bb77fdbbefc3f3dae62d5e76f6bc5b"
+    },
+    {
+      "path": "MudSharpCore/Commands/Helpers/EditableItemHelperMagic.WaterBreathingStock.cs",
+      "bytes": 2067,
+      "sha256": "37d5f46f0e12583734b1f90d229dbf45a57cddea9553b9c85e88e0f2b5b40346",
+      "retained_blob": "0c3900afcabe48f5bf4407b3d74b1c3487aaeb71",
+      "integrated_blob": "0c3900afcabe48f5bf4407b3d74b1c3487aaeb71"
+    },
+    {
+      "path": "MudSharpCore/Effects/Concrete/SpellEffects/SpellScopedWaterBreathingEffect.cs",
+      "bytes": 2097,
+      "sha256": "7f5ece86e04b4e8691b3621e434d8fcb74b74bef6caac52cca529443215ea73b",
+      "retained_blob": "6f94932887fad09506a29c013a9850a3235737ae",
+      "integrated_blob": "6f94932887fad09506a29c013a9850a3235737ae"
+    },
+    {
+      "path": "MudSharpCore/Effects/Concrete/SpellEffects/StandaloneSpellStatusEffects.cs",
+      "bytes": 17514,
+      "sha256": "b15be9cd0d88861406543aaf5305f0fb06d41d3da641f6d4d3d303e0dcdc5864",
+      "retained_blob": "0d6c8df4726066143df64a5cea2c64230bad6471",
+      "integrated_blob": "0d6c8df4726066143df64a5cea2c64230bad6471"
+    },
+    {
+      "path": "MudSharpCore/FutureProg/Functions/BuiltIn/PositionIdFunction.cs",
+      "bytes": 1484,
+      "sha256": "bd914a2789ae2489fa027ce9172a7295c95d17382040e1116d85a6917f473a52",
+      "retained_blob": "4295db7461b9d6f1c1d9fccbdcd74edcaaccd216",
+      "integrated_blob": "4295db7461b9d6f1c1d9fccbdcd74edcaaccd216"
+    },
+    {
+      "path": "MudSharpCore/Health/Breathing/BreathingStrategyHelper.cs",
+      "bytes": 3425,
+      "sha256": "0cc72371b898775393a57078fe2fbcc48edc65c34721fdaf6d6af8e0398dcfdc",
+      "retained_blob": "2976c255f1313d02eab931e31bd856d74d9f3420",
+      "integrated_blob": "2976c255f1313d02eab931e31bd856d74d9f3420"
+    },
+    {
+      "path": "MudSharpCore/Health/Breathing/LungBreather.cs",
+      "bytes": 5450,
+      "sha256": "e8017c3e0503cd4add6ea3534b1ab9d0ee75c47f71ff224e4953ac37656c6ecd",
+      "retained_blob": "c1f8d99a03f85598bf59393f720e4962ce96c19e",
+      "integrated_blob": "c1f8d99a03f85598bf59393f720e4962ce96c19e"
+    },
+    {
+      "path": "MudSharpCore/Magic/ArmageddonSeeTheUnbodiedStock.cs",
+      "bytes": 5260,
+      "sha256": "f580284dcc6dc819f2863d10c794d1b8ed99a20e9d6fbd2fe95d8d76c8bcbde0",
+      "retained_blob": "cd9f46e1cf285a32de0c3cf236e22c7a5949e582",
+      "integrated_blob": "cd9f46e1cf285a32de0c3cf236e22c7a5949e582"
+    },
+    {
+      "path": "MudSharpCore/Magic/ArmageddonWaterBreathingStock.cs",
+      "bytes": 4279,
+      "sha256": "36f5b5dd41b8d3de03f5d512cac8176c980621ee12e97358f79612051930f57f",
+      "retained_blob": "120eac40ff896d6b19b5a28f71279e802abc95e0",
+      "integrated_blob": "120eac40ff896d6b19b5a28f71279e802abc95e0"
+    },
+    {
+      "path": "MudSharpCore/Magic/MagicSpell.Lifetime.cs",
+      "bytes": 12746,
+      "sha256": "d52522fec1ea75bd0babf6c1cbaec914ad58e696e9a17263c61200db09e390f0",
+      "retained_blob": "41b9384e81d2e97ff75492507b75b347bfe0aec1",
+      "integrated_blob": "41b9384e81d2e97ff75492507b75b347bfe0aec1"
+    },
+    {
+      "path": "MudSharpCore/Magic/MagicSpell.WaterBreathing.cs",
+      "bytes": 4364,
+      "sha256": "971d86755037c035490dd15fad7857d1113d4e19a2c1b1fc46c0fd166bf2009d",
+      "retained_blob": "6ceb33ae35ba1d876ac264b9b99392cac992ad8c",
+      "integrated_blob": "6ceb33ae35ba1d876ac264b9b99392cac992ad8c"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/DetectEtherealEffect.Lifetime.cs",
+      "bytes": 3233,
+      "sha256": "968ef02d862f6247ba9de93126cee7ac93a546589157028c99067e7b34ba7464",
+      "retained_blob": "13acc4f42d71f41a1b92e78409512ba9b37acfe9",
+      "integrated_blob": "13acc4f42d71f41a1b92e78409512ba9b37acfe9"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/DetectEtherealEffect.Operation.cs",
+      "bytes": 2657,
+      "sha256": "3893d36ba2c341c0992c2f0ea10836b251560d71a4948c0d2b7278349e110cb7",
+      "retained_blob": "8a5c1fa282a39dea2a38b86ab9a821b6c045fbd8",
+      "integrated_blob": "8a5c1fa282a39dea2a38b86ab9a821b6c045fbd8"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/DetectEtherealEffect.SourcePlan.cs",
+      "bytes": 4225,
+      "sha256": "0f23b8f2078ef0481be8be02e01d5b7940806f4e1fa5062cb698f26e94d11669",
+      "retained_blob": "614bac38dca4558904beb5ff11bd6e2de12891af",
+      "integrated_blob": "614bac38dca4558904beb5ff11bd6e2de12891af"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/DetectEtherealEffect.SourceScope.cs",
+      "bytes": 6581,
+      "sha256": "99f650d659550af6886a6d8f1f2a5928aca55b2e0b51af5322ccaf68b718e2a0",
+      "retained_blob": "ffbac2bca9289b0b164dbdf9664e1f6680a20177",
+      "integrated_blob": "ffbac2bca9289b0b164dbdf9664e1f6680a20177"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/DetectEtherealEffect.SourceSelection.cs",
+      "bytes": 17439,
+      "sha256": "ad5964db3ae32be12f693c3c6906c9afa7007f7e0b68807ebc66a31eae72c5f7",
+      "retained_blob": "506eca043d5c01f5f5a2991cb2b9c6390aa182e9",
+      "integrated_blob": "506eca043d5c01f5f5a2991cb2b9c6390aa182e9"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/SourceWaterBreathingEffect.Operation.cs",
+      "bytes": 2678,
+      "sha256": "5e4976e8e75d50e95e23f8e678398a968fc12026efcfc6f7ef7ea7a39efb7e11",
+      "retained_blob": "553c6adfceb123947e770b6089a1e9ef00bca8d1",
+      "integrated_blob": "553c6adfceb123947e770b6089a1e9ef00bca8d1"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/SourceWaterBreathingEffect.Selection.cs",
+      "bytes": 1351,
+      "sha256": "f58827db3c63db5a10a79e5482e33ca1049b4ced559c3f5f7752921b4e8c8f9b",
+      "retained_blob": "eb6634ec1a732000a923093fdc326c257b69a81a",
+      "integrated_blob": "eb6634ec1a732000a923093fdc326c257b69a81a"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/SourceWaterBreathingEffect.cs",
+      "bytes": 5599,
+      "sha256": "834a49366691d515b54b7a55da9e32756d6f94aaa7df274825f86571187ed84b",
+      "retained_blob": "5f6d7d8fac2e6855980cca254328bc6a5bde5624",
+      "integrated_blob": "5f6d7d8fac2e6855980cca254328bc6a5bde5624"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/StandaloneStatusSpellEffects.cs",
+      "bytes": 36221,
+      "sha256": "fb230174792682406a7e38cbbf056d59d3ff9dfef62cde0ce9ab7ff456afa4bd",
+      "retained_blob": "7ae1162dd3499c627db4b1a165a00c9e29f51703",
+      "integrated_blob": "7ae1162dd3499c627db4b1a165a00c9e29f51703"
+    },
+    {
+      "path": "MudSharpCore/Magic/Vancian/ScrollSpellCompatibility.cs",
+      "bytes": 12499,
+      "sha256": "4e821496aa49152f1d1ec0f196eed5a8e2a7fb03755d2937da762fd95116df43",
+      "retained_blob": "ee97d9240dca7a793d16091f4d159b7cef579426",
+      "integrated_blob": "ee97d9240dca7a793d16091f4d159b7cef579426"
+    },
+    {
+      "path": "MudSharpCore/Magic/WaterBreathing/WaterBreathingDurationSelection.cs",
+      "bytes": 1897,
+      "sha256": "bae2c3827baf0034b39d8c83754d92c36b686931302feeb0866f6fbbc55f5d9d",
+      "retained_blob": "d2d730686b63e72d8099c44e2d535ebb1764d310",
+      "integrated_blob": "d2d730686b63e72d8099c44e2d535ebb1764d310"
+    },
+    {
+      "path": "MudSharpCore/Magic/WaterBreathing/WaterBreathingFluidScope.cs",
+      "bytes": 1689,
+      "sha256": "7e46c9818cb45bd4d5488876d14aedb92e879f5861e58c46212ce9b5356773a5",
+      "retained_blob": "c4fd7db2679fe3b0c49cae464fd8af22cbe06721",
+      "integrated_blob": "c4fd7db2679fe3b0c49cae464fd8af22cbe06721"
+    },
+    {
+      "path": "MudSharpCore/Magic/WaterBreathing/WaterBreathingScopeXml.cs",
+      "bytes": 1063,
+      "sha256": "4800dfee00a90fcf296ca9e244b44b55a0422275ac9b2341e5e9fdd6e2a480a2",
+      "retained_blob": "97adae574b8c1bd2ee8a991c2c85c091d3bb65a5",
+      "integrated_blob": "97adae574b8c1bd2ee8a991c2c85c091d3bb65a5"
+    },
+    {
+      "path": "Temporary Scratch App/EtherealAdapterNativeHarness/EtherealAdapterEntry.cs",
+      "bytes": 210,
+      "sha256": "d25a04c7e380c8b0f9d282c04cfb0daaf8d55f3f9f0503ec75eea9aa37e9beae",
+      "retained_blob": "a72b85e4885c85e7981210399ddb741429cb5c2b",
+      "integrated_blob": "a72b85e4885c85e7981210399ddb741429cb5c2b"
+    },
+    {
+      "path": "Temporary Scratch App/EtherealAdapterNativeHarness/EtherealAdapterNativeHarness.csproj",
+      "bytes": 1495,
+      "sha256": "abb5fdfee56a84bb07517920c78c2adcc8b8597db9de4f612a78641a18edaefd",
+      "retained_blob": "6c61a2b2ef158d985f74ad9c686063f92d491f5c",
+      "integrated_blob": "6c61a2b2ef158d985f74ad9c686063f92d491f5c"
+    },
+    {
+      "path": "Temporary Scratch App/EtherealAdapterNativeHarness/Program.EtherealAdapter.cs",
+      "bytes": 15487,
+      "sha256": "c248dbf088c356a71d086c4f34327aa32ff262645e0e336e42ac7c3ff92035bb",
+      "retained_blob": "c0628bc11836d98dbe2fd0a4ae2af975bd7df8e5",
+      "integrated_blob": "c0628bc11836d98dbe2fd0a4ae2af975bd7df8e5"
+    },
+    {
+      "path": "Temporary Scratch App/EtherealAdapterNativeHarness/Run-EtherealAdapter.ps1",
+      "bytes": 8565,
+      "sha256": "714366d9e88531075306ba0f6913bd4951097e29cfd0a1332a6452a847678c8a",
+      "retained_blob": "356dc1a1e63a71f9caab31220a28342d1f1aa02d",
+      "integrated_blob": "356dc1a1e63a71f9caab31220a28342d1f1aa02d"
+    },
+    {
+      "path": "Temporary Scratch App/EtherealComponentAdapterNativeHarness/EtherealComponentAdapterEntry.cs",
+      "bytes": 228,
+      "sha256": "351b7366014bc98798b99c6eb3e5aa74fd2edaae69dcce95ccc8e611facb1da1",
+      "retained_blob": "05e6aeabd00be81223971a0fc42514f2336b6c72",
+      "integrated_blob": "05e6aeabd00be81223971a0fc42514f2336b6c72"
+    },
+    {
+      "path": "Temporary Scratch App/EtherealComponentAdapterNativeHarness/EtherealComponentAdapterNativeHarness.csproj",
+      "bytes": 1640,
+      "sha256": "2458433e6b3a42642bf6b8026fd8b2fbd5238b0c60ae2e19ea2ca99659fc70ea",
+      "retained_blob": "8f9d30befa1993eadb66fd0d6e1738ff96fc34de",
+      "integrated_blob": "8f9d30befa1993eadb66fd0d6e1738ff96fc34de"
+    },
+    {
+      "path": "Temporary Scratch App/EtherealComponentAdapterNativeHarness/Program.EtherealComponentAdapter.cs",
+      "bytes": 25143,
+      "sha256": "0dcadd2f3fb90d871fb1b1937d534e33b8bdb7f24354e0fbafc16f40692c2fe1",
+      "retained_blob": "cf9f69024e02a1814d08682c861452112c3576d7",
+      "integrated_blob": "cf9f69024e02a1814d08682c861452112c3576d7"
+    },
+    {
+      "path": "Temporary Scratch App/EtherealComponentAdapterNativeHarness/Run-EtherealComponentAdapter.ps1",
+      "bytes": 8708,
+      "sha256": "c137dffaa83e8ced14c10fc963b88a46942998bb100fe2914db638c8b96484b5",
+      "retained_blob": "2f2c6e8ce6b8458f6f7a185bd21abb1320af1b85",
+      "integrated_blob": "2f2c6e8ce6b8458f6f7a185bd21abb1320af1b85"
+    },
+    {
+      "path": "Temporary Scratch App/SeeTheUnbodiedStockNativeHarness/Program.SeeTheUnbodiedStock.cs",
+      "bytes": 31415,
+      "sha256": "36b971073390c0931e113f02786805a6eea09d687bd0ebe2e027f188741a93e9",
+      "retained_blob": "db545633add674bb23ff36731e96ece51fe408d6",
+      "integrated_blob": "db545633add674bb23ff36731e96ece51fe408d6"
+    },
+    {
+      "path": "Temporary Scratch App/SeeTheUnbodiedStockNativeHarness/Run-SeeTheUnbodiedStock.ps1",
+      "bytes": 8755,
+      "sha256": "a9ddbe73bfa5606e1cca7945e47fe2c32cd7dfba7b9de4b654ecc2babc96aafb",
+      "retained_blob": "158dd63a1c1cd5ccb0065bfe8003743ce060e1fe",
+      "integrated_blob": "158dd63a1c1cd5ccb0065bfe8003743ce060e1fe"
+    },
+    {
+      "path": "Temporary Scratch App/SeeTheUnbodiedStockNativeHarness/SeeTheUnbodiedStockEntry.cs",
+      "bytes": 218,
+      "sha256": "c5704b6c63170b8d6465714f04d76fd4d4c8d49d84d94d144b6fde9403a600bb",
+      "retained_blob": "d749ad281dc2a53aee765579f2bf31135240ab88",
+      "integrated_blob": "d749ad281dc2a53aee765579f2bf31135240ab88"
+    },
+    {
+      "path": "Temporary Scratch App/SeeTheUnbodiedStockNativeHarness/SeeTheUnbodiedStockNativeHarness.csproj",
+      "bytes": 1799,
+      "sha256": "36d27a632414790d7982f2b1c2febbcd3208e53e99d26e2ebd28d3e11da65335",
+      "retained_blob": "b78b85559f346e7cb5ab6b35b4da5e48d03a3dea",
+      "integrated_blob": "b78b85559f346e7cb5ab6b35b4da5e48d03a3dea"
+    },
+    {
+      "path": "Temporary Scratch App/WaterBreathingAdapterNativeHarness/Program.WaterBreathingAdapter.cs",
+      "bytes": 18530,
+      "sha256": "9123ef8bfc487a6a4c7ffbdd2a582d1c2904023f38ba98b15b1c72b3adaae21b",
+      "retained_blob": "fa89a38ab4919c0eb2bd299e24415d1daf30d3d1",
+      "integrated_blob": "fa89a38ab4919c0eb2bd299e24415d1daf30d3d1"
+    },
+    {
+      "path": "Temporary Scratch App/WaterBreathingAdapterNativeHarness/Run-WaterBreathingAdapter.ps1",
+      "bytes": 8412,
+      "sha256": "441a72440786f7d4ea23486199456397e44890859baf61d8757dc3ec5220daf4",
+      "retained_blob": "833e8596f728a38c677ce40a88a68737896864f3",
+      "integrated_blob": "7eb8a6268b19eaa4e0253b70e720920cd1ce4530"
+    },
+    {
+      "path": "Temporary Scratch App/WaterBreathingAdapterNativeHarness/WaterBreathingAdapterEntry.cs",
+      "bytes": 222,
+      "sha256": "21f4ec2578e1a9f5f16ffab1b4b0aa690e09bc569dfd4bd587437dd4adfcb781",
+      "retained_blob": "128e01a7eaa6a7a99ac62027cbff99e2c8a368ad",
+      "integrated_blob": "128e01a7eaa6a7a99ac62027cbff99e2c8a368ad"
+    },
+    {
+      "path": "Temporary Scratch App/WaterBreathingAdapterNativeHarness/WaterBreathingAdapterNativeHarness.csproj",
+      "bytes": 1207,
+      "sha256": "e0cad5495db67acc160bdc4fdaa03e38c22ceaa70975bb62e1b4a51108d0c147",
+      "retained_blob": "27ad0d3c0dfb02149139cb3481e8a2bec6247136",
+      "integrated_blob": "27ad0d3c0dfb02149139cb3481e8a2bec6247136"
+    },
+    {
+      "path": "Temporary Scratch App/WaterBreathingStockNativeHarness/Program.WaterBreathingStock.cs",
+      "bytes": 27356,
+      "sha256": "13cf588ee9245be8242deaf8c6566a0aa66ce7ec90f0180b4596caab0856c8e2",
+      "retained_blob": "edcc4044f6dd22c7bd0654bb1c30bdd4ea4fc3ea",
+      "integrated_blob": "edcc4044f6dd22c7bd0654bb1c30bdd4ea4fc3ea"
+    },
+    {
+      "path": "Temporary Scratch App/WaterBreathingStockNativeHarness/Run-WaterBreathingStock.ps1",
+      "bytes": 8472,
+      "sha256": "144be2743b34d23e83999d75c4718d2d55b493872f8831139061dbeec9400445",
+      "retained_blob": "21242ebda82c4571ecd612042481e05cab85f058",
+      "integrated_blob": "21242ebda82c4571ecd612042481e05cab85f058"
+    },
+    {
+      "path": "Temporary Scratch App/WaterBreathingStockNativeHarness/WaterBreathingStockEntry.cs",
+      "bytes": 218,
+      "sha256": "2c3924163b7649f52f6ffcb090c35c3bcc15c2954306493942bf5b48e9a678fb",
+      "retained_blob": "5524ee991f4de09489d2776038495cd8c74d3cad",
+      "integrated_blob": "5524ee991f4de09489d2776038495cd8c74d3cad"
+    },
+    {
+      "path": "Temporary Scratch App/WaterBreathingStockNativeHarness/WaterBreathingStockNativeHarness.csproj",
+      "bytes": 1356,
+      "sha256": "a98140ec3468bc2192308beb4e35f6a71aacfa3ddbcb78adf138a0b8e621f7a2",
+      "retained_blob": "150270147ea0a435365356cf8a2d66cc58b78c2e",
+      "integrated_blob": "150270147ea0a435365356cf8a2d66cc58b78c2e"
+    }
+  ],
+  "protected_published_blobs": [
+    {
+      "path": "MudSharpCore/Magic/ArmageddonUtilityStock.cs",
+      "published_blob": "4d50a3a8ae3e45fc9465e6247ac9e87ef3476331",
+      "integrated_blob": "4d50a3a8ae3e45fc9465e6247ac9e87ef3476331"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.SpellCreatedConsumables.cs",
+      "published_blob": "b2c8fb3f4b7d096341d2a9e36b068c3f1d539419",
+      "integrated_blob": "b2c8fb3f4b7d096341d2a9e36b068c3f1d539419"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.AmmoConservation.cs",
+      "published_blob": "33d88c014f650c0c10c77171d40546e613b92beb",
+      "integrated_blob": "33d88c014f650c0c10c77171d40546e613b92beb"
+    },
+    {
+      "path": "DatabaseSeeder/Seeders/ArmageddonMagicSeeder/ArmageddonMagicSeeder.cs",
+      "published_blob": "32abc2d08d2ed6844294c731bbb9a19341e91424",
+      "integrated_blob": "32abc2d08d2ed6844294c731bbb9a19341e91424"
+    },
+    {
+      "path": "Design Documents/Magic/Armageddon_Completion_Progress.md",
+      "published_blob": "e7d7a092fb3f9e360cda307328cc822454fbd931",
+      "integrated_blob": "e7d7a092fb3f9e360cda307328cc822454fbd931"
+    },
+    {
+      "path": "Design Documents/Magic/Armageddon_Completion_Progress.json",
+      "published_blob": "04f84c284846fbee0f8c87d6285d79e8cada2514",
+      "integrated_blob": "04f84c284846fbee0f8c87d6285d79e8cada2514"
+    }
+  ],
+  "historical_receipts": [
+    {
+      "path": "Design Documents/Magic/Armageddon_See_The_Unbodied_Adapter_Receipt.json",
+      "blob": "4dde1996e214ec84cc291e33fac50e9f7c09f534",
+      "meaning": "Historical qualification for its original retained revision; preserved verbatim"
+    },
+    {
+      "path": "Design Documents/Magic/Armageddon_See_The_Unbodied_Component_Receipt.json",
+      "blob": "8b4d2474c9623fbadc3411b2864c196bf0663a57",
+      "meaning": "Historical qualification for its original retained revision; preserved verbatim"
+    },
+    {
+      "path": "Design Documents/Magic/Armageddon_See_The_Unbodied_Source_Qualification_Receipt.json",
+      "blob": "acbc1f1ffeafc7cc27111411c1a3cfa3df4a5e9d",
+      "meaning": "Historical qualification for its original retained revision; preserved verbatim"
+    },
+    {
+      "path": "Design Documents/Magic/Armageddon_See_The_Unbodied_Stock_Receipt.json",
+      "blob": "3d8d72bea6b69bf492668fd433b39a1c4e4a7d71",
+      "meaning": "Historical qualification for its original retained revision; preserved verbatim"
+    },
+    {
+      "path": "Design Documents/Magic/Armageddon_Water_Breathing_Adapter_Receipt.json",
+      "blob": "3766fc3dea3bdacfae6246bb9f3c953d56eddb4d",
+      "meaning": "Historical qualification for its original retained revision; preserved verbatim"
+    },
+    {
+      "path": "Design Documents/Magic/Armageddon_Water_Breathing_Compatibility_Receipt.json",
+      "blob": "ea859eb354592ddf8478640e35fede038a7e4cf5",
+      "meaning": "Historical qualification for its original retained revision; preserved verbatim"
+    },
+    {
+      "path": "Design Documents/Magic/Armageddon_Water_Breathing_Independent_Selection_Receipt.json",
+      "blob": "ddf64a97ad71a1fd6265e3138aa72b93a27683bf",
+      "meaning": "Historical qualification for its original retained revision; preserved verbatim"
+    },
+    {
+      "path": "Design Documents/Magic/Armageddon_Water_Breathing_Source_Qualification_Receipt.json",
+      "blob": "cba61101af9380ad5931dfc5e946ca76abb8c3e6",
+      "meaning": "Historical qualification for its original retained revision; preserved verbatim"
+    },
+    {
+      "path": "Design Documents/Magic/Armageddon_Water_Breathing_Stock_Blocked_Receipt.json",
+      "blob": "14885e524ef17b2ac8b56ba707f5f02bf10dd64e",
+      "meaning": "Historical qualification for its original retained revision; preserved verbatim"
+    },
+    {
+      "path": "Design Documents/Magic/Armageddon_Water_Breathing_Stock_Receipt.json",
+      "blob": "ec797a24cd26bb64b5c78e32a1d99ebcb431631f",
+      "meaning": "Historical qualification for its original retained revision; preserved verbatim"
+    }
+  ],
+  "historical_metadata_errata": [
+    {
+      "historical_receipt": "Design Documents/Magic/Armageddon_Water_Breathing_Compatibility_Receipt.json",
+      "field": "adapter_source",
+      "recorded_value": "2099cda8791466b6425d1f12313269190ed1c",
+      "correct_resolved_commit": "2099cda8791466b6425c85d1f12313269190ed1c",
+      "disposition": "Historical receipt preserved; actual selected/imported source SHA validated exactly before application."
+    }
+  ],
+  "strict_fast": {
+    "path": ".artifacts/test-runs/water-see-integrated-01/strict-fast/20261006T103902Z-4a9f4f7f5331/summary.json",
+    "bytes": 42270,
+    "sha256": "425012971edf19fd26fb1ae68118519cad36ec8ed3af58c214becd4aa11401ed",
+    "head": "55922a080637a06a7b00964c0c2c1bb389dc9b8d",
+    "configuration": "Debug",
+    "counts": {
+      "executed": 8146,
+      "passed": 8146,
+      "failed": 0,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 8146
+    },
+    "projects": [
+      "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+      "ExpressionEngine Unit Tests/ExpressionEngine Unit Tests.csproj",
+      "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+      "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+      "MudsharpDatabaseLibrary Unit Tests/MudsharpDatabaseLibrary Unit Tests.csproj",
+      "DiscordBotCore Unit Tests/DiscordBotCore Unit Tests.csproj",
+      "RPI Engine Worldfile Converter Tests/RPI Engine Worldfile Converter Tests.csproj",
+      "FutureMUD.Web.Tests/FutureMUD.Web.Tests.csproj",
+      "TerrainPlanner/TerrainPlanner.Tests/TerrainPlanner.Tests.csproj",
+      "scripts/TestReporting.Tests/TestReporting.Tests.csproj"
+    ],
+    "source_start": "e2d6d7c024622e61d25ecb32beeb42ee441ede99482f9e1c673ee595b80fdc90",
+    "source_end": "e2d6d7c024622e61d25ecb32beeb42ee441ede99482f9e1c673ee595b80fdc90",
+    "source_stable": true,
+    "status": "PASS"
+  },
+  "release_gate": {
+    "path": ".artifacts/test-runs/water-see-integrated-01/release-gate/20261006T105802Z-6dabb0aa7120/summary.json",
+    "bytes": 6418,
+    "sha256": "2033285b52b5b91c9c32506639699fea6cc6326dedbba1fdae4054332d181342",
+    "head": "55922a080637a06a7b00964c0c2c1bb389dc9b8d",
+    "configuration": "Release",
+    "filter": "FullyQualifiedName~MudSharp_Unit_Tests.ArmageddonReleaseGateTests",
+    "counts": {
+      "executed": 6,
+      "passed": 6,
+      "failed": 0,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 6
+    },
+    "source_start": "2251b235a44fd3440163237e13f15e31f56e352baa63226a2e0d51281eb09340",
+    "source_end": "2251b235a44fd3440163237e13f15e31f56e352baa63226a2e0d51281eb09340",
+    "source_stable": true,
+    "status": "PASS"
+  },
+  "native": {
+    "source_head": "55922a080637a06a7b00964c0c2c1bb389dc9b8d",
+    "qualification_scope": "Water Breathing and See Unbodied retained source integrated onto exact published 39eb9d32; existing ten native modes only",
+    "stock_clearance": "Bounded source stock qualification; explicit-self syntax adaptation and full-world/hidden-target visibility limits; parent independent review pending",
+    "source_files": 7674,
+    "source_stable": true,
+    "assemblies_stable": true,
+    "all_passed": true,
+    "source_manifest_sha256": "83101ce0de7f59c5f188237c1ebb703fd95635c9ccb20fff63a509726f7d63b1",
+    "assembly_manifest_sha256": "3b76bacf316793325011596ef66689f07753570cb73422208cc236b41bb14c39",
+    "runs": [
+      {
+        "mode": "see-unbodied-stock",
+        "exit_code": 0,
+        "passed": true,
+        "owned_cleanup": true,
+        "log": ".artifacts/test-runs/water-see-integrated-01/native-02/see-unbodied-stock.log",
+        "evidence": {
+          "path": ".artifacts/test-runs/water-see-integrated-01/native-02/see-unbodied-stock.log",
+          "bytes": 1867667,
+          "sha256": "17d96527072f254634d60a26ce5443b8f95acd5def30595e6417d43e99444c7c"
+        },
+        "owned_databases": [
+          "futuremud_land_20261006104550_f60f54eb0b"
+        ],
+        "owned_endpoints": [
+          "60656"
+        ]
+      },
+      {
+        "mode": "ethereal-component-adapter",
+        "exit_code": 0,
+        "passed": true,
+        "owned_cleanup": true,
+        "log": ".artifacts/test-runs/water-see-integrated-01/native-02/ethereal-component-adapter.log",
+        "evidence": {
+          "path": ".artifacts/test-runs/water-see-integrated-01/native-02/ethereal-component-adapter.log",
+          "bytes": 1064761,
+          "sha256": "530ce610abe0d6bfd1662aa815bf422c39f587ab516b58436697c7a1e7822a4a"
+        },
+        "owned_databases": [
+          "futuremud_land_20261006104657_4ece9f3af8"
+        ],
+        "owned_endpoints": [
+          "59132"
+        ]
+      },
+      {
+        "mode": "ethereal-adapter",
+        "exit_code": 0,
+        "passed": true,
+        "owned_cleanup": true,
+        "log": ".artifacts/test-runs/water-see-integrated-01/native-02/ethereal-adapter.log",
+        "evidence": {
+          "path": ".artifacts/test-runs/water-see-integrated-01/native-02/ethereal-adapter.log",
+          "bytes": 440069,
+          "sha256": "ed43cb56dca98dffa9c854972ccbb164bb58b47c70c09e8e0fbe61b8a9d72745"
+        },
+        "owned_databases": [
+          "futuremud_land_20261006104801_99de711b6d"
+        ],
+        "owned_endpoints": [
+          "51471"
+        ]
+      },
+      {
+        "mode": "water-stock",
+        "exit_code": 0,
+        "passed": true,
+        "owned_cleanup": true,
+        "log": ".artifacts/test-runs/water-see-integrated-01/native-02/water-stock.log",
+        "evidence": {
+          "path": ".artifacts/test-runs/water-see-integrated-01/native-02/water-stock.log",
+          "bytes": 1295806,
+          "sha256": "9692e1b26efad013d7575044323af8261e6914dce1fb42e277d80f0c2fc544e2"
+        },
+        "owned_databases": [
+          "futuremud_land_20261006104852_2b2cacdd02"
+        ],
+        "owned_endpoints": [
+          "62033"
+        ]
+      },
+      {
+        "mode": "water-adapter",
+        "exit_code": 0,
+        "passed": true,
+        "owned_cleanup": true,
+        "log": ".artifacts/test-runs/water-see-integrated-01/native-02/water-adapter.log",
+        "evidence": {
+          "path": ".artifacts/test-runs/water-see-integrated-01/native-02/water-adapter.log",
+          "bytes": 443841,
+          "sha256": "bb956fda1f64d8ba42f7713d8c7d87b6aa3c834d2446eeefdffe6b257de1a97e"
+        },
+        "owned_databases": [
+          "futuremud_land_20261006104946_ebc6ac6246"
+        ],
+        "owned_endpoints": [
+          "58573"
+        ]
+      },
+      {
+        "mode": "pierce-stock",
+        "exit_code": 0,
+        "passed": true,
+        "owned_cleanup": true,
+        "log": ".artifacts/test-runs/water-see-integrated-01/native-02/pierce-stock.log",
+        "evidence": {
+          "path": ".artifacts/test-runs/water-see-integrated-01/native-02/pierce-stock.log",
+          "bytes": 677909,
+          "sha256": "f87c8f46a21f55175a44de496f892d72c3d138e46e1b3098d8ae5f672a108e39"
+        },
+        "owned_databases": [
+          "futuremud_land_20261006105039_b148022571"
+        ],
+        "owned_endpoints": [
+          "53004"
+        ]
+      },
+      {
+        "mode": "pierce-shared-runtime",
+        "exit_code": 0,
+        "passed": true,
+        "owned_cleanup": true,
+        "log": ".artifacts/test-runs/water-see-integrated-01/native-02/pierce-shared-runtime.log",
+        "evidence": {
+          "path": ".artifacts/test-runs/water-see-integrated-01/native-02/pierce-shared-runtime.log",
+          "bytes": 974804,
+          "sha256": "96ee786f8948de23d619614b0348be839c7b8f7a225303ca1bcad4b1aed095b6"
+        },
+        "owned_databases": [
+          "futuremud_land_20261006105133_1187e32287"
+        ],
+        "owned_endpoints": [
+          "59434"
+        ]
+      },
+      {
+        "mode": "provision-stock",
+        "exit_code": 0,
+        "passed": true,
+        "owned_cleanup": true,
+        "log": ".artifacts/test-runs/water-see-integrated-01/native-02/provision-stock.log",
+        "evidence": {
+          "path": ".artifacts/test-runs/water-see-integrated-01/native-02/provision-stock.log",
+          "bytes": 1218168,
+          "sha256": "ce865ebf861c5b0bdf084fb73a3433d5b7b9bb159c69dd6bafe4a90ddc911a93"
+        },
+        "owned_databases": [
+          "futuremud_land_20261006105229_95390d9214"
+        ],
+        "owned_endpoints": [
+          "52818"
+        ]
+      },
+      {
+        "mode": "five-stock",
+        "exit_code": 0,
+        "passed": true,
+        "owned_cleanup": true,
+        "log": ".artifacts/test-runs/water-see-integrated-01/native-02/five-stock.log",
+        "evidence": {
+          "path": ".artifacts/test-runs/water-see-integrated-01/native-02/five-stock.log",
+          "bytes": 2239372,
+          "sha256": "25ac008c5c00daa38c46bd4d3e19656f4814949eab80d1a696f8839092f7667f"
+        },
+        "owned_databases": [
+          "futuremud_land_20261006105322_7fec4cb52e"
+        ],
+        "owned_endpoints": [
+          "56380"
+        ]
+      },
+      {
+        "mode": "regressions",
+        "exit_code": 0,
+        "passed": true,
+        "owned_cleanup": true,
+        "log": ".artifacts/test-runs/water-see-integrated-01/native-02/regressions.log",
+        "evidence": {
+          "path": ".artifacts/test-runs/water-see-integrated-01/native-02/regressions.log",
+          "bytes": 3515246,
+          "sha256": "b5898a9563824bc624f0d59c42cfd3875e74eecf5b174e36ccdd80e8f3a12ffe"
+        },
+        "owned_databases": [
+          "futuremud_land_20261006105415_4dfa5745a8",
+          "futuremud_land_20261006105504_b6c380b2f7",
+          "futuremud_land_20261006105555_cf10fcd648",
+          "futuremud_land_20261006105640_80766144f7"
+        ],
+        "owned_endpoints": [
+          "59509"
+        ]
+      }
+    ]
+  },
+  "core_assembly_identity": {
+    "head": "55922a080637a06a7b00964c0c2c1bb389dc9b8d",
+    "unit_native_core_match": true,
+    "assemblies": [
+      {
+        "path": "MudSharpCore Unit Tests/bin/Debug/net10.0/MudSharp.dll",
+        "bytes": 31248896,
+        "sha256": "34b68f0e85a20a5082b3ac17292b412524047abfc862c64e7b045fcc8172a423"
+      },
+      {
+        "path": "Temporary Scratch App/SeeTheUnbodiedStockNativeHarness/bin/Debug/net10.0/MudSharp.dll",
+        "bytes": 31248896,
+        "sha256": "34b68f0e85a20a5082b3ac17292b412524047abfc862c64e7b045fcc8172a423"
+      }
+    ]
+  },
+  "owned_cleanup": {
+    "checked_utc": "2026-10-06T10:58:38.0729577Z",
+    "owned_ports": [
+      51471,
+      52818,
+      53004,
+      56380,
+      58573,
+      59132,
+      59434,
+      59509,
+      60656,
+      62033
+    ],
+    "owned_mysql_process_count": 0,
+    "owned_native_process_count": 0,
+    "temporary_prefix_directory_count": 0,
+    "queries_complete": true,
+    "read_only": true
+  },
+  "supporting_evidence": [
+    {
+      "path": ".artifacts/test-runs/water-see-integrated-01/strict-fast/20261006T103902Z-4a9f4f7f5331/summary.json",
+      "bytes": 42270,
+      "sha256": "425012971edf19fd26fb1ae68118519cad36ec8ed3af58c214becd4aa11401ed"
+    },
+    {
+      "path": ".artifacts/test-runs/water-see-integrated-01/release-gate/20261006T105802Z-6dabb0aa7120/summary.json",
+      "bytes": 6418,
+      "sha256": "2033285b52b5b91c9c32506639699fea6cc6326dedbba1fdae4054332d181342"
+    },
+    {
+      "path": ".artifacts/test-runs/water-see-integrated-01/native-02/summary.json",
+      "bytes": 2875,
+      "sha256": "8236c2a93555df501d1267d9e98281a29d3a6c8411fd62845025babf12015ae3"
+    },
+    {
+      "path": ".artifacts/test-runs/water-see-integrated-01/native-02/source-before.json",
+      "bytes": 1292364,
+      "sha256": "83101ce0de7f59c5f188237c1ebb703fd95635c9ccb20fff63a509726f7d63b1"
+    },
+    {
+      "path": ".artifacts/test-runs/water-see-integrated-01/native-02/source-after.json",
+      "bytes": 1292364,
+      "sha256": "83101ce0de7f59c5f188237c1ebb703fd95635c9ccb20fff63a509726f7d63b1"
+    },
+    {
+      "path": ".artifacts/test-runs/water-see-integrated-01/native-02/assemblies-before.json",
+      "bytes": 15556,
+      "sha256": "3b76bacf316793325011596ef66689f07753570cb73422208cc236b41bb14c39"
+    },
+    {
+      "path": ".artifacts/test-runs/water-see-integrated-01/native-02/assemblies-after.json",
+      "bytes": 15556,
+      "sha256": "3b76bacf316793325011596ef66689f07753570cb73422208cc236b41bb14c39"
+    },
+    {
+      "path": ".artifacts/test-runs/water-see-integrated-01/core-assembly-match.json",
+      "bytes": 546,
+      "sha256": "4213574801b53b47f9df8847a607a990f4058a5626373f45756e270b5ba4f471"
+    },
+    {
+      "path": ".artifacts/test-runs/water-see-integrated-01/unit-assemblies.json",
+      "bytes": 127905,
+      "sha256": "5e83342ef39c6d6763b5da1411f2ffd4873f1a53811a7e99e601107a24ea789d"
+    },
+    {
+      "path": ".artifacts/test-runs/water-see-integrated-01/native-assemblies-still-match.json",
+      "bytes": 25575,
+      "sha256": "f1825e9d2bb410200eb4a3a92b6037661e86e8bf02dbef4f87952b3a82175fd0"
+    },
+    {
+      "path": ".artifacts/test-runs/water-see-integrated-01/native-build.log",
+      "bytes": 26028,
+      "sha256": "96cbb331391c42d6db44734e76124a97f32875327ffecf3ce7df81ec5e5d440c"
+    },
+    {
+      "path": ".artifacts/test-runs/water-see-integrated-01/import-and-preservation.json",
+      "bytes": 27457,
+      "sha256": "9f1de880551be927f16d9f19ddb7ccbed87441312e84b49378324db24d6a579e"
+    },
+    {
+      "path": ".artifacts/test-runs/water-see-integrated-01/final-owned-cleanup-02.json",
+      "bytes": 364,
+      "sha256": "cdffd1bd9fb2c14285e4ce29c08892828dba7a2adf457fb4fa0ef8ef22d3db82"
+    },
+    {
+      "path": ".artifacts/test-runs/water-see-integrated-01/historical-authority/copied-authority.json",
+      "bytes": 970,
+      "sha256": "9b26c80863b4645b1fa8ab6cf2f3520eb3fc8b1d4b62be0104675013b77ea84c"
+    },
+    {
+      "path": ".artifacts/test-runs/water-see-integrated-01/historical-authority/library-evidence.json",
+      "bytes": 79273,
+      "sha256": "039625cfaef11c975344a0ef101db6a53392cbeefacbac5d5c67a6219b13716d"
+    },
+    {
+      "path": ".artifacts/test-runs/water-see-integrated-01/historical-authority/library-position-evidence-complete.json",
+      "bytes": 64735,
+      "sha256": "20749ea13a3e6af88f19bc705c67134291048e1b7064f2184afdce2116fa6078"
+    },
+    {
+      "path": ".artifacts/test-runs/water-see-integrated-01/run-native.ps1",
+      "bytes": 3944,
+      "sha256": "9990d37191f4789c4ed81a3cd0f0862946f97745d8ffeac6664bef4feaa4b9ed"
+    }
+  ],
+  "historical_artifact_worktree": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-4\\FutureMUD-five-stock",
+  "preserved_nonpassing_attempts": [
+    {
+      "path": ".artifacts/test-runs/water-see-integrated-01/native-first-operator-failure.txt",
+      "scope": "Windows PowerShell5 supervisor host lacks Path.GetRelativePath; no native mode or database started. Retained incomplete native/source-before.json; unchanged plan then passed under pwsh7.",
+      "evidence": {
+        "path": ".artifacts/test-runs/water-see-integrated-01/native-first-operator-failure.txt",
+        "bytes": 321,
+        "sha256": "6d5c42efa53bba7aa8fda54862819b38c0ad4bcb44ab3d350cb4d4e9fa62d6e7"
+      },
+      "incomplete_manifest": {
+        "path": ".artifacts/test-runs/water-see-integrated-01/native/source-before.json",
+        "bytes": 1399800,
+        "sha256": "c47a1a0ec1423e010c2be06ba2d14ba8822ee631170eec4e71cec9ad3ca0367c"
+      }
+    },
+    {
+      "path": ".artifacts/test-runs/water-see-integrated-01/final-owned-cleanup.json",
+      "scope": "Initial sandbox WMI queries denied; counts corrected to null/unverified. Scoped authorized read-only check subsequently completed with zero owned processes.",
+      "evidence": {
+        "path": ".artifacts/test-runs/water-see-integrated-01/final-owned-cleanup.json",
+        "bytes": 516,
+        "sha256": "88b86b3aca097a3786ee9c9efc6a5539bfe85ab015dc7b0006e570fe45fc8f7d"
+      }
+    }
+  ],
+  "qualified": [
+    "Ordinary editable stock command/factory construction, duplicate/malformed conservation, effect/profile/filter edits, clone/save/database reload",
+    "Prepayment target/posture/component/scope refusal, paid low/high-grade invocation and native actual cost/application reporting",
+    "Water inclusive one-draw duration, exact liquid scope, normalized accumulation cap36/strongest grade, no-change/no-mastery and callback uncertainty",
+    "See all seven grade/rank thresholds, native Divination quantity conservation/deletion, Silt-before-Shadow admission, exact frozen consumption and cold NeedsReview no replay/refund/mastery",
+    "Water and See acquisition opening30/rawcap90 and paid effect-free practice to grade7",
+    "Fresh-reader persistence and exact native parent/child expiry; retained Pierce/provision/five-stock and four weapon regressions",
+    "Mend Flesh cap60 retained and demonstrated paid native practice to grade7",
+    "Actual Release compiled seeder gate remains disabled; six existing assertions pass"
+  ],
+  "limits": [
+    "Production world/database boot and actual installer/acquisition tree integration are not qualified; no installer or central ledger edits",
+    "Water fixture uses actual Character/Body with explicitly selected partless strategy and mocked anatomy/race/environment; full physiology/login strategy selection, breathing/exposure ticks and real supply depletion remain unqualified",
+    "Native ethereal grant/restoration/expiry is qualified; full hidden-target blindness/ward/planar visibility and actual Silt/Shadow topology are unqualified",
+    "Other-character See refusal is covered by compiled-filter unit cases; native stock fixture has one concrete character recipient",
+    "See uses explicit self/me syntax; source clock, terrain/tag/native position mapping and quantity-unit consumption remain declared engine adaptations",
+    "Deterministic configured native improvement and accelerated clock; no charged-carrier, emotional gameplay, new physics or expanded weapon coverage"
+  ],
+  "integration_remaining": {
+    "shared_api_additions": [],
+    "shared_native_dispatch_additions": [],
+    "installer_registry_owner": "Coordinator/installer: explicit water liquids; Silt/Shadow terrains and Divination rank0-4 hierarchy; normal admission opening30/rawcap90 and Draw Wine/Pierce grade1/raw80 prerequisites",
+    "central_ledger_owner": "Coordinator after independent review",
+    "release_seeder": "Remains disabled; no enablement authority",
+    "review": "Parent independent review required; no push/PR/publication"
+  }
+}

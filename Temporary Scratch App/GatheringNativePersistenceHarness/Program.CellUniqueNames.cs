@@ -27,8 +27,9 @@ internal static partial class GNHProgram
 		using (var db = NewIndependentContext(database.ConnectionString))
 		{
 			var migrations = db.Database.GetMigrations().ToArray();
-			Require(migrations.Last().EndsWith("_CellUniqueNames", StringComparison.Ordinal), "Stage1 must be the latest migration.");
-			db.GetService<IMigrator>().Migrate(migrations[^2]); // Only this newly created, marker-verified database.
+			var identifierIndex = Array.FindIndex(migrations, x => x.EndsWith("_CellUniqueNames", StringComparison.Ordinal));
+			Require(identifierIndex > 0, "Stage1 migration must exist.");
+			db.GetService<IMigrator>().Migrate(migrations[Array.FindIndex(migrations, x => x.EndsWith("_CellUniqueNames", StringComparison.Ordinal)) - 1]); // Only this newly created, marker-verified database.
 		}
 		var fixture = FixtureSeed.Create(database, "cell_identity", existingWound: true);
 		using var connection = database.OpenOwnedConnection();
@@ -48,7 +49,7 @@ internal static partial class GNHProgram
 		}
 		Sql("INSERT INTO exits(Id,CellId1,CellId2,Direction1,Direction2,TimeMultiplier,AcceptsDoor) VALUES(9000,8000,8002,1,3,1,0); INSERT INTO celloverlays_exits(CellOverlayId,ExitId) VALUES(8000,9000),(8002,9000);");
 		var before = CaptureLegacyCellData(connection);
-		using (var db = NewIndependentContext(database.ConnectionString)) db.Database.Migrate();
+		using (var db = NewIndependentContext(database.ConnectionString)) db.GetService<IMigrator>().Migrate(db.Database.GetMigrations().Single(x => x.EndsWith("_CellUniqueNames", StringComparison.Ordinal)));
 		var after = CaptureLegacyCellData(connection);
 		Require(before.Count == after.Count && before.All(x => after.TryGetValue(x.Key, out var hash) && hash == x.Value), "Upgrade must preserve every existing table row and column (except migration history)." );
 		Require(Scalar("SELECT COUNT(*) FROM cells WHERE UniqueName IS NOT NULL") == 0, "No identifier backfill is allowed.");
@@ -56,6 +57,13 @@ internal static partial class GNHProgram
 		Require(Scalar("SELECT COUNT(*) FROM information_schema.statistics WHERE table_schema=DATABASE() AND table_name='cells' AND index_name='IX_Cells_UniqueName' AND non_unique=1") == 1, "Index must be nonunique.");
 		Console.WriteLine($"CellUniqueNames-upgrade=PASS tables={before.Count} all-legacy-data-unchanged multiple-cells empty-room duplicate-coordinates distinct-IDs area-exit-overlay-character-wound-links no-backfill");
 
+		// Historical stage1 assertions above deliberately preserve legacy multi-cell Rooms.
+		// Explicit test-fixture disposition before stage2 expansion; never repair a user world.
+		Sql($"INSERT INTO rooms(Id,ZoneId,X,Y,Z) VALUES(9002,{zoneId},0,0,0),(9003,{zoneId},0,0,0); UPDATE cells SET RoomId=9002 WHERE Id=8000; UPDATE cells SET RoomId=9003 WHERE Id=8001; DELETE FROM areas_rooms WHERE RoomId=9001;");
+		using (var db = NewIndependentContext(database.ConnectionString))
+		{
+			db.Database.OpenConnection(); db.Database.ExecuteSqlRaw("SET @FutureMUD_CellSpatialMaintenance=1;"); db.Database.Migrate();
+		}
 		var world = new Mock<IFuturemud> { DefaultValue = DefaultValue.Mock };
 		var cells = new All<ICell>();
 		world.SetupGet(x => x.Cells).Returns(cells);
@@ -82,7 +90,11 @@ internal static partial class GNHProgram
 		{
 			using var db = NewIndependentContext(database.ConnectionString);
 			var model = db.Cells.Include(x => x.CellOverlays).AsNoTracking().Single(x => x.Id == id);
-			return new Cell(model, room.Object);
+			var loadedRoom = new Mock<IRoom> { DefaultValue = DefaultValue.Mock };
+			loadedRoom.SetupGet(x => x.Gameworld).Returns(world.Object);
+			loadedRoom.SetupGet(x => x.Zone).Returns(zone.Object);
+			loadedRoom.SetupGet(x => x.Id).Returns(model.RoomId);
+			return new Cell(model, loadedRoom.Object);
 		}
 		void Save(Cell cell) { using var scope = new FMDB(); cell.Save(); FMDB.Context.SaveChanges(); }
 		var first = Load(8000); var second = Load(8001); cells.Add(first); cells.Add(second);
@@ -111,10 +123,10 @@ internal static partial class GNHProgram
 		Sql("UPDATE cells SET UniqueName=NULL;"); // Explicit disposal-fixture disposition after asserting refusal.
 		using (var db = NewIndependentContext(database.ConnectionString))
 		{
-			var migrations = db.Database.GetMigrations().ToArray(); db.GetService<IMigrator>().Migrate(migrations[^2]);
+			var migrations = db.Database.GetMigrations().ToArray(); db.GetService<IMigrator>().Migrate(migrations[Array.FindIndex(migrations, x => x.EndsWith("_CellUniqueNames", StringComparison.Ordinal)) - 1]);
 		}
 		Require(Scalar("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='cells' AND column_name='UniqueName'") == 0, "Downgrade removes only the additive storage/index.");
-		Require(Scalar($"SELECT COUNT(*) FROM cells WHERE RoomId={roomId}") == 4, "Downgrade keeps legacy cells and the new clone.");
+		Require(Scalar($"SELECT COUNT(*) FROM cells WHERE Id IN ({fixture.CellId},8000,8001,8002,{clone.Id})") == 5, "Downgrade keeps legacy cells and the new clone.");
 		Console.WriteLine("CellUniqueNames-runtime=PASS native-save fresh-reload rename clear blank collision clone duplicate-load-refusal explicit-fixture-disposition additive-downgrade");
 		return 0;
 	}

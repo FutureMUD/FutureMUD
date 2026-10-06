@@ -30,6 +30,7 @@ namespace MudSharp.Database
 			ConfigureEnvironmentalMagic(modelBuilder);
 			ConfigureMagicGathering(modelBuilder);
             OnModelCreatingPartial(modelBuilder);
+			ConfigureCellSpatialOwnership(modelBuilder);
         }
     }
 }

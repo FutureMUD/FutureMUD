@@ -20,6 +20,8 @@ The additive `CellUniqueNames` migration adds nullable `utf8mb4` storage and a n
 
 ## Quick Mental Model
 
+The Room-removal work currently has an [additive schema checkpoint](Cell_Spatial_Ownership_Migration.md). The old Room remains authoritative until the later maintenance cutover. Its copied cell zone/coordinates and area links are not updated by ongoing builder commands; this checkpoint adds no new builder workflow.
+
 FutureMUD locations are built from a small set of concepts:
 
 | Concept | What it means to a builder |

@@ -59,6 +59,8 @@ internal static partial class GNHProgram
 			{
 				["--probe"] => Probe(),
 				["--cell-unique-name-run"] => RunCellUniqueNames(),
+				["--cell-spatial-expansion-run"] => RunCellSpatialExpansion(),
+				["--cell-spatial-expansion-reader", string databaseName] => ReadCellSpatialExpansion(databaseName),
 				["--emotional-melee-run"] => RunEmotionalHooks("melee"),
 				["--emotional-firearm-run"] => RunEmotionalHooks("firearm"),
 				["--emotional-countershot-run"] => RunEmotionalHooks("countershot"),
@@ -378,15 +380,15 @@ internal static partial class GNHProgram
 
 	private sealed record WoundChannels(double Damage, double Pain, double Stun);
 
-	private static FuturemudDatabaseContext NewIndependentContext(string connectionString)
+	private static FuturemudDatabaseContext NewIndependentContext(string connectionString, Microsoft.EntityFrameworkCore.Diagnostics.IInterceptor? extraInterceptor = null)
 	{
 		using var candidate = new MySqlConnector.MySqlConnection(connectionString);
 		OwnedConnections.Validate("independent-context-before-autodetect", candidate);
-		DbContextOptions<FuturemudDatabaseContext> options = new DbContextOptionsBuilder<FuturemudDatabaseContext>()
+		var builder = new DbContextOptionsBuilder<FuturemudDatabaseContext>()
 			.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString))
-			.AddInterceptors(new FMDB.ValidatedConnectionInterceptor((boundary, connection) => OwnedConnections.ValidateIndependentConnection(boundary, connection, connectionString)))
-			.Options;
-		return new FuturemudDatabaseContext(options);
+			.AddInterceptors(new FMDB.ValidatedConnectionInterceptor((boundary, connection) => OwnedConnections.ValidateIndependentConnection(boundary, connection, connectionString)));
+		if (extraInterceptor is not null) builder.AddInterceptors(extraInterceptor);
+		return new FuturemudDatabaseContext(builder.Options);
 	}
 
 	private static void ConfigureNativeDatabase(string connectionString)

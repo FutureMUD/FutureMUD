@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param([string]$EvidenceRoot,
-	[ValidateSet('water-see', 'water-breathing-stock', 'see-the-unbodied-stock')]
+	[ValidateSet('water-see', 'water-breathing-stock', 'see-unbodied-stock')]
 	[string]$Mode = 'water-see')
 
 $ErrorActionPreference = 'Stop'
@@ -52,6 +52,7 @@ function Write-AssemblyEvidence {
 		@{ path = $assemblyPath; sha256 = (Get-FileHash -LiteralPath $assemblyPath -Algorithm SHA256).Hash }
 	}
 	$records | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath (Join-Path $evidenceDirectory ($Name + '.json'))
+	return (Get-FileHash -LiteralPath (Join-Path $evidenceDirectory ($Name + '.json')) -Algorithm SHA256).Hash
 }
 
 function Require-OwnedServer {
@@ -137,7 +138,7 @@ try {
 	Write-Output "workingTreeRevision=$revision"
 	Write-Output "workingTreeState=$workingTreeState"
 	$sourceStart = Write-SourceEvidence 'source-start'
-	Write-AssemblyEvidence 'assemblies-before'
+	$assemblyStart = Write-AssemblyEvidence 'assemblies-before'
 	Write-Output "nativeEvidence=$evidenceDirectory sourceStart=$sourceStart"
 	Write-Output 'server=isolated-loopback-mysql'
 	& $mysqld '--no-defaults' '--initialize-insecure' "--basedir=C:\Program Files\MySQL\MySQL Server 8.0" "--datadir=$taskData" "--log-error=$taskLog"
@@ -171,14 +172,16 @@ try {
 	Invoke-OwnedHarness $argument
 	$runExit = $LASTEXITCODE
 	Write-Output "nativeHarnessExit=$runExit"
-	Write-AssemblyEvidence 'assemblies-after'
+	$assemblyEnd = Write-AssemblyEvidence 'assemblies-after'
 	$sourceEnd = Write-SourceEvidence 'source-end'
 	$sourceStable = $sourceStart -eq $sourceEnd
+	$assemblyStable = $assemblyStart -eq $assemblyEnd
 	@{ revision = $revision; mode = $Mode; source_start = $sourceStart; source_end = $sourceEnd; source_stable = $sourceStable; native_exit = $runExit;
+		assemblies_start = $assemblyStart; assemblies_end = $assemblyEnd; assemblies_stable = $assemblyStable;
 		process_root = $taskRoot; owned_port = $taskPort; limits = 'Installer SQL rollback/restart and actual loaded spell/acquisition/payment with native Character/Body/item/database; controlled surrounding terrain/check catalogue, no installed-world Telnet certificate.' } |
 		ConvertTo-Json -Depth 4 | Set-Content -LiteralPath (Join-Path $evidenceDirectory 'summary.json')
-	Write-Output "nativeSourceStable=$sourceStable sourceEnd=$sourceEnd"
-	if (-not $sourceStable) { $runExit = 1 }
+	Write-Output "nativeSourceStable=$sourceStable sourceEnd=$sourceEnd assembliesStable=$assemblyStable"
+	if (-not $sourceStable -or -not $assemblyStable) { $runExit = 1 }
 }
 catch {
 	$runExit = 1

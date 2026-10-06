@@ -36,7 +36,7 @@ internal static class WaterSeeInstallerEntryPoint
 				"--water-see-run" => GNHProgram.WaterSeeInstallerNative(),
 				"--water-see-reader" => GNHProgram.WaterSeeInstallerReader(args[1]),
 				"--water-breathing-stock-run" or "--water-breathing-stock-reader" => GNHProgram.WaterBreathingStockMain(args),
-				"--see-the-unbodied-stock-run" or "--see-the-unbodied-stock-reader" => GNHProgram.SeeTheUnbodiedStockMain(args),
+				"--see-unbodied-stock-run" or "--see-unbodied-stock-reader" => GNHProgram.SeeTheUnbodiedStockMain(args),
 				_ => throw new InvalidOperationException("Select this lane's installer or stock regression mode.")
 			};
 		}
@@ -260,12 +260,12 @@ internal static partial class GNHProgram
 			Rows(ArmageddonProvisionInstaller.Module), Rows(ArmageddonPierceInstaller.Module).Concat(Rows(ArmageddonWaterSeeInstaller.Module)).ToDictionary(x => x.Key, x => x.Value));
 		LoadWaterSeeResource(native, database);
 		var scheduler = new MudSharp.Effects.EffectScheduler(native.World, clock); native.WorldMock.SetupGet(x => x.EffectScheduler).Returns(scheduler);
-		SpellWaterBreathingEffect.InitialiseEffectType(); SpellDetectEtherealEffect.InitialiseEffectType();
+		SpellScopedWaterBreathingEffect.InitialiseEffectType(); SpellDetectEtherealEffect.InitialiseEffectType();
 		using (var db = NewIndependentContext(database.ConnectionString)) native.Actor.RestoreCastingEffects(db.Characters.AsNoTracking().Single(x => x.Id == native.Actor.Id).EffectData);
 		typeof(PerceivedItem).GetMethod("ScheduleCachedEffects", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(native.Actor, null);
 		var parents = native.Actor.EffectsOfType<MagicSpellParent>().Where(x => ((MagicSpell)x.Spell).StockIdentity is ArmageddonWaterSeeInstaller.WaterBreathingKey or ArmageddonWaterSeeInstaller.SeeTheUnbodiedKey).ToArray();
 		Require(parents.Length == 2 && parents.All(x => x.LifetimeState!.Grade == 7) &&
-			parents.Any(x => x.Identity == input.WaterParent && scheduler.ScheduledExpiry(x) == input.WaterExpiry && x.SpellEffects.Single() is SpellWaterBreathingEffect) &&
+			parents.Any(x => x.Identity == input.WaterParent && scheduler.ScheduledExpiry(x) == input.WaterExpiry && x.SpellEffects.Single() is SpellScopedWaterBreathingEffect) &&
 			parents.Any(x => x.Identity == input.SeeParent && scheduler.ScheduledExpiry(x) == input.SeeExpiry && x.SpellEffects.Single() is SpellDetectEtherealEffect),
 			"Cold typed lifetime parent/child/grade/identity/deadline did not reload.");
 		Require(native.World.TryGetItem(input.Component, true)!.GetItemType<IStackable>()!.Quantity == input.Quantity &&

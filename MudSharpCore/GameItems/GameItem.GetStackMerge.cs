@@ -14,6 +14,24 @@ namespace MudSharp.GameItems;
 public partial class GameItem
 {
 	internal void MergeCommittedStackForGet(GameItem absorbed, IBody holder)
+		=> MergeCommittedStack(absorbed, () => ReferenceEquals(absorbed.GetItemType<IHoldable>()?.HeldBy, holder) &&
+			!holder.HeldOrWieldedItems.Any(x => ReferenceEquals(x, absorbed)), false);
+
+	internal void MergeCommittedAmmoStackForGet(GameItem absorbed, IBody holder)
+		=> MergeCommittedStack(absorbed, () => ReferenceEquals(absorbed.GetItemType<IHoldable>()?.HeldBy, holder) &&
+			!holder.HeldOrWieldedItems.Any(x => ReferenceEquals(x, absorbed)), true);
+
+	internal void MergeCommittedAmmoStackForLoad(GameItem absorbed, IBody formerHolder)
+		=> MergeCommittedStack(absorbed, () => ComponentItemTransfer.IsDetached(absorbed) &&
+			!formerHolder.HeldOrWieldedItems.Any(x => ReferenceEquals(x, absorbed)), true);
+
+	internal bool IsQuiescentNativeAmmoStack => GetItemType<StackableGameItemComponent>() is not null &&
+		GetItemType<HoldableGameItemComponent>() is not null &&
+		GetItemType<AmmunitionGameItemComponent>() is { IsQuiescentForStackMerge: true } &&
+		Components.All(x => x.GetType() == typeof(StackableGameItemComponent) ||
+			x.GetType() == typeof(HoldableGameItemComponent) || x.GetType() == typeof(AmmunitionGameItemComponent));
+
+	private void MergeCommittedStack(GameItem absorbed, Func<bool> sourceCustody, bool allowAmmo)
 	{
 		var survivorStack = GetItemType<StackableGameItemComponent>();
 		var sourceStack = absorbed.GetItemType<StackableGameItemComponent>();
@@ -23,21 +41,29 @@ public partial class GameItem
 		SpellOwnedItemValuePolicy.RequireOrdinaryValue(absorbed, "merging");
 		ForeignCustodyTransferContext.EnsureItem(this, destructive: true);
 		ForeignCustodyTransferContext.EnsureItem(absorbed, destructive: true);
+		if (!sourceCustody() || absorbed.Deleted || absorbed.Destroyed || Deleted || Destroyed ||
+			allowAmmo && (GetItemType<AmmunitionGameItemComponent>() is { IsQuiescentForStackMerge: false } ||
+				absorbed.GetItemType<AmmunitionGameItemComponent>() is { IsQuiescentForStackMerge: false }))
+			throw new InvalidOperationException("Committed stack merge participant changed before debit.");
 		var quantity = checked(survivorStack.Quantity + sourceStack.Quantity);
 		if (survivorStack.Quantity <= 0 || sourceStack.Quantity <= 0)
 			throw new InvalidOperationException("Committed Get merge requires positive native quantities.");
 		var owner = absorbed.OwnershipReference;
 		var description = (absorbed.Prototype, absorbed.OverrideSdesc, absorbed.OverrideDesc);
+		var components = absorbed.Components.Select(x => (Item: x, Prototype: x.Prototype)).ToArray();
 		bool UnchangedAndEmpty() => !absorbed.Deleted && !absorbed.Destroyed && sourceStack.Quantity == 0 &&
 			// Unknown/structural components can acquire foreign dependants in callbacks.
 			// Only these exact native leaf components have qualified absorbed-source deletion.
-			absorbed.Components.All(x => x.GetType() == typeof(StackableGameItemComponent) || x.GetType() == typeof(HoldableGameItemComponent)) &&
+			absorbed.Components.Count() == components.Length && components.All(x =>
+				absorbed.Components.Any(y => ReferenceEquals(x.Item, y)) && ReferenceEquals(x.Item.Prototype, x.Prototype)) &&
+			absorbed.Components.All(x => x.GetType() == typeof(StackableGameItemComponent) || x.GetType() == typeof(HoldableGameItemComponent) ||
+				allowAmmo && x.GetType() == typeof(AmmunitionGameItemComponent) && ((AmmunitionGameItemComponent)x).IsQuiescentForStackMerge) &&
 			absorbed.OwnershipReference == owner &&
 			(absorbed.Prototype, absorbed.OverrideSdesc, absorbed.OverrideDesc) == description &&
 			ReferenceEquals(absorbed.GetItemType<StackableGameItemComponent>(), sourceStack) &&
-			ReferenceEquals(absorbed.GetItemType<IHoldable>()?.HeldBy, holder) &&
+			sourceCustody() &&
 			absorbed.DirectLocation is null && absorbed.ContainedIn is null &&
-			!holder.HeldOrWieldedItems.Any(x => ReferenceEquals(x, absorbed));
+			absorbed.GetItemType<IBeltable>()?.ConnectedTo is null;
 
 		// No description, shop or deletion observer can see duplicated source units.
 		sourceStack.SetCommittedGetQuantity(0);

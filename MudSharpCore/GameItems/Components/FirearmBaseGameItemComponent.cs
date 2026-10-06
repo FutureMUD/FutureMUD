@@ -484,10 +484,13 @@ public abstract class FirearmBaseGameItemComponent : GameItemComponent, IFirearm
         var originalLocation = RouteSpatialService.Instance.GetEffectiveLocation(actor);
         while (ChamberedRound is not null && firedRounds < configuredRounds)
         {
-            if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) break;
+            var ammo = ChamberedRound;
+			var acceptedRound = PrepareAcceptedRoundOnFire(actor, ammo);
+			if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor) || !ReferenceEquals(ChamberedRound, ammo) || !acceptedRound()) break;
         MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted(actor);
-        var ammo = ChamberedRound;
-			var ammoContainer = ammo.Parent.ContainedIn;
+			var prepareCasing = PrepareShellCasingOnFire(actor, originalLocation);
+			var canCycle = PrepareCyclingOnFire(actor);
+			var ammoContainer = Parent;
 			var shotCompletion = new ProjectileCustodyCompletion(actor, ammo.Parent, target, originalLocation);
             ChamberedRound = null;
 			if (!ComponentItemTransfer.ReleaseFiredItem(ammo.Parent, ammoContainer ?? Parent)) break;
@@ -503,6 +506,11 @@ public abstract class FirearmBaseGameItemComponent : GameItemComponent, IFirearm
                 ? Math.Clamp(ammo.AmmoType.ProjectileCount, 1, 32)
                 : 1;
             var shell = MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor) ? ammo.GetFiredWasteItem : null;
+			var completeCasing = prepareCasing(shell);
+			var shotWorkCompleted = false;
+			Exception shotFailure = null;
+			try
+			{
             for (var projectileIndex = 0; projectileIndex < projectileCount; projectileIndex++)
             {
                 var bullet = projectileIndex == 0
@@ -545,13 +553,20 @@ public abstract class FirearmBaseGameItemComponent : GameItemComponent, IFirearm
                 ammo.Parent.Delete();
             }
 
-            HandleShellCasingOnFire(actor, originalLocation, shell);
+				shotWorkCompleted = true;
+			}
+			catch (Exception ex) { shotFailure = ex; throw; }
+			finally
+			{
+				try { completeCasing(shotWorkCompleted); }
+				catch (Exception ex) when (shotFailure is not null) { shotFailure.Data["CasingCompletionFailure"] = ex; }
+			}
             loudestShot = (AudioVolume)Math.Clamp(
                 Math.Max((int)loudestShot,
                     (int)ammo.AmmoType.Loudness + CombinedAttachmentModifiers.LoudnessOffset),
                 (int)AudioVolume.Silent, (int)AudioVolume.DangerouslyLoud);
             firedRounds++;
-            if (MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor) && CycleType == FirearmCycleType.SelfLoading)
+            if (MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor) && CycleType == FirearmCycleType.SelfLoading && canCycle())
             {
                 ChamberRound(actor);
             }
@@ -566,6 +581,13 @@ public abstract class FirearmBaseGameItemComponent : GameItemComponent, IFirearm
                 actor.RoomLayer, true, "gunshot");
         }
     }
+
+	protected virtual Func<bool> PrepareAcceptedRoundOnFire(ICharacter actor, IAmmo ammo) => () => true;
+
+	protected virtual Func<bool> PrepareCyclingOnFire(ICharacter actor) => () => true;
+
+	protected virtual Func<IGameItem, Action<bool>> PrepareShellCasingOnFire(ICharacter actor, SpatialLocation originalLocation) =>
+		shell => completed => { if (completed) HandleShellCasingOnFire(actor, originalLocation, shell); };
 
     protected virtual void HandleShellCasingOnFire(ICharacter actor, SpatialLocation originalLocation, IGameItem shell)
     {

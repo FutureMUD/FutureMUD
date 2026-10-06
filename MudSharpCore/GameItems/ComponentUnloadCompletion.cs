@@ -32,6 +32,14 @@ internal static class ComponentUnloadCompletion
 		};
 	}
 
+	internal static Func<IGameItem?>? PrepareReceiveWithResult(ICharacter actor, IGameItem item)
+	{
+		if (!CommandExecutionScope.TryContinue(actor)) return null;
+		if (actor.Body is MudSharp.Body.Implementations.Body body) return body.PrepareComponentUnloadWithResult(item);
+		var receive = PrepareReceive(actor, item);
+		return receive is null ? null : () => { receive(); return item.Deleted || item.Destroyed ? null : item; };
+	}
+
 	internal static Action? PrepareFloor(ICharacter actor, IGameItem item, ILocateable source)
 	{
 		var deliver = PrepareFloorDestination(actor, source);
@@ -61,7 +69,7 @@ internal static class ComponentUnloadCompletion
 			if (destination.Cell.RouteDefinition is not null) item.MoveTo(destination);
 			}
 			if (!CanCompleteAt(item, destination)) return;
-			if (!destination.Cell.GameItems.Any(x => ReferenceEquals(x, item))) destination.Cell.Insert(item);
+			if (!destination.Cell.GameItems.Any(x => ReferenceEquals(x, item))) destination.Cell.Insert(item, newStack: true);
 		};
 	}
 

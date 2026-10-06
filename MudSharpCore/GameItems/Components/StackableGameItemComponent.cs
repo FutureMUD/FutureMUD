@@ -136,9 +136,36 @@ public class StackableGameItemComponent : GameItemComponent, IStackable
         return newItem;
     }
 
-    private void TransferWeaponPoisonCoatingToSplit(GameItem newItem, int quantity)
+	// Only the declared quiescent native ammunition leaf uses this prepared copy path.
+	// Bind the exact copy and debit both raw quantities before any copy observer can throw.
+	internal GameItem SplitPrepared(int quantity, Func<bool> factsUnchanged, Action<GameItem> capture)
+	{
+		var source = (GameItem)Parent;
+		ForeignCustodyTransferContext.EnsureItem(source, destructive: true);
+		var originalQuantity = Quantity;
+		if (quantity <= 0 || quantity >= originalQuantity || !source.IsQuiescentNativeAmmoStack || !factsUnchanged())
+			throw new InvalidOperationException("Prepared ammunition split changed before debit.");
+		var newItem = new GameItem(source, false, true, copy =>
+		{
+			if (Quantity != originalQuantity || !source.IsQuiescentNativeAmmoStack || !factsUnchanged())
+				throw new InvalidOperationException("Prepared ammunition split changed before debit.");
+			var copyStack = copy.GetItemType<StackableGameItemComponent>();
+			SetCommittedGetQuantity(originalQuantity - quantity);
+			copyStack.SetCommittedGetQuantity(quantity);
+			capture(copy);
+			MarkCommittedGetQuantityChanged();
+			copyStack.MarkCommittedGetQuantityChanged();
+		});
+		source.CopyStockDisplayToSplit(newItem);
+		TransferWeaponPoisonCoatingToSplit(newItem, quantity, originalQuantity);
+		NotifyCommittedGetQuantityChanged();
+		newItem.GetItemType<StackableGameItemComponent>().NotifyCommittedGetQuantityChanged();
+		return newItem;
+	}
+
+    private void TransferWeaponPoisonCoatingToSplit(GameItem newItem, int quantity, int? capturedQuantity = null)
     {
-        var originalQuantity = Math.Max(1, Quantity);
+        var originalQuantity = Math.Max(1, capturedQuantity ?? Quantity);
         var proportion = Math.Clamp((double)quantity / originalQuantity, 0.0, 1.0);
         if (proportion <= 0.0)
         {

@@ -1743,6 +1743,50 @@ public partial class Body
 		};
 	}
 
+	internal Func<IGameItem?>? PrepareComponentUnloadWithResult(IGameItem item)
+	{
+		var executor = Actor;
+		var quantity = item.Quantity;
+		var title = item.OwnershipReference;
+		var components = item.Components.Select(x => (Item: x, Prototype: x.Prototype)).ToArray();
+		bool Exact() => !item.Deleted && !item.Destroyed && item.Quantity == quantity && item.OwnershipReference == title &&
+			item.Components.Count() == components.Length && components.All(x => item.Components.Any(y => ReferenceEquals(x.Item, y)) &&
+				ReferenceEquals(x.Item.Prototype, x.Prototype));
+		if (!CommandExecutionScope.TryContinue()) return null;
+		var canReceive = CanGet(item, 0);
+		if (!ReferenceEquals(Actor, executor) || !CommandExecutionScope.TryContinue() || !Exact()) return null;
+		var placement = canReceive ? PrepareGetPlacement(item, true) : null;
+		if (!ReferenceEquals(Actor, executor) || !CommandExecutionScope.TryContinue() || !Exact()) return null;
+		placement ??= new PreparedGet(null, null, executor, Location, RoomLayer);
+		var floor = ComponentUnloadCompletion.PrepareFloorDestination(executor, executor);
+		if (floor is null || !CommandExecutionScope.TryContinue() || !Exact()) return null;
+		return () =>
+		{
+			if (!ComponentItemTransfer.IsDetached(item) || !Exact()) return null;
+			try
+			{
+				item.Get(this);
+				if (!Exact()) return null;
+				if (!CompleteGetPlacementWithResult(item, placement, out var acquired, consumeNativeStack: true, allowAmmo: true))
+					return !item.Deleted && !item.Destroyed && ComponentItemTransfer.DirectLocationOf(item) == placement.Fallback &&
+						item.RoomLayer == placement.Layer && item.InInventoryOf is null && item.ContainedIn is null &&
+						placement.Fallback?.GameItems.Any(x => ReferenceEquals(x, item)) == true ? item : null;
+				if (acquired.Deleted || acquired.Destroyed) return null;
+				NotifyGotItem(acquired, executor);
+				return acquired.Deleted || acquired.Destroyed ? null : acquired;
+			}
+			finally
+			{
+				// Get callbacks may throw after installing only the provisional holder.
+				if (!item.Deleted && !item.Destroyed && ReferenceEquals(item.GetItemType<IHoldable>()?.HeldBy, this) &&
+					!HeldOrWieldedItems.Any(x => ReferenceEquals(x, item)) && item.ContainedIn is null &&
+					ComponentItemTransfer.DirectLocationOf(item) is null && item.GetItemType<IBeltable>()?.ConnectedTo is null)
+					item.GetItemType<IHoldable>()!.HeldBy = null;
+				if (ComponentItemTransfer.IsDetached(item)) floor(item);
+			}
+		};
+	}
+
 	private PreparedGet? PrepareGetPlacement(IGameItem item, bool allowMerge)
 	{
 		var executor = Actor;
@@ -1765,7 +1809,7 @@ public partial class Body
 	// Reentrant public inventory operations still pass their own normal authority checks.
 	private bool CompleteGetPlacement(IGameItem item, PreparedGet placement) => CompleteGetPlacementWithResult(item, placement, out _);
 
-	private bool CompleteGetPlacementWithResult(IGameItem item, PreparedGet placement, out IGameItem acquired, bool consumeNativeStack = false)
+	private bool CompleteGetPlacementWithResult(IGameItem item, PreparedGet placement, out IGameItem acquired, bool consumeNativeStack = false, bool allowAmmo = false)
 	{
 		acquired = item;
 		bool SourceReady() => !item.Deleted && !item.Destroyed && ComponentItemTransfer.DirectLocationOf(item) is null &&
@@ -1782,6 +1826,17 @@ public partial class Body
 				var mergeOwner = merge.OwnershipReference;
 				var sourceDescription = (item.Prototype, item.OverrideSdesc, item.OverrideDesc);
 				var mergeDescription = (merge.Prototype, merge.OverrideSdesc, merge.OverrideDesc);
+				var sourceQuantity = item.Quantity;
+				var mergeQuantity = merge.Quantity;
+				var sourceStack = item.GetItemType<IStackable>();
+				var mergeStack = merge.GetItemType<IStackable>();
+				var sourceStackProto = sourceStack?.Prototype;
+				var mergeStackProto = mergeStack?.Prototype;
+				var sourceComponents = item.Components.Select(x => (Item: x, Prototype: x.Prototype)).ToArray();
+				var mergeComponents = merge.Components.Select(x => (Item: x, Prototype: x.Prototype)).ToArray();
+				bool ComponentsUnchanged(IGameItem participant, (IGameItemComponent Item, IGameItemComponentProto Prototype)[] captured) =>
+					participant.Components.Count() == captured.Length && captured.All(x => participant.Components.Any(y => ReferenceEquals(x.Item, y)) &&
+						ReferenceEquals(x.Item.Prototype, x.Prototype));
 				var canMerge = merge.CanMerge(item);
 				if (!SourceReady()) return false;
 				if (HeldOrWieldedItems.Any(x => ReferenceEquals(x, item))) return true;
@@ -1791,14 +1846,24 @@ public partial class Body
 					ComponentItemTransfer.DirectLocationOf(merge) is null &&
 					item.OwnershipReference == sourceOwner && merge.OwnershipReference == mergeOwner && sourceOwner == mergeOwner &&
 					(item.Prototype, item.OverrideSdesc, item.OverrideDesc) == sourceDescription &&
-					(merge.Prototype, merge.OverrideSdesc, merge.OverrideDesc) == mergeDescription)
+					(merge.Prototype, merge.OverrideSdesc, merge.OverrideDesc) == mergeDescription &&
+					item.Quantity == sourceQuantity && merge.Quantity == mergeQuantity &&
+					ReferenceEquals(item.GetItemType<IStackable>(), sourceStack) && ReferenceEquals(merge.GetItemType<IStackable>(), mergeStack) &&
+					ReferenceEquals(sourceStack?.Prototype, sourceStackProto) && ReferenceEquals(mergeStack?.Prototype, mergeStackProto) &&
+					(!allowAmmo || ComponentsUnchanged(item, sourceComponents) && ComponentsUnchanged(merge, mergeComponents)) &&
+					(!allowAmmo || item.GetItemType<AmmunitionGameItemComponent>() is not { IsQuiescentForStackMerge: false } &&
+						merge.GetItemType<AmmunitionGameItemComponent>() is not { IsQuiescentForStackMerge: false }))
 				{
 					if (consumeNativeStack && merge is MudSharp.GameItems.GameItem nativeMerge && item is MudSharp.GameItems.GameItem nativeSource &&
 						nativeMerge.GetItemType<StackableGameItemComponent>() is not null &&
 						nativeSource.GetItemType<StackableGameItemComponent>() is not null)
 					{
 						acquired = merge;
-						try { nativeMerge.MergeCommittedStackForGet(nativeSource, this); }
+						try
+						{
+							if (allowAmmo) nativeMerge.MergeCommittedAmmoStackForGet(nativeSource, this);
+							else nativeMerge.MergeCommittedStackForGet(nativeSource, this);
+						}
 						finally
 						{
 							// Observers may refill or retitle the zero source. Preserve their value at the
@@ -1808,7 +1873,7 @@ public partial class Body
 								if (placement.Fallback is { } floor) nativeSource.TryDropPrepared(new SpatialLocation(floor, placement.Layer, placement.RoutePosition));
 								else item.Drop(null);
 								if (!item.Deleted && !item.Destroyed && ReferenceEquals(item.Location, placement.Fallback) &&
-									item.InInventoryOf is null && item.ContainedIn is null) placement.Fallback?.Insert(item);
+									item.InInventoryOf is null && item.ContainedIn is null) placement.Fallback?.Insert(item, newStack: true);
 							}
 						}
 					}

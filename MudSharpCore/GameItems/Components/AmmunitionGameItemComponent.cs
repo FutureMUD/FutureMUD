@@ -21,6 +21,7 @@ public class AmmunitionGameItemComponent : GameItemComponent, IAmmo
 {
     private RangedFireContext _currentFireContext;
     private ProjectileCustodyCompletion _projectileCompletion;
+	internal bool IsQuiescentForStackMerge => _currentFireContext is null && _projectileCompletion is null;
     protected AmmunitionGameItemComponentProto _prototype;
     public override IGameItemComponentProto Prototype => _prototype;
 

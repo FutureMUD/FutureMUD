@@ -1,0 +1,1660 @@
+{
+  "status": "PASS_BOUNDED_LOCAL_CHECKPOINT_PARENT_REVIEW_PENDING",
+  "utc": "2026-10-06T01:27:12.974878+00:00",
+  "base_head": "fdba0e03f6b6cf3a3a4df9197e9ff42c2697c255",
+  "focused": {
+    "status": "PASS",
+    "run_id": "20261006T004933Z-d635f9caddd1",
+    "counts": {
+      "executed": 302,
+      "passed": 302,
+      "failed": 0,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 302
+    },
+    "counts_complete": true,
+    "execution_complete": true,
+    "source_stable": true,
+    "source_start": "f469e44c0e8e47d8bee60ebed9d276329cc299dc0870bacc0bd6b9dd1396469e",
+    "source_end": "f469e44c0e8e47d8bee60ebed9d276329cc299dc0870bacc0bd6b9dd1396469e",
+    "projects": [
+      "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+    ],
+    "filter": "FullyQualifiedName~PreparedGetStackMergeTests|FullyQualifiedName~QueuedCommandAuthorityTests|FullyQualifiedName~InternalMagazine",
+    "suite": "core",
+    "path": ".artifacts/test-runs/armageddon-native-ammo/managed15/20261006T004933Z-d635f9caddd1/summary.json",
+    "sha256": "82b7ff4a6449fc4044a52afa8651176ed20b191365746696d72c0b384222e3e3"
+  },
+  "full_fast": {
+    "status": "PASS",
+    "run_id": "20261006T011952Z-b31c77b8872e",
+    "counts": {
+      "executed": 7544,
+      "passed": 7544,
+      "failed": 0,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 7544
+    },
+    "counts_complete": true,
+    "execution_complete": true,
+    "source_stable": true,
+    "source_start": "910ead5e0dffa471ee50189ec1736ad7547bccea8e1e47a8b9bfecf5e695536f",
+    "source_end": "910ead5e0dffa471ee50189ec1736ad7547bccea8e1e47a8b9bfecf5e695536f",
+    "projects": [
+      "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+      "ExpressionEngine Unit Tests/ExpressionEngine Unit Tests.csproj",
+      "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+      "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+      "MudsharpDatabaseLibrary Unit Tests/MudsharpDatabaseLibrary Unit Tests.csproj",
+      "DiscordBotCore Unit Tests/DiscordBotCore Unit Tests.csproj",
+      "RPI Engine Worldfile Converter Tests/RPI Engine Worldfile Converter Tests.csproj",
+      "FutureMUD.Web.Tests/FutureMUD.Web.Tests.csproj",
+      "TerrainPlanner/TerrainPlanner.Tests/TerrainPlanner.Tests.csproj",
+      "scripts/TestReporting.Tests/TestReporting.Tests.csproj"
+    ],
+    "filter": null,
+    "suite": "fast",
+    "path": ".artifacts/test-runs/armageddon-native-ammo/full-fast01/20261006T011952Z-b31c77b8872e/summary.json",
+    "sha256": "525bfd24b65c7181dd2e4076139e0c9cb96e7caca66d9f705cd8cb2dd380acdd"
+  },
+  "native": {
+    "status": "PASS",
+    "cases": 27,
+    "cold_readers": 38,
+    "packets": [
+      {
+        "label": "native-load05",
+        "status": "PASS",
+        "cases": [
+          "load-valid",
+          "load-refill",
+          "load-rebind",
+          "load-refused",
+          "load-direct"
+        ],
+        "cold_readers": [
+          "ammo-load-valid-conserved",
+          "ammo-load-refill-conserved",
+          "ammo-load-rebind-conserved",
+          "ammo-load-refused-conserved",
+          "ammo-load-direct-conserved"
+        ],
+        "receipts": [
+          {
+            "path": ".artifacts/test-runs/armageddon-native-ammo/native-load05-native.log",
+            "sha256": "0885e7f1ff5a829880bcfe8957b85f8e630edf2687f4c04f850cc4f460e78b1a"
+          },
+          {
+            "path": ".artifacts/test-runs/armageddon-native-ammo/native-load05-process-cleanup.json",
+            "sha256": "f948b2220e38671e3d38d97397071d0cc4533dbf72e32b52978245dccb816ec8"
+          },
+          {
+            "path": ".artifacts/test-runs/armageddon-native-ammo/native-load05-inputs.json",
+            "sha256": "003d44880cd5002f9b4d8ab6382031e97a412c65e3b4a0a41a54cb0348da044a"
+          },
+          {
+            "path": ".artifacts/test-runs/armageddon-native-ammo/native-load05-fingerprints.json",
+            "sha256": "c6ffd30216eccb9476063ac084070792c6d195b70d721227367e00464aaa039e"
+          }
+        ]
+      },
+      {
+        "label": "native-unload05",
+        "status": "PASS",
+        "cases": [
+          "unload-valid",
+          "unload-refill",
+          "unload-rebind",
+          "unload-refused",
+          "unload-direct"
+        ],
+        "cold_readers": [
+          "ammo-unload-valid-conserved",
+          "ammo-unload-refill-conserved",
+          "ammo-unload-rebind-conserved",
+          "ammo-unload-refused-conserved",
+          "ammo-unload-direct-conserved"
+        ],
+        "receipts": [
+          {
+            "path": ".artifacts/test-runs/armageddon-native-ammo/native-unload05-native.log",
+            "sha256": "65288018e3398ca2a65444d6b0b6e41091403a981969f6f3c68e7f03cd370378"
+          },
+          {
+            "path": ".artifacts/test-runs/armageddon-native-ammo/native-unload05-process-cleanup.json",
+            "sha256": "a2941b314c38d6451c4cd88dc239a31dd8def2929870645e94b81853ac794cf6"
+          },
+          {
+            "path": ".artifacts/test-runs/armageddon-native-ammo/native-unload05-inputs.json",
+            "sha256": "003d44880cd5002f9b4d8ab6382031e97a412c65e3b4a0a41a54cb0348da044a"
+          },
+          {
+            "path": ".artifacts/test-runs/armageddon-native-ammo/native-unload05-fingerprints.json",
+            "sha256": "c6ffd30216eccb9476063ac084070792c6d195b70d721227367e00464aaa039e"
+          }
+        ]
+      },
+      {
+        "label": "native-split05",
+        "status": "PASS",
+        "cases": [
+          "split-throw",
+          "split-valid"
+        ],
+        "cold_readers": [
+          "ammo-split-throw",
+          "ammo-split-valid"
+        ],
+        "receipts": [
+          {
+            "path": ".artifacts/test-runs/armageddon-native-ammo/native-split05-native.log",
+            "sha256": "82ddfd2a73c4a24bdc9ac7807812507d77fe955bc8beaad04b25c0932e6fc22e"
+          },
+          {
+            "path": ".artifacts/test-runs/armageddon-native-ammo/native-split05-process-cleanup.json",
+            "sha256": "d33fb1282b83683a7866c94a6a4cda9ba382a5e2c8bcfd783bd63a9c8fb390c1"
+          },
+          {
+            "path": ".artifacts/test-runs/armageddon-native-ammo/native-split05-inputs.json",
+            "sha256": "003d44880cd5002f9b4d8ab6382031e97a412c65e3b4a0a41a54cb0348da044a"
+          },
+          {
+            "path": ".artifacts/test-runs/armageddon-native-ammo/native-split05-fingerprints.json",
+            "sha256": "c6ffd30216eccb9476063ac084070792c6d195b70d721227367e00464aaa039e"
+          }
+        ]
+      },
+      {
+        "label": "native-provider05",
+        "status": "PASS",
+        "cases": [
+          "load-provider-refusal",
+          "unload-provider-refusal",
+          "load-provider-outer-refill",
+          "unload-provider-outer-refill",
+          "unload-outer-success",
+          "unload-later-expire",
+          "unload-prototype-change"
+        ],
+        "cold_readers": [
+          "ammo-load-provider-refusal-conserved",
+          "ammo-load-provider-refusal-ordinary-delete-retry",
+          "ammo-unload-provider-refusal-conserved",
+          "ammo-unload-provider-refusal-ordinary-delete-retry",
+          "ammo-load-provider-outer-refill-conserved",
+          "ammo-unload-provider-outer-refill-conserved",
+          "ammo-unload-outer-success-conserved",
+          "ammo-unload-later-expire-conserved",
+          "ammo-unload-prototype-change-conserved"
+        ],
+        "receipts": [
+          {
+            "path": ".artifacts/test-runs/armageddon-native-ammo/native-provider05-native.log",
+            "sha256": "3430f7696370c273272909bdb802c4533fb121591b553135e21b6ed7424112f0"
+          },
+          {
+            "path": ".artifacts/test-runs/armageddon-native-ammo/native-provider05-process-cleanup.json",
+            "sha256": "d19eac6c8d468b3b2f8d408608cbbd0a2de7f97a791de3b89cf125cb752cf178"
+          },
+          {
+            "path": ".artifacts/test-runs/armageddon-native-ammo/native-provider05-inputs.json",
+            "sha256": "003d44880cd5002f9b4d8ab6382031e97a412c65e3b4a0a41a54cb0348da044a"
+          },
+          {
+            "path": ".artifacts/test-runs/armageddon-native-ammo/native-provider05-fingerprints.json",
+            "sha256": "c6ffd30216eccb9476063ac084070792c6d195b70d721227367e00464aaa039e"
+          }
+        ]
+      },
+      {
+        "label": "native-aftermath05",
+        "status": "PASS",
+        "cases": [
+          "ordered-valid",
+          "queued-revoked",
+          "cycle-expire",
+          "cycle-foreign-container",
+          "cycle-policy-foreign-container",
+          "postcommit-expire",
+          "postcommit-casing-claim",
+          "direct-valid"
+        ],
+        "cold_readers": [
+          "ammo-aftermath-ordered-valid-loaded-chambered",
+          "ammo-aftermath-ordered-valid-shot",
+          "ammo-aftermath-queued-revoked-loaded-chambered",
+          "ammo-aftermath-queued-revoked-shot",
+          "ammo-aftermath-cycle-expire-loaded-chambered",
+          "ammo-aftermath-cycle-expire-shot",
+          "ammo-aftermath-cycle-expire-recovered",
+          "ammo-aftermath-cycle-foreign-container-loaded-chambered",
+          "ammo-aftermath-cycle-foreign-container-shot",
+          "ammo-aftermath-cycle-policy-foreign-container-loaded-chambered",
+          "ammo-aftermath-cycle-policy-foreign-container-shot",
+          "ammo-aftermath-postcommit-expire-loaded-chambered",
+          "ammo-aftermath-postcommit-expire-shot",
+          "ammo-aftermath-postcommit-casing-claim-loaded-chambered",
+          "ammo-aftermath-postcommit-casing-claim-shot",
+          "ammo-aftermath-direct-valid-loaded-chambered",
+          "ammo-aftermath-direct-valid-shot"
+        ],
+        "receipts": [
+          {
+            "path": ".artifacts/test-runs/armageddon-native-ammo/native-aftermath05-native.log",
+            "sha256": "8f0af5032b7f53cc96f028eb80a0923bb90ec31548923b0c099ccb70d8eb876d"
+          },
+          {
+            "path": ".artifacts/test-runs/armageddon-native-ammo/native-aftermath05-process-cleanup.json",
+            "sha256": "5bb37103220770a72b59740887b246e3d376407329cb85027a622ac61637446d"
+          },
+          {
+            "path": ".artifacts/test-runs/armageddon-native-ammo/native-aftermath05-inputs.json",
+            "sha256": "003d44880cd5002f9b4d8ab6382031e97a412c65e3b4a0a41a54cb0348da044a"
+          },
+          {
+            "path": ".artifacts/test-runs/armageddon-native-ammo/native-aftermath05-fingerprints.json",
+            "sha256": "c6ffd30216eccb9476063ac084070792c6d195b70d721227367e00464aaa039e"
+          }
+        ]
+      }
+    ]
+  },
+  "unit_format_cleanup": {
+    "path": "MudSharpCore Unit Tests/OrderedNpcRegressionP2Tests.cs",
+    "before_sha256": "0849554240d199d80f9da384f45cd671e2dfd3a417caa6020196dd9636cbc9a2",
+    "after_sha256": "659ffd1979ba7055b6976848ac69009b915b0359bff1de13b585a500411dd09a",
+    "before_copy": ".artifacts/test-runs/armageddon-native-ammo/OrderedNpcRegressionP2Tests-before-whitespace.cs",
+    "change": "Remove one tab on an otherwise blank unit-test line after native qualification; no production or native harness bytes changed.",
+    "receipt": {
+      "path": ".artifacts/test-runs/armageddon-native-ammo/unit-format-cleanup.json",
+      "sha256": "0bc40be7a3526d5f4f536d3d1009602669f482b6cd2010f629cc3f14c9525448"
+    }
+  },
+  "changed_source_scope": [
+    {
+      "path": "MudSharpCore Unit Tests/OrderedNpcRegressionP2Tests.cs",
+      "sha256": "b4cc335ef8fe2ecb2850c59ac5fd3a428c2b8be5352ab33252eeaa2ae3443276"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/PreparedGetStackMergeTests.cs",
+      "sha256": "5cc46fc516062e59b8972d8995e5b93a5a87410aa6baaf7074a6214c77839918"
+    },
+    {
+      "path": "MudSharpCore/Body/Implementations/BodyInventory.cs",
+      "sha256": "32a26094f5fe0d5b4358d2412a8bcfff772d2016aa42b29a44fcb441b39c612d"
+    },
+    {
+      "path": "MudSharpCore/GameItems/ComponentUnloadCompletion.cs",
+      "sha256": "7ecfaafd07352db72b16d2712752f84f90c9b6f74f57286c90e78a030a0a8b3b"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Components/AmmunitionGameItemComponent.cs",
+      "sha256": "b4f144903536878509eb55f7f0850221fb7168bb3d89bd6af24e7cbf5f9c9f03"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Components/FirearmBaseGameItemComponent.cs",
+      "sha256": "770997c1f03642d30fa1ff08419be5c0d58e8ae3a653e33b6f41d22b20a1e6fc"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Components/InternalMagazineGunGameItemComponent.cs",
+      "sha256": "79e6e222364c18e7ce9be4d6acbb73d72514745642d303707adc0ea8f10ebcee"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Components/StackableGameItemComponent.cs",
+      "sha256": "38e9b2f8a8836250a973f5caf541b8831774b340404d7938eb1852563da8a160"
+    },
+    {
+      "path": "MudSharpCore/GameItems/GameItem.GetStackMerge.cs",
+      "sha256": "a311585d96f3c43b0d0dd2842cff1e440fff67f525520119a54db82f095280d9"
+    },
+    {
+      "path": "MudSharpCore/GameItems/GameItem.cs",
+      "sha256": "206f542cf1625119b7a51562af6949755fdae0d4cc33596e3e59db9f872f2139"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.AmmoAftermath.cs",
+      "sha256": "7144012064140ff03951931fe01146ad46e03aa8291ff349273b7379558b14b9"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.AmmoConservation.cs",
+      "sha256": "8d676df03cda7eed95fe9538fbef91fabe67fd8ffdbba4d77999f550937479e4"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.FirearmAuthority.cs",
+      "sha256": "b11a08c4472b5a6610323380e51a11d7d78c41d3f3c8215554ac0660914ecba2"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.RaiseServitorStock.cs",
+      "sha256": "528f584798d71ca74c60bbd31eef3f50208d29110d05beaf85e40cd83717d560"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.cs",
+      "sha256": "5d1b789f5b8ee8f10b50be1c34fc7030ef94395dc8e7286558ee97bf569ebce3"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Run-IsolatedAcceptance.ps1",
+      "sha256": "c4af25d579185862d44a9530d0eccadd4e297fd4611749b0a43a4dddf96ebf75"
+    }
+  ],
+  "source_capsule": {
+    "path": ".artifacts/test-runs/armageddon-native-ammo/final-source-capsule/manifest.json",
+    "sha256": "0932120e872dde39481d87198b99e28cbb0767c470ceddf9a3b8fdcc55e134ba"
+  },
+  "binary_capsules": [
+    {
+      "path": ".artifacts/test-runs/armageddon-native-ammo/aftermath-baseline01-binary-capsule/manifest.json",
+      "sha256": "ebdaa11be985709004e7a78ab40e70ceedb162bf4592a895ed90b422503d1181",
+      "files": 604
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-native-ammo/aftermath-baseline02-binary-capsule/manifest.json",
+      "sha256": "3f15add32eabf1b288a309c06947722039750a3efd50e147e4b96b08601327b6",
+      "files": 604
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-native-ammo/aftermath-baseline03-binary-capsule/manifest.json",
+      "sha256": "803065df2cb4c29e8ff579c16ba84a4bf23cd3c8280588f36973bb88b4d3c91a",
+      "files": 604
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-native-ammo/aftermath-baseline04-binary-capsule/manifest.json",
+      "sha256": "e5aa0260043ff3545c86876e017bef760d97d89d17cc8cf0d5ac016fcc4c8561",
+      "files": 604
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-native-ammo/baseline01-binary-capsule/manifest.json",
+      "sha256": "d6c31fa5d472f26bf32b5880d07b41260e5a7a8b8711e19e5338a8e07b55d0ce",
+      "files": 604
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-native-ammo/baseline02-binary-capsule/manifest.json",
+      "sha256": "ac6d033246e6cde8e9364b6cb6c80f567fb09c7c583abdf19e4a6278d4a6610b",
+      "files": 604
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-native-ammo/baseline03-binary-capsule/manifest.json",
+      "sha256": "6f5212cf727a2c5319225f646012a4ee4ff5ccacba19f516c3a308475028cf83",
+      "files": 604
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-native-ammo/cycle-baseline01-binary-capsule/manifest.json",
+      "sha256": "ef0debcb7f9edf69e2bea057fc1cf0ac81c269470833d7579e92a97eee2504e5",
+      "files": 604
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-native-ammo/diagnostic-outer01-binary-capsule/manifest.json",
+      "sha256": "48c60cf335c285763b0aa4ce12d572f36a8f817d94dda857ccb2eb572f96dc63",
+      "files": 604
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-native-ammo/diagnostic-outer02-binary-capsule/manifest.json",
+      "sha256": "1c9f26f8d96f83590d17c6a60638f77dc2f57a277ca41630771603b0be578a0f",
+      "files": 604
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-native-ammo/final-fast01-binary-capsule/manifest.json",
+      "sha256": "1c2bf65ed437069b4c114862a319a4fc87d7c008c6739920133e825941fd2528",
+      "files": 2739
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-native-ammo/floor-smoke01-binary-capsule/manifest.json",
+      "sha256": "a9aa2a8cd08b66349f27e7da3d8a713dac8244c5028a602fe4c71744872df864",
+      "files": 604
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-native-ammo/floor-smoke02-binary-capsule/manifest.json",
+      "sha256": "7c23b87ef7f5f8a460b5b75c54befbd2b5a686b7bbb4f3c5c74ba9fceb5f6394",
+      "files": 604
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-native-ammo/floor-smoke03-binary-capsule/manifest.json",
+      "sha256": "320fd602ddf6b9a81618df174f1242c9013aeb1f58594fac015cd88e731ef0a4",
+      "files": 604
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-native-ammo/native-aftermath04-binary-capsule/manifest.json",
+      "sha256": "316a438a8efb11a80fabe799d1565814b616e4e17a6ee8f9726ea356e423f881",
+      "files": 604
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-native-ammo/native-aftermath05-binary-capsule/manifest.json",
+      "sha256": "7a8d71eaf732d49f2471af04e81bd332738652c9fe7adb8a9d974ae2d9a2f35b",
+      "files": 604
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-native-ammo/native-load01-binary-capsule/manifest.json",
+      "sha256": "4dfafcd41018ee62d63f979632ccc17d66694eb0011932db80bf6c65b2f564d3",
+      "files": 604
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-native-ammo/native-load02-binary-capsule/manifest.json",
+      "sha256": "82cfe14c73d39c9c2a0a26894f14321d17a058cafc120409b447a4eb975ad4aa",
+      "files": 604
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-native-ammo/native-load05-binary-capsule/manifest.json",
+      "sha256": "f10ae604b79d7c9da8b27da2fffbe96bd716cd29f170955ca327b6c351d120dd",
+      "files": 604
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-native-ammo/native-provider01-binary-capsule/manifest.json",
+      "sha256": "13a7fad8021a39095e8a729beb2b1eba03aa70675bfb15987b907cb7d478acb7",
+      "files": 604
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-native-ammo/native-provider02-binary-capsule/manifest.json",
+      "sha256": "23b20fc61ca6f9e64ba10de3fd9ba7fa834122a5e46037e93cfbf019574ab440",
+      "files": 604
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-native-ammo/native-provider03-binary-capsule/manifest.json",
+      "sha256": "7b5d4e9480937669419385d27a430c7d808055414f8bcb71c62545c38c81caa2",
+      "files": 604
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-native-ammo/native-provider04-binary-capsule/manifest.json",
+      "sha256": "ea71ccf0796b330809080a904967ab3ef3edf9350105ff73875d2d6edbdfbcec",
+      "files": 604
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-native-ammo/native-provider05-binary-capsule/manifest.json",
+      "sha256": "ea841170bc940596d33a0c473a9812bfb7f7e52227ba3910280b8e3d86a426c7",
+      "files": 604
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-native-ammo/native-split01-binary-capsule/manifest.json",
+      "sha256": "af669b91fa778acf859f7abb94f2296c278bd61246f9dba4da74c209c14d65dd",
+      "files": 604
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-native-ammo/native-split02-binary-capsule/manifest.json",
+      "sha256": "0cdf0e5f367f719ffcfbd2380288e86400fb35266ce88255304305a12dbf3f5a",
+      "files": 604
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-native-ammo/native-split05-binary-capsule/manifest.json",
+      "sha256": "9ee5e7b15e0a844d5cc2499d52b00c6120bc059901bedbcfbbbe2814d59eb509",
+      "files": 604
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-native-ammo/native-unload01-binary-capsule/manifest.json",
+      "sha256": "4928b93582cdb5f3bfa57fb17560bec1fa6602b4f986ef20be99040146b57b27",
+      "files": 604
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-native-ammo/native-unload02-binary-capsule/manifest.json",
+      "sha256": "0b5cbd986f74881405f01ff0433f3982ebfa7758d342b025f88d0c96aa41f016",
+      "files": 604
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-native-ammo/native-unload05-binary-capsule/manifest.json",
+      "sha256": "2966e1c79274b4e128d036769a314a0880a333dcc4c6e9dc1f6b5a791eb85695",
+      "files": 604
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-native-ammo/qualify01-binary-capsule/manifest.json",
+      "sha256": "6d1eb7417c3b3c9c745f96e115be21567cf8d298ab73bc03c0faf866491f6a92",
+      "files": 604
+    }
+  ],
+  "managed_history": [
+    {
+      "status": "PASS",
+      "run_id": "20261005T234506Z-52997891961e",
+      "counts": {
+        "executed": 281,
+        "passed": 281,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 281
+      },
+      "counts_complete": true,
+      "execution_complete": true,
+      "source_stable": true,
+      "source_start": "98ce63e2465b859d596744d195cb27bcee480258a95d4349477918668a793dfd",
+      "source_end": "98ce63e2465b859d596744d195cb27bcee480258a95d4349477918668a793dfd",
+      "projects": [
+        "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+      ],
+      "filter": "FullyQualifiedName~PreparedGetStackMergeTests|FullyQualifiedName~InternalMagazineReloadTests|FullyQualifiedName~QueuedCommandAuthorityTests",
+      "suite": "core",
+      "path": ".artifacts/test-runs/armageddon-native-ammo/managed01/20261005T234506Z-52997891961e/summary.json",
+      "sha256": "c988ab5d185f34a8dca944f318555c84b3b76c928e409ca6d2bbdb4135364c2e",
+      "label": "managed01"
+    },
+    {
+      "status": "FAIL",
+      "run_id": "20261005T234715Z-75cecaf938be",
+      "counts": null,
+      "counts_complete": false,
+      "execution_complete": false,
+      "source_stable": true,
+      "source_start": "a3790168966de6ff6e4da24c1ebd56f4687fc50a96277b3cc646adf5d4daedfb",
+      "source_end": "a3790168966de6ff6e4da24c1ebd56f4687fc50a96277b3cc646adf5d4daedfb",
+      "projects": [
+        "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+      ],
+      "filter": "FullyQualifiedName~PreparedGetStackMergeTests|FullyQualifiedName~InternalMagazineReloadTests|FullyQualifiedName~QueuedCommandAuthorityTests",
+      "suite": "core",
+      "path": ".artifacts/test-runs/armageddon-native-ammo/managed02/20261005T234715Z-75cecaf938be/summary.json",
+      "sha256": "3ea927d65651ec5f9c8915e55064d99e4de2f4746ab53d20d5dbf6631e20ad82",
+      "label": "managed02"
+    },
+    {
+      "status": "PASS",
+      "run_id": "20261005T234853Z-f4537ad81034",
+      "counts": {
+        "executed": 293,
+        "passed": 293,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 293
+      },
+      "counts_complete": true,
+      "execution_complete": true,
+      "source_stable": true,
+      "source_start": "1c910476a392cf0e38c82a78f7f024ff8adcea13f20902f7207f20824c5657dc",
+      "source_end": "1c910476a392cf0e38c82a78f7f024ff8adcea13f20902f7207f20824c5657dc",
+      "projects": [
+        "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+      ],
+      "filter": "FullyQualifiedName~PreparedGetStackMergeTests|FullyQualifiedName~InternalMagazineReloadTests|FullyQualifiedName~QueuedCommandAuthorityTests",
+      "suite": "core",
+      "path": ".artifacts/test-runs/armageddon-native-ammo/managed03/20261005T234853Z-f4537ad81034/summary.json",
+      "sha256": "70e986927fbcce79f238847993f7b088e25a2533c390f57558347cbcef85a01a",
+      "label": "managed03"
+    },
+    {
+      "status": "PASS",
+      "run_id": "20261005T235818Z-b605b1be466f",
+      "counts": {
+        "executed": 295,
+        "passed": 295,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 295
+      },
+      "counts_complete": true,
+      "execution_complete": true,
+      "source_stable": true,
+      "source_start": "bca9a0e317a53d256c524c7454f59980ebb3650974379e0bddf14d726d450f3d",
+      "source_end": "bca9a0e317a53d256c524c7454f59980ebb3650974379e0bddf14d726d450f3d",
+      "projects": [
+        "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+      ],
+      "filter": "FullyQualifiedName~PreparedGetStackMergeTests|FullyQualifiedName~InternalMagazineReloadTests|FullyQualifiedName~QueuedCommandAuthorityTests",
+      "suite": "core",
+      "path": ".artifacts/test-runs/armageddon-native-ammo/managed04/20261005T235818Z-b605b1be466f/summary.json",
+      "sha256": "3aa33337c48b0d1e5b285e93b4763499939982e2349ca72126dd1779b9502135",
+      "label": "managed04"
+    },
+    {
+      "status": "PASS",
+      "run_id": "20261006T000440Z-2124af229aa0",
+      "counts": {
+        "executed": 295,
+        "passed": 295,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 295
+      },
+      "counts_complete": true,
+      "execution_complete": true,
+      "source_stable": true,
+      "source_start": "9e75815167bed583068d3db0a34aa7074931b6addd152268e9d956430fd874be",
+      "source_end": "9e75815167bed583068d3db0a34aa7074931b6addd152268e9d956430fd874be",
+      "projects": [
+        "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+      ],
+      "filter": "FullyQualifiedName~PreparedGetStackMergeTests|FullyQualifiedName~InternalMagazineReloadTests|FullyQualifiedName~QueuedCommandAuthorityTests",
+      "suite": "core",
+      "path": ".artifacts/test-runs/armageddon-native-ammo/managed05/20261006T000440Z-2124af229aa0/summary.json",
+      "sha256": "1ca3e67ebf5c8ec3b849d3b1e05419ca4b665fbabb856623001f53b36f4661a7",
+      "label": "managed05"
+    },
+    {
+      "status": "FAIL",
+      "run_id": "20261006T000835Z-1df66294d55a",
+      "counts": {
+        "executed": 295,
+        "passed": 294,
+        "failed": 1,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 295
+      },
+      "counts_complete": true,
+      "execution_complete": true,
+      "source_stable": true,
+      "source_start": "f0c6da2399d64bd3d5e2f29b2d704e26f96ae48b42086ae3671a88140243755b",
+      "source_end": "f0c6da2399d64bd3d5e2f29b2d704e26f96ae48b42086ae3671a88140243755b",
+      "projects": [
+        "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+      ],
+      "filter": "FullyQualifiedName~PreparedGetStackMergeTests|FullyQualifiedName~InternalMagazineReloadTests|FullyQualifiedName~QueuedCommandAuthorityTests",
+      "suite": "core",
+      "path": ".artifacts/test-runs/armageddon-native-ammo/managed06/20261006T000835Z-1df66294d55a/summary.json",
+      "sha256": "61aea8abe1df9e2c6b33785c64b55631c6e9df92c2bb76b81b597c2b54574f3b",
+      "label": "managed06"
+    },
+    {
+      "status": "PASS",
+      "run_id": "20261006T001114Z-8b6c5bb01a42",
+      "counts": {
+        "executed": 295,
+        "passed": 295,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 295
+      },
+      "counts_complete": true,
+      "execution_complete": true,
+      "source_stable": true,
+      "source_start": "3f2b6cf876821ed3c9bf41b392548243aaf0d821e435de75cef7611e8a31ca63",
+      "source_end": "3f2b6cf876821ed3c9bf41b392548243aaf0d821e435de75cef7611e8a31ca63",
+      "projects": [
+        "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+      ],
+      "filter": "FullyQualifiedName~PreparedGetStackMergeTests|FullyQualifiedName~InternalMagazineReloadTests|FullyQualifiedName~QueuedCommandAuthorityTests",
+      "suite": "core",
+      "path": ".artifacts/test-runs/armageddon-native-ammo/managed07/20261006T001114Z-8b6c5bb01a42/summary.json",
+      "sha256": "07b9693f2c3007aed3370d326b80ea2bf3ef8355a6ed95d7feb972386d4521f1",
+      "label": "managed07"
+    },
+    {
+      "status": "PASS",
+      "run_id": "20261006T001341Z-f305339d6611",
+      "counts": {
+        "executed": 295,
+        "passed": 295,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 295
+      },
+      "counts_complete": true,
+      "execution_complete": true,
+      "source_stable": true,
+      "source_start": "81549e2e0fb4933bfefe86f83754ed286778b824fea3aa87b749300d955e2280",
+      "source_end": "81549e2e0fb4933bfefe86f83754ed286778b824fea3aa87b749300d955e2280",
+      "projects": [
+        "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+      ],
+      "filter": "FullyQualifiedName~PreparedGetStackMergeTests|FullyQualifiedName~InternalMagazineReloadTests|FullyQualifiedName~QueuedCommandAuthorityTests",
+      "suite": "core",
+      "path": ".artifacts/test-runs/armageddon-native-ammo/managed08/20261006T001341Z-f305339d6611/summary.json",
+      "sha256": "1f6fb27a780b9f72e03d82a9b6509a75a2095630a3dab4305f870d783865b0ce",
+      "label": "managed08"
+    },
+    {
+      "status": "FAIL",
+      "run_id": "20261006T002428Z-c465345d76d8",
+      "counts": null,
+      "counts_complete": false,
+      "execution_complete": false,
+      "source_stable": true,
+      "source_start": "959d226f24a96feb6a2afc9fe0132fcd56e24a6bc9e8ba7637b24e5c4a73f32c",
+      "source_end": "959d226f24a96feb6a2afc9fe0132fcd56e24a6bc9e8ba7637b24e5c4a73f32c",
+      "projects": [
+        "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+      ],
+      "filter": "FullyQualifiedName~PreparedGetStackMergeTests|FullyQualifiedName~QueuedCommandAuthorityTests|FullyQualifiedName~InternalMagazine",
+      "suite": "core",
+      "path": ".artifacts/test-runs/armageddon-native-ammo/managed09/20261006T002428Z-c465345d76d8/summary.json",
+      "sha256": "a5a5d48686ef77213dd41c680f795e9a9a5da5831c83257736a815c6ed595df5",
+      "label": "managed09"
+    },
+    {
+      "status": "FAIL",
+      "run_id": "20261006T002545Z-d35bbe532286",
+      "counts": {
+        "executed": 301,
+        "passed": 296,
+        "failed": 5,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 301
+      },
+      "counts_complete": true,
+      "execution_complete": true,
+      "source_stable": true,
+      "source_start": "43876dba7715a8af7b1050d4daaa99ef1a8bbe731f79192cf8e6cfbb5ccfc68e",
+      "source_end": "43876dba7715a8af7b1050d4daaa99ef1a8bbe731f79192cf8e6cfbb5ccfc68e",
+      "projects": [
+        "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+      ],
+      "filter": "FullyQualifiedName~PreparedGetStackMergeTests|FullyQualifiedName~QueuedCommandAuthorityTests|FullyQualifiedName~InternalMagazine",
+      "suite": "core",
+      "path": ".artifacts/test-runs/armageddon-native-ammo/managed10/20261006T002545Z-d35bbe532286/summary.json",
+      "sha256": "07483451100a91c29282a431b515f7c403af92cc7725822ef489d7890e06f458",
+      "label": "managed10"
+    },
+    {
+      "status": "FAIL",
+      "run_id": "20261006T002638Z-0910fa914bbd",
+      "counts": {
+        "executed": 301,
+        "passed": 300,
+        "failed": 1,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 301
+      },
+      "counts_complete": true,
+      "execution_complete": true,
+      "source_stable": true,
+      "source_start": "4ac4b8206ea744f6102afdb46656cec1103d7979a96cef060740223835d43b75",
+      "source_end": "4ac4b8206ea744f6102afdb46656cec1103d7979a96cef060740223835d43b75",
+      "projects": [
+        "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+      ],
+      "filter": "FullyQualifiedName~PreparedGetStackMergeTests|FullyQualifiedName~QueuedCommandAuthorityTests|FullyQualifiedName~InternalMagazine",
+      "suite": "core",
+      "path": ".artifacts/test-runs/armageddon-native-ammo/managed11/20261006T002638Z-0910fa914bbd/summary.json",
+      "sha256": "d04cf220f975b999b6090b3f93fceb58270c433ce066d3b293350e20a71e87f2",
+      "label": "managed11"
+    },
+    {
+      "status": "FAIL",
+      "run_id": "20261006T002725Z-45e4ece45c92",
+      "counts": null,
+      "counts_complete": false,
+      "execution_complete": false,
+      "source_stable": true,
+      "source_start": "8755c38ba9ce8a442ba852f55c0e964538ed90e2e171c68c34272bafb76ea692",
+      "source_end": "8755c38ba9ce8a442ba852f55c0e964538ed90e2e171c68c34272bafb76ea692",
+      "projects": [
+        "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+      ],
+      "filter": "FullyQualifiedName~PreparedGetStackMergeTests|FullyQualifiedName~QueuedCommandAuthorityTests|FullyQualifiedName~InternalMagazine",
+      "suite": "core",
+      "path": ".artifacts/test-runs/armageddon-native-ammo/managed12/20261006T002725Z-45e4ece45c92/summary.json",
+      "sha256": "f3cd5078eab07ce61ae434386759aa59925da6eca49dbd9fbf8b90da77608fb4",
+      "label": "managed12"
+    },
+    {
+      "status": "FAIL",
+      "run_id": "20261006T002756Z-f0cad7616011",
+      "counts": {
+        "executed": 301,
+        "passed": 300,
+        "failed": 1,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 301
+      },
+      "counts_complete": true,
+      "execution_complete": true,
+      "source_stable": true,
+      "source_start": "dbe9420217dd28e75bbfac9522a6b82f690793b2cdd8dfce1adb1e5d8b8c8786",
+      "source_end": "dbe9420217dd28e75bbfac9522a6b82f690793b2cdd8dfce1adb1e5d8b8c8786",
+      "projects": [
+        "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+      ],
+      "filter": "FullyQualifiedName~PreparedGetStackMergeTests|FullyQualifiedName~QueuedCommandAuthorityTests|FullyQualifiedName~InternalMagazine",
+      "suite": "core",
+      "path": ".artifacts/test-runs/armageddon-native-ammo/managed13/20261006T002756Z-f0cad7616011/summary.json",
+      "sha256": "3b0ca0faca11637ca6be302ddeefaaf3c4d5c08bba5f633352b64ce7e0af1ee6",
+      "label": "managed13"
+    },
+    {
+      "status": "PASS",
+      "run_id": "20261006T002815Z-85fac94b340b",
+      "counts": {
+        "executed": 301,
+        "passed": 301,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 301
+      },
+      "counts_complete": true,
+      "execution_complete": true,
+      "source_stable": true,
+      "source_start": "c9b71e6d9fb90841faea62b1bd9eed5cc2302fd1529a24ecb3cb2a09b0683457",
+      "source_end": "c9b71e6d9fb90841faea62b1bd9eed5cc2302fd1529a24ecb3cb2a09b0683457",
+      "projects": [
+        "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+      ],
+      "filter": "FullyQualifiedName~PreparedGetStackMergeTests|FullyQualifiedName~QueuedCommandAuthorityTests|FullyQualifiedName~InternalMagazine",
+      "suite": "core",
+      "path": ".artifacts/test-runs/armageddon-native-ammo/managed14/20261006T002815Z-85fac94b340b/summary.json",
+      "sha256": "144c945d404d3fcdeaa4aff66c0874000f774a6397fc2565c56413dd688c6763",
+      "label": "managed14"
+    },
+    {
+      "status": "PASS",
+      "run_id": "20261006T004933Z-d635f9caddd1",
+      "counts": {
+        "executed": 302,
+        "passed": 302,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 302
+      },
+      "counts_complete": true,
+      "execution_complete": true,
+      "source_stable": true,
+      "source_start": "f469e44c0e8e47d8bee60ebed9d276329cc299dc0870bacc0bd6b9dd1396469e",
+      "source_end": "f469e44c0e8e47d8bee60ebed9d276329cc299dc0870bacc0bd6b9dd1396469e",
+      "projects": [
+        "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+      ],
+      "filter": "FullyQualifiedName~PreparedGetStackMergeTests|FullyQualifiedName~QueuedCommandAuthorityTests|FullyQualifiedName~InternalMagazine",
+      "suite": "core",
+      "path": ".artifacts/test-runs/armageddon-native-ammo/managed15/20261006T004933Z-d635f9caddd1/summary.json",
+      "sha256": "82b7ff4a6449fc4044a52afa8651176ed20b191365746696d72c0b384222e3e3",
+      "label": "managed15"
+    }
+  ],
+  "build_history": [
+    {
+      "exit_code": 0,
+      "ended_utc": "2026-10-06T00:28:43.5995194Z",
+      "configuration": "Debug",
+      "no_restore": true,
+      "status": "PASS",
+      "receipts": [
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/build-final01-build-exit.json",
+          "sha256": "83c2ea8bc2cf4a62015e763af4507022307cbcd5be5f87b30c3b9850bd462a8e"
+        },
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/build-final01-build.log",
+          "sha256": "a62239fdbee4494e60df11f6ca22b8e4caa8f6a41a0aae31bc8b2d92bcdf9c06"
+        }
+      ]
+    },
+    {
+      "exit_code": 0,
+      "ended_utc": "2026-10-06T00:35:08.6465731Z",
+      "configuration": "Debug",
+      "no_restore": true,
+      "status": "PASS",
+      "receipts": [
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/build-final02-build-exit.json",
+          "sha256": "8ce366c4f948132550407bd80524b701ab3603cfec58c5ac2f77a4ee9374fb3a"
+        },
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/build-final02-build.log",
+          "sha256": "1cb3171e278b97e31b100484ab1155d2e8550c8885b9daed8a98b6589fc588a7"
+        }
+      ]
+    },
+    {
+      "exit_code": 0,
+      "ended_utc": "2026-10-06T00:42:37.1294194Z",
+      "configuration": "Debug",
+      "no_restore": true,
+      "status": "PASS",
+      "receipts": [
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/diagnostic-outer01-build-exit.json",
+          "sha256": "32b7d22fbc36a7bd56183a1e475ed1e40260c3fe98ac5edc3245dd8a00d1b6d4"
+        },
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/diagnostic-outer01-build.log",
+          "sha256": "a57b03effcf8a3c9967748127793c7f94579d37048c8ba5fa73a9bd5d0fb0c02"
+        }
+      ]
+    },
+    {
+      "exit_code": 0,
+      "ended_utc": "2026-10-06T00:44:53.2009007Z",
+      "configuration": "Debug",
+      "no_restore": true,
+      "status": "PASS",
+      "receipts": [
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/diagnostic-outer02-build-exit.json",
+          "sha256": "8a80b99de2995657febfa6346ec943b5616794a844fcc6eb8e45131d8b0e67c7"
+        },
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/diagnostic-outer02-build.log",
+          "sha256": "7887622501e5d76f327a1e69ce7032e89161837e52617be7ee155c7cf29422b5"
+        }
+      ]
+    },
+    {
+      "exit_code": 0,
+      "ended_utc": "2026-10-06T01:03:47.7764453Z",
+      "configuration": "Debug",
+      "no_restore": true,
+      "status": "PASS",
+      "receipts": [
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/final-fixture01-build-exit.json",
+          "sha256": "fcae0548d83712f3db75725c2d529039c17781d75999bc847bc8e8d97df6e733"
+        },
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/final-fixture01-build.log",
+          "sha256": "4e47701183b39b52e7b7d5454bab21999fcf1071bfce722525797ad35ded0610"
+        }
+      ]
+    },
+    {
+      "exit_code": 0,
+      "ended_utc": "2026-10-06T01:09:36.3799047Z",
+      "configuration": "Debug",
+      "no_restore": true,
+      "status": "PASS",
+      "receipts": [
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/final-reader01-build-exit.json",
+          "sha256": "3f474ae3fc80c13b4d68206e605687d5363f270fb7d2ee6638141d32dbb36ebe"
+        },
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/final-reader01-build.log",
+          "sha256": "f8c9ed70b6a97c2b6c87b7b49b10d9ca12c4562fcfa05da9b1daafc994ce4f54"
+        }
+      ]
+    },
+    {
+      "exit_code": 0,
+      "ended_utc": "2026-10-06T00:50:31.6664718Z",
+      "configuration": "Debug",
+      "no_restore": true,
+      "status": "PASS",
+      "receipts": [
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/floor-final01-build-exit.json",
+          "sha256": "8b24f7d73e88c2a2606d5b449474fd4e8bb67ea7b3ab9f1697590b2c517148b2"
+        },
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/floor-final01-build.log",
+          "sha256": "ada8131d980b52c0e7dcd78254dc6d969b3630b5493eef1b9b8bb579e1a9ee09"
+        }
+      ]
+    },
+    {
+      "exit_code": 1,
+      "ended_utc": "2026-10-06T00:54:24.1899221Z",
+      "configuration": "Debug",
+      "no_restore": true,
+      "status": "BUILD_FAILED",
+      "receipts": [
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/floor-final02-build-exit.json",
+          "sha256": "ceadc8f243532c2c9248a3af75c9d5deb00ad592a4bfa3cc1738eaa505183a12"
+        },
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/floor-final02-build.log",
+          "sha256": "a05ab591cc84adf94f1f26eb428a7490a40894cfc05552082d5298c306d048f4"
+        }
+      ]
+    },
+    {
+      "exit_code": 1,
+      "ended_utc": "2026-10-06T00:58:42.0170133Z",
+      "configuration": "Debug",
+      "no_restore": true,
+      "status": "BUILD_FAILED",
+      "receipts": [
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/floor-final03-build-exit.json",
+          "sha256": "f9dd0245171efd48b9e80e139cf9d7116387c5e00f86cb015c250265a99aa6aa"
+        },
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/floor-final03-build.log",
+          "sha256": "6a35b4d7bd2789254f496a2038f63f8d32ec46b939ee2f5a6dadfa31fd42dd03"
+        }
+      ]
+    },
+    {
+      "exit_code": 0,
+      "ended_utc": "2026-10-06T00:59:23.4220015Z",
+      "configuration": "Debug",
+      "no_restore": true,
+      "status": "PASS",
+      "receipts": [
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/floor-final04-build-exit.json",
+          "sha256": "23b41a5faba7dab6281d34acefd0f0980821e6776661ee7c7b59176ba0d45a04"
+        },
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/floor-final04-build.log",
+          "sha256": "af9efa92d68a5b706dfcc45336d615b83baee5d0a0cd187850dcb84e243ea8c1"
+        }
+      ]
+    }
+  ],
+  "source_review": {
+    "status": "SOURCE_ONLY_CLEAR_NO_ESTABLISHED_REMAINING_P1_P2",
+    "agent": "fm_reviewer",
+    "files": [
+      {
+        "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.FirearmAuthority.cs",
+        "sha256": "b11a08c4472b5a6610323380e51a11d7d78c41d3f3c8215554ac0660914ecba2"
+      },
+      {
+        "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.AmmoConservation.cs",
+        "sha256": "8d676df03cda7eed95fe9538fbef91fabe67fd8ffdbba4d77999f550937479e4"
+      },
+      {
+        "path": "MudSharpCore/Body/Implementations/BodyInventory.cs",
+        "sha256": "32a26094f5fe0d5b4358d2412a8bcfff772d2016aa42b29a44fcb441b39c612d"
+      },
+      {
+        "path": "MudSharpCore/GameItems/ComponentUnloadCompletion.cs",
+        "sha256": "7ecfaafd07352db72b16d2712752f84f90c9b6f74f57286c90e78a030a0a8b3b"
+      },
+      {
+        "path": "MudSharpCore/GameItems/Components/FirearmBaseGameItemComponent.cs",
+        "sha256": "770997c1f03642d30fa1ff08419be5c0d58e8ae3a653e33b6f41d22b20a1e6fc"
+      },
+      {
+        "path": "MudSharpCore/GameItems/Components/InternalMagazineGunGameItemComponent.cs",
+        "sha256": "79e6e222364c18e7ce9be4d6acbb73d72514745642d303707adc0ea8f10ebcee"
+      }
+    ]
+  },
+  "post_fast_native_alignment": {
+    "status": "PASS",
+    "labels": [
+      "native-load05",
+      "native-unload05",
+      "native-split05",
+      "native-provider05",
+      "native-aftermath05"
+    ],
+    "sources": 5782,
+    "assembly_roles": 13,
+    "current_input_sha256": "003d44880cd5002f9b4d8ab6382031e97a412c65e3b4a0a41a54cb0348da044a",
+    "native_inputs_unchanged_after_full_fast": true,
+    "receipt": {
+      "path": ".artifacts/test-runs/armageddon-native-ammo/post-fast-native-alignment.json",
+      "sha256": "810b01c36bf0e82ea371fcac5096f1d90f447a73328bd44919ccf4f9ff76eb84"
+    }
+  },
+  "full_fast_environment": {
+    "receipt": {
+      "path": ".artifacts/test-runs/armageddon-native-ammo/full-fast01-environment.json",
+      "sha256": "fc22b42211b3ab3e9d5ecb3881fdeaf337fce7a6c7ce61f3c9998341ce1a29b9"
+    },
+    "reported": {
+      "environment": [
+        {
+          "restored": true,
+          "name": "TEMP"
+        },
+        {
+          "restored": true,
+          "name": "TMP"
+        },
+        {
+          "restored": false,
+          "name": "GIT_CONFIG_COUNT"
+        },
+        {
+          "restored": false,
+          "name": "GIT_CONFIG_KEY_0"
+        },
+        {
+          "restored": false,
+          "name": "GIT_CONFIG_VALUE_0"
+        }
+      ],
+      "owned_temp": "C:\\Users\\luker\\AppData\\Local\\Temp\\fm19-faf0a024a52f4ca99b7ec3a47b5edf85",
+      "exit_code": 0
+    },
+    "status": "PARTIAL_REPORTED_RESTORATION_PROCESS_ENDED",
+    "limitation": "TEMP/TMP report restored true; three Git-variable checks report false. Changes used process scope only; fm_test_runner confirmed owning execution session92700 exited. Original receipt retained without repair/rerun; no global Git configuration write or persistent environment change."
+  },
+  "retained_native_failures": [
+    {
+      "label": "baseline01",
+      "exit_code": 1,
+      "status": "RETAINED_FAILED_RUN",
+      "completed_cases": [],
+      "completed_readers": [],
+      "receipts": [
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/baseline01-native.log",
+          "sha256": "7e8a78f41ee28ff1114e9fd41f756179040c2f84fc3916c2ac48cdb0b9462dc2"
+        },
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/baseline01-process-cleanup.json",
+          "sha256": "d2d35a798d1962a0355d8e81c381decb967ab709cb38b786fcc7dc5987db6bb7"
+        },
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/baseline01-inputs.json",
+          "sha256": "abb6cf9e9aa01636ffe8f9cd346483fc22754a0c172a21b9a967fc0ef9a962b3"
+        },
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/baseline01-fingerprints.json",
+          "sha256": "a2d3ffb18ce2272ac615e5a84c09e8a7a33f074c9ff2c7b69379b7a42678e16a"
+        }
+      ]
+    },
+    {
+      "label": "baseline02",
+      "exit_code": 1,
+      "status": "RETAINED_FAILED_RUN",
+      "completed_cases": [],
+      "completed_readers": [],
+      "receipts": [
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/baseline02-native.log",
+          "sha256": "05ab3761aaff8108821c897d3fec58ac95eb5beff1703dc839e3c1b35be1fe1f"
+        },
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/baseline02-process-cleanup.json",
+          "sha256": "216e90e57a2b784b607ebc6d005975eb797123bb926ea0764c96c6106a0cbefa"
+        },
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/baseline02-inputs.json",
+          "sha256": "abb6cf9e9aa01636ffe8f9cd346483fc22754a0c172a21b9a967fc0ef9a962b3"
+        },
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/baseline02-fingerprints.json",
+          "sha256": "a2d3ffb18ce2272ac615e5a84c09e8a7a33f074c9ff2c7b69379b7a42678e16a"
+        }
+      ]
+    },
+    {
+      "label": "baseline03",
+      "exit_code": 1,
+      "status": "RETAINED_FAILED_RUN",
+      "completed_cases": [],
+      "completed_readers": [],
+      "receipts": [
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/baseline03-native.log",
+          "sha256": "170a53063b0d459100e3f5307e6cb8906b8f94c5a16126fd32fb7fd0c503c1b5"
+        },
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/baseline03-process-cleanup.json",
+          "sha256": "dbdd549b091c46e22003a9a8a2ba08fecb68c1e1871fbed344cc038da7fee828"
+        },
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/baseline03-inputs.json",
+          "sha256": "911bef97fa11bf2c3a02c46d76214fb515783c9af6f9330c6a3b4c6c34f74d8a"
+        },
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/baseline03-fingerprints.json",
+          "sha256": "2473286325d7aad7cfa67714a48353dd761749bd2c0b0e2816033baee9fc9002"
+        }
+      ]
+    },
+    {
+      "label": "qualify01",
+      "exit_code": 1,
+      "status": "RETAINED_FAILED_RUN",
+      "completed_cases": [
+        "load-valid",
+        "load-refill",
+        "load-rebind",
+        "load-refused",
+        "load-direct",
+        "unload-valid",
+        "unload-refill",
+        "unload-rebind",
+        "unload-refused",
+        "unload-direct"
+      ],
+      "completed_readers": [
+        "ammo-load-valid",
+        "ammo-load-refill",
+        "ammo-load-rebind",
+        "ammo-load-refused",
+        "ammo-load-direct",
+        "ammo-unload-valid",
+        "ammo-unload-refill",
+        "ammo-unload-rebind",
+        "ammo-unload-refused",
+        "ammo-unload-direct"
+      ],
+      "receipts": [
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/qualify01-native.log",
+          "sha256": "ad036d1154294ded683ca7bfc95d6028f7a70490f91345286e356f4d703b9719"
+        },
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/qualify01-process-cleanup.json",
+          "sha256": "85307e67acdfb689044a2b641f91c5abc41aa431a999020e8cbea2e6f8903396"
+        },
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/qualify01-inputs.json",
+          "sha256": "a58f5286622edacef53f6c06b338874e2cee467ab4fe64a8560fb48f572bc0a6"
+        },
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/qualify01-fingerprints.json",
+          "sha256": "b74dee9a94fa7e292fef4ce05b14b5906da199bd80a58f86176afa07c0c6fee5"
+        }
+      ]
+    },
+    {
+      "label": "aftermath-baseline01",
+      "exit_code": 1,
+      "status": "RETAINED_FAILED_RUN",
+      "completed_cases": [],
+      "completed_readers": [],
+      "receipts": [
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/aftermath-baseline01-native.log",
+          "sha256": "08b7862480ab974f1518609700e84f7a108497e695028e5812777050b9b99413"
+        },
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/aftermath-baseline01-process-cleanup.json",
+          "sha256": "c5887dcb746cbfe442b786531b715b0a26defadd30c267492df99038ddbc0d94"
+        },
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/aftermath-baseline01-inputs.json",
+          "sha256": "ac7fe76d4d4f56a8c70c74b52184d6ae30a74fda510f897871b77508e952d364"
+        },
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/aftermath-baseline01-fingerprints.json",
+          "sha256": "e1f4bdfe3b4897be9ca2749b185c1ad625d52cd55e754a3247884a1026436b7d"
+        }
+      ]
+    },
+    {
+      "label": "aftermath-baseline02",
+      "exit_code": 1,
+      "status": "RETAINED_FAILED_RUN",
+      "completed_cases": [],
+      "completed_readers": [],
+      "receipts": [
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/aftermath-baseline02-native.log",
+          "sha256": "429ec13e7420e83c9631f48f49ada41bd30360902cd766b6e8a41e7a03239db7"
+        },
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/aftermath-baseline02-process-cleanup.json",
+          "sha256": "430b02478cab3188bf62b07fd30633343e488dfb00ae371a7462d25dd15bbbf5"
+        },
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/aftermath-baseline02-inputs.json",
+          "sha256": "f6fcb750d193d863f28a48baa3a6d3af6b7073549131cb71bea2a39c584bcc6f"
+        },
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/aftermath-baseline02-fingerprints.json",
+          "sha256": "55e68d402b2ea11f877e01de0ebf24a00ac1ade748379614441012a7ec85cb7c"
+        }
+      ]
+    },
+    {
+      "label": "aftermath-baseline03",
+      "exit_code": 1,
+      "status": "RETAINED_FAILED_RUN",
+      "completed_cases": [],
+      "completed_readers": [
+        "ammo-aftermath-postcommit-expire-loaded-chambered"
+      ],
+      "receipts": [
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/aftermath-baseline03-native.log",
+          "sha256": "e9f388c234cddac8884fbbabcc5ec539b358e12b1c4a54626d91a404206f41be"
+        },
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/aftermath-baseline03-process-cleanup.json",
+          "sha256": "919f4d1081309d8c8f1e6d1b00e947de832198083b131fd26e2c4e4500509fed"
+        },
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/aftermath-baseline03-inputs.json",
+          "sha256": "b408d527509103cb7c83ab068dc95e5348a0b197a30958a6e31a9a9e99ec8027"
+        },
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/aftermath-baseline03-fingerprints.json",
+          "sha256": "1ce4bc9dc06f334337e21fb824f8c5d770bcddba0d128476c3ce190e4405908c"
+        }
+      ]
+    },
+    {
+      "label": "aftermath-baseline04",
+      "exit_code": 1,
+      "status": "RETAINED_FAILED_RUN",
+      "completed_cases": [],
+      "completed_readers": [
+        "ammo-aftermath-postcommit-expire-loaded-chambered"
+      ],
+      "receipts": [
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/aftermath-baseline04-native.log",
+          "sha256": "ea5a37d220b4a1f3de0e1cd4ccba5e420f6c8fa1d48ab06f3cfb4631fca7c199"
+        },
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/aftermath-baseline04-process-cleanup.json",
+          "sha256": "2e9098eccd9bdb239fa826243f03f52ac30772a132039ef0bc0315f31cc72f7f"
+        },
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/aftermath-baseline04-inputs.json",
+          "sha256": "8348ccd2a1f768bfd1314e40f34a0c3cc5dea11bf247dfed148173b4b5468f58"
+        },
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/aftermath-baseline04-fingerprints.json",
+          "sha256": "ed6a1a9963ac157288f9ebf70c038c6e199a5a83596648eafebdd4a37c11f7ce"
+        }
+      ]
+    },
+    {
+      "label": "cycle-baseline01",
+      "exit_code": 1,
+      "status": "RETAINED_FAILED_RUN",
+      "completed_cases": [],
+      "completed_readers": [
+        "ammo-aftermath-cycle-foreign-container-loaded-chambered"
+      ],
+      "receipts": [
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/cycle-baseline01-native.log",
+          "sha256": "50fae3ae1ac9745425162ac93cda6af44ed42a92d9d52d1479070581053a7313"
+        },
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/cycle-baseline01-process-cleanup.json",
+          "sha256": "67a7932dc42e3ea78ea229c128285640115f50b41481df8fb006dee2dce78fda"
+        },
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/cycle-baseline01-inputs.json",
+          "sha256": "8d788d7e284c9c48632659314dbe7f8934877881f8d7db028fefbdeacaf939a2"
+        },
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/cycle-baseline01-fingerprints.json",
+          "sha256": "5088e7b4f974d669d98c085e802d5d07f723ba275bb7cd65d6c9fb28cf40494e"
+        }
+      ]
+    },
+    {
+      "label": "native-provider01",
+      "exit_code": 1,
+      "status": "RETAINED_FAILED_RUN",
+      "completed_cases": [
+        "load-provider-refusal"
+      ],
+      "completed_readers": [
+        "ammo-load-provider-refusal-conserved",
+        "ammo-load-provider-refusal-ordinary-delete-retry"
+      ],
+      "receipts": [
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/native-provider01-native.log",
+          "sha256": "5262a306ec412e8d65131d74de2d5f113074c990f6e41f648d63b78c321cbfd3"
+        },
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/native-provider01-process-cleanup.json",
+          "sha256": "1976e523f4bc84be638ed0896ac510d37595589e3beed61b47e46019663ff851"
+        },
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/native-provider01-inputs.json",
+          "sha256": "4cad5e66de4bc547e57f4112d3e2f6156cd8b1152c67121d3a41318eadb2954f"
+        },
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/native-provider01-fingerprints.json",
+          "sha256": "52b291eacdaf16961b4745ac9f3e2a52c6f1e1986841e895b868e1903a750b63"
+        }
+      ]
+    },
+    {
+      "label": "native-provider02",
+      "exit_code": 1,
+      "status": "RETAINED_FAILED_RUN",
+      "completed_cases": [
+        "load-provider-refusal",
+        "unload-provider-refusal"
+      ],
+      "completed_readers": [
+        "ammo-load-provider-refusal-conserved",
+        "ammo-load-provider-refusal-ordinary-delete-retry",
+        "ammo-unload-provider-refusal-conserved",
+        "ammo-unload-provider-refusal-ordinary-delete-retry"
+      ],
+      "receipts": [
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/native-provider02-native.log",
+          "sha256": "8ba77ec80c56a6005766674b30e1c071defb10b6e64df14132559ac8e0227262"
+        },
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/native-provider02-process-cleanup.json",
+          "sha256": "7dc413a36a0e14b268fe5c06a3ff93946c471dbba5412c337dccd1a6d3e6f10e"
+        },
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/native-provider02-inputs.json",
+          "sha256": "1d002cb8a3daee18e0cfecabbd9195bc12eeb14eb34ac557c4957d10a0498cd2"
+        },
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/native-provider02-fingerprints.json",
+          "sha256": "3a811a1f22e02c5d056857a84ed0dc87b8d7ee10e2e14796ce851b292501f48c"
+        }
+      ]
+    },
+    {
+      "label": "diagnostic-outer01",
+      "exit_code": 1,
+      "status": "RETAINED_FAILED_RUN",
+      "completed_cases": [],
+      "completed_readers": [],
+      "receipts": [
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/diagnostic-outer01-native.log",
+          "sha256": "2865cc11eb75f3dab9b5cd3e319eda9c86a823f9b6aad586fc3ae4c05976492b"
+        },
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/diagnostic-outer01-process-cleanup.json",
+          "sha256": "f926517eab0dd4830684adc3ace4bfea448a1eca62f4c460694d4097cb3be23a"
+        },
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/diagnostic-outer01-inputs.json",
+          "sha256": "3f6ec2ec0bdb9e64f7d9769c75f0e733be82eb62f8e4213e5087e482c91313fa"
+        },
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/diagnostic-outer01-fingerprints.json",
+          "sha256": "58ba9b43173aba62e3174bfde03e7f00ecf5cf09fb843341208815d9e25e0952"
+        }
+      ]
+    },
+    {
+      "label": "diagnostic-outer02",
+      "exit_code": 1,
+      "status": "RETAINED_FAILED_RUN",
+      "completed_cases": [],
+      "completed_readers": [],
+      "receipts": [
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/diagnostic-outer02-native.log",
+          "sha256": "76eb3a74d5fe45aa54a9447d0c14b460ecd36d094b487bdd78349ec42cb25398"
+        },
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/diagnostic-outer02-process-cleanup.json",
+          "sha256": "d661a6e50bcb464a5afd5ec0c54bdb9bcbbf1096fc34248ce14709fbe7aef012"
+        },
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/diagnostic-outer02-inputs.json",
+          "sha256": "361dbe8ff4c8fecf61cb7c8ef74341828791d549d0ec871f65ad6716d7359dcb"
+        },
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/diagnostic-outer02-fingerprints.json",
+          "sha256": "8fb130858d248b37fd93c0bc09b38363acf8f0add90bdb16ad1f0628f903d376"
+        }
+      ]
+    },
+    {
+      "label": "floor-smoke01",
+      "exit_code": 1,
+      "status": "RETAINED_FAILED_RUN",
+      "completed_cases": [
+        "load-provider-outer-refill"
+      ],
+      "completed_readers": [
+        "ammo-load-provider-outer-refill-conserved"
+      ],
+      "receipts": [
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/floor-smoke01-native.log",
+          "sha256": "928aa476ea4390f7ebaa82efd67460af6a1c0c946781d08c7e4dad2704e78c00"
+        },
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/floor-smoke01-process-cleanup.json",
+          "sha256": "afbda5cd0f746cb6f07128b020c643f2f9509788af80c025c1f8017f78abd3f0"
+        },
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/floor-smoke01-inputs.json",
+          "sha256": "fb1d0aba8cfbc23aa28416129bf4dd00049548358933d8aab56bca63ff8cd6f0"
+        },
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/floor-smoke01-fingerprints.json",
+          "sha256": "11487ab91d4549db3dcd3e82f67f8980550809e3e4580fae6a6bb5246505b1cc"
+        }
+      ]
+    },
+    {
+      "label": "floor-smoke02",
+      "exit_code": 1,
+      "status": "NOT_QUALIFIED_STALE_HARNESS_BUILD_FAILED",
+      "completed_cases": [
+        "load-provider-outer-refill"
+      ],
+      "completed_readers": [
+        "ammo-load-provider-outer-refill-conserved"
+      ],
+      "receipts": [
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/floor-smoke02-native.log",
+          "sha256": "295d54ec759af35c25c118f449aaacbecab253dcc0f173dda173d487db41c44c"
+        },
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/floor-smoke02-process-cleanup.json",
+          "sha256": "766c0f6f3c3b337396f06ecdfc7ce1b0b5ef0d9ef1925455931a644b781e45a8"
+        },
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/floor-smoke02-inputs.json",
+          "sha256": "5d5ea683ff7dd65bfb381539a430804a0f3c5a6c7bcdd33dce0b2913734d79bf"
+        },
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/floor-smoke02-fingerprints.json",
+          "sha256": "8723c1c723a435e35cc86807c71ba2b9a5b71eb0e3fc247b1a7d9efd32dc769b"
+        }
+      ]
+    },
+    {
+      "label": "native-provider03",
+      "exit_code": 1,
+      "status": "RETAINED_FAILED_RUN",
+      "completed_cases": [
+        "load-provider-refusal",
+        "unload-provider-refusal",
+        "load-provider-outer-refill",
+        "unload-provider-outer-refill",
+        "unload-outer-success",
+        "unload-later-expire"
+      ],
+      "completed_readers": [
+        "ammo-load-provider-refusal-conserved",
+        "ammo-load-provider-refusal-ordinary-delete-retry",
+        "ammo-unload-provider-refusal-conserved",
+        "ammo-unload-provider-refusal-ordinary-delete-retry",
+        "ammo-load-provider-outer-refill-conserved",
+        "ammo-unload-provider-outer-refill-conserved",
+        "ammo-unload-outer-success-conserved",
+        "ammo-unload-later-expire-conserved"
+      ],
+      "receipts": [
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/native-provider03-native.log",
+          "sha256": "3b31acf1e4edf189cfa838d8b38ea5effb52c65824c37f2ef1e3294c8a1c3ae0"
+        },
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/native-provider03-process-cleanup.json",
+          "sha256": "5e9c5373a1d74b7caf0b5b4f816ac9afc2ca5405cf91fedb1b1f38e30a113e2c"
+        },
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/native-provider03-inputs.json",
+          "sha256": "265a62164e5b490affeb37b8beed1dc4b368860584115d21549623f06ac23000"
+        },
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/native-provider03-fingerprints.json",
+          "sha256": "f22a1b8a73aa48c3b86260253ee1ab39adefdf9cbd85e5794548896343832a75"
+        }
+      ]
+    },
+    {
+      "label": "native-aftermath04",
+      "exit_code": 1,
+      "status": "RETAINED_FAILED_RUN",
+      "completed_cases": [
+        "ordered-valid",
+        "queued-revoked",
+        "cycle-expire"
+      ],
+      "completed_readers": [
+        "ammo-aftermath-ordered-valid-loaded-chambered",
+        "ammo-aftermath-ordered-valid-shot",
+        "ammo-aftermath-queued-revoked-loaded-chambered",
+        "ammo-aftermath-queued-revoked-shot",
+        "ammo-aftermath-cycle-expire-loaded-chambered",
+        "ammo-aftermath-cycle-expire-shot",
+        "ammo-aftermath-cycle-expire-recovered",
+        "ammo-aftermath-cycle-foreign-container-loaded-chambered"
+      ],
+      "receipts": [
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/native-aftermath04-native.log",
+          "sha256": "07bbb7cfa3dbd465fc1b69a99808fe0095eab507c23e87db9bf63348ac4dd8e8"
+        },
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/native-aftermath04-process-cleanup.json",
+          "sha256": "8fa7cb92703f4c2d8dbc5d90f57e2c6d0c64c153a79e8df3b2e40b5e9962ffb8"
+        },
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/native-aftermath04-inputs.json",
+          "sha256": "fb4546c13205ca9bd27cdc368c5010273935a5936db6ed827df133ba14a6df8d"
+        },
+        {
+          "path": ".artifacts/test-runs/armageddon-native-ammo/native-aftermath04-fingerprints.json",
+          "sha256": "2e14098f70fa3418331984e8a23e25989577e5f609422389d32a6206ca740ea8"
+        }
+      ]
+    }
+  ],
+  "historical_preservation": {
+    "status": "PASS_PRESERVED",
+    "artifacts": 56314,
+    "task_files": 561,
+    "baseline": {
+      "path": ".artifacts/test-runs/armageddon-native-ammo/baseline.json",
+      "sha256": "6468ab53055b975f36666d430be7f098ff828b56a996e1e1e7e319dabc2dec86"
+    },
+    "primary_head": "34eb234eb5a1e2784c595b4f848f6f785b426302",
+    "checkpoint17_raw_rehash_gap": "Original raw ComponentUnloadCompletion.cs unavailable; 5778/5779 historical captured sources verified by parent. Bounded git-blob/CRLF recovery did not match the captured raw SHA; no full checkpoint17 rehash claimed."
+  },
+  "limits": [
+    "Whole82/12/154/25 authoritative plan remains incomplete; these27 fixture controls are not the brief25 native scenarios.",
+    "Merge/Get/Unload prepared consumption is limited to declared exact native Stackable/Holdable/Ammunition leaves; unknown structural components retain legacy paths. No exhaustive firearm/defence matrix.",
+    "Split load uses native capacity 2 at execution; the CSV fixture persists prototype capacity 8. Cold readers qualify exact residual/split quantities, custody and slots, not persistence of that in-memory capacity change. Cached morph deadline covered by managed control only; poison/effect/copy exceptions unqualified.",
+    "Declared aftermath family is InternalMagazineGun SelfLoading Single, separate Holdable BulletProto/CasingProto, two distinct nonstack rounds, zero break chance and a native MajorFail shot. Native controls prove miss projectile floor, casing custody, next-round cycle, costs, refusal and independent compatibility. Hits/lodging, stacked chambering, other families and broader source/projectile exception conservation remain unqualified.",
+    "Actual Fire with mocked ammunition qualifies exception casing completion and primary failure identity; native exception gameplay is NOT_RUN. Final-policy casing foreign-bag control is native; final-round clear/replacement/foreign admission controls are managed only.",
+    "One trailing tab was removed from a blank unit-test line before the final floor control and native qualification. Both historical raw variants are archived and byte equivalence apart from that tab is checked. Final native5782-source/13-assembly manifests and full Fast bind final stable code.",
+    "Cold readers inspect raw rows/joins and rebuild native items/body inventory plus chamber/magazine/casing XML in fresh processes. Existing reader transcript wording no-order-replay does not qualify actual Raise Servitor production-loader collapse, controller teardown or queued-order replay.",
+    "Original qualify01 retains a last-reader MySqlConnector OpenTcpSocket/ServerVersion.AutoDetect failure. Earlier ten cases/readers passed and in-memory split conservation passed; final split cold acceptance is supplied by a fresh owned-instance packet. No established port exhaustion or proven root cause; no connection/loader bypass introduced.",
+    "native-aftermath04 passed three cases/eight readers plus in-memory foreign-bag shot assertions and raw SQL custody, then checked the casing before loading its declared native bag parent. Reader now verifies exact saved container XML child once and invokes native parent loading before child assertions; no custody assignment, loader/cache/connection bypass or production container change.",
+    "native-provider03 passed six cases and eight readers before the prototype fixture mutated on its second preparation predicate, not the final executable predicate. Corrected fixture identifies CompleteGetPlacementWithResult and asserts post-detach provisional custody before replacing the prototype; conservation/floor assertions remain unchanged.",
+    "Full Fast environment receipt reports TEMP/TMP restored true and three Git-variable restoration checks false; only process-local changes were made, and test runner confirmed owning session92700 exited. Original receipt retained, no repair/rerun and no global Git/environment change. Restoration is not reported as fully verified.",
+    "floor-smoke01 passed first gameplay/cold-reader assertions, then failed unrelated retirement cleanup because the caller EF scope remained active. An incorrectly located cleanup edit failed floor-final02 and floor-final03 builds. floor-smoke02 used stale prior harness binaries and is explicitly NOT_QUALIFIED. Corrected caller scope ends after all caller/cold assertions; final packets require successful build and cleanup.",
+    "Full world/Telnet, boarding, actual Raise Servitor restart collapse/restoration and conditional Musket/artillery native disposition remain OPEN/NOT_RUN. Armageddon package remains DISABLED; installer owner gates menu and metadata, includes generic engine work.",
+    "Local only. No publication, merge, deployment, version choice, stock-lane integration or shared/production database."
+  ],
+  "whole_plan_complete": false,
+  "package_enabled": false
+}

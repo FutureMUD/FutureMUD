@@ -1149,6 +1149,11 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 	}
 
     public GameItem(GameItem rhs, bool temporary = false, bool preserveMorphTime = false)
+		: this(rhs, temporary, preserveMorphTime, null)
+	{
+	}
+
+	internal GameItem(GameItem rhs, bool temporary, bool preserveMorphTime, Action<GameItem> beforeExposure)
     {
 		if (!temporary) SpellOwnedItemValuePolicy.RequireOrdinaryValue(rhs, "copying");
 		if (rhs.GetItemType<ICorpse>() is not null && rhs.Gameworld.SpellOwnedCorpseAnimations?.IsBorrowedCorpse(rhs.Id) == true)
@@ -1166,19 +1171,44 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
         _overrideSdesc = rhs._overrideSdesc;
         _overrideDesc = rhs._overrideDesc;
         Gameworld = rhs.Gameworld;
-		MudSharp.Magic.PsychometricRecorder.CopyHistory(rhs, this);
+		if (beforeExposure is null) MudSharp.Magic.PsychometricRecorder.CopyHistory(rhs, this);
         _name = rhs.Name;
         _keywords = new Lazy<List<string>>(() => rhs.Keywords.ToList());
-        PositionState = rhs.PositionState;
-        PositionModifier = rhs.PositionModifier;
-        PositionTarget = rhs.PositionTarget;
-        PositionEmote = rhs.PositionEmote;
+		if (beforeExposure is null)
+		{
+			PositionState = rhs.PositionState;
+			PositionModifier = rhs.PositionModifier;
+			PositionTarget = rhs.PositionTarget;
+			PositionEmote = rhs.PositionEmote;
+		}
         _condition = rhs.Condition;
-        Location = rhs.Location;
+		if (beforeExposure is null) Location = rhs.Location;
         _ownerReference = rhs._ownerReference == null
             ? null
             : new FrameworkItemReference(rhs._ownerReference.Id, rhs._ownerReference.FrameworkItemType, rhs.Gameworld);
         _owner = rhs._owner;
+        if (beforeExposure is not null && Prototype.Morphs)
+        {
+            if (preserveMorphTime)
+            {
+                if (rhs.CachedMorphTime is not null)
+                {
+                    CachedMorphTime = rhs.CachedMorphTime;
+                }
+                else
+                {
+					CachedMorphTime = ItemTimeRateMath.PreservedMorphRemaining(
+						rhs.MorphTime - RuntimeClock.UtcNow,
+						Prototype.RefrigerationSensitive,
+						rhs._morphRateAtSchedule);
+                }
+            }
+            else
+            {
+                CachedMorphTime = Prototype.MorphTimeSpan;
+            }
+        }
+
         foreach (IGameItemComponent component in rhs._components)
         {
             _components.Add(component.Copy(this, temporary));
@@ -1186,9 +1216,30 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 
         if (!temporary)
         {
+			if (beforeExposure is not null)
+			{
+				try { beforeExposure(this); }
+				catch
+				{
+					// A rejected preparation has not exposed its copy or committed value.
+					foreach (var component in _components) Gameworld.SaveManager.Abort(component);
+					throw;
+				}
+				// An Add observer may request an ID/flush. Queue the parent first.
+				Gameworld.SaveManager.AddInitialisation(this);
+			}
             Gameworld.Add(this);
-            Gameworld.SaveManager.AddInitialisation(this);
+			if (beforeExposure is null) Gameworld.SaveManager.AddInitialisation(this);
         }
+
+		if (beforeExposure is not null)
+		{
+			MudSharp.Magic.PsychometricRecorder.CopyHistory(rhs, this);
+			PositionState = rhs.PositionState;
+			PositionModifier = rhs.PositionModifier;
+			PositionTarget = rhs.PositionTarget;
+			PositionEmote = rhs.PositionEmote;
+		}
 
         foreach (IGameItemComponent component in Components)
         {
@@ -1197,7 +1248,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 
         LoadSurfaceLiquidState(rhs.SaveSurfaceLiquidState());
 
-        if (Prototype.Morphs)
+        if (beforeExposure is null && Prototype.Morphs)
         {
             if (preserveMorphTime)
             {

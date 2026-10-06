@@ -5105,5 +5105,52 @@
       "Whole82/12/154/25 plan remains incomplete. MAIN emotional hooks are planning-only here; Fury inference is now approved, owned by installer; stock owns reviewed emotional effects/lifetime."
     ],
     "whole_plan_complete": false
+  },
+  "native_ammo_conservation_qualification": {
+    "status": "PASS_BOUNDED_LOCAL_CHECKPOINT_PARENT_REVIEW_PENDING",
+    "base_head": "fdba0e03f6b6cf3a3a4df9197e9ff42c2697c255",
+    "acceptance": [
+      {
+        "id": "focused-core",
+        "status": "PASS",
+        "passed": 302
+      },
+      {
+        "id": "full-fast-unfiltered",
+        "status": "PASS",
+        "passed": 7544,
+        "projects": 10
+      },
+      {
+        "id": "native-ammo-and-single-aftermath",
+        "status": "PASS",
+        "cases": 27,
+        "cold_readers": 38
+      },
+      {
+        "id": "whole-plan",
+        "status": "INCOMPLETE"
+      }
+    ],
+    "receipt": "Design Documents/Magic/Armageddon_AmmoConservation_Verification.json",
+    "next_smallest_gate": "One native boarding representative, then production-loader Raise Servitor restart collapse/restoration and conditional Musket/artillery disposition. Parent owns release assessment.",
+    "limits": [
+      "Whole82/12/154/25 authoritative plan remains incomplete; these27 fixture controls are not the brief25 native scenarios.",
+      "Merge/Get/Unload prepared consumption is limited to declared exact native Stackable/Holdable/Ammunition leaves; unknown structural components retain legacy paths. No exhaustive firearm/defence matrix.",
+      "Split load uses native capacity 2 at execution; the CSV fixture persists prototype capacity 8. Cold readers qualify exact residual/split quantities, custody and slots, not persistence of that in-memory capacity change. Cached morph deadline covered by managed control only; poison/effect/copy exceptions unqualified.",
+      "Declared aftermath family is InternalMagazineGun SelfLoading Single, separate Holdable BulletProto/CasingProto, two distinct nonstack rounds, zero break chance and a native MajorFail shot. Native controls prove miss projectile floor, casing custody, next-round cycle, costs, refusal and independent compatibility. Hits/lodging, stacked chambering, other families and broader source/projectile exception conservation remain unqualified.",
+      "Actual Fire with mocked ammunition qualifies exception casing completion and primary failure identity; native exception gameplay is NOT_RUN. Final-policy casing foreign-bag control is native; final-round clear/replacement/foreign admission controls are managed only.",
+      "One trailing tab was removed from a blank unit-test line before the final floor control and native qualification. Both historical raw variants are archived and byte equivalence apart from that tab is checked. Final native5782-source/13-assembly manifests and full Fast bind final stable code.",
+      "Cold readers inspect raw rows/joins and rebuild native items/body inventory plus chamber/magazine/casing XML in fresh processes. Existing reader transcript wording no-order-replay does not qualify actual Raise Servitor production-loader collapse, controller teardown or queued-order replay.",
+      "Original qualify01 retains a last-reader MySqlConnector OpenTcpSocket/ServerVersion.AutoDetect failure. Earlier ten cases/readers passed and in-memory split conservation passed; final split cold acceptance is supplied by a fresh owned-instance packet. No established port exhaustion or proven root cause; no connection/loader bypass introduced.",
+      "native-aftermath04 passed three cases/eight readers plus in-memory foreign-bag shot assertions and raw SQL custody, then checked the casing before loading its declared native bag parent. Reader now verifies exact saved container XML child once and invokes native parent loading before child assertions; no custody assignment, loader/cache/connection bypass or production container change.",
+      "native-provider03 passed six cases and eight readers before the prototype fixture mutated on its second preparation predicate, not the final executable predicate. Corrected fixture identifies CompleteGetPlacementWithResult and asserts post-detach provisional custody before replacing the prototype; conservation/floor assertions remain unchanged.",
+      "Full Fast environment receipt reports TEMP/TMP restored true and three Git-variable restoration checks false; only process-local changes were made, and test runner confirmed owning session92700 exited. Original receipt retained, no repair/rerun and no global Git/environment change. Restoration is not reported as fully verified.",
+      "floor-smoke01 passed first gameplay/cold-reader assertions, then failed unrelated retirement cleanup because the caller EF scope remained active. An incorrectly located cleanup edit failed floor-final02 and floor-final03 builds. floor-smoke02 used stale prior harness binaries and is explicitly NOT_QUALIFIED. Corrected caller scope ends after all caller/cold assertions; final packets require successful build and cleanup.",
+      "Full world/Telnet, boarding, actual Raise Servitor restart collapse/restoration and conditional Musket/artillery native disposition remain OPEN/NOT_RUN. Armageddon package remains DISABLED; installer owner gates menu and metadata, includes generic engine work.",
+      "Local only. No publication, merge, deployment, version choice, stock-lane integration or shared/production database."
+    ],
+    "whole_plan_complete": false,
+    "package_enabled": false
   }
 }

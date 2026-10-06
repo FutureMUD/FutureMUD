@@ -45,10 +45,10 @@ internal static partial class GNHProgram
 		gun.Definition = xml.ToString(); db.SaveChanges();
 	}
 
-	private sealed record FirearmSavedItem(long Id, ItemOwnershipReference? Title, long? HeldBody, long? Cell, long? Container, bool Wielded = false, int Quantity = 1);
+	private sealed record FirearmSavedItem(long Id, ItemOwnershipReference? Title, long? HeldBody, long? Cell, long? Container, bool Wielded = false, int Quantity = 1, long? Prototype = null, double? Condition = null);
 	private sealed record FirearmAuthorityReader(string Database, FixtureIds Fixture, DateTime Now, long Canonical,
 		long Body, double Stamina, long Trait, double Raw, long VictimBody, double Wounds,
-		long Gun, double Condition, long? Chamber, long[] Magazine, FirearmSavedItem[] Items, string Case, long? StaleChamber = null, long? OtherBody = null, double? OtherStamina = null, long? OtherCanonical = null, double? OtherRaw = null);
+		long Gun, double Condition, long? Chamber, long[] Magazine, FirearmSavedItem[] Items, string Case, long? StaleChamber = null, long? OtherBody = null, double? OtherStamina = null, long? OtherCanonical = null, double? OtherRaw = null, long? Casing = null, long[]? DeletedItems = null);
 
 	private static int RunFirearmAuthorityReader(string[] args)
 	{
@@ -73,16 +73,30 @@ internal static partial class GNHProgram
 				.Select(x => XElement.Parse(x.Definition)).Single(x => x.Element("RoundsInMagazine") is not null);
 			Require(long.Parse(storedGun.Element("ChamberedRound")!.Value) == (input.StaleChamber ?? input.Chamber ?? 0) &&
 				storedGun.Element("RoundsInMagazine")!.Elements().Select(x => long.Parse(x.Value)).SequenceEqual(input.Magazine) &&
-				long.Parse(storedGun.Element("ChamberedCasing")!.Value) == 0, "Exact saved firearm slot XML must agree before any item load.");
+				long.Parse(storedGun.Element("ChamberedCasing")!.Value) == (input.Casing ?? 0), "Exact saved firearm slot XML must agree before any item load.");
+			foreach (var deleted in input.DeletedItems ?? [])
+				Require(!db.GameItems.Any(x => x.Id == deleted) && !db.GameItemComponents.Any(x => x.GameItemId == deleted) &&
+					!db.BodiesGameItems.Any(x => x.GameItemId == deleted) && !db.CellsGameItems.Any(x => x.GameItemId == deleted), "Deleted ammunition has no cold rows or custody edges.");
 			foreach (var saved in input.Items)
 				Require(db.GameItems.AsNoTracking().Single(x => x.Id == saved.Id).ContainerId == saved.Container &&
+				(!saved.Condition.HasValue || Same(db.GameItems.AsNoTracking().Single(x => x.Id == saved.Id).Condition, saved.Condition.Value)) &&
 				db.BodiesGameItems.AsNoTracking().Where(x => x.GameItemId == saved.Id).Select(x => x.BodyId).ToArray()
 					.SequenceEqual(saved.HeldBody.HasValue ? [saved.HeldBody.Value] : Array.Empty<long>()) &&
 				db.CellsGameItems.AsNoTracking().Where(x => x.GameItemId == saved.Id).Select(x => x.CellId).ToArray()
 					.SequenceEqual(saved.Cell.HasValue ? [saved.Cell.Value] : Array.Empty<long>()), "Cold firearm exact container/body/cell SQL custody must agree before any item load.");
+			foreach (var saved in input.Items.Where(x => x.Container.HasValue && x.Container != input.Gun))
+			{
+				Require(input.Items.Any(x => x.Id == saved.Container), "Declare each foreign container parent in the cold fixture.");
+				Require(db.GameItemComponents.AsNoTracking().Where(x => x.GameItemId == saved.Container).ToArray()
+					.SelectMany(x => XElement.Parse(x.Definition).Elements("Contained")).Count(x => long.Parse(x.Value) == saved.Id) == 1,
+					"Foreign container XML must name the exact child once before native loading.");
+			}
 		}
 		// Load the gun before the returned round's body membership, including the historical stale-XML control.
 		world.TryGetItem(input.Gun, true)!.FinaliseLoadTimeTasks();
+		// Native container component loading reconstructs child custody from its saved XML.
+		foreach (var parentId in input.Items.Where(x => x.Container.HasValue && x.Container != input.Gun).Select(x => x.Container!.Value).Distinct())
+			world.TryGetItem(parentId, true)!.FinaliseLoadTimeTasks();
 		var owner = world.TryGetCharacter(input.Canonical, true)!; SetPrivateMember(owner, "Location", source);
 		using (var db = NewIndependentContext(database.ConnectionString))
 			((Body)owner.Body).LoadInventory(db.Bodies.Include(x => x.BodiesGameItems).Single(x => x.Id == input.Body));
@@ -90,15 +104,19 @@ internal static partial class GNHProgram
 		{
 			var item = (GameItem)world.TryGetItem(saved.Id, true)!; item.FinaliseLoadTimeTasks();
 			if (saved.Cell.HasValue) source.Insert(item, true);
-			Require(!item.Deleted && item.Quantity == saved.Quantity && item.OwnershipReference == saved.Title &&
+			Require(!item.Deleted && (!saved.Prototype.HasValue || item.Prototype.Id == saved.Prototype) && item.Quantity == saved.Quantity && item.OwnershipReference == saved.Title &&
 				item.GetItemType<IHoldable>()!.HeldBy?.Id == saved.HeldBody && item.DirectLocation?.Id == saved.Cell &&
 				item.ContainedIn?.Id == saved.Container, $"Cold native firearm item:{item.Id} quantity:{item.Quantity}/{saved.Quantity} title:{item.OwnershipReference}/{saved.Title} held:{item.GetItemType<IHoldable>()!.HeldBy?.Id}/{saved.HeldBody} cell:{item.DirectLocation?.Id}/{saved.Cell} container:{item.ContainedIn?.Id}/{saved.Container}.");
 			if (saved.HeldBody.HasValue) Require((saved.Wielded ? owner.Body.WieldedItems : owner.Body.HeldItems).Any(x => ReferenceEquals(x, item)), "Cold native hand/wield membership must contain the exact firearm item.");
+			if (saved.Container.HasValue && saved.Container != input.Gun)
+				Require(world.TryGetItem(saved.Container.Value, true)!.GetItemType<IContainer>()!.Contents.Count(x => ReferenceEquals(x, item)) == 1,
+					"Native foreign container loading retains exact child membership once.");
 		}
+		foreach (var deleted in input.DeletedItems ?? []) Require(world.TryGetItem(deleted, true) is null, "Native loader cannot resurrect absorbed ammunition.");
 		var gunItem = world.TryGetItem(input.Gun, true)!;
 		var gun = gunItem.GetItemType<InternalMagazineGunGameItemComponent>()!;
 		Require(Same(gunItem.Condition, input.Condition) && gun.ChamberedRound?.Parent.Id == input.Chamber &&
-			gun.MagazineContents.Select(x => x.Id).SequenceEqual(input.Magazine) && gun.ChamberedCasing is null,
+			gun.MagazineContents.Select(x => x.Id).SequenceEqual(input.Magazine) && gun.ChamberedCasing?.Id == input.Casing,
 			"Cold native firearm loader must reconstruct exact chamber, magazine, casing and condition.");
 		Console.WriteLine($"ARMFirearm-reader={input.Case} passed native-body-inventory firearm-XML chamber:{input.Chamber} magazine:{input.Magazine.Length} stamina:{input.Stamina} condition:{input.Condition} wounds:{input.Wounds} raw:{input.Raw} no-order-replay");
 		return 0;

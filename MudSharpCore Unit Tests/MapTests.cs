@@ -1,4 +1,4 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using MudSharp.Accounts;
 using MudSharp.Character;
@@ -29,12 +29,8 @@ public class MapTests
                 {
                     CellStub cell = new()
                     {
-                        Room = new RoomStub
-                        {
-                            X = i,
-                            Y = j,
-                            Z = 0
-                        }.ToMock()
+                        Coordinates = (i, j, 0
+                        )
                     };
                     cellMap[i, j] = cell;
                     cell.Id = id++;

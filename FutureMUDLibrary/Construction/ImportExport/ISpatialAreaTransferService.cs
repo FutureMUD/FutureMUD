@@ -25,7 +25,6 @@ public sealed class SpatialAreaTransferResult
 	public long? ImportedZoneId { get; init; }
 	public IReadOnlyList<long> ImportedZoneIds { get; init; } = [];
 	public int ZoneCount { get; init; }
-	public int RoomCount { get; init; }
 	public int CellCount { get; init; }
 	public int ExitCount { get; init; }
 	public IReadOnlyList<string> OmittedItems { get; init; } = [];

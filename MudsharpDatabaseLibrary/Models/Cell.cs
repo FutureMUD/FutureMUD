@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace MudSharp.Models
@@ -31,7 +31,6 @@ namespace MudSharp.Models
         }
 
         public long Id { get; set; }
-        public long RoomId { get; set; }
         public long? CurrentOverlayId { get; set; }
         public long? ForagableProfileId { get; set; }
         public bool Temporary { get; set; }
@@ -40,7 +39,6 @@ namespace MudSharp.Models
         public long? HostedVehicleCompartmentId { get; set; }
 
         public virtual CellOverlay CurrentOverlay { get; set; }
-        public virtual Room Room { get; set; }
         public virtual AgricultureField AgricultureField { get; set; }
         public virtual RouteCell RouteCell { get; set; }
         public virtual Vehicle HostedVehicle { get; set; }

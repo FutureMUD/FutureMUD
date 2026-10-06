@@ -244,7 +244,6 @@ public sealed partial class Futuremud : IDisposable
     private readonly All<IRace> _races = new();
     private readonly All<IRangedCover> _rangedCovers = new();
     private readonly All<IRangedWeaponType> _rangedWeaponTypes = new();
-    private readonly All<IRoom> _rooms = new();
     private readonly All<IScript> _scripts = new();
     private readonly All<IScriptedEvent> _scriptedEvents = new();
     private readonly All<IShard> _shards = new();
@@ -554,7 +553,6 @@ public sealed partial class Futuremud : IDisposable
 
     public IUneditableAll<IRangedWeaponType> RangedWeaponTypes => _rangedWeaponTypes;
 
-    public IUneditableAll<IRoom> Rooms => _rooms;
 
     public IUneditableAll<IScript> Scripts => _scripts;
 

@@ -1846,7 +1846,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
             case OutputRange.Room:
                 foreach (ICell location in TrueLocations)
                 {
-                    location.Room.Handle(text);
+                    location.Handle(text);
                 }
 
                 break;
@@ -1891,21 +1891,21 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
             case OutputRange.Room:
                 foreach (ICell location in TrueLocations)
                 {
-                    location.Room.Handle(output);
+                    location.Handle(output);
                 }
 
                 break;
             case OutputRange.Shard:
                 foreach (ICell location in TrueLocations)
                 {
-                    location.Room.Zone.Shard.Handle(output);
+                    location.OwningZone.Shard.Handle(output);
                 }
 
                 break;
             case OutputRange.Zone:
                 foreach (ICell location in TrueLocations)
                 {
-                    location.Room.Zone.Handle(output);
+                    location.OwningZone.Handle(output);
                 }
 
                 break;

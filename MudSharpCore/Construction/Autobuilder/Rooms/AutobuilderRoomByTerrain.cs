@@ -1,4 +1,4 @@
-﻿using ExpressionEngine;
+using ExpressionEngine;
 using MoreLinq.Extensions;
 using MudSharp.Database;
 using MudSharp.Framework.Revision;
@@ -128,8 +128,7 @@ public class AutobuilderRoomByTerrain : AutobuilderRoomBase
     private ICell CreateRoomCore(ICharacter builder, ITerrain specifiedTerrain, bool deferDescription,
         IReadOnlyCollection<ITag> frameworkTags, string[] tags)
     {
-        Room room = new(builder, builder.CurrentOverlayPackage);
-        ICell cell = room.Cells.First();
+        ICell cell = new Cell(builder.CurrentOverlayPackage, builder.Location.OwningZone);
         IEditableCellOverlay overlay = cell.GetOrCreateOverlay(builder.CurrentOverlayPackage);
         AutobuilderRoomInfo info = specifiedTerrain != null && TerrainInfos.ContainsKey(specifiedTerrain)
             ? TerrainInfos[specifiedTerrain]

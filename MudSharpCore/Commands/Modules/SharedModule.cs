@@ -1,4 +1,4 @@
-﻿using MudSharp.Accounts;
+using MudSharp.Accounts;
 using MudSharp.Construction;
 using MudSharp.Effects.Concrete;
 using MudSharp.Framework;
@@ -449,7 +449,7 @@ The syntax is:
 
         actor.Send("Echoing to zone...");
         string message = echo.SubstituteANSIColour().ProperSentences();
-        foreach (ICharacter perceiver in actor.Location.Room.Zone.Characters)
+        foreach (ICharacter perceiver in actor.Location.OwningZone.Characters)
         {
             perceiver.Send(message);
         }

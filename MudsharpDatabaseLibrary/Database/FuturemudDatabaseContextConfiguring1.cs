@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using MudSharp.Models;
 using System;
@@ -818,30 +818,7 @@ namespace MudSharp.Database
                     .HasConstraintName("FK_Areas_WeatherControllers");
             });
 
-            modelBuilder.Entity<AreasRooms>(entity =>
-            {
-                entity.HasKey(e => new { e.AreaId, e.RoomId })
-                    .HasName("PRIMARY");
 
-                entity.ToTable("Areas_Rooms");
-
-                entity.HasIndex(e => e.RoomId)
-                    .HasDatabaseName("FK_Areas_Rooms_Rooms_idx");
-
-                entity.Property(e => e.AreaId).HasColumnType("bigint(20)");
-
-                entity.Property(e => e.RoomId).HasColumnType("bigint(20)");
-
-                entity.HasOne(d => d.Area)
-                    .WithMany(p => p.AreasRooms)
-                    .HasForeignKey(d => d.AreaId)
-                    .HasConstraintName("FK_Areas_Rooms_Areas");
-
-                entity.HasOne(d => d.Room)
-                    .WithMany(p => p.AreasRooms)
-                    .HasForeignKey(d => d.RoomId)
-                    .HasConstraintName("FK_Areas_Rooms_Rooms");
-            });
 
             modelBuilder.Entity<ArmourType>(entity =>
             {
@@ -2419,8 +2396,6 @@ namespace MudSharp.Database
                 entity.HasIndex(e => e.CurrentOverlayId)
                     .HasDatabaseName("FK_Cells_CellOverlays");
 
-                entity.HasIndex(e => e.RoomId)
-                    .HasDatabaseName("FK_Cells_Rooms");
 
                 entity.Property(e => e.Id).HasColumnType("bigint(20)");
 
@@ -2439,7 +2414,6 @@ namespace MudSharp.Database
 
                 entity.Property(e => e.ForagableProfileId).HasColumnType("bigint(20)");
 
-                entity.Property(e => e.RoomId).HasColumnType("bigint(20)");
 
                 entity.Property(e => e.Temporary)
                     .HasColumnType("bit(1)")
@@ -2451,11 +2425,6 @@ namespace MudSharp.Database
                     .OnDelete(DeleteBehavior.SetNull)
                     .HasConstraintName("FK_Cells_CellOverlays");
 
-                entity.HasOne(d => d.Room)
-                    .WithMany(p => p.Cells)
-                    .HasForeignKey(d => d.RoomId)
-                    .OnDelete(DeleteBehavior.Cascade)
-                    .HasConstraintName("FK_Cells_Rooms");
             });
 
             modelBuilder.Entity<CellsForagableYield>(entity =>

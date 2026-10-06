@@ -1,0 +1,203 @@
+{
+  "Format": "futuremud-spatial-area",
+  "Version": 2,
+  "IntegritySha256": "bff02a1deec8d987a339f5481dffc8d5ff79a79ca5993576eecf30162ec0f082",
+  "CreatedUtc": "2026-10-06T00:00:00Z",
+  "Source": {
+    "ZoneName": "Legacy",
+    "ZoneId": 10,
+    "ShardName": "Shard",
+    "ShardId": 2,
+    "OverlayPackageName": "Overlay",
+    "OverlayPackageId": 4,
+    "OverlayPackageRevision": 1
+  },
+  "Zone": {
+    "Key": "z1",
+    "SourceId": 10,
+    "Name": "Legacy",
+    "LatitudeRadians": 0,
+    "LongitudeRadians": 0,
+    "ElevationMetres": 0,
+    "AmbientLightPollution": 0,
+    "ForagableProfile": null,
+    "WeatherController": null,
+    "DefaultCellKey": "c1",
+    "TimeZones": [
+      {
+        "ClockAlias": "clock",
+        "TimeZoneAlias": "utc",
+        "TimeZoneDescription": "Universal"
+      }
+    ]
+  },
+  "SourceZones": [
+    {
+      "ZoneName": "Legacy",
+      "ZoneId": 10,
+      "ShardName": "Shard",
+      "ShardId": 2,
+      "OverlayPackageName": "Overlay",
+      "OverlayPackageId": 4,
+      "OverlayPackageRevision": 1
+    }
+  ],
+  "Zones": [
+    {
+      "Key": "z1",
+      "SourceId": 10,
+      "Name": "Legacy",
+      "LatitudeRadians": 0,
+      "LongitudeRadians": 0,
+      "ElevationMetres": 0,
+      "AmbientLightPollution": 0,
+      "ForagableProfile": null,
+      "WeatherController": null,
+      "DefaultCellKey": "c1",
+      "TimeZones": [
+        {
+          "ClockAlias": "clock",
+          "TimeZoneAlias": "utc",
+          "TimeZoneDescription": "Universal"
+        }
+      ]
+    }
+  ],
+  "Rooms": [
+    {
+      "Key": "r1",
+      "SourceId": 100,
+      "ZoneKey": "z1",
+      "X": 17,
+      "Y": -2,
+      "Z": 4
+    },
+    {
+      "Key": "r2",
+      "SourceId": 101,
+      "ZoneKey": "z1",
+      "X": 17,
+      "Y": -2,
+      "Z": 4
+    }
+  ],
+  "Cells": [
+    {
+      "Key": "c1",
+      "SourceId": 200,
+      "RoomKey": "r1",
+      "Overlay": {
+        "CellName": "First",
+        "CellDescription": "First.",
+        "Terrain": {
+          "SourceId": 1,
+          "Name": "Default"
+        },
+        "HearingProfile": null,
+        "Atmosphere": null,
+        "OutdoorsType": 0,
+        "AmbientLightFactor": 1,
+        "AddedLight": 0,
+        "SafeQuit": false,
+        "ExitKeys": [
+          "e1"
+        ]
+      },
+      "ForagableProfile": null,
+      "Tags": [],
+      "RangedCovers": [],
+      "MagicResources": [],
+      "RouteCell": {
+        "LengthMetres": 100,
+        "DefaultPositionMetres": 50,
+        "PositiveDirectionName": "forward",
+        "NegativeDirectionName": "back",
+        "MetresPerRoomEquivalent": 10,
+        "TopologyVersion": 7,
+        "Landmarks": [
+          {
+            "SourceId": 400,
+            "Name": "Gate",
+            "Keywords": "gate",
+            "Description": "A gate.",
+            "PositionMetres": 50,
+            "DisplayOrder": 0
+          }
+        ],
+        "ExitAnchors": [
+          {
+            "ExitKey": "e1",
+            "MinimumPositionMetres": 40,
+            "MaximumPositionMetres": 60,
+            "ArrivalPositionMetres": 50
+          }
+        ]
+      }
+    },
+    {
+      "Key": "c2",
+      "SourceId": 201,
+      "RoomKey": "r2",
+      "Overlay": {
+        "CellName": "Second",
+        "CellDescription": "Second.",
+        "Terrain": {
+          "SourceId": 1,
+          "Name": "Default"
+        },
+        "HearingProfile": null,
+        "Atmosphere": null,
+        "OutdoorsType": 0,
+        "AmbientLightFactor": 1,
+        "AddedLight": 0,
+        "SafeQuit": false,
+        "ExitKeys": [
+          "e1"
+        ]
+      },
+      "ForagableProfile": null,
+      "Tags": [],
+      "RangedCovers": [],
+      "MagicResources": []
+    }
+  ],
+  "Exits": [
+    {
+      "Key": "e1",
+      "SourceId": 300,
+      "Cell1Key": "c1",
+      "Cell2Key": "c2",
+      "Side1": {
+        "Direction": 0,
+        "Verb": null,
+        "PrimaryKeyword": null,
+        "Keywords": null,
+        "InboundDescription": null,
+        "InboundTarget": null,
+        "OutboundDescription": null,
+        "OutboundTarget": null
+      },
+      "Side2": {
+        "Direction": 4,
+        "Verb": null,
+        "PrimaryKeyword": null,
+        "Keywords": null,
+        "InboundDescription": null,
+        "InboundTarget": null,
+        "OutboundDescription": null,
+        "OutboundTarget": null
+      },
+      "TimeMultiplier": 1,
+      "AcceptsDoor": false,
+      "DoorSize": 0,
+      "MaximumSizeToEnter": 12,
+      "MaximumSizeToEnterUpright": 12,
+      "IsClimbExit": false,
+      "ClimbDifficulty": 0,
+      "FallCellKey": null,
+      "BlockedLayers": []
+    }
+  ],
+  "Areas": [],
+  "Omissions": []
+}

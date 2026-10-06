@@ -272,7 +272,6 @@ namespace MudSharp.Framework
         IUneditableAll<IRace> Races { get; }
         IUneditableAll<IRangedCover> RangedCovers { get; }
         IUneditableAll<IRangedWeaponType> RangedWeaponTypes { get; }
-        IUneditableAll<IRoom> Rooms { get; }
         IUneditableAll<IScript> Scripts { get; }
         IUneditableAll<IScriptedEvent> ScriptedEvents { get; }
         IUneditableAll<IShard> Shards { get; }
@@ -560,7 +559,6 @@ namespace MudSharp.Framework
         void Add(ISkyDescriptionTemplate template);
         void Add(IMaterial material);
         void Add(ICell cell);
-        void Add(IRoom room);
         void Add(IZone zone);
         void Add(IShard shard);
         void Add(IArtificialIntelligence ai);
@@ -740,7 +738,6 @@ namespace MudSharp.Framework
         void Destroy(IMagicPortalNetwork network);
         void Destroy(IAccount account);
         void Destroy(ICell cell);
-        void Destroy(IRoom room);
         void Destroy(IZone zone);
         void Destroy(IShard plane);
         void Destroy(ICelestialObject celestial);

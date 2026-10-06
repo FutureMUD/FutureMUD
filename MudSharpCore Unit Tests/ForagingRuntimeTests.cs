@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -92,8 +92,6 @@ public class ForagingRuntimeTests
 		IForagableProfile? effective = oldProfile.Object;
 		var zone = new Mock<IZone>();
 		zone.SetupGet(x => x.ForagableProfile).Returns(() => effective);
-		var room = new Mock<IRoom>();
-		room.SetupGet(x => x.Zone).Returns(zone.Object);
 		var heartbeat = new Mock<IHeartbeatManager>();
 		var saves = new Mock<ISaveManager>();
 		var environment = new Mock<IEnvironmentalMagicService>();
@@ -101,7 +99,7 @@ public class ForagingRuntimeTests
 		gameworld.SetupGet(x => x.HeartbeatManager).Returns(heartbeat.Object);
 		gameworld.SetupGet(x => x.SaveManager).Returns(saves.Object);
 		gameworld.SetupGet(x => x.EnvironmentalMagic).Returns(environment.Object);
-		var cell = CreateForagingCell(gameworld.Object, room.Object, null);
+		var cell = CreateForagingCell(gameworld.Object, zone.Object, null);
 		var model = new DbCell();
 		model.CellsForagableYields.Add(new DbCellsForagableYield { ForagableType = "food", Yield = 7.0 });
 		cell.PostLoadTasks(model);
@@ -194,13 +192,11 @@ public class ForagingRuntimeTests
 		gameworld.SetupGet(x => x.ForagableProfiles).Returns(profiles);
 		var zone = TestObjectFactory.CreateUninitialized<Zone>();
 		SetLateInitialisingGameworld(zone, gameworld.Object);
-		var room = new Mock<IRoom>();
 		if (binding == "zone")
 		{
 			zone.ForagableProfile = oldProfile;
-			room.SetupGet(x => x.Zone).Returns(zone);
 		}
-		var cell = CreateForagingCell(gameworld.Object, room.Object, binding == "cell" ? oldProfile.Id : null);
+		var cell = CreateForagingCell(gameworld.Object, zone, binding == "cell" ? oldProfile.Id : null);
 		if (binding == "terrain")
 		{
 			var terrain = TestObjectFactory.CreateUninitialized<Terrain>();
@@ -1042,13 +1038,11 @@ public class ForagingRuntimeTests
 		var inheritedProfile = CreateProfileMock(55L, ("food", 6.0));
 		var zone = new Mock<IZone>();
 		zone.SetupGet(x => x.ForagableProfile).Returns(inheritedProfile.Object);
-		var room = new Mock<IRoom>();
-		room.SetupGet(x => x.Zone).Returns(zone.Object);
 		var heartbeat = new Mock<IHeartbeatManager>();
 		var gameworld = new Mock<IFuturemud>();
 		gameworld.SetupGet(x => x.ForagableProfiles).Returns(new RevisableAll<IForagableProfile>());
 		gameworld.SetupGet(x => x.HeartbeatManager).Returns(heartbeat.Object);
-		var cell = CreateForagingCell(gameworld.Object, room.Object, null);
+		var cell = CreateForagingCell(gameworld.Object, zone.Object, null);
 		var dbCell = new DbCell();
 		dbCell.CellsForagableYields.Add(new DbCellsForagableYield { ForagableType = "food", Yield = 2.5 });
 
@@ -1290,12 +1284,12 @@ public class ForagingRuntimeTests
 		};
 	}
 
-	private static Cell CreateForagingCell(IFuturemud gameworld, IRoom? room, long? explicitProfileId)
+	private static Cell CreateForagingCell(IFuturemud gameworld, IZone? zone, long? explicitProfileId)
 	{
 		var cell = TestObjectFactory.CreateUninitialized<Cell>();
 		SetLateInitialisingGameworld(cell, gameworld);
-		typeof(Cell).GetField("<Room>k__BackingField", BindingFlags.Instance | BindingFlags.NonPublic)!
-			.SetValue(cell, room);
+		typeof(Cell).GetField("_owningZone", BindingFlags.Instance | BindingFlags.NonPublic)!
+			.SetValue(cell, zone);
 		typeof(Cell).GetField("_foragableYields", BindingFlags.Instance | BindingFlags.NonPublic)!
 			.SetValue(cell, new Dictionary<string, double>(StringComparer.InvariantCultureIgnoreCase));
 		typeof(Cell).GetField("_foragableProfileId", BindingFlags.Instance | BindingFlags.NonPublic)!

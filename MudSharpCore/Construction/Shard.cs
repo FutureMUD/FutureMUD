@@ -1,4 +1,4 @@
-﻿using MudSharp.Celestial;
+using MudSharp.Celestial;
 using MudSharp.Climate;
 using MudSharp.Database;
 using MudSharp.FutureProg.Variables;
@@ -16,13 +16,12 @@ public class Shard : Location, IEditableShard
 
     protected List<IClock> _clocks = new();
 
-    protected All<IRoom> _rooms = new();
+    protected All<ICell> _cells = new();
 
     protected All<IZone> _zones = new();
 
     public IEnumerable<IZone> Zones => _zones;
-    public IEnumerable<IRoom> Rooms => _rooms;
-    public override IEnumerable<ICell> Cells => _rooms.SelectMany(x => x.Cells);
+    public override IEnumerable<ICell> Cells => _cells;
 
     public Shard(IFuturemud game, ISkyDescriptionTemplate skyTemplate, string name) : base(game)
     {
@@ -48,14 +47,14 @@ public class Shard : Location, IEditableShard
 
     public override string FrameworkItemType => "Shard";
 
-    public void Register(IRoom room)
+    public void Register(ICell room)
     {
-        _rooms.Add(room);
+        _cells.Add(room);
     }
 
-    public void Unregister(IRoom zone)
+    public void Unregister(ICell zone)
     {
-        _rooms.Remove(zone);
+        _cells.Remove(zone);
     }
 
     public void Register(IZone zone)
@@ -68,18 +67,18 @@ public class Shard : Location, IEditableShard
         _zones.Remove(zone);
     }
 
-    public IRoom DetermineRoomByCoordinates(int x, int y, int z)
+    public ICell DetermineCellByCoordinates(int x, int y, int z)
     {
-        return (from room in Gameworld.Rooms
-                where room.X == x && room.Y == y && room.Z == z
-                select room).FirstOrDefault();
+        return (from room in Cells
+                where room.StoredCoordinates.X == x && room.StoredCoordinates.Y == y && room.StoredCoordinates.Z == z
+                select room).Take(2).ToList() is { Count: 1 } matches ? matches[0] : null;
     }
 
-    public IRoom DetermineRoomByDirection(IRoom fromRoom, CardinalDirection direction)
+    public ICell DetermineCellByDirection(ICell fromCell, CardinalDirection direction)
     {
-        int x = fromRoom.X;
-        int y = fromRoom.Y;
-        int z = fromRoom.Z;
+        int x = fromCell.StoredCoordinates.X;
+        int y = fromCell.StoredCoordinates.Y;
+        int z = fromCell.StoredCoordinates.Z;
 
         switch (direction)
         {
@@ -119,9 +118,9 @@ public class Shard : Location, IEditableShard
                 break;
         }
 
-        return (from room in Gameworld.Rooms
-                where room.X == x && room.Y == y && room.Z == z
-                select room).FirstOrDefault();
+        return (from room in Cells
+                where room.StoredCoordinates.X == x && room.StoredCoordinates.Y == y && room.StoredCoordinates.Z == z
+                select room).Take(2).ToList() is { Count: 1 } matches ? matches[0] : null;
     }
 
     public override IEnumerable<ICalendar> Calendars => _calendars;

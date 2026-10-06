@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 
 namespace MudSharp.Construction.Boundary;
 
@@ -357,13 +357,13 @@ public class PathfindingService : IPathfindingService
 
 		private ClusterKey ClusterKeyFor(ICell cell)
 		{
-			if (cell.Room == null)
+			if (cell == null)
 			{
 				return new ClusterKey(cell.Zone?.Id ?? 0, (int)(cell.Id / 64), 0, 0);
 			}
 
-			return new ClusterKey(cell.Zone?.Id ?? 0, FloorDiv(cell.Room.X, _bucketSize),
-				FloorDiv(cell.Room.Y, _bucketSize), FloorDiv(cell.Room.Z, _bucketSize));
+			return new ClusterKey(cell.Zone?.Id ?? 0, FloorDiv(cell.StoredCoordinates.X, _bucketSize),
+				FloorDiv(cell.StoredCoordinates.Y, _bucketSize), FloorDiv(cell.StoredCoordinates.Z, _bucketSize));
 		}
 
 		private static int FloorDiv(int value, int divisor)

@@ -1,4 +1,4 @@
-﻿using Humanizer;
+using Humanizer;
 using MoreLinq;
 using MudSharp.Accounts;
 using MudSharp.Body;
@@ -222,8 +222,8 @@ The syntax is simply #3survey#0.", AutoHelp.HelpArg)]
         if (actor.IsAdministrator())
         {
             sb.AppendLineFormat(actor, "This room is in zone {0} (#{1:N0})",
-                actor.Location.Room.Zone.Name.Colour(Telnet.Green),
-                actor.Location.Room.Zone.Id);
+                actor.Location.OwningZone.Name.Colour(Telnet.Green),
+                actor.Location.OwningZone.Id);
             sb.AppendLine($"Latitude: {actor.Location.Zone.Geography.Latitude.RadiansToDegrees().ToString("N6", actor).ColourValue()}");
             sb.AppendLine($"Longitude: {actor.Location.Zone.Geography.Longitude.RadiansToDegrees().ToString("N6", actor).ColourValue()}");
             sb.AppendLine($"Elevation: {actor.Gameworld.UnitManager.DescribeMostSignificant(actor.Location.Zone.Geography.Elevation / actor.Gameworld.UnitManager.BaseHeightToMetres, Framework.Units.UnitType.Length, actor).ColourValue()}");
@@ -287,7 +287,7 @@ The syntax is simply #3survey#0.", AutoHelp.HelpArg)]
             }
             else
             {
-                sb.AppendLine(actor.Location.Room.Zone.DescribeSky);
+                sb.AppendLine(actor.Location.OwningZone.DescribeSky);
             }
         }
 

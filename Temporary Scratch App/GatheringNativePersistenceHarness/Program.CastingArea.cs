@@ -267,9 +267,9 @@ internal static partial class GNHProgram
 		var overlayPackage = new Mock<ICellOverlayPackage>(); overlayPackage.SetupGet(x => x.Id).Returns(model.CellOverlays.Single().CellOverlayPackageId);
 		overlayPackage.SetupGet(x => x.RevisionNumber).Returns(1); overlayPackage.SetupGet(x => x.Status).Returns(RevisionStatus.Current);
 		var packages = new RevisableAll<ICellOverlayPackage>(); packages.Add(overlayPackage.Object); native.WorldMock.SetupGet(x => x.CellOverlayPackages).Returns(packages);
-		var room = new Mock<IRoom>(); room.SetupGet(x => x.Gameworld).Returns(native.World); room.SetupGet(x => x.Id).Returns(model.RoomId);
-		room.SetupGet(x => x.Areas).Returns(Array.Empty<IArea>()); room.SetupGet(x => x.Zone).Returns(Mock.Of<IZone>());
-		var cell = new Cell(model, room.Object); var cells = new All<ICell>(); cells.Add(cell); native.WorldMock.SetupGet(x => x.Cells).Returns(cells); cell.PostLoadTasks(model);
+		var zone = new Mock<IZone>(); zone.SetupGet(x => x.Gameworld).Returns(native.World);
+		zone.SetupGet(x => x.Id).Returns(model.ZoneId);
+		var cell = new Cell(model, zone.Object); var cells = new All<ICell>(); cells.Add(cell); native.WorldMock.SetupGet(x => x.Cells).Returns(cells); cell.PostLoadTasks(model);
 		return cell;
 	}
 

@@ -31,7 +31,7 @@ public class CellUniqueNameModelTests
 	}
 
 	[TestMethod]
-	public void Model_PreservesRoomForeignKeyAndPrototypeIdentifierStorageContract()
+	public void Model_PreservesDirectZoneForeignKeyAndPrototypeIdentifierStorageContract()
 	{
 		var options = new DbContextOptionsBuilder<FuturemudDatabaseContext>()
 			.UseMySql("server=127.0.0.1;database=unused;uid=unused;password=unused", ServerVersion.Parse("8.0.36-mysql")).Options;
@@ -43,10 +43,10 @@ public class CellUniqueNameModelTests
 		Assert.AreEqual("varchar(255)", key.GetColumnType());
 		Assert.AreEqual("utf8mb4_general_ci", key.GetCollation());
 		Assert.IsFalse(cell.GetIndexes().Single(x => x.Properties.Contains(key)).IsUnique);
-		var room = cell.GetForeignKeys().Single(x => x.PrincipalEntityType.ClrType == typeof(Room));
-		Assert.IsTrue(room.IsRequired);
-		Assert.IsFalse(room.IsUnique);
-		Assert.AreEqual(DeleteBehavior.Cascade, room.DeleteBehavior);
+		var zone = cell.GetForeignKeys().Single(x => x.PrincipalEntityType.ClrType == typeof(Zone));
+		Assert.IsTrue(zone.IsRequired);
+		Assert.IsFalse(zone.IsUnique);
+		Assert.AreEqual(DeleteBehavior.Restrict, zone.DeleteBehavior);
 		Assert.IsNull(new Cell().UniqueName);
 	}
 }

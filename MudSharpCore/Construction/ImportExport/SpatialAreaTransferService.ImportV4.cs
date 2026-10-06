@@ -11,7 +11,7 @@ namespace MudSharp.Construction.ImportExport;
 
 public sealed partial class SpatialAreaTransferService
 {
-	private SpatialAreaTransferResult ImportVersion2(
+	private SpatialAreaTransferResult ImportVersion4(
 		ICharacter actor,
 		IShard targetShard,
 		ImportPreflight preflight)
@@ -19,7 +19,6 @@ public sealed partial class SpatialAreaTransferService
 		var package = preflight.Package;
 		var gameworld = actor.Gameworld;
 		var dbZones = new Dictionary<string, Models.Zone>(StringComparer.Ordinal);
-		var dbRooms = new Dictionary<string, Models.Room>(StringComparer.Ordinal);
 		var dbAreas = new Dictionary<string, Models.Areas>(StringComparer.Ordinal);
 		var dbCells = new Dictionary<string, Models.Cell>(StringComparer.Ordinal);
 		var databaseCommitted = false;
@@ -69,21 +68,20 @@ public sealed partial class SpatialAreaTransferService
 					FMDB.Context.Zones.Add(dbZone);
 				}
 
-				var importedRoomKeys = package.Cells
-					.Select(x => x.RoomKey)
-					.ToHashSet(StringComparer.Ordinal);
-				foreach (var room in package.Rooms.Where(x => importedRoomKeys.Contains(x.Key)))
+				foreach (var cell in package.Cells)
 				{
-					var zoneKey = SpatialAreaPackageSerializer.RoomZoneKey(package, room);
-					var dbRoom = new Models.Room
+					var dbCell = new Models.Cell
 					{
-						Zone = dbZones[zoneKey],
-						X = room.X,
-						Y = room.Y,
-						Z = room.Z
+						Zone = dbZones[cell.ZoneKey],
+						X = cell.X, Y = cell.Y, Z = cell.Z,
+						Temporary = false,
+						EffectData = "<Effects/>",
+						ForagableProfileId = cell.ForagableProfile is null
+							? null
+							: preflight.ForagableProfiles[cell.ForagableProfile.Name].Id
 					};
-					dbRooms.Add(room.Key, dbRoom);
-					FMDB.Context.Rooms.Add(dbRoom);
+					dbCells.Add(cell.Key, dbCell);
+					FMDB.Context.Cells.Add(dbCell);
 				}
 
 				FMDB.Context.SaveChanges();
@@ -95,34 +93,17 @@ public sealed partial class SpatialAreaTransferService
 						Name = area.Name,
 						WeatherControllerId = preflight.AreaWeatherControllers[area.Key]?.Id
 					};
-					foreach (var roomKey in area.RoomKeys)
+					foreach (var cellKey in area.CellKeys)
 					{
-						dbArea.AreasRooms.Add(new AreasRooms
+						dbArea.AreasCells.Add(new AreasCells
 						{
 							Area = dbArea,
-							Room = dbRooms[roomKey]
+							Cell = dbCells[cellKey]
 						});
 					}
 
 					dbAreas.Add(area.Key, dbArea);
 					FMDB.Context.Areas.Add(dbArea);
-				}
-
-				FMDB.Context.SaveChanges();
-
-				foreach (var cell in package.Cells)
-				{
-					var dbCell = new Models.Cell
-					{
-						Room = dbRooms[cell.RoomKey],
-						Temporary = false,
-						EffectData = "<Effects/>",
-						ForagableProfileId = cell.ForagableProfile is null
-							? null
-							: preflight.ForagableProfiles[cell.ForagableProfile.Name].Id
-					};
-					dbCells.Add(cell.Key, dbCell);
-					FMDB.Context.Cells.Add(dbCell);
 				}
 
 				FMDB.Context.SaveChanges();
@@ -322,26 +303,9 @@ public sealed partial class SpatialAreaTransferService
 			{
 				var zoneKey = SpatialAreaPackageSerializer.ZoneKey(package, zone, index);
 				var runtimeZone = runtimeZones[zoneKey];
-				var defaultCell = package.Cells.First(x => x.Key == zone.DefaultCellKey);
-				var roomDefinitions = package.Rooms
-					.Where(x => dbRooms.ContainsKey(x.Key) &&
-					            SpatialAreaPackageSerializer.RoomZoneKey(package, x) == zoneKey)
-					.OrderByDescending(x => x.Key == defaultCell.RoomKey)
-					.ThenBy(x => x.Key);
-				foreach (var roomDefinition in roomDefinitions)
-				{
-					var newRoom = new Room(dbRooms[roomDefinition.Key], runtimeZone);
-					gameworld.Add(newRoom);
-					foreach (var cellDefinition in package.Cells
-						         .Where(x => x.RoomKey == roomDefinition.Key)
-						         .OrderByDescending(x => x.Key == zone.DefaultCellKey)
-						         .ThenBy(x => x.Key))
-					{
-						var newCell = new Cell(dbCells[cellDefinition.Key], newRoom);
-						gameworld.Add(newCell);
-					}
-				}
-
+				foreach (var definition in package.Cells.Where(x => x.ZoneKey == zoneKey)
+					         .OrderByDescending(x => x.Key == zone.DefaultCellKey).ThenBy(x => x.Key))
+					gameworld.Add(new Cell(dbCells[definition.Key], runtimeZone));
 			}
 
 			foreach (var area in package.Areas)
@@ -367,7 +331,6 @@ public sealed partial class SpatialAreaTransferService
 				ImportedZoneIds = importedZoneIds,
 				ZoneCount = runtimeZones.Count,
 				Diagnostics = preflight.Diagnostics,
-				RoomCount = PackagedRoomCount(package),
 				CellCount = package.Cells.Count,
 				ExitCount = package.Exits.Count,
 				OmittedItems = PackageOmissions(preflight)
@@ -391,7 +354,6 @@ public sealed partial class SpatialAreaTransferService
 					ImportedZoneIds = zoneIds,
 					ZoneCount = zoneIds.Count,
 					Diagnostics = committedDiagnostics,
-					RoomCount = PackagedRoomCount(package),
 					CellCount = package.Cells.Count,
 					ExitCount = package.Exits.Count,
 					OmittedItems = PackageOmissions(preflight)
@@ -403,14 +365,6 @@ public sealed partial class SpatialAreaTransferService
 				preflight.Diagnostics,
 				"import-failed");
 		}
-	}
-
-	private static int PackagedRoomCount(SpatialAreaPackage package)
-	{
-		return package.Cells
-			.Select(x => x.RoomKey)
-			.Distinct(StringComparer.Ordinal)
-			.Count();
 	}
 
 	private static IReadOnlyList<string> PackageOmissions(ImportPreflight preflight)

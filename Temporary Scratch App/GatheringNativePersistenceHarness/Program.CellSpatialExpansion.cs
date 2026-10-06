@@ -25,14 +25,14 @@ namespace FutureMUD.GatheringNativePersistenceHarness;
 
 internal static partial class GNHProgram
 {
-	private static int RunCellSpatialExpansion()
+	private static int RunCellSpatialExpansion(bool contract = false)
 	{
-		using var database = TestDatabase.CreateFresh();
+		using var database = TestDatabase.CreateFresh(historicalExpanded: true);
 		ConfigureNativeDatabase(database.ConnectionString);
 		using (var db = NewIndependentContext(database.ConnectionString))
 		{
 			var migrations = db.Database.GetMigrations().ToArray();
-			Require(migrations.Last().EndsWith("_CellSpatialExpansion"), "Expansion must be the latest migration at this checkpoint.");
+			Require(migrations.Any(x => x.EndsWith("_CellSpatialExpansion")), "Historical expansion migration must exist.");
 			db.GetService<IMigrator>().Migrate(migrations.Single(x => x.EndsWith("_CellUniqueNames")));
 		}
 		var fixture = FixtureSeed.Create(database, "cell_spatial", existingWound: true);
@@ -65,6 +65,8 @@ internal static partial class GNHProgram
 		using var beforeConnection = database.OpenOwnedConnection();
 		var schema = CaptureSpatialSchema(beforeConnection);
 		var before = CaptureSpatialValues(beforeConnection, schema);
+		var retainedCellSchema = new Dictionary<string,string[]> { ["cells"] = schema["cells"].Where(x => x != "RoomId").ToArray() };
+		var retainedCellValues = CaptureSpatialValues(beforeConnection, retainedCellSchema);
 		var definitions = CaptureSpatialTableDefinitions(beforeConnection, schema);
 		var historySchema = new Dictionary<string,string[]> { ["__efmigrationshistory"] = ["MigrationId", "ProductVersion"] };
 		var originalHistory = CaptureSpatialValues(beforeConnection, historySchema);
@@ -98,7 +100,7 @@ internal static partial class GNHProgram
 			using var db = NewIndependentContext(database.ConnectionString, fault || afterCopyFault ? new CellSpatialCopyFault(afterCopyFault) : null);
 			db.Database.OpenConnection();
 			if (optIn) db.Database.ExecuteSqlRaw("SET @FutureMUD_CellSpatialMaintenance=1;");
-			db.Database.Migrate();
+			db.GetService<IMigrator>().Migrate(db.Database.GetMigrations().Single(x => x.EndsWith("_CellSpatialExpansion")));
 		}
 		void Refuse(string label, string change, string expected, bool optIn = true)
 		{
@@ -115,6 +117,10 @@ internal static partial class GNHProgram
 			Console.WriteLine("CellSpatialExpansion-refusal=PASS reserved-guard-routine=retained game-tables-unchanged case=" + label);
 			c.Close(); Restore();
 		}
+		// The contraction lane still upgrades a populated historical world and proves its
+		// original values. The unchanged expansion refusal/recovery suite has its own lane.
+		if (!contract)
+		{
 		Refuse("maintenance-opt-in", "", "maintenance session", false);
 		Refuse("preexisting-routine", "CREATE PROCEDURE fm_cell_spatial_preflight_20261006143539() SELECT 'preexisting fixture routine';", "already exists");
 		Refuse("multiple-children", "INSERT INTO cells(Id,RoomId,EffectData) VALUES(8103,9000,'<Effects/>');", "multiple Cells");
@@ -142,6 +148,7 @@ internal static partial class GNHProgram
 		Require(Scalar("SELECT COUNT(*) FROM __efmigrationshistory WHERE MigrationId LIKE '%CellSpatialExpansion'") == 0, "History-boundary failure must remain unapplied.");
 		Restore();
 		Console.WriteLine("CellSpatialExpansion-recovery=PASS full-backup-restore after-committed-copy-before-history exact-schema-keys-values-history");
+		}
 		Migrate();
 		using (var c = database.OpenOwnedConnection()) Require(SpatialValuesEqual(before, CaptureSpatialValues(c, schema)), "Expansion must preserve every original key and value, including all Cell dependents and UniqueName.");
 		Require(Scalar("SELECT COUNT(*) FROM cells c JOIN rooms r ON c.RoomId=r.Id WHERE NOT(c.ZoneId<=>r.ZoneId) OR NOT(c.X<=>r.X) OR NOT(c.Y<=>r.Y) OR NOT(c.Z<=>r.Z)") == 0, "Every cell's afterimage must equal its real parent's metadata.");
@@ -164,37 +171,58 @@ internal static partial class GNHProgram
 			Require(reader.ExitCode==0, "Cold reader failed: " + error.GetAwaiter().GetResult()); Console.Write(output.GetAwaiter().GetResult());
 		}
 		Console.WriteLine($"CellSpatialExpansion-upgrade=PASS oldTables={before.Count} all-original-keys-values unequal-IDs duplicate-XYZ overlaps empty-ledger first-load cold-process");
-		// Finite expansion checkpoint: restore the frozen source backup rather than imply contraction rollback.
+		if (contract)
+		{
+			QualifyCellSpatialContraction(database, schema, before, retainedCellValues, zone);
+			var cold = new ProcessStartInfo("dotnet") { UseShellExecute=false, RedirectStandardOutput=true, RedirectStandardError=true, CreateNoWindow=true };
+			cold.ArgumentList.Add(Assembly.GetExecutingAssembly().Location); cold.ArgumentList.Add("--cell-spatial-contraction-reader"); cold.ArgumentList.Add(database.Name);
+			using var child = Process.Start(cold)!; var stdout = child.StandardOutput.ReadToEndAsync(); var stderr = child.StandardError.ReadToEndAsync();
+			if (!child.WaitForExit(60000)) { child.Kill(true); throw new TimeoutException("Contracted reader exceeded 60 seconds."); }
+			Console.Write(stdout.GetAwaiter().GetResult()); Require(child.ExitCode==0, stderr.GetAwaiter().GetResult());
+			QualifyContractedCellLifecycle(database, zone);
+		}
+		// Full restore recovers the original historical world and matching migration history.
 		Restore();
-		Console.WriteLine("CellSpatialExpansion-restored=PASS checkpoint=expansion-only contraction=NOT_RUN runtime-room-removal=NOT_RUN");
+		Console.WriteLine(contract
+			? "CellSpatialContraction-restored=PASS original-schema-data-history"
+			: "CellSpatialExpansion-restored=PASS checkpoint=expansion-only contraction=NOT_RUN");
 		return 0;
 	}
 
-	private static int ReadCellSpatialExpansion(string name)
+	private static int ReadCellSpatialExpansion(string name, bool contracted = false)
 	{
 		using var database = TestDatabase.OpenExistingOwned(name);
 		ConfigureNativeDatabase(database.ConnectionString);
-		ValidateExpandedSpatialRuntime(database);
-		Console.WriteLine("CellSpatialExpansion-cold-reader=PASS independent-process native-Cell-hydration stored-zone-XYZ-key-identity");
+		ValidateExpandedSpatialRuntime(database, contracted);
+		Console.WriteLine((contracted ? "CellSpatialContraction" : "CellSpatialExpansion") + "-cold-reader=PASS independent-process native-Cell-hydration stored-zone-XYZ-key-identity");
 		return 0;
 	}
 
-	private static void ValidateExpandedSpatialRuntime(TestDatabase database)
+	private static void ValidateExpandedSpatialRuntime(TestDatabase database, bool finalCoordinates = false)
 	{
 		using var db = NewIndependentContext(database.ConnectionString);
 		var model = db.Cells.Include(x => x.CellOverlays).AsNoTracking().Single(x => x.Id == 8101);
 		var ledger = db.CellRoomMigrationLedgers.AsNoTracking().Single(x => x.RoomId == 9000);
-		Require(model.Id==ledger.CellId && model.ZoneId==ledger.ZoneId && model.X==17 && model.Y==-2 && model.Z==4 && model.UniqueName=="Mirandola:Gate", "Fresh model must hydrate copied metadata and stable identity.");
+		Require(model.Id==ledger.CellId && model.ZoneId==ledger.ZoneId && model.X==(finalCoordinates ? 18 : 17) && model.Y==-2 && model.Z==4 && model.UniqueName=="Mirandola:Gate", "Fresh model must hydrate copied metadata and stable identity.");
 		var world = new Mock<IFuturemud> { DefaultValue=DefaultValue.Mock };
 		world.SetupGet(x => x.SaveManager).Returns(new SaveManager()); world.SetupGet(x => x.DefaultHooks).Returns(Array.Empty<IDefaultHook>());
 		world.SetupGet(x => x.HearingProfiles).Returns(new All<IHearingProfile>());
+		world.SetupGet(x => x.WeatherControllers).Returns(new All<MudSharp.Climate.IWeatherController>());
+		world.SetupGet(x => x.Vehicles).Returns(new All<MudSharp.Vehicles.IVehicle>());
 		var package = new Mock<ICellOverlayPackage>(); package.SetupGet(x=>x.Id).Returns(9000); package.SetupGet(x=>x.Name).Returns("Spatial fixture package"); package.SetupGet(x=>x.RevisionNumber).Returns(0); package.SetupGet(x=>x.Status).Returns(RevisionStatus.Current);
 		world.Setup(x=>x.CellOverlayPackages.Get(9000,0)).Returns(package.Object);
 		var terrain = new Mock<ITerrain>(); terrain.SetupGet(x=>x.Id).Returns(9000); world.Setup(x=>x.Terrains.Get(9000)).Returns(terrain.Object);
 		var zone = new Mock<IZone> { DefaultValue=DefaultValue.Mock }; zone.SetupGet(x=>x.Id).Returns(ledger.ZoneId); zone.SetupGet(x=>x.Gameworld).Returns(world.Object);
-		var room = new Mock<IRoom> { DefaultValue=DefaultValue.Mock }; room.SetupGet(x=>x.Id).Returns(9000); room.SetupGet(x=>x.Gameworld).Returns(world.Object); room.SetupGet(x=>x.Zone).Returns(zone.Object); room.SetupProperty(x=>x.X,17); room.SetupProperty(x=>x.Y,-2); room.SetupProperty(x=>x.Z,4);
-		var cell = new Cell(model,room.Object);
-		Require(cell.Id==8101 && cell.UniqueName=="Mirandola:Gate" && cell.Zone.Id==ledger.ZoneId && cell.X==17 && cell.Y==-2 && cell.Z==4, "Current runtime remains compatible while Room is authoritative.");
+		var cell = new Cell(model,zone.Object);
+		var cells = new All<ICell>(); cells.Add(cell);
+		var secondModel = db.Cells.Include(x => x.CellOverlays).AsNoTracking().Single(x => x.Id == 8102);
+		var second = new Cell(secondModel, zone.Object); cells.Add(second);
+		world.SetupGet(x => x.Cells).Returns(cells);
+		var areas = db.Areas.Include(x => x.AreasCells).AsNoTracking().Where(x => x.Id >= 9000).ToList()
+			.Select(x => new Area(x, world.Object)).ToArray();
+		Require(cell.OwningAreas.Count() == (finalCoordinates ? 1 : 2) && second.OwningAreas.Count() == (finalCoordinates ? 2 : 1), "Native Area hydration preserves exact final memberships.");
+		Require(!areas.Single(x => x.Id == 9002).Cells.Any(), "Native hydration retains the empty Area object.");
+		Require(cell.Id==8101 && cell.UniqueName=="Mirandola:Gate" && cell.Zone.Id==ledger.ZoneId && cell.X==(finalCoordinates ? 18 : 17) && cell.Y==-2 && cell.Z==4, "Direct runtime hydrates copied metadata without a Room owner.");
 	}
 
 	private static Dictionary<string,string[]> CaptureSpatialSchema(MySqlConnection connection)

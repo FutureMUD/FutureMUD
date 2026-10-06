@@ -60,7 +60,6 @@ namespace MudSharp.Database
         public virtual DbSet<AppointmentsAbbreviations> AppointmentsAbbreviations { get; set; }
         public virtual DbSet<AppointmentsTitles> AppointmentsTitles { get; set; }
         public virtual DbSet<Areas> Areas { get; set; }
-        public virtual DbSet<AreasRooms> AreasRooms { get; set; }
         public virtual DbSet<Arena> Arenas { get; set; }
         public virtual DbSet<ArenaManager> ArenaManagers { get; set; }
         public virtual DbSet<ArenaCell> ArenaCells { get; set; }
@@ -430,7 +429,6 @@ namespace MudSharp.Database
         public virtual DbSet<RanksTitle> RanksTitles { get; set; }
         public virtual DbSet<RegionalClimate> RegionalClimates { get; set; }
         public virtual DbSet<RegionalClimatesSeason> RegionalClimatesSeasons { get; set; }
-        public virtual DbSet<Room> Rooms { get; set; }
         public virtual DbSet<Script> Scripts { get; set; }
         public virtual DbSet<ScriptsDesignedLanguage> ScriptsDesignedLanguages { get; set; }
         public virtual DbSet<ScriptedEvent> ScriptedEvents { get; set; }

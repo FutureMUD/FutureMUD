@@ -39,17 +39,8 @@ public sealed partial class SpatialAreaTransferService
 				"package-exists");
 		}
 
-		var allRooms = selectedZones
-			.SelectMany(x => x.Rooms)
-			.DistinctBy(x => x.Id)
-			.OrderBy(x => x.Id)
-			.ToList();
-		var temporaryCells = allRooms
-			.SelectMany(x => x.Cells)
-			.Where(x => x.Temporary)
-			.DistinctBy(x => x.Id)
-			.OrderBy(x => x.Id)
-			.ToList();
+		var allCells = selectedZones.SelectMany(x => x.Cells).DistinctBy(x => x.Id).OrderBy(x => x.Id).ToList();
+		var temporaryCells = allCells.Where(x => x.Temporary).ToList();
 		foreach (var temporaryCell in temporaryCells)
 		{
 			omissions.Add(new SpatialPackageOmission
@@ -59,42 +50,16 @@ public sealed partial class SpatialAreaTransferService
 			});
 		}
 
-		var rooms = allRooms
-			.Where(x => x.Cells.Any(cell => !cell.Temporary))
-			.ToList();
-		foreach (var emptyRoom in allRooms.Except(rooms))
-		{
-			if (emptyRoom.Cells.Any())
-			{
-				continue;
-			}
-
-			var omission = $"Room #{emptyRoom.Id:N0} at ({emptyRoom.X:N0}, {emptyRoom.Y:N0}, {emptyRoom.Z:N0}) " +
-			               $"in zone '{emptyRoom.Zone.Name}' was skipped because it contains no cells.";
-			omissions.Add(new SpatialPackageOmission { Code = "empty-room", Message = omission });
-		}
-
-		var cells = rooms
-			.SelectMany(x => x.Cells)
-			.Where(x => !x.Temporary)
-			.DistinctBy(x => x.Id)
-			.OrderBy(x => x.Id)
-			.ToList();
-		if (rooms.Count == 0 || cells.Count == 0)
-		{
-			return Failure("The selected zones do not contain any exportable rooms and cells.", diagnostics, "empty-zone");
-		}
-
-		if (rooms.Count > SpatialAreaPackageSerializer.MaximumRooms ||
-		    cells.Count > SpatialAreaPackageSerializer.MaximumCells)
-		{
+		var cells = allCells.Where(x => !x.Temporary).ToList();
+		if (cells.Count == 0)
+			return Failure("The selected zones do not contain any exportable cells.", diagnostics, "empty-zone");
+		if (cells.Count > SpatialAreaPackageSerializer.MaximumCells)
 			return Failure("The selected zones exceed the package safety limits.", diagnostics, "zone-too-large");
-		}
 
-		foreach (var zone in selectedZones.Where(x => !cells.Any(cell => cell.Id == x.DefaultCell.Id)))
+		foreach (var zone in selectedZones.Where(x => x.DefaultCell is null || !cells.Any(cell => cell.Id == x.DefaultCell.Id)))
 		{
 			diagnostics.Add(Error("unexportable-default-cell",
-				$"Zone '{zone.Name}' has default cell #{zone.DefaultCell.Id:N0}, which cannot be exported."));
+				$"Zone '{zone.Name}' has default cell #{zone.DefaultCell?.Id:N0}, which cannot be exported."));
 		}
 
 		diagnostics.AddRange(ValidateExportableCells(cells));
@@ -105,7 +70,6 @@ public sealed partial class SpatialAreaTransferService
 				Summary = "The zones were not exported because they contain unsupported spatial state.",
 				Diagnostics = diagnostics,
 				ZoneCount = selectedZones.Count,
-				RoomCount = rooms.Count,
 				CellCount = cells.Count,
 				OmittedItems = omissions.Select(x => x.Message).ToList()
 			};
@@ -114,21 +78,18 @@ public sealed partial class SpatialAreaTransferService
 		var zoneKeys = selectedZones
 			.Select((zone, index) => (zone.Id, Key: $"zone-{index + 1:D5}"))
 			.ToDictionary(x => x.Id, x => x.Key);
-		var roomKeys = rooms
-			.Select((room, index) => (room.Id, Key: $"room-{index + 1:D5}"))
-			.ToDictionary(x => x.Id, x => x.Key);
 		var cellKeys = cells
 			.Select((cell, index) => (cell.Id, Key: $"cell-{index + 1:D5}"))
 			.ToDictionary(x => x.Id, x => x.Key);
 		var cellIds = cellKeys.Keys.ToHashSet();
 		var areas = cells
-			.SelectMany(x => x.Areas)
+			.SelectMany(x => x.OwningAreas)
 			.DistinctBy(x => x.Id)
 			.OrderBy(x => x.Id)
-			.Where(area => area.Rooms.All(room => roomKeys.ContainsKey(room.Id)))
+			.Where(area => area.Cells.All(cell => cellKeys.ContainsKey(cell.Id)))
 			.ToList();
 		foreach (var area in cells
-			         .SelectMany(x => x.Areas)
+			         .SelectMany(x => x.OwningAreas)
 			         .DistinctBy(x => x.Id)
 			         .Except(areas))
 		{
@@ -163,7 +124,6 @@ public sealed partial class SpatialAreaTransferService
 				Summary = "The zones were not exported because their active topology contains invalid exit references.",
 				Diagnostics = diagnostics,
 				ZoneCount = selectedZones.Count,
-				RoomCount = rooms.Count,
 				CellCount = cells.Count,
 				OmittedItems = omissions.Select(x => x.Message).ToList()
 			};
@@ -223,7 +183,6 @@ public sealed partial class SpatialAreaTransferService
 				Summary = "The zones were not exported because one or more exits require unsupported dependencies.",
 				Diagnostics = diagnostics,
 				ZoneCount = selectedZones.Count,
-				RoomCount = rooms.Count,
 				CellCount = cells.Count,
 				ExitCount = internalExits.Count,
 				OmittedItems = omissions.Select(x => x.Message).ToList()
@@ -234,14 +193,12 @@ public sealed partial class SpatialAreaTransferService
 		var exitKeys = internalExits
 			.Select((exit, index) => (exit.Id, Key: $"exit-{index + 1:D5}"))
 			.ToDictionary(x => x.Id, x => x.Key);
-		var package = BuildPackageVersion2(
+		var package = BuildPackageVersion4(
 			selectedZones,
-			rooms,
 			cells,
 			internalExits,
 			areas,
 			zoneKeys,
-			roomKeys,
 			cellKeys,
 			exitKeys,
 			omissions,
@@ -271,21 +228,18 @@ public sealed partial class SpatialAreaTransferService
 			PackagePath = packagePath,
 			Diagnostics = diagnostics,
 			ZoneCount = selectedZones.Count,
-			RoomCount = rooms.Count,
 			CellCount = cells.Count,
 			ExitCount = internalExits.Count,
 			OmittedItems = omissions.Select(x => x.Message).ToList()
 		};
 	}
 
-	private static SpatialAreaPackage BuildPackageVersion2(
+	private static SpatialAreaPackage BuildPackageVersion4(
 		IReadOnlyList<IZone> zones,
-		IReadOnlyList<IRoom> rooms,
 		IReadOnlyList<ICell> cells,
 		IReadOnlyList<IExit> exits,
 		IReadOnlyList<IArea> areas,
 		IReadOnlyDictionary<long, string> zoneKeys,
-		IReadOnlyDictionary<long, string> roomKeys,
 		IReadOnlyDictionary<long, string> cellKeys,
 		IReadOnlyDictionary<long, string> exitKeys,
 		IReadOnlyList<SpatialPackageOmission> omissions,
@@ -362,7 +316,6 @@ public sealed partial class SpatialAreaTransferService
 			Version = SpatialAreaPackage.CurrentVersion,
 			CreatedUtc = DateTime.UtcNow,
 			Source = sources[0],
-			Zone = zoneDefinitions[0],
 			SourceZones = sources,
 			Zones = zoneDefinitions,
 			Areas = areas
@@ -372,25 +325,13 @@ public sealed partial class SpatialAreaTransferService
 					SourceId = area.Id,
 					Name = area.Name,
 					WeatherController = Reference(area.WeatherController),
-					RoomKeys = area.Rooms
+					CellKeys = area.Cells
 						.OrderBy(x => x.Id)
-						.Select(x => roomKeys[x.Id])
+						.Select(x => cellKeys[x.Id])
 						.ToList()
 				})
 				.ToList(),
-			Omissions = omissions.ToList(),
-			Rooms = rooms
-				.OrderBy(x => x.Id)
-				.Select(x => new SpatialRoomDefinition
-				{
-					Key = roomKeys[x.Id],
-					SourceId = x.Id,
-					ZoneKey = zoneKeys[x.Zone.Id],
-					X = x.X,
-					Y = x.Y,
-					Z = x.Z
-				})
-				.ToList()
+			Omissions = omissions.ToList()
 		};
 
 		package.Cells = cells
@@ -403,7 +344,8 @@ public sealed partial class SpatialAreaTransferService
 				{
 					Key = cellKeys[cell.Id],
 					SourceId = cell.Id,
-					RoomKey = roomKeys[cell.Room.Id],
+					ZoneKey = zoneKeys[cell.OwningZone.Id],
+					X = cell.StoredCoordinates.X, Y = cell.StoredCoordinates.Y, Z = cell.StoredCoordinates.Z,
 					ForagableProfile = explicitForagable.HasValue
 						? Reference(cell.Gameworld.ForagableProfiles.Get(explicitForagable.Value))
 						: null,

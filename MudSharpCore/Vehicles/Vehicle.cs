@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using Microsoft.EntityFrameworkCore;
 using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
@@ -466,11 +466,11 @@ public class Vehicle : SaveableItem, IVehicle
 			return false;
 		}
 
-		var interiorRooms = _compartments
-			.Select(x => x.InteriorCell?.Room)
+		var interiorCells = _compartments
+			.Select(x => x.InteriorCell)
 			.Where(x => x is not null)
 			.Distinct()
-			.Cast<Room>()
+			.Cast<Cell>()
 			.ToList();
 		using (new FMDB())
 		{
@@ -514,9 +514,9 @@ public class Vehicle : SaveableItem, IVehicle
 			link.Remove();
 		}
 
-		foreach (var room in interiorRooms)
+		foreach (var cell in interiorCells)
 		{
-			room.DestroyRoom(Location);
+			cell.Destroy(Location);
 		}
 
 		ExteriorItem?.GetItemType<IVehicleExterior>()?.ClearVehicleLink("The vehicle instance was retired.");

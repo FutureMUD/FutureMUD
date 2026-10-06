@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using MudSharp.Accounts;
 using MudSharp.Arenas;
 using MudSharp.Body;
@@ -1350,10 +1350,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
 		EnvironmentalMagic?.Register(cell);
     }
 
-    public void Add(IRoom room)
-    {
-        _rooms.Add(room);
-    }
+
 
     public void Add(IZone zone)
     {
@@ -2565,16 +2562,12 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
     public void Destroy(ICell cell)
     {
 		EnvironmentalMagic?.Unregister(cell);
-        cell.Room.Destroy(cell);
+        cell.OwningZone.Unregister(cell);
         _cells.Remove(cell);
         DestroyListeners(cell);
     }
 
-    public void Destroy(IRoom room)
-    {
-        _rooms.Remove(room);
-        DestroyListeners(room);
-    }
+
 
     public void Destroy(IZone zone)
     {

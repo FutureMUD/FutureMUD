@@ -1,4 +1,4 @@
-﻿using MudSharp.Construction.Autobuilder.Areas;
+using MudSharp.Construction.Autobuilder.Areas;
 using MudSharp.Database;
 using MudSharp.Form.Material;
 using MudSharp.Framework.Revision;
@@ -130,8 +130,7 @@ public class AutobuilderRoomSimple : AutobuilderRoomBase
     private ICell CreateRoomCore(ICharacter builder, ITerrain specifiedTerrain, bool deferDescription,
         IReadOnlyCollection<ITag> frameworkTags, string[] tags)
     {
-        Room room = new(builder, builder.CurrentOverlayPackage);
-        ICell cell = room.Cells.First();
+        ICell cell = new Cell(builder.CurrentOverlayPackage, builder.Location.OwningZone);
         IEditableCellOverlay overlay = cell.GetOrCreateOverlay(builder.CurrentOverlayPackage);
         overlay.CellName = CellName;
         overlay.CellDescription = CellDescription;

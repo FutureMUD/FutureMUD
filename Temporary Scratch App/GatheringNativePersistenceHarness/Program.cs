@@ -59,6 +59,8 @@ internal static partial class GNHProgram
 			{
 				["--probe"] => Probe(),
 				["--cell-unique-name-run"] => RunCellUniqueNames(),
+				["--cell-spatial-contraction-run"] => RunCellSpatialExpansion(contract: true),
+				["--cell-spatial-contraction-reader", string databaseName] => ReadCellSpatialExpansion(databaseName, contracted: true),
 				["--cell-spatial-expansion-run"] => RunCellSpatialExpansion(),
 				["--cell-spatial-expansion-reader", string databaseName] => ReadCellSpatialExpansion(databaseName),
 				["--emotional-melee-run"] => RunEmotionalHooks("melee"),
@@ -146,6 +148,9 @@ internal static partial class GNHProgram
 		catch (MySqlException ex)
 		{
 			Console.Error.WriteLine($"Harness failed: MySqlException (number={ex.Number}): {ex.Message}");
+			Console.Error.WriteLine(ex.StackTrace);
+			for (var cause = ex.InnerException; cause is not null; cause = cause.InnerException)
+				Console.Error.WriteLine($"Cause: {cause.GetType().Name}: {cause.Message}");
 			return 1;
 		}
 		catch (Exception ex)
@@ -457,8 +462,14 @@ internal static partial class GNHProgram
 				("MinimumTerrestrialLux", 0.0), ("SkyDescriptionTemplateId", skyTemplateId));
 			long zoneId = Insert(connection, "zones", ("Name", $"{scenario} zone"), ("ShardId", shardId),
 				("Latitude", 0.0), ("Longitude", 0.0), ("Elevation", 0.0), ("AmbientLightPollution", 0.0));
-			long roomId = Insert(connection, "rooms", ("ZoneId", zoneId), ("X", 0), ("Y", 0), ("Z", 0));
-			long cellId = Insert(connection, "cells", ("RoomId", roomId), ("EffectData", "<Effects />"));
+			using var shape = new MySqlCommand("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name='rooms'", connection);
+			long cellId;
+			if (Convert.ToInt64(shape.ExecuteScalar()) == 1)
+			{
+				var roomId = Insert(connection, "rooms", ("ZoneId", zoneId), ("X", 0), ("Y", 0), ("Z", 0));
+				cellId = Insert(connection, "cells", ("RoomId", roomId), ("EffectData", "<Effects />"));
+			}
+			else cellId = Insert(connection, "cells", ("ZoneId", zoneId), ("X", 0), ("Y", 0), ("Z", 0), ("EffectData", "<Effects />"));
 			long bodyId = Insert(connection, "bodies", ("BodyPrototypeID", bodyPrototypeId), ("Height", 1.8),
 				("ShortDescription", "a native acceptance participant"), ("FullDescription", "A native acceptance participant stands here."),
 				("Weight", 80.0), ("Position", 1L), ("RaceId", raceId), ("CurrentStamina", 100.0),
@@ -1111,7 +1122,7 @@ internal static partial class GNHProgram
 			return database;
 		}
 
-		public static TestDatabase CreateFresh(string prefix = "futuremud_gather_gc_")
+		public static TestDatabase CreateFresh(string prefix = "futuremud_gather_gc_", bool historicalExpanded = false)
 		{
 			if (prefix is not ("futuremud_gather_gc_" or "futuremud_land_"))
 			{
@@ -1153,7 +1164,7 @@ internal static partial class GNHProgram
 				}
 				database._created = true;
 				OwnedConnections.Register(name, token, ready: false);
-				database.ImportSupportedSnapshot();
+				database.ImportSupportedSnapshot(historicalExpanded);
 				database.WriteOwnershipMarker();
 				database._markerReady = true;
 				OwnedConnections.Register(name, token, ready: true);
@@ -1262,9 +1273,10 @@ internal static partial class GNHProgram
 			Console.WriteLine("cleanup=deleted-owned-database");
 		}
 
-		private void ImportSupportedSnapshot()
+		private void ImportSupportedSnapshot(bool historicalExpanded)
 		{
 			string snapshot = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "DatabaseSeeder", "Assets", "Database", "BlankDatabaseSnapshot.sql"));
+			if (historicalExpanded) snapshot = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "Fixtures", "ExpandedCellSpatialSnapshot.sql"));
 			if (!File.Exists(snapshot))
 			{
 				throw new FileNotFoundException("The supported blank database snapshot was not found.", snapshot);

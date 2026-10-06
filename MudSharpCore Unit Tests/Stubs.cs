@@ -1,4 +1,4 @@
-﻿using Moq;
+using Moq;
 using MudSharp.Body;
 using MudSharp.Celestial;
 using MudSharp.Character;
@@ -19,28 +19,12 @@ using System.Linq;
 
 namespace MudSharp_Unit_Tests;
 
-public class RoomStub
-{
-    public int X { get; init; }
-    public int Y { get; init; }
-    public int Z { get; init; }
-
-    public IRoom ToMock()
-    {
-        Mock<IRoom> mock = new();
-        mock.Setup(t => t.X).Returns(X);
-        mock.Setup(t => t.Y).Returns(Y);
-        mock.Setup(t => t.Z).Returns(Z);
-        return mock.Object;
-    }
-}
-
 public class CellStub
 {
     public string Name { get; set; }
     public List<CellExitStub> Exits { get; set; }
     public List<IPerceivable> Perceivables { get; set; } = new();
-    public IRoom Room { get; init; }
+    public (int X, int Y, int Z) Coordinates { get; init; }
     public IFuturemud Gameworld { get; set; }
     public long Id { get; set; }
 
@@ -48,7 +32,10 @@ public class CellStub
     {
         Mock<ICell> mock = new();
         mock.Setup(t => t.Name).Returns(Name);
-        mock.Setup(t => t.Room).Returns(Room);
+        mock.Setup(t => t.StoredCoordinates).Returns(Coordinates);
+        mock.Setup(t => t.X).Returns(Coordinates.X);
+        mock.Setup(t => t.Y).Returns(Coordinates.Y);
+        mock.Setup(t => t.Z).Returns(Coordinates.Z);
         mock.Setup(t => t.Id).Returns(Id);
         mock.Setup(t => t.Gameworld).Returns(() => Gameworld);
         mock.Name = Name;

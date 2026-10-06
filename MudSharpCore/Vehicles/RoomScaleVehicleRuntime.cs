@@ -407,13 +407,11 @@ public static class RoomScaleVehicleInteriorService
 			return false;
 		}
 
-		var room = new Room(
-			vehicle.Location.Zone,
+		var cell = new Cell(
 			vehicle.Location.CurrentOverlay.Package,
+			vehicle.Location.Zone,
 			vehicle.Location,
 			false);
-		room.SetName($"{vehicle.Name} - {compartment.Name}");
-		var cell = (Cell)room.Cells.Single();
 		var overlay = (IEditableCellOverlay)cell.CurrentOverlay;
 		overlay.CellName = $"{vehicle.Name} - {compartment.Name}";
 		overlay.CellDescription = compartment.Prototype.Description;

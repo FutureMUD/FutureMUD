@@ -422,10 +422,9 @@ internal static partial class GNHProgram
 		forages.Add(new ForagableProfile(read.ForagableProfiles.Include(x => x.EditableItem).Include(x => x.ForagableProfilesMaximumYields)
 			.Include(x => x.ForagableProfilesHourlyYieldGains).AsNoTracking().Single(x => x.Id == model.ForagableProfileId), runtime.World));
 		runtime.WorldMock.SetupGet(x => x.ForagableProfiles).Returns(forages);
-		var room = new Mock<IRoom>();
-		room.SetupGet(x => x.Gameworld).Returns(runtime.World); room.SetupGet(x => x.Id).Returns(model.RoomId);
-		room.SetupGet(x => x.Areas).Returns(Array.Empty<IArea>()); room.SetupGet(x => x.Zone).Returns(Mock.Of<IZone>());
-		var cell = new Cell(model, room.Object);
+		var zone = new Mock<IZone>(); zone.SetupGet(x => x.Gameworld).Returns(runtime.World);
+		zone.SetupGet(x => x.Id).Returns(model.ZoneId);
+		var cell = new Cell(model, zone.Object);
 		var cells = new All<ICell>(); cells.Add(cell); runtime.WorldMock.SetupGet(x => x.Cells).Returns(cells);
 		cell.PostLoadTasks(model);
 		coordinator.Register(cell);

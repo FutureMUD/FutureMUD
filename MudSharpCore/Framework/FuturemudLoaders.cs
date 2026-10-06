@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using MudSharp.Accounts;
 using MudSharp.Arenas;
 using MudSharp.Body;
@@ -131,7 +131,6 @@ using ProgSchedule = MudSharp.FutureProg.ProgSchedule;
 using Race = MudSharp.Character.Heritage.Race;
 using RaceButcheryProfile = MudSharp.Work.Butchering.RaceButcheryProfile;
 using RangedCover = MudSharp.Combat.RangedCover;
-using Room = MudSharp.Construction.Room;
 using Script = MudSharp.Communication.Language.Script;
 using Shard = MudSharp.Construction.Shard;
 using ShieldType = MudSharp.Combat.ShieldType;
@@ -3716,25 +3715,6 @@ For information on the syntax to use in emotes (such as those included in bracke
 
         // ------------------------------------------------------------------- //
 
-        ConsoleUtilities.WriteLine("\nLoading #5Rooms#0...");
-#if DEBUG
-        sw.Restart();
-#endif
-        List<Models.Room> rooms = (from room in FMDB.Context.Rooms.AsNoTracking()
-                                   select room).ToList();
-        foreach (Models.Room room in rooms)
-        {
-            _rooms.Add(new Room(room, _zones.FirstOrDefault(x => x.Id == room.ZoneId)));
-        }
-#if DEBUG
-        sw.Stop();
-        ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
-#endif
-        count = rooms.Count;
-        ConsoleUtilities.WriteLine("Loaded #2{0}#0 {1}.", count, count == 1 ? "Room" : "Rooms");
-
-        // ------------------------------------------------------------------- //
-
         ConsoleUtilities.WriteLine("\nLoading #5Cells#0...");
 #if DEBUG
         sw.Restart();
@@ -3761,7 +3741,7 @@ For information on the syntax to use in emotes (such as those included in bracke
 		Cell.ValidatePersistedUniqueNames(cells);
         foreach (Models.Cell cell in cells)
         {
-            Cell newCell = new(cell, _rooms.FirstOrDefault(x => x.Id == cell.RoomId));
+            Cell newCell = new(cell, _zones.Get(cell.ZoneId));
             loadedCells[cell] = newCell;
             _cells.Add(newCell);
         }
@@ -3777,7 +3757,7 @@ For information on the syntax to use in emotes (such as those included in bracke
         sw.Restart();
 #endif
         List<Areas> areas = (from cell in FMDB.Context.Areas
-                                      .Include(x => x.AreasRooms)
+                                      .Include(x => x.AreasCells)
                                       .AsNoTracking()
                              select cell).ToList();
         foreach (Areas area in areas)

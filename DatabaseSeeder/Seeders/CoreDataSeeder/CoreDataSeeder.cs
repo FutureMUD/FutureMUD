@@ -1210,16 +1210,6 @@ public partial class CoreDataSeeder : IDatabaseSeeder
             Longitude = 0
         };
 
-        Room room = new()
-        {
-            Id = 1,
-            X = 0,
-            Y = 0,
-            Z = 0,
-            Zone = zone
-        };
-        context.Rooms.Add(room);
-
         Gas breathableAtmosphere = EnsureBreathableAtmosphere(context);
         Terrain terrain = new()
         {
@@ -1243,7 +1233,8 @@ public partial class CoreDataSeeder : IDatabaseSeeder
         Cell cell = new()
         {
             Id = 1,
-            Room = room,
+            Zone = zone,
+            X = 0, Y = 0, Z = 0,
             Temporary = false,
             EffectData = "<Effects/>"
         };

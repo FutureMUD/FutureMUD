@@ -12,7 +12,7 @@ Spatial area transfer packages let a senior administrator export one or more sel
 - unsupported state blocks export when silently dropping it would make the result misleading;
 - every deliberate omission is retained in the package and shown in-game.
 
-The file suffix is `.fmsa.json`. Files are read and written only beneath the server's `Spatial Packages` directory. Package names cannot contain a path. Versions 1 through 3 are accepted.
+The file suffix is `.fmsa.json`. Files are read and written only beneath the server's `Spatial Packages` directory. Package names cannot contain a path. Versions 1 through 4 are accepted; new exports use version 4.
 
 ## Builder Workflow
 
@@ -39,12 +39,18 @@ The target overlay package must be `Under Design`. The target shard must already
 
 `validate` is read-only. `import` repeats the complete preflight and also requires the literal `confirm` keyword. All selected zones and their cross-zone links use one serializable transaction, with every zone name rechecked inside the transaction.
 
-## Version 3 Payload
+## Current version 4 payload
+
+Version 4 stores `ZoneKey` and integer `X/Y/Z` directly on each cell; Areas use `CellKeys`. There is no `Rooms` section, `RoomKey`, or singular `Zone` section. Source Cell IDs remain diagnostic and imports allocate fresh numeric IDs. Global cell unique names are deliberately not transferred, so imported copies cannot collide with installation-wide keys.
+
+Readers verify versions 1–3 against their frozen original canonical checksum before normalising into version 4. A Room with multiple packaged Cells is refused. A Room with no Cells warns and is skipped only when no Area refers to it; referenced empty Rooms and orphan links require explicit disposition. Numeric Room IDs are never substituted for Cell IDs. Validation precedes import writes.
+
+## Historical version 3 payload
 
 | Field | Purpose |
 | --- | --- |
 | `format` | Constant `futuremud-spatial-area`. |
-| `version` | Schema version. Versions 1 through 3 are accepted. |
+| `version` | Schema version. Versions 1 through 4 are accepted; new exports use version 4. |
 | `integritySha256` | SHA-256 of the canonical payload with this field empty. |
 | `createdUtc` | Export timestamp. |
 | `source` / `sourceZones` | Diagnostic source IDs and names for each zone, shard, and active overlay package. The singular field preserves version-1 context. Source IDs are never reused. |

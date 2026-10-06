@@ -118,14 +118,12 @@ internal static partial class GNHProgram
 		_ = CreateAreaCell(native, database.ConnectionString, cellId, create: true);
 		using var db = NewIndependentContext(database.ConnectionString);
 		var model = db.Cells.Include(x => x.CellOverlays).Include(x => x.CellsMagicResources).AsNoTracking().Single(x => x.Id == cellId);
-		var roomModel = db.Rooms.AsNoTracking().Single(x => x.Id == model.RoomId);
-		var zoneModel = db.Zones.AsNoTracking().Single(x => x.Id == roomModel.ZoneId);
+		var zoneModel = db.Zones.AsNoTracking().Single(x => x.Id == model.ZoneId);
 		var shard = new Shard(db.Shards.AsNoTracking().Single(x => x.Id == zoneModel.ShardId), native.World);
 		var shards = new All<IShard>(); shards.Add(shard); native.WorldMock.SetupGet(x => x.Shards).Returns(shards);
 		native.WorldMock.SetupGet(x => x.WeatherControllers).Returns(new All<IWeatherController>());
 		var zone = new Zone(zoneModel, native.World); var zones = new All<IZone>(); zones.Add(zone); native.WorldMock.SetupGet(x => x.Zones).Returns(zones);
-		var room = new Room(roomModel, zone); var rooms = new All<IRoom>(); rooms.Add(room); native.WorldMock.SetupGet(x => x.Rooms).Returns(rooms);
-		var cell = new Cell(model, room); var cells = new All<ICell>(); cells.Add(cell); native.WorldMock.SetupGet(x => x.Cells).Returns(cells); cell.PostLoadTasks(model);
+		var cell = new Cell(model, zone); var cells = new All<ICell>(); cells.Add(cell); native.WorldMock.SetupGet(x => x.Cells).Returns(cells); cell.PostLoadTasks(model);
 		return cell;
 	}
 

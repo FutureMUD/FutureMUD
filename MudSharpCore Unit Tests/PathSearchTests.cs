@@ -1,4 +1,4 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using MudSharp.Character;
 using MudSharp.Construction;
@@ -44,12 +44,8 @@ public class PathSearchTests
                     CellStub cell = new()
                     {
                         Id = i * 50 + j + 1,
-                        Room = new RoomStub
-                        {
-                            X = i,
-                            Y = j,
-                            Z = 0
-                        }.ToMock()
+                        Coordinates = (i, j, 0
+                        )
                     };
                     if (i > 0)
                     {
@@ -147,12 +143,8 @@ public class PathSearchTests
                     CellStub cell = new()
                     {
                         Id = i * 50 + j + 1,
-                        Room = new RoomStub
-                        {
-                            X = i,
-                            Y = j,
-                            Z = 0
-                        }.ToMock()
+                        Coordinates = (i, j, 0
+                        )
                     };
                     if (i > 0)
                     {
@@ -227,7 +219,7 @@ public class PathSearchTests
                                              Id = i + 1,
                                              Name = $"Linear {i}",
                                              Gameworld = gameworld.Object,
-                                             Room = new RoomStub { X = i, Y = 0, Z = 0 }.ToMock(),
+                                             Coordinates = (i, 0, 0 ),
                                              Exits = new List<CellExitStub>()
                                          })
                                          .ToArray();
@@ -313,7 +305,7 @@ public class PathSearchTests
             Id = 1001,
             Name = "A",
             Gameworld = gameworld.Object,
-            Room = new RoomStub { X = 0, Y = 0, Z = 0 }.ToMock(),
+            Coordinates = (0, 0, 0 ),
             Exits = new List<CellExitStub>()
         };
         CellStub cellB = new()
@@ -321,7 +313,7 @@ public class PathSearchTests
             Id = 1002,
             Name = "B",
             Gameworld = gameworld.Object,
-            Room = new RoomStub { X = 11, Y = 0, Z = 0 }.ToMock(),
+            Coordinates = (11, 0, 0 ),
             Exits = new List<CellExitStub>()
         };
         CellStub cellC = new()
@@ -329,7 +321,7 @@ public class PathSearchTests
             Id = 1003,
             Name = "C",
             Gameworld = gameworld.Object,
-            Room = new RoomStub { X = 0, Y = 11, Z = 0 }.ToMock(),
+            Coordinates = (0, 11, 0 ),
             Exits = new List<CellExitStub>()
         };
 
@@ -393,7 +385,7 @@ public class PathSearchTests
             Id = 2001,
             Name = "Source",
             Gameworld = gameworld.Object,
-            Room = new RoomStub { X = 0, Y = 0, Z = 0 }.ToMock(),
+            Coordinates = (0, 0, 0 ),
             Exits = new List<CellExitStub>()
         };
         CellStub badPortal = new()
@@ -401,7 +393,7 @@ public class PathSearchTests
             Id = 2002,
             Name = "Bad Portal",
             Gameworld = gameworld.Object,
-            Room = new RoomStub { X = 11, Y = 0, Z = 0 }.ToMock(),
+            Coordinates = (11, 0, 0 ),
             Exits = new List<CellExitStub>()
         };
         CellStub goodPortal = new()
@@ -409,7 +401,7 @@ public class PathSearchTests
             Id = 2003,
             Name = "Good Portal",
             Gameworld = gameworld.Object,
-            Room = new RoomStub { X = 12, Y = 0, Z = 0 }.ToMock(),
+            Coordinates = (12, 0, 0 ),
             Exits = new List<CellExitStub>()
         };
         CellStub targetCell = new()
@@ -417,7 +409,7 @@ public class PathSearchTests
             Id = 2004,
             Name = "Target",
             Gameworld = gameworld.Object,
-            Room = new RoomStub { X = 13, Y = 0, Z = 0 }.ToMock(),
+            Coordinates = (13, 0, 0 ),
             Exits = new List<CellExitStub>()
         };
 
@@ -618,14 +610,14 @@ public class PathSearchTests
         CellStub cell1 = new()
         {
             Name = "A",
-            Room = new RoomStub { X = 0, Y = 0, Z = 0 }.ToMock(),
+            Coordinates = (0, 0, 0 ),
             Exits = new List<CellExitStub>(),
             Id = 1
         };
         CellStub cell2 = new()
         {
             Name = "B",
-            Room = new RoomStub { X = 1, Y = 0, Z = 0 }.ToMock(),
+            Coordinates = (1, 0, 0 ),
             Exits = new List<CellExitStub>(),
             Id = 2
         };
@@ -666,21 +658,21 @@ public class PathSearchTests
         CellStub cellA = new()
         {
             Name = "A",
-            Room = new RoomStub { X = 0, Y = 0, Z = 0 }.ToMock(),
+            Coordinates = (0, 0, 0 ),
             Exits = new List<CellExitStub>(),
             Id = 101
         };
         CellStub cellB = new()
         {
             Name = "B",
-            Room = new RoomStub { X = 1, Y = 0, Z = 0 }.ToMock(),
+            Coordinates = (1, 0, 0 ),
             Exits = new List<CellExitStub>(),
             Id = 102
         };
         CellStub cellC = new()
         {
             Name = "C",
-            Room = new RoomStub { X = 0, Y = 1, Z = 0 }.ToMock(),
+            Coordinates = (0, 1, 0 ),
             Exits = new List<CellExitStub>(),
             Id = 103
         };
@@ -729,7 +721,7 @@ public class PathSearchTests
         CellStub cell = new()
         {
             Name = "A",
-            Room = new RoomStub { X = 0, Y = 0, Z = 0 }.ToMock(),
+            Coordinates = (0, 0, 0 ),
             Exits = new List<CellExitStub>(),
             Id = 201
         };

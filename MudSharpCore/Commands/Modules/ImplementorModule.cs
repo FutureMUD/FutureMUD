@@ -537,7 +537,7 @@ The syntax is:
             case "time":
                 MudDateTime datetime = new(actor.Location.Date(actor.Location.Calendars.First()),
                     actor.Location.Time(actor.Location.Clocks.First()),
-                    actor.Location.Room.Zone.GetEditableZone.TimeZones[actor.Location.Clocks.First()]);
+                    actor.Location.OwningZone.GetEditableZone.TimeZones[actor.Location.Clocks.First()]);
                 actor.Send("Current Datetime: {0}", datetime.GetDateTimeString());
                 break;
             case "descriptions":
@@ -2532,14 +2532,14 @@ div.function-generalhelp {
     private static void DebugCelestials(ICharacter actor)
     {
         actor.Send("Debugging Celestials...");
-        IZone zone = actor.Location.Room.Zone;
+        IZone zone = actor.Location.OwningZone;
         DateTime now = DateTime.UtcNow;
         StreamWriter zoneWriter = new(
             $"Zone {zone.Id} - {zone.Name} - Lat {zone.Geography.Latitude.RadiansToDegrees()} Long {zone.Geography.Longitude.RadiansToDegrees()} - {now:yyyyMMMMddhhmmss}.csv");
         zoneWriter.WriteLine("Date\tTime\tAscension\tAzimuth\tDirection\tIllumination\tLight Level");
         ICalendar calendar = actor.Location.Calendars.First();
         IClock clock = calendar.FeedClock;
-        IMudTimeZone timezone = actor.Location.Room.Zone.GetEditableZone.TimeZones[clock];
+        IMudTimeZone timezone = actor.Location.OwningZone.GetEditableZone.TimeZones[clock];
         ICelestialObject celestial = zone.Celestials.First();
 
         // Approximately 2 years

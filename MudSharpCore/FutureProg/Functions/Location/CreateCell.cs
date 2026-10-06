@@ -154,8 +154,7 @@ internal class CreateCell : BuiltInFunction
         }
 
         ICell cell = ParameterFunctions.Count == 3 ? (ICell)ParameterFunctions[2].Result?.GetObject : default;
-        Room newRoom = new(zone, package, cell, false);
-        Result = newRoom.Cells.First();
+        Result = cell is null ? new Cell(package, zone) : new Cell(package, zone, cell, false);
         return StatementResult.Normal;
     }
 }

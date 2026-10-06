@@ -27,7 +27,7 @@ public class PathfindingServiceLiveMutationTests
 			Id = 4001,
 			Name = "Original A",
 			Gameworld = gameworld.Object,
-			Room = new RoomStub { X = 0, Y = 0, Z = 0 }.ToMock(),
+			Coordinates = (0, 0, 0 ),
 			Exits = new List<CellExitStub>()
 		};
 		CellStub cellB = new()
@@ -35,7 +35,7 @@ public class PathfindingServiceLiveMutationTests
 			Id = 4002,
 			Name = "Original B",
 			Gameworld = gameworld.Object,
-			Room = new RoomStub { X = 11, Y = 0, Z = 0 }.ToMock(),
+			Coordinates = (11, 0, 0 ),
 			Exits = new List<CellExitStub>()
 		};
 		CellStub addedCell = new()
@@ -43,7 +43,7 @@ public class PathfindingServiceLiveMutationTests
 			Id = 4003,
 			Name = "Added Mid Build",
 			Gameworld = gameworld.Object,
-			Room = new RoomStub { X = 22, Y = 0, Z = 0 }.ToMock(),
+			Coordinates = (22, 0, 0 ),
 			Exits = new List<CellExitStub>()
 		};
 

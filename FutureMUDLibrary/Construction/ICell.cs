@@ -1,4 +1,4 @@
-﻿using JetBrains.Annotations;
+using JetBrains.Annotations;
 using MudSharp.Celestial;
 using MudSharp.Character;
 using MudSharp.Climate;
@@ -54,7 +54,17 @@ namespace MudSharp.Construction
         /// </summary>
         bool Temporary { get; }
         IEnumerable<ICell> Surrounds { get; }
-        IRoom Room { get; }
+        /// <summary>Stored ownership, independent of hosted exterior projection.</summary>
+        IZone OwningZone { get; }
+        IEnumerable<IArea> OwningAreas { get; }
+        (int X, int Y, int Z) StoredCoordinates { get; }
+        int? X { get; }
+        int? Y { get; }
+        int? Z { get; }
+        void SetCoordinates(int x, int y, int z);
+        void SetNewZone(IZone zone);
+        void AddArea(IArea area);
+        void RemoveArea(IArea area);
         IZone Zone { get; }
         IShard Shard { get; }
         IEnumerable<IArea> Areas { get; }

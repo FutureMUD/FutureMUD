@@ -22,10 +22,10 @@ public class EnvironmentalMagicLifecycleTests
 	{
 		var service = new Mock<IEnvironmentalMagicService>();
 		using var world = CreateWorld(service.Object);
-		var room = new Mock<IRoom>();
+		var zone = new Mock<IZone>();
 		var cell = new Mock<ICell>();
 		cell.SetupGet(x => x.Id).Returns(10L);
-		cell.SetupGet(x => x.Room).Returns(room.Object);
+		cell.SetupGet(x => x.OwningZone).Returns(zone.Object);
 		cell.SetupGet(x => x.Gameworld).Returns(world);
 
 		world.Add(cell.Object);
@@ -34,7 +34,7 @@ public class EnvironmentalMagicLifecycleTests
 		world.Destroy(cell.Object);
 		Assert.IsNull(world.Cells.Get(10));
 		service.Verify(x => x.Unregister(cell.Object), Times.Once);
-		room.Verify(x => x.Destroy(cell.Object), Times.Once);
+		zone.Verify(x => x.Unregister(cell.Object), Times.Once);
 		service.VerifyNoOtherCalls();
 	}
 

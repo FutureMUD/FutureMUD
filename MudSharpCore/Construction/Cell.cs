@@ -75,14 +75,14 @@ public partial class Cell : Location, IDisposable, ICell, IRecoverableSaveFailur
 		bool EnvironmentStateChanged,
 		long? ExpectedEnvironmentDatabaseRevision);
 
-    public Cell(ICellOverlayPackage package, IRoom room, bool temporary = false) : base(room.Gameworld)
+    public Cell(ICellOverlayPackage package, IZone zone, bool temporary = false) : base(zone.Gameworld)
     {
-        Room = room;
+        _owningZone = zone ?? throw new ArgumentNullException(nameof(zone));
         using (new FMDB())
         {
             Models.Cell dbCell = new()
             {
-                RoomId = room.Id,
+                ZoneId = zone.Id,
                 Temporary = temporary,
                 EffectData = SaveEffects().ToString()
             };
@@ -110,15 +110,15 @@ public partial class Cell : Location, IDisposable, ICell, IRecoverableSaveFailur
         Gameworld.Add(this);
     }
 
-    public Cell(ICellOverlayPackage package, IRoom room, ICell templateCell, bool temporary = false) : base(
-        room.Gameworld)
+    public Cell(ICellOverlayPackage package, IZone zone, ICell templateCell, bool temporary = false) : base(
+        zone.Gameworld)
     {
-        Room = room;
+        _owningZone = zone ?? throw new ArgumentNullException(nameof(zone));
         using (new FMDB())
         {
             Models.Cell dbCell = new()
             {
-                RoomId = room.Id,
+                ZoneId = zone.Id,
                 Temporary = temporary,
                 EffectData = SaveEffects().ToString()
             };
@@ -146,15 +146,15 @@ public partial class Cell : Location, IDisposable, ICell, IRecoverableSaveFailur
         Gameworld.Add(this);
     }
 
-    public Cell(MudSharp.Models.Cell cell, IRoom room) : base(room.Gameworld)
+    public Cell(MudSharp.Models.Cell cell, IZone zone) : base(zone.Gameworld)
     {
-        Room = room;
+        _owningZone = zone ?? throw new ArgumentNullException(nameof(zone));
         SetupCell(cell);
     }
 
 	/// <summary>
 	/// Creates a transient cell which borrows environmental data from a real cell but owns its
-	/// contents independently. It is never registered with its room or written to the database.
+	/// contents independently. It is never registered with its owning zone or written to the database.
 	/// </summary>
 	internal Cell(ICell combatSimulationTemplate, long temporaryId) : base(combatSimulationTemplate.Gameworld)
 	{
@@ -162,7 +162,9 @@ public partial class Cell : Location, IDisposable, ICell, IRecoverableSaveFailur
 		_combatSimulationDatabaseLocationId = combatSimulationTemplate.Id;
 		_noSave = true;
 		_id = temporaryId;
-		Room = combatSimulationTemplate.Room;
+		_owningZone = combatSimulationTemplate.OwningZone;
+		_storedCoordinates = combatSimulationTemplate.StoredCoordinates;
+		_areas.AddRange(combatSimulationTemplate.OwningAreas);
 		CurrentOverlay = combatSimulationTemplate.CurrentOverlay;
 		_overlays = combatSimulationTemplate.Overlays
 			.OfType<IEditableCellOverlay>()
@@ -221,11 +223,11 @@ public partial class Cell : Location, IDisposable, ICell, IRecoverableSaveFailur
 		? exterior
 		: null;
 
-	public int? X => HostedExteriorContext?.Room.X ?? Room?.X;
+	public int? X => HostedExteriorContext?.X ?? _storedCoordinates.X;
 
-	public int? Y => HostedExteriorContext?.Room.Y ?? Room?.Y;
+	public int? Y => HostedExteriorContext?.Y ?? _storedCoordinates.Y;
 
-	public int? Z => HostedExteriorContext?.Room.Z ?? Room?.Z;
+	public int? Z => HostedExteriorContext?.Z ?? _storedCoordinates.Z;
 
     /// <summary>
     /// If a cell is temporary, it may disappear at any time.
@@ -311,7 +313,7 @@ public partial class Cell : Location, IDisposable, ICell, IRecoverableSaveFailur
 	{
 		SetPreparedCurrencyMembership(item, present);
 		if (!_isCombatSimulationCell)
-			foreach (var location in new[] { Room as Location, Zone as Location, Shard as Location }.OfType<Location>().Distinct())
+			foreach (var location in new[] { OwningZone as Location, OwningZone?.Shard as Location }.OfType<Location>().Distinct())
 				location.SetPreparedCurrencyMembership(item, present);
 	}
 
@@ -428,7 +430,7 @@ public partial class Cell : Location, IDisposable, ICell, IRecoverableSaveFailur
         base.Insert(thing, newStack);
 		if (!_isCombatSimulationCell)
 		{
-			Room.Insert(thing, newStack);
+			OwningZone.Insert(thing, newStack);
 		}
         _gameItems = _gameItems.OrderBy(x => !x.HighPriority).ToList();
         if (!StillAtIntendedPoint(null, clearedBody)) return;
@@ -457,9 +459,9 @@ public partial class Cell : Location, IDisposable, ICell, IRecoverableSaveFailur
 
 	Action ICustodyRollbackLocation.CaptureCustodyMembershipRollback(IReadOnlyCollection<IGameItem> items)
 	{
-		if (Room is not Location room || Zone is not Location zone || Shard is not Location shard)
+		if (OwningZone is not Location zone || OwningZone.Shard is not Location shard)
 			throw new InvalidOperationException("Foreign custody requires native enclosing location rollback adapters.");
-		var restores = new[] { (Location)this, room, zone, shard }.Distinct()
+		var restores = new[] { (Location)this, zone, shard }.Distinct()
 			.Select(x => x.CaptureCustodyMembershipRollback(items)).ToArray();
 		return () => { foreach (var restore in restores) restore(); };
 	}
@@ -498,19 +500,18 @@ public partial class Cell : Location, IDisposable, ICell, IRecoverableSaveFailur
 		RouteSpatialService.Instance.UntrackPerceivable(thing);
 		if (!_isCombatSimulationCell)
 		{
-			Room.Extract(thing);
+			OwningZone.Extract(thing);
 		}
         ContentsChanged = true;
         CheckFallExitStatus();
         new MagicPortalTopologyService().RebuildNetworksForItem(Gameworld, thing);
     }
 
-    public IRoom Room { get; }
 
-    public IZone Zone => HostedExteriorContext?.Zone ?? Room.Zone;
+    public IZone Zone => HostedExteriorContext?.Zone ?? OwningZone;
     public IShard Shard => Zone.Shard;
 
-    public IEnumerable<IArea> Areas => HostedExteriorContext?.Areas ?? Room.Areas;
+    public IEnumerable<IArea> Areas => HostedExteriorContext?.Areas ?? _areas;
 
     public IHearingProfile HearingProfile(IPerceiver voyeur)
     {
@@ -541,7 +542,7 @@ public partial class Cell : Location, IDisposable, ICell, IRecoverableSaveFailur
 			gitem.SetRoutePosition(item.RoutePosition.HasValue ? (double)item.RoutePosition.Value : null);
             stagingTable.Add(new Tuple<Models.GameItem, IGameItem>(item, gitem));
             _gameItems.Add(gitem);
-            Room.Insert(gitem);
+            OwningZone.Insert(gitem);
         }
 
         foreach (Tuple<Models.GameItem, IGameItem> item in stagingTable)
@@ -735,7 +736,7 @@ public partial class Cell : Location, IDisposable, ICell, IRecoverableSaveFailur
         }
 
         ICellOverlay overlay = GetOverlayFor(voyeur);
-        double environmentalLight = (Room.Zone.CurrentLightLevel * overlay.AmbientLightFactor + overlay.AddedLight) *
+        double environmentalLight = (OwningZone.CurrentLightLevel * overlay.AmbientLightFactor + overlay.AddedLight) *
                                  (CurrentWeather(voyeur)?.LightLevelMultiplier ?? 1.0);
         IEnumerable<IPerceivable> localLightSources;
         if (RouteDefinition is not null && ReferenceEquals(voyeur.Location, this) &&
@@ -971,7 +972,7 @@ public partial class Cell : Location, IDisposable, ICell, IRecoverableSaveFailur
 		if (receipt is not null && !receipt.AfterMoveTo(movingCharacter)) return;
 		if (!_isCombatSimulationCell)
 		{
-			Room.Enter(movingCharacter, exit);
+			OwningZone.Enter(movingCharacter, exit);
 			if (receipt is not null && !receipt.Continue()) return;
 		}
         DoEnterEvent(movingCharacter);
@@ -1040,7 +1041,7 @@ public partial class Cell : Location, IDisposable, ICell, IRecoverableSaveFailur
 		SetNativeCharacterMembership(actor, present);
 		if (!_isCombatSimulationCell)
 		{
-			foreach (var location in new[] { Room as Location, Zone as Location, Shard as Location }.OfType<Location>().Distinct())
+			foreach (var location in new[] { OwningZone as Location, OwningZone?.Shard as Location }.OfType<Location>().Distinct())
 				location.SetNativeCharacterMembership(actor, present || actor.Location?.Characters.Any(x => ReferenceEquals(x, actor)) == true &&
 					(location.Cells.Any(x => ReferenceEquals(x, actor.Location))));
 		}
@@ -1066,7 +1067,7 @@ public partial class Cell : Location, IDisposable, ICell, IRecoverableSaveFailur
 		RouteSpatialService.Instance.UntrackPerceivable(movingCharacter);
 		if (!_isCombatSimulationCell)
 		{
-			Room.Leave(movingCharacter);
+			OwningZone.Leave(movingCharacter);
 			if (receipt is not null && !receipt.Continue()) return;
 		}
         DoLeaveEvent(movingCharacter);
@@ -1119,15 +1120,15 @@ public partial class Cell : Location, IDisposable, ICell, IRecoverableSaveFailur
     public IFluid Atmosphere => EffectsOfType<IAffectAtmosphere>().FirstOrDefault(x => x.Applies())?.Atmosphere ??
         MudSharp.Climate.WeatherHazardService.WeatherAtmosphere(this) ?? CurrentOverlay.Atmosphere;
 
-    public override IEnumerable<ICalendar> Calendars => HostedExteriorContext?.Calendars ?? Room.Calendars;
+    public override IEnumerable<ICalendar> Calendars => HostedExteriorContext?.Calendars ?? OwningZone.Calendars;
 
-    public override IEnumerable<IClock> Clocks => HostedExteriorContext?.Clocks ?? Room.Clocks;
+    public override IEnumerable<IClock> Clocks => HostedExteriorContext?.Clocks ?? OwningZone.Clocks;
 
     public IPermanentShop Shop { get; set; }
 
     public override IMudTimeZone TimeZone(IClock whichClock)
     {
-		return HostedExteriorContext?.TimeZone(whichClock) ?? Room.TimeZone(whichClock);
+		return HostedExteriorContext?.TimeZone(whichClock) ?? OwningZone.TimeZone(whichClock);
     }
 
 	private IEnumerable<IHandleEvents> SpatialEventHandlersFor(ILocateable source, ICellExit exit = null)
@@ -1170,7 +1171,7 @@ public partial class Cell : Location, IDisposable, ICell, IRecoverableSaveFailur
 		return SpatialEventHandlersFor(source);
 	}
 
-    public override IEnumerable<ICelestialObject> Celestials => HostedExteriorContext?.Celestials ?? Room.Celestials;
+    public override IEnumerable<ICelestialObject> Celestials => HostedExteriorContext?.Celestials ?? OwningZone.Celestials;
     public IEnumerable<IRangedCover> LocalCover => _localCover;
 
     public IEnumerable<IRangedCover> GetCoverFor(IPerceiver voyeur)
@@ -1196,25 +1197,25 @@ public partial class Cell : Location, IDisposable, ICell, IRecoverableSaveFailur
 
     public override CelestialInformation GetInfo(ICelestialObject celestial)
     {
-        return Room.GetInfo(celestial);
+        return OwningZone.GetInfo(celestial);
     }
 
     public double EstimatedDirectDistanceTo(ICell otherCell)
     {
-        return Math.Sqrt(Math.Pow(Room.X - otherCell.Room.X, 2) + Math.Pow(Room.Y - otherCell.Room.Y, 2) +
-                         Math.Pow(Room.Z - otherCell.Room.Z, 2));
+        return Math.Sqrt(Math.Pow(StoredCoordinates.X - otherCell.StoredCoordinates.X, 2) + Math.Pow(StoredCoordinates.Y - otherCell.StoredCoordinates.Y, 2) +
+                         Math.Pow(StoredCoordinates.Z - otherCell.StoredCoordinates.Z, 2));
     }
 
     public TimeOfDay CurrentTimeOfDay => HostedExteriorContext?.CurrentTimeOfDay ?? Zone.CurrentTimeOfDay;
 
     public override MudDate Date(ICalendar whichCalendar)
     {
-		return HostedExteriorContext?.Date(whichCalendar) ?? Room.Date(whichCalendar);
+		return HostedExteriorContext?.Date(whichCalendar) ?? OwningZone.Date(whichCalendar);
     }
 
     public override MudTime Time(IClock whichClock)
     {
-		return HostedExteriorContext?.Time(whichClock) ?? Room.Time(whichClock);
+		return HostedExteriorContext?.Time(whichClock) ?? OwningZone.Time(whichClock);
     }
 
     public void RegisterMovement(IMovement move)
@@ -1329,7 +1330,10 @@ public partial class Cell : Location, IDisposable, ICell, IRecoverableSaveFailur
 		PrepareForSaveAttempt();
         Models.Cell dbcell = FMDB.Context.Cells.Find(Id);
         dbcell.CurrentOverlayId = CurrentOverlay.Id;
-        dbcell.RoomId = Room.Id;
+        dbcell.ZoneId = OwningZone.Id;
+		dbcell.X = _storedCoordinates.X;
+		dbcell.Y = _storedCoordinates.Y;
+		dbcell.Z = _storedCoordinates.Z;
 		dbcell.UniqueName = UniqueName;
         dbcell.ForagableProfileId = ExplicitForagableProfileId;
 		SaveEnvironment(dbcell);
@@ -1476,6 +1480,8 @@ public partial class Cell : Location, IDisposable, ICell, IRecoverableSaveFailur
     public static void RegisterPerceivableType(IFuturemud gameworld)
     {
         gameworld.RegisterPerceivableType("Cell", id => gameworld.Cells.Get(id));
+		gameworld.RegisterPerceivableType("Room", id =>
+			throw new InvalidOperationException($"Unsupported legacy Room entity reference #{id}; review its provenance before loading it. It cannot be treated as a Cell ID."));
     }
 
     public override int GetHashCode()
@@ -1503,7 +1509,8 @@ public partial class Cell : Location, IDisposable, ICell, IRecoverableSaveFailur
 		_hostedVehicleId = cell.HostedVehicleId;
 		_hostedVehicleCompartmentId = cell.HostedVehicleCompartmentId;
 		ReloadRouteDefinition(cell.RouteCell);
-        Room.Register(this);
+        _storedCoordinates = (cell.X, cell.Y, cell.Z);
+		OwningZone.Register(this);
         foreach (Models.CellOverlay overlay in cell.CellOverlays)
         {
             _overlays.Add(new CellOverlay(overlay, this, Gameworld));
@@ -2029,7 +2036,6 @@ public partial class Cell : Location, IDisposable, ICell, IRecoverableSaveFailur
 
     public void Destroy(ICell fallbackCell)
     {
-        IRoom room = Room;
         Action action = DestroyWithDatabaseAction(fallbackCell);
         Gameworld.SaveManager.Flush();
         Gameworld.LogManager.FlushLog();
@@ -2047,18 +2053,7 @@ public partial class Cell : Location, IDisposable, ICell, IRecoverableSaveFailur
                     FMDB.Context.SaveChanges();
                 }
 
-                if (!room.Cells.Any())
-                {
-                    Models.Room dbRoom = FMDB.Context.Rooms.Find(room.Id);
-                    if (dbRoom != null)
-                    {
-                        FMDB.Context.Rooms.Remove(dbRoom);
-                        FMDB.Context.SaveChanges();
-                    }
 
-                    room.Zone.Unregister(room);
-                    Gameworld.Destroy(room);
-                }
             }
         }
     }
@@ -2360,7 +2355,7 @@ public partial class Cell : Location, IDisposable, ICell, IRecoverableSaveFailur
             _foragableProfileId = 0;
         }
 
-        return _foragableProfile ?? Room?.Zone?.ForagableProfile ?? CurrentOverlay?.Terrain?.ForagableProfile;
+        return _foragableProfile ?? OwningZone?.ForagableProfile ?? CurrentOverlay?.Terrain?.ForagableProfile;
     }
 
 	public bool HasForagableProfile => PeekForagableProfile() != null;
@@ -2377,7 +2372,7 @@ public partial class Cell : Location, IDisposable, ICell, IRecoverableSaveFailur
 			return Gameworld.ForagableProfiles.Get(_foragableProfile.Id);
 		}
 
-		return _foragableProfile ?? Room?.Zone?.ForagableProfile ?? CurrentOverlay?.Terrain?.ForagableProfile;
+		return _foragableProfile ?? OwningZone?.ForagableProfile ?? CurrentOverlay?.Terrain?.ForagableProfile;
 	}
 
 	public void SynchroniseForagableProfile()

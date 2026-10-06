@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace MudSharp.Models
@@ -9,7 +9,7 @@ namespace MudSharp.Models
         {
             HooksPerceivables = new HashSet<HooksPerceivable>();
             LegalAuthoritiesZones = new HashSet<LegalAuthoritiesZones>();
-            Rooms = new HashSet<Room>();
+            OwnedCells = new HashSet<Cell>();
             ZonesTimezones = new HashSet<ZonesTimezones>();
         }
 
@@ -29,7 +29,7 @@ namespace MudSharp.Models
         public virtual WeatherController WeatherController { get; set; }
         public virtual ICollection<HooksPerceivable> HooksPerceivables { get; set; }
         public virtual ICollection<LegalAuthoritiesZones> LegalAuthoritiesZones { get; set; }
-        public virtual ICollection<Room> Rooms { get; set; }
+        public virtual ICollection<Cell> OwnedCells { get; set; }
         public virtual ICollection<ZonesTimezones> ZonesTimezones { get; set; }
     }
 }

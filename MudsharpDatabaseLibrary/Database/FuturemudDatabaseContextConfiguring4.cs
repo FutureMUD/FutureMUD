@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using MudSharp.Models;
 using System;
 using System.Collections.Generic;
@@ -276,27 +276,7 @@ namespace MudSharp.Database
                     .HasConstraintName("FK_RegionalClimates_Seasons_Seasons");
             });
 
-            modelBuilder.Entity<Room>(entity =>
-            {
-                entity.HasIndex(e => e.ZoneId)
-                    .HasDatabaseName("FK_Rooms_Zones");
 
-                entity.Property(e => e.Id).HasColumnType("bigint(20)");
-
-                entity.Property(e => e.X).HasColumnType("int(11)");
-
-                entity.Property(e => e.Y).HasColumnType("int(11)");
-
-                entity.Property(e => e.Z).HasColumnType("int(11)");
-
-                entity.Property(e => e.ZoneId).HasColumnType("bigint(20)");
-
-                entity.HasOne(d => d.Zone)
-                    .WithMany(p => p.Rooms)
-                    .HasForeignKey(d => d.ZoneId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_Rooms_Zones");
-            });
 
             modelBuilder.Entity<Script>(entity =>
             {

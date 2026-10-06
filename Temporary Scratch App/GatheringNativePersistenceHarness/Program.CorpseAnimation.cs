@@ -275,7 +275,8 @@ internal static partial class GNHProgram
 		var placement = CreateDirect(); var originalCell = caster.Location; var placementCallbacks = 0; long finalCellId;
 		using (var db = NewIndependentContext(database.ConnectionString))
 		{
-			var newCell = new Db.Cell { RoomId = db.Cells.Single(x => x.Id == fixture.CellId).RoomId, EffectData = "<Effects/>" };
+			var sourceCell = db.Cells.Single(x => x.Id == fixture.CellId);
+			var newCell = new Db.Cell { ZoneId = sourceCell.ZoneId, X = sourceCell.X, Y = sourceCell.Y, Z = sourceCell.Z, EffectData = "<Effects/>" };
 			db.Cells.Add(newCell); db.SaveChanges(); finalCellId = newCell.Id;
 		}
 		var finalCell = new Mock<ICell>(); var finalItems = new List<IGameItem>();

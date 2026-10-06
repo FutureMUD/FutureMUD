@@ -1,4 +1,4 @@
-﻿using MudSharp.Celestial;
+using MudSharp.Celestial;
 using MudSharp.Climate;
 using MudSharp.Form.Material;
 using MudSharp.Construction.Boundary;
@@ -16,7 +16,7 @@ namespace MudSharp.Construction;
 
 public class Zone : Location, IEditableZone
 {
-    protected readonly All<IRoom> _rooms = new();
+    protected readonly All<ICell> _cells = new();
 
     protected readonly Dictionary<ICelestialObject, CelestialInformation> CelestialInfo =
         new();
@@ -28,14 +28,14 @@ public class Zone : Location, IEditableZone
 
     private GeographicCoordinate _geography;
 
-    public IEnumerable<IRoom> Rooms => _rooms;
-    public override IEnumerable<ICell> Cells => _rooms.SelectMany(x => x.Cells);
+    public override IEnumerable<ICell> Cells => _cells;
 
     public Zone(MudSharp.Models.Zone zone, IFuturemud game) : base(game)
     {
         _noSave = true;
         _id = zone.Id;
         _name = zone.Name;
+        _defaultCellId = zone.DefaultCellId;
         Shard = game.Shards.Get(zone.ShardId);
         AmbientLightPollution = zone.AmbientLightPollution;
         Geography = new GeographicCoordinate(zone.Latitude, zone.Longitude, zone.Elevation,
@@ -66,7 +66,8 @@ public class Zone : Location, IEditableZone
 
     public IShard Shard { get; }
 
-    public ICell DefaultCell => Cells.FirstOrDefault();
+    private long? _defaultCellId;
+    public ICell DefaultCell => _cells.Get(_defaultCellId ?? 0L) ?? Cells.FirstOrDefault();
 
     public long P => Shard.Id;
 
@@ -128,16 +129,26 @@ public class Zone : Location, IEditableZone
                             EffectsOfType<IAreaLightEffect>(x => x.Applies()).Sum(x => x.AddedLight);
     }
 
-    public void Register(IRoom room)
+    public void Register(ICell room)
     {
-        _rooms.Add(room);
+        _cells.Add(room);
         Shard.Register(room);
+		if (_defaultCellId is null)
+		{
+			_defaultCellId = room.Id;
+			if (!_noSave) Changed = true;
+		}
     }
 
-    public void Unregister(IRoom room)
+    public void Unregister(ICell room)
     {
-        _rooms.Remove(room);
+        _cells.Remove(room);
         Shard.Unregister(room);
+		if (_defaultCellId == room.Id)
+		{
+			_defaultCellId = Cells.FirstOrDefault()?.Id;
+			if (!_noSave) Changed = true;
+		}
     }
 
     public GeographicCoordinate Geography
@@ -252,7 +263,8 @@ public class Zone : Location, IEditableZone
         using (new FMDB())
         {
             Models.Zone dbzone = FMDB.Context.Zones.Find(Id);
-            dbzone.DefaultCellId = DefaultCell?.Id;
+			_defaultCellId = DefaultCell?.Id;
+            dbzone.DefaultCellId = _defaultCellId;
             dbzone.AmbientLightPollution = AmbientLightPollution;
             dbzone.Latitude = Geography.Latitude;
             dbzone.Longitude = Geography.Longitude;
@@ -315,14 +327,14 @@ public class Zone : Location, IEditableZone
         RecalculateLightLevel();
     }
 
-    public IRoom DetermineRoomByCoordinates(int x, int y, int z)
+    public ICell DetermineCellByCoordinates(int x, int y, int z)
     {
-        return Shard.DetermineRoomByCoordinates(x, y, z);
+        return Shard.DetermineCellByCoordinates(x, y, z);
     }
 
-    public IRoom DetermineRoomByDirection(IRoom fromRoom, CardinalDirection direction)
+    public ICell DetermineCellByDirection(ICell fromCell, CardinalDirection direction)
     {
-        return Shard.DetermineRoomByDirection(fromRoom, direction);
+        return Shard.DetermineCellByDirection(fromCell, direction);
     }
 
     public void PostLoadSetup()
@@ -334,10 +346,7 @@ public class Zone : Location, IEditableZone
 
     private void CellCoordinateVisitor(ICell c, int x, int y, int z, ref HashSet<ICell> alreadyTouched)
     {
-        c.Room.X = x;
-        c.Room.Y = y;
-        c.Room.Z = z;
-        c.Room.Changed = true;
+        c.SetCoordinates(x, y, z);
         alreadyTouched.Add(c);
         foreach (ICellExit exit in c.ExitsFor(null))
         {
@@ -365,7 +374,7 @@ public class Zone : Location, IEditableZone
         }
 
         CellCoordinateVisitor(DefaultCell ?? Cells.First(), 0, 0, 0, ref alreadyTouched);
-        IEnumerable<ICell> zoneCells = Rooms.SelectMany(x => x.Cells);
+        IEnumerable<ICell> zoneCells = Cells;
         List<ICell> missingCells = zoneCells.Where(x => !alreadyTouched.Contains(x)).ToList();
         if (missingCells.Any())
         {
@@ -451,7 +460,7 @@ public class Zone : Location, IEditableZone
         switch (property.ToLowerInvariant())
         {
             case "rooms":
-                return new CollectionVariable(_rooms.SelectMany(x => x.Cells).ToList(),
+                return new CollectionVariable(_cells.ToList(),
                     ProgVariableTypes.Location);
             case "latitude":
                 return new NumberVariable(Geography.Latitude.RadiansToDegrees());

@@ -1,4 +1,4 @@
-﻿using MudSharp.Climate;
+using MudSharp.Climate;
 using MudSharp.Construction.Grids;
 using MudSharp.Form.Material;
 using MudSharp.FutureProg.Variables;
@@ -157,10 +157,10 @@ public partial class Cell
                     Gameworld.ExitManager.GetExitsFor(this, CurrentOverlay).ToList(), ProgVariableTypes.Exit);
                 break;
             case "zone":
-                returnVar = Room.Zone;
+                returnVar = OwningZone;
                 break;
             case "shard":
-                returnVar = Room.Shard;
+                returnVar = OwningZone.Shard;
                 break;
             case "terrain":
                 returnVar = CurrentOverlay.Terrain;

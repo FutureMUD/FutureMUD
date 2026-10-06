@@ -20,7 +20,7 @@ The additive `CellUniqueNames` migration adds nullable `utf8mb4` storage and a n
 
 ## Quick Mental Model
 
-The Room-removal work currently has an [additive schema checkpoint](Cell_Spatial_Ownership_Migration.md). The old Room remains authoritative until the later maintenance cutover. Its copied cell zone/coordinates and area links are not updated by ongoing builder commands; this checkpoint adds no new builder workflow.
+The [staged spatial migration](Cell_Spatial_Ownership_Migration.md) removes the underlying Room entity. Cells directly own their zone, stored integer XYZ coordinates and Area memberships. Familiar room vocabulary and FutureProg location functions remain. Rezone and Area editing now affect the selected cell; no sibling-cell owner is retained. Hosted interiors still project their exterior environment while their stored ownership remains independent.
 
 FutureMUD locations are built from a small set of concepts:
 

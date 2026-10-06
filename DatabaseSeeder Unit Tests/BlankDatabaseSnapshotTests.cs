@@ -13,6 +13,21 @@ namespace MudSharp_Unit_Tests;
 public class BlankDatabaseSnapshotTests
 {
 	[TestMethod]
+	public void CommittedBlankSnapshot_HasDirectCellOwnershipAndImmutableSpatialProvenance()
+	{
+		var snapshot = File.ReadAllText(BlankDatabaseSnapshotManifest.GetSnapshotPath(GetDatabaseSeederProjectDirectory()));
+		var cell = ReadTableDeclaration(snapshot, "cells");
+		Assert.IsFalse(cell.Contains("`RoomId`", StringComparison.Ordinal));
+		StringAssert.Contains(cell, "`ZoneId` bigint NOT NULL");
+		foreach (var coordinate in new[] { "X", "Y", "Z" }) StringAssert.Contains(cell, $"`{coordinate}` int NOT NULL");
+		Assert.IsFalse(snapshot.Contains("CREATE TABLE `rooms`", StringComparison.Ordinal));
+		Assert.IsFalse(snapshot.Contains("CREATE TABLE `areas_rooms`", StringComparison.Ordinal));
+		StringAssert.Contains(ReadTableDeclaration(snapshot, "areas_cells"), "PRIMARY KEY (`AreaId`,`CellId`)");
+		foreach (var table in new[] { "cellroommigrationledger", "cellroomareamigrationledger", "cellroomcontractionledger", "cellroomareacontractionledger" })
+			Assert.IsFalse(ReadTableDeclaration(snapshot, table).Contains("FOREIGN KEY", StringComparison.Ordinal), "Historical identities must survive later deletion: " + table);
+	}
+
+	[TestMethod]
 	public void CommittedBlankSnapshot_CelestialsSupportDenseSources()
 	{
 		var snapshot = File.ReadAllText(BlankDatabaseSnapshotManifest.GetSnapshotPath(GetDatabaseSeederProjectDirectory()));

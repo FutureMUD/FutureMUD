@@ -1,4 +1,4 @@
-﻿using MudSharp.Character.Heritage;
+using MudSharp.Character.Heritage;
 using MudSharp.Commands.Socials;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
@@ -211,7 +211,7 @@ public static class PerceivedItemExtensions
 		}
 
         HashSet<ICell> targetSet = NewCellSet();
-        List<IRoom> targetRooms = new();
+        List<ICell> targetRooms = new();
         foreach (ICell target in targets)
         {
             if (target == null)
@@ -229,9 +229,9 @@ public static class PerceivedItemExtensions
                 return new List<ICellExit>();
             }
 
-            if (targetSet.Add(target) && target.Room != null)
+            if (targetSet.Add(target) && target != null)
             {
-                targetRooms.Add(target.Room);
+                targetRooms.Add(target);
             }
         }
 
@@ -362,17 +362,17 @@ public static class PerceivedItemExtensions
             : new List<ICellExit>();
     }
 
-    private static double SearchPriority(int distance, ICell cell, IReadOnlyCollection<IRoom> targetRooms)
+    private static double SearchPriority(int distance, ICell cell, IReadOnlyCollection<ICell> targetRooms)
     {
-        if (cell?.Room == null || targetRooms == null || targetRooms.Count == 0)
+        if (cell == null || targetRooms == null || targetRooms.Count == 0)
         {
             return distance;
         }
 
         double bestSquaredDistance = double.MaxValue;
-        foreach (IRoom room in targetRooms)
+        foreach (ICell room in targetRooms)
         {
-            double squaredDistance = SquaredDistance(cell.Room, room);
+            double squaredDistance = SquaredDistance(cell, room);
             if (squaredDistance < bestSquaredDistance)
             {
                 bestSquaredDistance = squaredDistance;
@@ -387,11 +387,11 @@ public static class PerceivedItemExtensions
         return distance + SameDepthHeuristicTieBreaker * bestSquaredDistance / (bestSquaredDistance + 1.0);
     }
 
-    private static double SquaredDistance(IRoom room1, IRoom room2)
+    private static double SquaredDistance(ICell room1, ICell room2)
     {
-        double x = room2.X - room1.X;
-        double y = room2.Y - room1.Y;
-        double z = room2.Z - room1.Z;
+        double x = room2.StoredCoordinates.X - room1.StoredCoordinates.X;
+        double y = room2.StoredCoordinates.Y - room1.StoredCoordinates.Y;
+        double z = room2.StoredCoordinates.Z - room1.StoredCoordinates.Z;
         return x * x + y * y + z * z;
     }
 

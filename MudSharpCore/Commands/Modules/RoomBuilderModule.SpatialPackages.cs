@@ -215,10 +215,10 @@ You must be editing an under-design #3CELL PACKAGE#0 to validate or import. A ne
 			text.AppendLine($"Package: {result.PackagePath.ColourCommand()}");
 		}
 
-		if (result.ZoneCount > 0 || result.RoomCount > 0 || result.CellCount > 0 || result.ExitCount > 0)
+		if (result.ZoneCount > 0 || result.CellCount > 0 || result.ExitCount > 0)
 		{
 			text.AppendLine(
-				$"Contents: {result.ZoneCount.ToString("N0", actor).ColourValue()} zone(s), {result.RoomCount.ToString("N0", actor).ColourValue()} room(s), {result.CellCount.ToString("N0", actor).ColourValue()} cell(s), {result.ExitCount.ToString("N0", actor).ColourValue()} packaged exit(s)");
+				$"Contents: {result.ZoneCount.ToString("N0", actor).ColourValue()} zone(s), {result.CellCount.ToString("N0", actor).ColourValue()} cell(s), {result.ExitCount.ToString("N0", actor).ColourValue()} packaged exit(s)");
 		}
 
 		foreach (var diagnostic in result.Diagnostics.Where(x => x.Code != "empty-room-skipped"))

@@ -552,7 +552,7 @@ The syntax is as follows:
             foreach (ICell location in effect.SpiedCells)
             {
                 sb.AppendLine(
-                    $"\t{location.HowSeen(actor)} ({location.Id}) in {location.Room.Zone.Name.Colour(Telnet.BoldWhite)}");
+                    $"\t{location.HowSeen(actor)} ({location.Id}) in {location.OwningZone.Name.Colour(Telnet.BoldWhite)}");
             }
 
             actor.Send(sb.ToString());
@@ -4075,7 +4075,7 @@ The syntax is as follows:
         StringBuilder sb = new();
         sb.AppendLine($"Sniffing Cell {cell.Id}...");
         sb.AppendLine(
-            $"Room: {cell.Room.Id} - Zone: {cell.Room.Zone.Name} ({cell.Room.Zone.Id}) - Shard: {cell.Room.Zone.Shard.Name} ({cell.Room.Zone.Shard.Id})");
+            $"Cell: {cell.Id} - Zone: {cell.OwningZone.Name} ({cell.OwningZone.Id}) - Shard: {cell.OwningZone.Shard.Name} ({cell.OwningZone.Shard.Id})");
         sb.AppendLine(
             $"Current Overlay: {cell.CurrentOverlay.Id} from package {cell.CurrentOverlay.Package.Name.Colour(Telnet.Green)} ({cell.CurrentOverlay.Package.Id}r{cell.CurrentOverlay.Package.RevisionNumber})");
         sb.AppendLine("All overlays:");

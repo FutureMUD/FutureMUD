@@ -367,16 +367,14 @@ internal static class ScatterTestHelpers
 
         internal CellData AddCell(string name, (int X, int Y, int Z) coordinates)
         {
-            Mock<IRoom> room = new();
-            room.SetupGet(x => x.X).Returns(coordinates.X);
-            room.SetupGet(x => x.Y).Returns(coordinates.Y);
-            room.SetupGet(x => x.Z).Returns(coordinates.Z);
-
             Mock<ICell> cell = new();
             long cellId = _nextCellId++;
             cell.SetupGet(x => x.Name).Returns(name);
             cell.SetupGet(x => x.Id).Returns(cellId);
-            cell.SetupGet(x => x.Room).Returns(room.Object);
+            cell.SetupGet(x => x.StoredCoordinates).Returns(coordinates);
+            cell.SetupGet(x => x.X).Returns(coordinates.X);
+            cell.SetupGet(x => x.Y).Returns(coordinates.Y);
+            cell.SetupGet(x => x.Z).Returns(coordinates.Z);
             cell.SetupGet(x => x.EventHandlers).Returns(Array.Empty<IHandleEvents>());
             cell.SetupGet(x => x.Cells).Returns(Array.Empty<ICell>());
             cell.Setup(x => x.Equals(It.IsAny<object>())).Returns<object>(obj =>

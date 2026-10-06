@@ -1,4 +1,4 @@
-﻿using MudSharp.Communication.Language;
+using MudSharp.Communication.Language;
 using MudSharp.Construction;
 using MudSharp.Events;
 using MudSharp.Form.Audio;
@@ -73,7 +73,7 @@ public class ListeningBugGameItemComponent : GameItemComponent, IConsumePower, I
 
         foreach (
             IReceive item in
-            Gameworld.Items.Where(x => x.TrueLocations.Any(y => zones.Contains(y.Room.Zone)))
+            Gameworld.Items.Where(x => x.TrueLocations.Any(y => zones.Contains(y.OwningZone)))
                      .SelectNotNull(x => x.GetItemType<IReceive>()))
         {
             item.ReceiveTransmission(_prototype.BroadcastFrequency, spokenLanguage, 0, this);

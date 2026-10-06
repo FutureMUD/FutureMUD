@@ -9,16 +9,17 @@ namespace MudSharp.Construction.ImportExport;
 
 public sealed class SpatialAreaPackageReadResult
 {
+	public int SourceVersion { get; init; } = SpatialAreaPackage.CurrentVersion;
+	public string? SourceIntegritySha256 { get; init; }
 	public SpatialAreaPackage? Package { get; init; }
 	public IReadOnlyList<SpatialAreaTransferDiagnostic> Diagnostics { get; init; } = [];
 	public bool Success => Package is not null &&
 	                       Diagnostics.All(x => x.Severity != SpatialAreaTransferDiagnosticSeverity.Error);
 }
 
-public static class SpatialAreaPackageSerializer
+public static partial class SpatialAreaPackageSerializer
 {
 	public const long MaximumPackageBytes = 16L * 1024L * 1024L;
-	public const int MaximumRooms = 10_000;
 	public const int MaximumCells = 20_000;
 	public const int MaximumExits = 50_000;
 
@@ -32,21 +33,10 @@ public static class SpatialAreaPackageSerializer
 		WriteIndented = true
 	};
 
-	private sealed class SpatialAreaPackageV1
-	{
-		public string Format { get; set; } = SpatialAreaPackage.CurrentFormat;
-		public int Version { get; set; } = 1;
-		public string IntegritySha256 { get; set; } = string.Empty;
-		public DateTime CreatedUtc { get; set; }
-		public SpatialAreaPackageSource Source { get; set; } = new();
-		public SpatialZoneDefinition Zone { get; set; } = new();
-		public List<SpatialRoomDefinition> Rooms { get; set; } = [];
-		public List<SpatialCellDefinition> Cells { get; set; } = [];
-		public List<SpatialExitDefinition> Exits { get; set; } = [];
-	}
-
 	public static string Serialize(SpatialAreaPackage package)
 	{
+		if (package.Version != SpatialAreaPackage.CurrentVersion)
+			throw new ArgumentException("Only direct-cell version 4 packages can be written.", nameof(package));
 		package.IntegritySha256 = string.Empty;
 		var canonicalJson = SerializeForVersion(package);
 		package.IntegritySha256 = ComputeHash(canonicalJson);
@@ -61,6 +51,23 @@ public static class SpatialAreaPackageSerializer
 			diagnostics.Add(Error("package-too-large",
 				$"The package exceeds the {MaximumPackageBytes:N0}-byte safety limit."));
 			return new SpatialAreaPackageReadResult { Diagnostics = diagnostics };
+		}
+
+		try
+		{
+			using var document = JsonDocument.Parse(json);
+			if (document.RootElement.ValueKind != JsonValueKind.Object ||
+			    !document.RootElement.TryGetProperty("Version", out var versionElement) ||
+			    versionElement.ValueKind != JsonValueKind.Number ||
+			    !versionElement.TryGetInt32(out var version))
+				return new SpatialAreaPackageReadResult { Diagnostics = [Error("unsupported-version", "A numeric package version is required.")] };
+			if (version is >= 1 and <= 3) return ReadLegacy(json);
+			if (version != SpatialAreaPackage.CurrentVersion)
+				return new SpatialAreaPackageReadResult { Diagnostics = [Error("unsupported-version", $"Package version {version} is not supported.")] };
+		}
+		catch (JsonException ex)
+		{
+			return new SpatialAreaPackageReadResult { Diagnostics = [Error("invalid-json", ex.Message)] };
 		}
 
 		SpatialAreaPackage? package;
@@ -112,13 +119,13 @@ public static class SpatialAreaPackageSerializer
 				$"Expected format '{SpatialAreaPackage.CurrentFormat}', but found '{package.Format}'."));
 		}
 
-		if (package.Version is < SpatialAreaPackage.MinimumSupportedVersion or > SpatialAreaPackage.CurrentVersion)
+		if (package.Version != SpatialAreaPackage.CurrentVersion)
 		{
 			diagnostics.Add(Error("unsupported-version",
-				$"Package version {package.Version:N0} is not supported; this server supports versions {SpatialAreaPackage.MinimumSupportedVersion:N0} through {SpatialAreaPackage.CurrentVersion:N0}."));
+				$"Package version {package.Version:N0} is not supported; normalised packages must use version {SpatialAreaPackage.CurrentVersion:N0}."));
 		}
 
-		if (package.Rooms is null || package.Cells is null || package.Exits is null || package.Zone is null ||
+		if (package.Cells is null || package.Exits is null ||
 		    package.Source is null || package.Omissions is null)
 		{
 			diagnostics.Add(Error("missing-sections", "The package is missing one or more required sections."));
@@ -130,7 +137,7 @@ public static class SpatialAreaPackageSerializer
 		     package.Zones.Count != package.SourceZones.Count))
 		{
 			diagnostics.Add(Error("invalid-zone-sources",
-				"Version 2 packages must contain one source entry for every zone definition."));
+				"Packages must contain one source entry for every zone definition."));
 			return diagnostics;
 		}
 
@@ -145,7 +152,7 @@ public static class SpatialAreaPackageSerializer
 
 		if (package.Version >= 3 && package.Areas is null)
 		{
-			diagnostics.Add(Error("missing-areas", "Version 3 packages must contain their area collection."));
+			diagnostics.Add(Error("missing-areas", "Packages must contain their area collection."));
 			return diagnostics;
 		}
 
@@ -153,12 +160,6 @@ public static class SpatialAreaPackageSerializer
 		{
 			diagnostics.Add(Error("null-area-entry", "Area collections may not contain null entries."));
 			return diagnostics;
-		}
-
-		if (package.Rooms.Count is < 1 or > MaximumRooms)
-		{
-			diagnostics.Add(Error("invalid-room-count",
-				$"The package must contain between 1 and {MaximumRooms:N0} rooms."));
 		}
 
 		if (package.Cells.Count is < 1 or > MaximumCells)
@@ -173,13 +174,12 @@ public static class SpatialAreaPackageSerializer
 				$"The package may contain at most {MaximumExits:N0} exits."));
 		}
 
-		if (package.Rooms.Cast<object?>().Any(x => x is null) ||
-		    package.Cells.Cast<object?>().Any(x => x is null) ||
+		if (package.Cells.Cast<object?>().Any(x => x is null) ||
 		    package.Exits.Cast<object?>().Any(x => x is null) ||
 		    package.Omissions.Cast<object?>().Any(x => x is null))
 		{
 			diagnostics.Add(Error("null-collection-entry",
-				"Room, cell, exit, and omission collections may not contain null entries."));
+				"Cell, exit, and omission collections may not contain null entries."));
 			return diagnostics;
 		}
 
@@ -198,39 +198,22 @@ public static class SpatialAreaPackageSerializer
 		}
 
 		ValidateUniqueKeys(zones.Select((zone, index) => ZoneKey(package, zone, index)), "zone", diagnostics);
-		ValidateUniqueKeys(package.Rooms.Select(x => x.Key), "room", diagnostics);
 		ValidateUniqueKeys(package.Cells.Select(x => x.Key), "cell", diagnostics);
 		ValidateUniqueKeys(package.Exits.Select(x => x.Key), "exit", diagnostics);
 
-		var roomKeys = package.Rooms.Select(x => x.Key).ToHashSet(StringComparer.Ordinal);
+		if (diagnostics.Any(x => x.Severity == SpatialAreaTransferDiagnosticSeverity.Error)) return diagnostics;
+
 		var cellKeys = package.Cells.Select(x => x.Key).ToHashSet(StringComparer.Ordinal);
 		var exitKeys = package.Exits.Select(x => x.Key).ToHashSet(StringComparer.Ordinal);
 		var zoneKeys = zones
 			.Select((zone, index) => ZoneKey(package, zone, index))
 			.ToHashSet(StringComparer.Ordinal);
-		foreach (var room in package.Rooms.Where(room =>
-			         package.Cells.All(cell => !string.Equals(cell.RoomKey, room.Key, StringComparison.Ordinal))))
-		{
-			diagnostics.Add(Warning("empty-room-skipped",
-				$"Room '{room.Key}' (source #{room.SourceId:N0}) has no packaged cell and will be skipped."));
-		}
-
-		foreach (var room in package.Rooms)
-		{
-			var zoneKey = RoomZoneKey(package, room);
-			if (!zoneKeys.Contains(zoneKey))
-			{
-				diagnostics.Add(Error("orphan-room",
-					$"Room '{room.Key}' references missing zone '{zoneKey}'."));
-			}
-		}
-
 		foreach (var cell in package.Cells)
 		{
-			if (!roomKeys.Contains(cell.RoomKey))
+			if (!zoneKeys.Contains(cell.ZoneKey))
 			{
 				diagnostics.Add(Error("orphan-cell",
-					$"Cell '{cell.Key}' references missing room '{cell.RoomKey}'."));
+					$"Cell '{cell.Key}' references missing zone '{cell.ZoneKey}'."));
 			}
 
 			if (cell.Overlay is null)
@@ -401,31 +384,14 @@ public static class SpatialAreaPackageSerializer
 		}
 
 		ValidateZones(package, zones, cellKeys, diagnostics);
-		ValidateAreas(package, roomKeys, diagnostics);
+		ValidateAreas(package, cellKeys, diagnostics);
 
 		return diagnostics;
 	}
 
-	public static IReadOnlyList<SpatialZoneDefinition> GetZoneDefinitions(SpatialAreaPackage package)
-	{
-		return package.Version >= 2 && package.Zones is { Count: > 0 }
-			? package.Zones
-			: package.Zone is null ? [] : [package.Zone];
-	}
+	public static IReadOnlyList<SpatialZoneDefinition> GetZoneDefinitions(SpatialAreaPackage package) => package.Zones ?? [];
 
-	public static string ZoneKey(SpatialAreaPackage package, SpatialZoneDefinition zone, int index)
-	{
-		return package.Version >= 2
-			? zone.Key ?? string.Empty
-			: "zone-00001";
-	}
-
-	public static string RoomZoneKey(SpatialAreaPackage package, SpatialRoomDefinition room)
-	{
-		return package.Version >= 2
-			? room.ZoneKey ?? string.Empty
-			: "zone-00001";
-	}
+	public static string ZoneKey(SpatialAreaPackage package, SpatialZoneDefinition zone, int index) => zone.Key ?? string.Empty;
 
 	private static void ValidateZones(
 		SpatialAreaPackage package,
@@ -433,9 +399,6 @@ public static class SpatialAreaPackageSerializer
 		IReadOnlySet<string> cellKeys,
 		ICollection<SpatialAreaTransferDiagnostic> diagnostics)
 	{
-		var roomByKey = package.Rooms
-			.GroupBy(x => x.Key, StringComparer.Ordinal)
-			.ToDictionary(x => x.Key, x => x.First(), StringComparer.Ordinal);
 		foreach (var (zone, index) in zones.Select((value, index) => (value, index)))
 		{
 			var zoneKey = ZoneKey(package, zone, index);
@@ -447,8 +410,7 @@ public static class SpatialAreaPackageSerializer
 			else
 			{
 				var defaultCell = package.Cells.First(x => x.Key == zone.DefaultCellKey);
-				if (roomByKey.TryGetValue(defaultCell.RoomKey, out var defaultRoom) &&
-				    !RoomZoneKey(package, defaultRoom).Equals(zoneKey, StringComparison.Ordinal))
+				if (!string.Equals(defaultCell.ZoneKey, zoneKey, StringComparison.Ordinal))
 				{
 					diagnostics.Add(Error("wrong-zone-default-cell",
 						$"Zone '{zoneKey}' default cell belongs to another packaged zone."));
@@ -514,7 +476,7 @@ public static class SpatialAreaPackageSerializer
 
 	private static void ValidateAreas(
 		SpatialAreaPackage package,
-		IReadOnlySet<string> roomKeys,
+		IReadOnlySet<string> cellKeys,
 		ICollection<SpatialAreaTransferDiagnostic> diagnostics)
 	{
 		if (package.Version < 3)
@@ -530,23 +492,23 @@ public static class SpatialAreaPackageSerializer
 				diagnostics.Add(Error("missing-area-name", $"Package area '{area.Key}' must have a name."));
 			}
 
-			if (area.RoomKeys is null || area.RoomKeys.Count == 0)
+			if (area.CellKeys is null || area.CellKeys.Count == 0)
 			{
-				diagnostics.Add(Error("invalid-area-rooms",
-					$"Package area '{area.Key}' must contain at least one room."));
+				diagnostics.Add(Error("invalid-area-cells",
+					$"Package area '{area.Key}' must contain at least one cell."));
 				continue;
 			}
 
-			if (area.RoomKeys.Any(x => !roomKeys.Contains(x)))
+			if (area.CellKeys.Any(x => !cellKeys.Contains(x)))
 			{
-				diagnostics.Add(Error("orphan-area-room",
-					$"Package area '{area.Key}' references a room outside the package."));
+				diagnostics.Add(Error("orphan-area-cell",
+					$"Package area '{area.Key}' references a cell outside the package."));
 			}
 
-			if (area.RoomKeys.Count != area.RoomKeys.Distinct(StringComparer.Ordinal).Count())
+			if (area.CellKeys.Count != area.CellKeys.Distinct(StringComparer.Ordinal).Count())
 			{
-				diagnostics.Add(Error("duplicate-area-room",
-					$"Package area '{area.Key}' lists the same room more than once."));
+				diagnostics.Add(Error("duplicate-area-cell",
+					$"Package area '{area.Key}' lists the same cell more than once."));
 			}
 
 			if (area.WeatherController is not null && string.IsNullOrWhiteSpace(area.WeatherController.Name))
@@ -660,26 +622,7 @@ public static class SpatialAreaPackageSerializer
 		return Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(text)));
 	}
 
-	private static string SerializeForVersion(SpatialAreaPackage package)
-	{
-		if (package.Version != 1)
-		{
-			return JsonSerializer.Serialize(package, Options);
-		}
-
-		return JsonSerializer.Serialize(new SpatialAreaPackageV1
-		{
-			Format = package.Format,
-			Version = package.Version,
-			IntegritySha256 = package.IntegritySha256,
-			CreatedUtc = package.CreatedUtc,
-			Source = package.Source,
-			Zone = package.Zone,
-			Rooms = package.Rooms,
-			Cells = package.Cells,
-			Exits = package.Exits
-		}, Options);
-	}
+	private static string SerializeForVersion(SpatialAreaPackage package) => JsonSerializer.Serialize(package, Options);
 
 	private static SpatialAreaTransferDiagnostic Error(string code, string message)
 	{

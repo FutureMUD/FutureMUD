@@ -1,4 +1,4 @@
-﻿using MudSharp.Celestial;
+using MudSharp.Celestial;
 using MudSharp.Character;
 using MudSharp.Climate;
 using MudSharp.FutureProg;
@@ -12,7 +12,6 @@ namespace MudSharp.Construction
     {
         IShard Shard { get; }
         ICell DefaultCell { get; }
-        IEnumerable<IRoom> Rooms { get; }
         new IEnumerable<ICell> Cells { get; }
 
         GeographicCoordinate Geography { get; }
@@ -24,8 +23,8 @@ namespace MudSharp.Construction
 
         IEditableZone GetEditableZone { get; }
         IForagableProfile ForagableProfile { get; }
-        void Register(IRoom room);
-        void Unregister(IRoom room);
+        void Register(ICell room);
+        void Unregister(ICell room);
         void CalculateCoordinates();
         TimeOfDay CurrentTimeOfDay { get; }
         string ShowToBuilder(ICharacter builder);

@@ -2,7 +2,7 @@
 
 ## Scope
 
-This pass imports one archived RPI Engine room as one FutureMUD `Room` plus one `Cell`, grouped into one FutureMUD `Zone` and one `CellOverlayPackage` per resolved RPI zone group.
+This pass imports one archived RPI Engine room as one FutureMUD `Cell` with direct zone and integer XYZ metadata, grouped into one FutureMUD `Zone` and one `CellOverlayPackage` per resolved RPI zone group.
 
 It focuses on:
 
@@ -63,7 +63,7 @@ Room import creates one FutureMUD `CellOverlayPackage` per converted zone group.
 
 `CellOverlayPackage.Id` is a revision-group identifier rather than a database-generated key, so the importer assigns new package ids from the current maximum package id plus one, matching the runtime builder workflow.
 
-RPI room vnums are used as explicit FutureMUD `Room.Id` and `Cell.Id` values when they are positive and not already occupied in the target database. The visible in-game `ID[...]` display is the `Cell.Id`, so this preserves legacy room-number grouping for imported rooms wherever the target baseline permits it.
+RPI room vnums are used as explicit FutureMUD `Cell.Id` values when they are positive and not already occupied in the target database. The visible in-game `ID[...]` display is the `Cell.Id`, so this preserves legacy room-number grouping for imported rooms wherever the target baseline permits it.
 
 Legacy vnum `0` and any vnum that collides with an existing FutureMUD room or cell id are not inserted directly. The importer assigns a deterministic fallback id above the highest existing or legacy id for that table and emits an apply warning naming the affected source room. Dry-run audit rows include the ids that would be used.
 
@@ -216,3 +216,7 @@ Coordinates are generated deterministically per zone group:
 - when an intended coordinate is occupied, the nearest free coordinate on the same `Z` is chosen and a warning is recorded
 
 This produces stable overlay layouts without requiring hand-authored maps.
+
+## Direct cell target schema
+
+The importer targets the contracted cell schema. It allocates no Room row or Room ID. ID reservations check occupied Cell IDs; legacy RPI room vnums remain source vocabulary. New room audit entries retain the historical nullable RoomId field as null and record the actual target CellId. Existing audit files remain readable. Imported cells have no global unique name until a builder assigns one.

@@ -60,7 +60,6 @@ internal sealed class EnvironmentalMagicTestWorld : IDisposable
 	public ICharacter Builder { get; }
 	public IReadOnlyList<string> Messages => _messages;
 	private readonly List<string> _messages = new();
-	private readonly Mock<IRoom> _room = new();
 	private readonly Mock<IZone> _zone = new();
 	private readonly Mock<ICharacter> _builder = new();
 	private readonly Mock<IOutputHandler> _builderOutput = new();
@@ -101,10 +100,7 @@ internal sealed class EnvironmentalMagicTestWorld : IDisposable
 		package.SetupGet(value => value.Status).Returns(RevisionStatus.Current);
 		packages.Add(package.Object);
 		World.SetupGet(world => world.CellOverlayPackages).Returns(packages);
-		_room.SetupGet(room => room.Gameworld).Returns(World.Object);
-		_room.SetupGet(room => room.Zone).Returns(_zone.Object);
-		_room.SetupGet(room => room.Areas).Returns(Array.Empty<IArea>());
-		_room.SetupGet(room => room.Cells).Returns(() => Cells);
+		_zone.SetupGet(zone => zone.Cells).Returns(() => Cells);
 		_zone.SetupGet(zone => zone.Gameworld).Returns(World.Object);
 		World.Setup(world => world.Destroy(It.IsAny<ICell>())).Callback<ICell>(cell =>
 		{
@@ -185,7 +181,7 @@ internal sealed class EnvironmentalMagicTestWorld : IDisposable
 
 	public Cell LoadCell(Db.Cell model)
 	{
-		var cell = new Cell(model, _room.Object);
+		var cell = new Cell(model, _zone.Object);
 		cell.PostLoadTasks(model);
 		Cells.Add(cell);
 		Models[cell.Id] = model;
@@ -253,7 +249,6 @@ internal sealed class EnvironmentalMagicTestWorld : IDisposable
 		HeartbeatPumps++;
 		// Avoid retaining Moq's external-facade call history for the entire scale run.
 		World.Invocations.Clear();
-		_room.Invocations.Clear();
 		_zone.Invocations.Clear();
 		Saves.Invocations.Clear();
 	}

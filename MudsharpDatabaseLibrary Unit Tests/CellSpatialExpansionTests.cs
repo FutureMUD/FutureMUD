@@ -34,18 +34,16 @@ public class CellSpatialExpansionTests
 	[TestMethod]
 	public void Model_StagesNullableMetadataWithRestrictedZoneDeletionAndNonuniqueCoordinates()
 	{
-		var options = new DbContextOptionsBuilder<FuturemudDatabaseContext>()
-			.UseMySql("server=127.0.0.1;database=unused;uid=unused;password=unused", ServerVersion.Parse("8.0.36-mysql")).Options;
-		using var context = new FuturemudDatabaseContext(options);
-		var model = context.GetService<IDesignTimeModel>().Model;
-		var cell = model.FindEntityType(typeof(Cell))!;
+		// Historical migration model remains nullable even after the current runtime contracts.
+		var model = new CellSpatialExpansion().TargetModel;
+		var cell = model.FindEntityType("MudSharp.Models.Cell")!;
 		foreach (var name in new[] { "ZoneId", "X", "Y", "Z" }) Assert.IsTrue(cell.FindProperty(name)!.IsNullable);
 		Assert.AreEqual(DeleteBehavior.Restrict, cell.GetForeignKeys().Single(x => x.Properties.Single().Name == "ZoneId").DeleteBehavior);
-		Assert.IsTrue(cell.GetForeignKeys().Any(x => x.PrincipalEntityType.ClrType == typeof(Room)));
+		Assert.IsTrue(cell.GetForeignKeys().Any(x => x.PrincipalEntityType.Name == "MudSharp.Models.Room"));
 		Assert.IsFalse(cell.GetIndexes().Any(x => x.IsUnique && x.Properties.Any(p => p.Name is "X" or "Y" or "Z")));
-		var areas = model.FindEntityType(typeof(AreasCells))!;
+		var areas = model.FindEntityType("MudSharp.Models.AreasCells")!;
 		CollectionAssert.AreEqual(new[] { "AreaId", "CellId" }, areas.FindPrimaryKey()!.Properties.Select(x => x.Name).ToArray());
-		Assert.IsFalse(model.FindEntityType(typeof(CellRoomMigrationLedger))!.GetForeignKeys().Any());
-		Assert.IsFalse(model.FindEntityType(typeof(CellRoomAreaMigrationLedger))!.GetForeignKeys().Any());
+		Assert.IsFalse(model.FindEntityType("MudSharp.Models.CellRoomMigrationLedger")!.GetForeignKeys().Any());
+		Assert.IsFalse(model.FindEntityType("MudSharp.Models.CellRoomAreaMigrationLedger")!.GetForeignKeys().Any());
 	}
 }

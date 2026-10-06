@@ -1,4 +1,4 @@
-﻿using MudSharp.Communication.Language;
+using MudSharp.Communication.Language;
 using MudSharp.Construction;
 using MudSharp.GameItems.Prototypes;
 
@@ -531,7 +531,7 @@ public class ImplantRadioGameItemComponent : ImplantBaseGameItemComponent, IImpl
 
         foreach (
             IReceive item in
-            Gameworld.Items.Where(x => x.TrueLocations.Any(y => y != null && zones.Contains(y.Room.Zone)))
+            Gameworld.Items.Where(x => x.TrueLocations.Any(y => y != null && zones.Contains(y.OwningZone)))
                      .SelectNotNull(x => x.GetItemType<IReceive>()))
         {
             foreach (double freq in _broadcastingFrequencies)

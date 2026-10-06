@@ -100,7 +100,7 @@ The normal execution path is:
 1. Builder opens a cell overlay package.
 2. Builder runs `cell new <autoarea> ...`.
 3. The chosen `IAutobuilderArea` parses its ordered parameters.
-4. The area template calls the selected `IAutobuilderRoom` to create each cell.
+4. The area template calls the selected `IAutobuilderRoom` to create each cell directly in the chosen zone. The template class names remain builder vocabulary; no Room parent is allocated. Fresh cells and template clones start with zero stored XYZ, no unique name and no inherited Area memberships, matching the earlier fresh-parent defaults.
 5. Once the cell grid is initialised, the area template links its exits.
 6. Some area templates gather feature tags first and call `RedescribeRoom(...)` afterwards so descriptions can react to those tags.
 7. Optional `prog=<prog>` arguments can run post-processing against the generated result set.

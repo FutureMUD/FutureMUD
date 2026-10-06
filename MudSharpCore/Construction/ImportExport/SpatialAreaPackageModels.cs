@@ -8,17 +8,15 @@ public sealed class SpatialAreaPackage
 {
 	public const string CurrentFormat = "futuremud-spatial-area";
 	public const int MinimumSupportedVersion = 1;
-	public const int CurrentVersion = 3;
+	public const int CurrentVersion = 4;
 
 	public string Format { get; set; } = CurrentFormat;
 	public int Version { get; set; } = CurrentVersion;
 	public string IntegritySha256 { get; set; } = string.Empty;
 	public DateTime CreatedUtc { get; set; }
 	public SpatialAreaPackageSource Source { get; set; } = new();
-	public SpatialZoneDefinition Zone { get; set; } = new();
 	public List<SpatialAreaPackageSource> SourceZones { get; set; } = [];
 	public List<SpatialZoneDefinition> Zones { get; set; } = [];
-	public List<SpatialRoomDefinition> Rooms { get; set; } = [];
 	public List<SpatialCellDefinition> Cells { get; set; } = [];
 	public List<SpatialExitDefinition> Exits { get; set; } = [];
 	public List<SpatialAreaDefinition> Areas { get; set; } = [];
@@ -62,31 +60,23 @@ public sealed class SpatialTimeZoneDefinition
 	public string TimeZoneDescription { get; set; } = string.Empty;
 }
 
-public sealed class SpatialRoomDefinition
-{
-	public string Key { get; set; } = string.Empty;
-	public long SourceId { get; set; }
-	[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-	public string? ZoneKey { get; set; }
-	public int X { get; set; }
-	public int Y { get; set; }
-	public int Z { get; set; }
-}
-
 public sealed class SpatialAreaDefinition
 {
 	public string Key { get; set; } = string.Empty;
 	public long SourceId { get; set; }
 	public string Name { get; set; } = string.Empty;
 	public SpatialNamedReference? WeatherController { get; set; }
-	public List<string> RoomKeys { get; set; } = [];
+	public List<string> CellKeys { get; set; } = [];
 }
 
 public sealed class SpatialCellDefinition
 {
 	public string Key { get; set; } = string.Empty;
 	public long SourceId { get; set; }
-	public string RoomKey { get; set; } = string.Empty;
+	public string ZoneKey { get; set; } = string.Empty;
+	public int X { get; set; }
+	public int Y { get; set; }
+	public int Z { get; set; }
 	public SpatialCellOverlayDefinition Overlay { get; set; } = new();
 	public SpatialNamedReference? ForagableProfile { get; set; }
 	public List<SpatialNamedReference> Tags { get; set; } = [];

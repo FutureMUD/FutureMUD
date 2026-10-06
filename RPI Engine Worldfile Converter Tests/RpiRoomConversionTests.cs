@@ -198,7 +198,7 @@ public class RpiRoomConversionTests
 	}
 
 	[TestMethod]
-	public void RoomIdPlanner_PreservesPositiveLegacyVnums_ForRoomAndCellIds()
+	public void RoomIdPlanner_PreservesPositiveLegacyVnums_ForCellIds()
 	{
 		var rooms = new[]
 		{
@@ -206,12 +206,10 @@ public class RpiRoomConversionTests
 			CreateConvertedRoom(66897),
 		};
 
-		var plan = FutureMudRoomIdPlanner.Plan(rooms, new HashSet<long>(), new HashSet<long>());
+		var plan = FutureMudRoomIdPlanner.Plan(rooms, new HashSet<long>());
 
 		Assert.AreEqual(0, plan.Issues.Count);
-		Assert.AreEqual(66896L, plan.Reservations[66896].RoomId);
 		Assert.AreEqual(66896L, plan.Reservations[66896].CellId);
-		Assert.AreEqual(66897L, plan.Reservations[66897].RoomId);
 		Assert.AreEqual(66897L, plan.Reservations[66897].CellId);
 	}
 
@@ -227,17 +225,12 @@ public class RpiRoomConversionTests
 
 		var plan = FutureMudRoomIdPlanner.Plan(
 			rooms,
-			new HashSet<long> { 1000 },
 			new HashSet<long> { 1001 });
 
-		Assert.AreEqual(1002L, plan.Reservations[0].RoomId);
 		Assert.AreEqual(1002L, plan.Reservations[0].CellId);
-		Assert.AreEqual(1003L, plan.Reservations[1000].RoomId);
 		Assert.AreEqual(1000L, plan.Reservations[1000].CellId);
-		Assert.AreEqual(1001L, plan.Reservations[1001].RoomId);
 		Assert.AreEqual(1003L, plan.Reservations[1001].CellId);
 		Assert.IsTrue(plan.Issues.Any(x => x.SourceKey == "rooms.0#0" && x.Message.Contains("cannot be used")));
-		Assert.IsTrue(plan.Issues.Any(x => x.SourceKey == "rooms.1000#1000" && x.Message.Contains("already exists")));
 		Assert.IsTrue(plan.Issues.Any(x => x.SourceKey == "rooms.1001#1001" && x.Message.Contains("already exists")));
 	}
 

@@ -75,7 +75,7 @@ public sealed record FutureMudRoomImportResult(
 	IReadOnlyList<FutureMudRoomValidationIssue> Issues,
 	RoomApplyAuditReport Audit);
 
-public sealed record FutureMudRoomIdReservation(int Vnum, long RoomId, long CellId);
+public sealed record FutureMudRoomIdReservation(int Vnum, long CellId);
 
 public sealed record FutureMudRoomIdReservationPlan(
 	IReadOnlyDictionary<int, FutureMudRoomIdReservation> Reservations,
@@ -108,7 +108,6 @@ public static class FutureMudRoomIdPlanner
 {
 	public static FutureMudRoomIdReservationPlan Plan(
 		IEnumerable<ConvertedRoomDefinition> rooms,
-		IReadOnlySet<long> existingRoomIds,
 		IReadOnlySet<long> existingCellIds)
 	{
 		var roomList = rooms
@@ -116,20 +115,11 @@ public static class FutureMudRoomIdPlanner
 			.ToList();
 		Dictionary<int, FutureMudRoomIdReservation> reservations = [];
 		List<FutureMudRoomValidationIssue> issues = [];
-		HashSet<long> reservedRoomIds = [];
 		HashSet<long> reservedCellIds = [];
-		var nextRoomFallbackId = DetermineFirstFallbackId(roomList, existingRoomIds);
 		var nextCellFallbackId = DetermineFirstFallbackId(roomList, existingCellIds);
 
 		foreach (var room in roomList)
 		{
-			var roomId = ReserveId(
-				room,
-				"Room",
-				existingRoomIds,
-				reservedRoomIds,
-				ref nextRoomFallbackId,
-				issues);
 			var cellId = ReserveId(
 				room,
 				"Cell",
@@ -138,7 +128,7 @@ public static class FutureMudRoomIdPlanner
 				ref nextCellFallbackId,
 				issues);
 
-			reservations[room.Vnum] = new FutureMudRoomIdReservation(room.Vnum, roomId, cellId);
+			reservations[room.Vnum] = new FutureMudRoomIdReservation(room.Vnum, cellId);
 		}
 
 		return new FutureMudRoomIdReservationPlan(reservations, issues);
@@ -397,7 +387,6 @@ public sealed class FutureMudRoomImporter
 	private sealed class RoomDbState
 	{
 		public required ConvertedRoomDefinition Room { get; init; }
-		public required MudSharp.Models.Room DbRoom { get; init; }
 		public required MudSharp.Models.Cell DbCell { get; init; }
 		public required MudSharp.Models.CellOverlay DbOverlay { get; init; }
 	}
@@ -468,7 +457,6 @@ public sealed class FutureMudRoomImporter
 			.ToList();
 		var idPlan = FutureMudRoomIdPlanner.Plan(
 			roomsToCreate,
-			_context.Rooms.AsNoTracking().Select(x => x.Id).ToHashSet(),
 			_context.Cells.AsNoTracking().Select(x => x.Id).ToHashSet());
 		issues.AddRange(idPlan.Issues);
 
@@ -515,7 +503,7 @@ public sealed class FutureMudRoomImporter
 						room.ZoneGroupKey,
 						"would-create",
 						null,
-						reservation.RoomId,
+						null,
 						reservation.CellId,
 						null));
 				}
@@ -570,35 +558,18 @@ public sealed class FutureMudRoomImporter
 			zoneAudit.Add(new RoomApplyAuditZoneEntry(zone.GroupKey, zone.ZoneName, zone.OverlayPackageName, "created", dbZone.Id, package.Id));
 			insertedZoneCount++;
 
-			var zoneRooms = new List<(ConvertedRoomDefinition room, MudSharp.Models.Room dbRoom, FutureMudRoomIdReservation reservation)>();
+			var zoneCells = new List<(ConvertedRoomDefinition room, MudSharp.Models.Cell dbCell)>();
 			foreach (var room in zone.Rooms.OrderBy(x => x.Vnum))
 			{
 				var reservation = idPlan.Reservations[room.Vnum];
-				var dbRoom = new MudSharp.Models.Room
-				{
-					Id = reservation.RoomId,
-					ZoneId = dbZone.Id,
-					X = room.Coordinates.X,
-					Y = room.Coordinates.Y,
-					Z = room.Coordinates.Z,
-				};
-				zoneRooms.Add((room, dbRoom, reservation));
-			}
-
-			_context.Rooms.AddRange(zoneRooms.Select(x => x.dbRoom));
-			_context.SaveChanges();
-
-			var zoneCells = new List<(ConvertedRoomDefinition room, MudSharp.Models.Room dbRoom, MudSharp.Models.Cell dbCell)>();
-			foreach (var (room, dbRoom, reservation) in zoneRooms)
-			{
 				var dbCell = new MudSharp.Models.Cell
 				{
-					Id = reservation.CellId,
-					RoomId = dbRoom.Id,
+					Id = reservation.CellId, ZoneId = dbZone.Id,
+					X = room.Coordinates.X, Y = room.Coordinates.Y, Z = room.Coordinates.Z,
 					Temporary = room.RoomFlagNames.Contains(nameof(RpiRoomFlags.Temporary), StringComparer.OrdinalIgnoreCase),
-					EffectData = "<Effects/>",
+					EffectData = "<Effects/>"
 				};
-				zoneCells.Add((room, dbRoom, dbCell));
+				zoneCells.Add((room, dbCell));
 			}
 
 			_context.Cells.AddRange(zoneCells.Select(x => x.dbCell));
@@ -607,8 +578,8 @@ public sealed class FutureMudRoomImporter
 			var firstCellId = zoneCells.Select(x => x.dbCell.Id).OrderBy(x => x).FirstOrDefault();
 			dbZone.DefaultCellId = firstCellId == 0 ? null : firstCellId;
 
-			var zoneOverlays = new List<(ConvertedRoomDefinition room, MudSharp.Models.Room dbRoom, MudSharp.Models.Cell dbCell, MudSharp.Models.CellOverlay dbOverlay)>();
-			foreach (var (room, dbRoom, dbCell) in zoneCells)
+			var zoneOverlays = new List<(ConvertedRoomDefinition room, MudSharp.Models.Cell dbCell, MudSharp.Models.CellOverlay dbOverlay)>();
+			foreach (var (room, dbCell) in zoneCells)
 			{
 				var terrain = _catalog.Terrains[room.TerrainName];
 				var dbOverlay = new MudSharp.Models.CellOverlay
@@ -627,19 +598,18 @@ public sealed class FutureMudRoomImporter
 					AtmosphereType = terrain.AtmosphereType,
 					SafeQuit = room.SafeQuit,
 				};
-				zoneOverlays.Add((room, dbRoom, dbCell, dbOverlay));
+				zoneOverlays.Add((room, dbCell, dbOverlay));
 			}
 
 			_context.CellOverlays.AddRange(zoneOverlays.Select(x => x.dbOverlay));
 			_context.SaveChanges();
 
-			foreach (var (room, dbRoom, dbCell, dbOverlay) in zoneOverlays)
+			foreach (var (room, dbCell, dbOverlay) in zoneOverlays)
 			{
 				dbCell.CurrentOverlayId = dbOverlay.Id;
 				createdRoomStates[room.Vnum] = new RoomDbState
 				{
 					Room = room,
-					DbRoom = dbRoom,
 					DbCell = dbCell,
 					DbOverlay = dbOverlay,
 				};
@@ -650,7 +620,7 @@ public sealed class FutureMudRoomImporter
 					room.ZoneGroupKey,
 					"created",
 					dbZone.Id,
-					dbRoom.Id,
+					null,
 					dbCell.Id,
 					dbOverlay.Id));
 				insertedRoomCount++;

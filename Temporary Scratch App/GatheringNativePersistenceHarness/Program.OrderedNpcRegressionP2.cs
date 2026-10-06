@@ -117,7 +117,7 @@ internal static partial class GNHProgram
 		using var db = NewIndependentContext(database.ConnectionString);
 		if (create)
 		{
-			db.Cells.Add(new Db.Cell { Id = id, RoomId = source.Room.Id, EffectData = "<Effects/>" }); db.SaveChanges();
+			db.Cells.Add(new Db.Cell { Id = id, ZoneId = source.OwningZone.Id, X = source.StoredCoordinates.X, Y = source.StoredCoordinates.Y, Z = source.StoredCoordinates.Z, EffectData = "<Effects/>" }); db.SaveChanges();
 			var overlay = new Db.CellOverlay { Id = id, CellId = id, CellName = "A second disposable regression cell", CellDescription = "Native movement acceptance.",
 				Name = "ARMRegression overlay", CellOverlayPackageId = source.CurrentOverlay.Package.Id, CellOverlayPackageRevisionNumber = source.CurrentOverlay.Package.RevisionNumber,
 				TerrainId = source.CurrentOverlay.Terrain.Id, AmbientLightFactor = 1, SafeQuit = true };
@@ -128,7 +128,7 @@ internal static partial class GNHProgram
 			db.SaveChanges();
 		}
 		var model = db.Cells.Include(x => x.CellOverlays).Include(x => x.CellsMagicResources).AsNoTracking().Single(x => x.Id == id);
-		var destination = new Cell(model, source.Room); destination.PostLoadTasks(model);
+		var destination = new Cell(model, source.OwningZone); destination.PostLoadTasks(model);
 		source.ReloadRouteDefinition(db.RouteCells.AsNoTracking().Single(x => x.CellId == source.Id));
 		destination.ReloadRouteDefinition(db.RouteCells.AsNoTracking().Single(x => x.CellId == id));
 		var cells = new All<ICell>(); cells.Add(source); cells.Add(destination); native.WorldMock.SetupGet(x => x.Cells).Returns(cells);

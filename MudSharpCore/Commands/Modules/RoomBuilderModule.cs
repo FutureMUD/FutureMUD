@@ -1,4 +1,4 @@
-﻿using JetBrains.Annotations;
+using JetBrains.Annotations;
 using MoreLinq.Extensions;
 using MudSharp.Accounts;
 using MudSharp.Celestial;
@@ -692,9 +692,9 @@ Enter your text below:");
                         return;
                     }
 
-                    ICell fallback = location.Zone.Rooms.FirstOrDefault(x => x != location.Room)?.Cells.First() ??
-                    location.Shard.Rooms.FirstOrDefault(x => x != location.Room)?.Cells.First() ??
-                    actor.Gameworld.Rooms.FirstOrDefault(x => x != location.Room)?.Cells.First();
+                    ICell fallback = location.OwningZone.Cells.FirstOrDefault(x => x != location) ??
+                    location.OwningZone.Shard.Cells.FirstOrDefault(x => x != location) ??
+                    actor.Gameworld.Cells.FirstOrDefault(x => x != location);
                     if (fallback is null)
                     {
                         actor.OutputHandler.Send("You can't delete that location because there would be no fallback. There must always be a fallback room.");
@@ -745,10 +745,10 @@ Enter your text below:");
             return;
         }
 
-        Construction.Room newRoom = new(actor, actor.CurrentOverlayPackage);
-        actor.Send("You create a new cell with ID #{0}.", newRoom.Cells.First().Id);
-        actor.TransferTo(newRoom.Cells.First(), RoomLayer.GroundLevel);
-        BuiltCells.Add(newRoom.Cells.First());
+        Construction.Cell newCell = new(actor.CurrentOverlayPackage, actor.Location.OwningZone);
+        actor.Send("You create a new cell with ID #{0}.", newCell.Id);
+        actor.TransferTo(newCell, RoomLayer.GroundLevel);
+        BuiltCells.Add(newCell);
     }
 
     private static void CellDig(ICharacter actor, StringStack input)
@@ -787,8 +787,8 @@ Enter your text below:");
             return;
         }
 
-        Construction.Room newRoom = new(actor, actor.CurrentOverlayPackage);
-        ICell cell = newRoom.Cells.First();
+        Construction.Cell newCell = new(actor.CurrentOverlayPackage, actor.Location.OwningZone);
+        ICell cell = newCell;
         BuiltCells.Add(cell);
         IEditableCellOverlay otherOverlay = cell.GetOrCreateOverlay(actor.CurrentOverlayPackage);
         CardinalDirection oppositeDirection = direction.Opposite();
@@ -835,8 +835,8 @@ Enter your text below:");
         }
 
         IEditableCellOverlay overlay = actor.Location.GetOrCreateOverlay(actor.CurrentOverlayPackage);
-        Construction.Room newRoom = new(actor, actor.CurrentOverlayPackage);
-        ICell cell = newRoom.Cells.First();
+        Construction.Cell newCell = new(actor.CurrentOverlayPackage, actor.Location.OwningZone);
+        ICell cell = newCell;
         BuiltCells.Add(cell);
         IEditableCellOverlay otherOverlay = cell.GetOrCreateOverlay(actor.CurrentOverlayPackage);
         Construction.Boundary.Exit newExit = new(actor.Gameworld, actor.Location, cell, 1.0, template,
@@ -944,8 +944,7 @@ Enter your text below:");
         sb.AppendLine(string.Format(actor, "Showing Cell ID {0:N0}", cell.Id).Colour(Telnet.Cyan));
         sb.Append(new[]
         {
-            $"Cell ID: {cell.Id.ToString("N0", actor).Colour(Telnet.Green)}",
-            $"Room ID: {cell.Room.Id.ToString("N0", actor).Colour(Telnet.Green)}"
+            $"Cell ID: {cell.Id.ToString("N0", actor).Colour(Telnet.Green)}"
         }.ArrangeStringsOntoLines(2, (uint)actor.Account.LineFormatLength));
         sb.Append(new[]
         {
@@ -1075,7 +1074,7 @@ The syntax is:
                         zone.Calendars.FirstOrDefault()?
                             .DisplayDate(zone.Date(zone.Calendars.First()),
                                 CalendarDisplayMode.Short) ?? "",
-                        zone.Rooms.Count().ToString("N0", actor),
+                        zone.Cells.Count().ToString("N0", actor),
                         zone.Shard.Name
                     },
                 new[] { "ID#", "Name", "Local Time", "Local Date", "# Rooms", "Shard" },
@@ -1197,7 +1196,7 @@ The syntax is:
             return;
         }
 
-        actor.Location.Room.SetNewZone(zone);
+        actor.Location.SetNewZone(zone);
         actor.Send(
             $"{actor.Location.HowSeen(actor, true)} is now in zone {zone.Name.Colour(Telnet.Cyan)} (#{zone.Id})");
     }
@@ -1663,23 +1662,13 @@ See the #3CELL#0 command for more information about #3CELL PACKAGES#0.";
             FMDB.Context.SaveChanges();
 
 
-            Models.Room dbroom = new();
-            FMDB.Context.Rooms.Add(dbroom);
-
-            dbroom.Zone = dbzone;
-            dbroom.X = 0;
-            dbroom.Y = 0;
-            dbroom.Z = 0;
-
-            FMDB.Context.SaveChanges();
-
             Models.Cell dbcell = new()
             {
                 EffectData = "<Effects/>"
             };
             FMDB.Context.Cells.Add(dbcell);
 
-            dbcell.Room = dbroom;
+            dbcell.Zone = dbzone;
             dbzone.DefaultCell = dbcell;
 
             FMDB.Context.SaveChanges();
@@ -1706,9 +1695,7 @@ See the #3CELL#0 command for more information about #3CELL PACKAGES#0.";
 
             Construction.Zone newZone = new(dbzone, actor.Gameworld);
             actor.Gameworld.Add(newZone);
-            Construction.Room newRoom = new(dbroom, newZone);
-            actor.Gameworld.Add(newRoom);
-            Construction.Cell newCell = new(dbcell, newRoom);
+            Construction.Cell newCell = new(dbcell, newZone);
             actor.Gameworld.Add(newCell);
             newZone.PostLoadSetup();
 
@@ -4515,24 +4502,15 @@ The syntax for working with areas is as follows:
             return;
         }
 
-        if (!area.Rooms.Contains(actor.Location.Room))
+        if (!area.Cells.Contains(actor.Location))
         {
             actor.OutputHandler.Send("You currently location is not currently considered a part of that area.");
             return;
         }
 
         IEditableArea editArea = (IEditableArea)area;
-        editArea.Remove(actor.Location.Room);
-        if (actor.Location.Room.Cells.Count() > 1)
-        {
-            actor.OutputHandler.Send(
-                $"You remove your current location and associated locations in the same room from the {area.Name.Colour(Telnet.Cyan)} area.");
-        }
-        else
-        {
-            actor.OutputHandler.Send(
-                $"You remove your current location from the {area.Name.Colour(Telnet.Cyan)} area.");
-        }
+        editArea.Remove(actor.Location);
+        actor.OutputHandler.Send($"You remove your current location from the {area.Name.Colour(Telnet.Cyan)} area.");
     }
 
     private static void AreaAdd(ICharacter actor, StringStack ss)
@@ -4544,23 +4522,15 @@ The syntax for working with areas is as follows:
             return;
         }
 
-        if (area.Rooms.Contains(actor.Location.Room))
+        if (area.Cells.Contains(actor.Location))
         {
             actor.OutputHandler.Send("You currently location is already considered a part of that area.");
             return;
         }
 
         IEditableArea editArea = (IEditableArea)area;
-        editArea.Add(actor.Location.Room);
-        if (actor.Location.Room.Cells.Count() > 1)
-        {
-            actor.OutputHandler.Send(
-                $"You add your current location and associated locations in the same room to the {area.Name.Colour(Telnet.Cyan)} area.");
-        }
-        else
-        {
-            actor.OutputHandler.Send($"You add your current location to the {area.Name.Colour(Telnet.Cyan)} area.");
-        }
+        editArea.Add(actor.Location);
+        actor.OutputHandler.Send($"You add your current location to the {area.Name.Colour(Telnet.Cyan)} area.");
     }
 
     private static void AreaView(ICharacter actor, StringStack ss)
@@ -4616,7 +4586,7 @@ The syntax for working with areas is as follows:
             return;
         }
 
-        Area area = new(actor.Location.Room, name);
+        Area area = new(actor.Location, name);
         actor.OutputHandler.Send(
             $"You create the new area {area.Name.Colour(Telnet.Cyan)}, with ID #{area.Id.ToString("N0", actor)}. You are now editing this area.");
         actor.RemoveAllEffects(x => x.IsEffectType<BuilderEditingEffect<IArea>>());

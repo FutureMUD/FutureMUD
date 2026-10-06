@@ -1,4 +1,4 @@
-﻿using MudSharp.Celestial;
+using MudSharp.Celestial;
 using MudSharp.FutureProg;
 using MudSharp.TimeAndDate.Date;
 using MudSharp.TimeAndDate.Time;
@@ -11,15 +11,14 @@ namespace MudSharp.Construction
         double MinimumTerrestrialLux { get; }
         IEditableShard GetEditableShard { get; }
         double SphericalRadiusMetres { get; }
-        IRoom DetermineRoomByCoordinates(int x, int y, int z);
-        IRoom DetermineRoomByDirection(IRoom fromRoom, CardinalDirection direction);
-        void Register(IRoom room);
-        void Unregister(IRoom room);
+        ICell DetermineCellByCoordinates(int x, int y, int z);
+        ICell DetermineCellByDirection(ICell fromCell, CardinalDirection direction);
+        void Register(ICell room);
+        void Unregister(ICell room);
         void Register(IZone zone);
         void Unregister(IZone zone);
         string DescribeSky(double skyBrightness);
         IEnumerable<IZone> Zones { get; }
-        IEnumerable<IRoom> Rooms { get; }
         new IEnumerable<ICell> Cells { get; }
     }
 

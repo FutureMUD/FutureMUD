@@ -29,7 +29,6 @@ public class WeatherHazardTests
 		using var world = new EnvironmentalMagicTestWorld();
 		var cell = world.Cells.OfType<Cell>().First();
 		var zone = Mock.Get(cell.Zone);
-		var room = Mock.Get(cell.Room);
 		var first = new Mock<IWeatherController>();
 		var second = new Mock<IWeatherController>();
 		zone.SetupGet(x => x.WeatherController).Returns(first.Object);
@@ -40,16 +39,14 @@ public class WeatherHazardTests
 		first.Raise(x => x.WeatherRoomTick += null, first.Object, visit);
 		Assert.AreEqual(1, ticks);
 		var area = Mock.Of<IArea>(x => x.WeatherController == first.Object);
-		room.SetupGet(x => x.Areas).Returns(new[] { area });
-		cell.AreaAdded(area);
+		cell.AddArea(area);
 		zone.SetupGet(x => x.WeatherController).Returns(second.Object);
 		cell.RefreshWeatherSubscriptions();
 		second.Raise(x => x.WeatherRoomTick += null, second.Object, visit);
 		Assert.AreEqual(1, ticks, "An inactive zone controller must not tick the area-controlled cell.");
 		first.Raise(x => x.WeatherRoomTick += null, first.Object, visit);
 		Assert.AreEqual(2, ticks);
-		room.SetupGet(x => x.Areas).Returns(Array.Empty<IArea>());
-		cell.AreaRemoved(area);
+		cell.RemoveArea(area);
 		first.Raise(x => x.WeatherRoomTick += null, first.Object, visit);
 		second.Raise(x => x.WeatherRoomTick += null, second.Object, visit);
 		Assert.AreEqual(3, ticks);

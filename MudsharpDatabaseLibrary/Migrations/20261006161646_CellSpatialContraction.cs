@@ -20,6 +20,7 @@ BEGIN
  DECLARE column_name_value VARCHAR(64);
  DECLARE diagnostic VARCHAR(128);
  DECLARE object_definition LONGTEXT;
+ DECLARE legacy_trigger_name VARCHAR(64);
  DECLARE candidate_definitions CURSOR FOR
   SELECT 'view', TABLE_NAME, VIEW_DEFINITION FROM information_schema.VIEWS WHERE TABLE_SCHEMA=DATABASE()
   UNION ALL SELECT 'routine', ROUTINE_NAME, ROUTINE_DEFINITION FROM information_schema.ROUTINES
@@ -77,6 +78,12 @@ BEGIN
  IF EXISTS(SELECT 1 FROM information_schema.KEY_COLUMN_USAGE WHERE REFERENCED_TABLE_SCHEMA=DATABASE()
            AND (LOWER(REFERENCED_TABLE_NAME)='areas_rooms' OR (LOWER(REFERENCED_TABLE_NAME)='cells' AND LOWER(REFERENCED_COLUMN_NAME)='roomid'))) THEN
   SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT='Cell spatial contraction: unknown referent to legacy membership or Cell.RoomId';
+ END IF;
+ SELECT MIN(TRIGGER_NAME) INTO legacy_trigger_name FROM information_schema.TRIGGERS
+  WHERE TRIGGER_SCHEMA=DATABASE() AND LOWER(EVENT_OBJECT_TABLE) IN ('rooms','areas_rooms');
+ IF legacy_trigger_name IS NOT NULL THEN
+  SET diagnostic=CONCAT('Cell contraction: trigger ',legacy_trigger_name,'; explicit disposition required');
+  SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT=diagnostic;
  END IF;
  OPEN candidate_definitions;
  scan_definitions: LOOP

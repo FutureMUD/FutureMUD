@@ -84,12 +84,20 @@ internal static partial class GNHProgram
 			var stateSchema = CaptureSpatialSchema(c);
 			var stateValues = CaptureSpatialValues(c, stateSchema);
 			var stateDefinitions = CaptureSpatialTableDefinitions(c, stateSchema);
+			var stateHistory = CaptureSpatialValues(c, historySchema);
+			var stateObjects = CaptureSpatialObjectDefinitions(c);
 			try { Migrate(optIn, reconcile); throw new InvalidOperationException("Contraction unexpectedly accepted " + label); }
 			catch (MySqlConnector.MySqlException ex) when (ex.Message.Contains(expected, StringComparison.OrdinalIgnoreCase)) { }
 			Require(Scalar("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name='rooms'") == 1, "Refusal precedes Room deletion.");
 			Require(Scalar("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name='cellroomcontractionledger'") == 0, "Refusal precedes game-table DDL.");
 			Require(SpatialValuesEqual(stateValues, CaptureSpatialValues(c, stateSchema)), "Refusal changes no game data: " + label);
+			var actualSchema = CaptureSpatialSchema(c);
+			Require(stateSchema.Count == actualSchema.Count && stateSchema.All(x => actualSchema.TryGetValue(x.Key, out var v) && x.Value.SequenceEqual(v)), "Refusal changes no game schema: " + label);
 			Require(SpatialValuesEqual(stateDefinitions, CaptureSpatialTableDefinitions(c, stateSchema)), "Refusal changes no game table definitions: " + label);
+			Require(SpatialValuesEqual(stateHistory, CaptureSpatialValues(c, historySchema)), "Refusal changes no migration history: " + label);
+			var actualObjects = CaptureSpatialObjectDefinitions(c);
+			actualObjects.Remove("routine:fm_cell_spatial_contract_20261006161646");
+			Require(SpatialValuesEqual(stateObjects, actualObjects), "Refusal preserves SQL objects and trigger ownership/definitions: " + label);
 			c.Close(); Restore();
 			Console.WriteLine("CellSpatialContraction-refusal=PASS game-data-and-tables-unchanged case=" + label);
 		}
@@ -108,6 +116,8 @@ internal static partial class GNHProgram
 		Refuse("view-reference", "CREATE VIEW fixture_room_view AS SELECT Id FROM rooms;", "unclassified or unreadable view");
 		Refuse("routine-reference", "CREATE PROCEDURE fixture_room_routine() SELECT Id FROM rooms;", "unclassified or unreadable routine");
 		Refuse("trigger-reference", "CREATE TRIGGER fixture_room_trigger AFTER INSERT ON fixture_object_audit FOR EACH ROW INSERT INTO fixture_object_audit VALUES((SELECT COUNT(*) FROM rooms));", "unclassified or unreadable trigger");
+		Refuse("trigger-owner-rooms", "CREATE TRIGGER fixture_owner_rooms AFTER INSERT ON rooms FOR EACH ROW DO 1;", "fixture_owner_rooms");
+		Refuse("trigger-owner-areas-rooms", "CREATE TRIGGER fixture_owner_areas_rooms AFTER INSERT ON areas_rooms FOR EACH ROW DO 1;", "fixture_owner_areas_rooms");
 		Refuse("event-reference", "CREATE EVENT fixture_room_event ON SCHEDULE EVERY 1 DAY DISABLE DO DELETE FROM rooms WHERE Id=-1;", "unclassified or unreadable event");
 		Refuse("typed-reference", "UPDATE cells SET EffectData='<Effects><AnchorType>Room</AnchorType><AnchorId>9000</AnchorId></Effects>' WHERE Id=8101;", "Room reference");
 		Refuse("reconcile-trigger", "CREATE TRIGGER fixture_copy_trigger AFTER UPDATE ON cells FOR EACH ROW DO 1; UPDATE rooms SET X=18 WHERE Id=9000;", "trigger", reconcile: true);
@@ -151,7 +161,7 @@ internal static partial class GNHProgram
 	private static Dictionary<string, string> CaptureSpatialObjectDefinitions(MySqlConnection connection)
 	{
 		var result = new Dictionary<string, string>(StringComparer.Ordinal);
-		using var command = new MySqlCommand("SELECT CONCAT('view:',TABLE_NAME),VIEW_DEFINITION FROM information_schema.views WHERE table_schema=DATABASE() UNION ALL SELECT CONCAT('routine:',ROUTINE_NAME),ROUTINE_DEFINITION FROM information_schema.routines WHERE routine_schema=DATABASE() UNION ALL SELECT CONCAT('trigger:',TRIGGER_NAME),ACTION_STATEMENT FROM information_schema.triggers WHERE trigger_schema=DATABASE() UNION ALL SELECT CONCAT('event:',EVENT_NAME),EVENT_DEFINITION FROM information_schema.events WHERE event_schema=DATABASE() ORDER BY 1", connection);
+		using var command = new MySqlCommand("SELECT CONCAT('view:',TABLE_NAME),VIEW_DEFINITION FROM information_schema.views WHERE table_schema=DATABASE() UNION ALL SELECT CONCAT('routine:',ROUTINE_NAME),ROUTINE_DEFINITION FROM information_schema.routines WHERE routine_schema=DATABASE() UNION ALL SELECT CONCAT('trigger:',TRIGGER_NAME),CONCAT(ACTION_TIMING,' ',EVENT_MANIPULATION,' ON ',EVENT_OBJECT_TABLE,' ',ACTION_ORIENTATION,' ',ACTION_STATEMENT) FROM information_schema.triggers WHERE trigger_schema=DATABASE() UNION ALL SELECT CONCAT('event:',EVENT_NAME),EVENT_DEFINITION FROM information_schema.events WHERE event_schema=DATABASE() ORDER BY 1", connection);
 		using var reader = command.ExecuteReader();
 		while (reader.Read()) result[reader.GetString(0)] = reader.IsDBNull(1) ? "NULL" : reader.GetString(1);
 		return result;

@@ -14,7 +14,10 @@ public sealed record ArmageddonPreparedWorldBindings(ArmageddonMagicInstallPlan 
 	long Decorator, long AlwaysTrueProg, long GatheringTemplate, IReadOnlyDictionary<string, long> SupportSkills,
 	long CapacityAttribute, long CapacityExpression, string CapacityBasis,
 	IReadOnlyDictionary<string, IReadOnlyList<MagicGatheringMethodKind>> AllowedMethods,
-	ArmageddonProvisionInstallPlan? Provisions = null);
+	ArmageddonProvisionInstallPlan? Provisions = null)
+{
+	public ArmageddonWaterSeeBindings? WaterSee { get; init; }
+}
 
 public sealed partial class ArmageddonMagicSeeder
 {

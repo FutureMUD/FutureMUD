@@ -84,7 +84,7 @@ QA agents do not repair code or weaken assertions. The coordinator diagnoses/fix
 
 ### Scope discipline
 
-Keep work focused on the assigned outcome. When you encounter a useful unrelated finding, record its location, reproducible evidence (such as a command, failing check or concrete code path), and likely impact, then report it to the coordinator for a GitHub issue or separate task. Do not implement opportunistic side fixes or expand the investigation beyond the evidence needed to explain the finding.
+Keep work focused on the assigned outcome. When you encounter a useful unrelated finding, record its location, reproducible evidence (such as a command, failing check or concrete code path), and likely impact. Within your permitted actions, you may make a trivial, obvious correction on the spot, such as a single straightforward logical error with no broader ramifications; report the correction with the task result. A small diff alone does not make a change trivial. Report other findings to the coordinator for a GitHub issue or separate task and defer their fixes; ask the coordinator when scope is uncertain. Do not expand the investigation beyond the evidence needed to explain the finding.
 
 Distinguish a true blocker that must be resolved to complete or correctly verify the requested work from an adjacent improvement that can wait. Surface any necessary scope expansion, with its reason, for the coordinator to decide before proceeding. Continue unblocked assigned work; keep required checks and correctness standards intact, and report failures rather than suppressing them.
 

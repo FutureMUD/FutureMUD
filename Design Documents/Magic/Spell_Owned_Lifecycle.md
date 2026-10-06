@@ -440,7 +440,13 @@ drop their timer after boot; a later login can rearm it. Initial provider lookup
 retain a bounded recovery retry. Fresh-cast deadline scheduling and legacy animation
 remain separate from this saved-effect recovery path.
 
-Corpse morph schedules retain their saved duration on cold login. Scheduler diagnostic
+Corpse morph schedules retain their saved duration on cold login. A borrowed corpse
+without a world-item placement can instead load lazily during restoration. That path
+starts its retained CachedMorphTime after exact placement and animation-effect removal,
+without repeating component/effect Login. Successful start clears the cache, so a held
+completion retry keeps the running deadline. Native MorphSaving marks elapsed progress
+for normal saves every thirty seconds. Checkpoint22 qualifies four fresh actual
+production-loader cases with bounded fixture catalogues; full-server boot remains separate. Scheduler diagnostic
 labels use the item ID without rendering a corpse description, so their creation does
 not resolve the canonical character during the blocked boot phase. Saved paid active
 parents recover as Logout before their spell deadline or Expiry at/after it; recovery

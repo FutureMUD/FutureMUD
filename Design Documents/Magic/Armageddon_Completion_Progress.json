@@ -5238,5 +5238,51 @@
     ],
     "whole_plan_complete": false,
     "package_enabled": false
+  },
+  "native_production_loader_restart": {
+    "checkpoint": 22,
+    "base_head": "f75dadb6b4252fd77a3ed897991041507462aba3",
+    "status": "PASS_BOUNDED_PRODUCTION_LOADER_RESTART_PENDING_PARENT_REVIEW",
+    "completed": [
+      "Actual live animation controller/body teardown",
+      "Four fresh native production-loader cases: future/overdue/pending/completed",
+      "Same corpse/body/foreign goods and no order/payment replay",
+      "Retained positive native morph schedule and normal periodic durable save"
+    ],
+    "focused": {
+      "executed": 341,
+      "passed": 341,
+      "failed": 0,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 341
+    },
+    "full_fast": {
+      "executed": 7550,
+      "passed": 7550,
+      "failed": 0,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 7550
+    },
+    "native_cases": 4,
+    "fresh_readers": 4,
+    "receipt": "Design Documents/Magic/Armageddon_ProductionRestart_Verification.json",
+    "next_smallest_gate": "Targeted eligible Musket/artillery callback probes and evidenced conditional disposition",
+    "limits": [
+      "Actual Futuremud and IFuturemudLoader methods construct native NPC/Character/Body/GameItem/corpse/effects/schedulers with normal FMDB, SaveManager and lifecycle services in a new reader process. UTC is injected and the disposable persisted catalogue/anatomy/time/progs/name/special-prototype rows are bounded fixture content.",
+      "Explicit loader orchestration reproduces materialisation gating, priming, world-item load, NPC load, finalisation and reconciliation. It excludes networking, email/Discord, the server loop and unrelated whole-world boot stages. Full-server/Telnet boot and a generally supported installed-world seed are NOT_RUN here.",
+      "An actual live retirement checks the captured controller Actor, Body.Actor/controller and selected/queued roots before each separate fresh loader run. Process exit alone is not controller-teardown evidence; no animated secondary is expected to survive DespawnOnReboot.",
+      "Pending/completed stale states are produced through actual retirement, a GUID-scoped disposable completion-refusal trigger and actual retry. Paid effect XML is not copied/reinjected and the original producer never Flushes after retirement or child mutation.",
+      "Native09 established the running timer after the repair but failed the save-duration assertion before the thirty-second MorphSaving schedule. Final fixture executes that real schedule before normal Flush; no direct Changed assignment or manual Login was added.",
+      "Native01 used thirteen recorded assembly roles that were not aligned. It failed during fixture setup before a reader. This negative is retained as unaligned, never certified as current-runtime acceptance.",
+      "Focused341 passed with the production repair before the harness-only thirty-second scheduler-tick refinement. The production source and twelve non-harness runtime roles are unchanged; final native and FullFast bind the refined source.",
+      "Musket/artillery remain conditional native dependencies awaiting one eligible callback probe each. Whole82/12/154/25, PC charm/possession and Fury/Calm remain incomplete; package stays DISABLED.",
+      "Local-only checkpoint: no publication, merge, deployment, version choice, stock-lane integration or shared/production database. Separate historical release rehearsal remains parent/installer-owned."
+    ],
+    "whole_plan_complete": false,
+    "package_enabled": false
   }
 }

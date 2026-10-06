@@ -1,10 +1,11 @@
 [CmdletBinding()]
-param([switch]$LandOnly, [switch]$RejuvenationOnly, [switch]$CastingOnly, [switch]$PracticeOnly, [switch]$SpeechOnly, [switch]$AreaOnly, [switch]$LifecycleOnly, [switch]$BodyRetirementOnly, [switch]$LegacyRemainsOnly, [switch]$NpcArchiveOnly, [switch]$NpcArchiveMaintenanceOnly, [switch]$SpellOwnedNpcOnly, [switch]$SpellOwnedRetirementOnly, [switch]$SpellOwnedItemOnly, [switch]$CreatedConsumablesOnly, [switch]$CorpseAnimationOnly, [switch]$RaiseServitorStockOnly, [switch]$StormSpearStockOnly, [switch]$FlameKnifeStockOnly, [switch]$SandKnifeStockOnly, [switch]$QueuedCommandOnly, [switch]$QueuedCallbackOnly, [switch]$OrderedNpcCallbacksOnly, [switch]$CheckLearningOnly, [switch]$RegressionP2Only, [switch]$StackMergeOnly, [switch]$CustodyMergeOnly, [switch]$LoadOutputOnly, [switch]$AmmoConservationOnly, [switch]$AmmoDetachRecoveryOnly, [switch]$NativeBoardingOnly, [switch]$SelectedMeleeCheckOnly, [switch]$FirearmAuthorityOnly, [switch]$CountershotAuthorityOnly, [switch]$DefendedMeleeOnly, [switch]$OwnershipOnly, [switch]$RefreshSnapshot)
+param([switch]$LandOnly, [switch]$RejuvenationOnly, [switch]$CastingOnly, [switch]$PracticeOnly, [switch]$SpeechOnly, [switch]$AreaOnly, [switch]$LifecycleOnly, [switch]$BodyRetirementOnly, [switch]$LegacyRemainsOnly, [switch]$NpcArchiveOnly, [switch]$NpcArchiveMaintenanceOnly, [switch]$SpellOwnedNpcOnly, [switch]$SpellOwnedRetirementOnly, [switch]$SpellOwnedItemOnly, [switch]$CreatedConsumablesOnly, [switch]$CorpseAnimationOnly, [switch]$RaiseServitorStockOnly, [switch]$StormSpearStockOnly, [switch]$FlameKnifeStockOnly, [switch]$SandKnifeStockOnly, [switch]$QueuedCommandOnly, [switch]$QueuedCallbackOnly, [switch]$OrderedNpcCallbacksOnly, [switch]$CheckLearningOnly, [switch]$RegressionP2Only, [switch]$StackMergeOnly, [switch]$CustodyMergeOnly, [switch]$LoadOutputOnly, [switch]$AmmoConservationOnly, [switch]$AmmoDetachRecoveryOnly, [switch]$NativeBoardingOnly, [switch]$ProductionRestartOnly, [switch]$SelectedMeleeCheckOnly, [switch]$FirearmAuthorityOnly, [switch]$CountershotAuthorityOnly, [switch]$DefendedMeleeOnly, [switch]$OwnershipOnly, [switch]$RefreshSnapshot)
 
 $ErrorActionPreference = 'Stop'
 if ($CustodyMergeOnly) { $RegressionP2Only = $true }
 if ($StackMergeOnly) { $RegressionP2Only = $true }
 if ($DefendedMeleeOnly) { $SelectedMeleeCheckOnly = $true }
+if ($ProductionRestartOnly) { $OrderedNpcCallbacksOnly = $true }
 if ($SelectedMeleeCheckOnly -or $FirearmAuthorityOnly -or $CountershotAuthorityOnly -or $LoadOutputOnly -or $AmmoConservationOnly -or $AmmoDetachRecoveryOnly -or $NativeBoardingOnly) { $OrderedNpcCallbacksOnly = $true }
 
 $workspaceRoot = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
@@ -232,7 +233,16 @@ try {
 		$runExit = $LASTEXITCODE
 	}
 	if ($runExit -eq 0 -and $OrderedNpcCallbacksOnly) {
-		if ($NativeBoardingOnly) { Invoke-OwnedHarness '--native-boarding-run' } elseif ($AmmoDetachRecoveryOnly) { Invoke-OwnedHarness '--ammo-detach-recovery-run' } elseif ($AmmoConservationOnly) { Invoke-OwnedHarness '--ammo-conservation-run' } elseif ($LoadOutputOnly) { Invoke-OwnedHarness '--load-output-run' } elseif ($CountershotAuthorityOnly) { Invoke-OwnedHarness '--countershot-authority-run' } elseif ($DefendedMeleeOnly) { Invoke-OwnedHarness '--defended-melee-run' } elseif ($FirearmAuthorityOnly) { Invoke-OwnedHarness '--firearm-authority-run' } elseif ($SelectedMeleeCheckOnly) { Invoke-OwnedHarness '--selected-melee-check-run' } else { Invoke-OwnedHarness '--ordered-npc-callback-run' }
+		if ($ProductionRestartOnly) {
+            $restartCasePrevious = [Environment]::GetEnvironmentVariable('FUTUREMUD_PRODUCTION_RESTART_CASE')
+            try {
+                foreach ($restartCase in @('active-future','active-overdue','pending-stale','completed-stale')) {
+                    $env:FUTUREMUD_PRODUCTION_RESTART_CASE = $restartCase
+                    Invoke-OwnedHarness '--production-restart-run'
+                    if ($LASTEXITCODE -ne 0) { break }
+                }
+            } finally { [Environment]::SetEnvironmentVariable('FUTUREMUD_PRODUCTION_RESTART_CASE', $restartCasePrevious) }
+        } elseif ($NativeBoardingOnly) { Invoke-OwnedHarness '--native-boarding-run' } elseif ($AmmoDetachRecoveryOnly) { Invoke-OwnedHarness '--ammo-detach-recovery-run' } elseif ($AmmoConservationOnly) { Invoke-OwnedHarness '--ammo-conservation-run' } elseif ($LoadOutputOnly) { Invoke-OwnedHarness '--load-output-run' } elseif ($CountershotAuthorityOnly) { Invoke-OwnedHarness '--countershot-authority-run' } elseif ($DefendedMeleeOnly) { Invoke-OwnedHarness '--defended-melee-run' } elseif ($FirearmAuthorityOnly) { Invoke-OwnedHarness '--firearm-authority-run' } elseif ($SelectedMeleeCheckOnly) { Invoke-OwnedHarness '--selected-melee-check-run' } else { Invoke-OwnedHarness '--ordered-npc-callback-run' }
 		$runExit = $LASTEXITCODE
 	}
 	if ($runExit -eq 0 -and $QueuedCallbackOnly) {

@@ -226,6 +226,9 @@ public sealed class SpellOwnedCorpseAnimationService(IFuturemud world) : ISpellO
 					throw new InvalidOperationException("Restoration callbacks changed the borrowed corpse's exact destination custody.");
 			}
 			corpse.RemoveAllEffects<IAnimatedCorpseEffect>(x => x.AnimatedInstanceId == instanceId, true);
+			// A borrowed corpse has no world-item placement during boot and may be loaded here
+			// without Login. Resume its retained timer without repeating component/effect login.
+			if (corpse.CachedMorphTime is not null) corpse.StartMorphTimer();
 			if (!alreadyCommitted && actor is not null)
 			{
 				using var custody = ForeignCustodyTransferContext.FreezeCustody();

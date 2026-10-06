@@ -80,6 +80,8 @@ internal static partial class GNHProgram
 				["--stack-merge-run"] => RunRaiseServitorStockChecks(regressionP2Only: true, stackMergeOnly: true),
 				["--ammo-detach-recovery-run"] => RunRaiseServitorStockChecks(orderedCallbacks: true, ammoConservationOnly: true, ammoDetachRecoveryOnly: true),
 				["--native-boarding-run"] => RunRaiseServitorStockChecks(orderedCallbacks: true, nativeBoardingOnly: true),
+				["--production-restart-run"] => RunRaiseServitorStockChecks(productionRestartOnly: true),
+				["--production-restart-reader", .. string[] restartArguments] => RunProductionRestartReader(restartArguments),
 				["--native-boarding-reader", .. string[] boardingArguments] => RunNativeBoardingReader(boardingArguments),
 				["--ammo-conservation-run"] => RunRaiseServitorStockChecks(orderedCallbacks: true, ammoConservationOnly: true),
 				["--load-output-run"] => RunRaiseServitorStockChecks(orderedCallbacks: true, loadOutputOnly: true),

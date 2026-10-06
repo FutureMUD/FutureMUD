@@ -1,0 +1,423 @@
+{
+  "checkpoint": 22,
+  "status": "PASS_BOUNDED_PRODUCTION_LOADER_RESTART_PENDING_PARENT_REVIEW",
+  "base_head": "f75dadb6b4252fd77a3ed897991041507462aba3",
+  "production_changes": [
+    "Resume retained CachedMorphTime during exact corpse restoration without replaying Login"
+  ],
+  "focused": {
+    "run_id": "20261006T031224Z-acb4113dd501",
+    "head": "f75dadb6b4252fd77a3ed897991041507462aba3",
+    "status": "PASS",
+    "counts": {
+      "executed": 341,
+      "passed": 341,
+      "failed": 0,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 341
+    },
+    "source_start": "c442348e252df7e63bdc80aed1e9a19388776d3481b4ed2c84d595d949f935f0",
+    "source_end": "c442348e252df7e63bdc80aed1e9a19388776d3481b4ed2c84d595d949f935f0",
+    "source_stable": true,
+    "suite": "core",
+    "filter": "FullyQualifiedName~BootLoadingRegressionTests|FullyQualifiedName~ItemMorphBootTests|FullyQualifiedName~QueuedCommandAuthorityTests|FullyQualifiedName~SpellOwnedCorpseAnimationTests|FullyQualifiedName~SpellOwnedItemTests|FullyQualifiedName~SpellOwnedNpcRetirementTests",
+    "receipt": {
+      "path": ".artifacts/test-runs/armageddon-production-loader-restart/focused02/20261006T031224Z-acb4113dd501/summary.json",
+      "sha256": "b67ddd08a8ed990cf0dc167c454cdbbdde364693b377f007db1f14da0f70d5a6"
+    }
+  },
+  "full_fast": {
+    "run_id": "20261006T031902Z-03fa52b30698",
+    "head": "f75dadb6b4252fd77a3ed897991041507462aba3",
+    "status": "PASS",
+    "counts": {
+      "executed": 7550,
+      "passed": 7550,
+      "failed": 0,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 7550
+    },
+    "source_start": "9d9409276f60ba9dca5847e8bcd6b78e0a699c0b7cde679ce3f7e5feb2cbff7b",
+    "source_end": "9d9409276f60ba9dca5847e8bcd6b78e0a699c0b7cde679ce3f7e5feb2cbff7b",
+    "source_stable": true,
+    "suite": "fast",
+    "filter": null,
+    "receipt": {
+      "path": ".artifacts/test-runs/armageddon-production-loader-restart/fullfast01/20261006T031902Z-03fa52b30698/summary.json",
+      "sha256": "1b86bf416f026c6e4247c657730e7a4e2aa46bd8f6a68be5d2922c5f9d67655b"
+    }
+  },
+  "native": {
+    "cases": [
+      "active-future",
+      "active-overdue",
+      "pending-stale",
+      "completed-stale"
+    ],
+    "case_count": 4,
+    "fresh_production_loader_readers": 4,
+    "live_controller_teardown_controls": 4,
+    "log": {
+      "path": ".artifacts/test-runs/armageddon-production-loader-restart/native10-native.log",
+      "sha256": "b0e9f3e41467f4293c35e16680395614c13ecfa903a4b6c83a40e76b21e4e354"
+    },
+    "cleanup": {
+      "path": ".artifacts/test-runs/armageddon-production-loader-restart/native10-process-cleanup.json",
+      "sha256": "841a41cdef38498b3905ca17a5d37f4787561aca88a5cc81f0b724a996a933c6"
+    },
+    "environment": {
+      "path": ".artifacts/test-runs/armageddon-production-loader-restart/native10-environment.json",
+      "sha256": "e33cb3962cfef323ef94a7649293ec4d190c636bdb1bc30b652aab3220160b01"
+    }
+  },
+  "source_capsule": {
+    "sources": 5786,
+    "aligned_assembly_roles": 13,
+    "inputs": {
+      "path": ".artifacts/test-runs/armageddon-production-loader-restart/native10-inputs.json",
+      "sha256": "801e8982d96828d2d4071151ce0595a89a3dcb56e35be327bad7f37237ace654"
+    },
+    "post_run": {
+      "path": ".artifacts/test-runs/armageddon-production-loader-restart/native10-fingerprints.json",
+      "sha256": "3f7f01f80521712510b03b8fa19b3677e117ca8c7a3ad2bc166d8c08569a6901"
+    },
+    "raw": {
+      "path": ".artifacts/test-runs/armageddon-production-loader-restart/native10-raw-source/manifest.json",
+      "sha256": "64b2ec08ef9f56b43bc412fe0aa39cdd387d652ba72e64efed48e4a4b7d59663"
+    },
+    "binary": {
+      "path": ".artifacts/test-runs/armageddon-production-loader-restart/native10-binary-capsule/manifest.json",
+      "sha256": "a7cf65dbf327e73fd20161965e526eeb58e189b4242f44f2a92b433cc163b437"
+    }
+  },
+  "full_fast_capsule": {
+    "inputs": {
+      "path": ".artifacts/test-runs/armageddon-production-loader-restart/fullfast-final-inputs.json",
+      "sha256": "801e8982d96828d2d4071151ce0595a89a3dcb56e35be327bad7f37237ace654"
+    },
+    "post_run": {
+      "path": ".artifacts/test-runs/armageddon-production-loader-restart/fullfast-final-fingerprints.json",
+      "sha256": "3f7f01f80521712510b03b8fa19b3677e117ca8c7a3ad2bc166d8c08569a6901"
+    },
+    "raw": {
+      "path": ".artifacts/test-runs/armageddon-production-loader-restart/fullfast-final-raw-source/manifest.json",
+      "sha256": "08d230efba89ffd6f9457ba8150ebd0bb1bdc779b075a268e8b00952f4ebf336"
+    },
+    "binary": {
+      "path": ".artifacts/test-runs/armageddon-production-loader-restart/fullfast-final-binary-capsule/manifest.json",
+      "sha256": "c9984fe50e7d6bc5fc152beeb37341b9e4afb81ec31b128cac35b8b69103a658"
+    },
+    "binary_files": 2739
+  },
+  "retained_native_failures": [
+    {
+      "run": "native01",
+      "exit_code": 1,
+      "aligned": false,
+      "log": {
+        "path": ".artifacts/test-runs/armageddon-production-loader-restart/native01-native.log",
+        "sha256": "67efb8a613ca54a39d946f00bf2fe63ef464b057c542a8b54320e5bab402bcd5"
+      },
+      "inputs": {
+        "path": ".artifacts/test-runs/armageddon-production-loader-restart/native01-inputs.json",
+        "sha256": "940da56d8e87dca32a571da8d2ee30e01c3aec9ec4b505a5afe922b2e8f8732e"
+      },
+      "rehash": {
+        "path": ".artifacts/test-runs/armageddon-production-loader-restart/native01-fingerprints.json",
+        "sha256": "3fda8cd3c66d84ab3426eb95e3d83b794eb5daefd959eb2b3fea9db34d7c78b3"
+      },
+      "cleanup": {
+        "path": ".artifacts/test-runs/armageddon-production-loader-restart/native01-process-cleanup.json",
+        "sha256": "ecdc6a3af927d7a30690b8bd2632f30304cdfc62c3cf04ac81f732964723a278"
+      },
+      "binary": {
+        "path": ".artifacts/test-runs/armageddon-production-loader-restart/native01-binary-capsule/manifest.json",
+        "sha256": "1c9b5c41d8844e3e0ebf7aaec517c203dd4a4c8a2b031698d521d49d2563cebe"
+      }
+    },
+    {
+      "run": "native02",
+      "exit_code": 1,
+      "aligned": true,
+      "log": {
+        "path": ".artifacts/test-runs/armageddon-production-loader-restart/native02-native.log",
+        "sha256": "83fbb0545b3ed49636ea5485faf5faefabe920a634fb897e333003feda1e0304"
+      },
+      "inputs": {
+        "path": ".artifacts/test-runs/armageddon-production-loader-restart/native02-inputs.json",
+        "sha256": "afd27e08abff195db45a8f1e4a0d087be0f5f3f1d7eb592c05fac79688d2d33c"
+      },
+      "rehash": {
+        "path": ".artifacts/test-runs/armageddon-production-loader-restart/native02-fingerprints.json",
+        "sha256": "b9b77653cfcdbf046ea1f425c204bc07ac8c898d70dae2d4ba37b70d2a674cd5"
+      },
+      "cleanup": {
+        "path": ".artifacts/test-runs/armageddon-production-loader-restart/native02-process-cleanup.json",
+        "sha256": "58bcc61f403c1f861edbb50ba9cebc904f6abd29265f508fd77fd0047599d11d"
+      },
+      "binary": {
+        "path": ".artifacts/test-runs/armageddon-production-loader-restart/native02-binary-capsule/manifest.json",
+        "sha256": "7fd7491d27d105f8ee37036c2718017f9ba5f615fddcb3134e6ec2bc216ffccb"
+      }
+    },
+    {
+      "run": "native03",
+      "exit_code": 1,
+      "aligned": true,
+      "log": {
+        "path": ".artifacts/test-runs/armageddon-production-loader-restart/native03-native.log",
+        "sha256": "b1b25f3e03d1b9b8edad9e641c9e22d6cc56e296a2f31d70c5b67e496a9ddf75"
+      },
+      "inputs": {
+        "path": ".artifacts/test-runs/armageddon-production-loader-restart/native03-inputs.json",
+        "sha256": "5d0ff832514f1aecd78998c7c1901dc73e3befbb562c8cc40c6f37669384afce"
+      },
+      "rehash": {
+        "path": ".artifacts/test-runs/armageddon-production-loader-restart/native03-fingerprints.json",
+        "sha256": "09805d6086c729fb76d34b20d3e35614cb14b8193391254ddd3af1d0bd669eae"
+      },
+      "cleanup": {
+        "path": ".artifacts/test-runs/armageddon-production-loader-restart/native03-process-cleanup.json",
+        "sha256": "70f5bc6d220afc9b0c8b97818d2b74f5973c52d0cbca613e510eb83ea063cd03"
+      },
+      "binary": {
+        "path": ".artifacts/test-runs/armageddon-production-loader-restart/native03-binary-capsule/manifest.json",
+        "sha256": "f473a87228e9b4a647bbd7a3702ff7a1752d9ade6324efae0cd14f48d13f081b"
+      }
+    },
+    {
+      "run": "native04",
+      "exit_code": 1,
+      "aligned": true,
+      "log": {
+        "path": ".artifacts/test-runs/armageddon-production-loader-restart/native04-native.log",
+        "sha256": "48f1429c31310aff36c1231218fae5d93257afe3841829e0f615ea9f75e8016a"
+      },
+      "inputs": {
+        "path": ".artifacts/test-runs/armageddon-production-loader-restart/native04-inputs.json",
+        "sha256": "35a71ea5d0340795352b13499a4968509fc588679328da58e1e777a77e62701a"
+      },
+      "rehash": {
+        "path": ".artifacts/test-runs/armageddon-production-loader-restart/native04-fingerprints.json",
+        "sha256": "c68a34c7b20a6be3e0e3249f7349c0bcf2390f43b019e01a10d01fa3ce9e6d82"
+      },
+      "cleanup": {
+        "path": ".artifacts/test-runs/armageddon-production-loader-restart/native04-process-cleanup.json",
+        "sha256": "e278b27fd3f186c3dd9d1fba85b37c0012b3921a411a8ba83723fe9746abbe28"
+      },
+      "binary": {
+        "path": ".artifacts/test-runs/armageddon-production-loader-restart/native04-binary-capsule/manifest.json",
+        "sha256": "335cc731c88404affba694e9249e037e568094c325ad72f35efc9443ad73e2c4"
+      }
+    },
+    {
+      "run": "native05",
+      "exit_code": 1,
+      "aligned": true,
+      "log": {
+        "path": ".artifacts/test-runs/armageddon-production-loader-restart/native05-native.log",
+        "sha256": "8618b5b7eba38d80d0340d7d6a88dbdc62ac080907563c6c56d635f0e21e0633"
+      },
+      "inputs": {
+        "path": ".artifacts/test-runs/armageddon-production-loader-restart/native05-inputs.json",
+        "sha256": "37d5daada40418663440c4c056b4a77b4c9b6091a0f047ad802ee21032acb4e5"
+      },
+      "rehash": {
+        "path": ".artifacts/test-runs/armageddon-production-loader-restart/native05-fingerprints.json",
+        "sha256": "3c522df33035af20e68f5afa5b5f57e3d4e8c60b2bbfe09f4228158465c2a0f8"
+      },
+      "cleanup": {
+        "path": ".artifacts/test-runs/armageddon-production-loader-restart/native05-process-cleanup.json",
+        "sha256": "09d8fe03d54d7d410fd90d9704c3e7a17990eacfac10a059067304abcd1f5bf7"
+      },
+      "binary": {
+        "path": ".artifacts/test-runs/armageddon-production-loader-restart/native05-binary-capsule/manifest.json",
+        "sha256": "487b807d88cb150e3e6a5390c30214c7a16f1efc312d8064383b615114b33f76"
+      }
+    },
+    {
+      "run": "native06",
+      "exit_code": 1,
+      "aligned": true,
+      "log": {
+        "path": ".artifacts/test-runs/armageddon-production-loader-restart/native06-native.log",
+        "sha256": "40759a7f518e95cdde74e16550ae454c46417a822c0c1e69432452b96fbe55d1"
+      },
+      "inputs": {
+        "path": ".artifacts/test-runs/armageddon-production-loader-restart/native06-inputs.json",
+        "sha256": "b90dde6687bc710f52f80ade3f6d25bd472b58aa6b4062873817b987d172348b"
+      },
+      "rehash": {
+        "path": ".artifacts/test-runs/armageddon-production-loader-restart/native06-fingerprints.json",
+        "sha256": "04c5fd7b0a5e676053e567a12f7bec7d794b23c49ac5e7a9f27c8ccd8ca48e17"
+      },
+      "cleanup": {
+        "path": ".artifacts/test-runs/armageddon-production-loader-restart/native06-process-cleanup.json",
+        "sha256": "3e05877fe85855aac7f4ba5fe99cc999f55ef3b8431800e21438b3969a357379"
+      },
+      "binary": {
+        "path": ".artifacts/test-runs/armageddon-production-loader-restart/native06-binary-capsule/manifest.json",
+        "sha256": "7b7bbd48e5a60b1b73b229182677ebcf774aba2c5adf03489596e16eb4564b06"
+      }
+    },
+    {
+      "run": "native07",
+      "exit_code": 1,
+      "aligned": true,
+      "log": {
+        "path": ".artifacts/test-runs/armageddon-production-loader-restart/native07-native.log",
+        "sha256": "05f4b6c509817ec18e74326c2bc9e9930c2be56628d26f792cff8e8e7e59decb"
+      },
+      "inputs": {
+        "path": ".artifacts/test-runs/armageddon-production-loader-restart/native07-inputs.json",
+        "sha256": "e8577fc9af781ec83bca97cd104803881b56cb424b1b1609c1d5fb08b2893864"
+      },
+      "rehash": {
+        "path": ".artifacts/test-runs/armageddon-production-loader-restart/native07-fingerprints.json",
+        "sha256": "de921ffa8823da62be21f324a0f748f7f63904d0e19e5c59051895106c2ee6ae"
+      },
+      "cleanup": {
+        "path": ".artifacts/test-runs/armageddon-production-loader-restart/native07-process-cleanup.json",
+        "sha256": "d9e0bd55263947e4f0b092fdaccd592975de1c3a5d02bcfa801d231aace695b6"
+      },
+      "binary": {
+        "path": ".artifacts/test-runs/armageddon-production-loader-restart/native07-binary-capsule/manifest.json",
+        "sha256": "d4dd315d705e7f59b560aa806f17a283a07304c251f6773d17887377846c1299"
+      }
+    },
+    {
+      "run": "native08",
+      "exit_code": 1,
+      "aligned": true,
+      "log": {
+        "path": ".artifacts/test-runs/armageddon-production-loader-restart/native08-native.log",
+        "sha256": "50b833b750463768991f5b1ad6bea38564fda23b1c8b6b1bf86055cd24f0da9b"
+      },
+      "inputs": {
+        "path": ".artifacts/test-runs/armageddon-production-loader-restart/native08-inputs.json",
+        "sha256": "60f8501c57fecd75ec862126f3932d9e586491427c9881de127ee01ec5d09ca3"
+      },
+      "rehash": {
+        "path": ".artifacts/test-runs/armageddon-production-loader-restart/native08-fingerprints.json",
+        "sha256": "a96eb66b99f12aa3d0f4e36c9789a3c54d1246819d2cf018371d87512251ca42"
+      },
+      "cleanup": {
+        "path": ".artifacts/test-runs/armageddon-production-loader-restart/native08-process-cleanup.json",
+        "sha256": "7077021d266c0e173cc69679baac45cfd77ddf5043396cc5d2a687787bcab2d5"
+      },
+      "binary": {
+        "path": ".artifacts/test-runs/armageddon-production-loader-restart/native08-binary-capsule/manifest.json",
+        "sha256": "4535fff93394ab49833644a6f06a6901f64ae4ec5a16b03b6572464bf4c0c5a8"
+      }
+    },
+    {
+      "run": "native09",
+      "exit_code": 1,
+      "aligned": true,
+      "log": {
+        "path": ".artifacts/test-runs/armageddon-production-loader-restart/native09-native.log",
+        "sha256": "d79c2eddd15c9ce33c717248dc4b71bdda7ef53a4ec9bb6cf9d074f77c7f793b"
+      },
+      "inputs": {
+        "path": ".artifacts/test-runs/armageddon-production-loader-restart/native09-inputs.json",
+        "sha256": "38c0d4ba057977c234b1a96dc090034c5212f8bcf7f7f164071e51aaae9c6dd7"
+      },
+      "rehash": {
+        "path": ".artifacts/test-runs/armageddon-production-loader-restart/native09-fingerprints.json",
+        "sha256": "9a792f2b043e984e39c640ace871297d008b5f5ac8306bfa283b588132a523ff"
+      },
+      "cleanup": {
+        "path": ".artifacts/test-runs/armageddon-production-loader-restart/native09-process-cleanup.json",
+        "sha256": "f69cf2d6def038883fb9c4599d3d219b9d29c64d0597cd0cab2dfcbef9f363d6"
+      },
+      "binary": {
+        "path": ".artifacts/test-runs/armageddon-production-loader-restart/native09-binary-capsule/manifest.json",
+        "sha256": "86b5da8bd5deefd5959ae456e6b93a01f275726492ff1968dee6e430547c13c5"
+      }
+    }
+  ],
+  "retained_compile_failure": {
+    "path": ".artifacts/test-runs/armageddon-production-loader-restart/build01-build-exit.json",
+    "sha256": "981195620c7d3d54d2b73cadcf6e310f13d90e3cd4431fad2ce81be616177dc8"
+  },
+  "source_review": {
+    "path": ".artifacts/test-runs/armageddon-production-loader-restart/independent-source-review.json",
+    "sha256": "e7e91ef63c10849d107636780e375a3852de20cc27d2f2fe39099fc9cbf94783"
+  },
+  "final_source_review": {
+    "path": ".artifacts/test-runs/armageddon-production-loader-restart/independent-final-source-review.json",
+    "sha256": "70ae4bfff7504d6f5489fdd8c74ee8f86a720a1be9dba91c5eb39d5325ac77e6"
+  },
+  "environment_receipts": [
+    {
+      "path": ".artifacts/test-runs/armageddon-production-loader-restart/focused01-environment.json",
+      "sha256": "6be34cd532dbe5a4d5e3ed78e369cfc3d3a332f34db3d9d019d3ed1d3b87665e"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-production-loader-restart/focused02-environment.json",
+      "sha256": "c77b81b635012d52990599cda47b388bf8f2b150a3a173d40569acb0dde5701b"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-production-loader-restart/fullfast01-environment.json",
+      "sha256": "a89447cd60d26791cca9c14f87d4a9eb642bdc039613f56113c725b8533e8851"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-production-loader-restart/native01-environment.json",
+      "sha256": "e1c8e0c6892ebff6f5b5a23790a8f992de9da7a20185249f0e9c2f75d2d5f119"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-production-loader-restart/native02-environment.json",
+      "sha256": "4e38f9d42593d1f7301b5d025790438fad5c4f5f3a25ec017e42647430383655"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-production-loader-restart/native03-environment.json",
+      "sha256": "f8e274f41597793a9426b51fc450713a31ecf998a2cbaf7b56799e8eeb31dd8d"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-production-loader-restart/native04-environment.json",
+      "sha256": "b66635cc7d0390814c73e291c3252985fb5e9ae7801849178412f994465834c3"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-production-loader-restart/native05-environment.json",
+      "sha256": "b66635cc7d0390814c73e291c3252985fb5e9ae7801849178412f994465834c3"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-production-loader-restart/native06-environment.json",
+      "sha256": "4e38f9d42593d1f7301b5d025790438fad5c4f5f3a25ec017e42647430383655"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-production-loader-restart/native07-environment.json",
+      "sha256": "4e38f9d42593d1f7301b5d025790438fad5c4f5f3a25ec017e42647430383655"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-production-loader-restart/native08-environment.json",
+      "sha256": "a4e4ab05ba92bf7094a60d791112c1a3047521505eec9664980078ddf299e402"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-production-loader-restart/native09-environment.json",
+      "sha256": "b66635cc7d0390814c73e291c3252985fb5e9ae7801849178412f994465834c3"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-production-loader-restart/native10-environment.json",
+      "sha256": "e33cb3962cfef323ef94a7649293ec4d190c636bdb1bc30b652aab3220160b01"
+    }
+  ],
+  "limits": [
+    "Actual Futuremud and IFuturemudLoader methods construct native NPC/Character/Body/GameItem/corpse/effects/schedulers with normal FMDB, SaveManager and lifecycle services in a new reader process. UTC is injected and the disposable persisted catalogue/anatomy/time/progs/name/special-prototype rows are bounded fixture content.",
+    "Explicit loader orchestration reproduces materialisation gating, priming, world-item load, NPC load, finalisation and reconciliation. It excludes networking, email/Discord, the server loop and unrelated whole-world boot stages. Full-server/Telnet boot and a generally supported installed-world seed are NOT_RUN here.",
+    "An actual live retirement checks the captured controller Actor, Body.Actor/controller and selected/queued roots before each separate fresh loader run. Process exit alone is not controller-teardown evidence; no animated secondary is expected to survive DespawnOnReboot.",
+    "Pending/completed stale states are produced through actual retirement, a GUID-scoped disposable completion-refusal trigger and actual retry. Paid effect XML is not copied/reinjected and the original producer never Flushes after retirement or child mutation.",
+    "Native09 established the running timer after the repair but failed the save-duration assertion before the thirty-second MorphSaving schedule. Final fixture executes that real schedule before normal Flush; no direct Changed assignment or manual Login was added.",
+    "Native01 used thirteen recorded assembly roles that were not aligned. It failed during fixture setup before a reader. This negative is retained as unaligned, never certified as current-runtime acceptance.",
+    "Focused341 passed with the production repair before the harness-only thirty-second scheduler-tick refinement. The production source and twelve non-harness runtime roles are unchanged; final native and FullFast bind the refined source.",
+    "Musket/artillery remain conditional native dependencies awaiting one eligible callback probe each. Whole82/12/154/25, PC charm/possession and Fury/Calm remain incomplete; package stays DISABLED.",
+    "Local-only checkpoint: no publication, merge, deployment, version choice, stock-lane integration or shared/production database. Separate historical release rehearsal remains parent/installer-owned."
+  ],
+  "whole_plan_complete": false,
+  "package_enabled": false,
+  "publication": false
+}

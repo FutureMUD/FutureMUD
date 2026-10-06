@@ -1,0 +1,258 @@
+{
+  "schema_version": 1,
+  "checkpoint": 20,
+  "base_head": "a2753375c0022d874ae77a776916dd2929d49455",
+  "status": "PASS_BOUNDED_CORRECTION_PENDING_PARENT_REREVIEW",
+  "focused": {
+    "status": "PASS",
+    "run_id": "20261006T015915Z-089b303f4461",
+    "counts": {
+      "executed": 300,
+      "passed": 300,
+      "failed": 0,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 300
+    },
+    "counts_complete": true,
+    "execution_complete": true,
+    "source_stable": true,
+    "source_start": "e394847f764f60e126c330ae8d047c909c3fe03dde4f2245bab82755b90cf450",
+    "source_end": "e394847f764f60e126c330ae8d047c909c3fe03dde4f2245bab82755b90cf450",
+    "projects": [
+      "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+    ],
+    "filter": "FullyQualifiedName~QueuedCommandAuthorityTests|FullyQualifiedName~PreparedGetStackMergeTests.AmmoMerge_|FullyQualifiedName~PreparedGetStackMergeTests.PreparedAmmoSplit_|FullyQualifiedName~InternalMagazineReloadTests",
+    "suite": "core",
+    "path": ".artifacts/test-runs/armageddon-native-ammo-recovery/managed02/20261006T015915Z-089b303f4461/summary.json",
+    "sha256": "e90e2afd6d5ebc2caf6101af3eb449561abf2926e5e2240075f1f5347d745881"
+  },
+  "full_fast": {
+    "status": "PASS",
+    "run_id": "20261006T020732Z-3402f6c5a579",
+    "counts": {
+      "executed": 7550,
+      "passed": 7550,
+      "failed": 0,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 7550
+    },
+    "counts_complete": true,
+    "execution_complete": true,
+    "source_stable": true,
+    "source_start": "799fd2f0e73c8d7f4bbee4ab3e5b310bd89122af8ac6225330a95027f7bd013c",
+    "source_end": "799fd2f0e73c8d7f4bbee4ab3e5b310bd89122af8ac6225330a95027f7bd013c",
+    "projects": [
+      "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+      "ExpressionEngine Unit Tests/ExpressionEngine Unit Tests.csproj",
+      "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+      "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+      "MudsharpDatabaseLibrary Unit Tests/MudsharpDatabaseLibrary Unit Tests.csproj",
+      "DiscordBotCore Unit Tests/DiscordBotCore Unit Tests.csproj",
+      "RPI Engine Worldfile Converter Tests/RPI Engine Worldfile Converter Tests.csproj",
+      "FutureMUD.Web.Tests/FutureMUD.Web.Tests.csproj",
+      "TerrainPlanner/TerrainPlanner.Tests/TerrainPlanner.Tests.csproj",
+      "scripts/TestReporting.Tests/TestReporting.Tests.csproj"
+    ],
+    "filter": null,
+    "suite": "fast",
+    "path": ".artifacts/test-runs/armageddon-native-ammo-recovery/full-fast01/20261006T020732Z-3402f6c5a579/summary.json",
+    "sha256": "a2264af89e65fc04f5f05c52294631b1460a2be903e3ef8f43d0053cf78a855f"
+  },
+  "native": {
+    "status": "PASS",
+    "label": "native02",
+    "cases": [
+      "unload-title",
+      "unload-quantity",
+      "unload-throw",
+      "unload-bag-throw",
+      "unload-body-throw",
+      "unload-double-throw",
+      "cycle-title",
+      "cycle-throw",
+      "cycle-bag-throw",
+      "cycle-body-throw",
+      "cycle-double-throw"
+    ],
+    "case_count": 11,
+    "cold_readers": [
+      "ammo-detach-unload-title",
+      "ammo-detach-unload-quantity",
+      "ammo-detach-unload-throw",
+      "ammo-detach-unload-bag-throw",
+      "ammo-detach-unload-body-throw",
+      "ammo-detach-unload-double-throw",
+      "ammo-detach-cycle-title",
+      "ammo-detach-cycle-throw",
+      "ammo-detach-cycle-bag-throw",
+      "ammo-detach-cycle-body-throw",
+      "ammo-detach-cycle-double-throw"
+    ],
+    "cold_reader_count": 11,
+    "secondary_failure_explicit_retries": [
+      "unload-double-throw",
+      "cycle-double-throw"
+    ],
+    "receipts": [
+      {
+        "path": ".artifacts/test-runs/armageddon-native-ammo-recovery/native02-native.log",
+        "sha256": "4cedbd89e5298c3a3e181f855ab74980e127a7b9ed2c9cc607780e2e949f65a7"
+      },
+      {
+        "path": ".artifacts/test-runs/armageddon-native-ammo-recovery/native02-process-cleanup.json",
+        "sha256": "8c09ccaff635269449356f2a8d2eb3bff0f5068a4ce6e44e635751d9c815fc04"
+      },
+      {
+        "path": ".artifacts/test-runs/armageddon-native-ammo-recovery/native02-inputs.json",
+        "sha256": "d28a2f14ce473de0d523919492707c903fc7d6dc07e8d2649a3e964f60ec99b7"
+      },
+      {
+        "path": ".artifacts/test-runs/armageddon-native-ammo-recovery/native02-fingerprints.json",
+        "sha256": "d7f2a4303a8e06d3d00d3fa385b30828338ecc9a6ccd0867df0f19ec553a0e6d"
+      }
+    ]
+  },
+  "source_binding": {
+    "sources": 5784,
+    "assembly_roles": 13,
+    "aligned": true,
+    "final_code": [
+      {
+        "path": "MudSharpCore Unit Tests/OrderedNpcAmmoDetachRecoveryTests.cs",
+        "sha256": "3c9d0091b7365f33be50d4c4683048fef61bd9f7a5c8f2fedb61fcbcc1873075",
+        "copy": ".artifacts/test-runs/armageddon-native-ammo-recovery/final-source-capsule/000.cs"
+      },
+      {
+        "path": "MudSharpCore/Body/Implementations/BodyInventory.cs",
+        "sha256": "fe34d2ebe2addd551c9cd87de37110d58b42fe3a41342fc6d102918d3df4fa7e",
+        "copy": ".artifacts/test-runs/armageddon-native-ammo-recovery/final-source-capsule/001.cs"
+      },
+      {
+        "path": "MudSharpCore/GameItems/ComponentUnloadCompletion.cs",
+        "sha256": "749d942f3891474d9b47491afb9d144afa131e139539331b1a86dd9b424bd028",
+        "copy": ".artifacts/test-runs/armageddon-native-ammo-recovery/final-source-capsule/002.cs"
+      },
+      {
+        "path": "MudSharpCore/GameItems/Components/InternalMagazineGunGameItemComponent.cs",
+        "sha256": "d0861c581d14b16413a16c881eab7ba43aa67e73f262dcbee73e421405e95364",
+        "copy": ".artifacts/test-runs/armageddon-native-ammo-recovery/final-source-capsule/003.cs"
+      },
+      {
+        "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.AmmoDetachRecovery.cs",
+        "sha256": "f661054f2ae76ca21c733470cadf134a477c011351188e19582fedbcc8d87ef5",
+        "copy": ".artifacts/test-runs/armageddon-native-ammo-recovery/final-source-capsule/004.cs"
+      },
+      {
+        "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.RaiseServitorStock.cs",
+        "sha256": "238cea0496b490f99bf577512c622e2919aec1286ce475ede6feb74bcb4f65d8",
+        "copy": ".artifacts/test-runs/armageddon-native-ammo-recovery/final-source-capsule/005.cs"
+      },
+      {
+        "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.cs",
+        "sha256": "d8a847e6f925ddd9e2d2643cd257ea4743864f8449782ed5cd3fc0bfe3a65d47",
+        "copy": ".artifacts/test-runs/armageddon-native-ammo-recovery/final-source-capsule/006.cs"
+      },
+      {
+        "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Run-IsolatedAcceptance.ps1",
+        "sha256": "124a093ddb67d974be907b3c0c7478c5c0ba3ff6ec393e6978c6c1eb0ec97931",
+        "copy": ".artifacts/test-runs/armageddon-native-ammo-recovery/final-source-capsule/007.ps1"
+      }
+    ],
+    "post_fast_alignment": {
+      "path": ".artifacts/test-runs/armageddon-native-ammo-recovery/post-fast-native-alignment.json",
+      "sha256": "341cfc933ecfcbfe7161b82598056f3f7588bd0a50d280632e6297e3cc667caf"
+    }
+  },
+  "source_capsule": {
+    "path": ".artifacts/test-runs/armageddon-native-ammo-recovery/final-source-capsule/manifest.json",
+    "sha256": "e407c60ca758cc30e7389539802ec1de7c619faee94bae6e2c44d8a4c39617da"
+  },
+  "environment_receipts": [
+    {
+      "path": ".artifacts/test-runs/armageddon-native-ammo-recovery/managed02-environment.json",
+      "sha256": "f6e802cbdbe7afa2fe5c678d8d2a9fe5012a83055d16b82553a916b93e68f0f7"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-native-ammo-recovery/full-fast01-environment.json",
+      "sha256": "7120b5b5cec203c97546a7f6bbbc46765c98cac46d3c62e380bedf3caa8d2bb4"
+    }
+  ],
+  "retained_failures": [
+    "repro01-build-exit.json",
+    "repro-title01-native.log",
+    "repro-cycle-throw01-native.log",
+    "managed01",
+    "native01-native.log"
+  ],
+  "limits": [
+    "InternalMagazineGun only: actual Unload of native Stackable/Holdable/Ammunition quantity3 against held5; Ready ejects one nonstack ordinary chambered round. No broader weapon-family hardening or stacked chamber qualification.",
+    "All eleven cases inject the real native TrySetContainedIn post-owner-commit Complete notification using a controlled proximity dispatcher. Native item, gun, inventory, title and quantity operations are real; this is not a full-world event-registry test.",
+    "Nine cases qualify automatic floor delivery or preservation of real independently claimed bag/body custody. Two double-throw cases qualify original exception identity despite a secondary native floor-membership observer failure; they deliberately leave a captured floor pointer without membership, then exercise an explicit independent exact Cell.Insert retry before their fresh persistence reader. No automatic floor recovery is claimed when that recovery itself throws.",
+    "The prepatch title and cycle-throw reproductions failed actual floor conservation and owned cleanup passed. Their Core/harness four dependency roles align, but unused Unit output roles are stale checkpoint19 binaries; those negative packets do not supply globally aligned final acceptance.",
+    "One initial harness build failed for a missing Scheduling using; no gameplay executed. Its original source was exactly reconstructed from the fixture script after the first source-freeze helper import failed, with that provenance retained. Managed01 retained four fixture failures: missing usable manipulators before Unload and counting an independent foreign-containment event. Native01 retained four passed cases/readers before the body-claim fixture tried to acquire a third held item with two occupied hands; the callback now independently drops the conserved quantity5 survivor before its exact pickup. Assertions of original exception/floor/conservation were retained after fixture repair.",
+    "Checkpoint19 receipts/capsules and reported three process-local Git environment restoration issues remain immutable; checkpoint17 original raw source rehash remains5778/5779. New focused/Fast receipts verify all five process-local environment values restored; native wrapper does not claim an environment-restoration certificate.",
+    "Boarding and actual production-loader Raise Servitor corpse/foreign-goods restoration, controller teardown and no queued replay remain OPEN. The previous archive/mock item readers do not qualify that loader gate. Source mapping found persisted fixture anatomy/time/corpse-model/prog dependencies needing real loader-compatible rows; no production-loader pass is claimed.",
+    "Musket/artillery reachable seams remain mapped conditional dependencies; no new native escaping path in those families was established in this correction. No exhaustive matrix is opened.",
+    "Armageddon package remains DISABLED. Whole82/12/154/25 plan, Fury/Calm live hooks, combined release gates and full-world/Telnet acceptance remain incomplete/NOT_RUN. Historical release-world creation is outside this lane awaiting separate Luke approval.",
+    "Local only: no publication, merge, deployment, version choice, stock-lane integration or shared/production database."
+  ],
+  "whole_plan_complete": false,
+  "package_enabled": false,
+  "publication": false,
+  "historical_preservation": {
+    "status": "PASS_FULL_REHASH_OF_BASELINE_FILES",
+    "artifacts": 78136,
+    "task_files": 604,
+    "baseline": {
+      "path": ".artifacts/test-runs/armageddon-native-ammo-recovery/baseline.json",
+      "sha256": "e973f7f37e68873fa231c3719ba707c041cd55599d1ba68efd6903ee209b1709"
+    },
+    "log": {
+      "path": ".artifacts/test-runs/armageddon-native-ammo-recovery/historical-preservation.log",
+      "sha256": "2d9762ce38240e80f599b2e17f0f22ead5b6507514699cb3debf35e339500b70"
+    },
+    "checkpoint19_receipt_sha256": "51c107204593a6a1ba4be94d278cfc0e2e665042f54a6cd6b92d58d88a63f381",
+    "primary_head": "34eb234eb5a1e2784c595b4f848f6f785b426302"
+  },
+  "binary_capsules": [
+    {
+      "path": ".artifacts/test-runs/armageddon-native-ammo-recovery/final-fast-binary-capsule/manifest.json",
+      "sha256": "86ac65276491a7b342bbf3a60fe02604bf94898f0c13b6bbb90260e904dc1363",
+      "files": 2739
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-native-ammo-recovery/managed01-binary-capsule/manifest.json",
+      "sha256": "6b3c62d6a252ebd7aaf605ee730db45bb60ae9122bf812380e325a37ccaf277e",
+      "files": 604
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-native-ammo-recovery/managed02-binary-capsule/manifest.json",
+      "sha256": "7d52bc5c676a229fa48634220e635095ffa02beb32ad6dd2a5cb107de453e59f",
+      "files": 604
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-native-ammo-recovery/native01-binary-capsule/manifest.json",
+      "sha256": "041d532ff230d2759a40c627201f419f1a400824b613b81e463b1dbbdc77b76d",
+      "files": 604
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-native-ammo-recovery/native02-binary-capsule/manifest.json",
+      "sha256": "6116ced10309c58094773f99ea690aaff344abd6c1a94758f27b0adfea09e3ed",
+      "files": 604
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-native-ammo-recovery/repro-cycle-throw01-binary-capsule/manifest.json",
+      "sha256": "31a188a343ed5c3d9409afad3d410798b1e82e996056f7e9dfcc2d09e5ee8510",
+      "files": 604
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-native-ammo-recovery/repro-title01-binary-capsule/manifest.json",
+      "sha256": "61a60214a5bb7f5f37c2b2dd25eb1044aee23243994370e6908a2f3cc26e6d17",
+      "files": 604
+    }
+  ]
+}

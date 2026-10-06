@@ -229,12 +229,16 @@ public class InternalMagazineGunGameItemComponent : FirearmBaseGameItemComponent
 			bool Exact() => GunUnchanged() && exactSlot() && item.Quantity == quantity && item.OwnershipReference == title &&
 				item.Components.Count() == components.Length && components.All(x => item.Components.Any(y => ReferenceEquals(x.Item, y)) &&
 					ReferenceEquals(x.Item.Prototype, x.Prototype));
-			if (!ComponentUnloadCompletion.Detach(loader, item, Parent, clearSlot, Exact))
+			return ComponentUnloadCompletion.CompleteWithRecovery(() =>
 			{
-				if (exactSlot() && !ComponentUnloadCompletion.OwnedBy(item, Parent)) { clearSlot(); Changed = true; }
-				return false;
-			}
-			accepted = true; Changed = true; floor(); return true;
+				if (!ComponentUnloadCompletion.Detach(loader, item, Parent, () =>
+					{ clearSlot(); accepted = true; Changed = true; }, Exact))
+				{
+					if (exactSlot() && !ComponentUnloadCompletion.OwnedBy(item, Parent)) { clearSlot(); Changed = true; }
+					return false;
+				}
+				floor(); return true;
+			}, floor);
 		}
 
 		if (ChamberedRound is { } oldRound &&
@@ -516,18 +520,25 @@ public class InternalMagazineGunGameItemComponent : FirearmBaseGameItemComponent
 				item.Components.Count() == components.Length && components.All(x => item.Components.Any(y => ReferenceEquals(x.Item, y)) &&
 					ReferenceEquals(x.Item.Prototype, x.Prototype)) && _roundsInMagazine.Any(x => ReferenceEquals(x, item));
 			var completion = ComponentUnloadCompletion.PrepareReceiveWithResult(loader, item);
-			if (completion is null || !MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) break;
+			var floor = ComponentUnloadCompletion.PrepareFloor(loader, item, loader);
+			if (completion is null || floor is null || !MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) break;
 			if (!announced)
 			{
 				var perceivable = snapshot.Length > 1 ? (IPerceivable)new PerceivableGroup(snapshot) : item;
 				loader.OutputHandler.Handle(new EmoteOutput(new Emote(_prototype.UnloadEmote, loader, loader, Parent, perceivable)));
 				announced = true;
 			}
-			if (!Exact() || !ComponentUnloadCompletion.Detach(loader, item, Parent,
-				() => _roundsInMagazine.RemoveAll(x => ReferenceEquals(x, item)),
-				Exact)) break;
-			Changed = true;
-			var acquired = completion();
+			var detached = false;
+			var acquired = ComponentUnloadCompletion.CompleteWithRecovery<IGameItem?>(() =>
+			{
+				if (!Exact() || !ComponentUnloadCompletion.Detach(loader, item, Parent, () =>
+					{
+						_roundsInMagazine.RemoveAll(x => ReferenceEquals(x, item));
+						detached = true; Changed = true;
+					}, Exact)) return null;
+				return completion();
+			}, floor);
+			if (!detached) break;
 			if (acquired is { Deleted: false, Destroyed: false }) results.Add(acquired);
 		}
 		return results;

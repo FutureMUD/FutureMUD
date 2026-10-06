@@ -11,6 +11,21 @@ namespace MudSharp.GameItems;
 /// <summary>Prepares completion for one exact component participant before its detach.</summary>
 internal static class ComponentUnloadCompletion
 {
+	// Recovery belongs to the captured participant even when a post-commit observer
+	// changes its value or throws. A second recovery failure must not replace the
+	// original gameplay exception; without one, recovery failures remain visible.
+	internal static T CompleteWithRecovery<T>(Func<T> operation, Action recovery)
+	{
+		var failed = false;
+		try { return operation(); }
+		catch { failed = true; throw; }
+		finally
+		{
+			try { recovery(); }
+			catch when (failed) { }
+		}
+	}
+
 	internal static bool OwnedBy(IGameItem item, IGameItem componentOwner) =>
 		item is { Deleted: false, Destroyed: false } && ReferenceEquals(item.ContainedIn, componentOwner) &&
 		!ComponentItemTransfer.HasDirectBodyCustody(item) && ComponentItemTransfer.DirectLocationOf(item) is null &&

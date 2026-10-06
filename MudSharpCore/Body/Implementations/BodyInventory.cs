@@ -1762,9 +1762,9 @@ public partial class Body
 		if (floor is null || !CommandExecutionScope.TryContinue() || !Exact()) return null;
 		return () =>
 		{
-			if (!ComponentItemTransfer.IsDetached(item) || !Exact()) return null;
-			try
+			return ComponentUnloadCompletion.CompleteWithRecovery<IGameItem?>(() =>
 			{
+				if (!ComponentItemTransfer.IsDetached(item) || !Exact()) return null;
 				item.Get(this);
 				if (!Exact()) return null;
 				if (!CompleteGetPlacementWithResult(item, placement, out var acquired, consumeNativeStack: true, allowAmmo: true))
@@ -1774,8 +1774,7 @@ public partial class Body
 				if (acquired.Deleted || acquired.Destroyed) return null;
 				NotifyGotItem(acquired, executor);
 				return acquired.Deleted || acquired.Destroyed ? null : acquired;
-			}
-			finally
+			}, () =>
 			{
 				// Get callbacks may throw after installing only the provisional holder.
 				if (!item.Deleted && !item.Destroyed && ReferenceEquals(item.GetItemType<IHoldable>()?.HeldBy, this) &&
@@ -1783,7 +1782,7 @@ public partial class Body
 					ComponentItemTransfer.DirectLocationOf(item) is null && item.GetItemType<IBeltable>()?.ConnectedTo is null)
 					item.GetItemType<IHoldable>()!.HeldBy = null;
 				if (ComponentItemTransfer.IsDetached(item)) floor(item);
-			}
+			});
 		};
 	}
 

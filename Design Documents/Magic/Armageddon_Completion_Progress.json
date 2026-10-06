@@ -5152,5 +5152,54 @@
     ],
     "whole_plan_complete": false,
     "package_enabled": false
+  },
+  "native_ammo_post_detach_recovery": {
+    "checkpoint": 20,
+    "base_head": "a2753375c0022d874ae77a776916dd2929d49455",
+    "status": "PASS_BOUNDED_CORRECTION_PENDING_PARENT_REREVIEW",
+    "completed": [
+      "Actual prepatch title and throwing-ejection floor-loss reproductions",
+      "Body exact guard enclosed by captured recovery",
+      "Unload and Ready detach+completion protected; slot dirty before callbacks",
+      "Automatic floor or independent bag/body custody preserved",
+      "Primary exception identity preserved when secondary recovery fails"
+    ],
+    "focused": {
+      "executed": 300,
+      "passed": 300,
+      "failed": 0,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 300
+    },
+    "full_fast": {
+      "executed": 7550,
+      "passed": 7550,
+      "failed": 0,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 7550
+    },
+    "native_cases": 11,
+    "cold_readers": 11,
+    "secondary_failure_explicit_retries": 2,
+    "receipt": "Design Documents/Magic/Armageddon_AmmoDetachRecovery_Verification.json",
+    "next_smallest_gate": "One actual embark representative, then production-loader Raise Servitor collapse/restoration and evidenced conditional weapon disposition. Parent rereviews this narrow correction.",
+    "limits": [
+      "InternalMagazineGun only: actual Unload of native Stackable/Holdable/Ammunition quantity3 against held5; Ready ejects one nonstack ordinary chambered round. No broader weapon-family hardening or stacked chamber qualification.",
+      "All eleven cases inject the real native TrySetContainedIn post-owner-commit Complete notification using a controlled proximity dispatcher. Native item, gun, inventory, title and quantity operations are real; this is not a full-world event-registry test.",
+      "Nine cases qualify automatic floor delivery or preservation of real independently claimed bag/body custody. Two double-throw cases qualify original exception identity despite a secondary native floor-membership observer failure; they deliberately leave a captured floor pointer without membership, then exercise an explicit independent exact Cell.Insert retry before their fresh persistence reader. No automatic floor recovery is claimed when that recovery itself throws.",
+      "The prepatch title and cycle-throw reproductions failed actual floor conservation and owned cleanup passed. Their Core/harness four dependency roles align, but unused Unit output roles are stale checkpoint19 binaries; those negative packets do not supply globally aligned final acceptance.",
+      "One initial harness build failed for a missing Scheduling using; no gameplay executed. Its original source was exactly reconstructed from the fixture script after the first source-freeze helper import failed, with that provenance retained. Managed01 retained four fixture failures: missing usable manipulators before Unload and counting an independent foreign-containment event. Native01 retained four passed cases/readers before the body-claim fixture tried to acquire a third held item with two occupied hands; the callback now independently drops the conserved quantity5 survivor before its exact pickup. Assertions of original exception/floor/conservation were retained after fixture repair.",
+      "Checkpoint19 receipts/capsules and reported three process-local Git environment restoration issues remain immutable; checkpoint17 original raw source rehash remains5778/5779. New focused/Fast receipts verify all five process-local environment values restored; native wrapper does not claim an environment-restoration certificate.",
+      "Boarding and actual production-loader Raise Servitor corpse/foreign-goods restoration, controller teardown and no queued replay remain OPEN. The previous archive/mock item readers do not qualify that loader gate. Source mapping found persisted fixture anatomy/time/corpse-model/prog dependencies needing real loader-compatible rows; no production-loader pass is claimed.",
+      "Musket/artillery reachable seams remain mapped conditional dependencies; no new native escaping path in those families was established in this correction. No exhaustive matrix is opened.",
+      "Armageddon package remains DISABLED. Whole82/12/154/25 plan, Fury/Calm live hooks, combined release gates and full-world/Telnet acceptance remain incomplete/NOT_RUN. Historical release-world creation is outside this lane awaiting separate Luke approval.",
+      "Local only: no publication, merge, deployment, version choice, stock-lane integration or shared/production database."
+    ],
+    "whole_plan_complete": false,
+    "package_enabled": false
   }
 }

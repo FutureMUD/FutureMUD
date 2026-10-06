@@ -5314,5 +5314,26 @@
       "Full Fast, full-world/Telnet, stock emotional activation/reload and exhaustive family acceptance are NOT_RUN here.",
       "Historical Musket/artillery continuation is deferred by the current allocation; no issues780-783 fix, version change, publication, merge, deployment or shared/production database work."
     ]
+  },
+  "emotional_shot_refusal_correction": {
+    "baseline": "9353e2ad4b0d0e95289069dc166a52ad6db45c71",
+    "branch": "codex/fury-calm-runtime-hooks",
+    "checkpoint_hold": true,
+    "next_priority": "Cell/room migration after the current checkpoints; parent owns allocation",
+    "whole_plan_complete": false,
+    "package_enabled": false,
+    "status": "implemented_managed_native_pass_hold_for_parent",
+    "managed_counts": {
+      "executed": 426,
+      "passed": 426,
+      "failed": 0,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 426
+    },
+    "native_cases": 9,
+    "fresh_readers": 23,
+    "receipt": "Design Documents/Magic/Armageddon_EmotionalShotRefusal_Verification.json"
   }
 }

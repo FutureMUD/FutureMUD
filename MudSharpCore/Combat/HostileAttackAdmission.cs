@@ -17,6 +17,12 @@ internal sealed class HostileAttackAdmission : IDisposable
 	private readonly HashSet<ICharacter> _recipients = new(ReferenceEqualityComparer.Instance);
 	private readonly Func<bool> _initialIdentity;
 	private Guid _identity;
+	private bool _shotAdmissionRefused;
+	private bool _shotCommitted;
+
+	internal static void RecordShotAdmissionRefused() { if (Current.Value is { } current) current._shotAdmissionRefused = true; }
+	internal static void RecordShotCommitted() { if (Current.Value is { } current) current._shotCommitted = true; }
+	internal static bool ShotRefusedBeforeCommit => Current.Value is { _shotAdmissionRefused: true, _shotCommitted: false };
 
 	private HostileAttackAdmission(ICharacter attacker, ICharacter? recipient)
 	{

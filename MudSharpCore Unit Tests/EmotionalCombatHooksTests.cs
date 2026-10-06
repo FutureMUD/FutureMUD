@@ -8,6 +8,7 @@ using Moq;
 using MudSharp.Body;
 using MudSharp.Character;
 using MudSharp.Combat;
+using MudSharp.Combat.Moves;
 using MudSharp.Construction;
 using MudSharp.Effects;
 using MudSharp.Effects.Concrete;
@@ -17,12 +18,41 @@ using MudSharp.Framework;
 using MudSharp.Framework.Scheduling;
 using MudSharp.FutureProg;
 using MudSharp.Form.Shape;
+using MudSharp.GameItems.Interfaces;
+using MudSharp.RPG.Checks;
 
 namespace MudSharp_Unit_Tests;
 
 [TestClass]
 public class EmotionalCombatHooksTests
 {
+	[DataTestMethod]
+	[DataRow(false)]
+	[DataRow(true)]
+	public void RangedWrapper_AdmissionRefusalPreservesAimAndCostUnlessAnEarlierShotCommitted(bool earlierShotCommitted)
+	{
+		var f = new Fixture(); var aim = new Mock<IAimInformation>(); aim.SetupProperty(x => x.AimPercentage, 0.8);
+		f.A.Aim = aim.Object;
+		var weapon = new Mock<IRangedWeapon> { DefaultValue = DefaultValue.Mock };
+		Mock.Get(weapon.Object.WeaponType).SetupGet(x => x.AimBonusLostPerShot).Returns(0.2);
+		weapon.Setup(x => x.Fire(f.A, f.B, Outcome.Pass, Outcome.Pass, It.IsAny<OpposedOutcome>(), null!, null!, f.B))
+			.Callback(() =>
+			{
+				if (earlierShotCommitted) HostileAttackAdmission.RecordShotCommitted();
+				HostileAttackAdmission.RecordShotAdmissionRefused();
+			});
+		var move = new RangedWeaponAttackMove(f.A, f.B, weapon.Object);
+		using var attempt = HostileAttackAdmission.BeginAttempt(f.A, f.B);
+		var fire = typeof(RangedWeaponAttackBase).GetMethod("FireWeapon", BindingFlags.NonPublic | BindingFlags.Instance)!;
+		var accepted = (bool)fire.Invoke(move, [f.A, f.B, Outcome.Pass, Outcome.Pass,
+			new OpposedOutcome(Outcome.Fail, Outcome.Pass), null!, null!, f.B])!;
+		Assert.AreEqual(earlierShotCommitted, accepted);
+		Assert.AreSame(aim.Object, f.A.Aim);
+		Assert.AreEqual(earlierShotCommitted ? 0.6 : 0.8, f.A.Aim.AimPercentage, 0.00001);
+		Assert.AreEqual(earlierShotCommitted, move.UsesStaminaWithResult(accepted ? new CombatMoveResult() : CombatMoveResult.Irrelevant));
+		weapon.Verify(x => x.Fire(f.A, f.B, Outcome.Pass, Outcome.Pass, It.IsAny<OpposedOutcome>(), null!, null!, f.B), Times.Once);
+	}
+
 	[TestMethod]
 	public void AdmittedAttack_OneAttemptDeduplicatesRecipientsAndKeepsOtherEffects()
 	{

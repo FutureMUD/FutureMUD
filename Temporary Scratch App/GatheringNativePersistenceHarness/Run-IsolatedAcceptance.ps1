@@ -235,7 +235,10 @@ if ($CustodyMergeOnly) { '--custody-merge-run' } elseif ($StackMergeOnly) { '--s
 		$runExit = $LASTEXITCODE
 	}
 	if ($runExit -eq 0 -and $OrderedNpcCallbacksOnly) {
-		if ($EmotionalHooksOnly) { foreach ($emotionalLane in @('melee','firearm','countershot','cessation')) { Invoke-OwnedHarness ('--emotional-' + $emotionalLane + '-run'); if ($LASTEXITCODE -ne 0) { break } } } elseif ($ProductionRestartOnly) {
+		if ($EmotionalHooksOnly) {
+			$emotionalLanes = if ($FirearmAuthorityOnly) { @('firearm') } else { @('melee','firearm','countershot','cessation') }
+			foreach ($emotionalLane in $emotionalLanes) { Invoke-OwnedHarness ('--emotional-' + $emotionalLane + '-run'); if ($LASTEXITCODE -ne 0) { break } }
+		} elseif ($ProductionRestartOnly) {
             $restartCasePrevious = [Environment]::GetEnvironmentVariable('FUTUREMUD_PRODUCTION_RESTART_CASE')
             try {
                 foreach ($restartCase in @('active-future','active-overdue','pending-stale','completed-stale')) {

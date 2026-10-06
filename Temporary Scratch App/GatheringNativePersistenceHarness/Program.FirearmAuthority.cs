@@ -145,7 +145,8 @@ internal static partial class GNHProgram
 			It.IsAny<IPerceivable>(), It.IsAny<IUseTrait>(), It.IsAny<double>(), It.IsAny<TraitUseType>(), It.IsAny<(string, object)[]>()))
 			.Returns(CheckOutcome.SimpleOutcome(CheckType.CombatRecoveryCheck, Outcome.Pass));
 		var configured = new HashSet<CommandableAI>();
-		foreach (var scenario in new[] { "ordered-valid", "queued-revoked", "component-policy-revoked", "postcommit-independent", "ordered-miss", "direct-valid" })
+		foreach (var scenario in new[] { "ordered-valid", "queued-revoked", "component-policy-revoked", "postcommit-independent", "ordered-miss", "direct-valid" }
+			.Concat(_emotionalHooks ? new[] { "admission-replacement" } : []))
 		{
 			var actor = scenario == "ordered-valid" ? animated : cast(); var body = (Body)actor.Body; actor.CombatSettings = settings;
 			var ai = actor.AIs.OfType<CommandableAI>().Single();
@@ -237,22 +238,34 @@ internal static partial class GNHProgram
 				Require(move is RangedWeaponAttackMove && CommandExecutionAuthority.IsOrdered(move) == !direct, "Actual ChooseMove must select native ranged attack with exact controller provenance.");
 				if (scenario == "queued-revoked") Expire();
 				body.CurrentStamina = 100; world.SaveManager.Flush(); var before = foe.Body.Wounds.Sum(x => x.CurrentDamage + x.CurrentPain + x.CurrentStun);
-				using var emotional = _emotionalHooks ? new EmotionalProbeLease(foe) : null;
+				var retainedAim = actor.Aim; var retainedAimPercentage = retainedAim!.AimPercentage;
+				using var emotional = _emotionalHooks ? new EmotionalProbeLease(foe, scenario == "admission-replacement" ? _ =>
+				{
+					using var independent = CommandExecutionScope.EnterIndependent();
+					Require(gun.Unready(actor), "Actual CombatAction admission callback must return the captured round.");
+					gun.Load(actor);
+					Require(gun.Ready(actor) && gun.ChamberedRound!.Parent == spare && gun.MagazineContents.Single() == shot,
+						"Actual CombatAction callback must retain both rounds in the independently replaced native slots.");
+				} : null) : null;
 				resolving = true; try { actor.Combat!.CombatAction(actor, move); } finally { resolving = false; }
 				emotional?.Verify("firearm-" + scenario, scenario is not ("queued-revoked" or "component-policy-revoked"));
-				var fired = scenario is not ("queued-revoked" or "component-policy-revoked");
+				var replaced = scenario == "admission-replacement";
+				var fired = scenario is not ("queued-revoked" or "component-policy-revoked" or "admission-replacement");
 				var hit = fired && scenario != "ordered-miss"; var after = foe.Body.Wounds.Sum(x => x.CurrentDamage + x.CurrentPain + x.CurrentStun);
 				Require(Same(actor.CurrentStamina, fired ? 97 : 100) && Same(gunItem.Condition, fired ? 0.99 : 1), $"Accepted shots must pay exactly3 stamina and0.01 condition once: {scenario} stamina:{actor.CurrentStamina} condition:{gunItem.Condition}.");
-				Require(gun.ChamberedRound?.Parent == (fired ? null : shot) && gun.MagazineContents.Single() == spare &&
+				Require(gun.ChamberedRound?.Parent == (fired ? null : replaced ? spare : shot) && gun.MagazineContents.Single() == (replaced ? shot : spare) &&
 					checks == (scenario == "queued-revoked" ? 0 : 1) && faults == (scenario == "component-policy-revoked" ? 1 : 0), "Refused shots must retain the exact chamber, magazine and truthful callback counts.");
 				Require(hit ? after > before : Same(after, before), "Only accepted native hits may install wounds.");
+				if (replaced) Require(ReferenceEquals(actor.Aim, retainedAim) && Same(actor.Aim.AimPercentage, retainedAimPercentage) &&
+					service.CanCommand(actor.InstanceId, caster.Id), "Exact-round refusal with valid authority must retain Aim and charge no uncommitted wrapper stamina.");
 				Require(reactions == (scenario == "postcommit-independent" ? 1 : 0) && Same(actor.TraitRawValue(trait), reactions == 1 ? 60 : 40), "Independent real wound reaction must survive once without being overwritten.");
 				Require(rounds.All(x => !x.Deleted && x.Quantity == 1 && x.OwnershipReference == new ItemOwnershipReference(caster.FrameworkItemType, caster.Identity.Id)) &&
 					(fired ? shot.DirectLocation == foe.Location && shot.ContainedIn is null && shot.GetItemType<IHoldable>()!.HeldBy is null : shot.ContainedIn == gunItem && shot.DirectLocation is null), "Consumed projectile must have exactly one native placement and retain title/quantity.");
 				using (CommandExecutionScope.EnterIndependent())
 				{
-					Require(gun.Unload(actor).SequenceEqual([spare]) && !gun.MagazineContents.Any() && spare.ContainedIn is null &&
-						ReferenceEquals(spare.GetItemType<IHoldable>()!.HeldBy, body), "Actual component Unload must return the distinct surviving magazine round once.");
+					var remaining = replaced ? shot : spare;
+					Require(gun.Unload(actor).SequenceEqual([remaining]) && !gun.MagazineContents.Any() && remaining.ContainedIn is null &&
+						ReferenceEquals(remaining.GetItemType<IHoldable>()!.HeldBy, body), "Actual component Unload must return the distinct surviving magazine round once.");
 				}
 				Read("shot-unloaded");
 				Console.WriteLine($"ARMFirearm={scenario} passed actual-Load-Ready-Unready-ChooseMove-RangedAttack-CombatAction-Unload cost:{100-actor.CurrentStamina} condition:{gunItem.Condition} wound-delta:{after-before} reactions:{reactions} projectile:{shot.Id} raw:{actor.TraitRawValue(trait)}");

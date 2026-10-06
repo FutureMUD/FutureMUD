@@ -108,6 +108,9 @@ public abstract class RangedWeaponAttackBase : CombatMoveBase, IRangedWeaponAtta
     public override double StaminaCost =>
         Weapon is IFirearm firearm ? firearm.EffectiveStaminaToFire : Weapon.WeaponType.StaminaToFire;
 
+	private bool _shotAdmissionRefused;
+	public override bool UsesStaminaWithResult(CombatMoveResult result) => !_shotAdmissionRefused && base.UsesStaminaWithResult(result);
+
 	private bool FireWeapon(ICharacter actor, IPerceiver target, Outcome shotOutcome, Outcome coverOutcome,
 		OpposedOutcome defenseOutcome, IBodypart bodypart, IEmoteOutput defenseEmote, IPerceiver originalTarget)
 	{
@@ -118,6 +121,11 @@ public abstract class RangedWeaponAttackBase : CombatMoveBase, IRangedWeaponAtta
 		var aimLoss = Weapon is IFirearm firearm ? firearm.EffectiveAimLoss : Weapon.WeaponType.AimBonusLostPerShot;
 		if (!CanContinueCommand()) return false;
 		Weapon.Fire(actor, target, shotOutcome, coverOutcome, defenseOutcome, bodypart, defenseEmote, originalTarget);
+		if (HostileAttackAdmission.ShotRefusedBeforeCommit)
+		{
+			_shotAdmissionRefused = true;
+			return false;
+		}
 		if (MudSharp.NPC.AI.CommandExecutionScope.RejectedBeforeCommit) return false;
 		if (aim is not null && ReferenceEquals(actor.Aim, aim))
 		{
@@ -130,6 +138,7 @@ public abstract class RangedWeaponAttackBase : CombatMoveBase, IRangedWeaponAtta
     public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
     {
 		using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterMove(this);
+		_shotAdmissionRefused = false;
 		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
 		using var hostileAttempt = HostileAttackAdmission.BeginAttempt(Assailant, CharacterTargets.FirstOrDefault());
 		defenderMove = MagicDefenseMove.Revalidate(defenderMove, this);

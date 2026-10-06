@@ -349,3 +349,6 @@ This is a bounded correction. Remaining attack/manual/message/defence-Prog callb
 ## Optional emotional combat hooks
 
 SimpleMeleeCombat and ProgCombat provide prepared selective cessation while preserving ordinary ICombat/LeaveCombat APIs. Admitted attack notification is opt-in and occurs at supported native attack/component boundaries, including misses. Native mutation generations protect exact captured fields from ABA and callback-created replacements. See [the API, caller scope and bounded qualification](../Magic/Armageddon_Emotional_Combat_Hooks.md). Actual stock Fury/Calm activation remains pending.
+
+
+An exact firearm admission refusal reaches the ranged wrapper before Aim loss and returns Irrelevant with no uncommitted attack stamina. Execution-local shot commitment preserves an earlier committed shot's normal wrapper result/cost. The [corrective evidence](../Magic/Armageddon_EmotionalShotRefusal_Verification.json) qualifies actual CombatAction replacement ammunition; a native multi-round matrix remains unqualified.

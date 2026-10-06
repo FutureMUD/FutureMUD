@@ -491,11 +491,16 @@ public abstract class FirearmBaseGameItemComponent : GameItemComponent, IFirearm
 			var prepareCasing = PrepareShellCasingOnFire(actor, originalLocation);
 			var canCycle = PrepareCyclingOnFire(actor);
 			if (!MudSharp.Combat.HostileAttackAdmission.TryNotify(actor, target as ICharacter,
-				() => ReferenceEquals(ChamberedRound, ammo) && acceptedRound())) break;
+				() => ReferenceEquals(ChamberedRound, ammo) && acceptedRound()))
+			{
+				MudSharp.Combat.HostileAttackAdmission.RecordShotAdmissionRefused();
+				break;
+			}
 			MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted(actor);
 			var ammoContainer = Parent;
 			var shotCompletion = new ProjectileCustodyCompletion(actor, ammo.Parent, target, originalLocation);
             ChamberedRound = null;
+			MudSharp.Combat.HostileAttackAdmission.RecordShotCommitted();
 			if (!ComponentItemTransfer.ReleaseFiredItem(ammo.Parent, ammoContainer ?? Parent)) break;
 			if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor))
 			{

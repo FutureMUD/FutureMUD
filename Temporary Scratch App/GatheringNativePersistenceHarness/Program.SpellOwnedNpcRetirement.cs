@@ -129,7 +129,7 @@ internal static partial class GNHProgram
 				var type = model.Type switch
 				{
 					"Food" => typeof(FoodGameItemComponentProto), "Wearable" => typeof(WearableGameItemComponentProto),
-					"ProgLight" => typeof(ProgLightGameItemComponentProto), "LiquidContainer" => typeof(LiquidContainerGameItemComponentProto),
+					"Prog Light" or "ProgLight" => typeof(ProgLightGameItemComponentProto), "LiquidContainer" => typeof(LiquidContainerGameItemComponentProto),
 					"Corpse" => typeof(CorpseGameItemComponentProto), "Container" => typeof(ContainerGameItemComponentProto),
 					"Holdable" => typeof(HoldableGameItemComponentProto), "Belt" => typeof(BeltGameItemComponentProto),
 					"MeleeWeapon" => typeof(MeleeWeaponGameItemComponentProto), "Salvageable" => typeof(SalvageableGameItemComponentProto),

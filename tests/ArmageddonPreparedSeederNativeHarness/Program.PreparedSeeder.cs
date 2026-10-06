@@ -112,8 +112,16 @@ internal static partial class GNHProgram
 		}
 		foreach (var boundary in new[] { ArmageddonInstallCheckpoint.ContentCreated, ArmageddonInstallCheckpoint.BeforeCommit })
 		{
-			var failed = RunPrepared(database, bindings, (module, point) => { if (module == ArmageddonMagicInstaller.Module && point == boundary) throw new IOException("Native prepared interruption"); });
-			Require(failed.Status == ArmageddonInstallStatus.Failed && failed.Modules.Count == 1 && PreparedIdentities(database).Count == 0 && players == TraditionPlayers(database), "Utility transaction did not roll back or report stop.");
+			var faultCalls = 0;
+			var failed = RunPrepared(database, bindings, (module, point) =>
+			{
+				if (module != ArmageddonMagicInstaller.Module || point != boundary) return;
+				++faultCalls;
+				throw new IOException("Native prepared interruption");
+			});
+			Console.WriteLine($"ARMPREP-utility-fault=boundary:{boundary} invoked:{faultCalls} result:{failed.Describe()}");
+			Require(faultCalls == 1, $"Requested utility fault checkpoint {boundary} was not reached exactly once.\n{failed.Describe()}");
+			Require(failed.Status == ArmageddonInstallStatus.Failed && failed.Modules.Count == 1 && PreparedIdentities(database).Count == 0 && players == TraditionPlayers(database), $"Utility transaction did not roll back or report stop.\n{failed.Describe()}");
 		}
 		var uncertain = RunPrepared(database, bindings, (module, point) => { if (module == ArmageddonMagicInstaller.Module && point == ArmageddonInstallCheckpoint.AfterCommit) throw new IOException("Native prepared lost acknowledgement"); });
 		Require(uncertain.Status == ArmageddonInstallStatus.CommittedConfirmationFailed && uncertain.Modules.Count == 1 && PreparedIdentities(database).Count == 21, "Committed module lost acknowledgement misclassified.");

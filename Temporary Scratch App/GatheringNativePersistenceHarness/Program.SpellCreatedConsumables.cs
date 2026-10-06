@@ -68,16 +68,16 @@ internal static partial class GNHProgram
 		db.WearProfiles.Add(profile); db.SaveChanges();
 		db.Planes.Add(new() { Name = "ARM03C2 configured water-plane fixture", Alias = "fixturewater", Description = "Authored replacement water-plane admission fixture", IsDefault = false }); db.SaveChanges();
 		long componentId = db.GameItemComponentProtos.Max(x => x.Id), prototypeId = db.GameItemProtos.Max(x => x.Id);
-		Db.GameItemComponentProto Component(string type, string definition)
+		Db.GameItemComponentProto Component(string type, string definition, string? persistedType = null)
 		{
-			var model = new Db.GameItemComponentProto { Id = ++componentId, Name = "ARM03B2B C2 " + type, Type = type, Description = "ARM03C2 labeled replacement content",
+			var model = new Db.GameItemComponentProto { Id = ++componentId, Name = "ARM03B2B C2 " + type, Type = persistedType ?? type, Description = "ARM03C2 labeled replacement content",
 				Definition = definition, EditableItem = new() { BuilderDate = RuntimeClock.UtcNow, RevisionStatus = (int)RevisionStatus.Current } };
 			db.GameItemComponentProtos.Add(model); db.SaveChanges(); return model;
 		}
 		var hold = db.GameItemComponentProtos.Single(x => x.Name == "ARM03B2B Holdable");
 		var food = Component("Food", $"<Definition Satiation='2' Water='0' Thirst='0' Alcohol='0' Bites='4' Decorator='{decorator.Id}'><Taste>mild bread</Taste><OnEatProg>0</OnEatProg></Definition>");
 		var wear = Component("Wearable", $"<Definition Bulky='false' DisplayInventoryWhenWorn='true'><Profiles Default='{profile.Id}'><Profile>{profile.Id}</Profile></Profiles><LayerWeightConsumption>1</LayerWeightConsumption></Definition>");
-		var light = Component("ProgLight", "<Definition><IlluminationProvided>40</IlluminationProvided></Definition>");
+		var light = Component("ProgLight", "<Definition><IlluminationProvided>40</IlluminationProvided></Definition>", persistedType: "Prog Light");
 		var vessel = Component("LiquidContainer", "<Definition LiquidCapacity='5000' Closable='true' Transparent='true' WeightLimit='10000' OnceOnly='false' CanBeEmptiedWhenInRoom='true'/>");
 		foreach (var (name, components) in new[] { ("meal", new[] { hold, food }), ("light", new[] { hold, wear, light }), ("vessel", new[] { hold, vessel }), ("gear", new[] { hold, wear }) })
 		{

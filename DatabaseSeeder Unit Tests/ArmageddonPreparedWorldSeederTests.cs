@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Xml.Linq;
 using DatabaseSeeder;
 using DatabaseSeeder.Seeders;
@@ -75,17 +77,49 @@ public partial class ArmageddonPreparedWorldSeederTests
 	{
 		[ArmageddonMagicSeeder.InstallQuestion] = "yes", [ArmageddonMagicSeeder.BindingsQuestion] = ArmageddonMagicSeeder.SerializeBindings(bindings)
 	};
+#if !DEBUG
+	private sealed class RefusePreparedSeederWrites : SaveChangesInterceptor
+	{
+		public override InterceptionResult<int> SavingChanges(DbContextEventData eventData, InterceptionResult<int> result)
+		{
+			Assert.IsFalse(eventData.Context!.ChangeTracker.HasChanges(), "The disabled seeder attempted to persist changes.");
+			return result;
+		}
+		public override ValueTask<InterceptionResult<int>> SavingChangesAsync(DbContextEventData eventData,
+			InterceptionResult<int> result, CancellationToken cancellationToken = default)
+		{
+			return ValueTask.FromResult(SavingChanges(eventData, result));
+		}
+	}
+#endif
 
 	[TestMethod] public void OptInAlwaysDefaultsNoDespiteHistoricalYesAndDeclineDoesNotQuery()
 	{
 		var (db, _) = Fixture(); using (db)
 		{
-			var seeder = new ArmageddonMagicSeeder(); var question = seeder.Questions.First();
+			var seeder = new ArmageddonMagicSeeder();
+#if DEBUG
+			var question = seeder.Questions.First();
 			db.SeederChoices.Add(new() { Seeder = seeder.Name, Choice = question.Id, Answer = "yes", DateTime = DateTime.UtcNow, Version = "old" }); db.SaveChanges();
 			Assert.AreEqual("no", SeederAnswerMemory.GetRememberedAnswer(db, seeder, question, new Dictionary<string, string>()));
 			Assert.IsFalse(question.PersistAnswer); Assert.IsFalse(question.AutoReuseLastAnswer);
 			Assert.IsFalse(seeder.Questions.Last().Filter(db, new Dictionary<string, string> { [question.Id] = "no" }));
 			db.Dispose(); StringAssert.Contains(seeder.SeedData(db, new Dictionary<string, string> { [question.Id] = "no" }), "declined");
+#else
+			db.SeederChoices.Add(new() { Seeder = seeder.Name, Choice = ArmageddonMagicSeeder.InstallQuestion,
+				Answer = "yes", DateTime = DateTime.UtcNow, Version = "old" });
+			db.SaveChanges(); db.ChangeTracker.Clear();
+			var historicalChoice = db.SeederChoices.AsNoTracking().Single(); var factory = Factory(db);
+			Assert.IsFalse(seeder.Enabled);
+			Assert.AreEqual(0, seeder.Questions.Count()); Assert.AreEqual(0, seeder.SeederQuestions.Count());
+			// A disposed context makes any direct query or write fail before returning the refusal.
+			db.Dispose(); Assert.AreEqual(ArmageddonMagicSeeder.ReleaseDisabledMessage,
+				seeder.SeedData(db, new Dictionary<string, string> { [ArmageddonMagicSeeder.InstallQuestion] = "no" }));
+			using var reader = factory(); var saved = reader.SeederChoices.AsNoTracking().Single();
+			Assert.AreEqual(historicalChoice.Id, saved.Id); Assert.AreEqual("yes", saved.Answer);
+			Assert.AreEqual(historicalChoice.DateTime, saved.DateTime); Assert.AreEqual("old", saved.Version);
+			Assert.AreEqual(0, reader.SeederManagedRecords.Count()); Assert.AreEqual(0, reader.MagicSpells.Count());
+#endif
 		}
 	}
 	[TestMethod] public void BindingDocumentIsStrictAndCapacityCannotBeInvented()
@@ -119,6 +153,7 @@ public partial class ArmageddonPreparedWorldSeederTests
 		var (db, bindings) = Fixture(); using (db)
 		{
 			var seeder = new ArmageddonMagicSeeder();
+#if DEBUG
 			var execution = SeederExecutionService.Execute(db, seeder, seeder.Questions, Answers(bindings), new Version(1, 0));
 			Assert.IsTrue(execution.Success, execution.Exception?.ToString()); StringAssert.Contains(execution.Message!, "4/82 stored");
 			var ids = db.SeederManagedRecords.AsNoTracking().ToDictionary(x => x.StableKey, x => x.LogicalId);
@@ -132,6 +167,19 @@ public partial class ArmageddonPreparedWorldSeederTests
 				Assert.AreEqual(4, result.Modules.Count); Assert.IsTrue(result.Availability.All(x => x.StoredAdmissions.Count == 4 && x.WithoutStoredAdmission.Count == 78));
 				Assert.IsTrue(db.SeederManagedRecords.AsNoTracking().AsEnumerable().All(x => ids[x.StableKey] == x.LogicalId));
 			}
+#else
+			var original = (DbContextOptions<FuturemudDatabaseContext>)db.GetService<IDbContextOptions>();
+			using var caller = new FuturemudDatabaseContext(new DbContextOptionsBuilder<FuturemudDatabaseContext>(original)
+				.AddInterceptors(new RefusePreparedSeederWrites()).Options);
+			var execution = SeederExecutionService.Execute(caller, seeder, seeder.Questions, Answers(bindings), new Version(1, 0));
+			Assert.IsTrue(execution.Success, execution.Exception?.ToString());
+			Assert.AreEqual(ArmageddonMagicSeeder.ReleaseDisabledMessage, execution.Message);
+			Assert.IsFalse(seeder.Enabled);
+			Assert.AreEqual(0, seeder.Questions.Count()); Assert.AreEqual(0, seeder.SeederQuestions.Count());
+			Assert.IsFalse(caller.ChangeTracker.HasChanges());
+			Assert.AreEqual(0, db.SeederManagedRecords.Count()); Assert.AreEqual(0, db.MagicSpells.Count());
+			Assert.AreEqual(0, db.SeederChoices.Count());
+#endif
 			Assert.AreEqual(0, db.CharacterTraits.Count()); Assert.AreEqual(0, db.CharacterCastingEnrolments.Count());
 			Assert.AreEqual(0, db.GameItems.Count()); Assert.AreEqual(0, db.ChargenRoles.Count()); Assert.AreEqual(0, db.CharactersMagicResources.Count());
 		}
@@ -154,14 +202,31 @@ public partial class ArmageddonPreparedWorldSeederTests
 		var (db, bindings) = Fixture(); using (db)
 		{
 			var original = (DbContextOptions<FuturemudDatabaseContext>)db.GetService<IDbContextOptions>();
-			using var interactive = new FuturemudDatabaseContext(new DbContextOptionsBuilder<FuturemudDatabaseContext>(original).UseLazyLoadingProxies().Options);
+			var options = new DbContextOptionsBuilder<FuturemudDatabaseContext>(original).UseLazyLoadingProxies();
+#if !DEBUG
+			options.AddInterceptors(new RefusePreparedSeederWrites());
+#endif
+			using var interactive = new FuturemudDatabaseContext(options.Options);
 			var seeder = new ArmageddonMagicSeeder();
 			for (var i = 0; i < 2; i++)
 			{
 				var result = SeederExecutionService.Execute(interactive, seeder, seeder.Questions, Answers(bindings), new Version(1, 0));
-				Assert.IsTrue(result.Success, result.Exception?.ToString()); StringAssert.Contains(result.Message!, "4/82 stored");
+				Assert.IsTrue(result.Success, result.Exception?.ToString());
+#if DEBUG
+				StringAssert.Contains(result.Message!, "4/82 stored");
+#else
+				Assert.AreEqual(ArmageddonMagicSeeder.ReleaseDisabledMessage, result.Message);
+				Assert.IsFalse(seeder.Enabled);
+				Assert.AreEqual(0, seeder.Questions.Count()); Assert.AreEqual(0, seeder.SeederQuestions.Count());
+				Assert.IsFalse(interactive.ChangeTracker.HasChanges());
+#endif
 			}
+#if DEBUG
 			Assert.AreEqual(196, db.SeederManagedRecords.Count());
+#else
+			Assert.AreEqual(0, db.SeederManagedRecords.Count()); Assert.AreEqual(0, db.MagicSpells.Count());
+			Assert.AreEqual(0, db.SeederChoices.Count());
+#endif
 		}
 	}
 	[TestMethod] public void MismatchedProvisionSelectionIsBlockedBeforeAnyModuleAndRetiredRecordsArePreserved()

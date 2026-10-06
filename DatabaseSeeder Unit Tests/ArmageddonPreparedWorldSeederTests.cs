@@ -171,7 +171,7 @@ public partial class ArmageddonPreparedWorldSeederTests
 			var original = (DbContextOptions<FuturemudDatabaseContext>)db.GetService<IDbContextOptions>();
 			using var caller = new FuturemudDatabaseContext(new DbContextOptionsBuilder<FuturemudDatabaseContext>(original)
 				.AddInterceptors(new RefusePreparedSeederWrites()).Options);
-			var execution = SeederExecutionService.Execute(caller, seeder, seeder.Questions, Answers(bindings), new Version(1, 0));
+			var execution = SeederExecutionService.Execute(caller, seeder, seeder.Questions, new Dictionary<string, string>(), new Version(1, 0));
 			Assert.IsTrue(execution.Success, execution.Exception?.ToString());
 			Assert.AreEqual(ArmageddonMagicSeeder.ReleaseDisabledMessage, execution.Message);
 			Assert.IsFalse(seeder.Enabled);
@@ -208,9 +208,15 @@ public partial class ArmageddonPreparedWorldSeederTests
 #endif
 			using var interactive = new FuturemudDatabaseContext(options.Options);
 			var seeder = new ArmageddonMagicSeeder();
+#if DEBUG
+			var answers = Answers(bindings);
+#else
+			// The disabled Release menu collects no answers because it presents no questions.
+			var answers = new Dictionary<string, string>();
+#endif
 			for (var i = 0; i < 2; i++)
 			{
-				var result = SeederExecutionService.Execute(interactive, seeder, seeder.Questions, Answers(bindings), new Version(1, 0));
+				var result = SeederExecutionService.Execute(interactive, seeder, seeder.Questions, answers, new Version(1, 0));
 				Assert.IsTrue(result.Success, result.Exception?.ToString());
 #if DEBUG
 				StringAssert.Contains(result.Message!, "4/82 stored");

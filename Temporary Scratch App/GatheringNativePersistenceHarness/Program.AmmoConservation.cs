@@ -67,10 +67,14 @@ internal static partial class GNHProgram
 				world.Add(item); actor.Location.Insert(item, true); item.Login(); item.SetOwner(caster); world.SaveManager.Flush(); return item;
 			}
 			var gunItem = New("ARMRegression gun"); var gun = gunItem.GetItemType<InternalMagazineGunGameItemComponent>()!;
+			var gunPrototype = (MudSharp.GameItems.Prototypes.InternalMagazineGunGameItemComponentProto)gun.Prototype;
+			var previousCapacity = gunPrototype.InternalMagazineCapacity;
+			// All guns share this fixture prototype; each scenario must set its own capacity.
+			gunPrototype.InternalMagazineCapacity = scenario.StartsWith("split-", StringComparison.Ordinal) ? 2 : 8;
+			Console.WriteLine($"ARMAmmo-fixture={scenario} before:{previousCapacity} capacity:{gunPrototype.InternalMagazineCapacity}");
 			if (scenario.StartsWith("split-", StringComparison.Ordinal))
 			{
 				var sourceRound = New("ARMRegression round", 3);
-				((MudSharp.GameItems.Prototypes.InternalMagazineGunGameItemComponentProto)gun.Prototype).InternalMagazineCapacity = 2;
 				Require(ReferenceEquals(body.GetWithoutMerge(gunItem), gunItem) && ReferenceEquals(body.GetWithoutMerge(sourceRound), sourceRound), "Acquire split-exception native participants.");
 				var clones = new List<GameItem>(); var expected = new InvalidOperationException("native split description callback");
 				host.Native.WorldMock.Setup(x => x.Add(It.IsAny<IGameItem>())).Callback<IGameItem>(item =>

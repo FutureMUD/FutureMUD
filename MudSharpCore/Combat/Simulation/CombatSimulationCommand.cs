@@ -135,7 +135,7 @@ The syntax is:
 
 	private static void New(ICharacter actor, StringStack command)
 	{
-		var scene = command.IsFinished ? actor.Location : actor.Gameworld.Cells.GetByIdOrName(command.SafeRemainingArgument);
+		var scene = command.IsFinished ? actor.Location : actor.Gameworld.Cells.GetByIdOrUniqueNameOrName(command.SafeRemainingArgument);
 		if (scene is null)
 		{
 			actor.OutputHandler.Send("There is no such cell to use as the combat scene.");
@@ -382,7 +382,7 @@ The syntax is:
 		switch (action)
 		{
 			case "add":
-				var cell = actor.Gameworld.Cells.GetByIdOrName(command.SafeRemainingArgument);
+				var cell = actor.Gameworld.Cells.GetByIdOrUniqueNameOrName(command.SafeRemainingArgument);
 				if (cell is null)
 				{
 					actor.OutputHandler.Send("There is no such cell.");
@@ -513,7 +513,7 @@ The syntax is:
 		{
 			case "scene":
 			case "cell":
-				var scene = actor.Gameworld.Cells.GetByIdOrName(command.SafeRemainingArgument);
+				var scene = actor.Gameworld.Cells.GetByIdOrUniqueNameOrName(command.SafeRemainingArgument);
 				if (scene is null)
 				{
 					actor.OutputHandler.Send("There is no such cell.");

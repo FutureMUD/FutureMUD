@@ -30,6 +30,10 @@ namespace MudSharp.Construction
 
     public interface ICell : ILocation, IProgVariable, IHaveMagicResource, IHaveTags, IRoomLiquidSurface
     {
+		/// <summary>Optional global builder identifier, independent of the numeric ID and overlay name.</summary>
+		string? UniqueName { get; }
+		bool TrySetUniqueName(string? value, out string error);
+
 		/// <summary>
 		/// The spatial model used by this cell. Existing cell implementations remain ordinary
 		/// unless they expose a route definition.

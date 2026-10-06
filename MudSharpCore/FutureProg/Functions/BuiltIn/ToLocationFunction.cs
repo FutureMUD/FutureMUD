@@ -58,8 +58,8 @@ internal class ToLocationFunction : BuiltInFunction
             new[] { ProgVariableTypes.Text },
             (pars, gameworld) => new ToLocationFunction(pars, gameworld, false),
             new List<string> { "name" },
-            new List<string> { "The name to look up" },
-            "Converts a name into the specified type, if one exists",
+            new List<string> { "The numeric cell ID, exact unique name, legacy display name or @N target to look up" },
+            "Resolves a room using numeric ID, exact unique name, then legacy display name matching. Use locationbyuniquename for strict key lookup.",
             "Lookup",
             ProgVariableTypes.Location
         ));

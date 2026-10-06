@@ -1,5 +1,5 @@
 {
-  "ProductVersion": "3.6.1.0",
-  "LatestMigrationId": "20261003170627_SpellOwnedRemainsRemovalIntent",
-  "GeneratedUtc": "2026-10-03T17:59:11.833749Z"
+  "ProductVersion": "3.7.0.0",
+  "LatestMigrationId": "20261006135343_CellUniqueNames",
+  "GeneratedUtc": "2026-10-06T13:57:25.0819667Z"
 }

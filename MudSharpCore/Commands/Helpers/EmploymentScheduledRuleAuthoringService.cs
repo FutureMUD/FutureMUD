@@ -2432,7 +2432,7 @@ internal sealed class EmploymentScheduledRuleAuthoringService
 
 		var resolved = long.TryParse(token, out var id)
 			? actor.Gameworld?.Cells.Get(id)
-			: actor.Gameworld?.Cells.GetByIdOrName(token);
+			: actor.Gameworld?.Cells.GetByIdOrUniqueNameOrName(token);
 		if (resolved is not null)
 		{
 			location = resolved;

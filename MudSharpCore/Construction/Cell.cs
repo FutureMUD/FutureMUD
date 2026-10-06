@@ -1330,6 +1330,7 @@ public partial class Cell : Location, IDisposable, ICell, IRecoverableSaveFailur
         Models.Cell dbcell = FMDB.Context.Cells.Find(Id);
         dbcell.CurrentOverlayId = CurrentOverlay.Id;
         dbcell.RoomId = Room.Id;
+		dbcell.UniqueName = UniqueName;
         dbcell.ForagableProfileId = ExplicitForagableProfileId;
 		SaveEnvironment(dbcell);
         SaveEffects();
@@ -1497,6 +1498,8 @@ public partial class Cell : Location, IDisposable, ICell, IRecoverableSaveFailur
     {
         _noSave = true;
         _id = cell.Id;
+		ValidatePersistedUniqueNames([cell]);
+		UniqueName = CellLookupExtensions.NormaliseUniqueName(cell.UniqueName);
 		_hostedVehicleId = cell.HostedVehicleId;
 		_hostedVehicleCompartmentId = cell.HostedVehicleCompartmentId;
 		ReloadRouteDefinition(cell.RouteCell);

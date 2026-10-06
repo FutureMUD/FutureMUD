@@ -1343,6 +1343,9 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
 
     public void Add(ICell cell)
     {
+		var conflict = _cells.GetUniqueNameConflict(cell.UniqueName, cell.Id);
+		if (conflict is not null)
+			throw new InvalidOperationException($"Cannot register cell #{cell.Id}: unique name '{cell.UniqueName}' is already used by cell #{conflict.Id}.");
         _cells.Add(cell);
 		EnvironmentalMagic?.Register(cell);
     }

@@ -2409,6 +2409,13 @@ namespace MudSharp.Database
 
             modelBuilder.Entity<Cell>(entity =>
             {
+				// Application equality follows prototype identifiers; MySQL collation is not identical.
+				entity.HasIndex(e => e.UniqueName).HasDatabaseName("IX_Cells_UniqueName");
+				entity.Property(e => e.UniqueName)
+					.HasColumnType("varchar(255)")
+					.HasCharSet("utf8mb4")
+					.UseCollation("utf8mb4_general_ci");
+
                 entity.HasIndex(e => e.CurrentOverlayId)
                     .HasDatabaseName("FK_Cells_CellOverlays");
 

@@ -3758,6 +3758,7 @@ For information on the syntax to use in emotes (such as those included in bracke
                              .AsNoTracking()
                                    select cell).ToList();
         Dictionary<Models.Cell, Cell> loadedCells = new();
+		Cell.ValidatePersistedUniqueNames(cells);
         foreach (Models.Cell cell in cells)
         {
             Cell newCell = new(cell, _rooms.FirstOrDefault(x => x.Id == cell.RoomId));

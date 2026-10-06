@@ -58,6 +58,7 @@ internal static partial class GNHProgram
 			return args switch
 			{
 				["--probe"] => Probe(),
+				["--cell-unique-name-run"] => RunCellUniqueNames(),
 				["--emotional-melee-run"] => RunEmotionalHooks("melee"),
 				["--emotional-firearm-run"] => RunEmotionalHooks("firearm"),
 				["--emotional-countershot-run"] => RunEmotionalHooks("countershot"),

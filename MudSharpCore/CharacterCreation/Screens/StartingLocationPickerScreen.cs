@@ -300,7 +300,7 @@ public class StartingLocationPickerScreenStoryboard : ChargenScreenStoryboard
             return false;
         }
 
-        ICell room = Gameworld.Cells.GetByIdOrName(command.SafeRemainingArgument);
+        ICell room = Gameworld.Cells.GetByIdOrUniqueNameOrName(command.SafeRemainingArgument);
         if (room is null)
         {
             actor.OutputHandler.Send("There is no such room.");
@@ -434,7 +434,7 @@ public class StartingLocationPickerScreenStoryboard : ChargenScreenStoryboard
             return false;
         }
 
-        ICell cell = Gameworld.Cells.GetByIdOrName(command.PopSpeech());
+        ICell cell = Gameworld.Cells.GetByIdOrUniqueNameOrName(command.PopSpeech());
         if (cell is null)
         {
             actor.OutputHandler.Send("There is no such room.");

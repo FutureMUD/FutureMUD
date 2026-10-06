@@ -3025,7 +3025,7 @@ Administrators can also use:
 		}
 
 		var idOrName = targetText.TrimStart('#');
-		var targetCell = actor.Gameworld.Cells.GetByIdOrName(idOrName);
+		var targetCell = actor.Gameworld.Cells.GetByIdOrUniqueNameOrName(idOrName);
 		if (targetCell is null)
 		{
 			error = $"There is no room matching {targetText.ColourCommand()}.";

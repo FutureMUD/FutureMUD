@@ -14,6 +14,7 @@ public partial class Cell
         return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
         {
             { "id", ProgVariableTypes.Number },
+			{ "uniquename", ProgVariableTypes.Text },
             { "characters", ProgVariableTypes.Collection | ProgVariableTypes.Character },
             { "items", ProgVariableTypes.Collection | ProgVariableTypes.Item },
             { "field", ProgVariableTypes.AgricultureField },
@@ -57,6 +58,7 @@ public partial class Cell
         return new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
         {
             { "id", "The ID of the room" },
+			{ "uniquename", "The room's exact global unique name, or empty text when unset. Renames do not retain aliases." },
             { "characters", "A collection of characters who are in the room (all layers)" },
             { "items", "A collection of items that are in the room (all layers)" },
             { "field", "The agriculture field in this room, if any" },
@@ -133,6 +135,9 @@ public partial class Cell
             case "id":
                 returnVar = new NumberVariable(Id);
                 break;
+			case "uniquename":
+				returnVar = new TextVariable(UniqueName ?? string.Empty);
+				break;
             case "characters":
                 returnVar = new CollectionVariable(Characters.ToList(), ProgVariableTypes.Character);
                 break;

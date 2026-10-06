@@ -6,6 +6,18 @@ This guide explains the FutureMUD room-building model for engine users, world bu
 
 In this document, **room** and **cell** mean the same thing.
 
+## Stable cell identifiers
+
+`cell set uniquename <name>` (also `cell set unique`) assigns an optional global cell identifier. This edits the cell immediately and does not require an overlay package. `none`, `clear`, `delete` and `remove` clear it. `cell show` and `rooms` display identifiers. Existing cells, newly built cells and template clones start unnamed; combat simulation cells cannot be named. Persistent dwelling and vehicle interiors share the same global namespace.
+
+Identifiers follow item prototype conventions: trim outer whitespace, preserve internal spaces and case, compare exact keys case-insensitively, reject values parsed as a signed 64-bit numeric ID, and limit length to 255 characters. No prefix, punctuation or ASCII-only format is required. A rename removes the old key immediately; it creates no alias and rewrites no saved script text or numeric reference.
+
+`goto <identifier>` keeps living-character targeting precedence. `goto #<identifier>` forces a cell target; numeric cell IDs, legacy display-name matching, `here`, `@N` and route `at` syntax remain available. Existing name-based starting-location, hospital, restaurant, scheduled-employment and combat-scene selectors also accept exact cell keys before their original name fallback. Other numeric protocols and item/staged-cell selectors keep their existing grammar.
+
+FutureProg `tolocation(number)` continues to use cell IDs. `tolocation(text)` resolves numeric IDs, `@N`, exact keys, then legacy names. `locationbyuniquename(text)` resolves only an exact key and returns null when absent; `room.uniquename` returns text (empty when unset). Special command syntax can shadow permissive keys such as `here`, `@1`, or a key containing ` at `; use the strict function or numeric ID to address these. Startup refuses duplicate or malformed nonblank persisted keys with a diagnostic; administrators must explicitly resolve them, rather than letting startup choose a winner.
+
+The additive `CellUniqueNames` migration adds nullable `utf8mb4` storage and a nonunique lookup index. The new column supports supplementary Unicode (including emoji), which the older prototype `utf8` columns cannot store; application comparison still follows prototype conventions. It performs no backfill or room/cell restructuring and preserves numeric identities and references. Back up before upgrading. Downgrading drops assigned keys; export them by cell ID first if needed. Room/IRoom elimination is a separate migration and is not part of this feature.
+
 ## Quick Mental Model
 
 FutureMUD locations are built from a small set of concepts:

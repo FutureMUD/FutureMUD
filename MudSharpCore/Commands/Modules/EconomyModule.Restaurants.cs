@@ -477,7 +477,7 @@ Administrators have the following additional syntax options:
 			var cellText = ss.PopSpeech();
 			cell = long.TryParse(cellText, out var cellId)
 				? actor.Gameworld.Cells.Get(cellId)
-				: actor.Gameworld.Cells.GetByName(cellText);
+				: actor.Gameworld.Cells.FindByUniqueName(cellText) ?? actor.Gameworld.Cells.GetByName(cellText);
 		}
 		else if (!ss.IsFinished)
 		{

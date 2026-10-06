@@ -62,7 +62,7 @@ internal partial class RoomBuilderModule : Module<ICharacter>
             return BuiltCells[Index.FromEnd(index)];
         }
 
-        return builder.Gameworld.Cells.GetByIdOrName(cellText);
+        return builder.Gameworld.Cells.GetByIdOrUniqueNameOrName(cellText);
     }
 
     public static ICell? LookupCell(IFuturemud gameworld, string cellText)
@@ -78,7 +78,7 @@ internal partial class RoomBuilderModule : Module<ICharacter>
             return BuiltCells[Index.FromEnd(index)];
         }
 
-        return gameworld.Cells.GetByIdOrName(cellText);
+        return gameworld.Cells.GetByIdOrUniqueNameOrName(cellText);
     }
 #nullable restore
 
@@ -953,6 +953,7 @@ Enter your text below:");
             $"Shard: {cell.Shard.Name.TitleCase().Colour(Telnet.Green)} (#{cell.Shard.Id:N0})"
         }.ArrangeStringsOntoLines(2, (uint)actor.Account.LineFormatLength));
         sb.AppendLine($"Current Name: {cell.CurrentOverlay.CellName}");
+		sb.AppendLine($"Unique Name: {cell.UniqueName ?? "none"}");
         sb.AppendLine(
             $"Current Description:\n\n{cell.CurrentOverlay.CellDescription.Wrap(actor.InnerLineFormatLength, "\t")}");
         sb.Append(new[]
@@ -1163,11 +1164,11 @@ Possible filter options include:
                 select
                     new[]
                     {
-                        room.Id.ToString("N0", actor), room.HowSeen(actor, colour: false),
+                        room.Id.ToString("N0", actor), room.UniqueName ?? "", room.HowSeen(actor, colour: false),
                         room.CurrentOverlay.Package.Name, room.CurrentOverlay.Terrain.Name,
                         room.CurrentOverlay.OutdoorsType.Describe()
                     },
-                new[] { "ID", "Name", "Overlay", "Terrain", "Outdoors" },
+                new[] { "ID", "Unique Name", "Name", "Overlay", "Terrain", "Outdoors" },
                 actor.Account.LineFormatLength,
                 colour: Telnet.Green,
                 truncatableColumnIndex: 4
@@ -1819,6 +1820,7 @@ The syntax is:
 
     internal const string CellSetHelpText = @"Valid options for #3cell set#0 are as follows:
 
+	#3cell set uniquename <name|none>#0 - sets or clears the global identifier without an overlay package
 	#3cell set name <name>#0 - sets the name of the cell
 	#3cell set desc#0 - drops you into an editor to edit the cell description
 	#3cell set suggestdesc#0 - uses configured AI description generation to suggest a description
@@ -1837,6 +1839,23 @@ The syntax is:
 	#3cell set register <varname> <value>#0 - sets the specified prog variable for the current cell
 	#3cell set register delete <varname>#0 - resets the specified prog variable to its default value";
 
+	private static void CellSetUniqueName(ICharacter actor, StringStack input)
+	{
+		if (input.IsFinished)
+		{
+			actor.OutputHandler.Send("What unique name should this cell have? Use 'none' to clear it.");
+			return;
+		}
+		var name = CellLookupExtensions.NormaliseUniqueName(input.SafeRemainingArgument);
+		if (name is not null && new[] { "none", "clear", "delete", "remove" }.Any(x => x.EqualTo(name))) name = null;
+		if (!actor.Location.TrySetUniqueName(name, out var error))
+		{
+			actor.OutputHandler.Send(error);
+			return;
+		}
+		actor.OutputHandler.Send(name is null ? "This cell no longer has a unique name." : $"This cell now has the unique name {name.ColourCommand()}.");
+	}
+
     private static void CellSet(ICharacter actor, StringStack input)
     {
         if (input.IsFinished || input.Peek().EqualTo("help") || input.Peek().EqualTo("?"))
@@ -1851,6 +1870,13 @@ The syntax is:
             CellExit(actor, input);
             return;
         }
+
+		if (input.Peek().EqualTo("uniquename") || input.Peek().EqualTo("unique"))
+		{
+			input.PopSpeech();
+			CellSetUniqueName(actor, input);
+			return;
+		}
 
         if (input.Peek().Equals("register", StringComparison.InvariantCultureIgnoreCase))
         {

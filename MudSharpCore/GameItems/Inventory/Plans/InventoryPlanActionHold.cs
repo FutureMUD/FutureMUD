@@ -1,4 +1,4 @@
-﻿
+
 using MudSharp.Construction;
 
 namespace MudSharp.GameItems.Inventory.Plans;
@@ -60,7 +60,7 @@ public class InventoryPlanActionHold : InventoryPlanAction
 
 	protected double GetItemFitness(ICharacter executor, IGameItem item)
     {
-        if ((DesiredTag is not null && !item.IsA(DesiredTag)) || !(PrimaryItemSelector?.Invoke(item) ?? true) ||
+        if ((DesiredTag is not null && !item.IsA(DesiredTag)) || !(MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(item) ?? true, false)) ||
             (item.GetItemType<IStackable>()?.Quantity ?? 1) < Quantity)
         {
             return 0.0;
@@ -73,10 +73,10 @@ public class InventoryPlanActionHold : InventoryPlanAction
                 return double.MaxValue;
             }
 
-            return (PrimaryItemFitnessScorer?.Invoke(item) ?? 1.0) * ItemsAlreadyInPlaceMultiplier;
+            return (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemFitnessScorer?.Invoke(item) ?? 1.0, 0.0)) * ItemsAlreadyInPlaceMultiplier;
         }
 
-        return PrimaryItemFitnessScorer?.Invoke(item) ?? 1.0;
+        return MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemFitnessScorer?.Invoke(item) ?? 1.0, 0.0);
     }
 
     public override IGameItem ScoutSecondary(ICharacter executor, IGameItem item)
@@ -94,7 +94,7 @@ public class InventoryPlanActionHold : InventoryPlanAction
                 x =>
                     ((x.GetItemType<IStackable>()?.Quantity ?? 1) >= Quantity || QuantityIsOptional) &&
                     (DesiredTag is null || x.IsA(DesiredTag)) &&
-                    (PrimaryItemSelector?.Invoke(x) ?? true));
+                    (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(x) ?? true, false)));
         foreach (IGameItem item in items)
         {
             double fitness = GetItemFitness(executor, item);
@@ -110,7 +110,7 @@ public class InventoryPlanActionHold : InventoryPlanAction
                 x =>
                     ((x.GetItemType<IStackable>()?.Quantity ?? 1) >= Quantity || QuantityIsOptional) &&
                     (DesiredTag is null || x.IsA(DesiredTag)) &&
-                    (PrimaryItemSelector?.Invoke(x) ?? true));
+                    (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(x) ?? true, false)));
         foreach (IGameItem item in items)
         {
             double fitness = GetItemFitness(executor, item);
@@ -126,7 +126,7 @@ public class InventoryPlanActionHold : InventoryPlanAction
                 x =>
                     ((x.GetItemType<IStackable>()?.Quantity ?? 1) >= Quantity || QuantityIsOptional) &&
                     (DesiredTag is null || x.IsA(DesiredTag)) &&
-                    (PrimaryItemSelector?.Invoke(x) ?? true) &&
+                    (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(x) ?? true, false)) &&
                     executor.Body.CanRemoveItem(x, ItemCanGetIgnore.IgnoreFreeHands));
         foreach (IGameItem item in items)
         {
@@ -147,7 +147,7 @@ public class InventoryPlanActionHold : InventoryPlanAction
                                     ((y.Parent.GetItemType<IStackable>()?.Quantity ?? 1) >= Quantity ||
                                      QuantityIsOptional) &&
                                     (DesiredTag is null || y.Parent.IsA(DesiredTag)) &&
-                                    (PrimaryItemSelector?.Invoke(y.Parent) ?? true) &&
+                                    (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(y.Parent) ?? true, false)) &&
                                     executor.Body.CanGet(y.Parent, Quantity,
                                         ItemCanGetIgnore.IgnoreInventoryPlans | ItemCanGetIgnore.IgnoreFreeHands)
                             ))
@@ -170,7 +170,7 @@ public class InventoryPlanActionHold : InventoryPlanAction
                         x =>
                             ((x.GetItemType<IStackable>()?.Quantity ?? 1) >= Quantity || QuantityIsOptional) &&
                             (DesiredTag is null || x.IsA(DesiredTag)) &&
-                            (PrimaryItemSelector?.Invoke(x) ?? true) &&
+                            (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(x) ?? true, false)) &&
                             executor.Body.CanDraw(x, null, ItemCanWieldFlags.IgnoreFreeHands)
                     );
         foreach (IGameItem item in items)
@@ -188,7 +188,7 @@ public class InventoryPlanActionHold : InventoryPlanAction
             items = container.Contents.Where(
                 x => ((x.GetItemType<IStackable>()?.Quantity ?? 1) >= Quantity || QuantityIsOptional) &&
                      (DesiredTag is null || x.IsA(DesiredTag)) &&
-                     (PrimaryItemSelector?.Invoke(x) ?? true) &&
+                     (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(x) ?? true, false)) &&
                      executor.Body.CanGet(x, container.Parent, Quantity,
                          ItemCanGetIgnore.IgnoreInventoryPlans | ItemCanGetIgnore.IgnoreFreeHands)
             );
@@ -208,7 +208,7 @@ public class InventoryPlanActionHold : InventoryPlanAction
                 x =>
                     ((x.GetItemType<IStackable>()?.Quantity ?? 1) >= Quantity || QuantityIsOptional) &&
                     (DesiredTag is null || x.IsA(DesiredTag)) &&
-                    (PrimaryItemSelector?.Invoke(x) ?? true) && executor.Body.CanGet(x, Quantity,
+                    (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(x) ?? true, false)) && executor.Body.CanGet(x, Quantity,
                         ItemCanGetIgnore.IgnoreInventoryPlans | ItemCanGetIgnore.IgnoreFreeHands));
         foreach (IGameItem item in items)
         {
@@ -230,7 +230,7 @@ public class InventoryPlanActionHold : InventoryPlanAction
                                     ((y.Parent.GetItemType<IStackable>()?.Quantity ?? 1) >= Quantity ||
                                      QuantityIsOptional) &&
                                     (DesiredTag is null || y.Parent.IsA(DesiredTag)) &&
-                                    (PrimaryItemSelector?.Invoke(y.Parent) ?? true) &&
+                                    (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(y.Parent) ?? true, false)) &&
                                     executor.Body.CanGet(y.Parent, Quantity,
                                         ItemCanGetIgnore.IgnoreInventoryPlans | ItemCanGetIgnore.IgnoreFreeHands)
                             ))
@@ -254,7 +254,7 @@ public class InventoryPlanActionHold : InventoryPlanAction
                         x =>
                             ((x.GetItemType<IStackable>()?.Quantity ?? 1) >= Quantity || QuantityIsOptional) &&
                             (DesiredTag is null || x.IsA(DesiredTag)) &&
-                            (PrimaryItemSelector?.Invoke(x) ?? true) &&
+                            (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(x) ?? true, false)) &&
                             executor.Body.CanDraw(x, null, ItemCanWieldFlags.IgnoreFreeHands)
                     );
         foreach (IGameItem item in items)
@@ -273,7 +273,7 @@ public class InventoryPlanActionHold : InventoryPlanAction
             items = container.Contents.Where(
                 x => ((x.GetItemType<IStackable>()?.Quantity ?? 1) >= Quantity || QuantityIsOptional) &&
                      (DesiredTag is null || x.IsA(DesiredTag)) &&
-                     (PrimaryItemSelector?.Invoke(x) ?? true) &&
+                     (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(x) ?? true, false)) &&
                      executor.Body.CanGet(x, container.Parent, Quantity,
                          ItemCanGetIgnore.IgnoreInventoryPlans | ItemCanGetIgnore.IgnoreFreeHands)
             );

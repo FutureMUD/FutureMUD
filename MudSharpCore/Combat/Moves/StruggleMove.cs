@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.Effects.Concrete;
 using MudSharp.RPG.Checks;
 using static MudSharp.Effects.Concrete.Dragging;
@@ -11,6 +11,8 @@ public class StruggleMove : CombatMoveBase
 
     public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
     {
+		using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterMove(this);
+		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
         IBeingGrappled grapple = Assailant.CombinedEffectsOfType<IBeingGrappled>().FirstOrDefault();
         if (grapple != null)
         {

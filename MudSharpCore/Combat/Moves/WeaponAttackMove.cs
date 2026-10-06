@@ -1,4 +1,4 @@
-﻿using JetBrains.Annotations;
+using JetBrains.Annotations;
 using MudSharp.Body;
 using MudSharp.Body.Traits;
 using MudSharp.Combat;
@@ -24,7 +24,22 @@ public abstract class WeaponAttackMove : CombatMoveBase, IWeaponAttackMove
     protected static double EvaluateAttackFormula(ITraitExpression formula, IHaveTraits owner,
         TraitBonusContext context, object degree, object quality)
     {
-        return formula.EvaluateWith(owner, null, context, ("degree", degree), ("quality", quality));
+        return MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(
+            () => formula.EvaluateWith(owner, null, context, ("degree", degree), ("quality", quality)), 0.0);
+    }
+
+    protected IReadOnlyList<IMagicWeaponEnhancementEffect> ApplicableWeaponEnhancements(
+        IGameItem weapon, IPerceivable target)
+    {
+        var result = new List<IMagicWeaponEnhancementEffect>();
+        foreach (var effect in weapon.EffectsOfType<IMagicWeaponEnhancementEffect>().ToArray())
+        {
+            if (!CanContinueCommand()) break;
+            var applies = effect.AppliesToWeaponAttack(Assailant, target, weapon);
+            if (!CanContinueCommand()) break;
+            if (applies && weapon.EffectsOfType<IMagicWeaponEnhancementEffect>().Contains(effect)) result.Add(effect);
+        }
+        return result;
     }
 
     protected void CheckLodged(IEnumerable<IWound> wounds)
@@ -182,9 +197,8 @@ public abstract class WeaponAttackMove : CombatMoveBase, IWeaponAttackMove
         double relativeHardness =
             CalculateRelativeHardnessForWeapon(weapon, Attack.Profile.DamageType, outcome, target, targetBodypart);
 
-        var magicEnhancements = weapon.Parent
-            .EffectsOfType<IMagicWeaponEnhancementEffect>(x => x.AppliesToWeaponAttack(Assailant, target, weapon.Parent))
-            .ToList();
+        var magicEnhancements = ApplicableWeaponEnhancements(weapon.Parent, target);
+        if (!CanContinueCommand()) return (null, null);
         var effectiveQuality = (int)weapon.Parent.Quality + (int)Math.Round(magicEnhancements.Sum(x => x.QualityBonus));
 
         double damageResult =
@@ -482,7 +496,7 @@ public abstract class WeaponAttackMove : CombatMoveBase, IWeaponAttackMove
 
         (wardResult.WardWeapon as IConditionDegradingComponent)?.UseCondition(
             new ItemConditionUseContext(ItemConditionUseKind.MeleeAttack, attackRoll, (int)result.Degree));
-        List<IWound> wounds = aggressor.PassiveSufferDamage(finalDamage).ToList();
+        List<IWound> wounds = aggressor.CommandSufferDamage(finalDamage).ToList();
         defender.Body?.SetExertionToMinimumLevel(weaponAttack.ExertionLevel);
         return wounds;
     }
@@ -630,9 +644,9 @@ public abstract class WeaponAttackMove : CombatMoveBase, IWeaponAttackMove
 
             //Apply self-inflicted natural weapon wounds here, since this whole exchange is happening instantly within
             //an entirely unrelated CombatMove and won't be applied elsewhere
-            defender.PassiveSufferDamage(selfDamage);
+            defender.CommandSufferDamage(selfDamage);
 
-            List<IWound> wounds = aggressor.PassiveSufferDamage(finalDamage).ToList();
+            List<IWound> wounds = aggressor.CommandSufferDamage(finalDamage).ToList();
             defender.Body?.SetExertionToMinimumLevel(naturalAttack.Attack.ExertionLevel);
             return wounds;
         }
@@ -644,6 +658,7 @@ public abstract class WeaponAttackMove : CombatMoveBase, IWeaponAttackMove
     protected IEnumerable<IWound> ProcessWardFreeAttack(ICharacter aggressor, ICharacter defender,
         WardResult wardResult)
     {
+		using var independent = MudSharp.NPC.AI.CommandExecutionScope.EnterIndependent();
         if (wardResult == null || wardResult.WardAttack == false)
         {
             return Enumerable.Empty<IWound>();

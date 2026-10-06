@@ -88,6 +88,8 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 
     public bool CheckPrototypeForUpdate()
     {
+		if (SpellCreationOrigin?.IsTemporary == true) return false;
+		if (GetItemType<ICorpse>() is not null && Gameworld.SpellOwnedCorpseAnimations?.IsBorrowedCorpse(Id) == true) return false;
         if (Prototype.Status == RevisionStatus.Obsolete || Prototype.Status == RevisionStatus.Revised)
         {
             IGameItemProto newProto =
@@ -435,7 +437,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
             if (IsItemType<ICorpse>())
             {
                 ICorpse corpse = GetItemType<ICorpse>();
-                total += corpse.Body.ExternalItems.Sum(x => x.IlluminationProvided);
+                total += corpse.Body?.ExternalItems.Sum(x => x.IlluminationProvided) ?? 0.0;
             }
 
             foreach (IProduceIllumination effect in EffectsOfType<IProduceIllumination>().Where(x => x.Applies()))
@@ -451,6 +453,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 
     public override void Save()
     {
+		ForeignCustodyTransferContext.RecordSave(this);
         Models.GameItem dbitem = FMDB.Context.GameItems.Find(Id);
         if (dbitem is null)
         {
@@ -909,6 +912,11 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
             $"Game Item {Id}, Proto {Prototype.Id}r{Prototype.RevisionNumber} - {Prototype.ShortDescription}";
     }
 
+    // The original database containment is evidence for component reconstruction before
+    // another root has loaded this child's hand or cell membership.
+    internal bool LoadedFromDatabase { get; }
+    internal long? ContainerIdAtLoad { get; }
+
     public GameItem(MudSharp.Models.GameItem item, IFuturemud game)
         : base(item.Id)
     {
@@ -916,6 +924,9 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
         Register(new IgnorantItemOutputHandler(this));
         Gameworld = game;
         _id = item.Id;
+		LoadedFromDatabase = true;
+		ContainerIdAtLoad = item.ContainerId;
+		SpellCreationOrigin = game.SpellOwnedItems?.FindOrigin(item.Id);
         Prototype = game.ItemProtos.Get(item.GameItemProtoId, item.GameItemProtoRevision);
         if (Prototype == null)
         {
@@ -1003,7 +1014,20 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
     }
 
     public GameItem(IGameItemProto proto, ICharacter? loader = null, ItemQuality quality = ItemQuality.Standard)
+		: this(proto, loader, quality, deferSpellInitialisation: false)
+	{
+	}
+
+	internal GameItem(IGameItemProto proto, ICharacter? loader, ItemQuality quality, bool deferSpellInitialisation)
+		: this(proto, loader, quality, deferSpellInitialisation, currencyPreview: false)
+	{
+	}
+
+	internal GameItem(IGameItemProto proto, ICharacter? loader, ItemQuality quality, bool deferSpellInitialisation, bool currencyPreview)
     {
+		if (currencyPreview && deferSpellInitialisation) throw new ArgumentException("Currency previews cannot use deferred spell initialisation.");
+		_currencyPreview = currencyPreview;
+		_noSave = deferSpellInitialisation || currencyPreview;
         Register(new IgnorantItemOutputHandler(this));
         if (proto == null)
         {
@@ -1024,13 +1048,14 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 
         foreach (IGameItemComponentProto component in proto.Components)
         {
-            _components.Add(component.CreateNew(this, loader));
+            _components.Add(component.CreateNew(this, loader, temporary: deferSpellInitialisation || currencyPreview));
         }
 
-        List<IHook> hooks = Gameworld.DefaultHooks.Where(
+        List<IHook> hooks = currencyPreview ? [] : Gameworld.DefaultHooks.Where(
             x => x.Applies(this, "GameItem")).Select(x => x.Hook).ToList();
 
-        if (hooks.Any())
+		if (deferSpellInitialisation && hooks.Any()) throw new InvalidOperationException("Lifecycle weapons require a prototype without applicable default hooks.");
+        if (!deferSpellInitialisation && !currencyPreview && hooks.Any())
         {
             foreach (IHook hook in hooks)
             {
@@ -1039,8 +1064,8 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
         }
 
         SetState(PositionUndefined.Instance);
-        Gameworld.SaveManager.AddInitialisation(this);
-        foreach (IGameItemComponent comp in Components)
+		if (!deferSpellInitialisation && !currencyPreview) Gameworld.SaveManager.AddInitialisation(this);
+        foreach (IGameItemComponent comp in deferSpellInitialisation || currencyPreview ? Enumerable.Empty<IGameItemComponent>() : Components)
         {
             comp.FinaliseLoad();
         }
@@ -1053,8 +1078,87 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
         _overridingWoundBehaviourComponent = _components.OfType<IOverrideItemWoundBehaviour>().FirstOrDefault();
     }
 
+	private bool _currencyPreview;
+
+	internal void SetPreparedCurrencyCustody(IBody? holder, IGameItem? container, SpatialLocation? floor)
+	{
+		// Only the prepared currency transfer calls this after validating native participants.
+		GetItemType<HoldableGameItemComponent>().HeldBy = holder;
+		_containedIn = container;
+		SetPreparedSpatialState(floor);
+	}
+
+	internal void ClearPreparedContainerSourcePosition() => SetPreparedSpatialState(null);
+
+	internal void CopyCurrencyPreviewOwner(IGameItem source)
+	{
+		if (!_currencyPreview) throw new InvalidOperationException("Only an unpublished currency preview can copy an owner silently.");
+		var owner = source.OwnershipReference;
+		_ownerReference = owner is null ? null : new FrameworkItemReference(owner.Value.Id, owner.Value.FrameworkItemType, Gameworld);
+		// Do not resolve the owner or dispatch ItemOwnershipChanged during eligibility checks.
+		_owner = null;
+	}
+
+	internal void NotifyCommittedCurrencyOwner(IGameItem source)
+	{
+		MudSharp.Magic.PsychometricRecorder.CopyHistory(source, this);
+		Changed = true;
+		var reference = OwnershipReference;
+		HandleEvent(EventType.ItemOwnershipChanged, this, string.Empty, 0L,
+			reference?.FrameworkItemType ?? string.Empty, reference?.Id ?? 0L);
+	}
+
+	internal void ActivateCurrencySplit()
+	{
+		if (!_currencyPreview) throw new InvalidOperationException("Only this unpublished currency item can be activated.");
+		_currencyPreview = false;
+		_noSave = false;
+		Gameworld.SaveManager.AddInitialisation(this);
+		foreach (var component in Components.Cast<GameItemComponent>())
+		{
+			component.SetNoSave(false);
+			Gameworld.SaveManager.AddInitialisation(component);
+		}
+	}
+
+	internal void FinishCurrencySplitLoading(Func<bool> mayContinue)
+	{
+		if (_currencyPreview) throw new InvalidOperationException("The split has not committed.");
+		foreach (var hook in Gameworld.DefaultHooks.ToArray())
+		{
+			if (!mayContinue()) return;
+			var applies = hook.Applies(this, "GameItem");
+			if (!mayContinue()) return;
+			if (applies) InstallHook(hook.Hook);
+		}
+		foreach (var component in Components.ToArray())
+		{
+			if (!mayContinue()) return;
+			component.FinaliseLoad();
+		}
+		if (!mayContinue()) return;
+		foreach (var prog in ((GameItemProto)Prototype).OnLoadProgs.ToArray())
+		{
+			if (!mayContinue()) return;
+			prog.Execute(this, null);
+			if (!mayContinue()) return;
+		}
+		Login();
+		if (!mayContinue()) return;
+		HandleEvent(EventType.ItemFinishedLoading, this);
+	}
+
     public GameItem(GameItem rhs, bool temporary = false, bool preserveMorphTime = false)
+		: this(rhs, temporary, preserveMorphTime, null)
+	{
+	}
+
+	internal GameItem(GameItem rhs, bool temporary, bool preserveMorphTime, Action<GameItem> beforeExposure)
     {
+		if (!temporary) SpellOwnedItemValuePolicy.RequireOrdinaryValue(rhs, "copying");
+		if (rhs.GetItemType<ICorpse>() is not null && rhs.Gameworld.SpellOwnedCorpseAnimations?.IsBorrowedCorpse(rhs.Id) == true)
+			throw new InvalidOperationException("A borrowed animated corpse cannot be copied.");
+		SpellCreationOrigin = rhs.SpellCreationOrigin;
         if (temporary)
         {
             _noSave = true;
@@ -1067,19 +1171,44 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
         _overrideSdesc = rhs._overrideSdesc;
         _overrideDesc = rhs._overrideDesc;
         Gameworld = rhs.Gameworld;
-		MudSharp.Magic.PsychometricRecorder.CopyHistory(rhs, this);
+		if (beforeExposure is null) MudSharp.Magic.PsychometricRecorder.CopyHistory(rhs, this);
         _name = rhs.Name;
         _keywords = new Lazy<List<string>>(() => rhs.Keywords.ToList());
-        PositionState = rhs.PositionState;
-        PositionModifier = rhs.PositionModifier;
-        PositionTarget = rhs.PositionTarget;
-        PositionEmote = rhs.PositionEmote;
+		if (beforeExposure is null)
+		{
+			PositionState = rhs.PositionState;
+			PositionModifier = rhs.PositionModifier;
+			PositionTarget = rhs.PositionTarget;
+			PositionEmote = rhs.PositionEmote;
+		}
         _condition = rhs.Condition;
-        Location = rhs.Location;
+		if (beforeExposure is null) Location = rhs.Location;
         _ownerReference = rhs._ownerReference == null
             ? null
             : new FrameworkItemReference(rhs._ownerReference.Id, rhs._ownerReference.FrameworkItemType, rhs.Gameworld);
         _owner = rhs._owner;
+        if (beforeExposure is not null && Prototype.Morphs)
+        {
+            if (preserveMorphTime)
+            {
+                if (rhs.CachedMorphTime is not null)
+                {
+                    CachedMorphTime = rhs.CachedMorphTime;
+                }
+                else
+                {
+					CachedMorphTime = ItemTimeRateMath.PreservedMorphRemaining(
+						rhs.MorphTime - RuntimeClock.UtcNow,
+						Prototype.RefrigerationSensitive,
+						rhs._morphRateAtSchedule);
+                }
+            }
+            else
+            {
+                CachedMorphTime = Prototype.MorphTimeSpan;
+            }
+        }
+
         foreach (IGameItemComponent component in rhs._components)
         {
             _components.Add(component.Copy(this, temporary));
@@ -1087,9 +1216,30 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 
         if (!temporary)
         {
+			if (beforeExposure is not null)
+			{
+				try { beforeExposure(this); }
+				catch
+				{
+					// A rejected preparation has not exposed its copy or committed value.
+					foreach (var component in _components) Gameworld.SaveManager.Abort(component);
+					throw;
+				}
+				// An Add observer may request an ID/flush. Queue the parent first.
+				Gameworld.SaveManager.AddInitialisation(this);
+			}
             Gameworld.Add(this);
-            Gameworld.SaveManager.AddInitialisation(this);
+			if (beforeExposure is null) Gameworld.SaveManager.AddInitialisation(this);
         }
+
+		if (beforeExposure is not null)
+		{
+			MudSharp.Magic.PsychometricRecorder.CopyHistory(rhs, this);
+			PositionState = rhs.PositionState;
+			PositionModifier = rhs.PositionModifier;
+			PositionTarget = rhs.PositionTarget;
+			PositionEmote = rhs.PositionEmote;
+		}
 
         foreach (IGameItemComponent component in Components)
         {
@@ -1098,7 +1248,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 
         LoadSurfaceLiquidState(rhs.SaveSurfaceLiquidState());
 
-        if (Prototype.Morphs)
+        if (beforeExposure is null && Prototype.Morphs)
         {
             if (preserveMorphTime)
             {
@@ -1357,34 +1507,57 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
     public IGameItemGroup ItemGroup => Prototype.ItemGroup;
 
     private IGameItem _containedIn;
+	private long _containmentMutationVersion;
 
     public IGameItem ContainedIn
     {
         get => _containedIn;
-        set
-        {
+        set => TrySetContainedIn(value);
+    }
+
+    // The callback is a raw owner-field commit only: no progs, output or public actions.
+    // Public setters and completion retain ordinary behavior unless a caller supplies a checkpoint.
+    internal bool TrySetContainedIn(IGameItem value, Func<bool> mayCommit = null, Action ownerCommit = null)
+    {
+			ForeignCustodyTransferContext.EnsureItem(this);
+			if (value is not null) ForeignCustodyTransferContext.EnsurePair(value, this);
 			using var exposureChange = EnvironmentalExposureService.Changing(this);
 			if (ReferenceEquals(_containedIn, value))
 			{
-				return;
+				return false;
 			}
 
+			var version = ++_containmentMutationVersion;
+			var originalContainer = _containedIn;
+			var originalBody = InInventoryOf;
+			var originalCell = base.Location;
+			var originalBelt = GetItemType<IBeltable>()?.ConnectedTo;
+			bool OriginalCustody() => _containmentMutationVersion == version && !Deleted && !Destroyed &&
+				ReferenceEquals(_containedIn, originalContainer) && ReferenceEquals(InInventoryOf, originalBody) &&
+				ReferenceEquals(base.Location, originalCell) && ReferenceEquals(GetItemType<IBeltable>()?.ConnectedTo, originalBelt);
 			var timeSensitiveItems = DeepItems.ToList();
+			if (!OriginalCustody()) return false;
 			foreach (var item in timeSensitiveItems)
 			{
 				item.RebaseItemTimeRates();
+				if (!OriginalCustody()) return false;
 			}
 
 			using var proximityChange = Gameworld?.ProximityEventService?.BeginChange(ProximityChangeCause.Containment, this);
+			if (!OriginalCustody()) return false;
+            if (mayCommit is not null && !mayCommit()) return false;
+            if (!OriginalCustody()) return false;
             _containedIn = value;
             Changed = true;
+            ownerCommit?.Invoke();
 			proximityChange?.Complete();
 
 			foreach (var item in timeSensitiveItems)
 			{
+				if (_containmentMutationVersion != version || Deleted || Destroyed || !ReferenceEquals(_containedIn, value)) break;
 				item.RebaseItemTimeRates();
 			}
-        }
+        return true;
     }
 
     /// <summary>
@@ -1483,6 +1656,9 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 		get => SpatialHost?.Location ?? EffectSpatialHostLocation ?? base.Location ?? TrueLocations?.FirstOrDefault();
         protected set => base.Location = value;
     }
+
+	// Custody checks must distinguish a spatial record from location inherited through a holder/container.
+	internal ICell DirectLocation => base.Location;
 
 	public override RoomLayer RoomLayer
 	{
@@ -1747,10 +1923,85 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
     }
 
     public bool Deleted { get; private set; }
+	internal override Action CaptureCustodySaveRollback()
+	{
+		var restoreShared = base.CaptureCustodySaveRollback();
+		var resources = _resourcesChanged; var liquid = _surfaceLiquidChanged;
+		return () =>
+		{
+			_resourcesChanged |= resources; _surfaceLiquidChanged |= liquid;
+			restoreShared();
+		};
+	}
+
+	internal Action CaptureCustodyRollback()
+	{
+		var contained = _containedIn; var location = base.Location; var restorePosition = CaptureCustodyPositionRollback();
+		return () =>
+		{
+			_containedIn = contained; base.Location = location; restorePosition(); Changed = true;
+		};
+	}
+	private bool _deletionObserversNotified;
+	private bool _notifyingDeletionObservers;
+	private Exception _deletionObserverFailure;
 
 
     public void Delete()
     {
+		DeleteCore(null);
+    }
+
+	internal void DeleteCommittedEmptyCurrency(Func<bool> unchangedAndEmpty, Action detachCapturedMembership)
+	{
+		if (GetItemType<CurrencyGameItemComponent>() is null) throw new InvalidOperationException("Currency cleanup requires a native currency pile.");
+		DeleteCore(() =>
+		{
+			if (!unchangedAndEmpty()) return false;
+			detachCapturedMembership();
+			return true;
+		}, unchangedAndEmpty);
+	}
+
+	private void DeleteCore(Func<bool>? beforeNativeRemoval, Func<bool>? mayNotify = null, bool persistedAlready = false)
+    {
+		ForeignCustodyTransferContext.EnsureItem(this, destructive: true);
+          if (Deleted || _notifyingDeletionObservers) return;
+		if (mayNotify is not null && !mayNotify()) return;
+		if (GetItemType<ICorpse>() is not null && Gameworld.SpellOwnedCorpseAnimations?.IsBorrowedCorpse(Id) == true) return;
+		if (SpellCreationOrigin?.IsTemporary == true && Gameworld.SpellOwnedItems?.TryPrepareRemoval(this, out _) != true) return;
+        if (_deletionObserverFailure is not null)
+            throw new InvalidOperationException("Deletion observers failed; native removal remains held.", _deletionObserverFailure);
+        if (GetItemType<ICorpse>() is not null && Gameworld.SpellOwnedNpcs?.TryPrepareRemainsRemoval(this, out _) == false) return;
+        // Deletion callbacks can change possessions. Recheck before invoking components
+        // whose native deletion would recursively destroy an owned corpse's inventory.
+        if (!_deletionObserversNotified)
+        {
+            _notifyingDeletionObservers = true;
+            try
+            {
+                if (GetItemType<ICorpse>() is not null && Gameworld.SpellOwnedNpcs is { } ownedNpcs)
+                {
+                    if (!ownedNpcs.TryNotifyRemainsDeletion(this, NotifyDeletionObservers)) return;
+                }
+                else NotifyDeletionObservers();
+                _deletionObserversNotified = true;
+            }
+            catch (Exception ex) { _deletionObserversNotified = true; _deletionObserverFailure = ex; throw; }
+            finally { _notifyingDeletionObservers = false; }
+        }
+        if (GetItemType<ICorpse>() is not null && Gameworld.SpellOwnedNpcs?.TryPrepareRemainsRemoval(this, out _) == false) return;
+        if (SpellCreationOrigin?.IsTemporary == true && Gameworld.SpellOwnedItems?.TryPrepareRemoval(this, out _) != true) return;
+		if (GetItemType<ICorpse>() is not null && Gameworld.SpellOwnedCorpseAnimations?.IsBorrowedCorpse(Id) == true) return;
+        if (SpellCreationOrigin?.IsTemporary == true) { DeleteSpellOwnedItem(); return; }
+		if (beforeNativeRemoval is not null && !beforeNativeRemoval()) return;
+          DeleteNative(persistedAlready);
+    }
+
+    private void DeleteNative(bool persistedAlready = false)
+    {
+        ReleaseEvents();
+        if (GetItemType<ICorpse>()?.OriginalBody?.Actor.State.HasFlag(CharacterState.Dead) == true) EndHealthTick();
         Changed = false;
         _noSave = true;
         Gameworld.SaveManager.Abort(this);
@@ -1761,10 +2012,10 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 
         InvalidatePositionTargets();
         SoftReleasePositionTarget();
-        PerceivableDeleted();
         ContainedIn?.Take(this);
         ContainedIn = null;
-        InInventoryOf?.Take(this);
+        if (InInventoryOf is MudSharp.Body.Implementations.Body nativeBody) nativeBody.TakeForNativeDeletion(this);
+		else InInventoryOf?.Take(this);
         Location?.Extract(this);
         Get(null);
 
@@ -1784,7 +2035,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
             wound.Delete();
         }
 
-        if (_id != 0)
+        if (_id != 0 && !persistedAlready)
         {
             using (new FMDB())
             {
@@ -1815,6 +2066,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
         }
 
         Deleted = true;
+		Gameworld.SpellOwnedItems?.ObserveRemoval(this);
     }
 
     protected override void ReleaseEvents()
@@ -1857,6 +2109,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 
     public void Quit()
     {
+		ForeignCustodyTransferContext.EnsureItem(this, destructive: true);
 		EndHealthTick();
         EffectsChanged = true;
         if (Changed || Components.Any(x => x.Changed))
@@ -2170,6 +2423,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 
     public bool CanMerge(IGameItem otherItem)
     {
+		if (SpellCreationOrigin?.IsTemporary == true || otherItem.SpellCreationOrigin?.IsTemporary == true) return false;
         if (Deleted)
         {
             return false;
@@ -2219,6 +2473,10 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 
     public void Merge(IGameItem otherItem)
     {
+		SpellOwnedItemValuePolicy.RequireOrdinaryValue(this, "merging");
+		SpellOwnedItemValuePolicy.RequireOrdinaryValue(otherItem, "merging");
+		ForeignCustodyTransferContext.EnsureItem(this, destructive: true);
+		ForeignCustodyTransferContext.EnsureItem(otherItem, destructive: true);
         IStackable thisStackable = GetItemType<IStackable>();
         IStackable thatStackable = otherItem.GetItemType<IStackable>();
 
@@ -2252,6 +2510,14 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
         }
         // TODO - anything else that might occur on merging?
     }
+
+	internal void NotifyCommittedCurrencyMerge(GameItem absorbed)
+	{
+		if (GetItemType<CurrencyGameItemComponent>() is null || absorbed.GetItemType<CurrencyGameItemComponent>() is null)
+			throw new InvalidOperationException("Currency merge notification requires its exact native participants.");
+		MudSharp.Magic.PsychometricRecorder.MergeHistory(this, absorbed);
+		NotifyStockItemMerge(absorbed);
+	}
 
     private void NotifyStockItemMerge(IGameItem absorbed)
     {
@@ -2368,20 +2634,40 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 
     public IGameItem Get(IBody getter)
     {
+		ForeignCustodyTransferContext.EnsureItem(this);
+		if (getter is not null) ForeignCustodyTransferContext.EnsureBody(getter, this);
 		using var proximityChange = Gameworld?.ProximityEventService?.BeginChange(ProximityChangeCause.Containment, this);
         IHoldable holdable = GetItemType<IHoldable>();
+        var sourceLocation = base.Location;
+        var sourceContainer = ContainedIn;
         holdable?.HeldBy = getter;
 
-        if (Location != null)
+        bool PreserveCallbackCustody()
         {
+            if (!Deleted && !Destroyed && ReferenceEquals(base.Location, sourceLocation) &&
+                ReferenceEquals(ContainedIn, sourceContainer) && (holdable is null || ReferenceEquals(holdable.HeldBy, getter))) return false;
+            if (ReferenceEquals(base.Location, sourceLocation) && sourceLocation?.GameItems.Contains(this) != true) Location = null;
+            if (holdable is not null && ReferenceEquals(holdable.HeldBy, getter)) holdable.HeldBy = null;
+            proximityChange?.Complete();
+            return true;
+        }
+
+        if (sourceLocation != null)
+        {
+            // Detach the captured source before callbacks can establish new spatial custody.
+            // Keep Location available to removal listeners until they have run.
+            sourceLocation.Extract(this);
             OnRemovedFromLocation?.Invoke(this);
         }
 
-        Location?.Extract(this);
+        if (PreserveCallbackCustody()) return this;
 		ClearRoutePositionForDetachment();
         Location = null;
+        sourceLocation = null;
         InvalidatePositionTargets();
+        if (PreserveCallbackCustody()) return this;
         EffectHandler.RemoveAllEffects(x => x.IsEffectType<IRemoveOnGet>(), true);
+        if (PreserveCallbackCustody()) return this;
         PositionState = PositionUndefined.Instance;
         PositionModifier = PositionModifier.None;
         PositionTarget = null;
@@ -2390,8 +2676,17 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
         return this;
     }
 
+	internal void HideBorrowedCorpseForAnimation()
+	{
+		Location?.Extract(this);
+		ClearRoutePositionForDetachment();
+		Location = null;
+		Changed = true;
+	}
+
     public IGameItem Get(IBody getter, int quantity)
     {
+		ForeignCustodyTransferContext.EnsureItem(this, destructive: !DropsWhole(quantity));
         IStackable stackable = GetItemType<IStackable>();
         if (stackable is null)
         {
@@ -2408,12 +2703,30 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 
     public IGameItem Drop(ICell location)
     {
-        foreach (IGameItemComponent component in _components)
+		DropCore(location, null);
+		return this;
+    }
+
+	internal bool TryDropPrepared(SpatialLocation destination) => DropCore(destination.Cell, destination);
+
+	private bool DropCore(ICell location, SpatialLocation? destination)
+    {
+		ForeignCustodyTransferContext.EnsureItem(this);
+		if (location is not null) ForeignCustodyTransferContext.EnsureCell(location, this);
+        var sourceLocation = base.Location;
+        var sourceContainer = ContainedIn;
+        var holdable = GetItemType<IHoldable>();
+          var sourceHolder = holdable?.HeldBy;
+		var sourceLayer = RoomLayer;
+		var sourceRoutePosition = RoutePositionMetres;
+        foreach (IGameItemComponent component in _components.ToArray())
         {
             component.Taken();
+            if (Deleted || Destroyed || !ReferenceEquals(base.Location, sourceLocation) ||
+                  !ReferenceEquals(ContainedIn, sourceContainer) || !ReferenceEquals(holdable?.HeldBy, sourceHolder) ||
+				RoomLayer != sourceLayer || RoutePositionMetres != sourceRoutePosition) return false;
         }
 
-        IHoldable holdable = GetItemType<IHoldable>();
         holdable?.HeldBy = null;
 
 		if (location is null)
@@ -2422,11 +2735,13 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 		}
 
 		Location = location;
-        return this;
+		if (destination is { } point) RestoreInterruptedNativePosition(point.Cell, point.Layer, point.RoutePositionMetres);
+		return true;
     }
 
     public IGameItem Drop(ICell location, int quantity)
     {
+		ForeignCustodyTransferContext.EnsureItem(this, destructive: true);
         IStackable stackable = GetItemType<IStackable>();
         IGameItem newItem = stackable.Split(quantity);
         return newItem.Drop(location);
@@ -2457,6 +2772,8 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 
     public IGameItem DropByWeight(ICell location, double weight)
     {
+		if (!DropsWholeByWeight(weight)) SpellOwnedItemValuePolicy.RequireOrdinaryValue(this, "splitting");
+		ForeignCustodyTransferContext.EnsureItem(this, destructive: !DropsWholeByWeight(weight));
         if (DropsWholeByWeight(weight))
         {
             return Drop(location);
@@ -2484,6 +2801,8 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 
     public IGameItem GetByWeight(IBody getter, double weight)
     {
+		if (!DropsWholeByWeight(weight)) SpellOwnedItemValuePolicy.RequireOrdinaryValue(this, "splitting");
+		ForeignCustodyTransferContext.EnsureItem(this, destructive: !DropsWholeByWeight(weight));
         if (DropsWholeByWeight(weight))
         {
             return Get(getter);
@@ -2794,10 +3113,10 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
         {
             Gameworld.Scheduler.AddSchedule(new RepeatingSchedule<IGameItem>(this, Gameworld,
                 item => item.Changed = true, ScheduleType.MorphSaving, TimeSpan.FromSeconds(30),
-                $"Morph Saver for {HowSeen(this)} #{Id}"));
+                $"Morph Saver for item #{Id}"));
             Gameworld.Scheduler.AddSchedule(new Schedule<IGameItem>(this, Morph, ScheduleType.Morph,
                 MorphTime > RuntimeClock.UtcNow ? MorphTime - RuntimeClock.UtcNow : TimeSpan.FromTicks(1),
-                $"Morph checker for {HowSeen(this)} #{Id}"));
+                $"Morph checker for item #{Id}"));
         }
     }
 
@@ -2852,6 +3171,10 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 
     private void Morph(IGameItem item)
     {
+		ForeignCustodyTransferContext.EnsureItem(this, destructive: true);
+		if (SpellCreationOrigin?.IsTemporary == true && Gameworld.SpellOwnedItems?.TryPrepareRemoval(this, out _) != true) return;
+        if (GetItemType<ICorpse>() is not null && Gameworld.SpellOwnedNpcs?.TryPrepareRemainsRemoval(this, out _, morphing: true) == false) return;
+		if (GetItemType<ICorpse>() is not null && Gameworld.SpellOwnedCorpseAnimations?.IsBorrowedCorpse(Id) == true) return;
         IGameItem newItem = Prototype.LoadMorphedItem(this);
         ICell location = TrueLocations.FirstOrDefault();
 		var originalSpatialLocation = location is null

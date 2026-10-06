@@ -377,6 +377,18 @@ allowskeletal
 
 Animates a visible corpse item as a temporary AI-controlled actor using the corpse's `OriginalBody`. The corpse item is hidden while the actor exists, and the same corpse item is restored afterward with the mutated body state intact. This is the zombie-style path: the caster does not command the body directly; the configured AIs do.
 
+Definitions default to `lifecycle legacy`. For durable final-death corpse restoration,
+set `lifecycle durable`, `family <name>` and `lifetime <real-seconds expression>` on
+the effect. For example, `family raise-servitor` and `lifetime grade*60` author a
+grade-3 lifetime of 180 seconds; this is a replacement timing choice, not a historical
+unit conversion. Only the new secondary instance is spell-owned. This mode requires
+the original canonical owner to remain dead and rejects nonfinal/abandoned remains,
+foreign body ownership, route positions and attached or inventory-held corpse items.
+Expiry, dispel, death and actor Quit restore the same corpse. Restart collapses the
+actor through a durable recovery record; provider/callback failures retain retryable
+holding. Keep selected AI ready. Native stock commandable/combat profiles and PC
+corpse qualification remain later acceptance work.
+
 Builder options:
 
 ```text

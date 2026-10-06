@@ -20,6 +20,8 @@ public sealed class AdvanceAlongRouteMove : CombatMoveBase
 
 	public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
 	{
+		using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterMove(this);
+		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
 		if (Assailant.CombatTarget is not ICharacter target ||
 			!ReferenceEquals(Assailant.Location, target.Location) ||
 			Assailant.Location.RouteDefinition is null ||

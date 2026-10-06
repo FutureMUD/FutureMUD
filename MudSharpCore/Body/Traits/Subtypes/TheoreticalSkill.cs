@@ -1,4 +1,4 @@
-﻿using MudSharp.Body.Traits.Improvement;
+using MudSharp.Body.Traits.Improvement;
 using MudSharp.Database;
 using MudSharp.Logging;
 using MudSharp.RPG.Checks;
@@ -49,15 +49,20 @@ public class TheoreticalSkill : Trait
 
     public override bool TraitUsed(IHaveTraits user, Outcome result, Difficulty difficulty, TraitUseType usetype, IEnumerable<Tuple<string, double>> bonuses)
     {
+        using var learning = CheckLearningScope.EnterIfNeeded(user);
+        if (!CheckLearningScope.CanContinue(user)) return false;
         Gameworld.LogManager.CustomLogEntry(LogEntryType.SkillUse, user, Definition, result, difficulty, usetype, bonuses);
         double oldValue = Value;
+        var improvement = usetype is TraitUseType.Practical or TraitUseType.Theoretical
+            ? Improver.GetImprovement(user, this, difficulty, result, usetype) : 0.0;
+        if (!CheckLearningScope.CanContinue(user)) return false;
         switch (usetype)
         {
             case TraitUseType.Practical:
-                PracticalValue += Improver.GetImprovement(user, this, difficulty, result, usetype);
+                PracticalValue += improvement;
                 break;
             case TraitUseType.Theoretical:
-                TheoreticalValue += Improver.GetImprovement(user, this, difficulty, result, usetype);
+                TheoreticalValue += improvement;
                 break;
         }
 

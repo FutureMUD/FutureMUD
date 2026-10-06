@@ -480,7 +480,7 @@ public class WeaponType : SaveableItem, IWeaponType
         bool ignorePosition,
         params BuiltInCombatMoveType[] types)
     {
-        return _attacks.Where(x => x.UsableAttack(attacker, weapon, target, handedness, ignorePosition, types))
+        return _attacks.ToArray().Where(x => x.UsableAttack(attacker, weapon, target, handedness, ignorePosition, types))
                        .ToList();
     }
 
@@ -488,7 +488,7 @@ public class WeaponType : SaveableItem, IWeaponType
         IPerceiver target,
         params BuiltInCombatMoveType[] types)
     {
-        return _attacks.Where(x => x.UsableAttack(attacker, weapon, target, AttackHandednessOptions.Any, true, types))
+        return _attacks.ToArray().Where(x => x.UsableAttack(attacker, weapon, target, AttackHandednessOptions.Any, true, types))
                        .Select(x => x.HandednessOptions).Distinct().ToList();
     }
 

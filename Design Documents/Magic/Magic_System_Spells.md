@@ -489,6 +489,39 @@ The same-identity effects reuse the same owned-form provisioning conventions as 
 
 Builder-facing examples and command sequences are in [Multiple Body Forms and Instances Builder Guide](../Characters/Multiple_Body_Forms_and_Instances_Builder_Guide.md).
 
+`animatecorpse` additionally supports opt-in `lifecycle durable`, `family <name>` and
+`lifetime <real-seconds expression>`. Its recovery journal persists across reboot while
+the active AI actor still collapses. This bounded adapter accepts final-death corpses
+of dead original owners, owns only the new secondary instance, and restores the same
+borrowed corpse/body/gear after expiry, dispel, death or actor Quit. It refuses
+nonfinal bodies, foreign ownership, unsupported custody and invalid lifetime before
+payment. See [Spell-owned lifecycle](Spell_Owned_Lifecycle.md) for recovery boundaries.
+
+#### Stock Raise Servitor authoring
+
+Create the editable stock profile with
+`magic spell edit new stock raise-servitor <school> <casting trait> <resource>`,
+quoting names containing spaces. It creates native Commandable/CombatEnd AIs and
+support progs; configure capability membership and acquisition separately.
+
+Selected grade maps to historical level: animation uses `600*(grade+10)-1` real
+seconds and creator control uses `600*(grade+6)-1`, from recovered 600-second affect
+units. This supersedes the older `60*g` proposal for this profile. The ordinary cost
+expression is `7*grade`; configured casting substitutes the source-resource efficiency
+curve (minimum 7, scale 1), then applies the existing 1.5 overreach multiplier. The
+stock physical plan is empty, consistent with its historical lack of components.
+
+The editable control prog excludes terrain named Silt or Shallows. Native following
+is independent of control, including after its deadline. Orders require the canonical
+creator's active durable grant and pass ordinary NPC command checks. Guard/rescue are
+excluded pending separate native repairs. `control`, `controlprog` and `followcaster`
+effect settings expose the reusable policy; no new implicit legacy defaults apply.
+
+The profile borrows the exact corpse/body/identity and foreign gear and owns only its
+secondary instance. Retirement restores the same corpse, cancels queued work and
+cleans native combat/following subscriptions. Active actors still collapse on restart.
+See [Spell-owned lifecycle](Spell_Owned_Lifecycle.md) for evidence and remaining limits.
+
 ### Engine V2 dispels, portals, item enchantments, and recipes
 Engine V2 adds a deeper parity layer. True body-left-behind projection and copy/clone gameplay now live in the simultaneous body instance effects above rather than in planar overlays alone.
 
@@ -868,3 +901,32 @@ Reflection is intentionally narrow:
 ### Healing and damage payload persistence
 
 Healing, mending and damage templates save their original formula text, allowing cloning and dose-scaled substance application to preserve valid expressions. Healing/mending overflow advance through each eligible wound once and stop when the dose or eligible wound list is exhausted.
+
+
+## Created food, drink and worn-light authoring
+
+Lifecycle `createitem` supports `count single|grade` (grade is plain food only) and `placement standard|wornlight|primaryhand`. Worn light equips one native wearable ProgLight; primary hand equips one plain native melee weapon into the character recipient's dominant native wield location. Admission checks that exact location, one-hand suitability and pickup capacity before payment, without falling back to the other hand. Application revalidates and requires exact direct body custody after native Get and Wield callbacks. A post-payment placement failure retains its owned output and paid NeedsReview operation for safe reconciliation. Use `lifecycle temporarycleanup`, `family` and a finite positive `lifetime` expression for temporary outputs. Each grade-count food object owns its own journal claim. Permanent-grade alternate lights refuse; ordinary permanent food can still be consumed.
+
+Consumed spell materials can persist direct carried scope (`plan carried <number> on|off`) and a selected-grade rank hierarchy (`plan ranks <number> <offset -6..0> <rank zero tag> ... <highest rank tag>`, or `none`). Rank tags must be distinct, consecutive from zero, cover grades 1-7 and descend successively under the material's root tag. Each invocation binds rank `max(grade+offset,0)` on its private plan; the shared template stays unbound and fails closed. Material scouting and consumption both enforce scope/rank; consumption revalidates stale custody, tag and quantity before mutation. Legacy actions keep their existing default scope and runtime selector filters.
+
+Create Storm Spear with `magic spell edit new stock storm-spear <school> <casting trait> <resource> <weapon prototype> <Creation rank 0 tag> <rank 1 tag> <rank 2 tag> <rank 3 tag> <rank 4 tag>`, quoting names with spaces. The approved plain weapon needs a native one-hand-capable electrical melee attack. Bind capability membership, acquisition, opening and raw cap separately; no content is silently acquired. The profile consumes one directly carried Creation component of rank at least `max(grade-3,0)` and equips the character recipient's primary hand. All seven grades remain temporary. Its exact native lifetime is `(24+rand(1,6))*90*grade*0.75` real seconds: selected grade maps to source level, and 0.75 is the recovered event loop's nominal conversion, excluding historical scheduling/load delay. The native overreach percentage gate retains grade seven at 95 independently of historical raw cap 90. Source-resource efficiency uses minimum 20 and scale 1; configured casting applies that curve, while the ordinary expression is `20*grade`. Historical object 488/JavaScript damage and other weapon statistics were not recovered, so the selected electrical weapon profile is explicitly builder-authored; it does not establish historical damage parity.
+
+Worn-light placement requires no free recipient hand. Ordinary configured casting still requires the caster's native free manipulation hand; the placement adapter preserves that casting rule.
+
+For container-only drink creation use `createliquid` with `liquid`, `containerfill on`, `litres <formula>`, `compatible <liquid>` and optional `bonusplane <plane> <multiplier>|none`. Litres bind selected `grade`, native `power`, controlled `mastery` and traits, then convert through UnitManager.BaseFluidToLitres. Outcome is unavailable before payment. Open/reachable/owned-mixture/capacity/recipe compatibility are checked before payment and again at application. Source liquid is implicitly allowed. Water/wine can be explicitly allowed to mix, while unlisted oil/slime remains intact on refusal. Empty and partially filled containers use the same MergeLiquid path; overflow clamps. These creation effects remain unsupported by stored scroll snapshots.
+
+The item-target trigger persists its native `item` type through builder edits, cloning and factory reload, preserving container targeting after save.
+
+The Phase3C2 controlled replacement contract declares one real second per historical food EVENT unit, giving `1800*grade` seconds and grade separate food objects. This is an authored conversion, not proof of the old event heap's tick duration. It uses 0.1 litre per historical water unit: `0.5*grade` litres ordinarily, multiplied by two on a configured water plane. No source conversion to native units is inferred from the legacy `(in ml)` help. Wine `0.25*grade` litres, Hovering Light `600*grade` seconds/40 lux and food four bites/two satiation hours are labeled replacement fixture values because their historical prototypes/formulas are absent. All food grades remain temporary, and created water/wine receive no magical expiry. Installer stock must explicitly adopt or refine these profiles and record the declared conversions; this checkpoint alone does not install or qualify them.
+
+Flame Knife stock uses six distinct approved temporary burning melee prototypes and eight distinct permanent staff prototypes. Its printed energy lower bound is 7 (separate from historical C metadata 0), opening 30 and raw cap 90. Grades 1-6 consume no component; grade 7 consumes one directly carried Conjuration rank-six tag or descendant and selects one staff uniformly. Normal temporary lifetime is (grade+1)*1500*0.75 real seconds; an editable number(character caster) prog halves it in Shadow Plane terrain, and an editable boolean(character caster) prog refuses Water Plane terrain. This bounded stock targets the caster and uses standard native inventory/location placement, followed by ordinary wield commands; other-recipient source drop-at-feet remains unqualified. Historical object statistics and charged staff payloads are unavailable; declared native burning profiles are explicit adaptations. No historical combat parity is claimed.
+
+Create Item lifecycle output pools are editable using output <grade 1-7> <prototype> ...|none. Each grade pool contains 1-32 distinct approved plain-item prototypes, all validated before payment. A casting copy retains one sampled prototype through its preparation/application. The permanent <grade> switch controls lifetime independently from the selected pool. Pools cannot bypass worn-light or count-grade admission. eligibility <boolean(character) prog>|none and lifetimemultiplier <number(character) prog>|none configure environment admission and a finite positive lifetime multiplier; malformed persisted policy retains its original editable XML and refuses casting.
+
+Consumed material plan grade <number> <grade 1-7>|all is persisted, displayed and bound on an invocation copy. Other grades omit that requirement without deleting materials; runtime selectors are preserved. Missing grade-dependent tags keep their original ID and refuse before payment and consumption, preventing null-tag wildcard consumption. The existing legacy/custom plan path remains unchanged when no grade selection exists. Temporary weapons refuse salvage; permanent staff remains ordinary salvage-eligible material. Exact expiry/restart conserves foreign bag, permanent staff and sibling goods; source/native qualification limits are recorded in Armageddon_FlameKnife_Stock_Verification.json.
+
+## Bounded Sand Knife stock
+
+Use magic spell edit new stock sand-knife <school> <casting trait> <resource> <six grade prototypes> <eight staff prototypes> <Creation rank-six tag> <sandstorm room tag> <sandstorm weather event>, quoting names with spaces. Select fourteen distinct approved unscripted plain weapons with usable one-hand physical melee profiles. Sand Jambiya source objects456-461 map to six temporary grades; grade seven consumes only one directly carried rank-six-or-higher Creation component and chooses one of eight permanent staff prototypes (historical1378-1385). These source rules are independently recovered; they do not use Flame Knife Conjuration or shadow lifetime reduction. Native profiles and the five-energy lower bound are explicitly authored policy, distinct from raw C minimum0/basepower15. Sand Knife is outside the approved82-spell Sorcerer tree.
+
+The editable boolean(character) eligibility prog first refuses terrain names Inside/City, then admits Desert/Earth Plane/Silt/Shallows/Salt Flats, a selected native room storm tag (typed64-bit tag lookup), or the selected current weather event ID. Terrain names, room flag and weather ID are declared mappings; source condition>=2.5 has no native equivalent. Null/unmapped weather refuses; wind alone supplies no sand. The room tag does not automatically track weather. Builders can replace the prog through effect eligibility. Stock targets only the caster and uses normal inventory/location placement with explicit native wield. Output pools and mon material grade remain editable; acquisition/installer, historical charged staff payloads and other-recipient/overreach/ordinary-defence/full-boot/concurrency gates remain pending.

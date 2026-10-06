@@ -404,6 +404,18 @@ public partial class TraitExpression : SaveableItem, ITraitExpression
 
     public bool BuildingCommand(ICharacter actor, StringStack command)
     {
+		var result = BuildingCommandCore(actor, command);
+		if (result && Gameworld.MagicResources.OfType<MudSharp.Magic.Resources.SimpleMagicResource>()
+			.Any(x => x.AttributeCapacity?.ExpressionId == Id))
+		{
+			foreach (var character in Gameworld.Characters.DistinctBy(x => MudSharp.Magic.Casting.MagicCastingService.Owner(x).Id))
+				Gameworld.MagicCasting?.NotifyCapacityChange(character);
+		}
+		return result;
+    }
+
+	private bool BuildingCommandCore(ICharacter actor, StringStack command)
+    {
         ProcessLazyLoading();
         switch (command.PopSpeech().ToLowerInvariant())
         {

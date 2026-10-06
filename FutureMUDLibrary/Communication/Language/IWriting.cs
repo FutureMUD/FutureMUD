@@ -173,6 +173,8 @@ namespace MudSharp.Communication.Language
         ILanguage Language { get; }
         IScript Script { get; }
         ICharacter TrueAuthor { get; }
+        long? TrueAuthorId => TrueAuthor?.Id;
+        ArchivedCharacterIdentity ArchivedTrueAuthor => null;
         double HandwritingSkill { get; }
         double LiteracySkill { get; }
         double ForgerySkill { get; }

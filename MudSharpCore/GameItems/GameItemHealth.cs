@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.Construction;
 using MudSharp.Effects.Concrete;
 using MudSharp.Events;
@@ -10,6 +10,15 @@ namespace MudSharp.GameItems;
 
 public partial class GameItem : IHaveWounds
 {
+	internal void NotifyImplantAttributeCapacityChange()
+	{
+		if (_components is not { Count: > 0 }) return;
+		foreach (var implant in GetItemTypes<IImplantTraitChange>())
+		{
+			if (implant.InstalledBody?.Actor is { } actor) actor.Gameworld.MagicCasting?.NotifyCapacityChange(actor);
+		}
+	}
+
     #region IHaveWounds Members
 
     public IHealthStrategy HealthStrategy => Prototype.HealthStrategy;
@@ -76,6 +85,7 @@ public partial class GameItem : IHaveWounds
         if (_overridingWoundBehaviourComponent != null)
         {
             _overridingWoundBehaviourComponent.AddWound(wound);
+			NotifyImplantAttributeCapacityChange();
             return;
         }
 
@@ -83,6 +93,7 @@ public partial class GameItem : IHaveWounds
         {
             _wounds.Add(wound);
         }
+		NotifyImplantAttributeCapacityChange();
     }
 
     public void AddWounds(IEnumerable<IWound> wounds)
@@ -90,6 +101,7 @@ public partial class GameItem : IHaveWounds
         if (_overridingWoundBehaviourComponent != null)
         {
             _overridingWoundBehaviourComponent.AddWounds(wounds);
+			NotifyImplantAttributeCapacityChange();
             return;
         }
 
@@ -102,6 +114,7 @@ public partial class GameItem : IHaveWounds
         }
 
         Changed = true;
+		NotifyImplantAttributeCapacityChange();
     }
 
     public bool TryTransferWoundTo(IWound wound, IHaveWounds newOwner, IBodypart newBodypart,
@@ -119,6 +132,7 @@ public partial class GameItem : IHaveWounds
         }
 
         _wounds.Remove(wound);
+		NotifyImplantAttributeCapacityChange();
         wound.RemapTo(newOwner, newBodypart, newSeveredBodypart);
         newOwner.AddWound(wound);
         Changed = true;
@@ -131,6 +145,7 @@ public partial class GameItem : IHaveWounds
 
     public IEnumerable<IWound> PassiveSufferDamage(IDamage damage)
     {
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue()) return Enumerable.Empty<IWound>();
         if (damage == null)
         {
             return Enumerable.Empty<IWound>();
@@ -167,6 +182,8 @@ public partial class GameItem : IHaveWounds
         }
 
         damage = destroyable?.GetActualDamage(damage) ?? damage;
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue()) return wounds;
+		MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted();
         List<IWound> newWounds = HealthStrategy.SufferDamage(this, damage, null).ToList();
         foreach (IWound newWound in newWounds.ToArray())
         {
@@ -178,6 +195,7 @@ public partial class GameItem : IHaveWounds
             wounds.Add(newWound);
         }
 
+		NotifyImplantAttributeCapacityChange();
         return wounds;
     }
 
@@ -460,6 +478,7 @@ public partial class GameItem : IHaveWounds
         if (_overridingWoundBehaviourComponent != null)
         {
             _overridingWoundBehaviourComponent.EvaluateWounds();
+			NotifyImplantAttributeCapacityChange();
             return;
         }
 
@@ -478,6 +497,7 @@ public partial class GameItem : IHaveWounds
         {
             EndHealthTick();
         }
+		NotifyImplantAttributeCapacityChange();
     }
 
     public void StartHealthTick(bool initial = false)
@@ -485,9 +505,11 @@ public partial class GameItem : IHaveWounds
         if (_overridingWoundBehaviourComponent != null)
         {
             _overridingWoundBehaviourComponent.StartHealthTick(initial);
+			NotifyImplantAttributeCapacityChange();
             return;
         }
 
+		NotifyImplantAttributeCapacityChange();
         if (Destroyed)
         {
             return;
@@ -508,6 +530,7 @@ public partial class GameItem : IHaveWounds
     private void HealthTick_TenSecondHeartbeat()
     {
         HealthTickResult result = HealthStrategy.PerformHealthTick(this);
+		NotifyImplantAttributeCapacityChange();
         if (result == HealthTickResult.Dead)
         {
             Die();
@@ -530,6 +553,7 @@ public partial class GameItem : IHaveWounds
         if (_overridingWoundBehaviourComponent != null)
         {
             _overridingWoundBehaviourComponent.CureAllWounds();
+			NotifyImplantAttributeCapacityChange();
             return;
         }
 
@@ -542,6 +566,7 @@ public partial class GameItem : IHaveWounds
 
         _wounds.Clear();
         EndHealthTick();
+		NotifyImplantAttributeCapacityChange();
     }
 
     #endregion
@@ -555,6 +580,21 @@ public partial class GameItem : IHaveWounds
 
     public IGameItem Die()
     {
+		if (Deleted || Destroyed) return null;
+		if (Gameworld?.SpellOwnedCorpseAnimations is { } animations && GetItemType<ICorpse>() is not null && animations.IsBorrowedCorpse(Id)) return this;
+		if (SpellCreationOrigin?.IsTemporary == true)
+		{
+			if (Gameworld.SpellOwnedItems?.TryPrepareRemoval(this, out _) != true) return this;
+			if (!_spellOwnedDeathObserversNotified)
+			{
+				_spellOwnedDeathObserversNotified = true;
+				OnDeath?.Invoke(this);
+			}
+			if (Gameworld.SpellOwnedItems.TryPrepareRemoval(this, out _) != true) return this;
+			Delete();
+			if (!Deleted) return this;
+			Destroyed = true; EndHealthTick(); return null;
+		}
         if (InInventoryOf == null)
         {
             OutputHandler.Handle(new EmoteOutput(new Emote("@ have|has been destroyed!", this)));

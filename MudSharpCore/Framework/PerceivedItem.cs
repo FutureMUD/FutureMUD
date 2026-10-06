@@ -14,6 +14,8 @@ using MudSharp.GameItems;
 using MudSharp.Health;
 using MudSharp.Models;
 using MudSharp.NPC;
+using MudSharp.NPC.AI;
+using MudSharp.Character;
 using System.IO;
 using GameItem = MudSharp.Models.GameItem;
 
@@ -21,6 +23,25 @@ namespace MudSharp.Framework;
 
 public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivable
 {
+	internal virtual Action CaptureCustodySaveRollback()
+	{
+		var effects = _effectsChanged; var hooks = _hooksChanged; var position = _positionChanged; var noSave = _noSave;
+		return () =>
+		{
+			_noSave = noSave;
+			_effectsChanged |= effects; _hooksChanged |= hooks; _positionChanged |= position;
+			Changed = true;
+			if (!Gameworld.SaveManager.IsQueued(this)) Gameworld.SaveManager.Add(this);
+		};
+	}
+
+	internal Action CaptureCustodyPositionRollback()
+	{
+		var state = _positionState; var modifier = _positionModifier; var emote = _positionEmote;
+		var layer = _roomLayer; var route = _routePositionMetres;
+		return () => { _positionState = state; _positionModifier = modifier; _positionEmote = emote; _roomLayer = layer; _routePositionMetres = route; PositionChanged = true; };
+	}
+
     //private bool _effectsChanged;
 
     protected PerceivedItem()
@@ -50,6 +71,13 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
         return other == this;
     }
 
+	protected void SetPreparedSpatialState(SpatialLocation? location)
+	{
+		Location = location?.Cell;
+		if (location is { } point) _roomLayer = point.Layer;
+		_routePositionMetres = location?.RoutePositionMetres;
+	}
+
     public virtual ICell Location { get; protected set; }
 	private double? _routePositionMetres;
 
@@ -76,6 +104,16 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
         }
     }
 
+
+	internal void RestoreInterruptedNativePosition(ICell source, RoomLayer layer, double? routePosition)
+	{
+		if (!ReferenceEquals(Location, source)) return;
+		_roomLayer = layer;
+		_routePositionMetres = routePosition;
+		Changed = true;
+		RouteSpatialService.Instance.TrackPerceivable(this);
+	}
+
     public bool ColocatedWith(IPerceivable otherThing)
     {
 		if (otherThing == null || !SharesCellLayerWith(otherThing))
@@ -99,16 +137,23 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
     public virtual event LocatableEvent OnLocationChangedIntentionally;
     #pragma warning restore CS0067
     public virtual bool Sentient => false;
+	private SpatialLocation? _nextSpatialMove;
 
     public virtual void MoveTo(ICell location, RoomLayer layer, ICellExit exit = null, bool noSave = false)
     {
+		var requestedPoint = _nextSpatialMove;
+		_nextSpatialMove = null;
 		using var exposureChange = Gameworld is null ? null : MudSharp.Form.Material.EnvironmentalExposureService.For(Gameworld).Change(this);
 		using var proximityChange = Gameworld?.ProximityEventService?.BeginChange(ProximityChangeCause.Movement, this);
 		var previousLocation = SpatialLocation;
 		var routePosition = default(double?);
 		if (location?.RouteDefinition is { } routeDefinition)
 		{
-			if (ReferenceEquals(previousLocation.Cell, location) && previousLocation.RoutePositionMetres.HasValue)
+			if (requestedPoint is { } requested && ReferenceEquals(requested.Cell, location) && requested.Layer == layer)
+			{
+				routePosition = requested.RoutePositionMetres;
+			}
+			else if (ReferenceEquals(previousLocation.Cell, location) && previousLocation.RoutePositionMetres.HasValue)
 			{
 				routePosition = previousLocation.RoutePositionMetres;
 			}
@@ -140,11 +185,12 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
 
 	public virtual void MoveTo(SpatialLocation location, ICellExit exit = null, bool noSave = false)
 	{
-		MoveTo(location.Cell, location.Layer, exit, noSave);
-		if (!TrySetRoutePosition(location.RoutePositionMetres, out var error, noSave))
-		{
+		if (!RouteSpatialService.Instance.TryValidateLocation(location, out var error))
 			throw new ArgumentException(error, nameof(location));
-		}
+		var previous = _nextSpatialMove;
+		_nextSpatialMove = location;
+		try { MoveTo(location.Cell, location.Layer, exit, noSave); }
+		finally { _nextSpatialMove = previous; }
 	}
 
 	public virtual void SetRoutePosition(double? metres)
@@ -437,6 +483,8 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
 
     protected void LoadEffects(XElement effects)
     {
+		var capacityActor = (this as ICharacter ?? (this as MudSharp.Body.IBody)?.Actor) as MudSharp.Character.Character;
+		using var capacityRestoration = capacityActor?.DeferCastingCapacityReconciliation(false);
         bool removedAnyEffects = false;
         foreach (XElement effect in effects.Elements("Effect"))
         {
@@ -460,6 +508,8 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
         {
             EffectsChanged = true;
         }
+		capacityRestoration?.Dispose();
+		capacityActor?.ReconcileCastingResourceCapacities();
     }
 
     private bool _effectsChanged;
@@ -617,12 +667,19 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
 
     public void SetPosition(IPositionState state, PositionModifier modifier, IPerceivable target, IEmote emote)
     {
+        if (!CanContinueOrderedPosition()) return;
         SetState(state);
+        if (!CanContinueOrderedPosition()) return;
         SetModifier(modifier);
+        if (!CanContinueOrderedPosition()) return;
         SetTarget(target);
+        if (!CanContinueOrderedPosition()) return;
         SetEmote(emote);
+        if (!CanContinueOrderedPosition()) return;
         PositionHasChanged();
     }
+
+    protected bool CanContinueOrderedPosition() => this is not ICharacter actor || CommandExecutionScope.TryContinue(actor);
 
     public virtual void SetEmote(IEmote emote)
     {
@@ -653,6 +710,8 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
 
     public void SetState(IPositionState state)
     {
+        if (!CanContinueOrderedPosition()) return;
+        if (this is ICharacter actor) CommandExecutionScope.MarkCommitted(actor);
         PositionState = state;
         PositionChanged = true;
     }
@@ -717,6 +776,8 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
 
     public void SetModifier(PositionModifier modifier)
     {
+        if (!CanContinueOrderedPosition()) return;
+        if (this is ICharacter actor) CommandExecutionScope.MarkCommitted(actor);
         PositionModifier = modifier;
         PositionChanged = true;
     }
@@ -755,9 +816,11 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
 
     protected void PerceivableDeleted()
     {
-        OnDeleted?.Invoke(this);
+        NotifyDeletionObservers();
         ReleaseEvents();
     }
+
+	protected void NotifyDeletionObservers() => OnDeleted?.Invoke(this);
 
     private bool _positionChanged;
 

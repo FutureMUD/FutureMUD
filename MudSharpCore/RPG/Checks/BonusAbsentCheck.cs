@@ -1,4 +1,4 @@
-﻿using MudSharp.Body.Traits;
+using MudSharp.Body.Traits;
 
 namespace MudSharp.RPG.Checks;
 
@@ -16,6 +16,7 @@ public class BonusAbsentCheck : StandardCheck
         TraitUseType traitUseType = TraitUseType.Practical,
         params (string Parameter, object value)[] customParameters)
     {
+        using var learning = CheckLearningScope.Enter(checkee);
         return Check(checkee, difficulty, tool?.Trait, target, externalBonus, traitUseType, customParameters);
     }
 
@@ -24,6 +25,7 @@ public class BonusAbsentCheck : StandardCheck
         TraitUseType traitUseType = TraitUseType.Practical,
         params (string Parameter, object value)[] customParameters)
     {
+        using var learning = CheckLearningScope.Enter(checkee);
         double targetNumber = TargetNumberExpression.EvaluateWith(checkee, trait, values: customParameters);
         double difficultyModifier = Modifiers[difficulty];
         Outcome outcome = RollAgainst(targetNumber + difficultyModifier, out List<double> rolls);
@@ -50,6 +52,7 @@ public class BonusAbsentCheck : StandardCheck
         double externalBonus = 0.0, TraitUseType traitUseType = TraitUseType.Practical,
         params (string Parameter, object value)[] customParameters)
     {
+        using var learning = CheckLearningScope.Enter(checkee);
         Dictionary<Difficulty, CheckOutcome> results = new();
         double targetNumber = TargetNumberExpression.EvaluateWith(checkee, trait, values: customParameters);
         double[] rolls = new[]
@@ -92,6 +95,7 @@ public class BonusAbsentCheck : StandardCheck
         double externalBonus = 0.0, TraitUseType traitUseType = TraitUseType.Practical,
         params (string Parameter, object value)[] customParameters)
     {
+        using var learning = CheckLearningScope.Enter(checkee);
         Difficulty originalDifficulty1 = difficulty1;
         double originalDifficultyModifier1 = Modifiers[originalDifficulty1];
         Difficulty originalDifficulty2 = difficulty2;

@@ -133,7 +133,8 @@ public class ResurrectionEffect : IMagicSpellEffectTemplate
             return null;
         }
 
-        if (!corpse.RepresentsFinalCharacterDeath)
+        var character = corpse.GetOriginalCharacterWithMatchingBody();
+        if (character is null)
         {
             return null;
         }
@@ -148,8 +149,8 @@ public class ResurrectionEffect : IMagicSpellEffectTemplate
             corpse.Body.RestoreAllBodypartsOrgansAndBones();
         }
 
-        corpse.OriginalCharacter.Resurrect(caster.Location);
-        corpse.OriginalCharacter.RoomLayer = caster.RoomLayer;
+        character.Resurrect(caster.Location);
+        character.RoomLayer = caster.RoomLayer;
         corpse.Parent.Delete();
         return null;
     }

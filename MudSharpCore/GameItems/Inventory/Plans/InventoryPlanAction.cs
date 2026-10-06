@@ -1,4 +1,4 @@
-﻿using System.Data.SqlTypes;
+using System.Data.SqlTypes;
 
 namespace MudSharp.GameItems.Inventory.Plans;
 
@@ -53,6 +53,7 @@ public abstract class InventoryPlanAction : IInventoryPlanAction, IHaveFuturemud
     public abstract bool RequiresFreeHandsToExecute(ICharacter who, IGameItem item);
 
     public ITag DesiredTag => Gameworld.Tags.Get(_desiredTagId);
+	protected long DesiredTagId => _desiredTagId;
 
     public abstract IGameItem ScoutSecondary(ICharacter executor, IGameItem item);
 
@@ -62,7 +63,7 @@ public abstract class InventoryPlanAction : IInventoryPlanAction, IHaveFuturemud
 	internal IGameItem ScoutTarget(ICharacter executor, Func<IGameItem, bool> allocationFilter)
 	{
 		var copy = (InventoryPlanAction)MemberwiseClone();
-		copy.PrimaryItemSelector = item => (PrimaryItemSelector?.Invoke(item) ?? true) && allocationFilter(item);
+		copy.PrimaryItemSelector = item => (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(item) ?? true, false)) && allocationFilter(item);
 		return copy.ScoutTarget(executor);
 	}
 

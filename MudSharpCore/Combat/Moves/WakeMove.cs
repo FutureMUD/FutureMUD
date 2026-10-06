@@ -1,4 +1,4 @@
-﻿using MudSharp.RPG.Checks;
+using MudSharp.RPG.Checks;
 
 namespace MudSharp.Combat.Moves;
 
@@ -9,6 +9,8 @@ public class WakeMove : CombatMoveBase
 
     public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
     {
+		using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterMove(this);
+		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
         Assailant.Awaken(null);
 
         // TODO - could this be character specific? Some wake up easier than others

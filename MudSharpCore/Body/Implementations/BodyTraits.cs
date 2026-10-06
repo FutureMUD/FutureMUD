@@ -77,6 +77,7 @@ public partial class Body
 		{
 			Actor.LearnSignedLanguage(language);
 		}
+		if (trait is IAttributeDefinition) Gameworld.MagicCasting?.NotifyCapacityChange(Actor);
 
         return true;
     }
@@ -103,6 +104,7 @@ public partial class Body
 		{
 			ForgetSignedLanguage(language);
 		}
+		if (trait is IAttributeDefinition) Gameworld.MagicCasting?.NotifyCapacityChange(Actor);
 
         using (new FMDB())
         {
@@ -149,7 +151,7 @@ public partial class Body
 
     public double TraitMaxValue(ITraitDefinition trait)
     {
-        return TraitMaxValue(_traits.FirstOrDefault(x => x.Definition == trait));
+        return TraitMaxValue(GetTrait(trait));
     }
 
     public double TraitMaxValue(ITrait trait)

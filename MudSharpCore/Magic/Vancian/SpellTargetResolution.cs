@@ -1,4 +1,5 @@
 using System.Threading;
+using MudSharp.Magic.SpellTriggers;
 using MudSharp.RPG.Checks;
 
 #nullable enable
@@ -17,11 +18,30 @@ internal sealed class SpellTargetCapture : IDisposable
 	public SpellTargetResolution? Resolution { get; private set; }
 	private SpellTargetCapture(ICharacter actor, IMagicSpell spell, SpellPower power)
 	{ _actor = actor; _spell = spell; _power = power; _previous = Current.Value; Current.Value = this; }
-	public static SpellTargetResolution? Resolve(ICharacter actor, IMagicSpell spell, SpellPower power, StringStack targets)
+	private static bool UsesWholeTargetText(IMagicTrigger? trigger) => trigger is CastingTriggerCharacter or CastingTriggerItem or CastingTriggerCorpse or
+		CastingTriggerLocalItem or CastingTriggerCharacterVicinity or CastingTriggerVicinity or CastingTriggerCharacterProgRoom;
+	public static bool SupportsCompleteSpecification(IMagicTrigger? trigger) => UsesWholeTargetText(trigger) ||
+		trigger is CastingTriggerSelf or CastingTriggerRoom or CastingTriggerParty or CastingTriggerExit or CastingTriggerCharacterExit;
+	public static SpellTargetResolution? Resolve(ICharacter actor, IMagicSpell spell, SpellPower power, StringStack targets,
+		bool requireCompleteSpecification = false)
 	{
 		if (spell.Trigger is not ICastMagicTrigger trigger) return null;
+		var wholeTargetText = UsesWholeTargetText(trigger);
+		if (requireCompleteSpecification && !wholeTargetText)
+		{
+			// Native single-target parsers use the complete remaining text without advancing StringStack.
+			// Implicit target parsers need an exact selector; token-consuming composites must exhaust their arguments.
+			var selector = trigger switch { CastingTriggerSelf => "self", CastingTriggerRoom => "here", CastingTriggerParty => "party", _ => null };
+			if (selector is not null)
+			{
+				if (!targets.PopSpeech().EqualTo(selector) || !targets.IsFinished) return null;
+			}
+			else if (trigger is not (CastingTriggerExit or CastingTriggerCharacterExit)) return null;
+		}
 		using var capture = new SpellTargetCapture(actor, spell, power);
-		trigger.DoTriggerCast(actor, new StringStack($"{power} {targets.RemainingArgument}"));
+		var arguments = new StringStack($"{power} {targets.RemainingArgument}");
+		trigger.DoTriggerCast(actor, arguments);
+		if (requireCompleteSpecification && !wholeTargetText && !arguments.IsFinished) return null;
 		return capture.Resolution;
 	}
 	public static bool Intercept(ICharacter actor, IMagicSpell spell, IPerceivable? target, SpellPower power, SpellAdditionalParameter[] parameters)

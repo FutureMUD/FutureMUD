@@ -1,0 +1,2174 @@
+{
+  "schema_version": 1,
+  "stage": "Phase2B native speech, formula and quiet casting",
+  "status": "implemented_and_verified_parent_review_pending",
+  "base_commit": "36f271b43112a50f347ff9a1f5323ba067e4b0b2",
+  "implementation_commit": "0377cd487a745bc04124ff7d683baf882083c620",
+  "branch": "codex/armageddon-completion-phase1",
+  "source_authority": {
+    "library_file_id": "libfile_a4606cd0097081918d6c9d9e220e6da0",
+    "file_id": "file_00000000273481fab2e542daf8801228",
+    "reported_version": 0,
+    "read_version_id": null,
+    "size_bytes": 131071,
+    "total_lines": 905,
+    "windows": [
+      [
+        1,
+        300
+      ],
+      [
+        301,
+        450
+      ],
+      [
+        451,
+        600
+      ],
+      [
+        601,
+        750
+      ],
+      [
+        751,
+        905
+      ]
+    ],
+    "has_more": false,
+    "complete_content_read": true,
+    "access_route": "Library read; full contiguous windows; no materialized substitute",
+    "read_complete_at_utc": "2026-10-02T07:41:07.312Z",
+    "rendered_content_utf8_bytes": 131070
+  },
+  "recorded_utc": "2026-10-02T18:51:21.367839+00:00",
+  "implemented": [
+    "Fixed historical POWER words with explicit grade1-7/native SpellPower mapping; per-spell native language and labelled four-category/alias vocabulary with atomic builder/schema validation.",
+    "Full five-category grammar in all120 orders and concise POWER/spell aliases share the guarded canonical route/grade/cost/permission pipeline with named casting; exact complete target adapters reject tails and unsupported mappings.",
+    "Single-use original network/player-command speech authority captured after native vocal/gag eligibility; command casts speak once, actual speech uses its original utterance, copied/relay/generated payloads cannot grant authority.",
+    "Quiet uses actual native Whisper; native method/AudioVolume, designated-energy multipliers and bounded difficulty adjustments are explicit per spell; unsupported practice/area/method combinations refuse.",
+    "Canonical operation origins fence duplicate and cross-mode receipt replay, including restart; pure quotes do not emit/pay/check/add effects, and malformed XML remains preservable for repair.",
+    "Raw FormulaText preserves quoted multiword target syntax separately from native spoken presentation and is captured in paid operation XML without a migration."
+  ],
+  "failing_before": {
+    "multiword_native_capability": {
+      "schema_version": 1,
+      "run_id": "20261002T181019Z-4652b2a8e2de",
+      "repository": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD",
+      "head": "36f271b43112a50f347ff9a1f5323ba067e4b0b2",
+      "started_utc": "2026-10-02T18:10:19.1863344+00:00",
+      "ended_utc": "2026-10-02T18:10:29.5725225+00:00",
+      "duration_seconds": 10.3862079,
+      "source_start": "b3d25f6a598866e9d5693b777d9184804d450a4e43dddda28db1dc7563f68a87",
+      "source_end": "b3d25f6a598866e9d5693b777d9184804d450a4e43dddda28db1dc7563f68a87",
+      "source_stable": true,
+      "sdk": "10.0.401",
+      "runner": "VSTest/TRX (Microsoft.NET.Test.Sdk 17.9.0)",
+      "suite": "core",
+      "configuration": "Debug",
+      "filter": "FullyQualifiedName~NativeSpeech_MultiwordCapabilitySurvivesNativeQuoteRemoval",
+      "fail_on_skipped": false,
+      "execution_complete": true,
+      "counts_complete": true,
+      "status": "FAIL",
+      "counts": {
+        "executed": 1,
+        "passed": 0,
+        "failed": 1,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 1
+      },
+      "projects": [
+        "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+      ],
+      "invocations": [
+        {
+          "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+          "framework": "net10.0",
+          "attempt": 1,
+          "status": "FAIL",
+          "reason": null,
+          "build": {
+            "name": "build",
+            "arguments": [
+              "build",
+              "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+              "-c",
+              "Debug",
+              "-m:1",
+              "-p:RestoreBuildInParallel=false",
+              "-p:NuGetAudit=false",
+              "-p:NoWarn=NU1902%3BNU1510",
+              "--no-restore"
+            ],
+            "started_utc": "2026-10-02T18:10:19.6409055+00:00",
+            "ended_utc": "2026-10-02T18:10:26.6514323+00:00",
+            "exit_code": 0,
+            "termination_reason": null,
+            "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\20261002T181019Z-4652b2a8e2de\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\build\\build.stdout.log",
+            "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\20261002T181019Z-4652b2a8e2de\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\build\\build.stderr.log"
+          },
+          "test": {
+            "name": "test",
+            "arguments": [
+              "test",
+              "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+              "-c",
+              "Debug",
+              "--no-build",
+              "--no-restore",
+              "-m:1",
+              "-f",
+              "net10.0",
+              "-p:NoWarn=NU1902%3BNU1510",
+              "--logger",
+              "trx;LogFileName=results.trx",
+              "--results-directory",
+              "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\20261002T181019Z-4652b2a8e2de\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\net10-41544e89\\1",
+              "--filter",
+              "FullyQualifiedName~NativeSpeech_MultiwordCapabilitySurvivesNativeQuoteRemoval"
+            ],
+            "started_utc": "2026-10-02T18:10:26.6568195+00:00",
+            "ended_utc": "2026-10-02T18:10:29.3102519+00:00",
+            "exit_code": 1,
+            "termination_reason": null,
+            "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\20261002T181019Z-4652b2a8e2de\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\net10-41544e89\\1\\test.stdout.log",
+            "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\20261002T181019Z-4652b2a8e2de\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\net10-41544e89\\1\\test.stderr.log"
+          },
+          "report": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\20261002T181019Z-4652b2a8e2de\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\net10-41544e89\\1\\results.trx",
+          "binary": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\MudSharpCore Unit Tests\\bin\\Debug\\net10.0\\MudSharpCore Unit Tests.dll",
+          "counts": {
+            "executed": 1,
+            "passed": 0,
+            "failed": 1,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 1
+          },
+          "native_counters": {
+            "total": "1",
+            "executed": "1",
+            "passed": "0",
+            "failed": "1",
+            "error": "0",
+            "timeout": "0",
+            "aborted": "0",
+            "inconclusive": "0",
+            "passedButRunAborted": "0",
+            "notRunnable": "0",
+            "notExecuted": "0",
+            "disconnected": "0",
+            "warning": "0",
+            "completed": "0",
+            "inProgress": "0",
+            "pending": "0"
+          }
+        }
+      ],
+      "issues": [
+        {
+          "kind": "TEST_FAILED",
+          "project": null,
+          "detail": "1 failing test records"
+        }
+      ],
+      "artifacts": {
+        "run": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\20261002T181019Z-4652b2a8e2de\\run.json",
+        "summary": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\20261002T181019Z-4652b2a8e2de\\summary.json",
+        "failures": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\20261002T181019Z-4652b2a8e2de\\failures.json",
+        "results": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\20261002T181019Z-4652b2a8e2de\\test-results.json",
+        "bootstrap": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\bootstrap-95934b1dab164e999714f0832caff8c8\\bootstrap.log"
+      },
+      "build_switches": [
+        "-m:1",
+        "-p:RestoreBuildInParallel=false",
+        "-p:NuGetAudit=false",
+        "-p:NoWarn=NU1902%3BNU1510"
+      ],
+      "receipt": ".artifacts/test-runs/20261002T181019Z-4652b2a8e2de/summary.json",
+      "receipt_sha256": "2c69bb7967cda18861357fcfa80b17c3476ed611e9d4a896577eb8b402bb9c93",
+      "failures": [
+        {
+          "id": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj|net10.0|1|1",
+          "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+          "framework": "net10.0",
+          "attempt": 1,
+          "test_id": "7ffc70f2-4b2e-1e31-ec85-6ff6822e4ff6",
+          "execution_id": "d67caa51-1b3c-4c2a-8db3-462e08eb1ddd",
+          "name": "NativeSpeech_MultiwordCapabilitySurvivesNativeQuoteRemoval",
+          "fully_qualified_name": "MudSharp_Unit_Tests.MagicCastingIncantationTests.NativeSpeech_MultiwordCapabilitySurvivesNativeQuoteRemoval",
+          "native_outcome": "Failed",
+          "outcome": "FAILED",
+          "message": "Assert.AreEqual failed. Expected:<85>. Actual:<100>. Grade profile updated. Existing acquired records must match its version. | Grade profile updated. Existing acquired records must match its version. | Incantation policy updated. Normal/whisper fixture modifiers are configurable tuning; area and practice combinations require a separate policy. | You rename this capability from \\u001b[36mEarth\\u001b[0;39m to \\u001b[36mEarth Adept\\u001b[0;39m. | The final via argument must name one capability.",
+          "stack": "   at MudSharp_Unit_Tests.MagicCastingIncantationTests.NativeSpeech_MultiwordCapabilitySurvivesNativeQuoteRemoval() in C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\MudSharpCore Unit Tests\\MagicCastingIncantationTests.cs:line 184\r\n   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)\r\n   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)\r\n",
+          "report": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\20261002T181019Z-4652b2a8e2de\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\net10-41544e89\\1\\results.trx"
+        }
+      ]
+    },
+    "quoted_character_exit_target": {
+      "schema_version": 1,
+      "run_id": "20261002T181923Z-398645da365f",
+      "repository": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD",
+      "head": "36f271b43112a50f347ff9a1f5323ba067e4b0b2",
+      "started_utc": "2026-10-02T18:19:23.9041612+00:00",
+      "ended_utc": "2026-10-02T18:19:34.8567270+00:00",
+      "duration_seconds": 10.952606,
+      "source_start": "9b2faf44d0ee523b0b972e59ec6629c0b74f4a52be1fe1dfd8c0810c6a7c0565",
+      "source_end": "9b2faf44d0ee523b0b972e59ec6629c0b74f4a52be1fe1dfd8c0810c6a7c0565",
+      "source_stable": true,
+      "sdk": "10.0.401",
+      "runner": "VSTest/TRX (Microsoft.NET.Test.Sdk 17.9.0)",
+      "suite": "core",
+      "configuration": "Debug",
+      "filter": "FullyQualifiedName~NativeSpeech_QuotedCompositeTargetMatchesNamedAndFormulaAdapters",
+      "fail_on_skipped": false,
+      "execution_complete": true,
+      "counts_complete": true,
+      "status": "FAIL",
+      "counts": {
+        "executed": 1,
+        "passed": 0,
+        "failed": 1,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 1
+      },
+      "projects": [
+        "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+      ],
+      "invocations": [
+        {
+          "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+          "framework": "net10.0",
+          "attempt": 1,
+          "status": "FAIL",
+          "reason": null,
+          "build": {
+            "name": "build",
+            "arguments": [
+              "build",
+              "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+              "-c",
+              "Debug",
+              "-m:1",
+              "-p:RestoreBuildInParallel=false",
+              "-p:NuGetAudit=false",
+              "-p:NoWarn=NU1902%3BNU1510",
+              "--no-restore"
+            ],
+            "started_utc": "2026-10-02T18:19:24.3351959+00:00",
+            "ended_utc": "2026-10-02T18:19:31.9159027+00:00",
+            "exit_code": 0,
+            "termination_reason": null,
+            "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\20261002T181923Z-398645da365f\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\build\\build.stdout.log",
+            "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\20261002T181923Z-398645da365f\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\build\\build.stderr.log"
+          },
+          "test": {
+            "name": "test",
+            "arguments": [
+              "test",
+              "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+              "-c",
+              "Debug",
+              "--no-build",
+              "--no-restore",
+              "-m:1",
+              "-f",
+              "net10.0",
+              "-p:NoWarn=NU1902%3BNU1510",
+              "--logger",
+              "trx;LogFileName=results.trx",
+              "--results-directory",
+              "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\20261002T181923Z-398645da365f\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\net10-41544e89\\1",
+              "--filter",
+              "FullyQualifiedName~NativeSpeech_QuotedCompositeTargetMatchesNamedAndFormulaAdapters"
+            ],
+            "started_utc": "2026-10-02T18:19:31.9183845+00:00",
+            "ended_utc": "2026-10-02T18:19:34.5896031+00:00",
+            "exit_code": 1,
+            "termination_reason": null,
+            "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\20261002T181923Z-398645da365f\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\net10-41544e89\\1\\test.stdout.log",
+            "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\20261002T181923Z-398645da365f\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\net10-41544e89\\1\\test.stderr.log"
+          },
+          "report": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\20261002T181923Z-398645da365f\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\net10-41544e89\\1\\results.trx",
+          "binary": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\MudSharpCore Unit Tests\\bin\\Debug\\net10.0\\MudSharpCore Unit Tests.dll",
+          "counts": {
+            "executed": 1,
+            "passed": 0,
+            "failed": 1,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 1
+          },
+          "native_counters": {
+            "total": "1",
+            "executed": "1",
+            "passed": "0",
+            "failed": "1",
+            "error": "0",
+            "timeout": "0",
+            "aborted": "0",
+            "inconclusive": "0",
+            "passedButRunAborted": "0",
+            "notRunnable": "0",
+            "notExecuted": "0",
+            "disconnected": "0",
+            "warning": "0",
+            "completed": "0",
+            "inProgress": "0",
+            "pending": "0"
+          }
+        }
+      ],
+      "issues": [
+        {
+          "kind": "TEST_FAILED",
+          "project": null,
+          "detail": "1 failing test records"
+        }
+      ],
+      "artifacts": {
+        "run": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\20261002T181923Z-398645da365f\\run.json",
+        "summary": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\20261002T181923Z-398645da365f\\summary.json",
+        "failures": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\20261002T181923Z-398645da365f\\failures.json",
+        "results": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\20261002T181923Z-398645da365f\\test-results.json",
+        "bootstrap": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\bootstrap-3360d411805c4cacb149154254aee000\\bootstrap.log"
+      },
+      "build_switches": [
+        "-m:1",
+        "-p:RestoreBuildInParallel=false",
+        "-p:NuGetAudit=false",
+        "-p:NoWarn=NU1902%3BNU1510"
+      ],
+      "receipt": ".artifacts/test-runs/20261002T181923Z-398645da365f/summary.json",
+      "receipt_sha256": "c65cb10ece4b66dba121bdd5a35b63ae61d67c2992e796649c8a8a7d17f73331",
+      "failures": [
+        {
+          "id": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj|net10.0|1|1",
+          "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+          "framework": "net10.0",
+          "attempt": 1,
+          "test_id": "009a50a3-465a-1e7a-310a-88adc92f9699",
+          "execution_id": "8b083fd7-568d-4053-a844-02fb63d43bd9",
+          "name": "NativeSpeech_QuotedCompositeTargetMatchesNamedAndFormulaAdapters",
+          "fully_qualified_name": "MudSharp_Unit_Tests.MagicCastingIncantationTests.NativeSpeech_QuotedCompositeTargetMatchesNamedAndFormulaAdapters",
+          "native_outcome": "Failed",
+          "outcome": "FAILED",
+          "message": "Assert.AreEqual failed. Expected:<1>. Actual:<0>. speech: Grade profile updated. Existing acquired records must match its version. | Grade profile updated. Existing acquired records must match its version. | Incantation policy updated. Normal/whisper fixture modifiers are configurable tuning; area and practice combinations require a separate policy. | The \\u001b[36mStone Skin\\u001b[0;39m spell now has the following trigger:\n\\u001b[36mCast@Character&Exit\\u001b[0;39m\\u001b[36m [noself]\\u001b[0;39m - Power: \\u001b[32mInsignificant\\u001b[0;39m-\\u001b[32mRecklesslyPowerful\\u001b[0;39m | You can now target yourself with this trigger. | Grade profile updated. Existing acquired records must match its version. | You remove the \\u001b[32m1st\\u001b[0;39m spell effect: \\u001b[36mTrait Boost\\u001b[0;39m\r\n\tTrait: \\u001b[32mProficiency 3\\u001b[0;39m\r\n\tBonus: \\u001b[32m+0.00\\u001b[0;39m\r\n\tContext: \\u001b[32mNone\\u001b[0;39m | The \\u001b[36mStone Skin\\u001b[0;39m spell now has the following effect (#1):\n\\u001b[36mPersonal Tag Ward\\u001b[0;39m\r\n\tTag: \\u001b[32mmagic\\u001b[0;39m\r\n\tValue: \\u001b[32mAny\\u001b[0;39m\r\n\tCoverage: \\u001b[32mBoth\\u001b[0;39m\r\n\tMode: \\u001b[32mFail\\u001b[0;39m\r\n\tProg: \\u001b[31mNone\\u001b[0;39m | You rename this capability from \\u001b[36mEarth\\u001b[0;39m to \\u001b[36mEarth Adept\\u001b[0;39m. | No valid target was resolved.",
+          "stack": "   at MudSharp_Unit_Tests.MagicCastingIncantationTests.NativeSpeech_QuotedCompositeTargetMatchesNamedAndFormulaAdapters() in C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\MudSharpCore Unit Tests\\MagicCastingIncantationTests.cs:line 215\r\n   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)\r\n   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)\r\n",
+          "report": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\20261002T181923Z-398645da365f\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\net10-41544e89\\1\\results.trx"
+        }
+      ]
+    }
+  },
+  "final_focused": {
+    "schema_version": 1,
+    "run_id": "20261002T182131Z-b748c8f81c56",
+    "repository": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD",
+    "head": "36f271b43112a50f347ff9a1f5323ba067e4b0b2",
+    "started_utc": "2026-10-02T18:21:31.3556266+00:00",
+    "ended_utc": "2026-10-02T18:22:18.2715663+00:00",
+    "duration_seconds": 46.9159602,
+    "source_start": "7e9a03dbba73229d793fc80ae6903bd6c8b1b8ab8bf23968fab6db7fa119df13",
+    "source_end": "7e9a03dbba73229d793fc80ae6903bd6c8b1b8ab8bf23968fab6db7fa119df13",
+    "source_stable": true,
+    "sdk": "10.0.401",
+    "runner": "VSTest/TRX (Microsoft.NET.Test.Sdk 17.9.0)",
+    "suite": "core",
+    "configuration": "Debug",
+    "filter": "FullyQualifiedName~MagicCasting|FullyQualifiedName~Armageddon|FullyQualifiedName~MagicSpellPhaseOne|FullyQualifiedName~RobotRuntime",
+    "fail_on_skipped": false,
+    "execution_complete": true,
+    "counts_complete": true,
+    "status": "PASS",
+    "counts": {
+      "executed": 353,
+      "passed": 353,
+      "failed": 0,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 353
+    },
+    "projects": [
+      "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+    ],
+    "invocations": [
+      {
+        "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+        "framework": "net10.0",
+        "attempt": 1,
+        "status": "PASS",
+        "reason": null,
+        "build": {
+          "name": "build",
+          "arguments": [
+            "build",
+            "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+            "-c",
+            "Debug",
+            "-m:1",
+            "-p:RestoreBuildInParallel=false",
+            "-p:NuGetAudit=false",
+            "-p:NoWarn=NU1902%3BNU1510",
+            "--no-restore"
+          ],
+          "started_utc": "2026-10-02T18:21:31.7975953+00:00",
+          "ended_utc": "2026-10-02T18:22:08.4032549+00:00",
+          "exit_code": 0,
+          "termination_reason": null,
+          "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\20261002T182131Z-b748c8f81c56\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\build\\build.stdout.log",
+          "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\20261002T182131Z-b748c8f81c56\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\build\\build.stderr.log"
+        },
+        "test": {
+          "name": "test",
+          "arguments": [
+            "test",
+            "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+            "-c",
+            "Debug",
+            "--no-build",
+            "--no-restore",
+            "-m:1",
+            "-f",
+            "net10.0",
+            "-p:NoWarn=NU1902%3BNU1510",
+            "--logger",
+            "trx;LogFileName=results.trx",
+            "--results-directory",
+            "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\20261002T182131Z-b748c8f81c56\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\net10-41544e89\\1",
+            "--filter",
+            "FullyQualifiedName~MagicCasting|FullyQualifiedName~Armageddon|FullyQualifiedName~MagicSpellPhaseOne|FullyQualifiedName~RobotRuntime"
+          ],
+          "started_utc": "2026-10-02T18:22:08.4056635+00:00",
+          "ended_utc": "2026-10-02T18:22:17.9949480+00:00",
+          "exit_code": 0,
+          "termination_reason": null,
+          "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\20261002T182131Z-b748c8f81c56\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\net10-41544e89\\1\\test.stdout.log",
+          "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\20261002T182131Z-b748c8f81c56\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\net10-41544e89\\1\\test.stderr.log"
+        },
+        "report": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\20261002T182131Z-b748c8f81c56\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\net10-41544e89\\1\\results.trx",
+        "binary": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\MudSharpCore Unit Tests\\bin\\Debug\\net10.0\\MudSharpCore Unit Tests.dll",
+        "counts": {
+          "executed": 353,
+          "passed": 353,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 353
+        },
+        "native_counters": {
+          "total": "353",
+          "executed": "353",
+          "passed": "353",
+          "failed": "0",
+          "error": "0",
+          "timeout": "0",
+          "aborted": "0",
+          "inconclusive": "0",
+          "passedButRunAborted": "0",
+          "notRunnable": "0",
+          "notExecuted": "0",
+          "disconnected": "0",
+          "warning": "0",
+          "completed": "0",
+          "inProgress": "0",
+          "pending": "0"
+        }
+      }
+    ],
+    "issues": [],
+    "artifacts": {
+      "run": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\20261002T182131Z-b748c8f81c56\\run.json",
+      "summary": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\20261002T182131Z-b748c8f81c56\\summary.json",
+      "failures": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\20261002T182131Z-b748c8f81c56\\failures.json",
+      "results": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\20261002T182131Z-b748c8f81c56\\test-results.json",
+      "bootstrap": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\bootstrap-3a691bf8beac482bbea5a8932476b40e\\bootstrap.log"
+    },
+    "build_switches": [
+      "-m:1",
+      "-p:RestoreBuildInParallel=false",
+      "-p:NuGetAudit=false",
+      "-p:NoWarn=NU1902%3BNU1510"
+    ],
+    "receipt": ".artifacts/test-runs/20261002T182131Z-b748c8f81c56/summary.json",
+    "receipt_sha256": "3ea369d8c8c68be8191a771b99b83d5bccecf107ebe218b160d727f6a6c2484a",
+    "failures": []
+  },
+  "final_dependent_suites": {
+    "schema_version": 1,
+    "run_id": "20261002T183411Z-d8b3bab556f7",
+    "repository": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD",
+    "head": "36f271b43112a50f347ff9a1f5323ba067e4b0b2",
+    "started_utc": "2026-10-02T18:34:11.5560323+00:00",
+    "ended_utc": "2026-10-02T18:35:10.3635769+00:00",
+    "duration_seconds": 58.8075673,
+    "source_start": "80043b339f5e9ca7da82a7ed9c667aecccde0eeabb21c3779495624436bdb491",
+    "source_end": "80043b339f5e9ca7da82a7ed9c667aecccde0eeabb21c3779495624436bdb491",
+    "source_stable": true,
+    "sdk": "10.0.401",
+    "runner": "VSTest/TRX (Microsoft.NET.Test.Sdk 17.9.0)",
+    "suite": "fast",
+    "configuration": "Debug",
+    "filter": null,
+    "fail_on_skipped": false,
+    "execution_complete": true,
+    "counts_complete": true,
+    "status": "PASS",
+    "counts": {
+      "executed": 4884,
+      "passed": 4884,
+      "failed": 0,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 4884
+    },
+    "projects": [
+      "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+      "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj"
+    ],
+    "invocations": [
+      {
+        "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+        "framework": "net10.0",
+        "attempt": 1,
+        "status": "PASS",
+        "reason": null,
+        "build": {
+          "name": "build",
+          "arguments": [
+            "build",
+            "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+            "-c",
+            "Debug",
+            "-m:1",
+            "-p:RestoreBuildInParallel=false",
+            "-p:NuGetAudit=false",
+            "-p:NoWarn=NU1902%3BNU1510"
+          ],
+          "started_utc": "2026-10-02T18:34:12.0084453+00:00",
+          "ended_utc": "2026-10-02T18:34:13.4838039+00:00",
+          "exit_code": 0,
+          "termination_reason": null,
+          "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\20261002T183411Z-d8b3bab556f7\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\build\\build.stdout.log",
+          "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\20261002T183411Z-d8b3bab556f7\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\build\\build.stderr.log"
+        },
+        "test": {
+          "name": "test",
+          "arguments": [
+            "test",
+            "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+            "-c",
+            "Debug",
+            "--no-build",
+            "--no-restore",
+            "-m:1",
+            "-f",
+            "net10.0",
+            "-p:NoWarn=NU1902%3BNU1510",
+            "--logger",
+            "trx;LogFileName=results.trx",
+            "--results-directory",
+            "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\20261002T183411Z-d8b3bab556f7\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\net10-41544e89\\1"
+          ],
+          "started_utc": "2026-10-02T18:34:15.6823886+00:00",
+          "ended_utc": "2026-10-02T18:35:10.0669758+00:00",
+          "exit_code": 0,
+          "termination_reason": null,
+          "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\20261002T183411Z-d8b3bab556f7\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\net10-41544e89\\1\\test.stdout.log",
+          "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\20261002T183411Z-d8b3bab556f7\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\net10-41544e89\\1\\test.stderr.log"
+        },
+        "report": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\20261002T183411Z-d8b3bab556f7\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\net10-41544e89\\1\\results.trx",
+        "binary": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\MudSharpCore Unit Tests\\bin\\Debug\\net10.0\\MudSharpCore Unit Tests.dll",
+        "counts": {
+          "executed": 4335,
+          "passed": 4335,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 4335
+        },
+        "native_counters": {
+          "total": "4335",
+          "executed": "4335",
+          "passed": "4335",
+          "failed": "0",
+          "error": "0",
+          "timeout": "0",
+          "aborted": "0",
+          "inconclusive": "0",
+          "passedButRunAborted": "0",
+          "notRunnable": "0",
+          "notExecuted": "0",
+          "disconnected": "0",
+          "warning": "0",
+          "completed": "0",
+          "inProgress": "0",
+          "pending": "0"
+        }
+      },
+      {
+        "project": "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+        "framework": "net10.0",
+        "attempt": 1,
+        "status": "PASS",
+        "reason": null,
+        "build": {
+          "name": "build",
+          "arguments": [
+            "build",
+            "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+            "-c",
+            "Debug",
+            "-m:1",
+            "-p:RestoreBuildInParallel=false",
+            "-p:NuGetAudit=false",
+            "-p:NoWarn=NU1902%3BNU1510"
+          ],
+          "started_utc": "2026-10-02T18:34:13.4852074+00:00",
+          "ended_utc": "2026-10-02T18:34:15.6805280+00:00",
+          "exit_code": 0,
+          "termination_reason": null,
+          "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\20261002T183411Z-d8b3bab556f7\\invocations\\FutureMUDLibrary_Unit_Tests-45c02d6c\\build\\build.stdout.log",
+          "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\20261002T183411Z-d8b3bab556f7\\invocations\\FutureMUDLibrary_Unit_Tests-45c02d6c\\build\\build.stderr.log"
+        },
+        "test": {
+          "name": "test",
+          "arguments": [
+            "test",
+            "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+            "-c",
+            "Debug",
+            "--no-build",
+            "--no-restore",
+            "-m:1",
+            "-f",
+            "net10.0",
+            "-p:NoWarn=NU1902%3BNU1510",
+            "--logger",
+            "trx;LogFileName=results.trx",
+            "--results-directory",
+            "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\20261002T183411Z-d8b3bab556f7\\invocations\\FutureMUDLibrary_Unit_Tests-45c02d6c\\net10-41544e89\\1"
+          ],
+          "started_utc": "2026-10-02T18:34:15.6877392+00:00",
+          "ended_utc": "2026-10-02T18:34:19.1491397+00:00",
+          "exit_code": 0,
+          "termination_reason": null,
+          "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\20261002T183411Z-d8b3bab556f7\\invocations\\FutureMUDLibrary_Unit_Tests-45c02d6c\\net10-41544e89\\1\\test.stdout.log",
+          "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\20261002T183411Z-d8b3bab556f7\\invocations\\FutureMUDLibrary_Unit_Tests-45c02d6c\\net10-41544e89\\1\\test.stderr.log"
+        },
+        "report": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\20261002T183411Z-d8b3bab556f7\\invocations\\FutureMUDLibrary_Unit_Tests-45c02d6c\\net10-41544e89\\1\\results.trx",
+        "binary": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\FutureMUDLibrary Unit Tests\\bin\\Debug\\net10.0\\FutureMUDLibrary Unit Tests.dll",
+        "counts": {
+          "executed": 549,
+          "passed": 549,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 549
+        },
+        "native_counters": {
+          "total": "549",
+          "executed": "549",
+          "passed": "549",
+          "failed": "0",
+          "error": "0",
+          "timeout": "0",
+          "aborted": "0",
+          "inconclusive": "0",
+          "passedButRunAborted": "0",
+          "notRunnable": "0",
+          "notExecuted": "0",
+          "disconnected": "0",
+          "warning": "0",
+          "completed": "0",
+          "inProgress": "0",
+          "pending": "0"
+        }
+      }
+    ],
+    "issues": [],
+    "artifacts": {
+      "run": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\20261002T183411Z-d8b3bab556f7\\run.json",
+      "summary": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\20261002T183411Z-d8b3bab556f7\\summary.json",
+      "failures": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\20261002T183411Z-d8b3bab556f7\\failures.json",
+      "results": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\20261002T183411Z-d8b3bab556f7\\test-results.json",
+      "bootstrap": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\.artifacts\\test-runs\\bootstrap-464185fe43384503863bfdabb06f7751\\bootstrap.log"
+    },
+    "build_switches": [
+      "-m:1",
+      "-p:RestoreBuildInParallel=false",
+      "-p:NuGetAudit=false",
+      "-p:NoWarn=NU1902%3BNU1510"
+    ],
+    "receipt": ".artifacts/test-runs/20261002T183411Z-d8b3bab556f7/summary.json",
+    "receipt_sha256": "761be4807ca69ebfdc4816e353cf87d631e3f452a85e130b93a989bdc07a4421",
+    "failures": []
+  },
+  "managed_history": [
+    {
+      "run_id": "20261002T170841Z-236ad504773f",
+      "status": "FAIL",
+      "counts": null,
+      "source_stable": true,
+      "source_start": "429f0558f2b043e2375d743d12dd1604b3d282038a35ef1477e371cc38ead61f",
+      "receipt": ".artifacts/test-runs/20261002T170841Z-236ad504773f/summary.json",
+      "sha256": "7576589d00d1e34140660ac60d781f446a5ea51c58a0851319743484faf1093e"
+    },
+    {
+      "run_id": "20261002T171816Z-8afbab2088bd",
+      "status": "FAIL",
+      "counts": null,
+      "source_stable": true,
+      "source_start": "37cc0d78abdf564e44eb607dfa12facac558151851ed9d211db58083eb4cf623",
+      "receipt": ".artifacts/test-runs/20261002T171816Z-8afbab2088bd/summary.json",
+      "sha256": "92038fc2a51e3cc6bc10f9d9c392bb760c2074a4f639a2c53b0501a949d0d3a4"
+    },
+    {
+      "run_id": "20261002T172009Z-e5a7c48c65ce",
+      "status": "FAIL",
+      "counts": null,
+      "source_stable": true,
+      "source_start": "50333230a54e6ba56bcd73124e9fd5ecff2e0d6d7ab16b1ca981f7c3eb48a3ca",
+      "receipt": ".artifacts/test-runs/20261002T172009Z-e5a7c48c65ce/summary.json",
+      "sha256": "6988cd8ae0234ba89222005e4958a536614e9acab2e42cda4f55b3026d94afeb"
+    },
+    {
+      "run_id": "20261002T172205Z-a4ab1cb16997",
+      "status": "FAIL",
+      "counts": null,
+      "source_stable": true,
+      "source_start": "31fffa2fdab8dfeced7cfee9670f4cb447a38a1b000f6a31605628f0e46305c5",
+      "receipt": ".artifacts/test-runs/20261002T172205Z-a4ab1cb16997/summary.json",
+      "sha256": "03ca0896c57af139df2c2ec44100c7f2485cf7b8f89094c5b3cfc4539bc3ac63"
+    },
+    {
+      "run_id": "20261002T172406Z-bf87204754f5",
+      "status": "FAIL",
+      "counts": {
+        "executed": 336,
+        "passed": 317,
+        "failed": 19,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 336
+      },
+      "source_stable": true,
+      "source_start": "a834fa33e5d166f839272fafd6d56ed4eb27a500f4bbf728ac9c81ac4507e6d9",
+      "receipt": ".artifacts/test-runs/20261002T172406Z-bf87204754f5/summary.json",
+      "sha256": "fc487e9ddce1106c7efb5341d87f467915a2cdfc16760d2e2e2b0a753457b304"
+    },
+    {
+      "run_id": "20261002T172640Z-54c80f5a7399",
+      "status": "FAIL",
+      "counts": {
+        "executed": 336,
+        "passed": 325,
+        "failed": 11,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 336
+      },
+      "source_stable": true,
+      "source_start": "61ea1b236d49a6c88d0545239a6b49f8c068ced29f45c9d0a0ea45f1ae53d55d",
+      "receipt": ".artifacts/test-runs/20261002T172640Z-54c80f5a7399/summary.json",
+      "sha256": "7bcddeb3bbaf02ffa40c9a695f16d23f240e982e2a20c13dd308482703e69618"
+    },
+    {
+      "run_id": "20261002T173038Z-298dbe48e6a7",
+      "status": "PASS",
+      "counts": {
+        "executed": 344,
+        "passed": 344,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 344
+      },
+      "source_stable": true,
+      "source_start": "bd922b9e681791ed03a613ea93a36aa7b788f411a0139f34d301b5fe0d905c8d",
+      "receipt": ".artifacts/test-runs/20261002T173038Z-298dbe48e6a7/summary.json",
+      "sha256": "1c6f14281e5df855b045e3d9f0a8441181566755630dc58972b4c131559829a2"
+    },
+    {
+      "run_id": "20261002T175423Z-5892e0da8a3b",
+      "status": "FAIL",
+      "counts": {
+        "executed": 349,
+        "passed": 348,
+        "failed": 1,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 349
+      },
+      "source_stable": true,
+      "source_start": "8437ebcc1f2cb60d4b9730c4e05fc139a4dcdc4d8335d2540cb64efe3511d073",
+      "receipt": ".artifacts/test-runs/20261002T175423Z-5892e0da8a3b/summary.json",
+      "sha256": "e01f4a1c66dce4fc6dadeef409fdd1b7f94c4dc2c89cfa9abe5be069cc30fb19"
+    },
+    {
+      "run_id": "20261002T180025Z-05e01d4cd60b",
+      "status": "PASS",
+      "counts": {
+        "executed": 349,
+        "passed": 349,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 349
+      },
+      "source_stable": true,
+      "source_start": "dc325d739b5e5bed14d08441f5ee9745d73c851625dd81d001cb9e958a4d8a84",
+      "receipt": ".artifacts/test-runs/20261002T180025Z-05e01d4cd60b/summary.json",
+      "sha256": "64b9a8feefaa34c34fdae00a28c710fc60fac25bbb3a1273d2c025dbf8fda40f"
+    },
+    {
+      "run_id": "20261002T181019Z-4652b2a8e2de",
+      "status": "FAIL",
+      "counts": {
+        "executed": 1,
+        "passed": 0,
+        "failed": 1,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 1
+      },
+      "source_stable": true,
+      "source_start": "b3d25f6a598866e9d5693b777d9184804d450a4e43dddda28db1dc7563f68a87",
+      "receipt": ".artifacts/test-runs/20261002T181019Z-4652b2a8e2de/summary.json",
+      "sha256": "2c69bb7967cda18861357fcfa80b17c3476ed611e9d4a896577eb8b402bb9c93"
+    },
+    {
+      "run_id": "20261002T181134Z-460ca0508d04",
+      "status": "PASS",
+      "counts": {
+        "executed": 351,
+        "passed": 351,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 351
+      },
+      "source_stable": true,
+      "source_start": "faaf499da4fde7bbf698f21250fb44960f52c05b7686bff34ce14a3dafa8047d",
+      "receipt": ".artifacts/test-runs/20261002T181134Z-460ca0508d04/summary.json",
+      "sha256": "8ba009cea4526dd15e1a6c99b5a5300c299e29ef17b1b31a0e6a241b0a0530b1"
+    },
+    {
+      "run_id": "20261002T181735Z-c81c3e748c61",
+      "status": "FAIL",
+      "counts": {
+        "executed": 1,
+        "passed": 0,
+        "failed": 1,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 1
+      },
+      "source_stable": true,
+      "source_start": "f9dcb3abf017e1ebb7cdd2fcf19c04781dec0ff04183c7f0b840bb5d16f5b2a6",
+      "receipt": ".artifacts/test-runs/20261002T181735Z-c81c3e748c61/summary.json",
+      "sha256": "a2d26777d771828bfcbdb249db304b6d480b0a00e9ed3c08611fa97e304d31df"
+    },
+    {
+      "run_id": "20261002T181851Z-1c3c1b0b2d29",
+      "status": "FAIL",
+      "counts": {
+        "executed": 1,
+        "passed": 0,
+        "failed": 1,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 1
+      },
+      "source_stable": true,
+      "source_start": "adb7b8213c286bdcbd5abd8a2f6c640a499137b23300f5db02d1c0d29ad6c386",
+      "receipt": ".artifacts/test-runs/20261002T181851Z-1c3c1b0b2d29/summary.json",
+      "sha256": "c5d9a9ef22dde9ecedfddedc73c6e8ef7db90cada34fc7e4d79eb45fd19bf373"
+    },
+    {
+      "run_id": "20261002T181923Z-398645da365f",
+      "status": "FAIL",
+      "counts": {
+        "executed": 1,
+        "passed": 0,
+        "failed": 1,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 1
+      },
+      "source_stable": true,
+      "source_start": "9b2faf44d0ee523b0b972e59ec6629c0b74f4a52be1fe1dfd8c0810c6a7c0565",
+      "receipt": ".artifacts/test-runs/20261002T181923Z-398645da365f/summary.json",
+      "sha256": "c65cb10ece4b66dba121bdd5a35b63ae61d67c2992e796649c8a8a7d17f73331"
+    },
+    {
+      "run_id": "20261002T182131Z-b748c8f81c56",
+      "status": "PASS",
+      "counts": {
+        "executed": 353,
+        "passed": 353,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 353
+      },
+      "source_stable": true,
+      "source_start": "7e9a03dbba73229d793fc80ae6903bd6c8b1b8ab8bf23968fab6db7fa119df13",
+      "receipt": ".artifacts/test-runs/20261002T182131Z-b748c8f81c56/summary.json",
+      "sha256": "3ea369d8c8c68be8191a771b99b83d5bccecf107ebe218b160d727f6a6c2484a"
+    }
+  ],
+  "post_automated_change": "Native output rendering and owning documentation/ledger changed after the353 focused run. After the unfiltered4884 run, only the native fixture mock volume overload changed to delegate to its existing CanVocalise state, fixing the speech-loss fixture. Production and managed tests stayed unchanged; final native production assemblies match the automated copies.",
+  "review": {
+    "base": "36f271b43112a50f347ff9a1f5323ba067e4b0b2",
+    "scope": "Stage2B worktree; read-only bounded fm_reviewer passes",
+    "disposition": "no_further_actionable_P1_P2_defect_established",
+    "cleared_findings": [
+      "Original player Input and native speech authorization separated; nested/pre-capture dispatch cannot claim authority.",
+      "Required XML string attributes refuse without normalizing malformed input.",
+      "Completed practice/manifest origins remain terminal across repeat/restart.",
+      "Native full-target parsers retain their established complete text semantics; unknown adapters explicitly refuse readiness.",
+      "Raw FormulaText preserves multiword character/exit target quotes and is retained in receipts.",
+      "Quote baselines precede Quote and verify checks, journal, balance, effects and words.",
+      "ReciteProxy and DeadSpeak assertions require per-case fresh output delta and the expected proxy."
+    ],
+    "reviewer_execution": "No tests or builds; execution acceptance owned by coordinator.",
+    "limitations": [
+      "Composite managed regression uses mocked target/exit objects.",
+      "Area and full DeadSpeak corpse/temporary-instance lifecycle remain unqualified."
+    ]
+  },
+  "native_acceptance": {
+    "status": "passed_controlled_native_fixture",
+    "scope": "Full CastingOnly: baseline, progression/support, capacity/compound, practice/effect interruption and speech/quiet.",
+    "build": {
+      "status": "PASS",
+      "warnings": 0,
+      "errors": 0,
+      "configuration": "Debug",
+      "switches": [
+        "--no-restore",
+        "-m:1",
+        "local NoWarn=NU1902;NU1510"
+      ]
+    },
+    "mysql": "8.0.45",
+    "marker_count": 98,
+    "speech_marker_count": 23,
+    "passed_markers": [
+      "ARM02-schema=passed blank-snapshot-import empty-casting-tables generated-migration-and-model-parity",
+      "ARM02-receipt=passed operation:f667ca5e-3992-4a68-8d9e-de6858ee9539 character:1 actor:1 body:1 capability:1 spell:1 trait:1 reserve:1 stage:Completed",
+      "ARM02-reader=passed grade:3 balance:77.5 unresolved:0 operation:none process:67044",
+      "ARM02-native-cast=passed non-admin-command real-Skill real-Body payment:22.5 grade:3 separate-process-reload",
+      "ARM02-sorcerer=passed second-non-admin distinct-reserve:77.5 agility:-3 armour:92 gathering-only",
+      "ARM02-reader=passed grade:3 balance:77.5 unresolved:0 operation:none process:11676",
+      "ARM02-second-body=passed focus detach restore single-passive-tick grade-one-cost:5 shared-opportunity native-gathering-canonical-credit-physical-costs",
+      "ARM02-reader=passed grade:3 balance:77.5 unresolved:0 operation:none process:46948",
+      "ARM02-second-body-restart=passed persisted-instance-effects shared-skill shared-deadlines shared-reserve",
+      "ARM02-reader=passed grade:3 balance:72.5 unresolved:0 operation:none process:86180",
+      "ARM02-reader=passed grade:2 balance:100 unresolved:0 operation:none process:3800",
+      "ARM02-fault=passed stage:BeforePayment status:Refused operation:none no-replay-no-refund-no-reroll",
+      "ARM02-quarantine-restart=passed alternate-route shared-trait shared-reserve untouched-route",
+      "ARM02-reader=passed grade:2 balance:77.5 unresolved:1 operation:c7e978bc-91b2-43da-9f60-21da37281e0e process:55172",
+      "ARM02-fault=passed stage:PaymentMutated status:NeedsReview operation:c7e978bc-91b2-43da-9f60-21da37281e0e no-replay-no-refund-no-reroll",
+      "ARM02-quarantine-restart=passed alternate-route shared-trait shared-reserve untouched-route",
+      "ARM02-reader=passed grade:2 balance:77.5 unresolved:1 operation:1071616c-82f5-4721-ac28-30eae42fb96c process:36144",
+      "ARM02-fault=passed stage:EffectsExecuted status:NeedsReview operation:1071616c-82f5-4721-ac28-30eae42fb96c no-replay-no-refund-no-reroll",
+      "ARM02-quarantine-restart=passed alternate-route shared-trait shared-reserve untouched-route",
+      "ARM02-reader=passed grade:2 balance:77.5 unresolved:1 operation:b8434312-8579-4daa-b7b2-cfe84fd0ab45 process:50068",
+      "ARM02-fault=passed stage:MasterySampledBeforeWrite status:NeedsReview operation:b8434312-8579-4daa-b7b2-cfe84fd0ab45 no-replay-no-refund-no-reroll",
+      "ARM02-quarantine-restart=passed alternate-route shared-trait shared-reserve untouched-route",
+      "ARM02-reader=passed grade:2 balance:77.5 unresolved:1 operation:285b1255-5b48-45ab-8400-ecd89f142c55 process:66040",
+      "ARM02-fault=passed stage:MasterySampleRecorded status:NeedsReview operation:285b1255-5b48-45ab-8400-ecd89f142c55 no-replay-no-refund-no-reroll",
+      "ARM02-provider=passed operation:02d086e4-9d30-4e1e-8d42-093dff987c4b At SamplingMastery: An error occurred while saving the entity changes. See the inner exception for details. (ARM02 controlled provider sample failure)",
+      "ARM02-quarantine-restart=passed alternate-route shared-trait shared-reserve untouched-route",
+      "ARM02-reader=passed grade:2 balance:77.5 unresolved:1 operation:02d086e4-9d30-4e1e-8d42-093dff987c4b process:62588",
+      "ARM02-auxiliary=passed Ember-Lance-native-wounds Wardcraft-native-tag-ward per-spell-trait shared-trait-edge native-school-preserved",
+      "ARM02-native=passed",
+      "ARM-COMP-opening-cap=passed native-Skill opening:30/60 cap:60 route-loss-history-preserved",
+      "ARM-COMP-efficiency=passed mastery:1 requested:1 cost:50 non-admin-command",
+      "ARM-COMP-efficiency=passed mastery:2 requested:1 cost:25 non-admin-command",
+      "ARM-COMP-cap-loss-reload=passed removed-admission cap:0 history:60 independent-process",
+      "ARM02-reader=passed grade:7 balance:18 unresolved:0 operation:none process:51096",
+      "ARM-COMP-native=passed cap:60 max-grade:7 efficiency:50/25/7 overreach-cost:75 balance:18 receipts:4 separate-process-reload practice:NOT_RUN",
+      "ARM-SUPPORT-cap-adoption=passed uncapped-original-grant same-policy-and-key cap:90 native-opening:30 separate-terminal-marker",
+      "ARM-SUPPORT-reload=passed native-Skill raw:90 cap:90 Identify-grade:1 balance:17 immutable-uncapped-grant cap-adoption-history removed:False",
+      "ARM02-reader=passed grade:1 balance:17 unresolved:0 operation:none process:44576",
+      "ARM-SUPPORT-reload=passed native-Skill raw:90 cap:0 Identify-grade:1 balance:17 immutable-uncapped-grant cap-adoption-history removed:True",
+      "ARM02-reader=passed grade:1 balance:17 unresolved:0 operation:none process:78616",
+      "ARM-SUPPORT-native=passed authored-enrolment parent-native-use:30-to-80 second-focused-body-support-native-use:30-to-80-to-90 Identify-grade:1 cap:90 no-dummy-spell no-refill terminal-immutable separate-process-reload craft-command:NOT_RUN",
+      "ARM-CAPACITY-matrix=passed rows:16728 spells:82 normal-pairs:28 overreach-pairs:6 profiles:2 scenarios:3 advanced-unaffordable:0 provisional-mapping-and-coefficients energy-envelope-only",
+      "ARM-CAPACITY-reload=passed persisted-explicit-raw-attribute-expression max:118 balance:17 enrolment-no-refill attribute-rise-max:121-balance:17 grade7-insufficient-spent-balance",
+      "ARM02-reader=passed grade:7 balance:17 unresolved:0 operation:none process:85220",
+      "ARM-CAPACITY-compound=passed both-child-orders normal-command-casts:4 prepared-targets:4 combined-target-caster:4 complete-removals:14 neutral-90-preserved final-application-decrease:70 final-removal-decrease:100 no-refill native-resource-delta:17-to-24 mixed-native-deltas:30 neutral-credit:97 final-decrease:70 final-increase-credit:140 negative-delta:83 large-debit:30 command-cost:25",
+      "ARM-CAPACITY-effective-reload=passed service-before-balance-inventory-effects-load persisted-bonuses:3+7 raw:10 max:200 saved-balance:150 preserved-until-complete bonus-removal-max:100-balance:100 production-restoration-scope full-character-login:NOT_RUN",
+      "ARM02-reader=passed grade:7 balance:150 unresolved:0 operation:none process:81088",
+      "ARM-CAPACITY-native=passed production-attribute-evaluator raw-and-effective immediate-clamp no-refill invalid-cap-payment-refusal canonical-focus owner-body-fixture-replacement grade7-normal:25 grade7-overreach:56.25 pairs:34 balance:17 max:118 separate-process-reload full-body-form-and-backup-command:NOT_RUN stock-mapping:PROVISIONAL",
+      "ARM-PRACTICE-grade=passed grade:1 raw:40 cap:60 balance:50 samples:0 duration:30 accelerated-clock",
+      "ARM-PRACTICE-grade=passed grade:2 raw:50 cap:60 balance:25 samples:1 duration:30 accelerated-clock",
+      "ARM-PRACTICE-grade=passed grade:3 raw:60 cap:60 balance:25 samples:2 duration:30 accelerated-clock",
+      "ARM-PRACTICE-grade=passed grade:4 raw:60 cap:60 balance:25 samples:3 duration:30 accelerated-clock",
+      "ARM-PRACTICE-grade=passed grade:5 raw:60 cap:60 balance:25 samples:4 duration:30 accelerated-clock",
+      "ARM-PRACTICE-grade=passed grade:6 raw:60 cap:60 balance:25 samples:5 duration:30 accelerated-clock",
+      "ARM-PRACTICE-grade=passed grade:7 raw:60 cap:60 balance:25 samples:6 duration:30 accelerated-clock",
+      "ARM-PRACTICE-restrictions=passed native-interval:1-blocks/20-improves maximum:6-refuses7 disabled:refuses",
+      "ARM-PRACTICE-interrupt=passed signal:stop balance:93 no-progress no-refund no-replay",
+      "ARM-PRACTICE-interrupt=passed signal:focus balance:93 no-progress no-refund no-replay",
+      "ARM-PRACTICE-interrupt=passed signal:speech balance:93 no-progress no-refund no-replay",
+      "ARM-PRACTICE-interrupt=passed signal:capability balance:93 no-progress no-refund no-replay",
+      "ARM-PRACTICE-interrupt=passed signal:quit balance:93 no-progress no-refund no-replay",
+      "ARM-PRACTICE-native-silence=passed speech-required:True owner:body removal:expiry between-heartbeats checks:0 balance:93 deadlines-preserved",
+      "ARM-PRACTICE-native-silence=passed speech-required:True owner:body removal:remove between-heartbeats checks:0 balance:93 deadlines-preserved",
+      "ARM-PRACTICE-native-silence=passed speech-required:True owner:actor removal:expiry between-heartbeats checks:0 balance:93 deadlines-preserved",
+      "ARM-PRACTICE-native-silence=passed speech-required:True owner:actor removal:remove between-heartbeats checks:0 balance:93 deadlines-preserved",
+      "ARM-PRACTICE-native-silence=passed speech-required:False owner:body removal:expiry between-heartbeats checks:1 balance:93 deadlines-preserved",
+      "ARM-PRACTICE-native-silence=passed speech-required:False owner:body removal:remove between-heartbeats checks:1 balance:93 deadlines-preserved",
+      "ARM-PRACTICE-native-silence=passed speech-required:False owner:actor removal:expiry between-heartbeats checks:1 balance:93 deadlines-preserved",
+      "ARM-PRACTICE-native-silence=passed speech-required:False owner:actor removal:remove between-heartbeats checks:1 balance:93 deadlines-preserved",
+      "ARM-PRACTICE-native-manipulation=passed hand-required:True between-heartbeats checks:0 balance:93 deadlines-preserved",
+      "ARM-PRACTICE-native-manipulation=passed hand-required:False between-heartbeats checks:1 balance:93 deadlines-preserved",
+      "ARM-PRACTICE-native-paralysis=passed owner:body before-health-refresh checks:0 balance:93 deadlines-preserved",
+      "ARM-PRACTICE-native-paralysis=passed owner:actor before-health-refresh checks:0 balance:93 deadlines-preserved",
+      "ARM-PRACTICE-reader=passed process:13188 operation:db736695-1ab8-4800-b62e-54a4baeec808 raw:60 grade:7 balance:93 deadline:2026-10-02T04:59:00.0000000Z no-resume/refund/reroll",
+      "ARM-PRACTICE-native=passed raw:30-to-60 controlled:1-to-7 actual-ClassicImprovement shared-deadlines target/caster/resistance/ward-purity separate-process-recovery stale-action-terminal-preserved stock-installed-world:NOT_RUN material-plan:explicit-empty",
+      "ARM-SPEECH-named=passed kral:grade3 native-language-output one-utterance one-check one-operation balance:85 ward-bonus:-3",
+      "ARM-SPEECH-formula=passed unordered-five-category-command same-grade/payment/effect single-generated-utterance",
+      "ARM-SPEECH-native=passed loopback-TCP queue original-utterance empty-second-dispatch duplicate-origin-refused one-check one-operation",
+      "ARM-SPEECH-alias=passed native-dot-command concise-POWER/spell-token single-original-utterance",
+      "ARM-SPEECH-quiet=passed native-whisper energy:x2 difficulty:+1 balance:70 visible-gesture ward-bonus:-3",
+      "ARM-SPEECH-whisper=passed player-origin quiet parity no-second-utterance",
+      "ARM-SPEECH-configured-volume=passed native-Whisper energy:x1.25 difficulty:+2 actual-check:VeryHard balance:81.25 restored-fixture",
+      "ARM-SPEECH-invalid=passed ordinary-native-utterances unknown-vocabulary target-tail-refused no-payment/check/operation",
+      "ARM-SPEECH-scripted=passed native-character-out-of-context speech remains ordinary no-cast",
+      "ARM-SPEECH-silence=passed owner:actor quiet-refused no-utterance/payment/check",
+      "ARM-SPEECH-silence=passed owner:body quiet-refused no-utterance/payment/check",
+      "ARM-SPEECH-anatomy=passed actual-mouth/tongue/trachea native-part-ineffective both-volumes-refused restoration",
+      "ARM-SPEECH-manipulation=passed native-hand-restrictions ordinary-whisper remains audible no-cast/payment/check restoration",
+      "ARM-SPEECH-mute=passed concrete-MuteMerit both-volumes-refused no-utterance/payment/check",
+      "ARM-SPEECH-volume=passed actual-synthesizer cached-native-function:0.4 normal-refused whisper-eligible",
+      "ARM-SPEECH-listeners=passed two-eligible-observers no-observer-cast unknown-language-no-formula/knowledge own-repeat-separate-payment",
+      "ARM-SPEECH-hearing=passed native-deafness receiver-language-parser no-formula-words no-listener-cast",
+      "ARM-SPEECH-callbacks=passed adapter:named self-output-nested-command native-witness-effect-Body.Say no-recast one-payment/check/operation",
+      "ARM-SPEECH-callbacks=passed adapter:speech self-output-nested-command native-witness-effect-Body.Say no-recast one-payment/check/operation",
+      "ARM-SPEECH-relay=passed native-recitation-effect witness/output callback eligible-proxy no-recast/payment",
+      "ARM-SPEECH-deadspeak-forwarding=passed concrete-DeadSpeak-InitialEffect recite-installation no-proxy-cast/payment corpse-lifecycle-not-qualified",
+      "ARM-SPEECH-reader=passed process:50516 native-XML profile/language costs knowledge immutable-origin:23366c32-e5af-46df-bcbd-8ac6777f8440 no-replay",
+      "ARM-SPEECH-acceptance=passed native-anatomy language communication commands quiet guarded-casting persistence-reader"
+    ],
+    "owned_databases_cleaned": 6,
+    "temporary_mysql_cleanup": "gracefully_shut_down_and_deleted_verified_owned_instance",
+    "owned_processes_remaining": 0,
+    "process_check": {
+      "processes": [],
+      "owned_process_count": 0,
+      "scope": "Owned temporary FutureMUD MySQL family, exact isolated native harness DLL and exact worktree testhost paths; read-only CIM, no command-line values retained.",
+      "checked_utc": "2026-10-02T18:49:57.6796220Z"
+    },
+    "fingerprints": {
+      "base": "36f271b43112a50f347ff9a1f5323ba067e4b0b2",
+      "captured_utc": "2026-10-02T18:33:31.765219+00:00",
+      "files": [
+        {
+          "path": "Design Documents/Magic/Armageddon_Capacity_Affordability_Scenarios.json",
+          "sha256": "1fba4f6781f8af2252ef484ca70686b8f808d9cd6152d0e74d140fb2953ab307"
+        },
+        {
+          "path": "Design Documents/Magic/Armageddon_Sorcerer_Source_Tree.json",
+          "sha256": "ada4e574d1c2243b2bad30cb0d65b98a5413a20ad1d8917965335fb9e481d496"
+        },
+        {
+          "path": "Design Documents/Magic/Configurable_Casting.md",
+          "sha256": "e2f24709aba2f6845c00eb0d47b3ee14cec0bc2f021a713417197acbad28a3ea"
+        },
+        {
+          "path": "Design Documents/Magic/Configurable_Casting_Handover.md",
+          "sha256": "b3ed65260d77671a3aec8440f583e02f5d1f7874b364b9630cc567afe03d8db1"
+        },
+        {
+          "path": "FutureMUDLibrary Unit Tests/MagicResourceCapacityTests.cs",
+          "sha256": "5eba7122865c9e8caa6119d973a59441c2dfb4e995145ae4678f2eaa491f6359"
+        },
+        {
+          "path": "FutureMUDLibrary/Communication/Language/LanguageInfo.cs",
+          "sha256": "7440515764ab98fa30ed85cbc770f9d3224c4a19d33cb0639f30f0628e9406bd"
+        },
+        {
+          "path": "FutureMUDLibrary/Communication/Language/SpeechProvenance.cs",
+          "sha256": "953595d7a146f1a40b7e2d1c5c7b6c58632af1c033bb91931d896ec0a812300c"
+        },
+        {
+          "path": "FutureMUDLibrary/Effects/Interfaces/IBodypartIneffectiveEffect.cs",
+          "sha256": "e787b3259d8d3eb23eafd2e89115236485e2ae2824c9c9b39aadf903ea2f746c"
+        },
+        {
+          "path": "FutureMUDLibrary/Effects/Interfaces/IForceParalysisEffect.cs",
+          "sha256": "7eb229377359d8ed3aa03cf05c452544cdee48bcdf45473b2c8b82ec445597e0"
+        },
+        {
+          "path": "FutureMUDLibrary/Effects/Interfaces/ILimbIneffectiveEffect.cs",
+          "sha256": "a1bc6de7dae143071d5a83a98035c3f9c4b3d918c1dc89854a22ffa4867a4294"
+        },
+        {
+          "path": "FutureMUDLibrary/Magic/ControlledSpellIncantation.cs",
+          "sha256": "e905a8b4def80916729df043a3113fe1ccf84bbc5221f1dca4a674c77a14f36e"
+        },
+        {
+          "path": "FutureMUDLibrary/Magic/IMagicCastingCapability.cs",
+          "sha256": "07a10d67f2e98f36586227ffe8c2d4bd2db57a513e5f27c68660e3f69c8d4ec7"
+        },
+        {
+          "path": "FutureMUDLibrary/Magic/IMagicCastingService.cs",
+          "sha256": "fe92c434602794ae4786e05dae1183d036efb7bc6d27facf3ce3234433d8e4e4"
+        },
+        {
+          "path": "FutureMUDLibrary/Magic/IMagicResourceCapacity.cs",
+          "sha256": "1e4de3d77197bfb14a85b4a6306af9cbe368bf1d017abf902b093c8e42ac175f"
+        },
+        {
+          "path": "MudSharpCore Unit Tests/ArmageddonAffordabilityTests.cs",
+          "sha256": "b6614cf0cca731c9186f370a81fcb3c7753c6707a3e6050dc8c0e3e11a35ee08"
+        },
+        {
+          "path": "MudSharpCore Unit Tests/MagicCastingCapacityTests.cs",
+          "sha256": "0554c6dfea70d4b2e7066c8578c8499540b58f0cfddb1d2d693cae535b4fc1ae"
+        },
+        {
+          "path": "MudSharpCore Unit Tests/MagicCastingFixture.cs",
+          "sha256": "2af2c5138dc323cf014efe70f6f51a3b21ae31cadb72d6581602058eeaa225d7"
+        },
+        {
+          "path": "MudSharpCore Unit Tests/MagicCastingIncantationTests.cs",
+          "sha256": "f63c6b333911148e704af985ab0db64bfe84f8a183f218bcd01fdefe3eeab4b1"
+        },
+        {
+          "path": "MudSharpCore Unit Tests/MagicCastingIntegrationTests.cs",
+          "sha256": "ffae3700075aa9154586995016fbf31d95eaf9241dc42a4e798e96f7d5fed6d8"
+        },
+        {
+          "path": "MudSharpCore Unit Tests/MagicCastingOwnershipTests.cs",
+          "sha256": "002c3a861c2e4381e788003290214bd0c97d5d35f6b070661852aa8697fb9d4b"
+        },
+        {
+          "path": "MudSharpCore Unit Tests/MagicCastingPracticeTests.cs",
+          "sha256": "cf949af38463f73fee1bae0e1c67f0338e861642219825f6bddc6d5ec120236b"
+        },
+        {
+          "path": "MudSharpCore Unit Tests/MagicCastingProgressionTests.cs",
+          "sha256": "819ab49e3f87e62fb69e54895bc0cc998b039bb8554e260ac9324fe73807c38f"
+        },
+        {
+          "path": "MudSharpCore/Body/CommunicationStrategies/HumanoidCommunicationStrategy.cs",
+          "sha256": "a388bf9a71ca9f9fc31d9f96a359e3203540fcb86bfcb9984dda9f04a8b1aafe"
+        },
+        {
+          "path": "MudSharpCore/Body/CommunicationStrategies/MouthOnlyCommunicationStrategy.cs",
+          "sha256": "4f948929cdcec475c90ee3bdf5e63136356e471b702239a10fd8b2922e898f58"
+        },
+        {
+          "path": "MudSharpCore/Body/CommunicationStrategies/RobotCommunicationStrategy.cs",
+          "sha256": "4544c2f1edaa11d0a68601f8eda77909bf9b2cf36176b7c51b7b1925c554994e"
+        },
+        {
+          "path": "MudSharpCore/Body/Implementations/BodyCharacteristics.cs",
+          "sha256": "a74eed054416a31a36fe150515b4d7eacdb6437e772a3974a62afaf6be30e098"
+        },
+        {
+          "path": "MudSharpCore/Body/Implementations/BodyInventory.cs",
+          "sha256": "36caf6c3b06eb49e05bbc9c1f9357a630d50bd70ab13bd7b5c620c79ea2b4c59"
+        },
+        {
+          "path": "MudSharpCore/Body/Implementations/BodyParts.cs",
+          "sha256": "225ab4883ee140459e8d97757eef7650e6d9d67d777fedc7490abd37c72af024"
+        },
+        {
+          "path": "MudSharpCore/Body/Implementations/BodyTraits.cs",
+          "sha256": "76e9328cbfe16877e3c4367e46ad3ee897f92e10cc64e688db2d8ea49583e0b5"
+        },
+        {
+          "path": "MudSharpCore/Body/Traits/Trait.cs",
+          "sha256": "d68d8ce1fba47bacbb4f7a1638eed6a703b13fb4bb1b6b0e3831d4f0f910e3d8"
+        },
+        {
+          "path": "MudSharpCore/Body/Traits/TraitExpression.cs",
+          "sha256": "8169bbac624e5a5b4bec9462b8850bf9e74e1bb3231f7ccf3f5d11339866ef76"
+        },
+        {
+          "path": "MudSharpCore/Character/Character.cs",
+          "sha256": "1924b96804f73f661ebc18819ba2d0bd2151aef00dc81e302f4497d0f8a3c1f0"
+        },
+        {
+          "path": "MudSharpCore/Character/CharacterBodyBackups.cs",
+          "sha256": "a0fa6bcb7024daf8298deeb3db07cf80903bd0bffe07c3bcbe5a4af9e9ec6aa8"
+        },
+        {
+          "path": "MudSharpCore/Character/CharacterCastingResources.cs",
+          "sha256": "776621b9e0e22d45abd352da35b0b2a85582e0b8e6610ede5ac3cfbf821a36e9"
+        },
+        {
+          "path": "MudSharpCore/Character/CharacterForms.cs",
+          "sha256": "ec991fd011b1370b1a582144cf54d6382d50c0a97e63b82269c50e76592d2fa5"
+        },
+        {
+          "path": "MudSharpCore/Character/CharacterInstances.cs",
+          "sha256": "f84385a1607124d2f30d66f48c11b18ede1b708a7f2458795b8a5bc51e75bb83"
+        },
+        {
+          "path": "MudSharpCore/Character/CharacterMagic.cs",
+          "sha256": "251f12dcc51fe7100a36390df8ef7c438f8e4da9368d92a24ae3f9e9f20250ef"
+        },
+        {
+          "path": "MudSharpCore/Character/CharacterTraits.cs",
+          "sha256": "78bfac27a976536ce7a634b8d8e4ffa437fbe0f4547266a16bbad04e1a74ffc0"
+        },
+        {
+          "path": "MudSharpCore/Character/CharacterWork.cs",
+          "sha256": "ac0e4382f4a1557c4d5200435a46397520a7e7c6331579f962d1308def645cfa"
+        },
+        {
+          "path": "MudSharpCore/Character/Heritage/RaceBuilding.cs",
+          "sha256": "fac3aeb841e39177bb95b8ba048a179b373284bfad549b609b811e12cf059485"
+        },
+        {
+          "path": "MudSharpCore/Commands/Modules/CommunicationsModule.cs",
+          "sha256": "66c4de7c87a57c8b0e5161677c62b76f175acf8647d1c48927aa9ecc9febd601"
+        },
+        {
+          "path": "MudSharpCore/Commands/Modules/MagicModule.Casting.cs",
+          "sha256": "7041fc9420fa26aad9d9a0aed32e1837159736b5bf0de1660088eeea8ef9b209"
+        },
+        {
+          "path": "MudSharpCore/Effects/Concrete/BodypartExcessivelyDamaged.cs",
+          "sha256": "84e2b4dc1173b95087d76b4cf0c7f052c65f23a66479e6577e63ad462ec846de"
+        },
+        {
+          "path": "MudSharpCore/Effects/Concrete/LimbDamageEffect.cs",
+          "sha256": "571f2eee0da947e188c941422081f70d2f095653966e24e87dd2518fee801500"
+        },
+        {
+          "path": "MudSharpCore/Effects/Concrete/MagicSpellParent.cs",
+          "sha256": "99469beb8b5a3a481d20f123f0bea1df17c1706717cd9ba8c0ee48e848418187"
+        },
+        {
+          "path": "MudSharpCore/Effects/Concrete/SpellEffects/SpellArmageddonInformationEffects.cs",
+          "sha256": "bdc6a965f4a094b898d522960487a826aca09652d6f25710892970627db39a07"
+        },
+        {
+          "path": "MudSharpCore/Effects/Concrete/SpellEffects/SpellTraitBoostEffect.cs",
+          "sha256": "93fd2ddf0850587fcfb6d63782dbe9e6e94e4c93239add1249467d21120f50f4"
+        },
+        {
+          "path": "MudSharpCore/Effects/Concrete/SpellEffects/StandaloneSpellStatusEffects.cs",
+          "sha256": "18b8396a3f6e8f098c9184c103940e211d6d30215bafb82756440ab0453dcb60"
+        },
+        {
+          "path": "MudSharpCore/Effects/EffectHandler.cs",
+          "sha256": "d4de9a359fe6c8bddb909184ab73b499ccee900ddc2104e82c988f1cee2ad07a"
+        },
+        {
+          "path": "MudSharpCore/Framework/CommandExecutionGuards.cs",
+          "sha256": "e3f171022e8eed92366ec45e79e372fc3777045e2b11cc1441b52f4085b2bafa"
+        },
+        {
+          "path": "MudSharpCore/Framework/MagicSpeechContext.cs",
+          "sha256": "02a17772da3e67111d84e7d482216bccee23522deea4a5e9b34f7aed6febecd9"
+        },
+        {
+          "path": "MudSharpCore/Framework/PerceivedItem.cs",
+          "sha256": "a68c23bdba91740e3c4c8b3abeed20be1fcfc7644a584102dcb59d6ebafe7985"
+        },
+        {
+          "path": "MudSharpCore/GameItems/Components/ImplantBaseGameItemComponent.cs",
+          "sha256": "71374e6636b822f1340fb735eb30a54153ba4418b232472ec64840a647fce31e"
+        },
+        {
+          "path": "MudSharpCore/GameItems/Components/ImplantTraitChangerGameItemComponent.cs",
+          "sha256": "6b1f1f150446734951061bb601a4816fd6ee7f8717e7e21f7ec73d39820637fd"
+        },
+        {
+          "path": "MudSharpCore/GameItems/Components/WornTraitChangerGameItemComponent.cs",
+          "sha256": "a124984244c1fb4dbbd5c21608a9a0496554e1c71206f1aa6db62410670d002f"
+        },
+        {
+          "path": "MudSharpCore/GameItems/GameItemHealth.cs",
+          "sha256": "08276ef07aa2b78102f203aa28690aae58f61afec1796319cef9d0ef51b58791"
+        },
+        {
+          "path": "MudSharpCore/Health/Wounds/HealingSimpleWound.cs",
+          "sha256": "f6948b3aa0df696fc1d60a5a6a0635d21bf5a2fc5e4ab4866834da7829a4cf9e"
+        },
+        {
+          "path": "MudSharpCore/Health/Wounds/RobotWound.cs",
+          "sha256": "dc4c03a2113c535ed6b224bb9a57a8958361a004223a78d18c3044c1a3eb85f0"
+        },
+        {
+          "path": "MudSharpCore/Health/Wounds/SimpleOrganicWound.cs",
+          "sha256": "a0c1c2f2b76537b9cda8f95772aae39a9e7dbbcfe9c9b364360ad1dd12b4de42"
+        },
+        {
+          "path": "MudSharpCore/Health/Wounds/SimpleWound.cs",
+          "sha256": "185acf80f8d84d529edc40956a9a8bf1a8ffb00644ff6e33dd3d630418f914fe"
+        },
+        {
+          "path": "MudSharpCore/Magic/Casting/MagicCastingService.Execution.cs",
+          "sha256": "89777529c526893b541aff2141289aaa89eb7194fa4abf5916035554437e391c"
+        },
+        {
+          "path": "MudSharpCore/Magic/Casting/MagicCastingService.Incantation.cs",
+          "sha256": "08da260abc030dd6a97f08c70d9f7ecef8ea62732e801e283a32efec1fa03005"
+        },
+        {
+          "path": "MudSharpCore/Magic/Casting/MagicCastingService.Practice.cs",
+          "sha256": "5349f034eb6c404cac2d732d6e50c94b1be1b98744f90db6775dff33cbfe2bc4"
+        },
+        {
+          "path": "MudSharpCore/Magic/Casting/MagicCastingService.Resources.cs",
+          "sha256": "230c71718cb7a3bffd65e0327f52fa9104ef346b8e89cd2450adc0cd528ee70e"
+        },
+        {
+          "path": "MudSharpCore/Magic/Casting/MagicCastingService.cs",
+          "sha256": "f8432f90104a1a5ec1539dce1fde0c15ce7f83120f142c4dbef2aa1fdf9a854b"
+        },
+        {
+          "path": "MudSharpCore/Magic/Casting/MagicCastingStateStore.cs",
+          "sha256": "3aec45f4a1ef4908d4a47f6ba13c76dd206c3bc5ffa1907fff44714489e8ee58"
+        },
+        {
+          "path": "MudSharpCore/Magic/Casting/MagicPracticeAction.cs",
+          "sha256": "881b23aa0d37da31cb8ca7bc1b2549c46e0c9556a68d7a8330140bc912e06204"
+        },
+        {
+          "path": "MudSharpCore/Magic/MagicSpell.Capacity.cs",
+          "sha256": "9b050d4912a58c0d7c888707ee4a991288406b163b743ee7b1ff7e16f014febd"
+        },
+        {
+          "path": "MudSharpCore/Magic/MagicSpell.Grades.Builder.cs",
+          "sha256": "88fb82892ad6e920a3b39b7fff5ebf29e6e63f1451382b2883c0951459668f8b"
+        },
+        {
+          "path": "MudSharpCore/Magic/MagicSpell.Grades.cs",
+          "sha256": "f9f8611cb39be34a214c9d87fad6fcbceaea60d1f5f976111cd34533ea439dfa"
+        },
+        {
+          "path": "MudSharpCore/Magic/MagicSpell.Incantation.cs",
+          "sha256": "acec76bbfdb1054b377a1af7c1f1049450f59e0573a5e6107fdbc8b13c4ac11c"
+        },
+        {
+          "path": "MudSharpCore/Magic/MagicSpell.Practice.cs",
+          "sha256": "77f5a7b1c72bb9dcd5ff8b91d9dbcc54dbd9280ee8ef63afce8c66be187fea4c"
+        },
+        {
+          "path": "MudSharpCore/Magic/MagicSpell.cs",
+          "sha256": "d4121cc87f24d264e7859090b12f08f44c1e5e7e99080f4118a0ef15685f9f52"
+        },
+        {
+          "path": "MudSharpCore/Magic/Resources/SimpleMagicResource.Capacity.cs",
+          "sha256": "4565cde0c2e262fe507997fc0f9cfb87fd09c531a184d267a1f5c8dd13c906e1"
+        },
+        {
+          "path": "MudSharpCore/Magic/Resources/SimpleMagicResource.cs",
+          "sha256": "c22b1d0318f84a09f316872695140033adfe81e890d122ad4b915738dc436284"
+        },
+        {
+          "path": "MudSharpCore/Magic/SpellEffects/MagicResourceDeltaEffect.cs",
+          "sha256": "f84fc02af75920c88c8c3afb61f9183b7698b7579617ea9e62f82404923133c7"
+        },
+        {
+          "path": "MudSharpCore/Magic/SpellEffects/TraitBoostEffect.cs",
+          "sha256": "3f3a7df4bf330e164909b956fbc6ebc16bc320f331f3080a44a8f33ebe4a1fae"
+        },
+        {
+          "path": "MudSharpCore/Magic/Vancian/SpellTargetResolution.cs",
+          "sha256": "7012f9cc279b8b53358868e74800ca189b70ceb3056250f8694a52164a56943e"
+        },
+        {
+          "path": "MudSharpCore/Network/PlayerConnection.cs",
+          "sha256": "49150d3bb5a65df24c9da9a704543a10ef85d0d10af2cf7c7c1b98abf56d69f8"
+        },
+        {
+          "path": "MudSharpCore/PerceptionEngine/Outputs/LanguageOutput.cs",
+          "sha256": "f54be3c13a8a6a3a6f8b39eec0f291e8d5139f700056b034306a53a76bf122dc"
+        },
+        {
+          "path": "Temporary Scratch App/GatheringNativePersistenceHarness/GatheringNativePersistenceHarness.csproj",
+          "sha256": "7661c30a28f8b51fb82b2cc331808538f132948cd63654a2afa54e1dd02b8ffa"
+        },
+        {
+          "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.Casting.cs",
+          "sha256": "4b5e23abfa641f17c3a91d6965a29c6f5b2aaf05ba9421327ef4e7cfdd3ca399"
+        },
+        {
+          "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.CastingCapacity.Compound.cs",
+          "sha256": "4188edfa5841aa822da5c66ac4812a7766cf4a5ca62b973244058cb0c0f626d0"
+        },
+        {
+          "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.CastingCapacity.cs",
+          "sha256": "7f95fb1968c08354d60036760979cf307e0c4339aa12952dac074c45e4e8b495"
+        },
+        {
+          "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.CastingFixtures.cs",
+          "sha256": "ab11b05832f5a146c100dbc2d4d2f7ce668d3f4eb5cdcd929fe45f8c538c9e69"
+        },
+        {
+          "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.CastingLifecycle.cs",
+          "sha256": "b6455cfc72a303ca7635e67576e8ac2e84c264f07fdb375a854c76610a1903ee"
+        },
+        {
+          "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.CastingPractice.cs",
+          "sha256": "fa2afe8c4a1bc8a02bcc0acb8c531914286157307ab6a071b07fd77e1bfab161"
+        },
+        {
+          "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.CastingProgression.cs",
+          "sha256": "7443fd9509206d2d69674c9a33c72d1b5221cf8255f9dd644795be3af2ca4893"
+        },
+        {
+          "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.CastingSpeech.cs",
+          "sha256": "c974177e6296b558ad270b6474ece44d5c4ef7f3ed88ff04c5502ae158b5da4e"
+        },
+        {
+          "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.CastingSupport.cs",
+          "sha256": "de7ce1ab6a1ac548e5b5bb88b7a72eac5648f3673af6a0bf354ce1dad86c2bc0"
+        },
+        {
+          "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.cs",
+          "sha256": "5678eea172e432aebb8ed24e063c4de44c295358454f0b3e5912a8fdaf1a5426"
+        },
+        {
+          "path": "Temporary Scratch App/GatheringNativePersistenceHarness/README.md",
+          "sha256": "fc6373254d6abd4ca55e8ebaefbdf2e0925c8d39d97f2f35294bbdf90a62f00c"
+        },
+        {
+          "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Run-IsolatedAcceptance.ps1",
+          "sha256": "38710c4aca8db5e48eae47ef8057666bcc7326d18ce859169b322816a4aa4231"
+        }
+      ],
+      "post_attempt1_change": "Only native communication mock volume overload now delegates to its existing CanVocalise state, preserving actual speech-loss test semantics. Production and managed test sources remain unchanged.",
+      "recaptured_utc": "2026-10-02T18:44:38.293213+00:00"
+    },
+    "binary_and_frozen_input_verification": {
+      "fingerprint_files": 93,
+      "mismatches": [],
+      "binaries": {
+        "native_harness": {
+          "path": "Temporary Scratch App/GatheringNativePersistenceHarness/bin/Debug/net10.0/GatheringNativePersistenceHarness.dll",
+          "sha256": "cc25efb6d4f44286697753f9a3d36d7edddfbe7ca4d7b05cd7f52be33e35050c"
+        },
+        "native_core": {
+          "path": "Temporary Scratch App/GatheringNativePersistenceHarness/bin/Debug/net10.0/MudSharp.dll",
+          "sha256": "e512d3cc899e62b6110e1f542a0e52e9843ce2e849a1a02081b417a42da88b5c"
+        },
+        "native_library": {
+          "path": "Temporary Scratch App/GatheringNativePersistenceHarness/bin/Debug/net10.0/FutureMUDLibrary.dll",
+          "sha256": "a67fd5729cf0811e7e426ec2125b27a56abbd8b83c90f056c7a38594d63dffc9"
+        },
+        "unit_core": {
+          "path": "MudSharpCore Unit Tests/bin/Debug/net10.0/MudSharp.dll",
+          "sha256": "e512d3cc899e62b6110e1f542a0e52e9843ce2e849a1a02081b417a42da88b5c"
+        },
+        "unit_library": {
+          "path": "MudSharpCore Unit Tests/bin/Debug/net10.0/FutureMUDLibrary.dll",
+          "sha256": "a67fd5729cf0811e7e426ec2125b27a56abbd8b83c90f056c7a38594d63dffc9"
+        },
+        "library_suite": {
+          "path": "FutureMUDLibrary Unit Tests/bin/Debug/net10.0/FutureMUDLibrary.dll",
+          "sha256": "a67fd5729cf0811e7e426ec2125b27a56abbd8b83c90f056c7a38594d63dffc9"
+        }
+      },
+      "native_unit_core_match": true,
+      "native_unit_library_match": true
+    },
+    "speech_scope": "Named and unordered formula commands; loopback TCP original say/dot/whisper plus empty second dispatch; duplicate origins; quiet/custom modifiers with actual difficulty and balances; actor/body silence, real tongue/hand damage and mute, synthesizer function0.4 volume split; two eligible listeners, unknown language, native deafness, listener own repetition; self-output nested native commands, fixture effect callback via native event dispatch, real ReciteProxy, concrete DeadSpeak forwarding and independent reader."
+  },
+  "intermediate_speech_native_attempts": [
+    {
+      "attempt": 1,
+      "status": "FAIL",
+      "exit_code": 1,
+      "log": ".artifacts/test-runs/native-armageddon-20261002-stage2B/stage2b-speech-attempt1.log",
+      "sha256": "667246c4ed662a46cb7cc664a39a88f1dba21dc9927c2cff700b24e03452c2db",
+      "passed_markers": [],
+      "diagnostic": "Harness failed: System.ApplicationException: Got to the end of MagicSpell.WhyNotReadyForGame without finding an error.",
+      "owned_databases_cleaned": 1,
+      "temporary_mysql_cleaned": true
+    },
+    {
+      "attempt": 2,
+      "status": "FAIL",
+      "exit_code": 1,
+      "log": ".artifacts/test-runs/native-armageddon-20261002-stage2B/stage2b-speech-attempt2.log",
+      "sha256": "099537dcab59e596861150c89a111cbe698ea0268003f130d0626d46389362aa",
+      "passed_markers": [],
+      "diagnostic": "Harness failed: System.InvalidOperationException: Speech route refused.",
+      "owned_databases_cleaned": 1,
+      "temporary_mysql_cleaned": true
+    },
+    {
+      "attempt": 3,
+      "status": "FAIL",
+      "exit_code": 1,
+      "log": ".artifacts/test-runs/native-armageddon-20261002-stage2B/stage2b-speech-attempt3.log",
+      "sha256": "99766a4c63f03fbca4fda98b6b28beac27419f1984f8fa53cf9bbe3c85e35ed4",
+      "passed_markers": [],
+      "diagnostic": "Harness failed: System.InvalidOperationException: Named native casting lost one-utterance/check/operation/effect parity.",
+      "owned_databases_cleaned": 1,
+      "temporary_mysql_cleaned": true
+    },
+    {
+      "attempt": 4,
+      "status": "FAIL",
+      "exit_code": 1,
+      "log": ".artifacts/test-runs/native-armageddon-20261002-stage2B/stage2b-speech-attempt4.log",
+      "sha256": "6893da6edd0b277bacf7b2d0e211d4fe2d719c0924def46dbad51ad8ddf172bb",
+      "passed_markers": [],
+      "diagnostic": "Harness failed: System.InvalidOperationException: Named native casting parity: checks=0, operations=0, balance=100, utterances=1, messages=, in ARM Native Incantation , ",
+      "owned_databases_cleaned": 1,
+      "temporary_mysql_cleaned": true
+    },
+    {
+      "attempt": 5,
+      "status": "FAIL",
+      "exit_code": 1,
+      "log": ".artifacts/test-runs/native-armageddon-20261002-stage2B/stage2b-speech-attempt5.log",
+      "sha256": "6893da6edd0b277bacf7b2d0e211d4fe2d719c0924def46dbad51ad8ddf172bb",
+      "passed_markers": [],
+      "diagnostic": "Harness failed: System.InvalidOperationException: Named native casting parity: checks=0, operations=0, balance=100, utterances=1, messages=, in ARM Native Incantation , ",
+      "owned_databases_cleaned": 1,
+      "temporary_mysql_cleaned": true
+    },
+    {
+      "attempt": 6,
+      "status": "FAIL",
+      "exit_code": 1,
+      "log": ".artifacts/test-runs/native-armageddon-20261002-stage2B/stage2b-speech-attempt6.log",
+      "sha256": "bda7c250e38f6927bb506ba2d2c7a084862178a97ceeaffdfe8b76b72db625f1",
+      "passed_markers": [
+        "ARM-SPEECH-named=passed kral:grade3 native-language-output one-utterance one-check one-operation balance:85 ward-bonus:-3",
+        "ARM-SPEECH-formula=passed unordered-five-category-command same-grade/payment/effect single-generated-utterance"
+      ],
+      "diagnostic": "Harness failed: System.InvalidOperationException: Genuine network/native speech did not use its original utterance once.",
+      "owned_databases_cleaned": 1,
+      "temporary_mysql_cleaned": true
+    },
+    {
+      "attempt": 7,
+      "status": "FAIL",
+      "exit_code": 1,
+      "log": ".artifacts/test-runs/native-armageddon-20261002-stage2B/stage2b-speech-attempt7.log",
+      "sha256": "b2b74503a360d9dc8f23365a26fae6ca75eceb15a41628d6eca1a3adccf7436b",
+      "passed_markers": [
+        "ARM-SPEECH-named=passed kral:grade3 native-language-output one-utterance one-check one-operation balance:85 ward-bonus:-3",
+        "ARM-SPEECH-formula=passed unordered-five-category-command same-grade/payment/effect single-generated-utterance"
+      ],
+      "diagnostic": "Harness failed: System.InvalidOperationException: Network/native speech parity: checks=0, operations=0, balance=100, utterances=1, messages=, in ARM Native Incantation , ",
+      "owned_databases_cleaned": 1,
+      "temporary_mysql_cleaned": true
+    },
+    {
+      "attempt": 8,
+      "status": "FAIL",
+      "exit_code": 1,
+      "log": ".artifacts/test-runs/native-armageddon-20261002-stage2B/stage2b-speech-attempt8.log",
+      "sha256": "42bdb87ed05a631e9ad39c67b3ecd777e59fa03feeb22c5aaaea32f2d3aabd5d",
+      "passed_markers": [
+        "ARM-SPEECH-named=passed kral:grade3 native-language-output one-utterance one-check one-operation balance:85 ward-bonus:-3",
+        "ARM-SPEECH-formula=passed unordered-five-category-command same-grade/payment/effect single-generated-utterance",
+        "ARM-SPEECH-native=passed loopback-TCP queue original-utterance empty-second-dispatch duplicate-origin-refused one-check one-operation",
+        "ARM-SPEECH-alias=passed native-dot-command concise-POWER/spell-token single-original-utterance"
+      ],
+      "diagnostic": "Harness failed: System.NullReferenceException: Object reference not set to an instance of an object.",
+      "owned_databases_cleaned": 1,
+      "temporary_mysql_cleaned": true
+    },
+    {
+      "attempt": 9,
+      "status": "PASS",
+      "exit_code": 0,
+      "log": ".artifacts/test-runs/native-armageddon-20261002-stage2B/stage2b-speech-attempt9.log",
+      "sha256": "7c5921f5128f200b3f2da0364208ee8d36b774ab7dd2058bb2f2fd04fb9edf31",
+      "passed_markers": [
+        "ARM-SPEECH-named=passed kral:grade3 native-language-output one-utterance one-check one-operation balance:85 ward-bonus:-3",
+        "ARM-SPEECH-formula=passed unordered-five-category-command same-grade/payment/effect single-generated-utterance",
+        "ARM-SPEECH-native=passed loopback-TCP queue original-utterance empty-second-dispatch duplicate-origin-refused one-check one-operation",
+        "ARM-SPEECH-alias=passed native-dot-command concise-POWER/spell-token single-original-utterance",
+        "ARM-SPEECH-quiet=passed native-whisper energy:x2 difficulty:+1 balance:70 visible-gesture ward-bonus:-3",
+        "ARM-SPEECH-whisper=passed player-origin quiet parity no-second-utterance",
+        "ARM-SPEECH-configured-volume=passed native-Whisper energy:x1.25 difficulty:+2 actual-check:VeryHard balance:81.25 restored-fixture",
+        "ARM-SPEECH-invalid=passed ordinary-native-utterances unknown-vocabulary target-tail-refused no-payment/check/operation",
+        "ARM-SPEECH-scripted=passed native-character-out-of-context speech remains ordinary no-cast",
+        "ARM-SPEECH-silence=passed owner:actor quiet-refused no-utterance/payment/check",
+        "ARM-SPEECH-silence=passed owner:body quiet-refused no-utterance/payment/check",
+        "ARM-SPEECH-anatomy=passed actual-mouth/tongue/trachea native-part-ineffective both-volumes-refused restoration",
+        "ARM-SPEECH-manipulation=passed native-hand-restrictions ordinary-whisper remains audible no-cast/payment/check restoration",
+        "ARM-SPEECH-mute=passed concrete-MuteMerit both-volumes-refused no-utterance/payment/check",
+        "ARM-SPEECH-volume=passed actual-synthesizer cached-native-function:0.4 normal-refused whisper-eligible",
+        "ARM-SPEECH-listeners=passed two-eligible-observers no-observer-cast unknown-language-no-formula/knowledge own-repeat-separate-payment",
+        "ARM-SPEECH-hearing=passed native-deafness receiver-language-parser no-formula-words no-listener-cast",
+        "ARM-SPEECH-callbacks=passed adapter:named self-output-nested-command native-witness-effect-Body.Say no-recast one-payment/check/operation",
+        "ARM-SPEECH-callbacks=passed adapter:speech self-output-nested-command native-witness-effect-Body.Say no-recast one-payment/check/operation",
+        "ARM-SPEECH-relay=passed native-recitation-effect witness/output callback eligible-proxy no-recast/payment",
+        "ARM-SPEECH-deadspeak-forwarding=passed concrete-DeadSpeak-InitialEffect recite-installation no-proxy-cast/payment corpse-lifecycle-not-qualified",
+        "ARM-SPEECH-reader=passed process:59996 native-XML profile/language costs knowledge immutable-origin:2f7efa24-796d-4b2e-89a1-6dae2d180584 no-replay",
+        "ARM-SPEECH-acceptance=passed native-anatomy language communication commands quiet guarded-casting persistence-reader"
+      ],
+      "diagnostic": null,
+      "owned_databases_cleaned": 1,
+      "temporary_mysql_cleaned": true
+    }
+  ],
+  "initial_full_native_attempt": {
+    "status": "FAIL_fixture_speech_state",
+    "reason": "The newly added native mock CanVocalise(body,volume) returned constant true while the existing practice speech-loss case set CanVocalise(body) false. The mock now delegates to the same live speech state; production and managed tests did not change.",
+    "exit": {
+      "native": 1
+    },
+    "log": ".artifacts/test-runs/native-armageddon-20261002-stage2B/native-full-attempt1.log",
+    "log_sha256": "3971ae0ee989a1348ee95cfed0b286be0d84e645ea955fab458160f28882d9ba",
+    "frozen_inputs": {
+      "base": "36f271b43112a50f347ff9a1f5323ba067e4b0b2",
+      "captured_utc": "2026-10-02T18:33:31.765219+00:00",
+      "files": [
+        {
+          "path": "Design Documents/Magic/Armageddon_Capacity_Affordability_Scenarios.json",
+          "sha256": "1fba4f6781f8af2252ef484ca70686b8f808d9cd6152d0e74d140fb2953ab307"
+        },
+        {
+          "path": "Design Documents/Magic/Armageddon_Sorcerer_Source_Tree.json",
+          "sha256": "ada4e574d1c2243b2bad30cb0d65b98a5413a20ad1d8917965335fb9e481d496"
+        },
+        {
+          "path": "Design Documents/Magic/Configurable_Casting.md",
+          "sha256": "e2f24709aba2f6845c00eb0d47b3ee14cec0bc2f021a713417197acbad28a3ea"
+        },
+        {
+          "path": "Design Documents/Magic/Configurable_Casting_Handover.md",
+          "sha256": "b3ed65260d77671a3aec8440f583e02f5d1f7874b364b9630cc567afe03d8db1"
+        },
+        {
+          "path": "FutureMUDLibrary Unit Tests/MagicResourceCapacityTests.cs",
+          "sha256": "5eba7122865c9e8caa6119d973a59441c2dfb4e995145ae4678f2eaa491f6359"
+        },
+        {
+          "path": "FutureMUDLibrary/Communication/Language/LanguageInfo.cs",
+          "sha256": "7440515764ab98fa30ed85cbc770f9d3224c4a19d33cb0639f30f0628e9406bd"
+        },
+        {
+          "path": "FutureMUDLibrary/Communication/Language/SpeechProvenance.cs",
+          "sha256": "953595d7a146f1a40b7e2d1c5c7b6c58632af1c033bb91931d896ec0a812300c"
+        },
+        {
+          "path": "FutureMUDLibrary/Effects/Interfaces/IBodypartIneffectiveEffect.cs",
+          "sha256": "e787b3259d8d3eb23eafd2e89115236485e2ae2824c9c9b39aadf903ea2f746c"
+        },
+        {
+          "path": "FutureMUDLibrary/Effects/Interfaces/IForceParalysisEffect.cs",
+          "sha256": "7eb229377359d8ed3aa03cf05c452544cdee48bcdf45473b2c8b82ec445597e0"
+        },
+        {
+          "path": "FutureMUDLibrary/Effects/Interfaces/ILimbIneffectiveEffect.cs",
+          "sha256": "a1bc6de7dae143071d5a83a98035c3f9c4b3d918c1dc89854a22ffa4867a4294"
+        },
+        {
+          "path": "FutureMUDLibrary/Magic/ControlledSpellIncantation.cs",
+          "sha256": "e905a8b4def80916729df043a3113fe1ccf84bbc5221f1dca4a674c77a14f36e"
+        },
+        {
+          "path": "FutureMUDLibrary/Magic/IMagicCastingCapability.cs",
+          "sha256": "07a10d67f2e98f36586227ffe8c2d4bd2db57a513e5f27c68660e3f69c8d4ec7"
+        },
+        {
+          "path": "FutureMUDLibrary/Magic/IMagicCastingService.cs",
+          "sha256": "fe92c434602794ae4786e05dae1183d036efb7bc6d27facf3ce3234433d8e4e4"
+        },
+        {
+          "path": "FutureMUDLibrary/Magic/IMagicResourceCapacity.cs",
+          "sha256": "1e4de3d77197bfb14a85b4a6306af9cbe368bf1d017abf902b093c8e42ac175f"
+        },
+        {
+          "path": "MudSharpCore Unit Tests/ArmageddonAffordabilityTests.cs",
+          "sha256": "b6614cf0cca731c9186f370a81fcb3c7753c6707a3e6050dc8c0e3e11a35ee08"
+        },
+        {
+          "path": "MudSharpCore Unit Tests/MagicCastingCapacityTests.cs",
+          "sha256": "0554c6dfea70d4b2e7066c8578c8499540b58f0cfddb1d2d693cae535b4fc1ae"
+        },
+        {
+          "path": "MudSharpCore Unit Tests/MagicCastingFixture.cs",
+          "sha256": "2af2c5138dc323cf014efe70f6f51a3b21ae31cadb72d6581602058eeaa225d7"
+        },
+        {
+          "path": "MudSharpCore Unit Tests/MagicCastingIncantationTests.cs",
+          "sha256": "f63c6b333911148e704af985ab0db64bfe84f8a183f218bcd01fdefe3eeab4b1"
+        },
+        {
+          "path": "MudSharpCore Unit Tests/MagicCastingIntegrationTests.cs",
+          "sha256": "ffae3700075aa9154586995016fbf31d95eaf9241dc42a4e798e96f7d5fed6d8"
+        },
+        {
+          "path": "MudSharpCore Unit Tests/MagicCastingOwnershipTests.cs",
+          "sha256": "002c3a861c2e4381e788003290214bd0c97d5d35f6b070661852aa8697fb9d4b"
+        },
+        {
+          "path": "MudSharpCore Unit Tests/MagicCastingPracticeTests.cs",
+          "sha256": "cf949af38463f73fee1bae0e1c67f0338e861642219825f6bddc6d5ec120236b"
+        },
+        {
+          "path": "MudSharpCore Unit Tests/MagicCastingProgressionTests.cs",
+          "sha256": "819ab49e3f87e62fb69e54895bc0cc998b039bb8554e260ac9324fe73807c38f"
+        },
+        {
+          "path": "MudSharpCore/Body/CommunicationStrategies/HumanoidCommunicationStrategy.cs",
+          "sha256": "a388bf9a71ca9f9fc31d9f96a359e3203540fcb86bfcb9984dda9f04a8b1aafe"
+        },
+        {
+          "path": "MudSharpCore/Body/CommunicationStrategies/MouthOnlyCommunicationStrategy.cs",
+          "sha256": "4f948929cdcec475c90ee3bdf5e63136356e471b702239a10fd8b2922e898f58"
+        },
+        {
+          "path": "MudSharpCore/Body/CommunicationStrategies/RobotCommunicationStrategy.cs",
+          "sha256": "4544c2f1edaa11d0a68601f8eda77909bf9b2cf36176b7c51b7b1925c554994e"
+        },
+        {
+          "path": "MudSharpCore/Body/Implementations/BodyCharacteristics.cs",
+          "sha256": "a74eed054416a31a36fe150515b4d7eacdb6437e772a3974a62afaf6be30e098"
+        },
+        {
+          "path": "MudSharpCore/Body/Implementations/BodyInventory.cs",
+          "sha256": "36caf6c3b06eb49e05bbc9c1f9357a630d50bd70ab13bd7b5c620c79ea2b4c59"
+        },
+        {
+          "path": "MudSharpCore/Body/Implementations/BodyParts.cs",
+          "sha256": "225ab4883ee140459e8d97757eef7650e6d9d67d777fedc7490abd37c72af024"
+        },
+        {
+          "path": "MudSharpCore/Body/Implementations/BodyTraits.cs",
+          "sha256": "76e9328cbfe16877e3c4367e46ad3ee897f92e10cc64e688db2d8ea49583e0b5"
+        },
+        {
+          "path": "MudSharpCore/Body/Traits/Trait.cs",
+          "sha256": "d68d8ce1fba47bacbb4f7a1638eed6a703b13fb4bb1b6b0e3831d4f0f910e3d8"
+        },
+        {
+          "path": "MudSharpCore/Body/Traits/TraitExpression.cs",
+          "sha256": "8169bbac624e5a5b4bec9462b8850bf9e74e1bb3231f7ccf3f5d11339866ef76"
+        },
+        {
+          "path": "MudSharpCore/Character/Character.cs",
+          "sha256": "1924b96804f73f661ebc18819ba2d0bd2151aef00dc81e302f4497d0f8a3c1f0"
+        },
+        {
+          "path": "MudSharpCore/Character/CharacterBodyBackups.cs",
+          "sha256": "a0fa6bcb7024daf8298deeb3db07cf80903bd0bffe07c3bcbe5a4af9e9ec6aa8"
+        },
+        {
+          "path": "MudSharpCore/Character/CharacterCastingResources.cs",
+          "sha256": "776621b9e0e22d45abd352da35b0b2a85582e0b8e6610ede5ac3cfbf821a36e9"
+        },
+        {
+          "path": "MudSharpCore/Character/CharacterForms.cs",
+          "sha256": "ec991fd011b1370b1a582144cf54d6382d50c0a97e63b82269c50e76592d2fa5"
+        },
+        {
+          "path": "MudSharpCore/Character/CharacterInstances.cs",
+          "sha256": "f84385a1607124d2f30d66f48c11b18ede1b708a7f2458795b8a5bc51e75bb83"
+        },
+        {
+          "path": "MudSharpCore/Character/CharacterMagic.cs",
+          "sha256": "251f12dcc51fe7100a36390df8ef7c438f8e4da9368d92a24ae3f9e9f20250ef"
+        },
+        {
+          "path": "MudSharpCore/Character/CharacterTraits.cs",
+          "sha256": "78bfac27a976536ce7a634b8d8e4ffa437fbe0f4547266a16bbad04e1a74ffc0"
+        },
+        {
+          "path": "MudSharpCore/Character/CharacterWork.cs",
+          "sha256": "ac0e4382f4a1557c4d5200435a46397520a7e7c6331579f962d1308def645cfa"
+        },
+        {
+          "path": "MudSharpCore/Character/Heritage/RaceBuilding.cs",
+          "sha256": "fac3aeb841e39177bb95b8ba048a179b373284bfad549b609b811e12cf059485"
+        },
+        {
+          "path": "MudSharpCore/Commands/Modules/CommunicationsModule.cs",
+          "sha256": "66c4de7c87a57c8b0e5161677c62b76f175acf8647d1c48927aa9ecc9febd601"
+        },
+        {
+          "path": "MudSharpCore/Commands/Modules/MagicModule.Casting.cs",
+          "sha256": "7041fc9420fa26aad9d9a0aed32e1837159736b5bf0de1660088eeea8ef9b209"
+        },
+        {
+          "path": "MudSharpCore/Effects/Concrete/BodypartExcessivelyDamaged.cs",
+          "sha256": "84e2b4dc1173b95087d76b4cf0c7f052c65f23a66479e6577e63ad462ec846de"
+        },
+        {
+          "path": "MudSharpCore/Effects/Concrete/LimbDamageEffect.cs",
+          "sha256": "571f2eee0da947e188c941422081f70d2f095653966e24e87dd2518fee801500"
+        },
+        {
+          "path": "MudSharpCore/Effects/Concrete/MagicSpellParent.cs",
+          "sha256": "99469beb8b5a3a481d20f123f0bea1df17c1706717cd9ba8c0ee48e848418187"
+        },
+        {
+          "path": "MudSharpCore/Effects/Concrete/SpellEffects/SpellArmageddonInformationEffects.cs",
+          "sha256": "bdc6a965f4a094b898d522960487a826aca09652d6f25710892970627db39a07"
+        },
+        {
+          "path": "MudSharpCore/Effects/Concrete/SpellEffects/SpellTraitBoostEffect.cs",
+          "sha256": "93fd2ddf0850587fcfb6d63782dbe9e6e94e4c93239add1249467d21120f50f4"
+        },
+        {
+          "path": "MudSharpCore/Effects/Concrete/SpellEffects/StandaloneSpellStatusEffects.cs",
+          "sha256": "18b8396a3f6e8f098c9184c103940e211d6d30215bafb82756440ab0453dcb60"
+        },
+        {
+          "path": "MudSharpCore/Effects/EffectHandler.cs",
+          "sha256": "d4de9a359fe6c8bddb909184ab73b499ccee900ddc2104e82c988f1cee2ad07a"
+        },
+        {
+          "path": "MudSharpCore/Framework/CommandExecutionGuards.cs",
+          "sha256": "e3f171022e8eed92366ec45e79e372fc3777045e2b11cc1441b52f4085b2bafa"
+        },
+        {
+          "path": "MudSharpCore/Framework/MagicSpeechContext.cs",
+          "sha256": "02a17772da3e67111d84e7d482216bccee23522deea4a5e9b34f7aed6febecd9"
+        },
+        {
+          "path": "MudSharpCore/Framework/PerceivedItem.cs",
+          "sha256": "a68c23bdba91740e3c4c8b3abeed20be1fcfc7644a584102dcb59d6ebafe7985"
+        },
+        {
+          "path": "MudSharpCore/GameItems/Components/ImplantBaseGameItemComponent.cs",
+          "sha256": "71374e6636b822f1340fb735eb30a54153ba4418b232472ec64840a647fce31e"
+        },
+        {
+          "path": "MudSharpCore/GameItems/Components/ImplantTraitChangerGameItemComponent.cs",
+          "sha256": "6b1f1f150446734951061bb601a4816fd6ee7f8717e7e21f7ec73d39820637fd"
+        },
+        {
+          "path": "MudSharpCore/GameItems/Components/WornTraitChangerGameItemComponent.cs",
+          "sha256": "a124984244c1fb4dbbd5c21608a9a0496554e1c71206f1aa6db62410670d002f"
+        },
+        {
+          "path": "MudSharpCore/GameItems/GameItemHealth.cs",
+          "sha256": "08276ef07aa2b78102f203aa28690aae58f61afec1796319cef9d0ef51b58791"
+        },
+        {
+          "path": "MudSharpCore/Health/Wounds/HealingSimpleWound.cs",
+          "sha256": "f6948b3aa0df696fc1d60a5a6a0635d21bf5a2fc5e4ab4866834da7829a4cf9e"
+        },
+        {
+          "path": "MudSharpCore/Health/Wounds/RobotWound.cs",
+          "sha256": "dc4c03a2113c535ed6b224bb9a57a8958361a004223a78d18c3044c1a3eb85f0"
+        },
+        {
+          "path": "MudSharpCore/Health/Wounds/SimpleOrganicWound.cs",
+          "sha256": "a0c1c2f2b76537b9cda8f95772aae39a9e7dbbcfe9c9b364360ad1dd12b4de42"
+        },
+        {
+          "path": "MudSharpCore/Health/Wounds/SimpleWound.cs",
+          "sha256": "185acf80f8d84d529edc40956a9a8bf1a8ffb00644ff6e33dd3d630418f914fe"
+        },
+        {
+          "path": "MudSharpCore/Magic/Casting/MagicCastingService.Execution.cs",
+          "sha256": "89777529c526893b541aff2141289aaa89eb7194fa4abf5916035554437e391c"
+        },
+        {
+          "path": "MudSharpCore/Magic/Casting/MagicCastingService.Incantation.cs",
+          "sha256": "08da260abc030dd6a97f08c70d9f7ecef8ea62732e801e283a32efec1fa03005"
+        },
+        {
+          "path": "MudSharpCore/Magic/Casting/MagicCastingService.Practice.cs",
+          "sha256": "5349f034eb6c404cac2d732d6e50c94b1be1b98744f90db6775dff33cbfe2bc4"
+        },
+        {
+          "path": "MudSharpCore/Magic/Casting/MagicCastingService.Resources.cs",
+          "sha256": "230c71718cb7a3bffd65e0327f52fa9104ef346b8e89cd2450adc0cd528ee70e"
+        },
+        {
+          "path": "MudSharpCore/Magic/Casting/MagicCastingService.cs",
+          "sha256": "f8432f90104a1a5ec1539dce1fde0c15ce7f83120f142c4dbef2aa1fdf9a854b"
+        },
+        {
+          "path": "MudSharpCore/Magic/Casting/MagicCastingStateStore.cs",
+          "sha256": "3aec45f4a1ef4908d4a47f6ba13c76dd206c3bc5ffa1907fff44714489e8ee58"
+        },
+        {
+          "path": "MudSharpCore/Magic/Casting/MagicPracticeAction.cs",
+          "sha256": "881b23aa0d37da31cb8ca7bc1b2549c46e0c9556a68d7a8330140bc912e06204"
+        },
+        {
+          "path": "MudSharpCore/Magic/MagicSpell.Capacity.cs",
+          "sha256": "9b050d4912a58c0d7c888707ee4a991288406b163b743ee7b1ff7e16f014febd"
+        },
+        {
+          "path": "MudSharpCore/Magic/MagicSpell.Grades.Builder.cs",
+          "sha256": "88fb82892ad6e920a3b39b7fff5ebf29e6e63f1451382b2883c0951459668f8b"
+        },
+        {
+          "path": "MudSharpCore/Magic/MagicSpell.Grades.cs",
+          "sha256": "f9f8611cb39be34a214c9d87fad6fcbceaea60d1f5f976111cd34533ea439dfa"
+        },
+        {
+          "path": "MudSharpCore/Magic/MagicSpell.Incantation.cs",
+          "sha256": "acec76bbfdb1054b377a1af7c1f1049450f59e0573a5e6107fdbc8b13c4ac11c"
+        },
+        {
+          "path": "MudSharpCore/Magic/MagicSpell.Practice.cs",
+          "sha256": "77f5a7b1c72bb9dcd5ff8b91d9dbcc54dbd9280ee8ef63afce8c66be187fea4c"
+        },
+        {
+          "path": "MudSharpCore/Magic/MagicSpell.cs",
+          "sha256": "d4121cc87f24d264e7859090b12f08f44c1e5e7e99080f4118a0ef15685f9f52"
+        },
+        {
+          "path": "MudSharpCore/Magic/Resources/SimpleMagicResource.Capacity.cs",
+          "sha256": "4565cde0c2e262fe507997fc0f9cfb87fd09c531a184d267a1f5c8dd13c906e1"
+        },
+        {
+          "path": "MudSharpCore/Magic/Resources/SimpleMagicResource.cs",
+          "sha256": "c22b1d0318f84a09f316872695140033adfe81e890d122ad4b915738dc436284"
+        },
+        {
+          "path": "MudSharpCore/Magic/SpellEffects/MagicResourceDeltaEffect.cs",
+          "sha256": "f84fc02af75920c88c8c3afb61f9183b7698b7579617ea9e62f82404923133c7"
+        },
+        {
+          "path": "MudSharpCore/Magic/SpellEffects/TraitBoostEffect.cs",
+          "sha256": "3f3a7df4bf330e164909b956fbc6ebc16bc320f331f3080a44a8f33ebe4a1fae"
+        },
+        {
+          "path": "MudSharpCore/Magic/Vancian/SpellTargetResolution.cs",
+          "sha256": "7012f9cc279b8b53358868e74800ca189b70ceb3056250f8694a52164a56943e"
+        },
+        {
+          "path": "MudSharpCore/Network/PlayerConnection.cs",
+          "sha256": "49150d3bb5a65df24c9da9a704543a10ef85d0d10af2cf7c7c1b98abf56d69f8"
+        },
+        {
+          "path": "MudSharpCore/PerceptionEngine/Outputs/LanguageOutput.cs",
+          "sha256": "f54be3c13a8a6a3a6f8b39eec0f291e8d5139f700056b034306a53a76bf122dc"
+        },
+        {
+          "path": "Temporary Scratch App/GatheringNativePersistenceHarness/GatheringNativePersistenceHarness.csproj",
+          "sha256": "7661c30a28f8b51fb82b2cc331808538f132948cd63654a2afa54e1dd02b8ffa"
+        },
+        {
+          "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.Casting.cs",
+          "sha256": "4b5e23abfa641f17c3a91d6965a29c6f5b2aaf05ba9421327ef4e7cfdd3ca399"
+        },
+        {
+          "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.CastingCapacity.Compound.cs",
+          "sha256": "4188edfa5841aa822da5c66ac4812a7766cf4a5ca62b973244058cb0c0f626d0"
+        },
+        {
+          "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.CastingCapacity.cs",
+          "sha256": "7f95fb1968c08354d60036760979cf307e0c4339aa12952dac074c45e4e8b495"
+        },
+        {
+          "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.CastingFixtures.cs",
+          "sha256": "ab11b05832f5a146c100dbc2d4d2f7ce668d3f4eb5cdcd929fe45f8c538c9e69"
+        },
+        {
+          "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.CastingLifecycle.cs",
+          "sha256": "b6455cfc72a303ca7635e67576e8ac2e84c264f07fdb375a854c76610a1903ee"
+        },
+        {
+          "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.CastingPractice.cs",
+          "sha256": "fa2afe8c4a1bc8a02bcc0acb8c531914286157307ab6a071b07fd77e1bfab161"
+        },
+        {
+          "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.CastingProgression.cs",
+          "sha256": "7443fd9509206d2d69674c9a33c72d1b5221cf8255f9dd644795be3af2ca4893"
+        },
+        {
+          "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.CastingSpeech.cs",
+          "sha256": "c974177e6296b558ad270b6474ece44d5c4ef7f3ed88ff04c5502ae158b5da4e"
+        },
+        {
+          "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.CastingSupport.cs",
+          "sha256": "de7ce1ab6a1ac548e5b5bb88b7a72eac5648f3673af6a0bf354ce1dad86c2bc0"
+        },
+        {
+          "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.cs",
+          "sha256": "3b58d66337a2d53a9d0b86bf422bea8b441ee4e5d4f4ac2da127c060f4ad8d82"
+        },
+        {
+          "path": "Temporary Scratch App/GatheringNativePersistenceHarness/README.md",
+          "sha256": "fc6373254d6abd4ca55e8ebaefbdf2e0925c8d39d97f2f35294bbdf90a62f00c"
+        },
+        {
+          "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Run-IsolatedAcceptance.ps1",
+          "sha256": "38710c4aca8db5e48eae47ef8057666bcc7326d18ce859169b322816a4aa4231"
+        }
+      ]
+    },
+    "cleanup": "five owned databases deleted and verified TEMP MySQL gracefully shut down/deleted"
+  },
+  "qualification_limits": [
+    "N09/N10 have controlled native fixture evidence, not installed-stock or full login/Telnet qualification. The native TCP queue uses the ordinary non-admin command manager with fixture control context; no login/authentication protocol is exercised.",
+    "N11 is partial: native Whisper/modifiers/visible emote and physical restrictions pass; Earthquake, Chain Lightning, room Fireball and all source-specific area policies are the next separate checkpoint.",
+    "Real Character/Body/native anatomy, concrete mute/silence/deafness and native communication methods are used. Checks/mastery outcomes, world catalogues, output receiver spies, PersonalName and command/control context are controlled. Anatomy prototypes are in-memory fixture parts, not installed-stock catalogue rows.",
+    "Receiver LanguageInfo.ParseFor is exercised for native deafness and unknown language. Full production OutputHandler visibility/filtering and real remote human sessions are not qualified.",
+    "ReciteProxy and concrete DeadSpeak InitialEffect forwarding pass; full corpse animation, temporary-instance ownership, collapse/restoration and restart lifecycle are not qualified by this forwarding fixture.",
+    "Native gag predicate is covered by managed native MouthProto plus mocked worn IGag; a complete native wearable gag/component fixture remains not run. Multiword composite targets use mocked targets/exits in managed tests.",
+    "The native spell uses Self trigger, trait boost -grade, explicit empty materials, 100-unit reserve, deterministic check/mastery and accelerated opportunity clock. Quiet x2/+1 and custom x1.25/+2 are provisional engineering tuning, not approved stock coefficients or full spell balance.",
+    "Stage2A qualifications remain: non-empty native material plans, hostile AI, real-time scheduling, complete installed Mend Flesh/stock, full login/form/backup and gathering/crafting qualification are pending. Effect applicability changing without a lifecycle notification remains a known signal limitation with heartbeat/final checks, not an established new defect.",
+    "Intermediate native attempts retain revision/dirty-state/log receipts; the final native suite additionally has frozen source and assembly fingerprints. Area and phases3-6 have not started in this checkpoint."
+  ],
+  "blockers": [],
+  "authorisation_and_preservation": {
+    "local_commits": "authorised",
+    "publication_merge_deploy_shared_or_production_db": "not_performed",
+    "settings_usage_resets": "unchanged_parent_owned"
+  },
+  "preserved_history": [
+    {
+      "path": "Design Documents/Magic/Armageddon_Stage2A_Verification.json",
+      "sha256": "0f857899bc11aec416d3ec2f45b92d4f8c0ea476c808d5f5442b4ffd3590000d"
+    },
+    {
+      "path": "Design Documents/Magic/Armageddon_Stage2A_Effect_Interruption_Verification.json",
+      "sha256": "654e22dae9135ea0ebd1524a09c51fd7cb2b4971edad51e92329a837bc080c79"
+    },
+    {
+      "path": "Design Documents/Magic/Armageddon_Stage1C_Compound_Verification.json",
+      "sha256": "379cbc082c042b8581bc79bd8d92b5cff2fef58112c3fe83d455e02d381de6c6"
+    },
+    {
+      "path": "Design Documents/Magic/Armageddon_Sorcerer_Source_Tree.json",
+      "sha256": "ada4e574d1c2243b2bad30cb0d65b98a5413a20ad1d8917965335fb9e481d496"
+    }
+  ],
+  "evidence_files": [
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261002-stage2B/automated-binaries.json",
+      "sha256": "d66c0260f1541758d35ab3cfd093c625a717f66cfdb1591703e75f75e430cca1"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261002-stage2B/bounded-review.json",
+      "sha256": "811de01430a80a3a0cb1c99dfd308218826bfaaa1e7cd8eb6c06989af51b637a"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261002-stage2B/build-full-attempt1-exit.json",
+      "sha256": "2c3781e0a3a633bf1f1db545f2ff727b081ec9328ef88cfc4395829fccedfbb3"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261002-stage2B/build-full-attempt1.log",
+      "sha256": "b1284aaa283e3e03a7390a00a97767174eb9a1c62027dd4802f3a331a55770bf"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261002-stage2B/final-build-exit.json",
+      "sha256": "2c3781e0a3a633bf1f1db545f2ff727b081ec9328ef88cfc4395829fccedfbb3"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261002-stage2B/final-build.log",
+      "sha256": "3c1c984e94e0039e4caeea37fc2b6f00c34fa8c0a025e5aaa6e01bf59ca52393"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261002-stage2B/final-native-exit.json",
+      "sha256": "ce1fffc7b09c97566cdb69be808db586b027e61d7e56a6cdd05453e2455e21d0"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261002-stage2B/final-native.log",
+      "sha256": "f07ea8751aab23b402300a62d445491688d9e7afc20f6b6b5342823999ac9de5"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261002-stage2B/frozen-input-verification.json",
+      "sha256": "ab797be11b43c234509b57b3e46ad96288123785b42f61bdb1c8a7791c2e7eb6"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261002-stage2B/input-fingerprints.json",
+      "sha256": "e4ab1110348b1d18eaf04858f2ce14afab57a09b8ecf213203d9f588b8eb80d9"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261002-stage2B/input-full-attempt1-fingerprints.json",
+      "sha256": "3bf8f1104ff356dfa83ebf83d2ab08b2d7db172d7f421c11c312208a6cf38aea"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261002-stage2B/managed-history.json",
+      "sha256": "d24542e939cf3b79e0ef2c606fc35195b09623d368a557e8f326080938870c9b"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261002-stage2B/native-execution-binaries.json",
+      "sha256": "1f39fa7052865cc705ac5645263c561a7ecbf87ad8950b441d5fa813368aae25"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261002-stage2B/native-full-attempt1-exit.json",
+      "sha256": "ae80c68a6629188bfd8b86d635e0acd9e86e3df388194d85a4647b32987f445d"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261002-stage2B/native-full-attempt1.log",
+      "sha256": "3971ae0ee989a1348ee95cfed0b286be0d84e645ea955fab458160f28882d9ba"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261002-stage2B/preservation-verification.json",
+      "sha256": "9ef155f67e8213ef39586f7969115bbe489fa62daa64a32e9822c0a4ea69c446"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261002-stage2B/process-state-verification.json",
+      "sha256": "2a406a115926c3bd172bc53d5c95b1209f8b1f7738d7165c65adc3004de4ee1e"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261002-stage2B/stage2b-native-build-attempt9.log",
+      "sha256": "1d3b2418c228dc8332092eb2c24a4cebf50235774e8f0a000bf27accf82c4c47"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261002-stage2B/stage2b-native-build.log",
+      "sha256": "aac5e669fbd2fa003f1957356ff1d689635aef5dc070c2ede11f57e61d00facb"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261002-stage2B/stage2b-speech-attempt1.log",
+      "sha256": "667246c4ed662a46cb7cc664a39a88f1dba21dc9927c2cff700b24e03452c2db"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261002-stage2B/stage2b-speech-attempt2.log",
+      "sha256": "099537dcab59e596861150c89a111cbe698ea0268003f130d0626d46389362aa"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261002-stage2B/stage2b-speech-attempt3.log",
+      "sha256": "99766a4c63f03fbca4fda98b6b28beac27419f1984f8fa53cf9bbe3c85e35ed4"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261002-stage2B/stage2b-speech-attempt4.log",
+      "sha256": "6893da6edd0b277bacf7b2d0e211d4fe2d719c0924def46dbad51ad8ddf172bb"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261002-stage2B/stage2b-speech-attempt5.log",
+      "sha256": "6893da6edd0b277bacf7b2d0e211d4fe2d719c0924def46dbad51ad8ddf172bb"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261002-stage2B/stage2b-speech-attempt6.log",
+      "sha256": "bda7c250e38f6927bb506ba2d2c7a084862178a97ceeaffdfe8b76b72db625f1"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261002-stage2B/stage2b-speech-attempt7.log",
+      "sha256": "b2b74503a360d9dc8f23365a26fae6ca75eceb15a41628d6eca1a3adccf7436b"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261002-stage2B/stage2b-speech-attempt8.log",
+      "sha256": "42bdb87ed05a631e9ad39c67b3ecd777e59fa03feeb22c5aaaea32f2d3aabd5d"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261002-stage2B/stage2b-speech-attempt9.log",
+      "sha256": "7c5921f5128f200b3f2da0364208ee8d36b774ab7dd2058bb2f2fd04fb9edf31"
+    }
+  ]
+}

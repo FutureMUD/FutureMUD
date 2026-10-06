@@ -10,12 +10,31 @@ using MudSharp.Form.Material;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.Framework.Save;
+using MudSharp.GameItems.Interfaces;
 using MudSharp.Models;
 
 namespace MudSharp.GameItems;
 
 public abstract class GameItemComponent : LateInitialisingItem, IGameItemComponent
 {
+	// A transfer rollback must restore native fields without repeating inventory callbacks.
+	// Structural components without a verified adapter hold before any transfer begins.
+	#nullable enable annotations
+	internal virtual Action? CaptureCustodyRollback()
+	{
+		if (this is IContainer or ILockable or IBelt or IFirearmAttachmentHost or ISeveredBodypart or IWearable or ILock) return null;
+		var holdable = this as IHoldable; var heldBy = holdable?.HeldBy; var description = holdable?.CurrentInventoryDescription;
+		var wieldable = this as IWieldable; var wieldLocation = wieldable?.PrimaryWieldedLocation;
+		var beltable = this as IBeltable; var connectedTo = beltable?.ConnectedTo;
+		return () =>
+		{
+			if (holdable is not null) { holdable.HeldBy = heldBy; holdable.CurrentInventoryDescription = description; }
+			if (wieldable is not null) wieldable.PrimaryWieldedLocation = wieldLocation;
+			if (beltable is not null) beltable.ConnectedTo = connectedTo;
+		};
+	}
+
+	#nullable restore annotations
     private MudSharp.Models.GameItem _parentDBItem;
 	private SpatialLocation? _activeDieOrMorphSource;
 	protected SpatialLocation? CapturedLifecycleSource => _activeDieOrMorphSource;
@@ -114,6 +133,7 @@ public abstract class GameItemComponent : LateInitialisingItem, IGameItemCompone
 
     public virtual void Delete()
     {
+		ForeignCustodyTransferContext.EnsureItem(Parent, destructive: true);
         _noSave = true;
         Changed = false;
         Gameworld.SaveManager.Abort(this);
@@ -129,7 +149,7 @@ public abstract class GameItemComponent : LateInitialisingItem, IGameItemCompone
         // Do nothing
     }
 
-    public bool CheckPrototypeForUpdate()
+    public virtual bool CheckPrototypeForUpdate()
     {
         if (Prototype.Status == RevisionStatus.Obsolete || Prototype.Status == RevisionStatus.Revised)
         {
@@ -250,6 +270,7 @@ public abstract class GameItemComponent : LateInitialisingItem, IGameItemCompone
 
     public override void Save()
     {
+		ForeignCustodyTransferContext.RecordSave(this);
         if (_noSave)
         {
             return;
@@ -283,6 +304,12 @@ public abstract class GameItemComponent : LateInitialisingItem, IGameItemCompone
         Models.GameItemComponent item = (MudSharp.Models.GameItemComponent)dbitem;
         _id = item.Id;
     }
+
+	internal void ActivateCommittedSpellComponent(Models.GameItemComponent row)
+	{
+		CompleteCommittedInitialisation(row);
+		_noSave = false;
+	}
 
     protected abstract void UpdateComponentNewPrototype(IGameItemComponentProto newProto);
     protected abstract string SaveToXml();

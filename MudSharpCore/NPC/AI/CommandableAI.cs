@@ -1,4 +1,4 @@
-﻿using MudSharp.Commands;
+using MudSharp.Commands;
 using MudSharp.Events;
 using MudSharp.FutureProg.Statements.Manipulation;
 using MudSharp.Models;
@@ -64,7 +64,21 @@ public class CommandableAI : ArtificialIntelligenceBase
         ICharacter commandCh = (ICharacter)arguments[1];
         string commandText = (string)arguments[2];
 
-        if (_canCommandProg.ExecuteBool(ch, commandCh, commandText) != true)
+        var acceptedProg = _canCommandProg;
+        string acceptedCommand = null;
+        var requestedCommand = new StringStack(commandText).PopSpeech().ToLowerInvariant();
+        bool CommandPermitted(string canonical) =>
+            !_bannedCommands.Contains(canonical) && !_bannedCommands.Contains(requestedCommand) &&
+            (_includedCommands.Count == 0 || _includedCommands.Contains(canonical) ||
+                _includedCommands.Contains(requestedCommand));
+        bool PolicyStillMatches() => acceptedCommand is not null &&
+            (ch is not MudSharp.NPC.IArtificialIntelligenceControlledCharacter controlled ||
+                controlled.AIs.Any(x => ReferenceEquals(x, this))) &&
+            ReferenceEquals(_canCommandProg, acceptedProg) &&
+            CommandPermitted(acceptedCommand);
+        var acceptedAuthority = CommandExecutionAuthority.Prepare(ch, commandCh, commandText,
+            () => PolicyStillMatches() && acceptedProg.ExecuteBool(ch, commandCh, commandText) == true && PolicyStillMatches());
+        if (acceptedProg.ExecuteBool(ch, commandCh, commandText) != true)
         {
             if (_whyCannotCommandProg != null)
             {
@@ -85,19 +99,21 @@ public class CommandableAI : ArtificialIntelligenceBase
             return true;
         }
 
+        using var authority = CommandExecutionAuthority.Enter(acceptedAuthority);
         string whichCommand = new StringStack(commandText).PopSpeech();
         IExecutable<ICharacter> locatedCommand = ch.CommandTree.Commands.LocateCommand(ch, ref whichCommand);
         if (locatedCommand != null)
         {
             if (!string.IsNullOrWhiteSpace(locatedCommand.Name) &&
-                _bannedCommands.Contains(locatedCommand.Name.ToLowerInvariant()))
+                (_bannedCommands.Contains(locatedCommand.Name.ToLowerInvariant()) ||
+                 _bannedCommands.Contains(requestedCommand)))
             {
                 commandCh.Send(
                     $"You are not allowed to command {ch.HowSeen(commandCh)} to do the {locatedCommand.Name.ColourCommand()} command.");
                 return true;
             }
 
-            if (_includedCommands.Count > 0 && !_includedCommands.Contains(locatedCommand.Name.ToLowerInvariant()))
+            if (!CommandPermitted(locatedCommand.Name.ToLowerInvariant()))
             {
                 commandCh.Send(
                     $"You are not allowed to command {ch.HowSeen(commandCh)} to do the {locatedCommand.Name.ColourCommand()} command.");
@@ -105,14 +121,21 @@ public class CommandableAI : ArtificialIntelligenceBase
             }
         }
 
-        if (_commandIssuedEmoteText is not null)
+        acceptedCommand = locatedCommand?.Name.ToLowerInvariant();
+
+        if (!string.IsNullOrEmpty(_commandIssuedEmoteText))
         {
             EmoteOutput emote = new(new Emote(string.Format(_commandIssuedEmoteText, commandText), commandCh,
                 commandCh, ch));
             commandCh.OutputHandler.Send(emote);
         }
 
-        locatedCommand?.Execute(ch, commandText, ch.State, ch.Account.Authority.Level, ch.OutputHandler);
+        if (locatedCommand is not null)
+        {
+            if (!PolicyStillMatches() || (acceptedAuthority.RequiresGrant && !acceptedAuthority.MayExecute(ch))) return true;
+            using var execution = CommandExecutionScope.EnterDispatch(acceptedAuthority, ch);
+            ch.CommandTree.Commands.Execute(ch, locatedCommand, commandText, ch.State, ch.PermissionLevel, ch.OutputHandler);
+        }
         return true;
     }
 

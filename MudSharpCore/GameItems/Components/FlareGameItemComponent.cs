@@ -1,4 +1,4 @@
-﻿using MudSharp.GameItems;
+using MudSharp.GameItems;
 using MudSharp.Construction;
 using MudSharp.GameItems.Prototypes;
 
@@ -186,6 +186,10 @@ public class FlareGameItemComponent : GameItemComponent, ILightable, IProduceLig
 
     public virtual bool CanLight(ICharacter lightee, IPerceivable ignitionSource)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(lightee);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(lightee)) return false;
+
+
 		if (!ItemManipulationGuard.CanManipulate(lightee, out _, Parent))
 		{
 			return false;
@@ -202,6 +206,10 @@ public class FlareGameItemComponent : GameItemComponent, ILightable, IProduceLig
 
     public virtual string WhyCannotLight(ICharacter lightee, IPerceivable ignitionSource)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(lightee);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(lightee)) return string.Empty;
+
+
 		if (!ItemManipulationGuard.CanManipulate(lightee, out var manipulationReason, Parent))
 		{
 			return manipulationReason;
@@ -227,6 +235,10 @@ public class FlareGameItemComponent : GameItemComponent, ILightable, IProduceLig
 
     public bool Light(ICharacter lightee, IPerceivable ignitionSource, IEmote playerEmote)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(lightee);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(lightee)) return false;
+
+
 		if (!ItemManipulationGuard.CanManipulate(lightee, out var manipulationReason, Parent))
 		{
 			return false;
@@ -247,6 +259,10 @@ public class FlareGameItemComponent : GameItemComponent, ILightable, IProduceLig
 
     public bool CanExtinguish(ICharacter lightee)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(lightee);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(lightee)) return false;
+
+
 		if (!ItemManipulationGuard.CanManipulate(lightee, out _, Parent))
 		{
 			return false;
@@ -257,6 +273,10 @@ public class FlareGameItemComponent : GameItemComponent, ILightable, IProduceLig
 
     public string WhyCannotExtinguish(ICharacter lightee)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(lightee);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(lightee)) return string.Empty;
+
+
 		if (!ItemManipulationGuard.CanManipulate(lightee, out var manipulationReason, Parent))
 		{
 			return manipulationReason;
@@ -269,6 +289,10 @@ public class FlareGameItemComponent : GameItemComponent, ILightable, IProduceLig
 
     public bool Extinguish(ICharacter lightee, IEmote playerEmote)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(lightee);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(lightee)) return false;
+
+
 		if (!ItemManipulationGuard.CanManipulate(lightee, out var manipulationReason, Parent))
 		{
 			return false;

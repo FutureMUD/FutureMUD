@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.Combat.ScatterStrategies;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
@@ -24,21 +24,23 @@ public class BreathWeaponAttackMove : NaturalRangedAttackMoveBase
         OpposedOutcomeDegree degree)
     {
         List<IWound> wounds = new();
-        foreach (ICharacter victim in victims)
+        foreach (ICharacter victim in victims.ToArray())
         {
+            if (!CanContinueCommand()) break;
             for (int i = 0; i < BreathAttack.BodypartsHitPerTarget; i++)
             {
+                if (!CanContinueCommand()) break;
                 IBodypart victimBodypart = victim.Body.RandomBodyPartGeometry(Attack.Orientation, Attack.Alignment,
                     Assailant.GetFacingFor(victim, true), false);
                 Tuple<IDamage, IDamage> damages = GetDamagePlusSelfDamage(victim, Bodypart, victimBodypart, null, attackOutcome,
                     Attack.Profile.DamageType, Attack.Profile.BaseAngleOfIncidence, NaturalAttack, degree);
-                wounds.AddRange(victim.PassiveSufferDamage(damages.Item1));
+                wounds.AddRange(victim.CommandSufferDamage(damages.Item1));
             }
 
-            if (BreathAttack.FireProfile is not null && BreathAttack.IgniteChance > 0.0 &&
+            if (CanContinueCommand() && BreathAttack.FireProfile is not null && BreathAttack.IgniteChance > 0.0 &&
                 RandomUtilities.Roll(1.0, BreathAttack.IgniteChance))
             {
-                OnFire.Apply(victim, BreathAttack.FireProfile);
+                ApplyOwnedMutation(victim, () => OnFire.Apply(victim, BreathAttack.FireProfile));
             }
         }
 
@@ -51,9 +53,10 @@ public class BreathWeaponAttackMove : NaturalRangedAttackMoveBase
 		if (target is not ICharacter primaryTarget)
 		{
 			List<IWound> wounds = base.ApplySuccessfulHit(target, attackOutcome, degree, bodypart).ToList();
-			if (BreathAttack.FireProfile is not null && BreathAttack.IgniteChance > 0.0 &&
+			if (CanContinueCommand() && BreathAttack.FireProfile is not null && BreathAttack.IgniteChance > 0.0 &&
 				RandomUtilities.Roll(1.0, BreathAttack.IgniteChance))
 			{
+				MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted();
 				OnFire.Apply(target, BreathAttack.FireProfile);
 			}
 

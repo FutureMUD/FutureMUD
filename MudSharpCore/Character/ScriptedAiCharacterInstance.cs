@@ -3,6 +3,7 @@ using MudSharp.Body;
 using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Construction;
+using MudSharp.Combat;
 using MudSharp.Database;
 using MudSharp.Events;
 using MudSharp.GameItems;
@@ -20,11 +21,51 @@ public sealed class ScriptedAiCharacterInstance : Character, IArtificialIntellig
 	private readonly Character _identity;
 	private readonly List<IArtificialIntelligence> _AIs = new();
 	private long? _bodyguardingCharacterId;
+	private bool _spellRetirementPending;
+
+	internal void SuspendForSpellRetirement()
+	{
+		_spellRetirementPending = true;
+		ReleaseEventSubscriptions();
+		Gameworld.EffectScheduler.Destroy(this);
+		Gameworld.Scheduler.Destroy(this);
+		CeaseFollowing();
+		QueuedMoveCommands.Clear();
+		// A failed external movement/combat observer must not prevent the other roots being released.
+		List<Exception> failures = [];
+		void Release(Action action) { try { action(); } catch (Exception ex) { failures.Add(ex); } }
+		Release(() => Combat?.LeaveCombat(this));
+		Release(() => Movement?.CancelForMoverOnly(this));
+		Release(() => CombatTarget = null);
+		Release(() => RemoveAllEffects(x => x is ISelectedCombatAction, true));
+		// Leaving combat can add an engage delay. No actor work survives a held retirement.
+		Gameworld.EffectScheduler.Destroy(this);
+		Gameworld.Scheduler.Destroy(this);
+		if (failures.Count > 0) throw new AggregateException("Animation retirement callbacks failed after quiescence.", failures);
+	}
+
+	public override ICombatMove ChooseMove() => _spellRetirementPending ? null! : base.ChooseMove();
+
+	public override bool Engage(IPerceiver target, bool ranged, bool preserveHide = false) =>
+		!_spellRetirementPending && base.Engage(target, ranged, preserveHide);
+
+	public override bool TakeOrQueueCombatAction(ISelectedCombatAction action) =>
+		!_spellRetirementPending && base.TakeOrQueueCombatAction(action);
+
+	public override void OutOfContextExecuteCommand(string command)
+	{
+		if (!_spellRetirementPending) base.OutOfContextExecuteCommand(command);
+	}
 
 	internal ScriptedAiCharacterInstance(Character identity, MudSharp.Models.CharacterInstance instance, IBody body)
 		: base(identity, instance, body)
 	{
 		_identity = identity;
+	}
+
+	// Register the instance with its identity before activating external runtime roots.
+	internal void InitialiseScriptedControl()
+	{
 		PermissionLevel = PermissionLevel.NPC;
 		CommandTree = Gameworld.RetrieveAppropriateCommandTree(this);
 		var controller = new NPCController();
@@ -102,7 +143,7 @@ public sealed class ScriptedAiCharacterInstance : Character, IArtificialIntellig
 
 	public void SetupEventSubscriptions()
 	{
-		if (State.HasFlag(CharacterState.Dead) || State.HasFlag(CharacterState.Stasis))
+		if (_spellRetirementPending || State.HasFlag(CharacterState.Dead) || State.HasFlag(CharacterState.Stasis))
 		{
 			ReleaseEventSubscriptions();
 			return;
@@ -135,25 +176,10 @@ public sealed class ScriptedAiCharacterInstance : Character, IArtificialIntellig
 
 	public void ReleaseEventSubscriptions()
 	{
-		if (AIs.Any(x => x.HandlesEvent(EventType.FiveSecondTick)))
-		{
-			Gameworld.HeartbeatManager.FuzzyFiveSecondHeartbeat -= FiveSecondHeartbeat;
-		}
-
-		if (AIs.Any(x => x.HandlesEvent(EventType.TenSecondTick)))
-		{
-			Gameworld.HeartbeatManager.FuzzyTenSecondHeartbeat -= TenSecondHeartbeat;
-		}
-
-		if (AIs.Any(x => x.HandlesEvent(EventType.MinuteTick)))
-		{
-			Gameworld.HeartbeatManager.FuzzyMinuteHeartbeat -= MinuteHeartbeat;
-		}
-
-		if (AIs.Any(x => x.HandlesEvent(EventType.HourTick)))
-		{
-			Gameworld.HeartbeatManager.FuzzyHourHeartbeat -= HourHeartbeat;
-		}
+		Gameworld.HeartbeatManager.FuzzyFiveSecondHeartbeat -= FiveSecondHeartbeat;
+		Gameworld.HeartbeatManager.FuzzyTenSecondHeartbeat -= TenSecondHeartbeat;
+		Gameworld.HeartbeatManager.FuzzyMinuteHeartbeat -= MinuteHeartbeat;
+		Gameworld.HeartbeatManager.FuzzyHourHeartbeat -= HourHeartbeat;
 	}
 
 	public void AddAI(IArtificialIntelligence ai)
@@ -194,7 +220,7 @@ public sealed class ScriptedAiCharacterInstance : Character, IArtificialIntellig
 
 	public override bool HandleEvent(EventType type, params dynamic[] arguments)
 	{
-		if (State.HasFlag(CharacterState.Dead) || State.HasFlag(CharacterState.Stasis))
+		if (_spellRetirementPending || State.HasFlag(CharacterState.Dead) || State.HasFlag(CharacterState.Stasis))
 		{
 			return false;
 		}

@@ -18,6 +18,7 @@ using MudSharp.Framework.Save;
 using MudSharp.FutureProg;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
+using MudSharp.Magic;
 using MudSharp.PerceptionEngine;
 using MudSharp.RPG.Law;
 using MudSharp.TimeAndDate;
@@ -322,6 +323,183 @@ public class ShopTests
         bankActor.ShopAccount.Verify(x => x.DepositFromTransaction(It.IsAny<decimal>(), It.IsAny<string>()), Times.Never);
         bankActor.Body.Verify(x => x.Get(It.IsAny<IGameItem>(), 0, It.IsAny<IEmote>(), true, ItemCanGetIgnore.None), Times.Never);
     }
+
+	[DataTestMethod]
+	[DataRow("exact")]
+	[DataRow("variant")]
+	[DataRow("shared-variant")]
+	[DataRow("default")]
+	public void Buy_MixedSpellStock_CleanSelectionSucceedsAndPreservesContaminatedHost(string selection)
+	{
+		var stock = CreateMixedSpellStock();
+		var bank = CreateBankPaymentActor();
+		var before = _shop.TransactionRecords.Count();
+		var variant = selection == "variant" ? "clean" : selection == "shared-variant" ? "bag" : null;
+		var quote = selection == "exact"
+			? _shop.CanBuyExact(bank.Actor.Object, stock.Merchandise, 1, bank.Payment, [stock.Clean.Object])
+			: _shop.CanBuy(bank.Actor.Object, stock.Merchandise, 1, bank.Payment, variant);
+		Assert.IsTrue(quote.Truth, quote.Reason);
+		bank.PlayerAccount.Verify(x => x.WithdrawFromTransaction(It.IsAny<decimal>(), It.IsAny<string>()), Times.Never);
+		stock.Clean.Verify(x => x.SetOwner(It.IsAny<IFrameworkItem>()), Times.Never);
+
+		var bought = (selection == "exact"
+			? _shop.BuyExact(bank.Actor.Object, stock.Merchandise, 1, bank.Payment, [stock.Clean.Object])
+			: _shop.Buy(bank.Actor.Object, stock.Merchandise, 1, bank.Payment, variant)).ToList();
+		CollectionAssert.AreEqual(new[] { stock.Clean.Object }, bought);
+		CollectionAssert.AreEqual(new[] { stock.Contaminated.Object }, _shop.StockedItems(stock.Merchandise).ToList());
+		Assert.AreEqual(before + 1, _shop.TransactionRecords.Count());
+		bank.PlayerAccount.Verify(x => x.WithdrawFromTransaction(10m, It.IsAny<string>()), Times.Once);
+		bank.ShopAccount.Verify(x => x.DepositFromTransaction(10m, It.IsAny<string>()), Times.Once);
+		bank.Body.Verify(x => x.Get(stock.Clean.Object, 0, It.IsAny<IEmote>(), true, ItemCanGetIgnore.None), Times.Once);
+		stock.Contaminated.Verify(x => x.SetOwner(It.IsAny<IFrameworkItem>()), Times.Never);
+		stock.Contaminated.Verify(x => x.RemoveAllEffects<ItemOnDisplayInShop>(It.IsAny<Predicate<ItemOnDisplayInShop>>(), true), Times.Never);
+		Assert.AreSame(stock.Contaminated.Object, stock.Temporary.Object.ContainedIn);
+		stock.Temporary.Verify(x => x.Delete(), Times.Never);
+	}
+
+	[DataTestMethod]
+	[DataRow("exact")]
+	[DataRow("variant")]
+	[DataRow("default")]
+	public void Buy_MixedSpellStock_ContaminatedSelectionOrInsufficientCleanQuantityRefusesWithoutSideEffects(string selection)
+	{
+		var stock = CreateMixedSpellStock();
+		var bank = CreateBankPaymentActor();
+		var before = _shop.TransactionRecords.Count();
+		var quantity = selection == "default" ? 2 : 1;
+		var quote = selection == "exact"
+			? _shop.CanBuyExact(bank.Actor.Object, stock.Merchandise, quantity, bank.Payment, [stock.Contaminated.Object])
+			: _shop.CanBuy(bank.Actor.Object, stock.Merchandise, quantity, bank.Payment, selection == "variant" ? "tainted" : null);
+		Assert.IsFalse(quote.Truth);
+		if (selection == "exact") Assert.AreEqual(SpellOwnedItemValuePolicy.Refusal, quote.Reason);
+		var bought = (selection == "exact"
+			? _shop.BuyExact(bank.Actor.Object, stock.Merchandise, quantity, bank.Payment, [stock.Contaminated.Object])
+			: _shop.Buy(bank.Actor.Object, stock.Merchandise, quantity, bank.Payment, selection == "variant" ? "tainted" : null)).ToList();
+		Assert.AreEqual(0, bought.Count);
+		Assert.AreEqual(before, _shop.TransactionRecords.Count());
+		CollectionAssert.AreEquivalent(new[] { stock.Contaminated.Object, stock.Clean.Object }, _shop.StockedItems(stock.Merchandise).ToList());
+		foreach (var item in new[] { stock.Clean, stock.Contaminated })
+		{
+			item.Verify(x => x.SetOwner(It.IsAny<IFrameworkItem>()), Times.Never);
+			item.Verify(x => x.RemoveAllEffects<ItemOnDisplayInShop>(It.IsAny<Predicate<ItemOnDisplayInShop>>(), true), Times.Never);
+		}
+		bank.PlayerAccount.Verify(x => x.WithdrawFromTransaction(It.IsAny<decimal>(), It.IsAny<string>()), Times.Never);
+		bank.ShopAccount.Verify(x => x.DepositFromTransaction(It.IsAny<decimal>(), It.IsAny<string>()), Times.Never);
+		bank.Body.Verify(x => x.Get(It.IsAny<IGameItem>(), 0, It.IsAny<IEmote>(), true, ItemCanGetIgnore.None), Times.Never);
+		Assert.AreSame(stock.Contaminated.Object, stock.Temporary.Object.ContainedIn);
+		stock.Temporary.Verify(x => x.Delete(), Times.Never);
+	}
+
+	[TestMethod]
+	public void BuyExact_CleanStockBecomesContaminatedAfterQuote_RevalidatesBeforePaymentOrCustody()
+	{
+		var stock = CreateMixedSpellStock();
+		var bank = CreateBankPaymentActor();
+		Assert.IsTrue(_shop.CanBuyExact(bank.Actor.Object, stock.Merchandise, 1, bank.Payment, [stock.Clean.Object]).Truth);
+		var newTemporary = new Mock<IGameItem>();
+		newTemporary.SetupGet(x => x.SpellCreationOrigin).Returns(new SpellOwnedItemOrigin(Guid.NewGuid(), SpellLifecycleMode.TemporaryCleanup, DateTime.UnixEpoch.AddMinutes(1)));
+		newTemporary.SetupGet(x => x.ContainedIn).Returns(stock.Clean.Object);
+		stock.Clean.SetupGet(x => x.DeepItems).Returns([stock.Clean.Object, newTemporary.Object]);
+		var before = _shop.TransactionRecords.Count();
+		Assert.IsFalse(_shop.BuyExact(bank.Actor.Object, stock.Merchandise, 1, bank.Payment, [stock.Clean.Object]).Any());
+		Assert.AreEqual(before, _shop.TransactionRecords.Count());
+		Assert.AreEqual(2, _shop.StockedItems(stock.Merchandise).Count());
+		bank.PlayerAccount.Verify(x => x.WithdrawFromTransaction(It.IsAny<decimal>(), It.IsAny<string>()), Times.Never);
+		bank.ShopAccount.Verify(x => x.DepositFromTransaction(It.IsAny<decimal>(), It.IsAny<string>()), Times.Never);
+		stock.Clean.Verify(x => x.SetOwner(It.IsAny<IFrameworkItem>()), Times.Never);
+		bank.Body.Verify(x => x.Get(It.IsAny<IGameItem>(), 0, It.IsAny<IEmote>(), true, ItemCanGetIgnore.None), Times.Never);
+		Assert.AreSame(stock.Clean.Object, newTemporary.Object.ContainedIn);
+		newTemporary.Verify(x => x.Delete(), Times.Never);
+	}
+
+	[DataTestMethod]
+	[DataRow(null)]
+	[DataRow("clean")]
+	[DataRow("bag")]
+	public void PreviewBuy_MixedSpellStock_PreviewsOnlyTheCleanPurchaseCandidates(string variant)
+	{
+		var stock = CreateMixedSpellStock();
+		var bank = CreateBankPaymentActor();
+		Assert.IsTrue(_shop.CanBuy(bank.Actor.Object, stock.Merchandise, 1, bank.Payment, variant).Truth);
+
+		var preview = _shop.PreviewBuy(bank.Actor.Object, stock.Merchandise, 1, bank.Payment, variant);
+
+		CollectionAssert.AreEqual(new[] { stock.Clean.Object }, preview.Items.ToList());
+		bank.PlayerAccount.Verify(x => x.WithdrawFromTransaction(It.IsAny<decimal>(), It.IsAny<string>()), Times.Never);
+		bank.Body.Verify(x => x.Get(It.IsAny<IGameItem>(), 0, It.IsAny<IEmote>(), true, ItemCanGetIgnore.None), Times.Never);
+		CollectionAssert.AreEqual(new[] { stock.Contaminated.Object, stock.Clean.Object }, _shop.StockedItems(stock.Merchandise).ToList());
+	}
+
+	[DataTestMethod]
+	[DataRow(false)]
+	[DataRow(true)]
+	[DoNotParallelize]
+	public void BuyCommand_MixedSpellStock_NearMorphConfirmationUsesAndRevalidatesCleanPreview(bool contaminateAfterPreview)
+	{
+		var stock = CreateMixedSpellStock();
+		var bank = CreateBankPaymentActor();
+		var proto = Mock.Get(stock.Clean.Object.Prototype);
+		proto.SetupGet(x => x.Morphs).Returns(true);
+		proto.SetupGet(x => x.MorphTimeSpan).Returns(TimeSpan.FromSeconds(100));
+		stock.Clean.SetupGet(x => x.CachedMorphTime).Returns(TimeSpan.FromSeconds(20));
+		stock.Contaminated.SetupGet(x => x.CachedMorphTime).Returns(TimeSpan.FromSeconds(20));
+		bank.Actor.SetupGet(x => x.Gameworld).Returns(_gameworld.Object);
+		bank.Actor.SetupGet(x => x.Location).Returns(_currentCell.Object);
+		var account = new Mock<IAccount>();
+		account.SetupGet(x => x.ActLawfully).Returns(true);
+		bank.Actor.SetupGet(x => x.Account).Returns(account.Object);
+		_currentCell.SetupGet(x => x.Shop).Returns(_shop);
+		_gameworld.Setup(x => x.GetStaticBool("KeycardPaymentsEnabled")).Returns(true);
+		var card = new Mock<IGameItem>();
+		card.Setup(x => x.GetItemType<IBankPaymentItem>()).Returns(bank.Payment.Item);
+		bank.Actor.Setup(x => x.TargetPersonalItem("card")).Returns(card.Object);
+		var authority = new Mock<ILegalAuthority>();
+		authority.SetupGet(x => x.Id).Returns(1);
+		authority.Setup(x => x.WouldBeACrime(bank.Actor.Object, CrimeTypes.PossessingContraband, null, stock.Contaminated.Object, "")).Returns(true);
+		_gameworld.SetupGet(x => x.LegalAuthorities).Returns(new All<ILegalAuthority> { authority.Object });
+		Accept confirmation = null;
+		bank.Actor.Setup(x => x.AddEffect(It.IsAny<IEffect>(), It.IsAny<TimeSpan>()))
+			.Callback<IEffect, TimeSpan>((effect, _) => confirmation = effect as Accept);
+		var phrasing = typeof(Accept).GetField("_standardAcceptPhrasing", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)!;
+		var originalPhrasing = phrasing.GetValue(null);
+		var before = _shop.TransactionRecords.Count();
+		try
+		{
+			phrasing.SetValue(null, "Type accept to buy.");
+			typeof(EconomyModule)
+				.GetMethod("Buy", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)!
+				.Invoke(null, [bank.Actor.Object, "buy 1 1 with card"]);
+			Assert.IsNotNull(confirmation, "The actual buy command must request confirmation of the clean near-morph item.");
+			authority.Verify(x => x.WouldBeACrime(bank.Actor.Object, CrimeTypes.PossessingContraband, null, stock.Clean.Object, ""), Times.Once);
+			authority.Verify(x => x.WouldBeACrime(bank.Actor.Object, CrimeTypes.PossessingContraband, null, stock.Contaminated.Object, ""), Times.Never);
+			bank.PlayerAccount.Verify(x => x.WithdrawFromTransaction(It.IsAny<decimal>(), It.IsAny<string>()), Times.Never);
+			if (contaminateAfterPreview)
+			{
+				var newTemporary = new Mock<IGameItem>();
+				newTemporary.SetupGet(x => x.SpellCreationOrigin).Returns(stock.Temporary.Object.SpellCreationOrigin);
+				newTemporary.SetupGet(x => x.ContainedIn).Returns(stock.Clean.Object);
+				stock.Clean.SetupGet(x => x.DeepItems).Returns([stock.Clean.Object, newTemporary.Object]);
+			}
+
+			confirmation.Proposal.Accept();
+
+			var expectedPaymentCalls = contaminateAfterPreview ? Times.Never() : Times.Once();
+			bank.PlayerAccount.Verify(x => x.WithdrawFromTransaction(10m, It.IsAny<string>()), expectedPaymentCalls);
+			bank.ShopAccount.Verify(x => x.DepositFromTransaction(10m, It.IsAny<string>()), expectedPaymentCalls);
+			bank.Body.Verify(x => x.Get(stock.Clean.Object, 0, It.IsAny<IEmote>(), true, ItemCanGetIgnore.None), expectedPaymentCalls);
+			Assert.AreEqual(before + (contaminateAfterPreview ? 0 : 1), _shop.TransactionRecords.Count());
+			CollectionAssert.AreEquivalent(contaminateAfterPreview
+				? new[] { stock.Contaminated.Object, stock.Clean.Object }
+				: new[] { stock.Contaminated.Object }, _shop.StockedItems(stock.Merchandise).ToList());
+			stock.Contaminated.Verify(x => x.SetOwner(It.IsAny<IFrameworkItem>()), Times.Never);
+			Assert.AreSame(stock.Contaminated.Object, stock.Temporary.Object.ContainedIn);
+			stock.Temporary.Verify(x => x.Delete(), Times.Never);
+		}
+		finally
+		{
+			phrasing.SetValue(null, originalPhrasing);
+		}
+	}
 
     [TestMethod]
     public void BuyCommodityWeight_SplitsSelectedCommodityStockAndChargesProratedPrice()
@@ -656,6 +834,30 @@ public class ShopTests
         Assert.AreEqual(10m, transaction.PretaxValue);
         Assert.AreEqual(2m, transaction.Tax);
     }
+
+	private (Merchandise Merchandise, Mock<IGameItem> Clean, Mock<IGameItem> Contaminated, Mock<IGameItem> Temporary) CreateMixedSpellStock()
+	{
+		var proto = RegisterPrototype(42);
+		proto.SetupGet(x => x.ShortDescription).Returns("a fixture bag");
+		var merchandise = new Merchandise(_shop, "bag", proto.Object, 10m, false, null, null);
+		_shop.AddMerchandise(merchandise);
+		var contaminated = CreateStackedItem(420, 1, proto.Object);
+		var clean = CreateStackedItem(421, 1, proto.Object);
+		foreach (var pair in new[] { (Item: contaminated, Keyword: "tainted"), (Item: clean, Keyword: "clean") })
+		{
+			pair.Item.SetupGet(x => x.DeepItems).Returns([pair.Item.Object]);
+			pair.Item.Setup(x => x.HasKeywords(It.IsAny<IEnumerable<string>>(), It.IsAny<IPerceiver>(), true, false))
+				.Returns<IEnumerable<string>, IPerceiver, bool, bool>((words, _, _, _) => words.SequenceEqual(["bag"]) || words.SequenceEqual([pair.Keyword]));
+			_shop.AddToStock(null, pair.Item.Object, merchandise);
+			pair.Item.Invocations.Clear();
+		}
+		var temporary = new Mock<IGameItem>();
+		temporary.SetupGet(x => x.SpellCreationOrigin).Returns(new SpellOwnedItemOrigin(Guid.NewGuid(), SpellLifecycleMode.TemporaryCleanup, DateTime.UnixEpoch.AddMinutes(1)));
+		temporary.SetupGet(x => x.ContainedIn).Returns(contaminated.Object);
+		// Both hosts entered stock as ordinary goods; the temporary child is placed afterwards.
+		contaminated.SetupGet(x => x.DeepItems).Returns([contaminated.Object, temporary.Object]);
+		return (merchandise, clean, contaminated, temporary);
+	}
 
     private Mock<IGameItemProto> RegisterPrototype(long id, params ITag[] tags)
     {

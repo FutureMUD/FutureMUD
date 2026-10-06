@@ -134,6 +134,7 @@ public partial class Character
 			}
 
 			Changed = true;
+			Gameworld.MagicCasting?.NotifyCapacityChange(this);
 		}
 	}
 
@@ -146,6 +147,7 @@ public partial class Character
 		{
 			_currentProjectHours = value;
 			Changed = true;
+			Gameworld.MagicCasting?.NotifyCapacityChange(this);
 		}
 	}
 
@@ -158,6 +160,7 @@ public partial class Character
 		{
 			_currentProjectProjectHours = value;
 			Changed = true;
+			Gameworld.MagicCasting?.NotifyCapacityChange(this);
 		}
 	}
 

@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.Construction;
 using MudSharp.Events;
 using MudSharp.GameItems.Prototypes;
@@ -9,6 +9,12 @@ namespace MudSharp.GameItems.Components;
 
 public class ContainerGameItemComponent : GameItemComponent, IContainer, IOpenable, ILockable
 {
+	internal override Action CaptureCustodyRollback()
+	{
+		var contents = _contents.ToArray(); var locks = _locks.ToArray(); var open = _isOpen;
+		return () => { _contents.Clear(); _contents.AddRange(contents); _locks.Clear(); _locks.AddRange(locks); _isOpen = open; };
+	}
+
 
     protected ContainerGameItemComponentProto _prototype;
     public override IGameItemComponentProto Prototype => _prototype;
@@ -45,6 +51,7 @@ public class ContainerGameItemComponent : GameItemComponent, IContainer, IOpenab
 
     public override bool Take(IGameItem item)
     {
+		ForeignCustodyTransferContext.EnsurePair(Parent, item);
         if (Contents.Contains(item))
         {
             _contents.Remove(item);
@@ -341,6 +348,25 @@ public class ContainerGameItemComponent : GameItemComponent, IContainer, IOpenab
 
     public void Put(ICharacter? putter, IGameItem item, bool allowMerge = true)
     {
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(putter)) return;
+		ForeignCustodyTransferContext.EnsurePair(Parent, item);
+		// Cell.Extract preserves the direct pointer for removal listeners. Adopt only that
+		// exact, already-extracted native source; active membership and callback custody win.
+		var nativeItem = item as GameItem;
+		var extractedCell = nativeItem?.DirectLocation;
+		var sourceLayer = item.RoomLayer;
+		var sourceRoute = item.RoutePositionMetres;
+		bool SourceReady() => item is { Deleted: false, Destroyed: false } &&
+			item.InInventoryOf is null && item.ContainedIn is null && !ComponentItemTransfer.HasDirectBodyCustody(item) &&
+			item.GetItemType<IBeltable>()?.ConnectedTo is null &&
+			ReferenceEquals(ComponentItemTransfer.DirectLocationOf(item), extractedCell) &&
+			item.RoomLayer == sourceLayer && item.RoutePositionMetres == sourceRoute &&
+			(extractedCell is null || !extractedCell.GameItems.Any(x => ReferenceEquals(x, item)));
+		bool Ready() => MudSharp.NPC.AI.CommandExecutionScope.TryContinue(putter) && SourceReady() && !Parent.Deleted && !Parent.Destroyed;
+		void ClearExtractedSource()
+		{
+			if (extractedCell is not null) nativeItem!.ClearPreparedContainerSourcePosition();
+		}
         if (_contents.Contains(item))
         {
 #if DEBUG
@@ -352,17 +378,42 @@ public class ContainerGameItemComponent : GameItemComponent, IContainer, IOpenab
 
         if (allowMerge)
         {
-            IGameItem mergeTarget = _contents.FirstOrDefault(x => x.CanMerge(item));
+            IGameItem mergeTarget = null;
+			foreach (var candidate in _contents.ToArray())
+			{
+				var canMerge = candidate.CanMerge(item);
+				if (!Ready()) return;
+				if (canMerge && !candidate.Deleted && !candidate.Destroyed && _contents.Any(x => ReferenceEquals(x, candidate)) &&
+					ReferenceEquals(candidate.ContainedIn, Parent)) { mergeTarget = candidate; break; }
+			}
             if (mergeTarget != null)
             {
+				MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted(putter);
+				ClearExtractedSource();
                 mergeTarget.Merge(item);
-                item.Delete();
+                if (ComponentItemTransfer.IsDetached(item)) item.Delete();
                 return;
             }
         }
 
-        _contents.Add(item);
-        item.ContainedIn = Parent;
+		if (!Ready()) return;
+		if (item is GameItem native)
+		{
+			native.TrySetContainedIn(Parent,
+				() => { if (!Ready()) return false; MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted(putter); return true; },
+				() => { ClearExtractedSource(); _contents.Add(item); Changed = true; });
+		}
+		else
+		{
+			item.ContainedIn = Parent;
+			if (ReferenceEquals(item.ContainedIn, Parent))
+			{
+				_contents.Add(item);
+				MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted(putter);
+			}
+		}
+        if (item.Deleted || item.Destroyed || !ReferenceEquals(item.ContainedIn, Parent) ||
+			ComponentItemTransfer.HasDirectBodyCustody(item) || ComponentItemTransfer.DirectLocationOf(item) is not null) _contents.Remove(item);
         Changed = true;
     }
 
@@ -420,6 +471,7 @@ public class ContainerGameItemComponent : GameItemComponent, IContainer, IOpenab
 
     public IGameItem Take(ICharacter taker, IGameItem item, int quantity)
     {
+		ForeignCustodyTransferContext.EnsurePair(Parent, item);
         Changed = true;
         if (quantity == 0 || item.DropsWhole(quantity))
         {
@@ -701,6 +753,7 @@ public class ContainerGameItemComponent : GameItemComponent, IContainer, IOpenab
 
     public bool InstallLock(ILock theLock, ICharacter? actor = null)
     {
+		ForeignCustodyTransferContext.EnsurePair(Parent, theLock.Parent);
         _locks.Add(theLock);
         if (_noSave)
         {
@@ -717,6 +770,7 @@ public class ContainerGameItemComponent : GameItemComponent, IContainer, IOpenab
 
     public bool RemoveLock(ILock theLock)
     {
+		ForeignCustodyTransferContext.EnsurePair(Parent, theLock.Parent);
         if (_locks.Contains(theLock))
         {
             theLock.Parent.ContainedIn = null;

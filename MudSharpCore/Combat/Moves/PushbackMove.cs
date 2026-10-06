@@ -1,4 +1,4 @@
-﻿using MudSharp.Effects.Concrete;
+using MudSharp.Effects.Concrete;
 using MudSharp.Framework.Scheduling;
 using MudSharp.RPG.Checks;
 
@@ -18,7 +18,10 @@ public class PushbackMove : MeleeWeaponAttack
 
 	public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
 	{
+		using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterMove(this);
+		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
 		var result = base.ResolveMove(defenderMove);
+		if (!CanContinueCommand()) return result;
 		if (!ShouldResolvePushback(result))
 		{
 			return result;

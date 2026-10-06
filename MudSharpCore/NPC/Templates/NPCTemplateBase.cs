@@ -580,6 +580,10 @@ public abstract partial class NPCTemplateBase : EditableItem, INPCTemplate, IEdi
 
     public abstract string NPCTemplateType { get; }
 
+	public ICharacter CreateSpellOwnedCharacter(SpatialLocation location, MudSharp.Magic.SpellLifecycleOrigin origin) =>
+		(Gameworld.SpellOwnedNpcs ?? throw new InvalidOperationException("Spell-owned native NPC creation is unavailable."))
+		.Create(this, location, origin);
+
     public IFutureProg? OnLoadProg { get; set; }
     public IHealthStrategy? HealthStrategy { get; set; }
     public ICharacterCombatSettings? DefaultCombatSetting { get; set; }

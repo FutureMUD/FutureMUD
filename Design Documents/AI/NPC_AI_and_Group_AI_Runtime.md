@@ -875,3 +875,15 @@ When adding new AI, the safest progression is usually:
 ## Psychic disposition
 
 `PsychicDispositionQuery` mediates discretionary aggression, target ordering and truce cooperation. Positive affinity discourages aggression; aversion affects ordering and cooperation. Configured refusal is never converted into permission. Enforcers retain legal duties. The `PsychicDisposition(character, subject)` FutureProg query exposes represented affinity/aversion for authored decisions without granting commands, prices, property rights or affiliation.
+
+### Queued ordered combat actions
+
+Commandable AI captures the accepted physical actor/controller, canonical IDs, original command text, authorizing prog and resolved command name. It prepares immutable grant provenance before running the acceptance predicate, then installs a scoped context only after approval. SelectedCombatAction created within that scope retains it. Native command guards still execute normally. The live AI attachment, same authorizing prog, current canonical command allowlist and executable policy are checked at execution, including after policy callbacks. Direct actions outside an order scope carry no order authority.
+
+Durable corpse animations additionally retain the complete immutable lifecycle origin, including unique lifecycle GUID, creator, source/control deadline and animation deadline. The current active grant must match exactly; a replacement grant cannot authorize an old order. Diagnostic-only journal version changes do not replace that origin. Current physical identity/body/cell membership is verified without loading characters; distinct canonical objects sharing an ID refuse authority. Animated secondaries remain identity-local, and their borrowed dead owner's identity need not be alive. Independent following never supplies command permission and survives control expiry.
+
+This is selected combat-action authority, not a general deferred-command system or completed PC charm. Builder-configured per-spell progs and canonical IC-command allowlists remain policy inputs; the planned PC-charm policy, other deferred mechanisms and full installed-world acceptance remain separate completion gates.
+
+Ordered selected actions and their unchanged native moves also retain the exact combat context. Pure participation checks surround the executable policy, so leaving or replacing combat cannot transfer an old selected action into another fight or authorize a child resolution after a callback.
+
+Retrieve, stand, change-position and reposition moves also revalidate after their own internal defender responses, before inventory or posture mutation. Refusal is sticky for that move and suppresses its action stamina cost. This qualifies those four paths; the remaining attack/manual/message/defence-Prog callback gaps are recorded in [the callback audit](../Magic/Armageddon_QueuedCommand_Callback_Audit.md). The original queued-authority checkpoint was rejected during parent review and remains uncleared as a comprehensive claim.

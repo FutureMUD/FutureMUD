@@ -193,6 +193,7 @@ public class PlayerConnection : IPlayerConnection, IAsyncPlayerConnection
 		}
 
 		Interlocked.Decrement(ref _incomingCommandQueueCount);
+		using var inputOrigin = MagicSpeechContext.PlayerInput((ControlPuppet as IFuturemudControlContext)?.Actor);
 #if DEBUG
 		ControlPuppet?.HandleCommand(command.TrimEnd('\n'));
 #else

@@ -24,6 +24,7 @@ namespace MudSharp.NPC.Templates
         ICharacterTemplate GetCharacterTemplate(ICell? cell = null);
         ICharacter CreateNewCharacter(ICell location);
         ICharacter CreateNewCharacter(SpatialLocation location);
+		ICharacter CreateSpellOwnedCharacter(SpatialLocation location, MudSharp.Magic.SpellLifecycleOrigin origin);
         IEnumerable<string> ApplyTemplateLoadAdditions(ICharacter character, bool logWarnings = true);
         INPCTemplate Clone(ICharacter builder);
 		NPCSkillPackageApplicationResult ApplySkillPackage(INPCSkillPackage package);

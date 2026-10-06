@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.Body.PartProtos;
 using MudSharp.Body.Traits;
 using MudSharp.Combat;
@@ -112,11 +112,19 @@ public class BlowgunGameItemComponent : GameItemComponent, IRangedWeapon, ICondi
 
 	public bool CanWield(ICharacter actor)
 	{
+		using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return false;
+
+
 		return _prototype.CanWieldProg?.ExecuteBool(false, actor, Parent) ?? true;
 	}
 
 	public string WhyCannotWield(ICharacter actor)
 	{
+		using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return string.Empty;
+
+
 		return _prototype.WhyCannotWieldProg?.ExecuteString(actor, Parent) ?? "You can't wield that for an unknown reason.";
 	}
 
@@ -154,6 +162,10 @@ public class BlowgunGameItemComponent : GameItemComponent, IRangedWeapon, ICondi
 
 	public bool CanReady(ICharacter readier)
 	{
+		using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(readier);
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(readier)) return false;
+
+
 		var reach = readier.CanReachItem(Parent);
 		if (!reach.Truth)
 		{
@@ -191,6 +203,10 @@ public class BlowgunGameItemComponent : GameItemComponent, IRangedWeapon, ICondi
 
 	public string WhyCannotReady(ICharacter readier)
 	{
+		using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(readier);
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(readier)) return string.Empty;
+
+
 		var reach = readier.CanReachItem(Parent);
 		if (!reach.Truth)
 		{
@@ -229,6 +245,10 @@ public class BlowgunGameItemComponent : GameItemComponent, IRangedWeapon, ICondi
 
 	public bool Ready(ICharacter readier)
 	{
+		using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(readier);
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(readier)) return false;
+
+
 		var reach = readier.CanReachItem(Parent);
 		if (!reach.Truth)
 		{
@@ -244,6 +264,8 @@ public class BlowgunGameItemComponent : GameItemComponent, IRangedWeapon, ICondi
 		readier.OutputHandler.Handle(new EmoteOutput(
 			new Emote("@ raise|raises $0 and ready|readies $1 in the mouthpiece.", readier, Parent, LoadedAmmo.Parent),
 			flags: OutputFlags.SuppressObscured | OutputFlags.InnerWrap));
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(readier)) return false;
+		MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted(readier);
 		IsReadied = true;
 		Changed = true;
 		return true;
@@ -251,11 +273,19 @@ public class BlowgunGameItemComponent : GameItemComponent, IRangedWeapon, ICondi
 
 	public bool CanUnready(ICharacter readier)
 	{
+		using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(readier);
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(readier)) return false;
+
+
 		return IsReadied;
 	}
 
 	public string WhyCannotUnready(ICharacter readier)
 	{
+		using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(readier);
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(readier)) return string.Empty;
+
+
 		if (!IsReadied)
 		{
 			return $"{Parent.HowSeen(readier, true)} is not ready to fire and has no need of being unreadied.";
@@ -266,9 +296,15 @@ public class BlowgunGameItemComponent : GameItemComponent, IRangedWeapon, ICondi
 
 	public bool Unready(ICharacter readier)
 	{
+		using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(readier);
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(readier)) return false;
+
+
 		if (readier == null)
 		{
-			IsReadied = false;
+			if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(readier)) return false;
+		MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted(readier);
+		IsReadied = false;
 			return true;
 		}
 
@@ -281,6 +317,8 @@ public class BlowgunGameItemComponent : GameItemComponent, IRangedWeapon, ICondi
 		readier.OutputHandler.Handle(new EmoteOutput(
 			new Emote("@ lower|lowers $0 from a ready position.", readier, Parent),
 			flags: OutputFlags.SuppressObscured | OutputFlags.InnerWrap));
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(readier)) return false;
+		MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted(readier);
 		IsReadied = false;
 		Changed = true;
 		return true;
@@ -288,6 +326,10 @@ public class BlowgunGameItemComponent : GameItemComponent, IRangedWeapon, ICondi
 
 	public bool CanUnload(ICharacter loader)
 	{
+		using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(loader);
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return false;
+
+
 		if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
 		{
 			return false;
@@ -298,6 +340,10 @@ public class BlowgunGameItemComponent : GameItemComponent, IRangedWeapon, ICondi
 
 	public string WhyCannotUnload(ICharacter loader)
 	{
+		using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(loader);
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return string.Empty;
+
+
 		if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
 		{
 			return manipulationReason;
@@ -318,22 +364,27 @@ public class BlowgunGameItemComponent : GameItemComponent, IRangedWeapon, ICondi
 
 	public IEnumerable<IGameItem> Unload(ICharacter loader)
 	{
+		using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(loader);
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return [];
+
+
 		if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
 		{
 			return [];
 		}
 
 		IAmmo ammo = LoadedAmmo;
-		LoadedAmmo = null;
+		if (ammo is null) return [];
+		var receive = (loader.Body as MudSharp.Body.Implementations.Body)?.PrepareComponentUnload(ammo.Parent);
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return [];
 		loader.OutputHandler.Handle(new EmoteOutput(new Emote("@ unload|unloads $0 from $1.", loader, ammo.Parent, Parent)));
-		if (!loader.Body.CanGet(ammo.Parent, 0))
-		{
-			ammo.Parent.InsertAtSource(loader);
-		}
-		else
-		{
-			loader.Body.Get(ammo.Parent, silent: true);
-		}
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader) || !ReferenceEquals(LoadedAmmo, ammo)) return [];
+		MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted(loader);
+		LoadedAmmo = null;
+		ammo.Parent.ContainedIn = null;
+		if (receive is not null) receive();
+		else if (loader.Body.CanGet(ammo.Parent, 0) && MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) loader.Body.Get(ammo.Parent, silent: true);
+		else if (!ammo.Parent.Deleted && ammo.Parent.InInventoryOf is null && ammo.Parent.ContainedIn is null && ammo.Parent.Location is null) ammo.Parent.InsertAtSource(loader);
 
 		Changed = true;
 		return new[] { ammo.Parent };
@@ -341,6 +392,10 @@ public class BlowgunGameItemComponent : GameItemComponent, IRangedWeapon, ICondi
 
 	public bool CanLoad(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
 	{
+		using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(loader);
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return false;
+
+
 		if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
 		{
 			return false;
@@ -357,6 +412,10 @@ public class BlowgunGameItemComponent : GameItemComponent, IRangedWeapon, ICondi
 
 	public string WhyCannotLoad(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
 	{
+		using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(loader);
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return string.Empty;
+
+
 		if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
 		{
 			return manipulationReason;
@@ -380,6 +439,10 @@ public class BlowgunGameItemComponent : GameItemComponent, IRangedWeapon, ICondi
 
 	public void Load(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
 	{
+		using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(loader);
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return;
+
+
 		if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
 		{
 			loader?.OutputHandler.Send(manipulationReason);
@@ -394,6 +457,7 @@ public class BlowgunGameItemComponent : GameItemComponent, IRangedWeapon, ICondi
 		}
 
 		plan.ExecuteWholePlan();
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return;
 		IGameItem ammo = loader.Body.HeldItems.FirstOrDefault(x =>
 			(x.GetItemType<IAmmo>()?.AmmoType.SpecificType.Equals(WeaponType.SpecificAmmunitionGrade,
 				StringComparison.InvariantCultureIgnoreCase) ?? false) &&
@@ -409,7 +473,9 @@ public class BlowgunGameItemComponent : GameItemComponent, IRangedWeapon, ICondi
 		IStackable ammoStack = ammo.GetItemType<IStackable>();
 		if (ammoStack != null && ammoStack.Quantity > 1)
 		{
-			IGameItem newammo = ammoStack.Split(1);
+			if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return;
+		MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted(loader);
+		IGameItem newammo = ammoStack.Split(1);
 			LoadedAmmo = newammo.GetItemType<IAmmo>();
 			loader.OutputHandler.Handle(new EmoteOutput(
 				new Emote("@ insert|inserts $1 into $0.", loader, Parent, newammo),
@@ -418,7 +484,9 @@ public class BlowgunGameItemComponent : GameItemComponent, IRangedWeapon, ICondi
 		}
 		else
 		{
-			loader.Body.Take(ammo);
+			if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return;
+		loader.Body.Take(ammo);
+		if (ammo.Deleted || ammo.Destroyed || ammo.InInventoryOf is not null || ammo.ContainedIn is not null || ammo.Location is not null) return;
 			LoadedAmmo = ammo.GetItemType<IAmmo>();
 			loader.OutputHandler.Handle(new EmoteOutput(
 				new Emote("@ insert|inserts $1 into $0.", loader, Parent, ammo),
@@ -431,6 +499,10 @@ public class BlowgunGameItemComponent : GameItemComponent, IRangedWeapon, ICondi
 
 	public bool CanFire(ICharacter actor, IPerceivable target)
 	{
+		using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return false;
+
+
 		var reach = actor.CanReachItem(Parent);
 		if (!reach.Truth)
 		{
@@ -442,6 +514,10 @@ public class BlowgunGameItemComponent : GameItemComponent, IRangedWeapon, ICondi
 
 	public string WhyCannotFire(ICharacter actor, IPerceivable target)
 	{
+		using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return string.Empty;
+
+
 		var reach = actor.CanReachItem(Parent);
 		if (!reach.Truth)
 		{
@@ -470,6 +546,10 @@ public class BlowgunGameItemComponent : GameItemComponent, IRangedWeapon, ICondi
 	public void Fire(ICharacter actor, IPerceiver target, Outcome shotOutcome, Outcome coverOutcome,
 		OpposedOutcome defenseOutcome, IBodypart bodypart, IEmoteOutput defenseEmote, IPerceiver originalTarget)
 	{
+		using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return;
+
+
 		var reach = actor.CanReachItem(Parent);
 		if (!reach.Truth)
 		{
@@ -510,12 +590,17 @@ public class BlowgunGameItemComponent : GameItemComponent, IRangedWeapon, ICondi
 					Parent, LoadedAmmo.Parent), style: OutputStyle.CombatMessage, flags: flags));
 		}
 
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return;
+		MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted(actor);
 		IAmmo ammo = LoadedAmmo;
+        var shotCompletion = new ProjectileCustodyCompletion(actor, ammo.Parent, target);
 		LoadedAmmo = null;
 		IsReadied = false;
 		Changed = true;
-		ammo.Fire(actor, target, shotOutcome, coverOutcome, defenseOutcome, bodypart, ammo.Parent, WeaponType,
+		if (ComponentItemTransfer.ReleaseFiredItem(ammo.Parent, Parent) && MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor))
+        ammo.Fire(actor, target, shotOutcome, coverOutcome, defenseOutcome, bodypart, ammo.Parent, WeaponType,
 			defenseEmote);
+        else shotCompletion.Finish();
 		UseCondition(new ItemConditionUseContext(ItemConditionUseKind.RangedFire, shotOutcome,
 			(int)(defenseOutcome?.Degree ?? OpposedOutcomeDegree.None)));
 	}

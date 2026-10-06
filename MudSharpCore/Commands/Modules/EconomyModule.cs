@@ -4080,6 +4080,8 @@ Additionally, you can use the following shop admin subcommands:
             return;
         }
 
+		if (SpellOwnedItemValuePolicy.ContainsTemporaryValue(item))
+		{ actor.OutputHandler.Send("You cannot stock temporary spell-created material for sale."); return; }
         shop.AddToStock(actor, item, merch);
     }
 
@@ -6497,6 +6499,8 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
             return;
         }
 
+		if (!propertySale && SpellOwnedItemValuePolicy.ContainsTemporaryValue(item))
+		{ actor.OutputHandler.Send("You cannot auction temporary spell-created material."); return; }
         if (!auctionHouse.EconomicZone.Currency.TryGetBaseCurrency(ss.PopSpeech(), out decimal price))
         {
             actor.OutputHandler.Send(
@@ -6612,6 +6616,8 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
                     actor.OutputHandler.Send($"You no longer have {itemDesc}.");
                     return;
                 }
+				if (!propertySale && SpellOwnedItemValuePolicy.ContainsTemporaryValue(item))
+				{ actor.OutputHandler.Send("You cannot auction temporary spell-created material."); return; }
 
                 if (actor.Location != auctionHouse.AuctionHouseCell)
                 {

@@ -1701,7 +1701,12 @@ The syntax is:
                     return;
                 }
 
-                target = corpse.OriginalCharacter;
+				target = corpse.GetOriginalCharacterWithMatchingBody();
+				if (target is null)
+				{
+					actor.Send("Those remains' original body or owner can no longer be identified as the same character body.");
+					return;
+				}
             }
             else
             {

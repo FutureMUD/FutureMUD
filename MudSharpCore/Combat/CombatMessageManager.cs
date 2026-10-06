@@ -2,6 +2,7 @@
 using MudSharp.Database;
 using MudSharp.GameItems;
 using MudSharp.RPG.Checks;
+using MudSharp.NPC.AI;
 
 namespace MudSharp.Combat;
 
@@ -29,19 +30,28 @@ public class CombatMessageManager : ICombatMessageManager
     public ICombatMessage GetCombatMessageFor(ICharacter character, IPerceiver target, IGameItem weapon,
         IWeaponAttack attack, BuiltInCombatMoveType type, Outcome outcome, IBodypart bodypart)
     {
-        return
-            _combatMessages.Where(x => x.Applies(character, target, weapon, attack, type, outcome, bodypart))
-                           .OrderByDescending(x => x.Priority)
-                           .FirstOrDefault(x => Constants.Random.NextDouble() <= x.Chance);
+		return SelectMessage(x => x.Applies(character, target, weapon, attack, type, outcome, bodypart));
     }
 
     public ICombatMessage GetCombatMessageFor(ICharacter character, IPerceiver target, IAuxiliaryCombatAction action,
         Outcome outcome)
     {
-        return _combatMessages.Where(x => x.Applies(character, target, action, outcome))
-                       .OrderByDescending(x => x.Priority)
-                       .FirstOrDefault(x => Constants.Random.NextDouble() <= x.Chance);
+		return SelectMessage(x => x.Applies(character, target, action, outcome));
     }
+
+	private ICombatMessage SelectMessage(Func<ICombatMessage, bool> applies)
+	{
+		var candidates = new List<ICombatMessage>();
+		foreach (var message in _combatMessages.ToArray())
+		{
+			if (!CommandExecutionScope.TryContinue()) return null;
+			var permitted = applies(message);
+			if (!CommandExecutionScope.TryContinue()) return null;
+			if (permitted && _combatMessages.Contains(message)) candidates.Add(message);
+		}
+		return candidates.OrderByDescending(x => x.Priority)
+			.FirstOrDefault(x => Constants.Random.NextDouble() <= x.Chance);
+	}
 
     public string GetMessageFor(ICharacter character, IPerceiver target, IGameItem weapon, IWeaponAttack attack,
         BuiltInCombatMoveType type, Outcome outcome, IBodypart bodypart)

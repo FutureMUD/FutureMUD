@@ -1,4 +1,4 @@
-﻿using C5;
+using C5;
 using MudSharp.Accounts;
 using MudSharp.Communication.Language;
 using MudSharp.Database;
@@ -985,6 +985,8 @@ public class GameItemProto : EditableItem, IGameItemProto, IEditableUniqueName
 
     public IGameItem LoadDestroyedItem(IGameItem originalItem)
     {
+		if (originalItem.SpellCreationOrigin?.IsTemporary == true) return null;
+		if (originalItem.GetItemType<ICorpse>() is not null && Gameworld.SpellOwnedCorpseAnimations?.IsBorrowedCorpse(originalItem.Id) == true) return null;
         if (_onDestroyedGameItemProto == 0)
         {
             return null;
@@ -1013,11 +1015,14 @@ public class GameItemProto : EditableItem, IGameItemProto, IEditableUniqueName
     private long _onMorphGameItemProto;
     public string MorphEmote { get; set; }
     public bool Morphs { get; set; }
+	public long? MorphTargetId => _onMorphGameItemProto > 0 ? _onMorphGameItemProto : null;
     public TimeSpan MorphTimeSpan { get; set; }
 	public bool RefrigerationSensitive { get; set; }
 
     public IGameItem LoadMorphedItem(IGameItem originalItem)
     {
+		if (originalItem.SpellCreationOrigin?.IsTemporary == true) return null;
+		if (originalItem.GetItemType<ICorpse>() is not null && Gameworld.SpellOwnedCorpseAnimations?.IsBorrowedCorpse(originalItem.Id) == true) return null;
         if (_onMorphGameItemProto == 0)
         {
             return null;

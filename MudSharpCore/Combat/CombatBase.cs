@@ -380,6 +380,10 @@ public abstract class CombatBase : ICombat
 
     public virtual void CombatAction(IPerceiver perceiver, ICombatMove move)
     {
+        // A callback or stale schedule may have retired this exact physical participant.
+        if (!ReferenceEquals(perceiver.Combat, this) || !_combatants.Any(x => ReferenceEquals(x, perceiver))) return;
+        if (!MudSharp.NPC.AI.CommandExecutionAuthority.MayExecute(move, perceiver as ICharacter)) move = null;
+        if (!ReferenceEquals(perceiver.Combat, this) || !_combatants.Any(x => ReferenceEquals(x, perceiver))) return;
         perceiver.RemoveAllEffects(x => x is IEndOnCombatMove e && e.CausesToEnd(move), true);
         if (move == null)
         {
@@ -405,16 +409,16 @@ public abstract class CombatBase : ICombat
 		ICombatMove targetResponse = move is MultiTargetCombatMove
 			? null
 			: move.CharacterTargets.FirstOrDefault()?.ResponseToMove(move, perceiver);
-		CombatMoveResult result = move.ResolveMove(targetResponse);
-		if (!result.DefenderResponseWasUsed) targetResponse = null;
-		if (!ReferenceEquals(result, CombatMoveResult.Irrelevant))
+		// A defensive response can invoke callbacks. Check again immediately before resolution.
+		if (!ReferenceEquals(perceiver.Combat, this) || !_combatants.Any(x => ReferenceEquals(x, perceiver))) return;
+		if (!MudSharp.NPC.AI.CommandExecutionAuthority.MayExecute(move, perceiver as ICharacter))
 		{
-			FireOnUseProg(move);
+			CombatAction(perceiver, null);
+			return;
 		}
-		HandleCombatResult(perceiver, move, targetResponse, result);
-
-        //Bloody weapons, fists, bullets, blood splash, etc.
-        (move as WeaponAttackMove)?.ResolveBloodSpray(result);
+		using var execution = MudSharp.NPC.AI.CommandExecutionScope.EnterMove(move);
+		CombatMoveResult result = MudSharp.NPC.AI.CommandExecutionScope.Resolve(move, targetResponse);
+		if (!result.DefenderResponseWasUsed) targetResponse = null;
 
         Difficulty recovery = result.RecoveryDifficulty;
         if (perceiver is ICharacter character && character.Race.RaceUsesStamina && move.UsesStaminaWithResult(result))
@@ -436,10 +440,24 @@ public abstract class CombatBase : ICombat
             tcharacter.SpendStamina(targetResponse.StaminaCost);
         }
 
+		// Completed damage/child work pays its normal costs even if a callback removed the attacker.
+		if (!ReferenceEquals(perceiver.Combat, this) || !_combatants.Any(x => ReferenceEquals(x, perceiver))) return;
+		if (MudSharp.NPC.AI.CommandExecutionScope.TryContinue())
+		{
+			if (!ReferenceEquals(result, CombatMoveResult.Irrelevant)) FireOnUseProg(move);
+			if (MudSharp.NPC.AI.CommandExecutionScope.TryContinue()) HandleCombatResult(perceiver, move, targetResponse, result);
+			if (MudSharp.NPC.AI.CommandExecutionScope.TryContinue()) (move as WeaponAttackMove)?.ResolveBloodSpray(result);
+		}
+
 		foreach (var tactic in perceiver.EffectsOfType<ICombatTacticEffect>().ToList())
 		{
+			if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue()) break;
 			tactic.MoveResolved(move, result);
 		}
+
+		if (!ReferenceEquals(perceiver.Combat, this) || !_combatants.Any(x => ReferenceEquals(x, perceiver))) return;
+		// Status/recovery scheduling belongs to the ongoing combat, including autonomous turns after hit.
+		using var autonomousContinuation = MudSharp.NPC.AI.CommandExecutionScope.EnterIndependent();
 
         if (perceiver.CombatTarget?.CheckCombatStatus() == false)
         {

@@ -1,4 +1,4 @@
-﻿using MudSharp.Economy.Currency;
+using MudSharp.Economy.Currency;
 using MudSharp.GameItems.Prototypes;
 
 namespace MudSharp.GameItems.Components;
@@ -142,8 +142,28 @@ public class CurrencyGameItemComponent : GameItemComponent, ICurrencyPile
 
     public decimal TotalValue => _coins.Sum(x => x.Value * x.Key.Value);
 
+	internal void SetPreviewCoins(ICurrency currency, IReadOnlyDictionary<ICoin, int> coins)
+	{
+		if (!GetNoSave()) throw new InvalidOperationException("Only an unpublished currency preview can be populated without callbacks.");
+		Currency = currency;
+		_coins.Clear();
+		foreach (var coin in coins) _coins.Add(coin.Key, coin.Value);
+	}
+
+	internal void ReplacePreparedCoins(IReadOnlyDictionary<ICoin, int> coins)
+	{
+		// The currency transfer has validated and allocated every final map before committing.
+		// All denomination and custody writes finish before dirty flags or notifications.
+		_coins.Clear();
+		foreach (var coin in coins) _coins.Add(coin.Key, coin.Value);
+	}
+	internal void MarkPreparedCoinsChanged() => Changed = true;
+
+	internal void NotifyCurrencyTransferDebit() => HandleDescriptionUpdate();
+
     public void AddCoins(IEnumerable<Tuple<ICoin, int>> coins)
     {
+		ForeignCustodyTransferContext.EnsureItem(Parent, destructive: true);
         foreach (Tuple<ICoin, int> coin in coins)
         {
             if (_coins.ContainsKey(coin.Item1))
@@ -162,6 +182,7 @@ public class CurrencyGameItemComponent : GameItemComponent, ICurrencyPile
 
     public void AddCoins(IEnumerable<KeyValuePair<ICoin, int>> coins)
     {
+		ForeignCustodyTransferContext.EnsureItem(Parent, destructive: true);
         foreach (KeyValuePair<ICoin, int> coin in coins)
         {
             if (_coins.ContainsKey(coin.Key))
@@ -180,6 +201,7 @@ public class CurrencyGameItemComponent : GameItemComponent, ICurrencyPile
 
     public void AddCoins(IEnumerable<(ICoin, int)> coins)
     {
+		ForeignCustodyTransferContext.EnsureItem(Parent, destructive: true);
         foreach ((ICoin, int) coin in coins)
         {
             if (_coins.ContainsKey(coin.Item1))
@@ -198,6 +220,7 @@ public class CurrencyGameItemComponent : GameItemComponent, ICurrencyPile
 
     public bool RemoveCoins(IEnumerable<Tuple<ICoin, int>> coins)
     {
+		ForeignCustodyTransferContext.EnsureItem(Parent, destructive: true);
         foreach (Tuple<ICoin, int> coin in coins)
         {
             if (_coins.ContainsKey(coin.Item1))
@@ -223,6 +246,7 @@ public class CurrencyGameItemComponent : GameItemComponent, ICurrencyPile
 
     public bool RemoveCoins(IEnumerable<KeyValuePair<ICoin, int>> coins)
     {
+		ForeignCustodyTransferContext.EnsureItem(Parent, destructive: true);
         foreach (KeyValuePair<ICoin, int> coin in coins)
         {
             if (_coins.ContainsKey(coin.Key))
@@ -248,6 +272,7 @@ public class CurrencyGameItemComponent : GameItemComponent, ICurrencyPile
 
     public bool RemoveCoins(IEnumerable<(ICoin, int)> coins)
     {
+		ForeignCustodyTransferContext.EnsureItem(Parent, destructive: true);
         foreach ((ICoin, int) coin in coins)
         {
             if (_coins.ContainsKey(coin.Item1))

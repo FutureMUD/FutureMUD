@@ -189,6 +189,12 @@ public class PredatorHuntingTests
 		f.Actor.Setup(x => x.ColocatedWith(f.Target.Object)).Returns(true);
 		f.Actor.SetupProperty(x => x.PositionState, PositionStanding.Instance);
 		f.Target.SetupProperty(x => x.PositionState, PositionSprawled.Instance);
+		f.Actor.SetupProperty(x => x.RoomLayer, RoomLayer.GroundLevel);
+		f.Target.SetupProperty(x => x.RoomLayer, RoomLayer.GroundLevel);
+		f.Actor.Setup(x => x.Teleport(f.Cell.Object, RoomLayer.InTrees, false, false, It.IsAny<double?>()))
+			.Callback(() => f.Actor.Object.RoomLayer = RoomLayer.InTrees);
+		f.Target.Setup(x => x.Teleport(f.Cell.Object, RoomLayer.InTrees, false, false, It.IsAny<double?>()))
+			.Callback(() => f.Target.Object.RoomLayer = RoomLayer.InTrees);
 		f.Actor.SetupGet(x => x.MaximumDragWeight).Returns(30);
 		f.Target.SetupGet(x => x.Weight).Returns(20);
 		f.Actor.Setup(x => x.CouldTransitionToLayer(RoomLayer.InTrees)).Returns(true);

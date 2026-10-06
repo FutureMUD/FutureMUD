@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using MudSharp.Body;
 using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
@@ -15,6 +15,7 @@ using MudSharp.GameItems.Inventory;
 using MudSharp.GameItems.Inventory.Plans;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.Health;
+using MudSharp.PerceptionEngine.Lists;
 using MudSharp.RPG.Checks;
 using System.Reflection.Metadata.Ecma335;
 
@@ -305,12 +306,20 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
     /// <inheritdoc />
     public bool CanWield(ICharacter actor)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return false;
+
+
         return _prototype.CanWieldProg?.ExecuteBool(false, actor, Parent) ?? true;
     }
 
     /// <inheritdoc />
     public string WhyCannotWield(ICharacter actor)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return string.Empty;
+
+
         return _prototype.WhyCannotWieldProg?.ExecuteString(actor, Parent) ?? "You can't wield that for an unknown reason.";
     }
 
@@ -379,6 +388,10 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
     /// <inheritdoc />
     public bool CanUnjam(ICharacter actor)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return false;
+
+
         if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
         {
             return false;
@@ -401,6 +414,10 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
     /// <inheritdoc />
     public string WhyCannotUnjam(ICharacter actor)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return string.Empty;
+
+
         if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
         {
             return manipulationReason;
@@ -428,6 +445,10 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
     /// <inheritdoc />
     public bool Unjam(ICharacter actor)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return false;
+
+
         if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
         {
             return false;
@@ -469,6 +490,11 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
 
 	public bool Emplace(ICharacter actor, out string reason)
 	{
+		using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
+		reason = string.Empty;
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return false;
+
+
 		if (!ItemManipulationGuard.CanManipulate(actor, out reason, Parent))
 		{
 			return false;
@@ -492,6 +518,11 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
 
 	public bool Limber(ICharacter actor, out string reason)
 	{
+		using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
+		reason = string.Empty;
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return false;
+
+
 		if (!ItemManipulationGuard.CanManipulate(actor, out reason, Parent))
 		{
 			return false;
@@ -540,6 +571,11 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
     /// <inheritdoc />
     public bool CanLoad(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(loader);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return false;
+        if (LoadStage == 0 && _magazineContents.Count > 0) return false;
+
+
         if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
         {
             return false;
@@ -597,6 +633,11 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
     /// <inheritdoc />
     public string WhyCannotLoad(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(loader);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return string.Empty;
+        if (LoadStage == 0 && _magazineContents.Count > 0) return "You must finish unloading the retained barrel contents before loading it.";
+
+
         if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
         {
             return manipulationReason;
@@ -700,6 +741,10 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
     /// <inheritdoc />
     public void Load(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(loader);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return;
+
+
         if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
         {
             loader?.OutputHandler.Send(manipulationReason);
@@ -708,6 +753,7 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
 
         void AddEffect()
         {
+			if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return;
             ICheck check = Gameworld.GetCheck(CheckType.LoadMusket);
             Difficulty difficulty = Difficulty.Normal;
             if (loader.Combat is not null)
@@ -721,6 +767,7 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
             }
 
             CheckOutcome result = check.Check(loader, difficulty, Parent, this);
+			if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return;
             loader.AddEffect(new LoadingMusket(loader, this, mode), TimeSpan.FromSeconds(
                 LoadStage switch
                 {
@@ -763,6 +810,7 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
 							.PrimaryTarget;
 						var restoreCleaningRodAttachment = IsAttachedToThisWeapon(plannedCleaningRod);
 						results = plan.ExecuteWholePlan();
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return;
 						var cleaningRod = results.First(x => x.OriginalReference?.ToString() == "cleaning rod").PrimaryTarget;
 						loader.OutputHandler.Handle(new EmoteOutput(new Emote(_prototype.LoadEmoteClean, loader, loader, Parent, cleaningRod), flags: OutputFlags.InnerWrap));
 						plan.FinalisePlanWithExemptions([Parent]);
@@ -781,10 +829,11 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
 				if (mode != LoadMode.Blank && plan.PlanIsFeasible() == InventoryPlanFeasibility.Feasible)
                 {
                     results = plan.ExecuteWholePlan();
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return;
 					IGameItem cartridgeSource = results.First(x => x.OriginalReference?.ToString() == "cartridge").PrimaryTarget;
 					IGameItem cartridge = TakeOnePhysicalItem(loader, cartridgeSource);
+					if (!ContainLoadedItem(cartridge)) return;
                     loader.OutputHandler.Handle(new EmoteOutput(new Emote(_prototype.LoadEmoteCartridge, loader, loader, Parent, cartridge), flags: OutputFlags.InnerWrap));
-					ContainLoadedItem(cartridge);
                     plan.FinalisePlanWithExemptions([cartridge, Parent]);
                     LoadStage = 3;
 					IsBlankLoad = false;
@@ -795,9 +844,10 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
 
 				plan = CreateBoundPlan(loader, _prototype.LoadTemplateLoadPowder);
 				results = plan.ExecuteWholePlan();
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return;
 				IGameItem powderSource = results.First(x => x.OriginalReference?.ToString() == "gunpowder").PrimaryTarget;
-				IGameItem powder = powderSource.GetByWeight(loader.Body, _prototype.PowderVolumePerShot);
-				ContainLoadedItem(powder);
+				IGameItem powder = ComponentItemTransfer.TakeByWeight(loader, powderSource, _prototype.PowderVolumePerShot);
+				if (!ContainLoadedItem(powder)) return;
                 loader.OutputHandler.Handle(new EmoteOutput(new Emote(_prototype.LoadEmotePowder, loader, loader, Parent, powder), flags: OutputFlags.InnerWrap));
 				plan.FinalisePlanWithExemptions([powder, Parent]);
                 LoadStage = 2;
@@ -816,13 +866,15 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
 				var (loadingBundle, wad, ball) = CreateLoadingBundle(loader, wadSource, ballSource);
 				plan = CreateLoadingBundlePlan(loader, loadingBundle);
 				results = plan.ExecuteWholePlan();
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return;
 				var bundleContents = loadingBundle.GetItemType<IContainer>();
 				wad = bundleContents.Take(loader, wad, 0);
-				ContainLoadedItem(wad);
+				if (!ContainLoadedItem(wad)) return;
 				if (ball is not null)
 				{
 					ball = bundleContents.Take(loader, ball, 0);
-					ContainLoadedItem(ball);
+					if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return;
+					if (!ContainLoadedItem(ball)) return;
 				}
 				var shotPerceivable = (IPerceivable)ball ?? new DummyPerceivable("the blank charge");
 				loader.OutputHandler.Handle(new EmoteOutput(new Emote(_prototype.LoadEmoteBall, loader, loader,
@@ -837,6 +889,7 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
                 {
 					plan = CreateBoundPlan(loader, _prototype.LoadTemplateFinishLoading);
                     results = plan.ExecuteWholePlan();
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return;
                     loader.OutputHandler.Handle(new EmoteOutput(new Emote(_prototype.LoadEmoteTap, loader, loader, Parent), flags: OutputFlags.InnerWrap));
                     plan.FinalisePlanWithExemptions([Parent]);
                     LoadStage = 4;
@@ -850,12 +903,14 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
 					.PrimaryTarget;
 				var restoreRamrodAttachment = IsAttachedToThisWeapon(plannedRamrod);
 				results = plan.ExecuteWholePlan();
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return;
                 ramrod = results.FirstOrDefault(x => x.OriginalReference?.ToString() == "ramrod").PrimaryTarget;
                 loader.OutputHandler.Handle(new EmoteOutput(new Emote(_prototype.LoadEmoteRamrod, loader, loader, Parent, ramrod), flags: OutputFlags.InnerWrap));
                 plan.FinalisePlanWithExemptions([Parent]);
 				RestoreToolAttachment(loader, ramrod, restoreRamrodAttachment);
 				plan = CreateBoundPlan(loader, _prototype.LoadTemplateFinishLoading);
                 results = plan.ExecuteWholePlan();
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return;
                 plan.FinalisePlanNoRestore();
                 LoadStage = 4;
                 TapLoaded = false;
@@ -866,20 +921,8 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
         }
     }
 
-	private static IGameItem TakeOnePhysicalItem(ICharacter actor, IGameItem source)
-	{
-		var stack = source.GetItemType<IStackable>();
-		if (stack is not null && stack.Quantity > 1)
-		{
-			var split = stack.Split(1);
-			split.Login();
-			split.HandleEvent(EventType.ItemFinishedLoading, split);
-			return split;
-		}
-
-		actor.Body.Take(source);
-		return source;
-	}
+	private static IGameItem TakeOnePhysicalItem(ICharacter actor, IGameItem source) =>
+		ComponentItemTransfer.TakeOne(actor, source);
 
 	private bool IsAttachedToThisWeapon(IGameItem item)
 	{
@@ -888,6 +931,10 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
 
 	private void RestoreToolAttachment(ICharacter actor, IGameItem tool, bool shouldRestore)
 	{
+		using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return;
+
+
 		if (!shouldRestore || tool is null || tool.Destroyed ||
 		    tool.GetItemType<IBeltable>() is not { } beltable || beltable.ConnectedTo == this)
 		{
@@ -1003,25 +1050,23 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
 		};
 	}
 
-	private void ContainLoadedItem(IGameItem item)
+	private bool ContainLoadedItem(IGameItem item)
 	{
-		if (item.ContainedIn != Parent)
-		{
-			item.ContainedIn?.Take(item);
-		}
-
-		item.InInventoryOf?.Take(item);
-		item.Location?.Extract(item);
-		item.ContainedIn = Parent;
-		if (!_magazineContents.Contains(item))
-		{
-			_magazineContents.Add(item);
-		}
+		var contents = _magazineContents.ToArray();
+		return ComponentItemTransfer.ContainPrepared(item, Parent,
+			() => _magazineContents.Count == contents.Length && _magazineContents.Zip(contents).All(x => ReferenceEquals(x.First, x.Second)),
+			() => { _magazineContents.Add(item); Changed = true; },
+			() => { if (_magazineContents.Remove(item)) Changed = true; });
 	}
 
     /// <inheritdoc />
     public bool CanReady(ICharacter readier)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(readier);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(readier)) return false;
+        if (LoadStage == 0 && _magazineContents.Count > 0) return false;
+
+
         if (!ItemManipulationGuard.CanManipulate(readier, out var manipulationReason, Parent))
         {
             return false;
@@ -1057,6 +1102,11 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
     /// <inheritdoc />
     public string WhyCannotReady(ICharacter readier)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(readier);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(readier)) return string.Empty;
+        if (LoadStage == 0 && _magazineContents.Count > 0) return "You must finish unloading the retained barrel contents before readying it.";
+
+
         if (!ItemManipulationGuard.CanManipulate(readier, out var manipulationReason, Parent))
         {
             return manipulationReason;
@@ -1104,6 +1154,10 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
     /// <inheritdoc />
     public bool Ready(ICharacter readier)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(readier);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(readier)) return false;
+
+
         if (!ItemManipulationGuard.CanManipulate(readier, out var manipulationReason, Parent))
         {
             return false;
@@ -1138,18 +1192,30 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
     /// <inheritdoc />
     public bool CanUnready(ICharacter readier)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(readier);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(readier)) return false;
+
+
 		return IsReadied;
     }
 
     /// <inheritdoc />
     public string WhyCannotUnready(ICharacter readier)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(readier);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(readier)) return string.Empty;
+
+
 		return $"{Parent.HowSeen(readier, true)} is not readied.";
     }
 
     /// <inheritdoc />
     public bool Unready(ICharacter readier)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(readier);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(readier)) return false;
+
+
         if (!CanUnready(readier))
         {
             readier.Send(WhyCannotUnready(readier));
@@ -1168,6 +1234,10 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
     /// <inheritdoc />
     public bool CanUnload(ICharacter loader)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(loader);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return false;
+
+
         if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
         {
             return false;
@@ -1193,6 +1263,10 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
     /// <inheritdoc />
     public string WhyCannotUnload(ICharacter loader)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(loader);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return string.Empty;
+
+
         if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
         {
             return manipulationReason;
@@ -1218,62 +1292,96 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
     /// <inheritdoc />
     public IEnumerable<IGameItem> Unload(ICharacter loader)
     {
-        if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
-        {
-            return [];
-        }
-
-        if (!CanUnload(loader))
-        {
-            loader.Send(WhyCannotUnload(loader));
-            return Enumerable.Empty<IGameItem>();
-        }
-
-        IGameItem removed = null;
-        IPerceivable removedPerceivable = null;
-        if (_magazineContents.Count > 1)
-        {
-            List<IGameItem> contents = _magazineContents.ToList();
-            _magazineContents.Clear();
-            foreach (IGameItem item in contents)
-            {
-                item.ContainedIn = null;
-            }
-
-            removed = PileGameItemComponentProto.CreateNewBundle(contents);
-            removedPerceivable = removed;
-        }
-        else if (_magazineContents.Count == 1)
-        {
-            removed = _magazineContents[0];
-            _magazineContents.Clear();
-            removed.ContainedIn = null;
-            removedPerceivable = removed;
-        }
-        else
-        {
-            removedPerceivable = new DummyPerceivable("nothing");
-        }
-
-        Changed = true;
-        loader.OutputHandler.Handle(new EmoteOutput(new Emote(_prototype.UnloadEmote, loader, loader, Parent, removedPerceivable)));
-        LoadStage = 0;
-		IsBlankLoad = false;
-		TapLoaded = false;
-		IsReadied = false;
-        if (removed is not null)
-        {
-            removed.InsertAtSource(loader);
-            removed.RoomLayer = loader.RoomLayer;
-            removed.SetPosition(PositionUndefined.Instance, PositionModifier.Behind, loader, null);
-        }
-
-        return removed is not null ? [removed] : [];
+		using var execution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(loader);
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return [];
+		var canUnload = CanUnload(loader);
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return [];
+		if (!canUnload)
+		{
+			var reason = WhyCannotUnload(loader);
+			if (MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) loader.Send(reason);
+			return [];
+		}
+		var snapshot = _magazineContents.ToArray();
+		var detached = new List<IGameItem>();
+		// Create the carrier without publishing its lifecycle or claiming barrel contents.
+		IGameItem bundle = snapshot.Length > 1 ? PileGameItemComponentProto.ItemPrototype.CreateNew() : null;
+		var pile = bundle?.GetItemType<PileGameItemComponent>();
+		var finishedBundle = false;
+		try
+		{
+			var bundleCompletion = bundle is null ? null : ComponentUnloadCompletion.PrepareFloor(loader, bundle, loader);
+			if (bundle is not null && (pile is null || bundleCompletion is null)) return [];
+			var announced = false;
+			foreach (var item in snapshot)
+			{
+				if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) break;
+				if (!_magazineContents.Any(x => ReferenceEquals(x, item)) || !ComponentUnloadCompletion.OwnedBy(item, Parent)) continue;
+				var floor = ComponentUnloadCompletion.PrepareFloor(loader, item, loader);
+				if (floor is null || !MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) break;
+				if (!announced)
+				{
+					IPerceivable removed = snapshot.Length > 1 ? new PerceivableGroup(snapshot) : item;
+					loader.OutputHandler.Handle(new EmoteOutput(new Emote(_prototype.UnloadEmote, loader, loader, Parent, removed)));
+					announced = true;
+				}
+				if (!_magazineContents.Any(x => ReferenceEquals(x, item)) || !ComponentUnloadCompletion.Detach(loader, item, Parent, () =>
+				{
+					_magazineContents.RemoveAll(x => ReferenceEquals(x, item));
+					TapLoaded = false;
+					IsReadied = false;
+					// Stage zero with retained physical contents means interrupted unload residue.
+					LoadStage = 0;
+					IsBlankLoad = false;
+					Changed = true;
+				}, () => _magazineContents.Any(x => ReferenceEquals(x, item)))) break;
+				detached.Add(item);
+				if (pile is not null && !bundle.Deleted && !bundle.Destroyed && ComponentItemTransfer.IsDetached(item))
+					pile.PutPreparedUnload(item);
+				// A deleted/relocated carrier never steals custody back. Complete just this item.
+				if (ComponentItemTransfer.IsDetached(item)) floor();
+			}
+			if (snapshot.Length == 0 && MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader))
+			{
+				loader.OutputHandler.Handle(new EmoteOutput(new Emote(_prototype.UnloadEmote, loader, loader, Parent, new DummyPerceivable("nothing"))));
+				if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return [];
+				MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted(loader);
+				LoadStage = 0;
+				IsBlankLoad = false;
+				TapLoaded = false;
+				IsReadied = false;
+				Changed = true;
+			}
+			if (bundle is not null && !bundle.Deleted && !bundle.Destroyed && pile.Contents.Any())
+			{
+				// Publish the pre-created carrier only with actually committed participants.
+				bundle.Login();
+				if (!bundle.Deleted && !bundle.Destroyed) bundle.HandleEvent(EventType.ItemFinishedLoading, bundle);
+				bundleCompletion();
+				finishedBundle = true;
+				if (!bundle.Deleted && !bundle.Destroyed && MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader))
+					bundle.SetPosition(PositionUndefined.Instance, PositionModifier.Behind, loader, null);
+				return [bundle];
+			}
+			var single = detached.FirstOrDefault();
+			if (single is not null && !single.Deleted && !single.Destroyed && MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader))
+				single.SetPosition(PositionUndefined.Instance, PositionModifier.Behind, loader, null);
+			return detached;
+		}
+		finally
+		{
+			// Never delete contents acquired through a callback or a published carrier.
+			if (!finishedBundle && bundle is { Deleted: false, Destroyed: false } && pile is not null && !pile.Contents.Any()) bundle.Delete();
+		}
     }
 
     /// <inheritdoc />
     public bool CanFire(ICharacter actor, IPerceivable target)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return false;
+
+
         if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
         {
             return false;
@@ -1294,6 +1402,10 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
     /// <inheritdoc />
     public string WhyCannotFire(ICharacter actor, IPerceivable target)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return string.Empty;
+
+
         if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
         {
             return manipulationReason;
@@ -1374,265 +1486,353 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
 
     /// <inheritdoc />
     public void Fire(ICharacter actor, IPerceiver target, Outcome shotOutcome, Outcome coverOutcome, OpposedOutcome defenseOutcome, IBodypart bodypart, IEmoteOutput defenseEmote, IPerceiver originalTarget)
-    {
-        if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
-        {
-            actor?.OutputHandler.Send(manipulationReason);
-            return;
-        }
-
-		if (!CanFire(actor, target))
+	{
+		using var execution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return;
+		var canManipulate = ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent);
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return;
+		if (!canManipulate) { actor?.OutputHandler.Send(manipulationReason); return; }
+		var canFire = CanFire(actor, target);
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return;
+		if (!canFire)
 		{
-			actor.Send(WhyCannotFire(actor, target));
+			var reason = WhyCannotFire(actor, target);
+			if (MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) actor.Send(reason);
 			return;
 		}
 
-		if (_prototype.IgnitionFamily is not MusketIgnitionFamily.Matchlock)
-		{
-			IgnitionStrikesRemaining = Math.Max(0, IgnitionStrikesRemaining - 1);
-			if (IgnitionStrikesRemaining == 0 && _ignitionStone is not null)
-			{
-				_ignitionStone.ContainedIn = null;
-				_ignitionStone.Delete();
-				_ignitionStone = null;
-			}
-		}
-		if (_prototype.IgnitionFamily == MusketIgnitionFamily.Wheellock)
-		{
-			WheelWound = false;
-		}
-        IAmmunitionType type = null;
-        IGameItemProto bulletProto = null;
-        IGameItem ball = null;
+		var prototype = _prototype;
+		var snapshot = _magazineContents.ToArray();
+		var remaining = snapshot.ToList();
+		var expectedStage = LoadStage;
+		var expectedBlank = IsBlankLoad;
+		var wasBlank = IsBlankLoad;
+		var expectedReadied = IsReadied;
+		var expectedCleaning = NeedsCleaning;
+		var expectedTap = TapLoaded;
+		var expectedJam = IsJammed;
+		var expectedWheel = WheelWound;
+		var expectedStrikes = IgnitionStrikesRemaining;
+		var expectedStone = _ignitionStone;
+		var weaponBody = Parent.InInventoryOf;
+		var weaponContainer = Parent.ContainedIn;
+		var weaponCell = ComponentItemTransfer.DirectLocationOf(Parent);
+		var weaponBelt = Parent.GetItemType<IBeltable>()?.ConnectedTo;
+		var launch = RouteSpatialService.Instance.GetEffectiveLocation(actor);
+		bool CurrentLoad() => !Parent.Deleted && !Parent.Destroyed && ReferenceEquals(_prototype, prototype) &&
+			ReferenceEquals(Parent.InInventoryOf, weaponBody) && ReferenceEquals(Parent.ContainedIn, weaponContainer) &&
+			ReferenceEquals(ComponentItemTransfer.DirectLocationOf(Parent), weaponCell) &&
+			ReferenceEquals(Parent.GetItemType<IBeltable>()?.ConnectedTo, weaponBelt) &&
+			LoadStage == expectedStage && IsBlankLoad == expectedBlank && IsReadied == expectedReadied &&
+			NeedsCleaning == expectedCleaning && TapLoaded == expectedTap && IsJammed == expectedJam &&
+			WheelWound == expectedWheel && IgnitionStrikesRemaining == expectedStrikes &&
+			ReferenceEquals(_ignitionStone, expectedStone) && _magazineContents.Count == remaining.Count &&
+			_magazineContents.Zip(remaining).All(pair => ReferenceEquals(pair.First, pair.Second)) &&
+			remaining.All(item => ComponentUnloadCompletion.OwnedBy(item, Parent));
+		bool Continue() => MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor) && CurrentLoad();
+		if (!Continue()) return;
 
-        // Do we misfire?
-        bool misfire = false;
-        bool catastrophy = false;
-        IMusketCartridge cartridge = _magazineContents.FirstOrDefault()?.GetItemType<IMusketCartridge>();
-        bool wadused = false;
-        IAmmo ammo = null;
-
-        // If there isn't exactly what we expect in the magazine, we always misfire
-		if (IsBlankLoad)
+		// Native ignition is an actual accepted participant, before the later fault formula.
+		if (prototype.IgnitionFamily is not MusketIgnitionFamily.Matchlock)
 		{
-			var powder = _magazineContents.FirstOrDefault(x =>
-				x.GetItemType<ICommodity>() is { } commodity && commodity.Material == _prototype.GunpowderMaterial);
-			var wad = _prototype.WadItemTag is { } wadTag
-				? _magazineContents.FirstOrDefault(x => x.IsA(wadTag))
-				: null;
-			if (_magazineContents.Count != 2 || powder is null || wad is null)
+			if (expectedStrikes == 1 && expectedStone is not null)
 			{
-				misfire = true;
-				Gameworld.DebugMessage("Musket blank misfired due to unexpected or missing physical barrel contents");
+				var stone = expectedStone;
+				if (!ComponentUnloadCompletion.Detach(actor, stone, Parent, () =>
+				{
+					_ignitionStone = expectedStone = null;
+					IgnitionStrikesRemaining = expectedStrikes = 0;
+					if (prototype.IgnitionFamily == MusketIgnitionFamily.Wheellock) WheelWound = expectedWheel = false;
+					Changed = true;
+				}, CurrentLoad)) return;
+				// Consume only this detached spent stone; a callback's replacement/custody wins.
+				if (ComponentItemTransfer.IsDetached(stone)) stone.Delete();
 			}
 			else
 			{
-				wadused = true;
+				if (!Continue()) return;
+				IgnitionStrikesRemaining = expectedStrikes = Math.Max(0, expectedStrikes - 1);
+				if (prototype.IgnitionFamily == MusketIgnitionFamily.Wheellock) WheelWound = expectedWheel = false;
+				Changed = true;
+				MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted(actor);
 			}
+			if (!Continue()) return;
 		}
-		else switch (_magazineContents.Count)
-        {
-            case 1:
-                if (cartridge is null)
-                {
-                    misfire = true;
-                    Gameworld.DebugMessage("Musket misfired due to unexpected item in barrel (count 1)");
-                }
-                else
-                {
-                    type = cartridge.AmmoType;
-                    bulletProto = cartridge.BulletProto;
-                    ammo = cartridge;
-                    wadused = cartridge.IncludesWad;
-                }
 
-                break;
-            case 2:
-            case 3:
-				IGameItem powder = _magazineContents.FirstOrDefault(x => x.GetItemType<ICommodity>() is { } commodity && commodity.Material == _prototype.GunpowderMaterial);
-                ball = _magazineContents.FirstOrDefault(x => x.IsItemType<MusketBallGameItemComponent>());
-				IGameItem wad = _prototype.WadItemTag is { } wadTag
-					? _magazineContents.FirstOrDefault(x => x.IsA(wadTag))
-					: null;
-                if (powder is null || ball is null || (wad is null && _magazineContents.Count == 3))
-                {
-                    misfire = true;
-                    Gameworld.DebugMessage("Musket misfired due to unexpected or missing item in barrel (count 2 or 3)");
-                }
-                else
-                {
-                    MusketBallGameItemComponent ballComp = ball.GetItemType<MusketBallGameItemComponent>();
-                    type = ballComp.AmmoType;
-                    bulletProto = ballComp.BulletProto;
-                    ammo = ballComp;
-                }
-
-                if (wad is not null)
-                {
-                    wadused = true;
-                }
-                break;
-            default:
-                misfire = true;
-                Gameworld.DebugMessage("Musket misfired due to unexpected item in barrel (count >3)");
-                break;
-        }
-
-        catastrophy = _magazineContents.Count(x =>
-            x.IsItemType<MusketBallGameItemComponent>() ||
-            x.IsItemType<IMusketCartridge>() ||
-            x.IsItemType<CommodityGameItemComponent>()) > 2;
-
-        // Otherwise use the expression
-        if (!misfire)
-        {
-            ITraitExpression misExpression = _prototype.MisfireChance;
-            double chance = EvaluateFaultChance(misExpression, actor, cartridge, wadused);
-            double roll = RandomUtilities.DoubleRandom(0.0, 1.0);
-            Gameworld.DebugMessage($"Musket misfire chance #2{chance:P3}#0 rolled {roll:P3}");
-            if (roll < chance)
-            {
-                misfire = true;
-            }
-        }
-
-        // Handle all the unloading etc
-        Changed = true;
-		var wasBlank = IsBlankLoad;
-		IsBlankLoad = false;
-        LoadStage = 0;
-        NeedsCleaning = true;
-        IsReadied = false;
-
-        // If we misfired, work out if it's a catastrophy
-        if (misfire && catastrophy)
-        {
-            actor.OutputHandler.Handle(new EmoteOutput(new Emote(_prototype.FireEmoteCatastrophy, actor, actor, target ?? (IPerceivable)new DummyPerceivable("the air"), Parent), style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
-            List<IGameItem> contents = _magazineContents.ToList();
-            _magazineContents.Clear();
-            foreach (IGameItem item in contents)
-            {
-                item.Delete();
-            }
-
-			if (BlackPowderWeaponEnvironment.CanPropagateSound(actor))
-			{
-				actor.Location.HandleAudioEcho("An explosion can be heard {0}.", AudioVolume.ExtremelyLoud, Parent,
-					actor.RoomLayer, true, "explosion");
-			}
-
-            List<IDamage> damages = new();
-            foreach (DamageType damageType in new[] { DamageType.Shrapnel, DamageType.Shockwave, DamageType.Burning })
-            {
-                double damageAmount = _prototype.CatastrophyDamageFormula.EvaluateDouble();
-                damages.Add(new Damage
-                {
-                    DamageType = damageType,
-                    DamageAmount = damageAmount,
-                    PainAmount = damageAmount,
-                    StunAmount = damageAmount
-                });
-            }
-
-            ExplosiveDamage explosion = new(damages, 0.0, Parent.Size, Proximity.Immediate, false, null);
-            List<IWound> wounds = new();
-            wounds.AddRange(actor.Body.InventoryExploded(Parent, explosion));
-            wounds.AddRange(Parent.PassiveSufferDamage(explosion, Proximity.Intimate, Facing.Front));
-            wounds.ProcessPassiveWounds();
-            UseCondition(new ItemConditionUseContext(ItemConditionUseKind.RangedFire, shotOutcome,
-                (int)(defenseOutcome?.Degree ?? OpposedOutcomeDegree.None)));
-            return;
-        }
-
-        // If we misfired, work out if it's a jam
-        bool isJam = false;
-        if (misfire)
-        {
-            ITraitExpression jamExpression = _prototype.JamChance;
-            double chance = EvaluateFaultChance(jamExpression, actor, cartridge, wadused);
-            double roll = RandomUtilities.DoubleRandom(0.0, 1.0);
-            Gameworld.DebugMessage($"Musket jam chance #2{chance:P3}#0 rolled {roll:P3}");
-            if (roll < chance)
-            {
-                isJam = true;
-            }
-        }
-
-        // Use the shared audio path so hooks observe one origin event and RouteCells retain
-        // their coordinate-aware propagation.
-		if (BlackPowderWeaponEnvironment.CanPropagateSound(actor))
+		var misfire = false;
+		var wadUsed = false;
+		var cartridge = snapshot.FirstOrDefault()?.GetItemType<IMusketCartridge>();
+		if (!Continue()) return;
+		IAmmo ammunition = null;
+		IGameItem ball = null;
+		IGameItemProto bulletPrototype = null;
+		IAmmunitionType ammunitionType = null;
+		IGameItem FindPowder()
 		{
-			actor.Location.HandleAudioEcho("A gun shot can be heard {0}.", AudioVolume.ExtremelyLoud, Parent,
-				actor.RoomLayer, true, "gunshot");
+			foreach (var item in snapshot)
+			{
+				if (!Continue()) return null;
+				var commodity = item.GetItemType<ICommodity>();
+				var isPowder = commodity is not null && commodity.Material == prototype.GunpowderMaterial;
+				if (!Continue()) return null;
+				if (isPowder) return item;
+			}
+			return null;
 		}
-
-        List<IGameItem> magContents = _magazineContents.ToList();
-        _magazineContents.Clear();
-        foreach (IGameItem item in magContents)
-        {
-            item.Delete();
-        }
-
-        if (isJam)
-        {
-            actor.OutputHandler.Handle(new EmoteOutput(new Emote(_prototype.FireEmoteJam, actor, actor, target ?? (IPerceivable)new DummyPerceivable("the air"), Parent), style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
-            IsJammed = true;
-            UseCondition(new ItemConditionUseContext(ItemConditionUseKind.RangedFire, shotOutcome,
-                (int)(defenseOutcome?.Degree ?? OpposedOutcomeDegree.None)));
-            return;
-        }
-
-        if (misfire)
-        {
-            actor.OutputHandler.Handle(new EmoteOutput(new Emote(_prototype.FireEmoteMisfire, actor, actor, target ?? (IPerceivable)new DummyPerceivable("the air"), Parent), style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
-            UseCondition(new ItemConditionUseContext(ItemConditionUseKind.RangedFire, shotOutcome,
-                (int)(defenseOutcome?.Degree ?? OpposedOutcomeDegree.None)));
-            return;
-        }
-
-        actor.OutputHandler.Handle(new EmoteOutput(new Emote(_prototype.FireEmote, actor, actor, target ?? (IPerceivable)new DummyPerceivable("the air"), Parent), style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
+		IGameItem FindWad()
+		{
+			if (prototype.WadItemTag is not { } tag) return null;
+			foreach (var item in snapshot)
+			{
+				if (!Continue()) return null;
+				var isWad = item.IsA(tag);
+				if (!Continue()) return null;
+				if (isWad) return item;
+			}
+			return null;
+		}
 		if (wasBlank)
 		{
-			UseCondition(new ItemConditionUseContext(ItemConditionUseKind.RangedFire, shotOutcome,
-				(int)(defenseOutcome?.Degree ?? OpposedOutcomeDegree.None)));
-			return;
+			var powder = FindPowder();
+			if (!Continue()) return;
+			var wad = FindWad();
+			if (!Continue()) return;
+			misfire = snapshot.Length != 2 || powder is null || wad is null;
+			wadUsed = !misfire;
+			if (misfire) Gameworld.DebugMessage("Musket blank misfired due to unexpected or missing physical barrel contents");
 		}
-        IGameItem bullet = bulletProto?.CreateNew() ?? ball;
-        if (bullet is not null)
-        {
-            bullet.HandleEvent(EventType.ItemFinishedLoading, bullet);
-            bullet.Login();
-            if (ball is not null)
-            {
-                WeaponPoisonDeliveryHelper.CopyPoisonCoating(ball, bullet);
-            }
-        }
-
-		var projectileCount = bulletProto is null ? 1 : Math.Clamp(ammo.AmmoType.ProjectileCount, 1, 32);
-		for (var projectileIndex = 0; projectileIndex < projectileCount; projectileIndex++)
+		else if (snapshot.Length == 1)
 		{
-			var projectile = projectileIndex == 0
-				? bullet
-				: bulletProto.CreateNew();
-			if (projectile is null)
+			misfire = cartridge is null;
+			if (cartridge is not null)
 			{
-				continue;
+				ammunitionType = cartridge.AmmoType;
+				if (!Continue()) return;
+				bulletPrototype = cartridge.BulletProto;
+				if (!Continue()) return;
+				wadUsed = cartridge.IncludesWad;
+				if (!Continue()) return;
+				ammunition = cartridge;
 			}
-
-			projectile.Login();
-			var projectileOutcome = FirearmMath.ProjectileOutcome(shotOutcome, null, 0, projectileIndex,
-				ammo.AmmoType.SpreadPenalty, 1.0);
-			var projectileBodypart = projectileIndex == 0
-				? bodypart
-				: (target as IHaveABody)?.Body?.RandomBodyPartGeometry(Orientation.Centre, Alignment.Front,
-					Facing.Front) ?? bodypart;
-			ammo.Fire(actor, target, projectileOutcome, coverOutcome, defenseOutcome, projectileBodypart, projectile,
-				WeaponType, projectileIndex == 0 ? defenseEmote : null,
-				new RangedFireContext(projectileIndex, projectileCount, ammo.AmmoType.ScatterType));
+			else Gameworld.DebugMessage("Musket misfired due to unexpected item in barrel (count 1)");
 		}
-        UseCondition(new ItemConditionUseContext(ItemConditionUseKind.RangedFire, shotOutcome,
-            (int)(defenseOutcome?.Degree ?? OpposedOutcomeDegree.None)));
-    }
+		else if (snapshot.Length is 2 or 3)
+		{
+			var powder = FindPowder();
+			if (!Continue()) return;
+			foreach (var item in snapshot)
+			{
+				var ballComponent = item.GetItemType<MusketBallGameItemComponent>();
+				if (!Continue()) return;
+				if (ballComponent is null) continue;
+				ball = item;
+				ammunition = ballComponent;
+				ammunitionType = ballComponent.AmmoType;
+				if (!Continue()) return;
+				bulletPrototype = ballComponent.BulletProto;
+				if (!Continue()) return;
+				break;
+			}
+			var wad = FindWad();
+			if (!Continue()) return;
+			misfire = powder is null || ball is null || (wad is null && snapshot.Length == 3);
+			wadUsed = wad is not null;
+			if (misfire) Gameworld.DebugMessage("Musket misfired due to unexpected or missing item in barrel (count 2 or 3)");
+		}
+		else
+		{
+			misfire = true;
+			Gameworld.DebugMessage("Musket misfired due to unexpected item in barrel (count >3)");
+		}
+		if (!Continue()) return;
+		var potentiallyExplosive = 0;
+		foreach (var item in snapshot)
+		{
+			var dangerous = item.IsItemType<MusketBallGameItemComponent>() ||
+				item.IsItemType<IMusketCartridge>() || item.IsItemType<CommodityGameItemComponent>();
+			if (!Continue()) return;
+			if (dangerous) potentiallyExplosive++;
+		}
+		var catastrophe = potentiallyExplosive > 2;
+		if (!misfire)
+		{
+			var chance = EvaluateFaultChance(prototype.MisfireChance, actor, cartridge, wadUsed);
+			if (!Continue()) return;
+			var roll = RandomUtilities.DoubleRandom(0.0, 1.0);
+			Gameworld.DebugMessage($"Musket misfire chance #2{chance:P3}#0 rolled {roll:P3}");
+			misfire = roll < chance;
+		}
+		if (!Continue()) return;
+
+		// An accepted attempt consumes readiness. Retained physical residue stays explicit.
+		LoadStage = expectedStage = 0;
+		IsBlankLoad = expectedBlank = false;
+		NeedsCleaning = expectedCleaning = true;
+		IsReadied = expectedReadied = false;
+		Changed = true;
+		MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted(actor);
+		var isJam = false;
+		if (misfire && !catastrophe)
+		{
+			// Preserve native jam inputs: NeedsCleaning is already true at this point.
+			var chance = EvaluateFaultChance(prototype.JamChance, actor, cartridge, wadUsed);
+			if (!Continue()) return;
+			var roll = RandomUtilities.DoubleRandom(0.0, 1.0);
+			Gameworld.DebugMessage($"Musket jam chance #2{chance:P3}#0 rolled {roll:P3}");
+			isJam = roll < chance;
+		}
+		if (!Continue()) return;
+		var source = ammunition?.Parent;
+		var projectileCount = 1;
+		var spreadPenalty = 0.0;
+		var scatterType = ammunitionType?.ScatterType;
+		if (!Continue()) return;
+		if (!misfire && !wasBlank)
+		{
+			if (source is null || ammunitionType is null) return;
+			if (bulletPrototype is not null) projectileCount = Math.Clamp(ammunitionType.ProjectileCount, 1, 32);
+			if (!Continue()) return;
+			spreadPenalty = ammunitionType.SpreadPenalty;
+			if (!Continue()) return;
+		}
+		if (!RouteSpatialService.Instance.TryValidateLocation(launch, out _) || !Continue()) return;
+		void FinishSourceAtLaunch()
+		{
+			if (!ComponentItemTransfer.IsDetached(source)) return;
+			if (source is GameItem native)
+			{
+				if (!native.TryDropPrepared(launch)) return;
+			}
+			else source.MoveTo(launch);
+			if (source.Deleted || source.Destroyed || source.InInventoryOf is not null || source.ContainedIn is not null ||
+				source.GetItemType<IBeltable>()?.ConnectedTo is not null ||
+				!ReferenceEquals(ComponentItemTransfer.DirectLocationOf(source), launch.Cell) || source.RoomLayer != launch.Layer ||
+				(launch.Cell.RouteDefinition is not null && source.RoutePositionMetres != launch.RoutePositionMetres)) return;
+			if (!launch.Cell.GameItems.Any(item => ReferenceEquals(item, source))) launch.Cell.Insert(source);
+		}
+		var sourceDetached = false;
+		var sourceDispatched = false;
+		try
+		{
+			var propagates = BlackPowderWeaponEnvironment.CanPropagateSound(actor);
+			if (!Continue()) return;
+			if (propagates && !(misfire && catastrophe))
+			{
+				actor.Location.HandleAudioEcho("A gun shot can be heard {0}.", AudioVolume.ExtremelyLoud, Parent,
+					actor.RoomLayer, true, "gunshot");
+				if (!Continue()) return;
+			}
+			var fireEmote = misfire && catastrophe ? prototype.FireEmoteCatastrophy :
+				isJam ? prototype.FireEmoteJam : misfire ? prototype.FireEmoteMisfire : prototype.FireEmote;
+			actor.OutputHandler.Handle(new EmoteOutput(new Emote(fireEmote, actor, actor,
+				target ?? (IPerceivable)new DummyPerceivable("the air"), Parent),
+				style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
+			if (!Continue()) return;
+			if (isJam)
+			{
+				IsJammed = expectedJam = true;
+				Changed = true;
+			}
+			// Detach actual ammunition before fuel/wad; keep its live metadata until Fire returns.
+			var participants = !misfire && !wasBlank && source is not null
+				? new[] { source }.Concat(snapshot.Where(item => !ReferenceEquals(item, source))).ToArray()
+				: snapshot;
+			foreach (var item in participants)
+			{
+				if (!Continue()) return;
+				if (!ComponentUnloadCompletion.Detach(actor, item, Parent, () =>
+				{
+					_magazineContents.RemoveAll(x => ReferenceEquals(x, item));
+					remaining.RemoveAll(x => ReferenceEquals(x, item));
+					Changed = true;
+				}, CurrentLoad)) return;
+				if (ReferenceEquals(item, source) && !misfire && !wasBlank)
+				{
+					sourceDetached = true;
+					if (!ComponentItemTransfer.IsDetached(item)) return;
+				}
+				else if (ComponentItemTransfer.IsDetached(item)) item.Delete();
+				if (!Continue()) return;
+			}
+			if (misfire && catastrophe)
+			{
+				if (!Continue()) return;
+				if (propagates)
+				{
+					actor.Location.HandleAudioEcho("An explosion can be heard {0}.", AudioVolume.ExtremelyLoud,
+						Parent, actor.RoomLayer, true, "explosion");
+					if (!Continue()) return;
+				}
+				var damages = new List<IDamage>();
+				foreach (var damageType in new[] { DamageType.Shrapnel, DamageType.Shockwave, DamageType.Burning })
+				{
+					if (!Continue()) return;
+					var amount = prototype.CatastrophyDamageFormula.EvaluateDouble();
+					if (!Continue()) return;
+					damages.Add(new Damage { DamageType = damageType, DamageAmount = amount, PainAmount = amount, StunAmount = amount });
+				}
+				var explosion = new ExplosiveDamage(damages, 0.0, Parent.Size, Proximity.Immediate, false, null);
+				if (!Continue()) return;
+				var wounds = actor.Body.InventoryExploded(Parent, explosion).ToList();
+				// Wounds already dealt must complete their native processing even after refusal.
+				if (Continue()) wounds.AddRange(Parent.PassiveSufferDamage(explosion, Proximity.Intimate, Facing.Front));
+				wounds.ProcessPassiveWounds();
+				return;
+			}
+			if (misfire || wasBlank) return;
+			for (var projectileIndex = 0; projectileIndex < projectileCount; projectileIndex++)
+			{
+				if (!Continue() || !ComponentItemTransfer.IsDetached(source)) break;
+				var projectile = bulletPrototype?.CreateNew() ?? ball;
+				if (projectile is null) continue;
+				// Only this newly materialized projectile can finish custody after callback refusal.
+				var completion = new ProjectileCustodyCompletion(actor, projectile, null, launch);
+				try
+				{
+					if (!Continue() || !ComponentItemTransfer.IsDetached(source) || !completion.IsUnclaimed) return;
+					if (projectileIndex == 0)
+					{
+						projectile.HandleEvent(EventType.ItemFinishedLoading, projectile);
+						if (!Continue() || !ComponentItemTransfer.IsDetached(source) || !completion.IsUnclaimed) return;
+						projectile.Login();
+						if (!Continue() || !ComponentItemTransfer.IsDetached(source) || !completion.IsUnclaimed) return;
+						if (ball is not null)
+						{
+							WeaponPoisonDeliveryHelper.CopyPoisonCoating(ball, projectile);
+								if (!Continue() || !ComponentItemTransfer.IsDetached(source) || !completion.IsUnclaimed) return;
+						}
+					}
+					projectile.Login();
+					if (!Continue() || !ComponentItemTransfer.IsDetached(source) || !completion.IsUnclaimed) return;
+					var projectileOutcome = FirearmMath.ProjectileOutcome(shotOutcome, null, 0, projectileIndex,
+						spreadPenalty, 1.0);
+					var projectileBodypart = projectileIndex == 0 ? bodypart :
+						(target as IHaveABody)?.Body?.RandomBodyPartGeometry(Orientation.Centre, Alignment.Front, Facing.Front) ?? bodypart;
+					if (!Continue() || !ComponentItemTransfer.IsDetached(source) || !completion.IsUnclaimed) return;
+					var weaponType = WeaponType;
+					if (!Continue() || !ComponentItemTransfer.IsDetached(source) || !completion.IsUnclaimed) return;
+					// Ammo.Fire owns the wound/impact receipt; do not later reclaim a lodged projectile.
+					completion.PreserveExternalClaim();
+					if (ReferenceEquals(projectile, source)) sourceDispatched = true;
+					ammunition.Fire(actor, target, projectileOutcome, coverOutcome, defenseOutcome, projectileBodypart,
+						projectile, weaponType, projectileIndex == 0 ? defenseEmote : null,
+						new RangedFireContext(projectileIndex, projectileCount, scatterType));
+				}
+				finally { completion.Finish(); }
+			}
+		}
+		finally
+		{
+			if (sourceDetached && !sourceDispatched && ComponentItemTransfer.IsDetached(source))
+			{
+				// Separate projectile sources are an already-detached spent load participant.
+				if (bulletPrototype is not null || !ReferenceEquals(source, ball)) source.Delete();
+				else FinishSourceAtLaunch();
+			}
+			if (Continue()) UseCondition(new ItemConditionUseContext(ItemConditionUseKind.RangedFire, shotOutcome,
+				(int)(defenseOutcome?.Degree ?? OpposedOutcomeDegree.None)));
+		}
+	}
 
 	/// <summary>
 	/// Installs one physical gunflint or pyrite piece and restores the lock's strike reserve.
@@ -1640,6 +1840,11 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
 	/// </summary>
 	public bool TryInstallIgnitionStone(ICharacter actor, IGameItem stone, out string reason)
 	{
+		using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
+		reason = string.Empty;
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return false;
+
+
 		if (!ItemManipulationGuard.CanManipulate(actor, out reason, Parent))
 		{
 			return false;
@@ -1694,6 +1899,10 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
 
 	private void InstallMatchCord(ICharacter actor)
 	{
+		using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return;
+
+
 		var plan = CreateBoundPlan(actor, _prototype.MatchCordTemplate);
 		if (plan.PlanIsFeasible() != InventoryPlanFeasibility.Feasible)
 		{
@@ -1701,9 +1910,12 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
 		}
 		var results = plan.ExecuteWholePlan();
 		var source = results.First(x => x.OriginalReference?.ToString() == "matchcord").PrimaryTarget;
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return;
 		var installed = TakeOnePhysicalItem(actor, source);
-		installed.ContainedIn = Parent;
-		_matchCord = installed;
+		var previousCord = _matchCord;
+		if (!ComponentItemTransfer.ContainPrepared(installed, Parent, () => ReferenceEquals(_matchCord, previousCord),
+			() => { _matchCord = installed; Changed = true; },
+			() => { if (ReferenceEquals(_matchCord, installed)) { _matchCord = null; Changed = true; } })) return;
 		actor.OutputHandler.Handle(new EmoteOutput(new Emote("@ fit|fits $1 into the match holder of $0 and light|lights its exposed end.",
 			actor, Parent, installed)));
 		plan.FinalisePlanWithExemptions([installed, Parent]);

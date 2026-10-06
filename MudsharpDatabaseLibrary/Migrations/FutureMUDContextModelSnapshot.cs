@@ -4814,7 +4814,7 @@ namespace MudSharp.Migrations
 
                     MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("BirthdayDate"), "utf8");
 
-                    b.Property<long>("BodyId")
+                    b.Property<long?>("BodyId")
                         .HasColumnType("bigint(20)");
 
                     b.Property<long?>("ChargenId")
@@ -4922,6 +4922,12 @@ namespace MudSharp.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit(1)")
                         .HasDefaultValueSql("b'0'");
+
+                    b.Property<bool>("IsArchived")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("tinyint(1)")
+                        .HasDefaultValue(false);
 
                     b.Property<DateTime?>("LastLoginTime")
                         .HasColumnType("datetime");
@@ -5094,7 +5100,10 @@ namespace MudSharp.Migrations
                     b.HasIndex("Location", "RoomLayer", "RoutePosition")
                         .HasDatabaseName("IX_Characters_Location_Layer_RoutePosition");
 
-                    b.ToTable("Characters");
+                    b.ToTable("Characters", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_Characters_BodyOrArchive", "`BodyId` IS NOT NULL OR `IsArchived` = 1");
+                        });
                 });
 
             modelBuilder.Entity("MudSharp.Models.CharacterAccent", b =>
@@ -5159,6 +5168,53 @@ namespace MudSharp.Migrations
                     b.ToTable("CharacterAcquiredSpells");
                 });
 
+            modelBuilder.Entity("MudSharp.Models.CharacterArchive", b =>
+                {
+                    b.Property<long>("CharacterId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<DateTime>("ArchivedUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
+                        .HasMaxLength(1024)
+                        .HasColumnType("varchar(1024)");
+
+                    b.Property<string>("FullDescription")
+                        .IsRequired()
+                        .HasMaxLength(65535)
+                        .HasColumnType("longtext");
+
+                    b.Property<Guid>("LifecycleId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<long>("OriginalBodyId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Provenance")
+                        .IsRequired()
+                        .HasMaxLength(2048)
+                        .HasColumnType("varchar(2048)");
+
+                    b.Property<string>("ShortDescription")
+                        .IsRequired()
+                        .HasMaxLength(4096)
+                        .HasColumnType("varchar(4096)");
+
+                    b.Property<string>("WoundHistory")
+                        .IsRequired()
+                        .HasMaxLength(65535)
+                        .HasColumnType("longtext");
+
+                    b.HasKey("CharacterId");
+
+                    b.HasIndex("LifecycleId")
+                        .IsUnique();
+
+                    b.ToTable("CharacterArchives", (string)null);
+                });
+
             modelBuilder.Entity("MudSharp.Models.CharacterBody", b =>
                 {
                     b.Property<long>("CharacterId")
@@ -5218,6 +5274,24 @@ namespace MudSharp.Migrations
                         .HasDatabaseName("FK_CharacterBodies_WhyCannotVoluntarilySwitchProg_idx");
 
                     b.ToTable("CharacterBodies");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.CharacterBodyRetirement", b =>
+                {
+                    b.Property<long>("BodyId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("CharacterId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<DateTime>("RetiredUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("BodyId");
+
+                    b.HasIndex("CharacterId");
+
+                    b.ToTable("CharacterBodyRetirements");
                 });
 
             modelBuilder.Entity("MudSharp.Models.CharacterBodySource", b =>
@@ -16408,6 +16482,108 @@ namespace MudSharp.Migrations
                         .HasDatabaseName("FK_MagicSpells_Futureprogs_idx");
 
                     b.ToTable("MagicSpells");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.MagicSpellLifecycle", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime>("CreatedUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<long>("CreatorId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("DeadlineUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime?>("DeathObservedUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Diagnostic")
+                        .IsRequired()
+                        .HasMaxLength(2048)
+                        .HasColumnType("varchar(2048)");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Diagnostic"), "utf8mb4");
+
+                    b.Property<string>("Family")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("varchar(128)");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Family"), "utf8mb4");
+
+                    b.Property<int>("Grade")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Mode")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Provenance")
+                        .IsRequired()
+                        .HasMaxLength(2048)
+                        .HasColumnType("varchar(2048)");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Provenance"), "utf8mb4");
+
+                    b.Property<int?>("Reason")
+                        .HasColumnType("int");
+
+                    b.Property<long?>("RemainsItemId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("RemainsNotificationAttemptedUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime?>("RemainsNotificationCompletedUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime?>("RemainsRemovalRequestedUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<long>("SpellId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("State")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("State", "DeadlineUtc");
+
+                    b.HasIndex("CreatorId", "Family", "State");
+
+                    b.ToTable("MagicSpellLifecycles");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.MagicSpellOwnedEntity", b =>
+                {
+                    b.Property<int>("Kind")
+                        .HasColumnType("int");
+
+                    b.Property<long>("EntityId")
+                        .HasColumnType("bigint");
+
+                    b.Property<Guid>("LifecycleId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<int>("Role")
+                        .HasColumnType("int");
+
+                    b.HasKey("Kind", "EntityId");
+
+                    b.HasIndex("LifecycleId");
+
+                    b.ToTable("MagicSpellOwnedEntities");
                 });
 
             modelBuilder.Entity("MudSharp.Models.MagicalSubstance", b =>
@@ -28895,8 +29071,7 @@ namespace MudSharp.Migrations
                     b.HasOne("MudSharp.Models.Body", "Body")
                         .WithMany("Characters")
                         .HasForeignKey("BodyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
+                        .OnDelete(DeleteBehavior.Restrict)
                         .HasConstraintName("FK_Characters_Bodies");
 
                     b.HasOne("MudSharp.Models.Chargen", "Chargen")
@@ -29046,6 +29221,15 @@ namespace MudSharp.Migrations
                     b.Navigation("MagicSpell");
                 });
 
+            modelBuilder.Entity("MudSharp.Models.CharacterArchive", b =>
+                {
+                    b.HasOne("MudSharp.Models.Character", null)
+                        .WithOne()
+                        .HasForeignKey("MudSharp.Models.CharacterArchive", "CharacterId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("MudSharp.Models.CharacterBody", b =>
                 {
                     b.HasOne("MudSharp.Models.Body", "Body")
@@ -29089,6 +29273,25 @@ namespace MudSharp.Migrations
                     b.Navigation("Character");
 
                     b.Navigation("WhyCannotVoluntarilySwitchProg");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.CharacterBodyRetirement", b =>
+                {
+                    b.HasOne("MudSharp.Models.Body", "Body")
+                        .WithMany()
+                        .HasForeignKey("BodyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MudSharp.Models.Character", "Character")
+                        .WithMany()
+                        .HasForeignKey("CharacterId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Body");
+
+                    b.Navigation("Character");
                 });
 
             modelBuilder.Entity("MudSharp.Models.CharacterBodySource", b =>
@@ -33563,6 +33766,17 @@ namespace MudSharp.Migrations
                     b.Navigation("ResistingTraitDefinition");
 
                     b.Navigation("SpellKnownProg");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.MagicSpellOwnedEntity", b =>
+                {
+                    b.HasOne("MudSharp.Models.MagicSpellLifecycle", "Lifecycle")
+                        .WithMany("Entities")
+                        .HasForeignKey("LifecycleId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Lifecycle");
                 });
 
             modelBuilder.Entity("MudSharp.Models.ManualCombatCommand", b =>
@@ -39290,6 +39504,11 @@ namespace MudSharp.Migrations
                     b.Navigation("MagicPowers");
 
                     b.Navigation("MagicSpells");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.MagicSpellLifecycle", b =>
+                {
+                    b.Navigation("Entities");
                 });
 
             modelBuilder.Entity("MudSharp.Models.ManualCombatCommand", b =>

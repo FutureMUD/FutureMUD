@@ -22,7 +22,7 @@ namespace MudSharp.RPG.Law
         MudDateTime TimeOfCrime { get; }
         MudDateTime? TimeOfReport { get; set; }
         DateTime RealTimeOfCrime { get; }
-        ICharacter Criminal { get; }
+        ICharacter? Criminal { get; }
         long CriminalId { get; }
         long? AccuserId { get; set; }
         long? VictimId { get; }

@@ -1,10 +1,16 @@
-﻿using MudSharp.Construction;
+using MudSharp.Construction;
 using MudSharp.GameItems.Prototypes;
 
 namespace MudSharp.GameItems.Components;
 
 public class BeltGameItemComponent : GameItemComponent, IBelt
 {
+	internal override Action CaptureCustodyRollback()
+	{
+		var connected = _connectedItems.ToArray();
+		return () => { _connectedItems.Clear(); _connectedItems.AddRange(connected); foreach (var child in connected) child.ConnectedTo = this; };
+	}
+
     protected BeltGameItemComponentProto _prototype;
     public override IGameItemComponentProto Prototype => _prototype;
 
@@ -41,6 +47,7 @@ public class BeltGameItemComponent : GameItemComponent, IBelt
 
     public override bool Take(IGameItem item)
     {
+		ForeignCustodyTransferContext.EnsurePair(Parent, item);
         if (ConnectedItems.Any(x => x.Parent == item))
         {
             IBeltable beltable = item.GetItemType<IBeltable>();
@@ -127,6 +134,7 @@ public class BeltGameItemComponent : GameItemComponent, IBelt
 
     public void AddConnectedItem(IBeltable item)
     {
+		ForeignCustodyTransferContext.EnsurePair(Parent, item.Parent);
         item.ConnectedTo?.RemoveConnectedItem(item);
         _connectedItems.Add(item);
         item.ConnectedTo = this;
@@ -135,6 +143,7 @@ public class BeltGameItemComponent : GameItemComponent, IBelt
 
     public void RemoveConnectedItem(IBeltable item)
     {
+		ForeignCustodyTransferContext.EnsurePair(Parent, item.Parent);
         _connectedItems.Remove(item);
         item.ConnectedTo = null;
         Changed = true;

@@ -1,4 +1,4 @@
-﻿using MudSharp.Database;
+using MudSharp.Database;
 using MudSharp.Form.Colour;
 using MudSharp.Framework.Save;
 using MudSharp.FutureProg.Variables;
@@ -13,9 +13,9 @@ public class SimpleWriting : LateInitialisingItem, IWriting, ILazyLoadDuringIdle
     {
         Gameworld = gameworld;
         _authorId = author.Id;
-        _author = author;
+        _author = new WeakReference<ICharacter>(author);
         _trueAuthorId = trueAuthor?.Id;
-        _trueAuthor = trueAuthor;
+        _trueAuthor = trueAuthor is null ? null : new WeakReference<ICharacter>(trueAuthor);
         Text = text;
         Language = author.CurrentWritingLanguage;
         Script = author.CurrentScript;
@@ -51,14 +51,16 @@ public class SimpleWriting : LateInitialisingItem, IWriting, ILazyLoadDuringIdle
 
     public SimpleWriting(SimpleWriting rhs)
     {
-        Author = rhs.Author;
+        _authorId = rhs._authorId;
+        _author = rhs._author;
         DocumentLength = rhs.DocumentLength;
         ForgerySkill = rhs.ForgerySkill;
         HandwritingSkill = rhs.HandwritingSkill;
         LiteracySkill = rhs.LiteracySkill;
         LanguageSkill = rhs.LanguageSkill;
         Script = rhs.Script;
-        TrueAuthor = rhs.TrueAuthor;
+        _trueAuthorId = rhs._trueAuthorId;
+        _trueAuthor = rhs._trueAuthor;
         Language = rhs.Language;
         Gameworld = rhs.Gameworld;
         Text = rhs.Text;
@@ -72,22 +74,18 @@ public class SimpleWriting : LateInitialisingItem, IWriting, ILazyLoadDuringIdle
     public IColour WritingColour { get; init; }
 
     private long? _authorId;
-    private ICharacter _author;
+    private WeakReference<ICharacter> _author;
+
+    public long? AuthorId => _authorId;
+    public MudSharp.Character.ArchivedCharacterIdentity ArchivedAuthor =>
+        HistoricalAuthorReference.Archived(Gameworld, _authorId, ref _author);
 
     public ICharacter Author
     {
-        get
-        {
-            if (_author == null && (_authorId ?? 0L) != 0)
-            {
-                _author = Gameworld.TryGetCharacter(_authorId ?? 0L, true);
-            }
-
-            return _author;
-        }
+        get => HistoricalAuthorReference.Live(Gameworld, _authorId, ref _author);
         init
         {
-            _author = value;
+            _author = value is null ? null : new WeakReference<ICharacter>(value);
             _authorId = value?.Id;
             Changed = true;
         }
@@ -112,22 +110,18 @@ public class SimpleWriting : LateInitialisingItem, IWriting, ILazyLoadDuringIdle
     public IScript Script { get; set; }
 
     private long? _trueAuthorId;
-    private ICharacter _trueAuthor;
+    private WeakReference<ICharacter> _trueAuthor;
+
+    public long? TrueAuthorId => _trueAuthorId;
+    public MudSharp.Character.ArchivedCharacterIdentity ArchivedTrueAuthor =>
+        HistoricalAuthorReference.Archived(Gameworld, _trueAuthorId, ref _trueAuthor);
 
     public ICharacter TrueAuthor
     {
-        get
-        {
-            if (_trueAuthor == null && (_trueAuthorId ?? 0) != 0)
-            {
-                _trueAuthor = Gameworld.TryGetCharacter(_trueAuthorId ?? 0L, true);
-            }
-
-            return _trueAuthor;
-        }
+        get => HistoricalAuthorReference.Live(Gameworld, _trueAuthorId, ref _trueAuthor);
         init
         {
-            _trueAuthor = value;
+            _trueAuthor = value is null ? null : new WeakReference<ICharacter>(value);
             _trueAuthorId = value?.Id;
             Changed = true;
         }
@@ -192,15 +186,8 @@ public class SimpleWriting : LateInitialisingItem, IWriting, ILazyLoadDuringIdle
 
     void ILazyLoadDuringIdleTime.DoLoad()
     {
-        if (_author == null && (_authorId ?? 0L) != 0)
-        {
-            _author = Gameworld.TryGetCharacter(_authorId ?? 0L, true);
-        }
-
-        if (_trueAuthor == null && (_trueAuthorId ?? 0) != 0)
-        {
-            _trueAuthor = Gameworld.TryGetCharacter(_trueAuthorId ?? 0L, true);
-        }
+        _ = Author;
+        _ = TrueAuthor;
     }
 
     public string DescribeInLook(ICharacter voyeur)

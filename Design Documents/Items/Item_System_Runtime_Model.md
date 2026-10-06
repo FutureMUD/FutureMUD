@@ -6,6 +6,22 @@
 
 Firearm simulation copies preserve live ammunition, chamber, fire-mode, safety, and attachment state; explosive impact and trap integration are documented in [Ranged Weapon Balance Pass](../Combat/Ranged_Weapon_Balance_Pass.md).
 
+Internal-magazine firearms restore containment for their saved chambered round, magazine rounds and casing when loading component XML. The existing callback-free load helper reconstructs these child references without a gameplay transfer or dirtying the restored items. Reconstruction checks current custody and the child's original database `ContainerId`, captured before its components load. Stale XML cannot reclaim a round returned to a hand or cell, even when the gun loads first. Missing or conflicting children remain absent. Current legitimate containment in the same gun takes precedence over the original database receipt, provided there is no competing direct body, cell or belt claim.
+
+Internal-magazine Load requires a successful Held inventory-plan result and exact ammunition hand custody before detachment or splitting. Feasibility alone cannot admit a target. A refused acquisition finalises its plan and retains the floor item and persisted cell join; a still-floor target must not pass through Body.Take into containment. See [the native failed-plan receipt](../Magic/Armageddon_FirearmPlanResult_Verification.json). Load then pins pre-detach quantity, title, component/prototype identity, magazine/chamber and receiver facts. Changed capacity or participants refuse. Exact facts are checked after Take/split, output and merge eligibility callbacks; guarded native containment commits the same participant. Detachment runs inside plan finalisation and captured spatial floor completion so a thrown Take callback retains its original exception and recoverable round. Independent placement/refill survives without stale magazine adoption. [Checkpoint18](../Magic/Armageddon_LoadOutput_Checkpoint.md) qualifies whole and split native ammunition in one declared fixture; composite Merge/Delete and Unload result semantics remain separately open.
+
+Unready prepares delivery for the captured round or casing, rechecks authority and exact ownership after output, and clears and saves only that slot at admitted detachment. Prepared completion preserves later callback custody and replacement slots. A loaded round inherits the firearm's inventory and spatial host. This qualification covers the internal-magazine family; other firearm loaders retain their own acceptance gates.
+
+## Ordered NPC custody continuation
+
+Accepted spell-owned NPC orders retain the original principal and grant in an ephemeral execution scope. Prepared get/wield transfers finish only their exact already-detached participant; reentrant operations keep ordinary authority checks. Callback relocation or deletion takes precedence over the prepared destination. Foreign-body ordinary operations use independent scope unless the owning move explicitly identifies them as inflicted children.
+
+`GameItem.Location` can be inherited from an inventory holder or containing item. Native custody validation therefore uses the direct stored location when deciding whether a tentative holder or container assignment is coherent. Hand preparation also excludes current held/wielded occupancy before consulting grab eligibility. Load transfers accept only an exact successfully detached participant and use a null holder for newly split powder, avoiding an untracked body claim. Delayed musket loading and unjamming retain ephemeral original authority and combat binding; they cannot acquire a replacement grant or replay after restart.
+
+The complete supported callback acceptance is still open; see [the working closure checklist](../Magic/Armageddon_OrderedNpc_Closure_Checklist.md) for actual passed/failed/not-run evidence and remaining families.
+
+Created leaf-item removal also admits exact native passive detection effects on the holder, with their matching native spell parent and no applicability programs. Unsupported effects and custody dependencies retain their removal guards. Consumption records the used remainder before retirement; a held exhausted item cannot credit needs again after save/reload or removal retry. See [the lifecycle contract](../Magic/Spell_Owned_Lifecycle.md).
+
 ## Physical manipulation and reach
 
 Ordinary manual actions require at least one current `IBody.HoldLocs` part for which `CanUseBodypart` succeeds. Occupied manipulators still count; inventory and weapon plans keep their stricter free-location requirements. Missing parts and restrained limbs fail at the body capability layer, including wield-only locations.
@@ -47,6 +63,11 @@ Important responsibilities include:
 
 In practice, `GameItem` is the orchestration layer. Components provide most specialised behaviour, while `GameItem` coordinates persistence, description composition, movement, inventory state, wound handling, and world integration.
 
+Morph schedules created during item login use the stable item ID in diagnostic labels.
+They must not render item descriptions: a cold corpse description can resolve its
+original character before boot permits character materialisation. This leaves the
+saved morph duration, deadline calculation and periodic save schedule unchanged.
+
 Planar presence is resolved at the item level before component-specific physical interaction. A visible but non-interactable item can still appear in descriptions or be speech/observation targeted where commands allow it, while inventory and manipulation checks can reject it through `CanInteractPlanar`.
 
 ### Runtime Event Surface
@@ -59,6 +80,13 @@ Item-facing event surfaces include:
 - local witness variants that let rooms, characters, room items, and carried external items react through hooks or AI
 
 Inventory transfers can also be dispatched to an explicit witness set. This is used by stealth commands such as `palm` and `steal`: the underlying `Get` and `Put` mutations still raise the normal character/item inventory events, but witness variants are limited to characters who passed the stealth notice checks instead of automatically echoing to every event handler in the cell.
+
+Deletion attempts `OnDeleted` once before releasing item events. Reentrant deletion
+returns. An observer exception retains events and latches a refusal so a retry cannot
+repeat partial callback side effects. For a removal-authorized spell-owned corpse,
+the native lifecycle service checks foreign-custody conservation before and after
+observers. A held second check retains the corpse and its minute decay; destructive
+flags, component recursion and event/health tick release wait for successful checks.
 
 ### RouteCell spatial location
 
@@ -87,6 +115,11 @@ It owns the reusable definition of:
 - default `PlanarData` for corporeality and metaphysical visibility
 
 Prototype methods like `CreateNew(...)` instantiate a `GameItem`, create one runtime component per attached component prototype, apply variable initialisation, and execute on-load progs.
+
+The public `GameItem(IGameItemProto, ICharacter, ItemQuality)` constructor retains its
+three-argument binary signature and optional loader/quality defaults. It forwards to normal
+initialisation. Deferred spell-owned construction uses an internal four-argument overload;
+that private creation path does not replace the existing public contract.
 
 `UniqueName` is a nullable, builder-facing identifier for the item template. It exists because the inherited `Name` property is the item noun in most builder workflows. Nonblank unique names are trimmed, must not be entirely numeric, and must be unique case-insensitively among active builder-visible revisions: `Current`, `PendingRevision`, and `UnderDesign`. Historical `Rejected`, `Revised`, and `Obsolete` revisions may duplicate active or historical unique names. Lookup code resolves item prototypes by numeric id first, exact unique name second, and legacy noun/name matching last.
 
@@ -522,6 +555,16 @@ Item ownership is a generic `(framework item type, id)` reference, separate from
 
 Ownership is copied through stack and commodity splits, deep copies, morphs, destroyed-item replacements, and component-driven spent-item replacements. Stackable items, commodities, and currency piles may merge only when both ownership references match, including both being unowned. Currency get, put, drop, and give operations likewise select coins from one ownership group and copy that reference to the reconstructed pile rather than consolidating differently titled money. Creation factories do not infer title from their loader argument; commands and subsystems assign ownership at the acquisition boundary where the recipient or commissioning host is known.
 
+Opted-in spell creation also exposes an immutable `SpellCreationOrigin`, separate from this
+legal owner reference and physical custody. Temporary native leaf items retain their source
+and absolute expiry through title transfer, holding, wielding and containment. They refuse
+ordinary copy, merge, split, replacement and prototype updates until those conversions have
+a lifecycle adapter. Exact removal updates the custodian and deletes the owned row together;
+foreign contents or uncertain persisted custody retain a recoverable hold. Permanent spell
+output has no expiry and remains ordinary durable material. See
+[Spell Owned Lifecycle](../Magic/Spell_Owned_Lifecycle.md#created-leaf-items) for the supported
+component graph and restart guarantees.
+
 ## Update Behaviour
 ### Prototype update checks
 `GameItemProto.CheckForComponentPrototypeUpdates()` updates a prototype if any attached component prototype has moved from current to revised or obsolete.
@@ -545,6 +588,23 @@ It can:
 
 The builder-facing `comp update` workflow exists to force these update passes across prototypes and items.
 
+## Staff maintenance and canonical NPC retention
+
+`debug cleanupcorpses` still identifies superfluous final-death corpses through their
+resolved owner/body and existing decay policy. Its subsequent dead-NPC pass retains and
+reports unqualified identities instead of deleting their bodies alone. Only an exact
+creation-proven retiring lifecycle with correlated native death can reach the guarded
+NPC archive service. Foreign goods, serialized remains, historical and runtime references
+retain the graph; failed archival attempts are reported separately from retained or
+successfully archived NPCs. See [spell-owned lifecycle boundaries](../Magic/Spell_Owned_Lifecycle.md).
+
+The active `debug orphans` report and corpse maintenance both guarantee cleanup of the
+temporary offline PCs they acquired, including partial preload failures. Every temporary
+PC receives a quit attempt, statistics recording resumes in `finally`, and cleanup
+failure remains visible. The disabled destructive orphan-item cleanup is not re-enabled.
+Existing corpse inventory deletion is not qualified for foreign-goods evacuation by
+these changes; native summon creation/remains/decay/evacuation adapters remain pending.
+
 ## Morphing, Destruction, and Replacement
 ### Morphing
 Item prototypes can define morph behaviour:
@@ -553,6 +613,13 @@ Item prototypes can define morph behaviour:
 - emit a morph emote
 
 Morph timing is tracked on live items, and new items may preserve register values depending on prototype settings.
+
+`IGameItemProto.MorphTargetId` is null for morph-to-nothing and identifies a positive
+replacement target. Removal-authorized spell-owned remains preflight morphing before
+loading a replacement, emitting output or transferring/activating items. Positive
+replacement morphs hold until a verified transfer adapter exists; morph-to-nothing
+uses the ordinary deletion path after foreign-custody conservation. See
+[spell-owned retirement](../Magic/Spell_Owned_Lifecycle.md).
 
 ### Destroyed items
 Item prototypes can also define a replacement prototype to load when the item is destroyed.
@@ -576,6 +643,34 @@ Read-only generated remains components such as `Corpse` and `Bodypart` now also 
 - they still remember the originating character for identity-facing workflows such as resurrection, morgue ownership, and FutureProg lookups
 - they also persist the specific source `Body` id so anatomy, inventory, carried implants, wound routing, and surgery compatibility continue to reflect the form that actually died or was severed
 - later character form switches must not cause old corpses or severed parts to silently change shape, wearability, butchery yields, or transplant eligibility
+
+On reload, a positive source body ID is read exactly, including legacy remains whose
+form mappings were pruned before retirement records existed. This read rejects known
+foreign bodies and non-final corpses pointing at a current or embodied body; cached
+references receive the same checks. A living owner's severed part and a final-death
+corpse may retain their owner's exact current body. Reading supplies no cleanup authority
+or new ownership metadata and never substitutes a different body for a positive ID.
+
+Unresolved remains keep that ID and show an unidentifiable corpse or part. Missing anatomy
+contributes zero weight, buoyancy and edible mass, while known part contents still count
+and release normally. Corpse illumination and damage/wound delegates remain safe.
+Anatomy-dependent butchery, skinning, surgery and resurrection refuse the unresolved body;
+staff final-corpse cleanup skips it. Corpse-target surgery additionally requires the
+resolved owner's body to match the exact corpse body. Release leaves the survivor's inventory intact and
+continues to require independently proven authority before deleting a retired body.
+
+Runtime consumers treat unresolved anatomy as a supported remains state. Exposure refresh
+and registration keep ordinary item tracking while omitting the missing body registration.
+Eating and item/currency gifting refuse before nutrition, events or inventory transfers.
+The shared physical-body target helper rejects unresolved corpses before staff commands can
+take a held implant. Corpse-backed actor targeting, dressing and resurrection require a
+resolved final corpse whose body matches the owner's current body; independently visible
+actors and physical operations on other resolved bodies remain available. Global staff
+resurrection and arena cleanup scans skip missing-owner corpses safely.
+
+Persisted severed-part wounds can still be inspected without their original body or owner.
+Descriptions do not borrow a surviving owner's activity, and admin treatment indicators
+read only the exact part body when it resolves. Inspection preserves stored bleeding state.
 
 ## Real Example: Container
 `ContainerGameItemComponentProto` is a representative example of a typical editable component proto:
@@ -730,3 +825,55 @@ Item custody and direct magic/violence impressions use a lazy `PsychometricHisto
 Liquid-instance XML preserves magical lot and charge state through splits, mixing and transfer. Substance exposure parents own persistent spell children and use the retained surface-liquid state for maintained oils. See [Magical Substances](../Magic/Magical_Substances.md).
 
 Discrete power requests retain watts as the instantaneous load. The legacy one-argument `IProducePower.DrawdownSpike(wattage)` contract represents an instantaneous spike and remains suitable for continuous producers. Consumers whose operation has a measurable duration use the duration-aware overload instead. Finite stores such as `BatteryPowered` and `PowerBank` convert watts multiplied by elapsed hours into watt-hours for availability checks and debit, while continuous producers validate the same watt load without inventing stored-energy accounting. `PowerTool` uses this duration-aware path for both preflight and consumption, so a tool rated in watts no longer passes watt-seconds into an API whose argument is watts.
+
+
+## Pending state during spell-owned custody evacuation
+
+The bounded native evacuation transaction retains pending full-save state separately from
+physical custody. Each captured item save, including direct `SaveMagic`, records resource,
+surface-liquid, effect, hook and position flags before consuming them. Provider rollback
+restores custody and rearms those flags while keeping current resource debits and other live
+values. Component saves persist whole definitions; their dirty participation is restored too.
+Rollback explicitly requeues missing participants without aborting save queues. A callback
+cannot flush global queues inside this transaction. An ordinary flush after refusal persists
+both the original custody and the pending values; independent native reload qualifies that
+behavior. Other native adapters and installed-world acceptance remain separate gates. See
+[Spell-owned lifecycle](../Magic/Spell_Owned_Lifecycle.md).
+
+
+## Created food and wearable-light persistence
+
+Spell-created melee weapons can request primary-hand placement. The casting service scouts a grade-bound invocation material plan, retaining legacy runtime material filters. Persisted direct carried/rank constraints are checked before payment and immediately before consumption. Native placement checks the exact dominant wield location and capacity, then verifies direct body custody after both Get and Wield callbacks. A callback redirect is a paid recoverable failure, not authority to add a conflicting wield record. The exact lifecycle claim remains available for normal reconciliation and expiry; foreign containers and siblings are not owned outputs.
+
+The spell-owned leaf boundary admits unscripted native Food and Wearable+ProgLight graphs in addition to plain weapons. Food XML retains fractional or exhausted remaining bites; loading zero does not delete an incomplete parent. Failed/held consumption deletion retains a dirty zero remainder and native eating refuses it, preventing restored portions or duplicate nutrition. Explicit needs fulfilment queues the owning Character, whose row stores active nutrition/hydration, alongside Body changes.
+
+Created lights persist Lit=true before publication and enter actual worn inventory through a configured profile. Character illumination includes their native external-item light. Wear-profile IDs, lit state and raw food remainders participate in normal saves and bounded removal rollback. Exact expiry removes the owned food/light and its components while retaining foreign gear, containers, contents and active player state. Ordinary permanent food still uses normal consumption deletion.
+
+Container-only liquid creation initializes an empty mixture or merges into its existing instance graph, capacity-clamped and subject to an explicit allowed-liquid recipe. It does not replace the foreign container or silently convert its prior mixture. The generated liquid has no spell expiry; ordinary drinking, transfer and instance XML conserve subsequent amounts.
+
+Create Item lifecycle output pools are editable using output <grade 1-7> <prototype> ...|none. Each grade pool contains 1-32 distinct approved plain-item prototypes, all validated before payment. A casting copy retains one sampled prototype through its preparation/application. The permanent <grade> switch controls lifetime independently from the selected pool. Pools cannot bypass worn-light or count-grade admission. eligibility <boolean(character) prog>|none and lifetimemultiplier <number(character) prog>|none configure environment admission and a finite positive lifetime multiplier; malformed persisted policy retains its original editable XML and refuses casting.
+
+Consumed material plan grade <number> <grade 1-7>|all is persisted, displayed and bound on an invocation copy. Other grades omit that requirement without deleting materials; runtime selectors are preserved. Missing grade-dependent tags keep their original ID and refuse before payment and consumption, preventing null-tag wildcard consumption. The existing legacy/custom plan path remains unchanged when no grade selection exists. Temporary weapons refuse salvage; permanent staff remains ordinary salvage-eligible material. Exact expiry/restart conserves foreign bag, permanent staff and sibling goods; source/native qualification limits are recorded in Armageddon_FlameKnife_Stock_Verification.json.
+
+## Sand Knife owned outputs
+
+Sand Knife owns one item per paid invocation, keeping selected grade, prototype, caster provenance and an absolute deadline for temporary grades1-6. Mon consumes a directly carried Creation component and produces ordinary permanent material with no deadline. Native Get followed by explicit Wield is qualified with persisted piercing wounds. Wielded expiry and fresh-process foreign-container reconciliation remove only the exact owned temporary leaf; foreign bag, permanent staff and sibling goods survive. One random permanent pool outcome is qualified; every outcome, charged payload, ordinary combat selection/defence, arbitrary callback fault, full boot and concurrency remain separate gates.
+
+## Prepared native container adoption
+
+Cell.Extract removes native cell membership while retaining the direct location pointer for removal listeners. Container.Put accepts that exact already-extracted native source as well as an ordinarily detached item. It captures the source cell, layer and route position, then rechecks membership and all direct body/container/belt claims after callbacks and executable authority validation. The containment commit clears the stale source position together with destination membership. A callback that reacquires, relocates, deletes or claims the item wins. Global component detachment checks retain their stricter contract.
+
+Children of a held or worn container inherit its body; inherited InInventoryOf is not a competing direct body claim. Container cleanup checks holdable/wearable/prosthetic/implant claims instead, preserving the exact child membership and ContainerId. Ordinary merging retains the existing survivor and consumes an unclaimed absorbed source. The bounded checkpoint qualifies native floor and held bags with exact currency maps, absorbed-row deletion, container XML and independent fresh-process reconstruction; broader noncurrency prepared-inventory merge conservation remains a separate open gate.
+
+## Ordinary floor Get stack completion
+
+Floor Get into a compatible held native stack commits the source debit and survivor credit before description, shop and deletion callbacks. It returns and publishes inventory events for the live survivor. Absorbed-source final deletion requires an unchanged empty source with exact native Stackable/Holdable leaf components; callback refill, title/custody changes and unknown structural components preserve that source. An unclaimed remnant returns to the captured floor/layer/route point. The conserved component quantities persist before absorbed native teardown, so a provider DELETE refusal leaves a coherent zero source available for later deletion rather than restoring duplicated units. Original-order reentrant operations retain ordinary authority checks after expiry.
+
+The bounded [stack checkpoint](../Magic/Armageddon_StackMerge_Checkpoint.md) qualifies ordinary whole floor stacks, including an actual ordered parser and fresh native persistence reconstruction. Container Get and Give now share conserved native leaf-stack completion and publish the live survivor. Before detachment they retain exact source quantity/holder/component membership and recheck native permission plus pure participant facts after the final executable authority callback. Container ancestry is captured in two passes; all direct edges are validated before recursive effective facts. Give preserves its body/corpse permission overload and pins the original receiver actor/body and reach facts. Independent relocation, refill or ancestor closure wins. See [checkpoint17](../Magic/Armageddon_CustodyMerge_Checkpoint.md). Component Unload and other public Merge callers still require their separate result/component contracts and qualification.
+
+Absorbed floor-stack deletion owns an independent required-write database scope. A refused DELETE cannot remain pending in an outer caller and destroy a later independent refill. Successful deletion evicts only the exact source row and its directly tracked FK graph from the restored caller, preventing cached native reload of the deleted source while retaining unrelated entries. The [caller-context correction](../Magic/Armageddon_StackContext_Checkpoint.md) qualifies both paths, exact stored custody before native placement, and observer counts through ordinary retry.
+
+
+## Internal-magazine post-detach recovery
+
+Native Unload and Ready ejection enclose exact slot detachment and receipt in captured floor recovery. Clearing the owner slot marks its component dirty before containment notifications. Body exact title/quantity/component validation runs inside its recovery boundary, so changed detached value is conserved at the original safe point. Recovery applies only to an unclaimed detached item; current independent hand, container, belt or spatial custody wins. A secondary recovery exception preserves the original gameplay exception, while an otherwise failing recovery propagates normally. A failed floor-membership observer can leave a captured floor pointer requiring an explicit independent membership retry; automatic recovery through a failing observer is not promised. See [bounded gameplay and cold persistence qualification](../Magic/Armageddon_AmmoDetachRecovery_Checkpoint.md).

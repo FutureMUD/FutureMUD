@@ -1,4 +1,4 @@
-﻿using MudSharp.Construction;
+using MudSharp.Construction;
 using Org.BouncyCastle.Asn1.X509;
 
 namespace MudSharp.Combat.Moves;
@@ -18,6 +18,8 @@ public class UnarmedSwoopAttack : NaturalAttackMove
 
     public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
     {
+		using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterMove(this);
+		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
         RoomLayer startingLayer = Assailant.RoomLayer;
         RoomLayer targetLayer = Target.RoomLayer;
 
@@ -38,6 +40,7 @@ public class UnarmedSwoopAttack : NaturalAttackMove
         }
 
         CombatMoveResult result = base.ResolveMove(defenderMove);
+		if (!CanContinueCommand()) return result;
         if (!result.MoveWasSuccessful)
         {
             Assailant.MeleeRange = true;

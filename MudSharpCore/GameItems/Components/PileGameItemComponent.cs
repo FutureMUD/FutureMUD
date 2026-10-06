@@ -286,6 +286,23 @@ public class PileGameItemComponent : GameItemComponent, IContainer
         Changed = true;
     }
 
+    // Completion of one exact participant already detached by component unloading.
+    // No ambient scope is cleared, and no public operation is authorized here.
+    internal bool PutPreparedUnload(IGameItem item)
+    {
+        if (item is not GameItem native || !ComponentItemTransfer.IsDetached(item) ||
+            Parent.Deleted || Parent.Destroyed || _contents.Contains(item)) return false;
+        var committed = native.TrySetContainedIn(Parent,
+            () => ComponentItemTransfer.IsDetached(item) && !Parent.Deleted && !Parent.Destroyed,
+            () => { _contents.Add(item); Changed = true; });
+        // A callback may move/delete this item without invoking the original container.
+        if (item.Deleted || item.Destroyed || !ReferenceEquals(item.ContainedIn, Parent))
+        {
+            if (_contents.Remove(item)) Changed = true;
+        }
+        return committed;
+    }
+
     public WhyCannotPutReason WhyCannotPut(IGameItem item)
     {
         return WhyCannotPutReason.CantPutContainerInItself;

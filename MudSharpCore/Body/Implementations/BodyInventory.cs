@@ -1,4 +1,5 @@
-using MudSharp.Accounts;
+﻿using MudSharp.Accounts;
+using MudSharp.NPC.AI;
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Character.Name;
 using MudSharp.Combat;
@@ -9,6 +10,7 @@ using MudSharp.Effects.Concrete;
 using MudSharp.Events;
 using MudSharp.Framework.Save;
 using MudSharp.GameItems;
+using MudSharp.GameItems.Components;
 using MudSharp.GameItems.Inventory;
 using MudSharp.GameItems.Inventory.Size;
 using MudSharp.GameItems.Interfaces;
@@ -54,7 +56,10 @@ public partial class Body
         {
             if (!_noSave)
             {
-                if (value && !_inventoryChanged)
+                // A borrowed body's initialisation can leave an existing dirty flag
+                // after its pending save was cancelled. Every later mutation must
+                // queue it again; Changed already prevents duplicate queue entries.
+                if (value)
                 {
                     Changed = true;
                 }
@@ -512,54 +517,79 @@ public partial class Body
             $"You can't wield {item.HowSeen(Actor)} specifically in your {specificHand.FullDescription()} at the moment.";
     }
 
+	private sealed record PreparedWield(IWield Primary, IReadOnlyList<IWield> Hands);
+
+	private PreparedWield? PrepareWieldPlacement(IGameItem item, IWield? specificHand, ItemCanWieldFlags flags)
+	{
+		var executor = Actor;
+		var available = WieldLocs.ToArray()
+			.Where(x => x.CanWield(item, this) == IWieldItemWieldResult.Success)
+			.OrderByDescending(x => _heldItems.Any(y => y.Item1 == item && y.Item2 == x))
+			.Select(x => (Hand: x, Count: x.Hands(item))).ToList();
+		if (!ReferenceEquals(Actor, executor) || !CommandExecutionScope.TryContinue()) return null;
+		if (available.Count == 0) return null;
+		var hands = flags.HasFlag(ItemCanWieldFlags.RequireTwoHands) ? 2 :
+			specificHand is null ? available.Min(x => x.Count) : specificHand.Hands(item);
+		if (!ReferenceEquals(Actor, executor) || !CommandExecutionScope.TryContinue()) return null;
+		var primary = specificHand ?? (hands == 1 ?
+			available.FirstOrDefault(x => x.Count == 1 && x.Hand.Alignment.LeftRightOnly() == executor.Handedness.LeftRightOnly()).Hand ??
+			available.FirstOrDefault(x => x.Count == 1).Hand : available[0].Hand);
+		if (primary is null) return null;
+		var chosen = new List<IWield> { primary };
+		if (hands == 2)
+		{
+			var secondary = available.FirstOrDefault(x => !ReferenceEquals(x.Hand, primary)).Hand;
+			if (secondary is null) return null;
+			chosen.Add(secondary);
+		}
+		return new PreparedWield(primary, chosen);
+	}
+
+	private bool CompleteWieldPlacement(IGameItem item, PreparedWield placement, MudSharp.Character.ICharacter executor,
+		IEmote? playerEmote, bool silent)
+	{
+		if (!ReferenceEquals(Actor, executor) || item.Deleted || item.Destroyed || ComponentItemTransfer.DirectLocationOf(item) is not null ||
+			item.ContainedIn is not null || !ReferenceEquals(item.GetItemType<IHoldable>()?.HeldBy, this)) return false;
+		// A committed draw finishes only its prepared item. Callback relocation is preserved.
+		if (placement.Hands.Any(hand => _heldItems.Any(x => x.Item1 != item && ReferenceEquals(x.Item2, hand)) ||
+			_wieldedItems.Any(x => x.Item1 != item && ReferenceEquals(x.Item2, hand)))) return false;
+		_wieldedItems.RemoveAll(x => x.Item1 == item);
+		_wieldedItems.AddRange(placement.Hands.Select(x => Tuple.Create(item, x)));
+		_heldItems.RemoveAll(x => x.Item1 == item);
+		item.GetItemType<IWieldable>().PrimaryWieldedLocation = placement.Primary;
+		UpdateDescriptionWielded(item);
+		InventoryChanged = true;
+		if (!silent) OutputHandler.Handle(new MixedEmoteOutput(
+			new Emote("@ wield|wields $1 in " + WieldSuffix(item, WieldSuffixForm.WieldEcho), executor, executor, item),
+			flags: OutputFlags.SuppressObscured).Append(playerEmote));
+		OnInventoryChange?.Invoke(InventoryState.Held, InventoryState.Wielded, item);
+		item.InvokeInventoryChange(InventoryState.Held, InventoryState.Wielded);
+		CheckConsequences();
+		item.HandleEvent(EventType.ItemWielded, item, executor);
+		foreach (var witness in Location.EventHandlersFor(executor).ToArray())
+			witness.HandleEvent(EventType.ItemWieldedWitness, item, executor, witness);
+		return true;
+	}
+
     public bool Wield(IGameItem item, IWield? specificHand, IEmote? playerEmote = null, bool silent = false,
         ItemCanWieldFlags flags = ItemCanWieldFlags.None)
     {
-        if (specificHand == null)
-        {
-            return Wield(item, playerEmote, silent, flags);
-        }
-
-        if (!CanWield(item, specificHand, flags))
-        {
-		if (!silent)
-            {
-                OutputHandler.Send(WhyCannotWield(item, specificHand, flags));
-            }
-
-            return false;
-        }
-
-        IEnumerable<IWield> potentialWearLocs =
-            WieldLocs.Where(x => x.CanWield(item, this) == IWieldItemWieldResult.Success).Except(specificHand);
-        int hands = flags.HasFlag(ItemCanWieldFlags.RequireTwoHands) ? 2 : specificHand.Hands(item);
-        _wieldedItems.Add(Tuple.Create(item, specificHand));
-        if (hands == 2)
-        {
-            _wieldedItems.Add(Tuple.Create(item, potentialWearLocs.First()));
-        }
-
-        _heldItems.RemoveAll(x => x.Item1 == item);
-        if (!silent)
-        {
-            OutputHandler.Handle(
-                new MixedEmoteOutput(
-                    new Emote("@ begin|begins to wield $1 in " + WieldSuffix(item, WieldSuffixForm.WieldEcho), Actor,
-                        Actor, item), flags: OutputFlags.SuppressObscured).Append(playerEmote));
-        }
-
-        item.GetItemType<IWieldable>().PrimaryWieldedLocation = specificHand;
-        UpdateDescriptionWielded(item);
-        InventoryChanged = true;
-        OnInventoryChange?.Invoke(InventoryState.Held, InventoryState.Wielded, item);
-        item.InvokeInventoryChange(InventoryState.Held, InventoryState.Wielded);
-        CheckConsequences();
-        item.HandleEvent(EventType.ItemWielded, item, Actor);
-        foreach (IHandleEvents witness in Location.EventHandlersFor(Actor))
-        {
-            witness.HandleEvent(EventType.ItemWieldedWitness, item, Actor, witness);
-        }
-        return true;
+		var executor = Actor;
+		using var execution = CommandExecutionScope.EnterBodyOperation(executor);
+		bool CanContinue() => ReferenceEquals(Actor, executor) && CommandExecutionScope.TryContinue(executor);
+		if (!CanContinue()) return false;
+		ForeignCustodyTransferContext.EnsureBody(this, item);
+		var canWield = specificHand is null ? CanWield(item, flags) : CanWield(item, specificHand, flags);
+		if (!CanContinue()) return false;
+		if (!canWield)
+		{
+			if (!silent) OutputHandler.Send(specificHand is null ? WhyCannotWield(item, flags) : WhyCannotWield(item, specificHand, flags));
+			return false;
+		}
+		var placement = PrepareWieldPlacement(item, specificHand, flags);
+		if (placement is null || !CanContinue()) return false;
+		CommandExecutionScope.MarkCommitted(executor);
+		return CompleteWieldPlacement(item, placement, executor, playerEmote, silent);
     }
 
     public bool LoadtimeWield(IGameItem item, ItemCanWieldFlags flags)
@@ -599,76 +629,31 @@ public partial class Body
     }
 
     public bool Wield(IGameItem item, IEmote? playerEmote = null, bool silent = false,
-        ItemCanWieldFlags flags = ItemCanWieldFlags.None)
-    {
-        if (!CanWield(item, flags))
-        {
-            if (!silent)
-            {
-                OutputHandler.Send(WhyCannotWield(item, flags));
-            }
-
-            return false;
-        }
-
-        List<IWield> potentialWearLocs =
-            WieldLocs.Where(x => x.CanWield(item, this) == IWieldItemWieldResult.Success)
-                     .OrderByDescending(x => _heldItems.Any(y => y.Item1 == item && y.Item2 == x))
-                     .ToList();
-        int hands = flags.HasFlag(ItemCanWieldFlags.RequireTwoHands) ? 2 : potentialWearLocs.Min(x => x.Hands(item));
-        if (hands == 1)
-        {
-            //Try dominant hand first
-            IWield loc = potentialWearLocs.FirstOrDefault(x =>
-                          x.Hands(item) == 1 && x.Alignment.LeftRightOnly() == Actor.Handedness.LeftRightOnly()) ??
-                      potentialWearLocs.FirstOrDefault(x => x.Hands(item) == 1);
-            _wieldedItems.Add(Tuple.Create(item, loc));
-            item.GetItemType<IWieldable>().PrimaryWieldedLocation = loc;
-        }
-        else
-        {
-            List<IWield> locs = potentialWearLocs.Take(2).ToList();
-            item.GetItemType<IWieldable>().PrimaryWieldedLocation = locs.First();
-            foreach (IWield loc in locs)
-            {
-                _wieldedItems.Add(Tuple.Create(item, loc));
-            }
-        }
-
-        _heldItems.RemoveAll(x => x.Item1 == item);
-
-        if (!silent)
-        {
-            OutputHandler.Handle(
-                new MixedEmoteOutput(
-                    new Emote("@ wield|wields $1 in " + WieldSuffix(item, WieldSuffixForm.WieldEcho), Actor, Actor,
-                        item), flags: OutputFlags.SuppressObscured).Append(playerEmote));
-        }
-
-        UpdateDescriptionWielded(item);
-        InventoryChanged = true;
-        OnInventoryChange?.Invoke(InventoryState.Held, InventoryState.Wielded, item);
-        item.InvokeInventoryChange(InventoryState.Held, InventoryState.Wielded);
-        CheckConsequences();
-        item.HandleEvent(EventType.ItemWielded, item, Actor);
-        foreach (IHandleEvents witness in Location.EventHandlersFor(Actor))
-        {
-            witness.HandleEvent(EventType.ItemWieldedWitness, item, Actor, witness);
-        }
-        return true;
-    }
+        ItemCanWieldFlags flags = ItemCanWieldFlags.None) => Wield(item, (IWield?)null, playerEmote, silent, flags);
 
     public bool Unwield(IGameItem item, IEmote? playerEmote = null, bool silent = false)
     {
+		var executor = Actor;
+		using var execution = CommandExecutionScope.EnterBodyOperation(executor);
+		bool CanContinue() => ReferenceEquals(Actor, executor) && CommandExecutionScope.TryContinue(executor);
+		if (!CanContinue()) return false;
+		var canUnwield = CanUnwield(item);
+		if (!CanContinue() || !canUnwield) return false;
         Tuple<IGameItem, IWield> heldLocation = _wieldedItems.FirstOrDefault(x => x.Item1 == item);
+        if (heldLocation is null) return false;
+		var selfUnwielder = heldLocation.Item2.SelfUnwielder();
+		var placement = selfUnwielder ? null : PrepareGetPlacement(item, true);
+		if (!CanContinue() || (!selfUnwielder && placement is null)) return false;
+		CommandExecutionScope.MarkCommitted(executor);
         _wieldedItems.RemoveAll(x => x.Item1 == item);
-        if (heldLocation != null && heldLocation.Item2.SelfUnwielder())
+        if (selfUnwielder)
         {
             _heldItems.Add(Tuple.Create(heldLocation.Item1, heldLocation.Item2 as IGrab));
         }
         else
         {
-            Get(item, silent: true);
+            item.Get(this);
+            if (!CompleteGetPlacement(item, placement!)) return false;
         }
 
         if (!silent)
@@ -845,6 +830,11 @@ public partial class Body
         OutputFlags additionalFlags = OutputFlags.Normal, bool silent = false,
         ItemCanWieldFlags flags = ItemCanWieldFlags.None)
     {
+		var executor = Actor;
+		using var execution = CommandExecutionScope.EnterBodyOperation(executor);
+		bool CanContinue() => ReferenceEquals(Actor, executor) && CommandExecutionScope.TryContinue(executor);
+		if (!CanContinue()) return false;
+		ForeignCustodyTransferContext.EnsureBody(this, item);
         if (!CanDraw(item, specificHand, flags))
         {
             OutputHandler.Send(WhyCannotDraw(item, specificHand, flags));
@@ -860,11 +850,17 @@ public partial class Body
                              ?.Parent;
         }
 
+        if (!CanContinue()) return false;
+		var placement = PrepareWieldPlacement(item, specificHand, flags);
+		var fallback = PrepareGetPlacement(item, false);
+		if (placement is null || fallback is null || !CanContinue()) return false;
         IWieldable wieldItem = item.GetItemType<IWieldable>();
         ISheath sheathItem =
             ExternalItems.SelectNotNull(x => x.GetItemType<ISheath>()).FirstOrDefault(x =>
                 x is IMultiSlotSheath multi ? multi.WieldableContents.Contains(wieldItem) : x.Content == wieldItem);
 
+        if (sheathItem is null || !CanContinue()) return false;
+		CommandExecutionScope.MarkCommitted(executor);
         if (sheathItem is IMultiSlotSheath concreteSheath)
         {
             concreteSheath.TryRemove(wieldItem);
@@ -874,7 +870,8 @@ public partial class Body
             sheathItem.Content = null;
         }
         sheathItem.Parent.Changed = true;
-        item.Get(this);
+        if (item.Deleted || item.Destroyed || item.ContainedIn is not null || item.Location is not null || item.InInventoryOf is not null) return false;
+		item.Get(this);
         if (!silent)
         {
             OutputHandler.Handle(
@@ -882,13 +879,10 @@ public partial class Body
                     flags: OutputFlags.SuppressObscured | additionalFlags).Append(playerEmote));
         }
 
-        if (specificHand == null)
-        {
-            Wield(item, null, silent, flags);
-        }
-        else
-        {
-            Wield(item, specificHand, null, silent, flags);
+        if (!CompleteWieldPlacement(item, placement, executor, null, true))
+		{
+			CompleteGetPlacement(item, fallback);
+			return false;
 		}
 
 		InventoryChanged = true;
@@ -1144,24 +1138,36 @@ public partial class Body
     public bool Sheathe(IGameItem item, IGameItem sheath, IEmote? playerEmote = null,
         OutputFlags additionalFlags = OutputFlags.Normal, bool silent = false)
     {
+		var executor = Actor;
+		using var execution = CommandExecutionScope.EnterBodyOperation(executor);
+		if (!CommandExecutionScope.TryContinue(executor)) return false;
+		ForeignCustodyTransferContext.EnsureBody(this, item);
+		ForeignCustodyTransferContext.EnsureBody(this, sheath);
         if (!CanSheathe(item, sheath))
         {
             OutputHandler.Send(WhyCannotSheathe(item, sheath));
             return false;
         }
 
-        return SheatheInternal(item, sheath, playerEmote, additionalFlags, silent);
+		return ReferenceEquals(Actor, executor) && CommandExecutionScope.TryContinue(executor) &&
+			SheatheInternal(item, sheath, playerEmote, additionalFlags, silent);
     }
 
     public bool SheatheExternally(IGameItem item, IGameItem sheath)
     {
-        return CanSheatheExternally(item, sheath) &&
+		var executor = Actor;
+		using var execution = CommandExecutionScope.EnterBodyOperation(executor);
+        return CommandExecutionScope.TryContinue(executor) && CanSheatheExternally(item, sheath) &&
+			ReferenceEquals(Actor, executor) && CommandExecutionScope.TryContinue(executor) &&
                SheatheInternal(item, sheath, null, OutputFlags.Normal, true);
     }
 
     private bool SheatheInternal(IGameItem item, IGameItem sheath, IEmote? playerEmote,
         OutputFlags additionalFlags, bool silent)
     {
+		var executor = Actor;
+		bool CanContinue() => ReferenceEquals(Actor, executor) && CommandExecutionScope.TryContinue(executor);
+		if (!CanContinue()) return false;
         IWieldable targetItemWieldable = null;
         if (item == null)
         {
@@ -1172,6 +1178,7 @@ public partial class Body
                                           true)
                                   .SelectNotNull(x => x.GetItemType<IWieldable>())
                                   .FirstOrDefault();
+			if (targetItemWieldable is null || !CanContinue()) return false;
             item = targetItemWieldable.Parent;
         }
         else
@@ -1186,12 +1193,18 @@ public partial class Body
             targetSheathComponent =
                 ExternalItems.SelectNotNull(x => x.GetItemType<ISheath>())
                               .FirstOrDefault(x => x.CanSheath(item));
+			if (targetSheathComponent is null || !CanContinue()) return false;
             sheath = targetSheathComponent.Parent;
         }
         else
         {
             targetSheathComponent = sheath.GetItemType<ISheath>();
         }
+
+		if (!CanContinue() || targetItemWieldable is null || targetSheathComponent is null ||
+			item.Deleted || item.Destroyed || sheath.Deleted || sheath.Destroyed) return false;
+		var returnItem = PrepareDetachedItemReturn(item);
+		if (returnItem is null || !CanContinue()) return false;
 
         if (!silent)
         {
@@ -1202,16 +1215,21 @@ public partial class Body
                         (playerEmote));
         }
 
-        item.Drop(null);
-        Take(item);
+		if (!CanContinue() || item.Deleted || item.Destroyed ||
+			(!ReferenceEquals(item.InInventoryOf, this) && !ComponentItemTransfer.IsDetached(item))) return false;
+		CommandExecutionScope.MarkCommitted(executor);
+		if (ReferenceEquals(item.InInventoryOf, this)) TakeInternal(item);
+		if (!ComponentItemTransfer.IsDetached(item)) return false;
+		if (!CanContinue() || sheath.Deleted || sheath.Destroyed) { returnItem(); return false; }
         if (targetSheathComponent is IMultiSlotSheath concreteSheath)
         {
-            concreteSheath.TryAdd(targetItemWieldable);
+			if (!concreteSheath.TryAdd(targetItemWieldable)) { returnItem(); return false; }
         }
         else
         {
             targetSheathComponent.Content = targetItemWieldable;
         }
+		if (!ReferenceEquals(item.ContainedIn, sheath)) { returnItem(); return false; }
         sheath.Changed = true;
         Actor.HandleEvent(EventType.CharacterSheatheItem, Actor, item, sheath);
         item.HandleEvent(EventType.ItemSheathed, Actor, item, sheath);
@@ -1684,85 +1702,226 @@ public partial class Body
 		return GetInternal(item, 0, null, silent, ItemCanGetIgnore.None, null, false, triggerEvents);
 	}
 
+	private sealed record PreparedGet(IGrab? Hand, IGameItem? Merge, MudSharp.Character.ICharacter Executor, ICell? Fallback, RoomLayer Layer)
+	{
+		public double? RoutePosition { get; init; }
+	}
+
+	// A failed transfer may return only its exact already-detached item, without
+	// authorising another public operation from an expired command callback.
+	internal Action? PrepareDetachedItemReturn(IGameItem item)
+	{
+		var executor = Actor;
+		if (!CommandExecutionScope.TryContinue()) return null;
+		var hand = _heldItems.FirstOrDefault(x => ReferenceEquals(x.Item1, item))?.Item2 ??
+			_wieldedItems.FirstOrDefault(x => ReferenceEquals(x.Item1, item))?.Item2 as IGrab;
+		var placement = new PreparedGet(hand, null, executor, Location, RoomLayer);
+		return () =>
+		{
+			if (!ComponentItemTransfer.IsDetached(item)) return;
+			item.Get(this);
+			if (CompleteGetPlacement(item, placement)) NotifyGotItem(item, executor);
+		};
+	}
+
+	// Prepare while the component still owns this item. The returned completion handles this
+	// exact detached item only; public reentrant body operations retain their normal gates.
+	internal Action? PrepareComponentUnload(IGameItem item)
+	{
+		var executor = Actor;
+		if (!CommandExecutionScope.TryContinue()) return null;
+		var canReceive = CanGet(item, 0);
+		if (!ReferenceEquals(Actor, executor) || !CommandExecutionScope.TryContinue()) return null;
+		var placement = canReceive ? PrepareGetPlacement(item, true) : null;
+		if (!ReferenceEquals(Actor, executor) || !CommandExecutionScope.TryContinue()) return null;
+		placement ??= new PreparedGet(null, null, executor, Location, RoomLayer);
+		return () =>
+		{
+			if (!ComponentItemTransfer.IsDetached(item)) return;
+			item.Get(this);
+			if (CompleteGetPlacement(item, placement)) NotifyGotItem(item, executor);
+		};
+	}
+
+	internal Func<IGameItem?>? PrepareComponentUnloadWithResult(IGameItem item)
+	{
+		var executor = Actor;
+		var quantity = item.Quantity;
+		var title = item.OwnershipReference;
+		var components = item.Components.Select(x => (Item: x, Prototype: x.Prototype)).ToArray();
+		bool Exact() => !item.Deleted && !item.Destroyed && item.Quantity == quantity && item.OwnershipReference == title &&
+			item.Components.Count() == components.Length && components.All(x => item.Components.Any(y => ReferenceEquals(x.Item, y)) &&
+				ReferenceEquals(x.Item.Prototype, x.Prototype));
+		if (!CommandExecutionScope.TryContinue()) return null;
+		var canReceive = CanGet(item, 0);
+		if (!ReferenceEquals(Actor, executor) || !CommandExecutionScope.TryContinue() || !Exact()) return null;
+		var placement = canReceive ? PrepareGetPlacement(item, true) : null;
+		if (!ReferenceEquals(Actor, executor) || !CommandExecutionScope.TryContinue() || !Exact()) return null;
+		placement ??= new PreparedGet(null, null, executor, Location, RoomLayer);
+		var floor = ComponentUnloadCompletion.PrepareFloorDestination(executor, executor);
+		if (floor is null || !CommandExecutionScope.TryContinue() || !Exact()) return null;
+		return () =>
+		{
+			return ComponentUnloadCompletion.CompleteWithRecovery<IGameItem?>(() =>
+			{
+				if (!ComponentItemTransfer.IsDetached(item) || !Exact()) return null;
+				item.Get(this);
+				if (!Exact()) return null;
+				if (!CompleteGetPlacementWithResult(item, placement, out var acquired, consumeNativeStack: true, allowAmmo: true))
+					return !item.Deleted && !item.Destroyed && ComponentItemTransfer.DirectLocationOf(item) == placement.Fallback &&
+						item.RoomLayer == placement.Layer && item.InInventoryOf is null && item.ContainedIn is null &&
+						placement.Fallback?.GameItems.Any(x => ReferenceEquals(x, item)) == true ? item : null;
+				if (acquired.Deleted || acquired.Destroyed) return null;
+				NotifyGotItem(acquired, executor);
+				return acquired.Deleted || acquired.Destroyed ? null : acquired;
+			}, () =>
+			{
+				// Get callbacks may throw after installing only the provisional holder.
+				if (!item.Deleted && !item.Destroyed && ReferenceEquals(item.GetItemType<IHoldable>()?.HeldBy, this) &&
+					!HeldOrWieldedItems.Any(x => ReferenceEquals(x, item)) && item.ContainedIn is null &&
+					ComponentItemTransfer.DirectLocationOf(item) is null && item.GetItemType<IBeltable>()?.ConnectedTo is null)
+					item.GetItemType<IHoldable>()!.HeldBy = null;
+				if (ComponentItemTransfer.IsDetached(item)) floor(item);
+			});
+		};
+	}
+
+	private PreparedGet? PrepareGetPlacement(IGameItem item, bool allowMerge)
+	{
+		var executor = Actor;
+		var merge = allowMerge ? HeldOrWieldedItems.ToArray().FirstOrDefault(x => x.CanMerge(item)) : null;
+		if (!ReferenceEquals(Actor, executor) || !CommandExecutionScope.TryContinue()) return null;
+		if (merge is not null) return new PreparedGet(null, merge, executor, Location, RoomLayer) { RoutePosition = RoutePositionMetres };
+		var hands = HoldLocs.Where(hand => !_heldItems.Any(x => ReferenceEquals(x.Item2, hand)) &&
+			!_wieldedItems.Any(x => ReferenceEquals(x.Item2, hand))).ToArray();
+		var hand = hands.FirstOrDefault(x =>
+			(x.CanGrab(item, this) == WearlocGrabResult.Success &&
+			 x.Alignment.LeftRightOnly() == executor.Handedness.LeftRightOnly()) ||
+			(executor.IsAdministrator() && x.CanGrab(item, this) == WearlocGrabResult.FailTooBig)) ??
+			hands.FirstOrDefault(x => x.CanGrab(item, this) == WearlocGrabResult.Success ||
+				(executor.IsAdministrator() && x.CanGrab(item, this) == WearlocGrabResult.FailTooBig));
+		if (!ReferenceEquals(Actor, executor) || !CommandExecutionScope.TryContinue()) return null;
+		return merge is null && hand is null ? null : new PreparedGet(hand, merge, executor, Location, RoomLayer) { RoutePosition = RoutePositionMetres };
+	}
+
+	// This private completion is only for the one item whose custody operation has already committed.
+	// Reentrant public inventory operations still pass their own normal authority checks.
+	private bool CompleteGetPlacement(IGameItem item, PreparedGet placement) => CompleteGetPlacementWithResult(item, placement, out _);
+
+	private bool CompleteGetPlacementWithResult(IGameItem item, PreparedGet placement, out IGameItem acquired, bool consumeNativeStack = false, bool allowAmmo = false)
+	{
+		acquired = item;
+		bool SourceReady() => !item.Deleted && !item.Destroyed && ComponentItemTransfer.DirectLocationOf(item) is null &&
+			item.ContainedIn is null && ReferenceEquals(item.GetItemType<IHoldable>()?.HeldBy, this);
+		if (!SourceReady()) return false;
+		if (HeldOrWieldedItems.Any(x => ReferenceEquals(x, item))) return true;
+		if (ReferenceEquals(Actor, placement.Executor))
+		{
+			if (placement.Merge is { Deleted: false, Destroyed: false } merge && HeldOrWieldedItems.Any(x => ReferenceEquals(x, merge)))
+			{
+				// Get/removal callbacks may change the prepared survivor's title or custody.
+				// CanMerge itself invokes effects/components, so check its inputs and custody again afterwards.
+				var sourceOwner = item.OwnershipReference;
+				var mergeOwner = merge.OwnershipReference;
+				var sourceDescription = (item.Prototype, item.OverrideSdesc, item.OverrideDesc);
+				var mergeDescription = (merge.Prototype, merge.OverrideSdesc, merge.OverrideDesc);
+				var sourceQuantity = item.Quantity;
+				var mergeQuantity = merge.Quantity;
+				var sourceStack = item.GetItemType<IStackable>();
+				var mergeStack = merge.GetItemType<IStackable>();
+				var sourceStackProto = sourceStack?.Prototype;
+				var mergeStackProto = mergeStack?.Prototype;
+				var sourceComponents = item.Components.Select(x => (Item: x, Prototype: x.Prototype)).ToArray();
+				var mergeComponents = merge.Components.Select(x => (Item: x, Prototype: x.Prototype)).ToArray();
+				bool ComponentsUnchanged(IGameItem participant, (IGameItemComponent Item, IGameItemComponentProto Prototype)[] captured) =>
+					participant.Components.Count() == captured.Length && captured.All(x => participant.Components.Any(y => ReferenceEquals(x.Item, y)) &&
+						ReferenceEquals(x.Item.Prototype, x.Prototype));
+				var canMerge = merge.CanMerge(item);
+				if (!SourceReady()) return false;
+				if (HeldOrWieldedItems.Any(x => ReferenceEquals(x, item))) return true;
+				if (canMerge && ReferenceEquals(Actor, placement.Executor) && !merge.Deleted && !merge.Destroyed &&
+					HeldOrWieldedItems.Any(x => ReferenceEquals(x, merge)) &&
+					ReferenceEquals(merge.GetItemType<IHoldable>()?.HeldBy, this) && merge.ContainedIn is null &&
+					ComponentItemTransfer.DirectLocationOf(merge) is null &&
+					item.OwnershipReference == sourceOwner && merge.OwnershipReference == mergeOwner && sourceOwner == mergeOwner &&
+					(item.Prototype, item.OverrideSdesc, item.OverrideDesc) == sourceDescription &&
+					(merge.Prototype, merge.OverrideSdesc, merge.OverrideDesc) == mergeDescription &&
+					item.Quantity == sourceQuantity && merge.Quantity == mergeQuantity &&
+					ReferenceEquals(item.GetItemType<IStackable>(), sourceStack) && ReferenceEquals(merge.GetItemType<IStackable>(), mergeStack) &&
+					ReferenceEquals(sourceStack?.Prototype, sourceStackProto) && ReferenceEquals(mergeStack?.Prototype, mergeStackProto) &&
+					(!allowAmmo || ComponentsUnchanged(item, sourceComponents) && ComponentsUnchanged(merge, mergeComponents)) &&
+					(!allowAmmo || item.GetItemType<AmmunitionGameItemComponent>() is not { IsQuiescentForStackMerge: false } &&
+						merge.GetItemType<AmmunitionGameItemComponent>() is not { IsQuiescentForStackMerge: false }))
+				{
+					if (consumeNativeStack && merge is MudSharp.GameItems.GameItem nativeMerge && item is MudSharp.GameItems.GameItem nativeSource &&
+						nativeMerge.GetItemType<StackableGameItemComponent>() is not null &&
+						nativeSource.GetItemType<StackableGameItemComponent>() is not null)
+					{
+						acquired = merge;
+						try
+						{
+							if (allowAmmo) nativeMerge.MergeCommittedAmmoStackForGet(nativeSource, this);
+							else nativeMerge.MergeCommittedStackForGet(nativeSource, this);
+						}
+						finally
+						{
+							// Observers may refill or retitle the zero source. Preserve their value at the
+							// captured floor if they did not establish a real inventory/spatial claim.
+							if (SourceReady() && !HeldOrWieldedItems.Any(x => ReferenceEquals(x, item)))
+							{
+								if (placement.Fallback is { } floor) nativeSource.TryDropPrepared(new SpatialLocation(floor, placement.Layer, placement.RoutePosition));
+								else item.Drop(null);
+								if (!item.Deleted && !item.Destroyed && ReferenceEquals(item.Location, placement.Fallback) &&
+									item.InInventoryOf is null && item.ContainedIn is null) placement.Fallback?.Insert(item, newStack: true);
+							}
+						}
+					}
+					else merge.Merge(item);
+					return true;
+				}
+			}
+			if (ReferenceEquals(Actor, placement.Executor) && placement.Hand is not null && !_heldItems.Any(x => ReferenceEquals(x.Item2, placement.Hand)) &&
+				!_wieldedItems.Any(x => ReferenceEquals(x.Item2, placement.Hand)))
+			{
+				_heldItems.Add(Tuple.Create(item, placement.Hand));
+				UpdateDescriptionHeld(item);
+				InventoryChanged = true;
+				return true;
+			}
+		}
+		// A callback may invalidate the prepared destination. Preserve actual relocation/deletion,
+		// otherwise leave this item safely at the captured cell rather than inventing another hand.
+		item.RoomLayer = placement.Layer;
+		item.Drop(placement.Fallback);
+		if (!item.Deleted && !item.Destroyed && ReferenceEquals(item.Location, placement.Fallback) &&
+			item.InInventoryOf is null && item.ContainedIn is null) placement.Fallback?.Insert(item);
+		return false;
+	}
+
 	private IGameItem? GetInternal(IGameItem item, int quantity, IEmote? playerEmote, bool silent,
 		ItemCanGetIgnore ignoreFlags, IEnumerable<IHandleEvents> witnessHandlers, bool allowMerge,
 		bool triggerEvents = true)
-    {
-        if (!CanGet(item, quantity, ignoreFlags))
-        {
-            if (!silent)
-            {
-                OutputHandler.Send(WhyCannotGet(item, quantity, ignoreFlags));
-            }
-
-            return null;
-        }
-
-        MixedEmoteOutput output;
-        IGameItem gottenItem = null;
-        if (quantity == 0 || item.DropsWhole(quantity))
-        {
-            gottenItem = item;
-            item.Get(this);
-
-            if (!_heldItems.Any(x => x.Item1 == gottenItem))
-            {
-                if (allowMerge && HeldOrWieldedItems.Any(x => x.CanMerge(gottenItem)))
-                {
-                    HeldOrWieldedItems.First(x => x.CanMerge(gottenItem)).Merge(gottenItem);
-                }
-                else
-                {
-                    //Try to put it in our dominant hand first
-                    IGrab grabLoc = HoldLocs.FirstOrDefault(x =>
-                                      (x.CanGrab(gottenItem, this) == WearlocGrabResult.Success &&
-                                       x.Alignment.LeftRightOnly() == Actor.Handedness.LeftRightOnly()) ||
-                                      (Actor.IsAdministrator() &&
-                                       x.CanGrab(gottenItem, this) == WearlocGrabResult.FailTooBig)) ??
-                                  HoldLocs.First(x => x.CanGrab(gottenItem, this) == WearlocGrabResult.Success ||
-                                                      (Actor.IsAdministrator() && x.CanGrab(gottenItem, this) ==
-                                                          WearlocGrabResult.FailTooBig));
-                    _heldItems.Add(Tuple.Create(gottenItem, grabLoc));
-                }
-            }
-#if DEBUG
-            else
-            {
-                throw new ApplicationException("Item duplication in BodyInventory.");
-            }
-#endif
-
-            output = new MixedEmoteOutput(new Emote("@ get|gets $0", this, gottenItem),
-                flags: OutputFlags.SuppressObscured);
-            UpdateDescriptionHeld(item);
-        }
-        else
-        {
-            IGameItem newItem = item.Get(this, quantity);
-            gottenItem = newItem;
-            if (allowMerge && HeldOrWieldedItems.Any(x => x.CanMerge(gottenItem)))
-            {
-                HeldOrWieldedItems.First(x => x.CanMerge(gottenItem)).Merge(gottenItem);
-            }
-            else
-            {
-                //Try to put it in our dominant hand first
-                IGrab grabLoc = HoldLocs.FirstOrDefault(
-                                  x => (x.CanGrab(gottenItem, this) == WearlocGrabResult.Success &&
-                                        x.Alignment.LeftRightOnly() == Actor.Handedness.LeftRightOnly()) ||
-                                       (Actor.IsAdministrator() && x.CanGrab(gottenItem, this) ==
-                                           WearlocGrabResult.FailTooBig)) ??
-                              HoldLocs.First(x => x.CanGrab(gottenItem, this) == WearlocGrabResult.Success ||
-                                                  (Actor.IsAdministrator() && x.CanGrab(gottenItem, this) ==
-                                                      WearlocGrabResult.FailTooBig));
-                _heldItems.Add(Tuple.Create(gottenItem, grabLoc));
-            }
-
-            output = new MixedEmoteOutput(new Emote("@ get|gets $0", this, gottenItem),
-                flags: OutputFlags.SuppressObscured);
-            UpdateDescriptionHeld(newItem);
-        }
-
+	{
+		var executor = Actor;
+		using var execution = CommandExecutionScope.EnterBodyOperation(executor);
+		bool CanContinue() => ReferenceEquals(Actor, executor) && CommandExecutionScope.TryContinue(executor);
+		if (!CanContinue()) return null;
+		ForeignCustodyTransferContext.EnsureBody(this, item);
+		var canGet = CanGet(item, quantity, ignoreFlags);
+		if (!CanContinue()) return null;
+		if (!canGet)
+		{
+			if (!silent) OutputHandler.Send(WhyCannotGet(item, quantity, ignoreFlags));
+			return null;
+		}
+		var whole = quantity == 0 || item.DropsWhole(quantity);
+		var placement = PrepareGetPlacement(whole ? item : item.PeekSplit(quantity), allowMerge);
+		if (placement is null || !CanContinue()) return null;
+		CommandExecutionScope.MarkCommitted(executor);
+		var gottenItem = whole ? item.Get(this) : item.Get(this, quantity);
+		if (!CompleteGetPlacementWithResult(gottenItem, placement, out gottenItem, consumeNativeStack: true)) return null;
+		if (gottenItem.Deleted || gottenItem.Destroyed) return null;
+		var output = new MixedEmoteOutput(new Emote("@ get|gets $0", this, gottenItem), flags: OutputFlags.SuppressObscured);
         InventoryChanged = true;
         if (!silent)
         {
@@ -1770,28 +1929,77 @@ public partial class Body
             OutputHandler.Handle(output);
         }
 
-        if (triggerEvents)
-        {
-            OnInventoryChange?.Invoke(InventoryState.Dropped, InventoryState.Held, gottenItem);
-            gottenItem.InvokeInventoryChange(InventoryState.Dropped, InventoryState.Held);
-            // Handle events
-            HandleEvent(EventType.CharacterGotItem, Actor, gottenItem);
-            gottenItem.HandleEvent(EventType.ItemGotten, Actor, gottenItem);
-            foreach (IHandleEvents witness in FilterWitnessHandlers(witnessHandlers, Actor))
-            {
-                witness.HandleEvent(EventType.CharacterGotItemWitness, Actor, gottenItem, witness);
-            }
-
-            foreach (IGameItem witness in FilterExternalItemWitnesses(witnessHandlers, gottenItem))
-            {
-                witness.HandleEvent(EventType.CharacterGotItemWitness, Actor, gottenItem, witness);
-            }
-
-            CheckConsequences();
-        }
+        if (triggerEvents) NotifyGotItem(gottenItem, executor, witnessHandlers);
 
         return gottenItem;
     }
+
+	private void NotifyGotItem(IGameItem item, MudSharp.Character.ICharacter executor, IEnumerable<IHandleEvents>? witnessHandlers = null)
+	{
+		OnInventoryChange?.Invoke(InventoryState.Dropped, InventoryState.Held, item);
+		item.InvokeInventoryChange(InventoryState.Dropped, InventoryState.Held);
+		HandleEvent(EventType.CharacterGotItem, executor, item);
+		item.HandleEvent(EventType.ItemGotten, executor, item);
+		foreach (var witness in FilterWitnessHandlers(witnessHandlers, executor).ToArray())
+			witness.HandleEvent(EventType.CharacterGotItemWitness, executor, item, witness);
+		foreach (var witness in FilterExternalItemWitnesses(witnessHandlers, item).ToArray())
+			witness.HandleEvent(EventType.CharacterGotItemWitness, executor, item, witness);
+		CheckConsequences();
+	}
+
+	// Preserve native reach facts across the final executable authority callback.
+	private static Func<bool>? PrepareItemReachSnapshot(IGameItem item)
+	{
+		var seen = new HashSet<IGameItem>(ReferenceEqualityComparer.Instance);
+		var edges = new List<(IGameItem Item, IGameItem? Parent)>();
+		for (var current = item; current is not null; current = current.ContainedIn)
+		{
+			if (!seen.Add(current)) return null;
+			edges.Add((current, current.ContainedIn));
+		}
+		var nodes = new List<(IGameItem Item, IGameItem? Parent, IBody? Body, MudSharp.Character.ICharacter? Actor,
+			ICell? Cell, RoomLayer Layer, double? Position, IOpenable? Openable, bool? Open)>();
+		foreach (var (current, parent) in edges)
+		{
+			var body = current.InInventoryOf;
+			var openable = current.GetItemType<IOpenable>();
+			nodes.Add((current, parent, body, body?.Actor, current.Location, current.RoomLayer,
+				current.RoutePositionMetres, openable, openable?.IsOpen));
+		}
+		return () => edges.All(x => ReferenceEquals(x.Item.ContainedIn, x.Parent)) &&
+			nodes.All(x => !x.Item.Deleted && !x.Item.Destroyed && ReferenceEquals(x.Item.InInventoryOf, x.Body) &&
+			ReferenceEquals(x.Body?.Actor, x.Actor) && ReferenceEquals(x.Item.Location, x.Cell) &&
+			x.Item.RoomLayer == x.Layer && x.Item.RoutePositionMetres == x.Position &&
+			ReferenceEquals(x.Item.GetItemType<IOpenable>(), x.Openable) && x.Openable?.IsOpen == x.Open);
+	}
+
+	private IGameItem? GivePhysicalItem(IGameItem item, IBody receiver, int quantity, MudSharp.Character.ICharacter executor,
+		int expectedQuantity, IHoldable? expectedHolder, bool whole, MudSharp.Character.ICharacter receiverExecutor, Func<bool> canGive, Func<bool> receiverUnchanged)
+	{
+		bool OriginalSource() => !item.Deleted && !item.Destroyed && item.Quantity == expectedQuantity &&
+			ReferenceEquals(item.GetItemType<IHoldable>(), expectedHolder) && ReferenceEquals(expectedHolder?.HeldBy, this) &&
+			(_heldItems.Any(x => ReferenceEquals(x.Item1, item)) || _wieldedItems.Any(x => ReferenceEquals(x.Item1, item))) &&
+			item.ContainedIn is null && ComponentItemTransfer.DirectLocationOf(item) is null;
+		if (!OriginalSource()) return null;
+		if (receiver is not Body destination) return null;
+		var placement = destination.PrepareGetPlacement(whole ? item : item.PeekSplit(quantity), true);
+		if (placement is null || !ReferenceEquals(receiver.Actor, receiverExecutor) || !canGive() ||
+			!CommandExecutionScope.TryContinue(executor) || !ReferenceEquals(Actor, executor) ||
+			!ReferenceEquals(receiver.Actor, receiverExecutor) || !receiverUnchanged() || !OriginalSource()) return null;
+		CommandExecutionScope.MarkCommitted(executor);
+		IGameItem transferred;
+		if (whole)
+		{
+			TakeInternal(item);
+			if (item.Deleted || item.Destroyed || item.ContainedIn is not null || item.InInventoryOf is not null || item.Location is not null) return null;
+			transferred = item.Get(destination);
+		}
+		else transferred = item.Get(destination, quantity);
+		if (!destination.CompleteGetPlacementWithResult(transferred, placement, out transferred, consumeNativeStack: true) ||
+			transferred.Deleted || transferred.Destroyed) return null;
+		destination.NotifyGotItem(transferred, placement.Executor);
+		return transferred;
+	}
 
     public void Get(IGameItem item, IGameItem containerItem, int quantity = 0, IEmote? playerEmote = null,
         bool silent = false, ItemCanGetIgnore ignoreFlags = ItemCanGetIgnore.None)
@@ -1802,6 +2010,22 @@ public partial class Body
     public IGameItem? Get(IGameItem item, IGameItem containerItem, int quantity, IEmote? playerEmote, bool silent,
         ItemCanGetIgnore ignoreFlags, IEnumerable<IHandleEvents> witnessHandlers)
     {
+		var executor = Actor;
+		using var execution = CommandExecutionScope.EnterBodyOperation(executor);
+		bool CanContinue() => ReferenceEquals(Actor, executor) && CommandExecutionScope.TryContinue(executor);
+		if (!CanContinue()) return null;
+		ForeignCustodyTransferContext.EnsureBody(this, item);
+		ForeignCustodyTransferContext.EnsurePair(containerItem, item);
+		var sourceQuantity = item.Quantity;
+		var sourceHolder = item.GetItemType<IHoldable>();
+		var containerComp = containerItem.GetItemType<IContainer>();
+		var whole = quantity == 0 || item.DropsWhole(quantity);
+		var reachUnchanged = PrepareItemReachSnapshot(containerItem);
+		if (reachUnchanged is null) return null;
+		bool OriginalSource() => ReferenceEquals(Actor, executor) && reachUnchanged() &&
+			item.Quantity == sourceQuantity && ReferenceEquals(item.GetItemType<IHoldable>(), sourceHolder) &&
+			!containerItem.Deleted && !containerItem.Destroyed && ReferenceEquals(containerItem.GetItemType<IContainer>(), containerComp) &&
+			containerComp?.Contents.Any(x => ReferenceEquals(x, item)) == true && ComponentUnloadCompletion.OwnedBy(item, containerItem);
         if (!CanGet(item, containerItem, quantity, ignoreFlags))
         {
             if (!silent)
@@ -1812,30 +2036,17 @@ public partial class Body
             return null;
         }
 
-        IContainer containerComp = containerItem.GetItemType<IContainer>();
+        if (!CanContinue()) return null;
+		var placement = PrepareGetPlacement(whole ? item : item.PeekSplit(quantity), true);
+		if (placement is null || !CanGet(item, containerItem, quantity, ignoreFlags) || !CanContinue() || !OriginalSource()) return null;
 
-        IGameItem takenItem = containerComp.Take(Actor, item, quantity).Get(this);
-        if (!_heldItems.Any(x => x.Item1 == takenItem))
-        {
-            if (HeldOrWieldedItems.Any(x => x.CanMerge(takenItem)))
-            {
-                HeldOrWieldedItems.First(x => x.CanMerge(takenItem)).Merge(takenItem);
-            }
-            else
-            {
-                _heldItems.Add(Tuple.Create(takenItem,
-                    HoldLocs.First(
-                        x =>
-                            x.CanGrab(takenItem, this) == WearlocGrabResult.Success ||
-                            (Actor.IsAdministrator() && x.CanGrab(takenItem, this) == WearlocGrabResult.FailTooBig))));
-            }
-        }
-#if DEBUG
-        else
-        {
-            throw new ApplicationException("Item duplication in BodyInventory.");
-        }
-#endif
+        CommandExecutionScope.MarkCommitted(executor);
+		var takenItem = containerComp.Take(executor, item, quantity);
+		if (takenItem is null || takenItem.Deleted || takenItem.Destroyed || takenItem.ContainedIn is not null ||
+			takenItem.InInventoryOf is not null || takenItem.Location is not null) return null;
+		takenItem.Get(this);
+		if (!CompleteGetPlacementWithResult(takenItem, placement, out takenItem, consumeNativeStack: true) ||
+			takenItem.Deleted || takenItem.Destroyed) return null;
 
         MixedEmoteOutput output =
             new(new Emote("@ get|gets $0 from $1", this, takenItem, containerItem),
@@ -1997,95 +2208,85 @@ public partial class Body
     public IGameItem? Put(IGameItem item, IGameItem container, ICharacter? containerOwner, int quantity,
         IEmote? playerEmote, bool silent, bool allowLesserAmounts, IEnumerable<IHandleEvents> witnessHandlers)
     {
-        if (container.IsItemType<ICorpse>())
+        var executor = Actor;
+        using var execution = CommandExecutionScope.EnterBodyOperation(executor);
+        bool Continue() => ReferenceEquals(Actor, executor) && CommandExecutionScope.TryContinue(executor);
+        if (!Continue()) return null;
+        if (container.IsItemType<ICorpse>()) { Put(item, container, "", playerEmote, silent); return null; }
+        var allowed = CanPut(item, container, containerOwner, quantity, allowLesserAmounts);
+        if (!Continue()) return null;
+        if (!allowed)
         {
-            Put(item, container, "", playerEmote);
+            if (!silent) OutputHandler.Send(WhyCannotPut(item, container, containerOwner, quantity, allowLesserAmounts));
             return null;
         }
-
-        if (!CanPut(item, container, containerOwner, quantity, allowLesserAmounts))
+        var component = container.GetItemType<IContainer>();
+        if (component is null || container.Deleted || container.Destroyed) return null;
+		var targetLocation = container.Location;
+		var targetLayer = container.RoomLayer;
+		var targetBody = container.InInventoryOf;
+		var targetContainer = container.ContainedIn;
+		bool SameDestination() => !container.Deleted && !container.Destroyed &&
+			ReferenceEquals(container.GetItemType<IContainer>(), component) && ReferenceEquals(container.Location, targetLocation) &&
+			container.RoomLayer == targetLayer && ReferenceEquals(container.InInventoryOf, targetBody) &&
+			ReferenceEquals(container.ContainedIn, targetContainer);
+        if (allowLesserAmounts)
         {
-            if (!silent)
+            var entire = CanPut(item, container, containerOwner, quantity, false);
+            if (!Continue()) return null;
+            if (!entire)
             {
-                OutputHandler.Send(WhyCannotPut(item, container, containerOwner, quantity, allowLesserAmounts));
-            }
-
-            return null;
-        }
-
-        IContainer containerComp = container.GetItemType<IContainer>();
-        IGameItem putItem = null;
-        MixedEmoteOutput output;
-        if (allowLesserAmounts && !CanPut(item, container, containerOwner, quantity, false) &&
-            containerComp.WhyCannotPut(item) == WhyCannotPutReason.ContainerFullButCouldAcceptLesserQuantity)
-        {
-            item = item.Get(this, containerComp.CanPutAmount(item));
-            quantity = 0;
-        }
-
-        if (quantity == 0 || item.DropsWhole(quantity))
-        {
-            putItem = item;
-            _heldItems.RemoveAll(x => x.Item1 == item);
-            _wieldedItems.RemoveAll(x => x.Item1 == item);
-            item.Drop(null);
-            containerComp.Put(Actor, item);
-            if (containerOwner == null)
-            {
-                output = new MixedEmoteOutput(new Emote("@ put|puts $0 in $1", this, item, container),
-                    flags: OutputFlags.SuppressObscured);
-            }
-            else
-            {
-                output = new MixedEmoteOutput(
-                    new Emote("@ put|puts $0 in $2's !1", this, item, container, containerOwner),
-                    flags: OutputFlags.SuppressObscured);
+                var reason = component.WhyCannotPut(item);
+                if (!Continue()) return null;
+                if (reason == WhyCannotPutReason.ContainerFullButCouldAcceptLesserQuantity)
+                {
+                    quantity = component.CanPutAmount(item);
+                    if (!Continue() || quantity <= 0) return null;
+                }
             }
         }
-
-        else
-        {
-            IGameItem newItem = item.Drop(null, quantity);
-            putItem = newItem;
-            containerComp.Put(Actor, newItem);
-            if (containerOwner == null)
-            {
-                output = new MixedEmoteOutput(new Emote("@ put|puts $0 in $1", this, newItem, container),
-                    flags: OutputFlags.SuppressObscured);
-            }
-            else
-            {
-                output = new MixedEmoteOutput(
-                    new Emote("@ put|puts $0 in $2's !1", this, newItem, container, containerOwner),
-                    flags: OutputFlags.SuppressObscured);
-            }
-
-            UpdateDescriptionHeld(newItem);
-        }
-
-        output.Append(playerEmote);
+        var whole = quantity == 0 || item.DropsWhole(quantity);
+        var returnHand = _heldItems.FirstOrDefault(x => ReferenceEquals(x.Item1, item))?.Item2 ??
+            _wieldedItems.FirstOrDefault(x => ReferenceEquals(x.Item1, item))?.Item2 as IGrab;
+        var placement = new PreparedGet(returnHand, null, executor, Location, RoomLayer);
+        if (!Continue()) return null;
         if (!silent)
         {
-            OutputHandler.Handle(output);
+            var emote = containerOwner is null
+                ? new Emote("@ put|puts $0 in $1", this, item, container)
+                : new Emote("@ put|puts $0 in $2's !1", this, item, container, containerOwner);
+            OutputHandler.Handle(new MixedEmoteOutput(emote, flags: OutputFlags.SuppressObscured).Append(playerEmote));
         }
-
+        if (!Continue() || !SameDestination() || !ReferenceEquals(item.InInventoryOf, this) ||
+            !HeldOrWieldedItems.Any(x => ReferenceEquals(x, item))) return null;
+        CommandExecutionScope.MarkCommitted(executor);
+        IGameItem putItem;
+        if (whole) { TakeInternal(item); putItem = item; }
+        else putItem = item.Drop(null, quantity);
+        if (!ComponentItemTransfer.IsDetached(putItem)) return null;
+        void Restore()
+        {
+            if (!ComponentItemTransfer.IsDetached(putItem)) return;
+            putItem.Get(this);
+            if (CompleteGetPlacement(putItem, placement)) NotifyGotItem(putItem, executor);
+        }
+        if (!Continue() || !SameDestination()) { Restore(); return null; }
+        var canAdopt = component.CanPut(putItem);
+        if (!Continue() || !SameDestination() || !canAdopt || !ComponentItemTransfer.IsDetached(putItem)) { Restore(); return null; }
+        component.Put(executor, putItem);
+        if (ComponentItemTransfer.IsDetached(putItem)) { Restore(); return null; }
+        if (putItem.Deleted || putItem.Destroyed) return putItem;
+        if (!ReferenceEquals(putItem.ContainedIn, container) || !component.Contents.Any(x => ReferenceEquals(x, putItem))) return null;
         InventoryChanged = true;
         OnInventoryChange?.Invoke(InventoryState.Held, InventoryState.InContainer, putItem);
         putItem.InvokeInventoryChange(InventoryState.Held, InventoryState.InContainer);
-        // Handle events
-        HandleEvent(EventType.CharacterPutItemContainer, Actor, putItem, container);
-        putItem.HandleEvent(EventType.ItemPutContainer, Actor, putItem, container);
-        foreach (IHandleEvents witness in FilterWitnessHandlers(witnessHandlers, Actor))
-        {
-            witness.HandleEvent(EventType.CharacterPutItemContainerWitness, Actor, putItem, container, witness);
-        }
-
-        foreach (IGameItem witness in FilterExternalItemWitnesses(witnessHandlers, putItem, container))
-        {
-            witness.HandleEvent(EventType.CharacterPutItemContainerWitness, Actor, putItem, container, witness);
-        }
-
-        CheckConsequences();
+        HandleEvent(EventType.CharacterPutItemContainer, executor, putItem, container);
+        putItem.HandleEvent(EventType.ItemPutContainer, executor, putItem, container);
+        foreach (var witness in FilterWitnessHandlers(witnessHandlers, executor).ToArray())
+            witness.HandleEvent(EventType.CharacterPutItemContainerWitness, executor, putItem, container, witness);
+        foreach (var witness in FilterExternalItemWitnesses(witnessHandlers, putItem, container).ToArray())
+            witness.HandleEvent(EventType.CharacterPutItemContainerWitness, executor, putItem, container, witness);
+        if (Continue()) CheckConsequences();
         return putItem;
     }
 
@@ -2219,32 +2420,39 @@ public partial class Body
     public void Put(IGameItem item, IGameItem container, string profile, IEmote? playerEmote = null,
         bool silent = false)
     {
-        if (!CanPut(item, container, profile))
-        {
-            OutputHandler.Send(WhyCannotPut(item, container, profile));
-            return;
-        }
-
-        IBody targetBody = container.GetItemType<ICorpse>().Body;
-
-        _heldItems.RemoveAll(x => x.Item1 == item);
-        _wieldedItems.RemoveAll(x => x.Item1 == item);
+        var executor = Actor;
+        using var execution = CommandExecutionScope.EnterBodyOperation(executor);
+        bool Continue() => ReferenceEquals(Actor, executor) && CommandExecutionScope.TryContinue(executor);
+        if (!Continue()) return;
+        var allowed = CanPut(item, container, profile);
+        if (!Continue()) return;
+        if (!allowed) { if (!silent) OutputHandler.Send(WhyCannotPut(item, container, profile)); return; }
+        var targetBody = container.GetItemType<ICorpse>()?.Body;
+        if (targetBody is null) return;
+        var targetActor = targetBody.Actor;
+        var wearable = item.GetItemType<IWearable>();
+        var wearProfile = string.IsNullOrEmpty(profile) ? null : wearable?.Profiles.FirstOrDefault(x => x.Name.StartsWith(profile, StringComparison.InvariantCultureIgnoreCase));
+        if (!Continue() || (profile.Length > 0 && wearProfile is null)) return;
+        var restore = PrepareDetachedItemReturn(item);
+        if (restore is null || !Continue()) return;
         if (!silent)
+            OutputHandler.Handle(new MixedEmoteOutput(new Emote("@ put|puts $0 on $1", this, item, container),
+                flags: OutputFlags.SuppressObscured).Append(playerEmote));
+        if (!Continue() || !ReferenceEquals(item.InInventoryOf, this) ||
+            !HeldOrWieldedItems.Any(x => ReferenceEquals(x, item))) return;
+        CommandExecutionScope.MarkCommitted(executor);
+        TakeInternal(item);
+        if (!ComponentItemTransfer.IsDetached(item)) return;
+        if (!Continue() || container.Deleted || container.Destroyed ||
+            !ReferenceEquals(container.GetItemType<ICorpse>()?.Body, targetBody) || !ReferenceEquals(targetBody.Actor, targetActor))
+        { restore(); return; }
+        CommandExecutionScope.InvokeOwned(targetActor, () =>
         {
-            OutputHandler.Handle(
-                new MixedEmoteOutput(new Emote("@ put|puts $0 on $1", this, item, container),
-                    flags: OutputFlags.SuppressObscured).Append(playerEmote));
-        }
-
-        InventoryChanged = true;
-        if (string.IsNullOrEmpty(profile))
-        {
-            targetBody.WearExternally(item);
-        }
-        else
-        {
-            targetBody.WearExternally(item, item.GetItemType<IWearable>().Profiles.First(x => x.Name.StartsWith(profile, StringComparison.InvariantCultureIgnoreCase)));
-        }
+            if (wearProfile is null) targetBody.WearExternally(item);
+            else targetBody.WearExternally(item, wearProfile);
+			return 0;
+        });
+        if (ComponentItemTransfer.IsDetached(item)) restore();
     }
 
     #endregion
@@ -2262,32 +2470,47 @@ public partial class Body
     public void Drop(IGameItem item, int quantity = 0, bool newStack = false, IEmote? playerEmote = null,
         bool silent = false)
     {
+		var executor = Actor;
+		using var execution = CommandExecutionScope.EnterBodyOperation(executor);
+		bool CanContinue() => ReferenceEquals(Actor, executor) && CommandExecutionScope.TryContinue(executor);
+		if (!CanContinue()) return;
+		var destination = Location;
+		var layer = RoomLayer;
+		ForeignCustodyTransferContext.EnsureBody(this, item);
         if (!CanDrop(item, quantity) && !silent)
         {
             OutputHandler.Send(WhyCannotDrop(item, quantity));
             return;
         }
 
+        if (!CanContinue()) return;
         MixedEmoteOutput output;
         IGameItem droppedItem = null;
         bool wasWielded = _heldItems.All(x => x.Item1 != item);
-        if (quantity == 0 || item.DropsWhole(quantity))
+        var whole = quantity == 0 || item.DropsWhole(quantity);
+		if (!CanContinue()) return;
+		CommandExecutionScope.MarkCommitted(executor);
+        if (whole)
         {
             droppedItem = item;
-            droppedItem.RoomLayer = RoomLayer;
-            item.Drop(Location);
+            droppedItem.RoomLayer = layer;
+            item.Drop(destination);
             _heldItems.RemoveAll(x => x.Item1 == item);
             _wieldedItems.RemoveAll(x => x.Item1 == item);
-            droppedItem.InsertAtSource(Actor, newStack);
+            if (droppedItem.Deleted || droppedItem.Destroyed || droppedItem.ContainedIn is not null ||
+				droppedItem.InInventoryOf is not null || !ReferenceEquals(droppedItem.Location, destination)) return;
+            droppedItem.InsertAtSource(executor, newStack);
             output = new MixedEmoteOutput(new Emote("@ drop|drops $0", this, item),
                 flags: OutputFlags.SuppressObscured);
         }
         else
         {
-            IGameItem newItem = item.Drop(Location, quantity);
+            IGameItem newItem = item.Drop(destination, quantity);
             droppedItem = newItem;
-            droppedItem.RoomLayer = RoomLayer;
-            newItem.InsertAtSource(Actor, newStack);
+            droppedItem.RoomLayer = layer;
+            if (newItem.Deleted || newItem.Destroyed || newItem.ContainedIn is not null ||
+				newItem.InInventoryOf is not null || !ReferenceEquals(newItem.Location, destination)) return;
+            newItem.InsertAtSource(executor, newStack);
             output = new MixedEmoteOutput(new Emote("@ drop|drops $0", this, newItem),
                 flags: OutputFlags.SuppressObscured);
         }
@@ -2391,31 +2614,32 @@ public partial class Body
 
     public void Give(IGameItem item, IBody target, int quantity = 0, IEmote? playerEmote = null)
     {
+		var executor = Actor;
+		using var execution = CommandExecutionScope.EnterBodyOperation(executor);
+		if (!CommandExecutionScope.TryContinue(executor)) return;
+		ForeignCustodyTransferContext.EnsureBody(this, item);
+		var sourceQuantity = item.Quantity;
+		var sourceHolder = item.GetItemType<IHoldable>();
+		var receiver = target;
+		var receiverExecutor = receiver.Actor;
+		var receiverCurrentBody = receiverExecutor.Body;
+		var receiverCell = receiverExecutor.Location;
+		var receiverLayer = receiverExecutor.RoomLayer;
+		var receiverPosition = receiverExecutor.RoutePositionMetres;
+		bool ReceiverUnchanged() => ReferenceEquals(receiverExecutor.Body, receiverCurrentBody) && ReferenceEquals(receiverExecutor.Location, receiverCell) &&
+			receiverExecutor.RoomLayer == receiverLayer && receiverExecutor.RoutePositionMetres == receiverPosition;
+		var whole = quantity == 0 || item.DropsWhole(quantity);
         if (!CanGive(item, target, quantity))
         {
             OutputHandler.Send(WhyCannotGive(item, target, quantity));
             return;
         }
 
-        MixedEmoteOutput output;
-        IGameItem givenItem = null;
-        bool wasWielded = _heldItems.All(x => x.Item1 != item);
-        if (quantity == 0 || item.DropsWhole(quantity))
-        {
-            givenItem = item;
-            Take(item);
-            target.Get(item.Get(target), silent: true);
-            output = new MixedEmoteOutput(new Emote("@ give|gives $0 to $1", this, item, target),
-                flags: OutputFlags.SuppressObscured);
-        }
-        else
-        {
-            IGameItem newItem = item.Get(target, quantity);
-            givenItem = newItem;
-            target.Get(newItem, silent: true);
-            output = new MixedEmoteOutput(new Emote("@ give|gives $0 to $1", this, newItem, target),
-                flags: OutputFlags.SuppressObscured);
-        }
+        if (!ReferenceEquals(Actor, executor) || !CommandExecutionScope.TryContinue(executor)) return;
+		var wasWielded = _heldItems.All(x => x.Item1 != item);
+		var givenItem = GivePhysicalItem(item, receiver, quantity, executor, sourceQuantity, sourceHolder, whole, receiverExecutor, () => CanGive(item, target, quantity), ReceiverUnchanged);
+		if (givenItem is null) return;
+		var output = new MixedEmoteOutput(new Emote("@ give|gives $0 to $1", this, givenItem, target), flags: OutputFlags.SuppressObscured);
 
         output.Append(playerEmote);
         OutputHandler.Handle(output);
@@ -2444,6 +2668,11 @@ public partial class Body
 
     public bool CanGive(IGameItem item, ICorpse target, int quantity = 0)
     {
+		if (target.Body is null)
+		{
+			return false;
+		}
+
         var manipulation = Actor.CanManipulateItem(target.Parent);
         if (!manipulation.Truth)
         {
@@ -2461,6 +2690,11 @@ public partial class Body
 
     public string WhyCannotGive(IGameItem item, ICorpse target, int quantity = 0)
     {
+		if (target.Body is null)
+		{
+			return "You cannot give anything to these remains because their original body can no longer be identified.";
+		}
+
         var manipulation = Actor.CanManipulateItem(target.Parent);
         if (!manipulation.Truth)
         {
@@ -2501,31 +2735,43 @@ public partial class Body
 
     public void Give(IGameItem item, ICorpse target, int quantity = 0, IEmote? playerEmote = null)
     {
+		var executor = Actor;
+		using var execution = CommandExecutionScope.EnterBodyOperation(executor);
+		if (!CommandExecutionScope.TryContinue(executor)) return;
+		ForeignCustodyTransferContext.EnsureBody(this, item);
+		var sourceQuantity = item.Quantity;
+		var sourceHolder = item.GetItemType<IHoldable>();
+		var receiver = target.Body;
+		if (receiver is null) return;
+		var receiverExecutor = receiver.Actor;
+		var corpse = target.Parent;
+		var reachUnchanged = PrepareItemReachSnapshot(corpse);
+		if (reachUnchanged is null) return;
+		var corpseCell = corpse.Location;
+		var corpseLayer = corpse.RoomLayer;
+		var corpsePosition = corpse.RoutePositionMetres;
+		var receiverCell = receiverExecutor.Location;
+		var receiverLayer = receiverExecutor.RoomLayer;
+		var receiverPosition = receiverExecutor.RoutePositionMetres;
+		bool ReceiverUnchanged() => reachUnchanged() && ReferenceEquals(target.Body, receiver) && ReferenceEquals(target.Parent, corpse) &&
+			ReferenceEquals(corpse.Location, corpseCell) && corpse.RoomLayer == corpseLayer && corpse.RoutePositionMetres == corpsePosition &&
+			ReferenceEquals(receiverExecutor.Location, receiverCell) && receiverExecutor.RoomLayer == receiverLayer &&
+			receiverExecutor.RoutePositionMetres == receiverPosition;
+		var whole = quantity == 0 || item.DropsWhole(quantity);
         if (!CanGive(item, target, quantity))
         {
             OutputHandler.Send(WhyCannotGive(item, target, quantity));
             return;
         }
 
-        MixedEmoteOutput output;
-        IGameItem givenItem = null;
-        bool wasWielded = _heldItems.All(x => x.Item1 != item);
-        if (quantity == 0 || item.DropsWhole(quantity))
-        {
-            givenItem = item;
-            Take(item);
-            target.Body.Get(item.Get(target.Body), silent: true);
-            output = new MixedEmoteOutput(new Emote("@ give|gives $0 to $1", this, item, target.Parent),
-                flags: OutputFlags.SuppressObscured);
-        }
-        else
-        {
-            IGameItem newItem = item.Get(target.Body, quantity);
-            givenItem = newItem;
-            target.Body.Get(newItem, silent: true);
-            output = new MixedEmoteOutput(new Emote("@ give|gives $0 to $1", this, newItem, target.Parent),
-                flags: OutputFlags.SuppressObscured);
-        }
+        if (!ReferenceEquals(Actor, executor) || !CommandExecutionScope.TryContinue(executor)) return;
+		var wasWielded = _heldItems.All(x => x.Item1 != item);
+		var givenItem = ReferenceEquals(target.Body, receiver)
+			? GivePhysicalItem(item, receiver, quantity, executor, sourceQuantity, sourceHolder, whole, receiverExecutor,
+				() => ReferenceEquals(target.Body, receiver) && CanGive(item, target, quantity), ReceiverUnchanged)
+			: null;
+		if (givenItem is null) return;
+		var output = new MixedEmoteOutput(new Emote("@ give|gives $0 to $1", this, givenItem, target.Parent), flags: OutputFlags.SuppressObscured);
 
         output.Append(playerEmote);
         OutputHandler.Handle(output);
@@ -2536,9 +2782,9 @@ public partial class Body
         givenItem.InvokeInventoryChange(wasWielded ? InventoryState.Wielded : InventoryState.Held,
             InventoryState.Dropped);
 
-        // Final-death corpses preserve the old legacy character-gift event path. Non-final remains are a body item,
-        // not the live owner, so do not dispatch character receiver/witness events against the surviving character.
-        if (target.RepresentsFinalCharacterDeath)
+		// Character receiver events require the corpse's exact body to still be the final-death owner's body.
+		// Other resolved remains accept physical gifts without dispatching those events against a survivor.
+        if (target.GetOriginalCharacterWithMatchingBody() is not null)
         {
             HandleEvent(EventType.CharacterGiveItemGiver, Actor, target.OriginalCharacter, givenItem);
             target.OriginalCharacter.HandleEvent(EventType.CharacterGiveItemReceiver, Actor, target.OriginalCharacter,
@@ -2560,7 +2806,23 @@ public partial class Body
     }
 
     public void Take(IGameItem item)
+	{
+		var executor = Actor;
+		using var execution = CommandExecutionScope.EnterBodyOperation(executor);
+		if (!CommandExecutionScope.TryContinue(executor)) return;
+		CommandExecutionScope.MarkCommitted(executor);
+		TakeInternal(item);
+	}
+
+	internal void TakeForNativeDeletion(IGameItem item)
+	{
+		// Only this deletion's item bypasses preflight. Its callbacks retain ordered reentrancy checks.
+		TakeInternal(item);
+	}
+
+	private void TakeInternal(IGameItem item)
     {
+		ForeignCustodyTransferContext.EnsureBody(this, item);
 		using var exposureChange = MudSharp.Form.Material.EnvironmentalExposureService.For(Gameworld).Change(this);
         InventoryState oldState = InventoryState.Held;
         if (_wieldedItems.Any(x => x.Item1 == item))
@@ -2612,13 +2874,22 @@ public partial class Body
 
     public IGameItem Take(IGameItem item, int quantity)
     {
-        if (item.DropsWhole(quantity))
+		var executor = Actor;
+		using var execution = CommandExecutionScope.EnterBodyOperation(executor);
+		bool CanContinue() => ReferenceEquals(Actor, executor) && CommandExecutionScope.TryContinue(executor);
+		if (!CanContinue()) return null;
+		ForeignCustodyTransferContext.EnsureBody(this, item);
+		var whole = item.DropsWhole(quantity);
+		if (!CanContinue()) return null;
+		CommandExecutionScope.MarkCommitted(executor);
+        if (whole)
         {
-            Take(item);
-            return item;
+			TakeInternal(item);
+			return ComponentItemTransfer.IsDetached(item) ? item : null;
         }
 
-        return item.Drop(null, quantity);
+		var split = item.Drop(null, quantity);
+		return ComponentItemTransfer.IsDetached(split) ? split : null;
     }
 
     /// <summary>
@@ -2629,6 +2900,8 @@ public partial class Body
     /// <returns>True if the swap took place</returns>
     public bool Swap(IGameItem firstItem, IGameItem secondItem)
     {
+		ForeignCustodyTransferContext.EnsureBody(this, firstItem);
+		ForeignCustodyTransferContext.EnsureBody(this, secondItem);
         if (!this.CanPerformManualAction(out var manualReason))
         {
             Actor.Send(manualReason);
@@ -2782,6 +3055,15 @@ public partial class Body
                             .ToLookup(x => x.Item1, x => x.Item2);
 
     public void RemoveItem(IGameItem item)
+	{
+		var executor = Actor;
+		using var execution = CommandExecutionScope.EnterBodyOperation(executor);
+		if (!CommandExecutionScope.TryContinue(executor)) return;
+		CommandExecutionScope.MarkCommitted(executor);
+		RemoveItemInternal(item);
+	}
+
+	private void RemoveItemInternal(IGameItem item)
     {
 		using var exposureChange = MudSharp.Form.Material.EnvironmentalExposureService.For(Gameworld).Change(this);
 #if DEBUG
@@ -2865,12 +3147,18 @@ public partial class Body
 
     public void RemoveItem(IGameItem item, IEmote playerEmote, ICharacter remover)
     {
+        var targetActor = Actor;
+        var removerBody = remover.Body;
+        using var execution = CommandExecutionScope.EnterBodyOperation(remover);
+        bool CanContinue() => ReferenceEquals(Actor, targetActor) && ReferenceEquals(remover.Body, removerBody) && CommandExecutionScope.TryContinue(remover);
+        if (!CanContinue()) return;
         if (!CanBeRemoved(item, remover))
         {
             remover.Send(WhyCannotBeRemoved(item, remover));
             return;
         }
 
+        if (!CanContinue()) return;
         IObscureCharacteristics obscurer = item.GetItemType<IObscureCharacteristics>();
         MixedEmoteOutput output = null;
         if (!string.IsNullOrEmpty(obscurer?.RemovalEcho))
@@ -2886,7 +3174,9 @@ public partial class Body
 
         output.Append(playerEmote);
         OutputHandler.Handle(output);
-        RemoveItem(item);
+        if (!CanContinue()) return;
+        CommandExecutionScope.InvokeOwned(targetActor, () => { RemoveItem(item); return true; });
+        if (_wornItems.Any(x => ReferenceEquals(x.Item, item))) return;
         HandleWornItemRemovedEvent(item, remover);
     }
 
@@ -2903,6 +3193,10 @@ public partial class Body
     public void RemoveItem(IGameItem item, IEmote playerEmote, bool silent = false,
         ItemCanGetIgnore ignoreFlags = ItemCanGetIgnore.None)
     {
+		var executor = Actor;
+		using var execution = CommandExecutionScope.EnterBodyOperation(executor);
+		bool CanContinue() => ReferenceEquals(Actor, executor) && CommandExecutionScope.TryContinue(executor);
+		if (!CanContinue()) return;
         if (!CanRemoveItem(item, ignoreFlags))
         {
             if (!silent)
@@ -2913,6 +3207,9 @@ public partial class Body
             return;
         }
 
+        if (!CanContinue()) return;
+		var placement = ignoreFlags.HasFlag(ItemCanGetIgnore.IgnoreFreeHands) ? null : PrepareGetPlacement(item, true);
+		if (!CanContinue() || (!ignoreFlags.HasFlag(ItemCanGetIgnore.IgnoreFreeHands) && placement is null)) return;
         IObscureCharacteristics obscurer = item.GetItemType<IObscureCharacteristics>();
         if (!silent)
         {
@@ -2932,10 +3229,16 @@ public partial class Body
             OutputHandler.Handle(output);
         }
 
-        RemoveItem(item);
+        if (!CanContinue()) return;
+		CommandExecutionScope.MarkCommitted(executor);
+        RemoveItemInternal(item);
         if (!ignoreFlags.HasFlag(ItemCanGetIgnore.IgnoreFreeHands))
         {
-            Get(item, silent: true, ignoreFlags: ignoreFlags);
+            if (item.Deleted || item.Destroyed || item.ContainedIn is not null || ComponentItemTransfer.DirectLocationOf(item) is not null ||
+				!ReferenceEquals(item.InInventoryOf, this)) return;
+			item.Get(this);
+			if (!CompleteGetPlacement(item, placement!)) return;
+			NotifyGotItem(item, executor);
         }
 
         HandleWornItemRemovedEvent(item, Actor);
@@ -2944,6 +3247,8 @@ public partial class Body
 
     public void Wear(IGameItem item, string profile, IEmote playerEmote, bool silent = false)
     {
+		using var execution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(Actor);
+		ForeignCustodyTransferContext.EnsureBody(this, item);
         if (string.IsNullOrEmpty(profile))
         {
             Wear(item, playerEmote, silent);
@@ -3068,7 +3373,12 @@ public partial class Body
 
     public void Wear(IGameItem item, IEmote playerEmote, bool silent = false)
     {
-        if (!CanWear(item))
+		var executor = Actor;
+		using var execution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(executor);
+		ForeignCustodyTransferContext.EnsureBody(this, item);
+        var canWear = CanWear(item);
+		if (!ReferenceEquals(Actor, executor) || !MudSharp.NPC.AI.CommandExecutionScope.TryContinue(executor)) return;
+        if (!canWear)
         {
             if (!silent)
             {
@@ -3082,13 +3392,20 @@ public partial class Body
             return;
         }
 
-        Wear(item, WhichProfile(item), playerEmote, silent);
+		var profile = WhichProfile(item);
+		if (!ReferenceEquals(Actor, executor) || !MudSharp.NPC.AI.CommandExecutionScope.TryContinue(executor)) return;
+        Wear(item, profile, playerEmote, silent);
     }
 
     public void Restrain(IGameItem item, IWearProfile profile, ICharacter restrainer, IGameItem targetItem,
         IEmote? emote = null,
         bool silent = false)
     {
+        var targetActor = Actor;
+        var sourceBody = restrainer.Body;
+        using var execution = CommandExecutionScope.EnterBodyOperation(restrainer);
+        bool CanContinue() => ReferenceEquals(Actor, targetActor) && ReferenceEquals(restrainer.Body, sourceBody) && CommandExecutionScope.TryContinue(restrainer);
+        if (!CanContinue()) return;
         if (!restrainer.CanPerformManualAction(out var manualReason))
         {
             restrainer.Send(manualReason);
@@ -3100,6 +3417,15 @@ public partial class Body
             restrainer.Send("They are too far away for you to restrain.");
             return;
         }
+
+        if (!CanContinue()) return;
+        var wearable = item.GetItemType<IWearable>();
+        var restraint = item.GetItemType<IRestraint>();
+        if (wearable is null || restraint is null || !ReferenceEquals(item.InInventoryOf, sourceBody)) return;
+        var locations = profile.Profile(this).Select(x => (item, x.Key, x.Value)).ToArray();
+        var limbs = Limbs.Where(x => restraint.Limbs.Contains(x.LimbType) && profile.AllProfiles.Any(y => x.Parts.Contains(y.Key))).ToList();
+        var returnItem = (sourceBody as Body)?.PrepareDetachedItemReturn(item);
+        if (returnItem is null || !CanContinue()) return;
 
         if (!silent && restrainer != null)
         {
@@ -3113,15 +3439,16 @@ public partial class Body
             OutputHandler.Handle(output);
         }
 
-        restrainer.Body.Take(item);
-        Take(item);
-        _wornItems.AddRange(profile.Profile(this).Select(x => (item, x.Key, x.Value)));
-        item.GetItemType<IWearable>().UpdateWear(this, profile);
+        if (!CanContinue()) return;
+        sourceBody.Take(item);
+        if (!ComponentItemTransfer.IsDetached(item)) return;
+        if (!CanContinue()) { returnItem(); return; }
+        CommandExecutionScope.MarkCommitted(restrainer);
+        _wornItems.AddRange(locations);
+        wearable.UpdateWear(this, profile);
         UpdateDescriptionWorn(item);
         InventoryChanged = true;
-        List<ILimb> limbs = Limbs.Where(x =>
-            item.GetItemType<IRestraint>().Limbs.Contains(x.LimbType) &&
-            profile.AllProfiles.Any(y => x.Parts.Contains(y.Key))).ToList();
+        if (!CanContinue() || !ReferenceEquals(wearable.WornBy, this)) return;
         AddEffect(new RestraintEffect(this, limbs, targetItem, item));
     }
 
@@ -3141,24 +3468,37 @@ public partial class Body
 
     public void WearExternally(IGameItem item, IWearProfile? profile = null)
     {
-        WearInternal(item, profile ?? WhichProfile(item), null, true);
+		var executor = Actor;
+		using var execution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(executor);
+		profile ??= WhichProfile(item);
+		if (!ReferenceEquals(Actor, executor) || !MudSharp.NPC.AI.CommandExecutionScope.TryContinue(executor)) return;
+        WearInternal(item, profile, null, true);
     }
 
     public void Wear(IGameItem item, IWearProfile profile, IEmote? playerEmote = null, bool silent = false)
     {
+		var executor = Actor;
+		using var execution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(executor);
+		ForeignCustodyTransferContext.EnsureBody(this, item);
         if (!this.CanPerformManualAction(out var reason))
         {
             if (!silent) OutputHandler.Send(reason);
             return;
         }
 
+		if (!ReferenceEquals(Actor, executor) || !MudSharp.NPC.AI.CommandExecutionScope.TryContinue(executor)) return;
         WearInternal(item, profile, playerEmote, silent);
     }
 
     private void WearInternal(IGameItem item, IWearProfile profile, IEmote? playerEmote, bool silent)
     {
+		var executor = Actor;
+		bool CanContinue() => ReferenceEquals(Actor, executor) && MudSharp.NPC.AI.CommandExecutionScope.TryContinue(executor);
+        if (!CanContinue()) return;
         using var exposureChange = MudSharp.Form.Material.EnvironmentalExposureService.For(Gameworld).Change(this);
-        if (!CanWear(item, profile))
+        var canWear = CanWear(item, profile);
+        if (!CanContinue()) return;
+        if (!canWear)
         {
             if (!silent)
             {
@@ -3167,6 +3507,10 @@ public partial class Body
 
             return;
         }
+
+        if (!CanContinue()) return;
+        var wearLocations = profile.Profile(this).Select(x => (item, x.Key, x.Value)).ToList();
+        if (!CanContinue()) return;
 
         if (!silent)
         {
@@ -3179,10 +3523,12 @@ public partial class Body
             OutputHandler.Handle(output);
         }
 
+        if (!CanContinue()) return;
+        MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted(executor);
         bool wasWielded = _heldItems.All(x => x.Item1 != item);
         _heldItems.RemoveAll(x => x.Item1 == item);
         _wieldedItems.RemoveAll(x => x.Item1 == item);
-        _wornItems.AddRange(profile.Profile(this).Select(x => (item, x.Key, x.Value)));
+        _wornItems.AddRange(wearLocations);
         item.GetItemType<IWearable>().UpdateWear(this, profile);
         UpdateDescriptionWorn(item);
         InventoryChanged = true;
@@ -3191,7 +3537,7 @@ public partial class Body
         item.InvokeInventoryChange(wasWielded ? InventoryState.Wielded : InventoryState.Held, InventoryState.Worn);
         CheckConsequences();
         item.HandleEvent(EventType.ItemWorn, item, Actor);
-        foreach (IHandleEvents witness in Location.EventHandlersFor(Actor))
+        foreach (IHandleEvents witness in Location.EventHandlersFor(Actor).ToList())
         {
             witness.HandleEvent(EventType.ItemWornWitness, item, Actor, witness);
         }
@@ -3452,6 +3798,7 @@ public partial class Body
                                         .Select(x => x.Parent))
                         .Concat(Wounds.Where(x => parts.Contains(x.Bodypart)).SelectNotNull(x => x.Lodged))
                         .Distinct().ToList();
+		if (Actor?.Gameworld is { } world) world.MagicCasting?.NotifyCapacityChange(Actor);
     }
 
     private List<IGameItem> _allItems = new();
@@ -3943,7 +4290,8 @@ public partial class Body
                        .Select(x => Tuple.Create(x,
                            targetCoins.Sum(y => y.Value.Where(z => z.Key == x).Sum(z => z.Value)))),
             temporary);
-        newItem.CopyOwnerFrom(targetCoins.First().Key.Parent);
+		if (temporary) ((MudSharp.GameItems.GameItem)newItem).CopyCurrencyPreviewOwner(targetCoins.First().Key.Parent);
+		else newItem.CopyOwnerFrom(targetCoins.First().Key.Parent);
         return newItem;
     }
 
@@ -4089,31 +4437,8 @@ public partial class Body
     public IGameItem? Get(ICurrency currency, IGameItem containerItem, decimal amount, bool exact,
         IEmote? playerEmote, bool silent, IEnumerable<IHandleEvents> witnessHandlers)
     {
-        if (!CanGet(currency, containerItem, amount, exact))
-        {
-            OutputHandler.Send(WhyCannotGet(currency, containerItem, amount, exact));
-            return null;
-        }
-
-        IContainer container = containerItem.GetItemType<IContainer>();
-
-        Dictionary<ICurrencyPile, Dictionary<ICoin, int>> targetCoins =
-            FindCurrencyPreservingOwnership(currency,
-                AccessibleContainerCurrencyPiles(containerItem),
-                amount);
-        IGameItem newItem = CreateCurrencyPileFromSelection(currency, targetCoins);
-        container.Put(null, newItem, false);
-        foreach (KeyValuePair<ICurrencyPile, Dictionary<ICoin, int>> item in targetCoins)
-        {
-            if (!item.Key.RemoveCoins(item.Value.Select(x => Tuple.Create(x.Key, x.Value))))
-            {
-                containerItem.GetItemType<IContainer>().Take(Actor, item.Key.Parent, 0);
-                item.Key.Parent.Delete();
-            }
-        }
-
-        return Get(newItem, containerItem, 0, playerEmote, silent, ItemCanGetIgnore.None, witnessHandlers);
-    }
+		return TransferPreparedCurrency(currency, amount, exact, CurrencyTransferKind.GetContainer, containerItem: containerItem, playerEmote: playerEmote, silent: silent, witnessHandlers: witnessHandlers);
+	}
 
     public void Get(ICurrency currency, decimal amount, bool exact, IEmote? playerEmote = null, bool silent = false)
     {
@@ -4123,26 +4448,8 @@ public partial class Body
     public IGameItem? Get(ICurrency currency, decimal amount, bool exact, IEmote? playerEmote, bool silent,
         IEnumerable<IHandleEvents> witnessHandlers)
     {
-        if (!CanGet(currency, amount, exact))
-        {
-            OutputHandler.Send(WhyCannotGet(currency, amount, exact));
-            return null;
-        }
-
-        Dictionary<ICurrencyPile, Dictionary<ICoin, int>> targetCoins =
-            FindCurrencyPreservingOwnership(currency, AccessibleRoomCurrencyPiles(),
-                amount);
-        IGameItem newItem = CreateCurrencyPileFromSelection(currency, targetCoins);
-        foreach (KeyValuePair<ICurrencyPile, Dictionary<ICoin, int>> item in targetCoins)
-        {
-            if (!item.Key.RemoveCoins(item.Value.Select(x => Tuple.Create(x.Key, x.Value))))
-            {
-                item.Key.Parent.Delete();
-            }
-        }
-
-        return Get(newItem, 0, playerEmote, silent, ItemCanGetIgnore.None, witnessHandlers);
-    }
+		return TransferPreparedCurrency(currency, amount, exact, CurrencyTransferKind.GetRoom, playerEmote: playerEmote, silent: silent, witnessHandlers: witnessHandlers);
+	}
 
     public bool CanPut(ICurrency currency, IGameItem container, ICharacter? containerOwner, decimal amount, bool exact)
     {
@@ -4193,26 +4500,8 @@ public partial class Body
     public IGameItem? Put(ICurrency currency, IGameItem container, ICharacter? containerOwner, decimal amount, bool exact,
         IEmote? playerEmote, bool silent, IEnumerable<IHandleEvents> witnessHandlers)
     {
-        if (!CanPut(currency, container, containerOwner, amount, exact))
-        {
-            OutputHandler.Send(WhyCannotPut(currency, container, containerOwner, amount, exact));
-            return null;
-        }
-
-        Dictionary<ICurrencyPile, Dictionary<ICoin, int>> targetCoins = FindCurrencyPreservingOwnership(currency, HeldItems.SelectNotNull(x => x.GetItemType<ICurrencyPile>()),
-            amount);
-        IGameItem newItem = CreateCurrencyPileFromSelection(currency, targetCoins);
-        foreach (KeyValuePair<ICurrencyPile, Dictionary<ICoin, int>> item in targetCoins)
-        {
-            if (!item.Key.RemoveCoins(item.Value.Select(x => Tuple.Create(x.Key, x.Value))))
-            {
-                Take(item.Key.Parent);
-                item.Key.Parent.Delete();
-            }
-        }
-
-        return Put(newItem, container, containerOwner, 0, playerEmote, silent, true, witnessHandlers);
-    }
+		return TransferPreparedCurrency(currency, amount, exact, CurrencyTransferKind.Put, containerItem: container, containerOwner: containerOwner, playerEmote: playerEmote, silent: silent, witnessHandlers: witnessHandlers);
+	}
 
     public bool CanDrop(ICurrency currency, decimal amount, bool exact)
     {
@@ -4255,26 +4544,8 @@ public partial class Body
     public void Drop(ICurrency currency, decimal amount, bool exact, bool newStack = false, IEmote? playerEmote = null,
         bool silent = false)
     {
-        if (!CanDrop(currency, amount, exact))
-        {
-            OutputHandler.Send(WhyCannotDrop(currency, amount, exact));
-            return;
-        }
-
-        Dictionary<ICurrencyPile, Dictionary<ICoin, int>> targetCoins = FindCurrencyPreservingOwnership(currency, HeldItems.SelectNotNull(x => x.GetItemType<ICurrencyPile>()),
-            amount);
-        IGameItem newItem = CreateCurrencyPileFromSelection(currency, targetCoins);
-        foreach (KeyValuePair<ICurrencyPile, Dictionary<ICoin, int>> item in targetCoins)
-        {
-            if (!item.Key.RemoveCoins(item.Value.Select(x => Tuple.Create(x.Key, x.Value))))
-            {
-                Take(item.Key.Parent);
-                item.Key.Parent.Delete();
-            }
-        }
-
-        Drop(newItem, newStack: newStack, playerEmote: playerEmote, silent: silent);
-    }
+		TransferPreparedCurrency(currency, amount, exact, CurrencyTransferKind.Drop, newStack: newStack, playerEmote: playerEmote, silent: silent);
+	}
 
     public bool CanGive(ICurrency currency, IBody target, decimal amount, bool exact)
     {
@@ -4317,29 +4588,16 @@ public partial class Body
 
     public void Give(ICurrency currency, IBody target, decimal amount, bool exact, IEmote? playerEmote = null)
     {
-        if (!CanGive(currency, target, amount, exact))
-        {
-            OutputHandler.Send(WhyCannotGive(currency, target, amount, exact));
-            return;
-        }
-
-        Dictionary<ICurrencyPile, Dictionary<ICoin, int>> targetCoins = FindCurrencyPreservingOwnership(currency, HeldItems.SelectNotNull(x => x.GetItemType<ICurrencyPile>()),
-            amount);
-        IGameItem newItem = CreateCurrencyPileFromSelection(currency, targetCoins);
-        foreach (KeyValuePair<ICurrencyPile, Dictionary<ICoin, int>> item in targetCoins)
-        {
-            if (!item.Key.RemoveCoins(item.Value.Select(x => Tuple.Create(x.Key, x.Value))))
-            {
-                Take(item.Key.Parent);
-                item.Key.Parent.Delete();
-            }
-        }
-
-        Give(newItem, target, playerEmote: playerEmote);
-    }
+		TransferPreparedCurrency(currency, amount, exact, CurrencyTransferKind.Give, recipient: target, playerEmote: playerEmote);
+	}
 
     public bool CanGive(ICurrency currency, ICorpse target, decimal amount, bool exact)
     {
+		if (target.Body is null)
+		{
+			return false;
+		}
+
         Dictionary<ICurrencyPile, Dictionary<ICoin, int>> targetCoins = FindCurrencyPreservingOwnership(currency, HeldItems.SelectNotNull(x => x.GetItemType<ICurrencyPile>()),
             amount);
         if (!targetCoins.Any())
@@ -4358,6 +4616,11 @@ public partial class Body
 
     public string WhyCannotGive(ICurrency currency, ICorpse target, decimal amount, bool exact)
     {
+		if (target.Body is null)
+		{
+			return "You cannot give anything to these remains because their original body can no longer be identified.";
+		}
+
         Dictionary<ICurrencyPile, Dictionary<ICoin, int>> targetCoins = FindCurrencyPreservingOwnership(currency, HeldItems.SelectNotNull(x => x.GetItemType<ICurrencyPile>()), amount);
         if (!targetCoins.Any())
         {
@@ -4378,26 +4641,13 @@ public partial class Body
 
     public void Give(ICurrency currency, ICorpse target, decimal amount, bool exact, IEmote? playerEmote = null)
     {
-        if (!CanGive(currency, target, amount, exact))
-        {
-            OutputHandler.Send(WhyCannotGive(currency, target, amount, exact));
-            return;
-        }
-
-        Dictionary<ICurrencyPile, Dictionary<ICoin, int>> targetCoins = FindCurrencyPreservingOwnership(currency, HeldItems.SelectNotNull(x => x.GetItemType<ICurrencyPile>()),
-            amount);
-        IGameItem newItem = CreateCurrencyPileFromSelection(currency, targetCoins);
-        foreach (KeyValuePair<ICurrencyPile, Dictionary<ICoin, int>> item in targetCoins)
-        {
-            if (!item.Key.RemoveCoins(item.Value.Select(x => Tuple.Create(x.Key, x.Value))))
-            {
-                Take(item.Key.Parent);
-                item.Key.Parent.Delete();
-            }
-        }
-
-        Give(newItem, target, playerEmote: playerEmote);
-    }
+		if (target.Body is null)
+		{
+			OutputHandler.Send(WhyCannotGive(currency, target, amount, exact));
+			return;
+		}
+		TransferPreparedCurrency(currency, amount, exact, CurrencyTransferKind.Give, recipient: target.Body, corpse: target, playerEmote: playerEmote);
+	}
 
     #endregion
 
@@ -4441,34 +4691,65 @@ public partial class Body
     public void GetByWeight(IGameItem item, double weight, IEmote? playerEmote = null, bool silent = false,
         ItemCanGetIgnore ignoreFlags = ItemCanGetIgnore.None)
     {
+		var executor = Actor;
+		using var execution = CommandExecutionScope.EnterBodyOperation(executor);
+		bool CanContinue() => ReferenceEquals(Actor, executor) && CommandExecutionScope.TryContinue(executor);
+		if (!CanContinue()) return;
         if (!CanGetByWeight(item, weight, ignoreFlags))
         {
             if (!silent) OutputHandler.Send(WhyCannotGetByWeight(item, weight, ignoreFlags));
             return;
         }
 
-        Get(item.DropsWholeByWeight(weight) ? item : item.GetByWeight(this, weight),
-            0, playerEmote, silent, ignoreFlags);
+		if (!CanContinue()) return;
+		var whole = item.DropsWholeByWeight(weight);
+		if (!CanContinue()) return;
+		if (whole) { Get(item, 0, playerEmote, silent, ignoreFlags); return; }
+		GetPreparedWeightSplit(item, weight, playerEmote, silent, executor);
     }
 
     public void GetByWeight(IGameItem item, IGameItem container, double weight, IEmote? playerEmote = null,
         bool silent = false, ItemCanGetIgnore ignoreFlags = ItemCanGetIgnore.None)
     {
+		var executor = Actor;
+		using var execution = CommandExecutionScope.EnterBodyOperation(executor);
+		bool CanContinue() => ReferenceEquals(Actor, executor) && CommandExecutionScope.TryContinue(executor);
+		if (!CanContinue()) return;
         if (!CanGetByWeight(item, container, weight, ignoreFlags))
         {
             if (!silent) OutputHandler.Send(WhyCannotGetByWeight(item, container, weight, ignoreFlags));
             return;
         }
 
-        if (item.DropsWholeByWeight(weight))
+		if (!CanContinue()) return;
+		var whole = item.DropsWholeByWeight(weight);
+		if (!CanContinue()) return;
+        if (whole)
         {
             Get(item, container, 0, playerEmote, silent, ignoreFlags);
             return;
         }
 
-        Get(item.GetByWeight(this, weight), container, 0, playerEmote, silent,
-            ignoreFlags | ItemCanGetIgnore.IgnoreInContainer);
+		GetPreparedWeightSplit(item, weight, playerEmote, silent, executor, container);
     }
+
+	private void GetPreparedWeightSplit(IGameItem item, double weight, IEmote? playerEmote, bool silent,
+		ICharacter executor, IGameItem? container = null)
+	{
+		var placement = PrepareGetPlacement(item.PeekSplitByWeight(weight), true);
+		if (placement is null || !ReferenceEquals(Actor, executor) || !CommandExecutionScope.TryContinue(executor)) return;
+		CommandExecutionScope.MarkCommitted(executor);
+		var split = item.GetByWeight(null, weight);
+		if (!ComponentItemTransfer.IsDetached(split)) return;
+		split.Get(this);
+		if (!CompleteGetPlacement(split, placement)) return;
+		if (!silent)
+		{
+			var text = container is null ? "@ get|gets $0" : "@ get|gets $0 from $1";
+			OutputHandler.Handle(new MixedEmoteOutput(new Emote(text, this, split, container), flags: OutputFlags.SuppressObscured).Append(playerEmote));
+		}
+		NotifyGotItem(split, executor);
+	}
 
     #endregion
 }

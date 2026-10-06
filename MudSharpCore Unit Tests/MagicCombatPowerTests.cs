@@ -416,6 +416,22 @@ public class MagicCombatPowerTests
 	}
 
 	[TestMethod]
+	public void DefenseSelection_EligibilityRemovalPreservesMundaneFallbackWithoutEnumeratingLiveEffects()
+	{
+		var f = new Fixture();
+		var power = f.Defense("kineticparry");
+		f.Effects.Add(new MagicDefense(f.Actor.Object, power));
+		var eligibility = new Mock<IFutureProg>();
+		eligibility.Setup(x => x.ExecuteBool(It.IsAny<object[]>())).Callback(f.Effects.Clear).Returns(true);
+		typeof(MagicDefensePower).GetProperty("EligibilityProg")!.SetValue(power, eligibility.Object);
+		f.Actor.SetupGet(x => x.PreferredDefenseType).Returns(DefenseType.Magic);
+		var mundane = new DodgeMove { Assailant = f.Actor.Object };
+		Assert.AreSame(mundane, MagicDefenseMove.Select(f.Actor.Object, f.Incoming(), mundane));
+		Assert.AreEqual(0, f.Effects.Count);
+		eligibility.Verify(x => x.ExecuteBool(It.IsAny<object[]>()), Times.Once);
+	}
+
+	[TestMethod]
 	public void DefenseLifecycle_InitialAndLoginRegisterOnlyOnce_AndReleaseUnsubscribes()
 	{
 		var f = new Fixture(); var effect = new MagicDefense(f.Actor.Object, f.Defense("kineticparry"));

@@ -1,0 +1,256 @@
+{
+  "stage": "1B: scoped typed support progression and authored enrolment, plus review/native-discovered repairs",
+  "base_commit": "c9f9750298f22b79919137fdb89fdfda8f54e601",
+  "branch": "codex/armageddon-completion-phase1",
+  "implementation_head": "ae72581076ce8b58af89ce43c705c683912ec91d",
+  "selected_scope": [
+    "typed spell/support prerequisite graph, scoped support grants and reverse-index convergence",
+    "native Component Crafting progression engine bridge",
+    "typed authored enrolment hook",
+    "stage1A capped-theoretical validation and exact-cap native branching repairs",
+    "canonical native maximum lookup repair"
+  ],
+  "core_library_final": {
+    "status": "PASS",
+    "run_id": "20261002T094908Z-2a691ca59f10",
+    "counts": {
+      "executed": 4671,
+      "passed": 4671,
+      "failed": 0,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 4671
+    },
+    "source_fingerprint": "829028cba43f3207bd08d767e0b02d766c3206410b7866c42baaca74bcdae3ec",
+    "source_stable": true,
+    "receipt": ".artifacts/test-runs/20261002T094908Z-2a691ca59f10/summary.json"
+  },
+  "earlier_runs": [
+    {
+      "status": "FAIL",
+      "run_id": "20261002T092051Z-63ea5d7e9e50",
+      "counts": {
+        "executed": 111,
+        "passed": 110,
+        "failed": 1,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 111
+      },
+      "source_fingerprint": "0ddd74a843201fd40fc75f1f9c2352f833fad0938d1c086ecf46800dd12fe504",
+      "source_stable": true,
+      "receipt": ".artifacts/test-runs/20261002T092051Z-63ea5d7e9e50/summary.json"
+    },
+    {
+      "status": "FAIL",
+      "run_id": "20261002T092647Z-77dc9af37c7a",
+      "counts": {
+        "executed": 7,
+        "passed": 0,
+        "failed": 7,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 7
+      },
+      "source_fingerprint": "0e05b3306c8cc3f68b618b7f303cd25d9c5c139ab5153dc8e316f64d3ff3839c",
+      "source_stable": true,
+      "receipt": ".artifacts/test-runs/20261002T092647Z-77dc9af37c7a/summary.json"
+    },
+    {
+      "status": "FAIL",
+      "run_id": "20261002T093408Z-e86c8b5b5959",
+      "counts": null,
+      "source_fingerprint": "9036d50b21d84eb368ec684f6b3ac33229ec5c31ad568fe20f6284442d3ea688",
+      "source_stable": true,
+      "receipt": ".artifacts/test-runs/20261002T093408Z-e86c8b5b5959/summary.json"
+    },
+    {
+      "status": "PASS",
+      "run_id": "20261002T093613Z-bf21599f8030",
+      "counts": {
+        "executed": 117,
+        "passed": 117,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 117
+      },
+      "source_fingerprint": "cdd951ebaa4f3c27dc77d33906b7dca14792efb02c83b62477d7a6f1bbda5ed1",
+      "source_stable": true,
+      "receipt": ".artifacts/test-runs/20261002T093613Z-bf21599f8030/summary.json"
+    },
+    {
+      "status": "PASS",
+      "run_id": "20261002T093846Z-1aabca29cd5d",
+      "counts": {
+        "executed": 4670,
+        "passed": 4670,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 4670
+      },
+      "source_fingerprint": "1f1f419904448ac13c33d74a7796684051a34f450276f942a80b4084bc99d937",
+      "source_stable": true,
+      "receipt": ".artifacts/test-runs/20261002T093846Z-1aabca29cd5d/summary.json"
+    },
+    {
+      "status": "FAIL",
+      "run_id": "20261002T094700Z-aa2b06003aa2",
+      "counts": {
+        "executed": 1,
+        "passed": 0,
+        "failed": 1,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 1
+      },
+      "source_fingerprint": "80ec8c44422174c30a8cdc6fc553d205b25665c582673ecb7937d7e06a02bbce",
+      "source_stable": true,
+      "receipt": ".artifacts/test-runs/20261002T094700Z-aa2b06003aa2/summary.json"
+    }
+  ],
+  "failing_before": {
+    "review_regressions": "20261002T092647Z-77dc9af37c7a: seven failures; all covered by final PASS",
+    "native_maximum": "20261002T094700Z-aa2b06003aa2: expected100/actual0; final PASS and native attempt2 prove repair"
+  },
+  "precheck_compile": {
+    "status": "failed_then_repaired",
+    "errors": 13,
+    "cause": "Tuple element names lost across Concat; explicitly named in both projections.",
+    "log": ".artifacts/test-runs/native-armageddon-20261002-stage1B/precheck-build-failed.log"
+  },
+  "independent_review": {
+    "status": "no_remaining_actionable_findings_in_bounded_local_re_review",
+    "parent_checkpoint": "pending exact-commit review before capacity stage",
+    "resolved": [
+      "idempotent enrol retry repairs interrupted support persistence/opening",
+      "terminal acknowledgement asserts unchanged receipt and write count",
+      "missing typed trait XML refuses and safely preserves unreadable definition",
+      "capped theoretical admissions and supports explicitly refused; uncapped legacy compatible",
+      "native exact-cap branching independent of numerical gain",
+      "body maximum lookup resolves canonical character-owned native skill"
+    ]
+  },
+  "native": {
+    "attempt1": {
+      "status": "failed",
+      "log": ".artifacts/test-runs/native-armageddon-20261002-stage1B/native-attempt1.log",
+      "sha256": "894925a21fcafa2d9c13812a0020d27b446a5b0ba52abf23e1c86b6fb2f7ee57",
+      "owned_database_cleanup_count": 3,
+      "temporary_mysql_cleanup": "passed",
+      "failure": "First parent ClassicImprovement skill use produced no gain: character-owned maximum lookup searched only body storage and returned zero."
+    },
+    "attempt2": {
+      "status": "passed",
+      "log": ".artifacts/test-runs/native-armageddon-20261002-stage1B/native-attempt2.log",
+      "sha256": "cee565fc414500cb8f5069299cd83240bcc68867389880b9f286725816738bb8",
+      "owned_database_cleanup_count": 3,
+      "temporary_mysql_cleanup": "passed",
+      "assertions": [
+        "ARM02 baseline persistence/payment/quarantine/lifecycle checks",
+        "stage1A native openings/caps/source efficiency and cap-loss reload",
+        "parent actual ClassicImprovement raw30-to-80",
+        "Component Crafting scoped native opening30",
+        "second focused body actual native support use30-to-80-to-90",
+        "Identify acquisition at grade1 with native opening30, absent below80",
+        "support rawcap90 and route-loss history",
+        "typed authored permanent-merit enrolment and repeated/second-body idempotence",
+        "terminal support grant immutability/exclusion from unresolved payments",
+        "separate-process support raw90/cap90/Identify grade1/reserve17 reload"
+      ]
+    }
+  },
+  "native_builds": [
+    {
+      "attempt": 1,
+      "status": "passed",
+      "warnings": 0,
+      "errors": 0,
+      "log": ".artifacts/test-runs/native-armageddon-20261002-stage1B/build-attempt1.log"
+    },
+    {
+      "attempt": 2,
+      "status": "passed",
+      "warnings": 0,
+      "errors": 0,
+      "log": ".artifacts/test-runs/native-armageddon-20261002-stage1B/build-attempt2.log"
+    }
+  ],
+  "final_binary_sha256": {
+    "Temporary Scratch App/GatheringNativePersistenceHarness/bin/Debug/net10.0/GatheringNativePersistenceHarness.dll": "074e1600a5aefd6303068dba390cecf0c5a9e5e063b8d61cb8cee6d57390a9cd",
+    "MudSharpCore/bin/Debug/net10.0/MudSharp.dll": "5bf8b5433f698e70f538d3ed1856f6c8d97e005f311076873dbc3926f18f0393",
+    "FutureMUDLibrary/bin/Debug/net10.0/FutureMUDLibrary.dll": "23aefc7863075fd18a3dd9dc74e3242c6244a3613166f3297537c70da39c0a22"
+  },
+  "verified_code_manifest": {
+    "FutureMUDLibrary/Magic/IMagicCastingCapability.cs": "ce83e77a5f137d7ea2c6b2bb57d7bc8de8f6c722ccffb8f71458c16ed9dab713",
+    "MudSharpCore Unit Tests/MagicCastingFixture.cs": "0de948ace833478f779a0710abd00d8463a339ae725a75eb4a7bfffc0707d534",
+    "MudSharpCore Unit Tests/MagicCastingReviewTests.cs": "68352df0c60052f0dbf2ae2327b57bcc2509b9923c63e28b4d19bb6fcce0c73f",
+    "MudSharpCore Unit Tests/MagicCastingSupportTests.cs": "5ac640d2f8ac3f6d2464f33ba430d2817f3f900f400cfa89dbeb025d6be53851",
+    "MudSharpCore/Body/Implementations/BodyTraits.cs": "c5d304bfa13c7586516eaa268c301cbd8b08b3c8dc002e650328135cb33b07c6",
+    "MudSharpCore/Body/Traits/Improvement/BranchingImprover.cs": "461c65d51fb1d3a9a2e08f26a3e7c3d66bc45a051098e5e1323d71a12116b725",
+    "MudSharpCore/Body/Traits/Subtypes/Skill.cs": "590cce48d5a420ad7b8df02033d7cb83875c24b2ee58c54afde1d530e6bc2b2c",
+    "MudSharpCore/FutureProg/Functions/Magic/MagicCastingFunctions.cs": "28e67ff016ace1e69b06e0770d3ccfed383dcf656dad85cb7aeff233069f9384",
+    "MudSharpCore/Magic/Capabilities/SkillLevelBasedMagicCapability.Casting.Builder.cs": "0884a9b1b1c24a2d2217b148df8d8460385efff45ac5a679205b7f5db343be16",
+    "MudSharpCore/Magic/Capabilities/SkillLevelBasedMagicCapability.Casting.Support.Builder.cs": "67a643b731eda6004dacea28101cbcc298eb283a58087a8bcb91ed5236b76e53",
+    "MudSharpCore/Magic/Capabilities/SkillLevelBasedMagicCapability.Casting.Support.cs": "4d84c55d30a22f205163f67ef824c647205b8324d1dd33b2dfaf35e19f4d7f24",
+    "MudSharpCore/Magic/Capabilities/SkillLevelBasedMagicCapability.Casting.cs": "1a48923dae8eed95c148fdad271b38cdd0910665b797cf4ecb8e25324010c6bd",
+    "MudSharpCore/Magic/Casting/MagicCastingService.Acquisition.cs": "f265f3bc74fdfdc0a9e9c91b5f163a9054535f541a59a6e3b5d6029b23ad3030",
+    "MudSharpCore/Magic/Casting/MagicCastingService.Execution.cs": "a4faeb98029e59870d5b0a7e1cf2de83be2f5c1f13204ea3d263528f1d3adb19",
+    "MudSharpCore/Magic/Casting/MagicCastingService.Progression.cs": "018148f18aa500c25011df825a60eca844c42fc8e16882fc2546120d9139ccb3",
+    "MudSharpCore/Magic/Casting/MagicCastingService.Resources.cs": "a5d23cadac9f7251b10883e2a5eaeda9e9ac560d83b582e7a4c2b8dc784faf78",
+    "MudSharpCore/Magic/Casting/MagicCastingService.Support.cs": "f13fd289c76bd8269a104edb8959e0c02638a6f8d3b4ad95b684677c860a5816",
+    "MudSharpCore/Magic/Casting/MagicCastingStateStore.cs": "7aa48c6897561261e9a1fa35a5b4343cbcc1057b57349c0115dca62c2ca326a1",
+    "Temporary Scratch App/GatheringNativePersistenceHarness/Program.Casting.cs": "27e7b631550e83a3652e070c06a24e79fabf4227dabda220c3969333691fbe1c",
+    "Temporary Scratch App/GatheringNativePersistenceHarness/Program.CastingSupport.cs": "811944cad69279f072187fdeb49ebf68a60cee1931f4e43f333447dc298f05ca"
+  },
+  "verified_code_manifest_sha256": "e570b6a70f9607b183e5ec5c2f07ac9cf62bceedf8da24e732e6cff43f4a9e61",
+  "post_verification_changes": "Documentation/receipts/commits only; verified executable source and binary hashes retained.",
+  "toolchain": {
+    "sdk": "10.0.401",
+    "mysql": "8.0.45 owned temporary loopback instance",
+    "repository_unit_wrapper": [
+      "-m:1",
+      "-p:RestoreBuildInParallel=false",
+      "-p:NuGetAudit=false",
+      "-p:NoWarn=NU1902%3BNU1510"
+    ],
+    "audit_status": "not run; standard repository wrapper configuration is not package/security audit evidence"
+  },
+  "not_run": [
+    "installed stock classless/optional-class workflows",
+    "stock crafting command and complete source-tree installer integration",
+    "stock practice to maximum grade N06",
+    "attribute-led capacity and full affordability matrix",
+    "phases2-6 and full installed-world Telnet/release qualification"
+  ],
+  "boundaries": {
+    "publication": false,
+    "merge": false,
+    "deployment": false,
+    "shared_or_production_database": false
+  },
+  "changed_files": {
+    "total": 21,
+    "code": 20,
+    "builder_documentation": 1
+  },
+  "unrelated_checkout_preserved": {
+    "path": "C:/Users/Luke/source/repos/FutureMUD",
+    "branch": "codex/monster-ai-v1",
+    "head": "aca21bfc39298199291933375226d8982352420d",
+    "status": "only prior untracked .artifacts/"
+  },
+  "historical_after_review_fix": {
+    "base": "251f4114f05a9d923676686f9b191731e3cba167",
+    "implementation_head": "07202fe48f20640027e0a045c13426a9830f6f67",
+    "current_receipt": "Armageddon_Stage1B_CapAdoption_Verification.json",
+    "scope": "Original stage1B evidence remains historical and unchanged; parent subsequently identified cap adoption and the new receipt records its repair."
+  }
+}

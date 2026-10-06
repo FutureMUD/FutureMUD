@@ -70,7 +70,14 @@ Components can decorate item descriptions by overriding:
 
 This is how components add behavioural presentation without forcing all description logic into `GameItem` itself.
 
-An ordinary item with the revisioned `Salvageable` component contributes the concise full-description addendum `It can be salvaged.` through this component decorator path. The indication is present only while that component is attached, is not copied into prototype prose, and does not alter short, long, contents, or evaluate descriptions.
+An ordinary item with the revisioned `Salvageable` component contributes the concise full-description addendum `It can be salvaged.` through this component decorator path. The indication is present only while that component is attached, is not copied into prototype prose, and does not alter short, long, contents, or evaluate descriptions. A temporary spell creation suppresses this indication: both salvage admission and the direct product factory refuse conversion to permanent value, including a temporary item nested in an ordinary host.
+
+Temporary spell material is also excluded from crafting input scouting and casting component
+scouting. Direct reservation and consumption validate all selected inputs before mutating
+any of them. This leaves ordinary inputs untouched when a later candidate is temporary.
+Permanent spell output uses normal item integrations. The current plain weapon adapter and
+the pending food, liquid and light adapters are described in
+[Spell Owned Lifecycle](../Magic/Spell_Owned_Lifecycle.md#created-leaf-items).
 
 Examples include:
 - containers showing fullness, open state, and contents
@@ -249,7 +256,7 @@ Telecommunications items also expose scripting hooks through item and endpoint q
 
 Readable book items expose a small scripting surface for dynamic document generation. `addprintedwriting(item, page, text, language, script, provenance)` creates a new immutable provenance-aware printed writing and attaches it to a book page, with an overload accepting colour and style text. `copywritingto(item, page, writing)` attaches an existing immutable writing reference to a book page without cloning the original row. `setbooktitle(item, title)` changes the live book title. These functions return false instead of mutating internals when the item is not a book, the page is invalid or torn, a language/script/colour/style cannot be resolved, or the page lacks capacity.
 
-Printed writing has nullable authorship. Player-facing and admin displays should treat missing author as printed or anonymous provenance rather than assuming every writing row belongs to a character.
+Printed writing has nullable authorship. A positive canonical `AuthorId` distinguishes archived handwriting from anonymous/printed provenance even when `Author` is null. Writing and drawings preserve raw author IDs, text and drawing metadata through NPC archival and copying. `ArchivedAuthor` (and writing's `ArchivedTrueAuthor`) supplies the historical display name without materializing a physical actor; live author caches are weak and check durable archival before reuse. Staff author-ID filters and `character.writings` use these stable IDs. Book prototype listings show live names, archived names, unresolved positive IDs, or configured printed provenance as appropriate. See [spell-owned lifecycle](../Magic/Spell_Owned_Lifecycle.md) for the archival boundary and its remaining acceptance limits.
 
 Seals and measuring tools add a small player-facing command surface. `seal <target> with <stamp> [using <medium>]`, `break seal <target>`, `inspect seal <target>`, and `compare seal <sealed item> with <stamp|sealed item>` operate on `ISealStamp` and `ISealable`; ordinary read, write, draw, retitle, and open interactions break an intact seal before continuing only when the actor can manipulate the item. If the actor can see but cannot manipulate a sealed item, the access command reports the normal manipulation error and leaves the seal intact. `weigh <item> on <instrument>`, `measure <target> with <instrument>`, `calibrate <instrument>`, `calibrate <instrument> wrong <+/-amount|+/-percent>`, and `inspect calibration <instrument>` operate on `IMeasuringInstrument`.
 
@@ -441,3 +448,8 @@ Manual prog and register values use the [shared argument resolver](../Core/Futur
 ## Magical substance integration
 
 Liquids, consumable items, inhalers and incense fuel can bind magical substances. Surface transfer preserves spent/suppressed charge; ordinary container storage is not magical contact. See [Magical Substances](../Magic/Magical_Substances.md) for dose units and builder workflows.
+
+
+## Created meals, drink fills and Hovering Light
+
+Created food uses ordinary bite presentation, native eating and active needs; fractional/zero saved remainders survive reload without restoration. Hovering Light is a lit native wearable object on the recipient's configured profile and contributes to real recipient illumination. It remains independent of foreign worn equipment; expiry uses exact ownership rather than removing a whole inventory layer. Created water/wine fill an existing accessible open drink container and preserve its existing constituents. Incompatible recipes refuse instead of changing old contents. They remain ordinary drink/transfer/save quantities with no magical expiry.

@@ -33,8 +33,12 @@ public partial class Character
 
     public event PerceivableEvent OnDeath;
 
+	protected virtual bool SuppressNativeRemains => false;
+
     public virtual IGameItem Die()
     {
+        if (IsArchived) return null;
+        if (State.HasFlag(CharacterState.Dead)) return Corpse?.Parent;
         // Reasons why character can't die
         if (IsAdministrator())
         {
@@ -133,7 +137,7 @@ public partial class Character
         // Set HealthModel to Dead
         IGameItem corpse = null;
         ICorpseModel corpseModel = Race.CorpseModel; // TODO - overriding this
-        if (corpseModel?.CreateCorpse == true)
+        if (corpseModel?.CreateCorpse == true && !SuppressNativeRemains)
         {
             corpse = CorpseGameItemComponentProto.CreateNewCorpse(this);
             Corpse = corpse.GetItemType<ICorpse>();
@@ -180,6 +184,7 @@ public partial class Character
 
     public ICharacter Resurrect(ICell location)
     {
+        if (IsArchived) return null;
         Location?.Leave(this);
         Location = location;
         location.Enter(this);

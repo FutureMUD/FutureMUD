@@ -60,23 +60,49 @@ public class NPC : Character.Character, INPC
     }
 
     public NPC(IFuturemud gameworld, ICharacterTemplate template, INPCTemplate npcTemplate)
-        : base(gameworld, template)
+        : this(gameworld, template, npcTemplate, false)
+    {
+    }
+
+	internal NPC(IFuturemud gameworld, ICharacterTemplate template, INPCTemplate npcTemplate, bool deferInitialisation)
+        : base(gameworld, template, deferInitialisation ? NativeInitialisationMode.Deferred : NativeInitialisationMode.Immediate)
     {
         _AIs.AddRange(npcTemplate.ArtificialIntelligences);
         var enabledWildlifeNeeds = EnsureProductionWildlifeNeeds();
         Template = npcTemplate;
         SetCombatSettingsProvisional(MudSharp.Combat.CharacterCombatSettingsResolver.ResolveProvisional(this, Template));
+        if (deferInitialisation) return;
+        InitialiseNativeController();
+        if (enabledWildlifeNeeds)
+        {
+            StartNeedsHeartbeat();
+        }
+    }
+
+	private void InitialiseNativeController()
+	{
         NPCController controller = new();
         controller.UpdateControlFocus(this);
         SilentAssumeControl(controller);
         PermissionLevel = PermissionLevel.NPC;
         CommandTree = Gameworld.RetrieveAppropriateCommandTree(this);
         Register(new NonPlayerOutputHandler());
-        if (enabledWildlifeNeeds)
-        {
-            StartNeedsHeartbeat();
-        }
     }
+
+	internal void ActivateCommittedNativeNpc(ICharacterTemplate template, object model)
+	{
+		ActivateCommittedNativeCharacter(template, model);
+		EnsureProductionWildlifeNeeds();
+		InitialiseNativeController();
+		StartNeedsHeartbeat();
+	}
+
+	internal void ReleaseUnpublishedNativeNpc()
+	{
+		ReleaseEventSubscriptions();
+		ReleaseUnpublishedNativeCharacter();
+		(Controller as NPCController)?.Dispose();
+	}
 
     public INPCTemplate Template { get; private set; }
 
@@ -169,6 +195,8 @@ public class NPC : Character.Character, INPC
 
     #region Overrides of Character
 
+	protected override bool SuppressNativeRemains => Gameworld.SpellOwnedNpcs?.SuppressNativeRemains(this) == true;
+
     public override IGameItem Die()
     {
         ReleaseEventSubscriptions();
@@ -178,7 +206,15 @@ public class NPC : Character.Character, INPC
             Changed = true;
         }
 
-        return base.Die();
+		var controller = Controller as NPCController;
+		var remains = base.Die();
+		if (State.HasFlag(CharacterState.Dead) &&
+		    (controller?.Actor is null || ReferenceEquals(controller.Actor, this)))
+		{
+			controller?.Dispose();
+		}
+		if (State.HasFlag(CharacterState.Dead)) Gameworld.SpellOwnedNpcs?.ObserveNativeDeath(this, remains);
+		return remains;
     }
 
     #endregion
@@ -268,6 +304,11 @@ public class NPC : Character.Character, INPC
     /// <summary>Tells the object to perform whatever save action it needs to do</summary>
     public override void Save()
     {
+        if (IsArchived || FMDB.Context.Characters.Any(x => x.Id == Id && x.IsArchived))
+        {
+            base.Save();
+            return;
+        }
         if (UsesProductionWildlifeNeeds)
         {
             var dbcharacter = FMDB.Context.Characters.Find(Id);

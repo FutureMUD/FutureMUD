@@ -33,18 +33,22 @@ public static class MorgueService
 
     public static IEstate IntakeCorpse(IEconomicZone zone, IGameItem corpseItem)
     {
+		TryIntakeCorpse(zone, corpseItem, out var estate);
+		return estate;
+	}
+
+	/// <summary>Returns true for successful custody, including intakes that do not create an estate.</summary>
+	public static bool TryIntakeCorpse(IEconomicZone zone, IGameItem corpseItem, out IEstate estate)
+	{
+		estate = null;
         ICorpse corpse = corpseItem.GetItemType<ICorpse>();
-        if (corpse == null)
+		if (corpse is not { RepresentsFinalCharacterDeath: true } || corpse.Body is not { } body ||
+		    corpse.GetOriginalCharacterWithMatchingBody() is not { } deceased)
         {
-            return null;
+			return false;
         }
 
-        if (!corpse.RepresentsFinalCharacterDeath)
-        {
-            return null;
-        }
-
-        IEstate estate = EnsureEstate(zone, corpse.OriginalCharacter);
+		estate = EnsureEstate(zone, deceased);
 
         corpseItem.ContainedIn?.Take(corpseItem);
         corpseItem.InInventoryOf?.Take(corpseItem);
@@ -57,7 +61,7 @@ public static class MorgueService
             corpseItem.AddEffect(new MorgueStoredCorpse(corpseItem, corpse.OriginalCharacter, estate, zone));
         }
 
-        List<IGameItem> items = corpse.Body.ExternalItems.ToList();
+        List<IGameItem> items = body.ExternalItems.ToList();
         List<IGameItem> strippedItems = new();
         foreach (IGameItem item in items)
         {
@@ -71,10 +75,11 @@ public static class MorgueService
 
         if (strippedItems.Any())
         {
+			var estateId = estate?.Id ?? 0;
             IGameItem bundle = zone.MorgueStorageCell.GameItems.FirstOrDefault(x =>
                 x.EffectsOfType<MorgueBelongings>().Any(y =>
                     y.CharacterOwnerId == CharacterInstanceIdentityComparer.IdentityId(corpse.OriginalCharacter) &&
-                    y.EstateId == (estate?.Id ?? 0) &&
+                    y.EstateId == estateId &&
                     y.EconomicZoneId == zone.Id));
             if (bundle == null)
             {
@@ -98,6 +103,6 @@ public static class MorgueService
             estate.OpenProbate();
         }
 
-        return estate;
+		return true;
     }
 }

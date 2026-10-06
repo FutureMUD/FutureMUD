@@ -1558,6 +1558,8 @@ public partial class Race
         {
             RecalculateCharactersBecauseOfRaceChange();
         }
+		foreach (var character in Gameworld.Characters.Where(x => x.Race.SameRace(this)))
+			Gameworld.MagicCasting?.NotifyCapacityChange(character);
 
         actor.OutputHandler.Send(
             $"This race now applies a {value.ToString("N2", actor).ColourValue()} racial bonus to {attribute.Name.ColourName()} at lookup time.");
@@ -2765,6 +2767,7 @@ public partial class Race
             {
                 character.Body.RecalculatePartsAndOrgans();
                 character.RecalculateCharacteristicsDueToExternalChange();
+				Gameworld.MagicCasting?.NotifyCapacityChange(character);
             }
         }
     }

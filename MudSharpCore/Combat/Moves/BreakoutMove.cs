@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.Body.Traits;
 using MudSharp.Character.Heritage;
 using MudSharp.Effects.Concrete;
@@ -54,16 +54,21 @@ public class BreakoutMove : CombatMoveBase
 
     public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
     {
-        Assailant.SpendStamina(Assailant.Gameworld.GetStaticDouble("BreakoutFromGrappleStaminaCost"));
+		using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterMove(this);
+		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
         List<IBeingGrappled> grapples = Assailant.CombinedEffectsOfType<IBeingGrappled>().ToList();
         ICheck check = Assailant.Gameworld.GetCheck(CheckType.BreakoutCheck);
         Dictionary<Difficulty, CheckOutcome> result = check.CheckAgainstAllDifficulties(Assailant, Difficulty.Normal, null);
         string emote = Gameworld.CombatMessageManager.GetMessageFor(Assailant, null, null, null,
             BuiltInCombatMoveType.Breakout, result[Difficulty.Normal], null);
         Assailant.OutputHandler.Handle(new EmoteOutput(new Emote(emote, Assailant, Assailant)));
+		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
+		MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted();
+		Assailant.SpendStamina(Assailant.Gameworld.GetStaticDouble("BreakoutFromGrappleStaminaCost"));
         bool successes = false;
         foreach (IBeingGrappled grapple in grapples)
         {
+			if (!CanContinueCommand()) break;
             grapple.Grappling.CharacterOwner.SpendStamina(
                 Assailant.Gameworld.GetStaticDouble("OpposeBreakoutFromGrappleStaminaCost"));
             ICheck opponentCheck = Assailant.Gameworld.GetCheck(CheckType.OpposeBreakoutCheck);
@@ -73,6 +78,7 @@ public class BreakoutMove : CombatMoveBase
                 : opponentCheck.CheckAgainstAllDifficulties(grapple.Grappling.CharacterOwner, opposeDifficulty, null);
 
             OpposedOutcome opposed = new(result, opponentResult, breakoutDifficulty, opposeDifficulty);
+			if (!CanContinueCommand()) break;
             if (opposed.Outcome == OpposedOutcomeDirection.Proponent ||
                 opposed.Outcome == OpposedOutcomeDirection.Stalemate)
             {
@@ -102,7 +108,7 @@ public class BreakoutMove : CombatMoveBase
                     grapple.Grappling.Owner), style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
         }
 
-        if (Assailant.Combat == null)
+        if (CanContinueCommand() && Assailant.Combat == null)
         {
             Assailant.AddEffect(
                 new CommandDelay(Assailant, "Struggle",

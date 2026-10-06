@@ -520,7 +520,7 @@ public partial class Character
 
     public string GetWritingHeader(IWriting writing)
     {
-        var provenance = writing.Author is null
+        var provenance = writing.AuthorId is not > 0 && writing.Author is null
             ? $" Source: {(writing.GetProperty("provenance")?.GetObject as string).IfNullOrWhiteSpace("unspecified").Colour(Telnet.Cyan)}"
             : string.Empty;
         return

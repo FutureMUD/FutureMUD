@@ -15,6 +15,7 @@ using MudSharp.RPG.Checks;
 using MudSharp.RPG.Law;
 using System.Net;
 using MudSharp.Magic.Vancian;
+using MudSharp.Magic.Casting;
 
 #nullable enable
 #nullable disable warnings
@@ -23,6 +24,7 @@ namespace MudSharp.Magic;
 
 public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpell
 {
+	public string? StockIdentity { get; private set; }
     public MagicSpell(Models.MagicSpell spell, IFuturemud gameworld)
     {
         Gameworld = gameworld;
@@ -54,6 +56,7 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
         TargetNullEmote = spell.TargetNullEmote;
 
         XElement definition = XElement.Parse(spell.Definition);
+		StockIdentity = definition.Element("StockIdentity")?.Value;
 		LoadGradeProfile(definition);
         if (definition.Element("NoTrigger") == null)
         {
@@ -137,7 +140,10 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
         School = rhs.School;
         _name = name;
         Blurb = rhs.Blurb;
+		StockIdentity = rhs.StockIdentity;
 		GradeProfile = rhs.GradeProfile;
+		PracticeInventoryPlanTemplate = rhs.PracticeInventoryPlanTemplate is null ? null :
+			new InventoryPlanTemplate(rhs.PracticeInventoryPlanTemplate.SaveToXml(), Gameworld);
 		_gradeLoadError = rhs._gradeLoadError;
 		_unreadableGradeProfile = rhs._unreadableGradeProfile is null ? null : new XElement(rhs._unreadableGradeProfile);
 		SpellLevel = rhs.SpellLevel;
@@ -217,6 +223,7 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
     private XElement SaveDefinition()
     {
         return new XElement("Spell",
+			StockIdentity is null ? null : new XElement("StockIdentity", StockIdentity),
             SaveGradeProfile(),
             Trigger?.SaveToXml() ?? new XElement("NoTrigger"),
             new XElement("Costs",
@@ -300,6 +307,10 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
 	#3castereffect <##> ...#0 - changes the properties of a caster-only spell effect
 	#3material add held|wielded|inroom|consumed|consumedliquid ...#0 - adds a new material requirement to this spell
 	#3material delete <#>#0 - deletes a material requirement
+	#3plan carried <#> on|off#0 - restricts a consumed material to direct inventory
+	#3plan grade <#> <grade 1-7>|all#0 - consumes this material only at the selected grade, or every grade
+	#3plan ranks <#> <offset -6..0> <rank 0 tag> ... <highest rank tag>#0 - requires a component rank based on selected grade; tags must form an ascending hierarchy and cover all seven grades
+	#3plan ranks <#> none#0 - removes selected-grade rank requirements
 	#3cost <resource> <trait expression>#0 - sets the trait expression for casting cost for a resource
 	#3cost <resource> remove#0 - removes a casting cost for a resource
 	#3castemote <emote>#0 - sets the cast emote. $0 is caster, $1 is target (if any)
@@ -846,6 +857,25 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
     {
         switch (command.PopSpeech().ToLowerInvariant())
         {
+            case "grade":
+                if (!int.TryParse(command.PopSpeech(), out var number) || number < 1 ||
+                    InventoryPlanTemplate.Phases.First().Actions.ElementAtOrDefault(number - 1) is not GameItems.Inventory.Plans.InventoryPlanActionConsume material)
+                { actor.OutputHandler.Send("Select a consumed material requirement number."); return false; }
+                var gradeText = command.PopSpeech();
+                int? requiredGrade = null;
+                if (!gradeText.EqualTo("all"))
+                {
+                    if (!int.TryParse(gradeText, out var selectedGrade) || selectedGrade is < 1 or > 7)
+                    { actor.OutputHandler.Send("Use plan grade <number> <grade 1-7>|all."); return false; }
+                    requiredGrade = selectedGrade;
+                }
+                if (!command.IsFinished) return false;
+                material.ConfigureRequiredGrade(requiredGrade); Changed = true;
+                actor.OutputHandler.Send("Material grade condition updated."); return true;
+            case "carried":
+                return BuildingCommandPlanSelection(actor, command, false);
+            case "ranks":
+                return BuildingCommandPlanSelection(actor, command, true);
             case "add":
             case "new":
             case "create":
@@ -857,8 +887,67 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
                 return BuildingCommandPlanDelete(actor, command);
         }
 
-        actor.OutputHandler.Send($"You must either ADD a material to the plan or REMOVE one from the plan.");
+        actor.OutputHandler.Send("Use plan add, remove, carried <number> on|off, or ranks <number> <offset> <rank tags>|none.");
         return false;
+    }
+
+    private bool BuildingCommandPlanSelection(ICharacter actor, StringStack command, bool ranks)
+    {
+        if (!int.TryParse(command.PopSpeech(), out var number) || number < 1 ||
+            InventoryPlanTemplate.Phases.First().Actions.ElementAtOrDefault(number - 1) is not
+                GameItems.Inventory.Plans.InventoryPlanActionConsume action)
+        {
+            actor.OutputHandler.Send("Select the number of a consumed material requirement.");
+            return false;
+        }
+
+        var value = command.PopSpeech();
+        if (!ranks)
+        {
+            if (!command.IsFinished || value.ToLowerInvariant() is not ("on" or "off"))
+            {
+                actor.OutputHandler.Send("Use plan carried <number> on|off.");
+                return false;
+            }
+
+            action.CarriedOnly = value.EqualTo("on");
+        }
+        else if (value.EqualTo("none") && command.IsFinished)
+        {
+            action.ClearGradeRanks();
+        }
+        else
+        {
+            if (!int.TryParse(value, out var offset))
+            {
+                actor.OutputHandler.Send("Use plan ranks <number> <offset -6..0> <rank zero tag> ... <highest rank tag>, or none.");
+                return false;
+            }
+
+            var tags = new List<ITag>();
+            while (!command.IsFinished)
+            {
+                var tag = Gameworld.Tags.GetByIdOrName(command.PopSpeech());
+                if (tag is null)
+                {
+                    actor.OutputHandler.Send("Every rank must name an existing tag. Quote names containing spaces.");
+                    return false;
+                }
+
+                tags.Add(tag);
+            }
+
+            try { action.ConfigureGradeRanks(offset, tags); }
+            catch (Exception ex) when (ex is FormatException or InvalidOperationException)
+            {
+                actor.OutputHandler.Send(ex.Message);
+                return false;
+            }
+        }
+
+        Changed = true;
+        actor.OutputHandler.Send($"Material selection updated: {action.Describe(actor)}");
+        return true;
     }
 
     private bool BuildingCommandPlanDelete(ICharacter actor, StringStack command)
@@ -1578,8 +1667,26 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
             return;
         }
 
+		var lifetimeAdmissions = new Dictionary<IPerceivable, LifetimeAdmission>(ReferenceEqualityComparer.Instance);
+		try
+		{
+			if (LifetimeConfigurationError is { } lifetimeError) throw new InvalidOperationException(lifetimeError);
+			var recipients = target is PerceivableGroup lifetimeGroup ? lifetimeGroup.Members : target is null ? [] : new[] { target };
+			foreach (var recipient in recipients)
+				if (CaptureLifetimeAdmission(magician, recipient, _spellEffects, power) is { } admission) lifetimeAdmissions.Add(recipient, admission);
+			if (target is ICharacter && !lifetimeAdmissions.ContainsKey(magician) &&
+				CaptureLifetimeAdmission(magician, magician, _spellEffects, power) is { } reflectedAdmission)
+				lifetimeAdmissions.Add(magician, reflectedAdmission);
+			if (CaptureLifetimeAdmission(magician, magician, _casterSpellEffects, power) is { } casterAdmission) lifetimeAdmissions.Add(magician, casterAdmission);
+		}
+		catch (Exception error)
+		{
+			magician.OutputHandler.Send(error.Message.ColourError()); return;
+		}
+
 		void Pay()
 		{
+			ConfirmPendingLifetimeAdmissions();
 			if (invocation?.Configured is { } configured)
 			{
 				foreach (var payment in configured.Payments)
@@ -1592,10 +1699,11 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
 		}
 		if (invocation is not null)
 		{
+			_pendingLifetimeAdmissions = lifetimeAdmissions;
 			if (!invocation.Commit(Pay)) return;
 			invocation.Status = MagicInvocationStatus.Failed;
 		}
-		else Pay();
+		else { _pendingLifetimeAdmissions = lifetimeAdmissions; Pay(); }
 		var powerInvocation = SpellPowerInvocation.For(magician, this);
 		powerInvocation?.Complete(MagicInvocationStatus.Failed);
 		PsychometricRecorder.Record(magician, ImpressionKind.Magic, "the casting of a spell", target, School.Id, directItemOnly: powerInvocation is not null);
@@ -1657,10 +1765,13 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
 		OpposedOutcome baseOutcome = new(result[CastingDifficulty].Outcome, Outcome.NotTested);
 		bool allowReflection = Trigger.TargetTypes == "character";
 
+		using var capacityChanges = new SpellCapacityBatch();
 		var rejuvenatedCells = new HashSet<long>();
+		var parentsAppliedThisCast = new HashSet<MagicSpellParent>(ReferenceEqualityComparer.Instance);
 		bool ApplySpellEffect(IPerceivable effectTarget, IEnumerable<IMagicSpellEffectTemplate> effects,
-			OpposedOutcomeDegree effectOutcome, bool echoTarget = false, bool intended = false)
+			OpposedOutcomeDegree effectOutcome, bool echoTarget = false, bool intended = false, Func<bool>? stillEligible = null)
 		{
+			if (stillEligible?.Invoke() == false) return false;
 			var templates = effects.ToArray();
 			var prepared = new Dictionary<IMagicSpellEffectTemplate, IMagicSpellEffectApplication>();
 			if (templates.OfType<SpellEffects.RejuvenateLandEffect>().Count() > 1)
@@ -1681,38 +1792,88 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
 			}
 			if (echoTarget && !string.IsNullOrEmpty(TargetEmote))
 				effectTarget.OutputHandler.Handle(new EmoteOutput(new Emote(TargetEmote, magician, magician, effectTarget), flags: TargetEmoteFlags));
-			MagicSpellParent head = new(effectTarget, this, magician, power, effectOutcome) { ResolvedDuration = duration };
-			foreach (IMagicSpellEffectTemplate effect in templates)
+			if (stillEligible?.Invoke() == false) return false;
+			capacityChanges.Include(effectTarget);
+			var hasLifetimePolicy = templates.OfType<IMagicSpellEffectLifetimePolicy>().Any(x => x.LifetimePolicy is not null);
+			if (hasLifetimePolicy && !lifetimeAdmissions.ContainsKey(effectTarget))
+				throw new InvalidOperationException("The accumulated detection recipient was not admitted before payment.");
+			var lifetime = hasLifetimePolicy ? ResolveLifetime(lifetimeAdmissions.GetValueOrDefault(effectTarget), parentsAppliedThisCast) : null;
+			MagicSpellParent head = new(effectTarget, this, magician, lifetime?.Power ?? power, effectOutcome)
 			{
-				IMagicSpellEffect? child;
-				if (prepared.TryGetValue(effect, out var application)) child = application.Create(head);
-				else if (invocation?.Configured is { } reporting && effect is IMagicSpellEffectOperation operation)
-				{
-					var report = operation.Apply(magician, effectTarget, effectOutcome, power, head, additionalParameters);
-					child = report.Effect;
-					if (intended && report.Status == MagicEffectOperationStatus.Applied) reporting.AppliedIntendedOperation = true;
-				}
-				else child = effect.GetOrApplyEffect(magician, effectTarget, effectOutcome, power, head, additionalParameters);
-				if (child == null)
-				{
-					continue;
-				}
-
-                effectTarget.AddEffect(child);
-                head.AddSpellEffect(child);
-            }
-
-            if (AppliedEffectsAreExclusive)
-            {
-                effectTarget.RemoveAllEffects<MagicSpellParent>(x => x.Spell.Id == Id);
-            }
-
-            // It's possible that all of the spell effects were instantaneous, in which case do not apply the effect
-            if (head.SpellEffects.Any())
+				ResolvedDuration = lifetime?.Duration ?? duration,
+				LifetimeState = lifetime is null ? null : new(lifetime.Admission.Policy, lifetime.Grade)
+			};
+			var lifetimeOperationApplied = false;
+			var resolvedAny = templates.Length == 0;
+			try
 			{
-				effectTarget.AddEffect(head, duration);
+				foreach (IMagicSpellEffectTemplate effect in templates)
+				{
+					if (stillEligible?.Invoke() == false) break;
+					resolvedAny = true;
+					IMagicSpellEffect? child;
+					if (prepared.TryGetValue(effect, out var application))
+					{
+						if (invocation?.Configured is { } reporting && application is IMagicSpellEffectApplicationOperation operation)
+						{
+							var report = operation.Apply(head);
+							child = report.Effect;
+							if (intended && report.Status == MagicEffectOperationStatus.Applied)
+							{
+								if (lifetime is null) reporting.AppliedIntendedOperation = true;
+								else lifetimeOperationApplied = true;
+							}
+						}
+						else child = application.Create(head);
+					}
+					else if (invocation?.Configured is { } reporting && effect is IMagicSpellEffectOperation operation)
+					{
+						var report = operation.Apply(magician, effectTarget, effectOutcome, power, head, additionalParameters);
+						child = report.Effect;
+						if (intended && report.Status == MagicEffectOperationStatus.Applied)
+						{
+							if (lifetime is null) reporting.AppliedIntendedOperation = true;
+							else lifetimeOperationApplied = true;
+						}
+					}
+					else child = effect.GetOrApplyEffect(magician, effectTarget, effectOutcome, power, head, additionalParameters);
+					if (child == null)
+					{
+						continue;
+					}
+
+					head.AddSpellEffect(child);
+					effectTarget.AddEffect(child);
+				}
 			}
-			return true;
+			catch (Exception applicationError)
+			{
+				try { FinaliseParent(false); }
+				catch (Exception parentError)
+				{
+					throw new AggregateException("Spell partial application and parent lifetime finalisation failed.", applicationError, parentError);
+				}
+				throw;
+			}
+			FinaliseParent();
+
+			void FinaliseParent(bool applicationComplete = true)
+			{
+				if (lifetime is not null)
+				{
+					var changed = FinaliseLifetimeParent(head, lifetime, parentsAppliedThisCast, applicationComplete);
+					if (changed && lifetimeOperationApplied && invocation?.Configured is { } reporting) reporting.AppliedIntendedOperation = true;
+					return;
+				}
+				if (resolvedAny && AppliedEffectsAreExclusive && !(templates.Length == 0 && HasCasterLifetimePolicy))
+					effectTarget.RemoveAllEffects<MagicSpellParent>(x => x.Spell.Id == Id && !parentsAppliedThisCast.Contains(x), fireRemovalAction: true);
+				if (head.SpellEffects.Any())
+				{
+					effectTarget.AddEffect(head, duration);
+					parentsAppliedThisCast.Add(head);
+				}
+			}
+			return resolvedAny;
 		}
 
 		void EchoInterdiction(IPerceivable originalTarget, MagicInterdictionResult interdiction, bool reflected)
@@ -1763,8 +1924,9 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
 			return true;
 		}
 
-		bool TargetWasRejected(IPerceivable originalTarget, bool mayReflect)
+		bool TargetWasRejected(IPerceivable originalTarget, bool mayReflect, ConfiguredAreaApplication? area = null)
 		{
+			if (area?.StillEligible() == false) return true;
 			MagicInterdictionResult? interdiction =
 				MagicInterdictionHelper.GetInterdiction(magician, originalTarget, School, mayReflect,
 					_spellEffects.OfType<IMagicInterdictionTagProvider>().SelectMany(x => x.MagicInterdictionTags),
@@ -1788,19 +1950,30 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
 			{
 				EchoInterdiction(originalTarget, interdiction, true);
 			}
-
-			return !ApplySpellEffect(actualTarget, _spellEffects, outcome.Degree, true, !reflected);
+			using var damageScope = area is null ? null : new SpellAreaDamageScope(magician, actualTarget, this, area.DamageMultiplier);
+			return !ApplySpellEffect(actualTarget, _spellEffects, outcome.Degree, true, !reflected, area is null ? null : area.StillEligible);
 		}
 
 		if (target is PerceivableGroup pg)
 		{
 			var groupHasMembers = false;
 			var groupHasResolvedTarget = false;
-			foreach (IPerceivable individual in pg.Members)
+			var areaApplications = invocation?.Configured?.AreaApplications;
+			if (areaApplications is not null)
 			{
-				groupHasMembers = true;
-				var targetWasRejected = TargetWasRejected(individual, false);
-				groupHasResolvedTarget |= !targetWasRejected;
+				foreach (var application in areaApplications)
+				{
+					groupHasMembers = true;
+					groupHasResolvedTarget |= !TargetWasRejected(application.Target, false, application);
+				}
+			}
+			else
+			{
+				foreach (IPerceivable individual in pg.Members)
+				{
+					groupHasMembers = true;
+					groupHasResolvedTarget |= !TargetWasRejected(individual, false);
+				}
 			}
 
 			if (groupHasMembers && !groupHasResolvedTarget)
@@ -1848,10 +2021,15 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
 
 	private void ResolvePreparedSpell(ICharacter magician, IPerceivable target, SpellPower power, CheckOutcome attackOutcome, bool attackPayload = false)
 	{
+		using var capacityChanges = new SpellCapacityBatch();
+		if (LifetimeConfigurationError is { } lifetimeError) throw new InvalidOperationException(lifetimeError);
+		var lifetimeParents = new HashSet<MagicSpellParent>(ReferenceEqualityComparer.Instance);
 		if (target is null && _spellEffects.Any(x => x.RequiresTarget))
 		{
 			return;
 		}
+		var targetLifetimeAdmission = target is null ? null : CaptureLifetimeAdmission(magician, target, _spellEffects, power);
+		var casterLifetimeAdmission = CaptureLifetimeAdmission(magician, magician, _casterSpellEffects, power);
 
 		var duration = TimeSpan.Zero;
 		if (EffectDurationExpression is not null)
@@ -1889,7 +2067,13 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
 					new Emote(TargetEmote, magician, magician, target), flags: TargetEmoteFlags));
 			}
 
-			var head = new MagicSpellParent(target, this, magician, power, effectOutcome);
+			capacityChanges.Include(target);
+			var lifetime = ResolveLifetime(targetLifetimeAdmission, lifetimeParents);
+			var head = new MagicSpellParent(target, this, magician, lifetime?.Power ?? power, effectOutcome)
+			{
+				ResolvedDuration = lifetime?.Duration ?? TimeSpan.Zero,
+				LifetimeState = lifetime is null ? null : new(lifetime.Admission.Policy, lifetime.Grade)
+			};
 			foreach (var effect in _spellEffects)
 			{
 				var child = effect.GetOrApplyEffect(magician, target, effectOutcome, power, head, []);
@@ -1898,16 +2082,30 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
 					continue;
 				}
 
-				target.AddEffect(child);
-				head.AddSpellEffect(child);
+				if (lifetime is null) { target.AddEffect(child); head.AddSpellEffect(child); }
+				else
+				{
+					head.AddSpellEffect(child);
+					try { target.AddEffect(child); }
+					catch
+					{
+						if (!target.Effects.Contains(child)) head.RemoveSpellEffect(child);
+						FinaliseLifetimeParent(head, lifetime, lifetimeParents, false);
+						throw;
+					}
+				}
 			}
 
-			if (AppliedEffectsAreExclusive)
+			if (lifetime is not null)
 			{
-				target.RemoveAllEffects<MagicSpellParent>(x => x.Spell.Id == Id);
+				FinaliseLifetimeParent(head, lifetime, lifetimeParents, true);
+			}
+			else if (AppliedEffectsAreExclusive && (_spellEffects.Any() || !HasCasterLifetimePolicy))
+			{
+				target.RemoveAllEffects<MagicSpellParent>(x => x.Spell.Id == Id, fireRemovalAction: true);
 			}
 
-			if (head.SpellEffects.Any())
+			if (lifetime is null && head.SpellEffects.Any())
 			{
 				target.AddEffect(head, duration);
 			}
@@ -1918,8 +2116,14 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
 			return;
 		}
 
+		capacityChanges.Include(magician);
 		var casterOutcome = attackPayload ? new OpposedOutcome(attackOutcome, Outcome.NotTested).Degree : OpposedOutcomeDegree.None;
-		var casterHead = new MagicSpellParent(magician, this, magician, power, casterOutcome);
+		var casterLifetime = ResolveLifetime(casterLifetimeAdmission, lifetimeParents);
+		var casterHead = new MagicSpellParent(magician, this, magician, casterLifetime?.Power ?? power, casterOutcome)
+		{
+			ResolvedDuration = casterLifetime?.Duration ?? TimeSpan.Zero,
+			LifetimeState = casterLifetime is null ? null : new(casterLifetime.Admission.Policy, casterLifetime.Grade)
+		};
 		foreach (var effect in _casterSpellEffects)
 		{
 			var child = effect.GetOrApplyEffect(magician, magician, casterOutcome, power, casterHead, []);
@@ -1928,17 +2132,30 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
 				continue;
 			}
 
-			magician.AddEffect(child);
-			casterHead.AddSpellEffect(child);
+			if (casterLifetime is null) { magician.AddEffect(child); casterHead.AddSpellEffect(child); }
+			else
+			{
+				casterHead.AddSpellEffect(child);
+				try { magician.AddEffect(child); }
+				catch
+				{
+					if (!magician.Effects.Contains(child)) casterHead.RemoveSpellEffect(child);
+					FinaliseLifetimeParent(casterHead, casterLifetime, lifetimeParents, false);
+					throw;
+				}
+			}
 		}
 
-		if (casterHead.SpellEffects.Any())
+		if (casterLifetime is not null) FinaliseLifetimeParent(casterHead, casterLifetime, lifetimeParents, true);
+		else if (casterHead.SpellEffects.Any())
 		{
 			magician.AddEffect(casterHead, duration);
 		}
 	}
 
     public bool ReadyForGame =>
+		LifetimeConfigurationError is null &&
+        TargetFilterConfigurationError is null &&
         GradeConfigurationErrors().Count == 0 &&
         Trigger != null &&
 		_spellEffects.OfType<SpellEffects.RejuvenateLandEffect>().Count() <= 1 &&
@@ -1953,6 +2170,8 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
 
     public string WhyNotReadyForGame(ICharacter builder)
     {
+		if (LifetimeConfigurationError is { } lifetimeError) return lifetimeError;
+		if (TargetFilterConfigurationError is { } filterError) return filterError;
 		if (GradeConfigurationErrors().FirstOrDefault() is { } gradeError) return gradeError;
 		if (_spellEffects.OfType<SpellEffects.RejuvenateLandEffect>().Count() > 1 || _casterSpellEffects.OfType<SpellEffects.RejuvenateLandEffect>().Any())
 			return "rejuvenateland permits one target effect and cannot be a caster-side effect.";

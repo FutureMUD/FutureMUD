@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.Effects.Concrete;
 using MudSharp.Form.Material;
 using MudSharp.Health;
@@ -64,6 +64,8 @@ public class ClinchAttackMove : WeaponAttackMove
 
     public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
     {
+		using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterMove(this);
+		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
 		defenderMove = MagicDefenseMove.Revalidate(defenderMove, this);
 		using var scope = new MagicDefenseDamageScope(this, defenderMove);
 		return scope.Finish(ResolveAttackWithDefense(defenderMove));
@@ -184,7 +186,7 @@ public class ClinchAttackMove : WeaponAttackMove
                     $"{attackEmote}{string.Format(dodgeEmote, "", TargetBodypart.FullDescription())}".Fullstop(),
                     Assailant, Assailant, CharacterTarget, Weapon.Parent, null, null), style: OutputStyle.CombatMessage,
                 flags: OutputFlags.InnerWrap));
-        List<IWound> wounds = CharacterTarget.PassiveSufferDamage(finalDamage).ToList();
+        List<IWound> wounds = CharacterTarget.CommandSufferDamage(finalDamage).ToList();
         wounds.ProcessPassiveWounds();
         Assailant.Body?.SetExertionToMinimumLevel(AssociatedExertion);
         CharacterTarget.Body?.SetExertionToMinimumLevel(dodge.AssociatedExertion);
@@ -240,7 +242,7 @@ public class ClinchAttackMove : WeaponAttackMove
                     Assailant, Assailant, CharacterTarget, Weapon.Parent, null, null), style: OutputStyle.CombatMessage,
                 flags: OutputFlags.InnerWrap));
 
-        List<IWound> wounds = CharacterTarget.PassiveSufferDamage(finalDamage).ToList();
+        List<IWound> wounds = CharacterTarget.CommandSufferDamage(finalDamage).ToList();
         wounds.ProcessPassiveWounds();
         Assailant.Body?.SetExertionToMinimumLevel(AssociatedExertion);
         CharacterTarget.Body?.SetExertionToMinimumLevel(defenderMove.AssociatedExertion);

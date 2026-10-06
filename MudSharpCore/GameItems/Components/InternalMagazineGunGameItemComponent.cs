@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
 using MudSharp.Body;
 using MudSharp.Body.Traits;
 using MudSharp.Combat;
@@ -61,16 +61,30 @@ public class InternalMagazineGunGameItemComponent : FirearmBaseGameItemComponent
     protected override void LoadFromXml(XElement root)
     {
         base.LoadFromXml(root);
+        if (!RestoreLoadedChild(ChamberedRound?.Parent)) ChamberedRound = null;
         foreach (XElement sub in root.Element("RoundsInMagazine").Elements())
         {
             IGameItem item = Gameworld.TryGetItem(long.Parse(sub.Value), true);
-            if (item != null)
+            if (RestoreLoadedChild(item))
             {
                 _roundsInMagazine.Add(item);
             }
         }
 
         ChamberedCasing = Gameworld.TryGetItem(long.Parse(root.Element("ChamberedCasing")?.Value ?? "0"), true);
+        if (!RestoreLoadedChild(ChamberedCasing)) ChamberedCasing = null;
+    }
+
+    private bool RestoreLoadedChild(IGameItem item)
+    {
+        if (item is null || item.Deleted || item.Destroyed) return false;
+        var alreadyContained = ReferenceEquals(item.ContainedIn, Parent);
+        if (!alreadyContained && item is GameItem native && native.LoadedFromDatabase &&
+            native.ContainerIdAtLoad != Parent.Id) return false;
+        if (alreadyContained ? !ComponentUnloadCompletion.OwnedBy(item, Parent) : !ComponentItemTransfer.IsDetached(item))
+            return false;
+        item.LoadTimeSetContainedIn(Parent);
+        return true;
     }
 
     public override IGameItemComponent Copy(IGameItem newParent, bool temporary = false)
@@ -110,6 +124,10 @@ public class InternalMagazineGunGameItemComponent : FirearmBaseGameItemComponent
 
     public override bool CanLoad(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(loader);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return false;
+
+
         if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
         {
             return false;
@@ -133,6 +151,10 @@ public class InternalMagazineGunGameItemComponent : FirearmBaseGameItemComponent
 
     public override string WhyCannotLoad(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(loader);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return string.Empty;
+
+
         if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
         {
             return manipulationReason;
@@ -166,28 +188,66 @@ public class InternalMagazineGunGameItemComponent : FirearmBaseGameItemComponent
             "Unknown WhyCannotLoad reason in InternalMagazineGunGameItemComponent.WhyCannotLoad");
     }
 
-    protected override void ChamberRound(ICharacter loader)
+    protected override bool ChamberRound(ICharacter loader)
     {
-        if (ChamberedRound != null)
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(loader);
+        var GunUnchanged = PrepareGunCustodyFacts(loader);
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader) || !GunUnchanged()) return false;
+
+		var magazine = _roundsInMagazine.Select(x => (Item: x, Quantity: x.Quantity, Title: x.OwnershipReference,
+			Components: x.Components.Select(c => (Item: c, Prototype: c.Prototype)).ToArray())).ToArray();
+		bool MagazineUnchanged() => _roundsInMagazine.Count == magazine.Length && magazine.Select((x, i) =>
+			ReferenceEquals(_roundsInMagazine[i], x.Item) && x.Item.Quantity == x.Quantity && x.Item.OwnershipReference == x.Title &&
+			ComponentUnloadCompletion.OwnedBy(x.Item, Parent) && x.Item.Components.Count() == x.Components.Length &&
+			x.Components.All(c => x.Item.Components.Any(y => ReferenceEquals(c.Item, y)) && ReferenceEquals(c.Item.Prototype, c.Prototype))).All(x => x);
+        var accepted = false;
+        bool AcceptStep()
         {
-            loader.OutputHandler.Handle(new EmoteOutput(
-                new Emote("$1 is ejected from $0 by the action.", loader, Parent,
-                    ChamberedRound.Parent), flags: OutputFlags.Insigificant));
-            ChamberedRound.Parent.RoomLayer = loader.RoomLayer;
-            ChamberedRound.Parent.InsertAtSource(loader);
-            ChamberedRound.Parent.ContainedIn = null;
+            if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader) || !GunUnchanged() || !MagazineUnchanged()) return false;
+            MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted(loader);
+            accepted = true;
+            Changed = true;
+            return true;
         }
 
-        if (ChamberedCasing != null)
-        {
-            loader.OutputHandler.Handle(new EmoteOutput(
-                new Emote("@ tumble|tumbles to the ground.", ChamberedCasing), flags: OutputFlags.Insigificant));
-            ChamberedCasing.RoomLayer = loader.RoomLayer;
-            ChamberedCasing.InsertAtSource(loader);
-            ChamberedCasing.ContainedIn = null;
-            ChamberedCasing = null;
-        }
+		bool Eject(IGameItem item, Func<bool> exactSlot, Action clearSlot, bool round)
+		{
+			var quantity = item.Quantity;
+			var title = item.OwnershipReference;
+			var components = item.Components.Select(x => (Item: x, Prototype: x.Prototype)).ToArray();
+			var floor = ComponentUnloadCompletion.PrepareFloor(loader, item, loader);
+			if (floor is null || !GunUnchanged() || !exactSlot() || !ComponentUnloadCompletion.OwnedBy(item, Parent)) return false;
+			loader.OutputHandler.Handle(new EmoteOutput(round
+				? new Emote("$1 is ejected from $0 by the action.", loader, Parent, item)
+				: new Emote("@ tumble|tumbles to the ground.", item), flags: OutputFlags.Insigificant));
+			if (!GunUnchanged() || !exactSlot()) return false;
+			if (!ComponentUnloadCompletion.OwnedBy(item, Parent))
+			{
+				// A callback claimed the exact child. Remove only our stale slot reference.
+				clearSlot(); Changed = true; return false;
+			}
+			bool Exact() => GunUnchanged() && exactSlot() && item.Quantity == quantity && item.OwnershipReference == title &&
+				item.Components.Count() == components.Length && components.All(x => item.Components.Any(y => ReferenceEquals(x.Item, y)) &&
+					ReferenceEquals(x.Item.Prototype, x.Prototype));
+			return ComponentUnloadCompletion.CompleteWithRecovery(() =>
+			{
+				if (!ComponentUnloadCompletion.Detach(loader, item, Parent, () =>
+					{ clearSlot(); accepted = true; Changed = true; }, Exact))
+				{
+					if (exactSlot() && !ComponentUnloadCompletion.OwnedBy(item, Parent)) { clearSlot(); Changed = true; }
+					return false;
+				}
+				floor(); return true;
+			}, floor);
+		}
 
+		if (ChamberedRound is { } oldRound &&
+			!Eject(oldRound.Parent, () => ReferenceEquals(ChamberedRound, oldRound), () => ChamberedRound = null, true)) return accepted;
+		if (ChamberedCasing is { } oldCasing &&
+			!Eject(oldCasing, () => ReferenceEquals(ChamberedCasing, oldCasing), () => ChamberedCasing = null, false)) return accepted;
+		if (ChamberedRound is not null || ChamberedCasing is not null) return accepted;
+
+        if (!AcceptStep()) return accepted;
         if (_roundsInMagazine.Any())
         {
             IGameItem first = _roundsInMagazine.First();
@@ -208,10 +268,15 @@ public class InternalMagazineGunGameItemComponent : FirearmBaseGameItemComponent
         }
 
         Changed = true;
+        return accepted;
     }
 
     public override void Load(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(loader);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return;
+
+
         if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
         {
             loader?.OutputHandler.Send(manipulationReason);
@@ -229,41 +294,163 @@ public class InternalMagazineGunGameItemComponent : FirearmBaseGameItemComponent
             : _prototype.LoadTemplate.CreatePlan(loader);
 
         IEnumerable<InventoryPlanActionResult> results = plan.ExecuteWholePlan();
-        IAmmo ammo = results.Where(x => (string)x.OriginalReference == "loaditem")
-                          .SelectNotNull(x => x.PrimaryTarget.GetItemType<IAmmo>()).First();
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return;
+        var loadResult = results.FirstOrDefault(x => x.OriginalReference is string reference && reference == "loaditem");
+        IAmmo ammo = loadResult?.PrimaryTarget?.GetItemType<IAmmo>();
+        // Feasibility/scouting does not guarantee that the plan acquired its target.
+        // Taking a still-floor item clears its location without extracting cell membership.
+        if (loadResult?.ActionState != DesiredItemState.Held || ammo is null ||
+            !loader.Body.HeldItems.Contains(ammo.Parent) ||
+            !ReferenceEquals(ammo.Parent.GetItemType<IHoldable>()?.HeldBy, loader.Body) ||
+            ammo.Parent.ContainedIn is not null || ComponentItemTransfer.DirectLocationOf(ammo.Parent) is not null)
+        {
+            plan.FinalisePlan();
+            return;
+        }
+        var source = ammo.Parent;
+        var sourceAmmo = ammo;
+        var sourceQuantity = source.Quantity;
+        var title = source.OwnershipReference;
+        var sourceHolder = source.GetItemType<IHoldable>();
+        var sourceStack = source.GetItemType<IStackable>();
+        var ammoPrototype = sourceAmmo.Prototype;
+        var holderPrototype = sourceHolder?.Prototype;
+        var stackPrototype = sourceStack?.Prototype;
+        var ammoClass = sourceAmmo.GetType();
+        var holderClass = sourceHolder?.GetType();
+        var stackClass = sourceStack?.GetType();
+        var receiver = loader.Body;
+        var receiverActor = receiver.Actor;
+        var prototype = _prototype;
+        var capacity = prototype.InternalMagazineCapacity;
+        var gunComponent = Parent.GetItemType<InternalMagazineGunGameItemComponent>();
+        var gunBody = Parent.InInventoryOf;
+        var gunContainer = Parent.ContainedIn;
+        var gunCell = Parent.Location;
+        var gunLayer = Parent.RoomLayer;
+        var gunPosition = Parent.RoutePositionMetres;
+        var gunTitle = Parent.OwnershipReference;
+        var chamber = ChamberedRound;
+        var casing = ChamberedCasing;
+        var magazine = _roundsInMagazine.Select(x => (Item: x, Quantity: x.Quantity, Title: x.OwnershipReference,
+            Ammo: x.GetItemType<IAmmo>(), Stack: x.GetItemType<IStackable>(),
+            AmmoPrototype: x.GetItemType<IAmmo>()?.Prototype, StackPrototype: x.GetItemType<IStackable>()?.Prototype)).ToArray();
+        bool MagazineUnchanged() => !Parent.Deleted && !Parent.Destroyed && ReferenceEquals(_prototype, prototype) &&
+            prototype.InternalMagazineCapacity == capacity && ReferenceEquals(Parent.GetItemType<InternalMagazineGunGameItemComponent>(), gunComponent) &&
+            ReferenceEquals(Parent.InInventoryOf, gunBody) && ReferenceEquals(Parent.ContainedIn, gunContainer) &&
+            ReferenceEquals(Parent.Location, gunCell) && Parent.RoomLayer == gunLayer &&
+            Parent.RoutePositionMetres == gunPosition && Parent.OwnershipReference == gunTitle &&
+            ReferenceEquals(loader.Body, receiver) && ReferenceEquals(receiver.Actor, receiverActor) && ReferenceEquals(ChamberedRound, chamber) &&
+            ReferenceEquals(ChamberedCasing, casing) && _roundsInMagazine.Count == magazine.Length &&
+            magazine.Select((x, i) => ReferenceEquals(_roundsInMagazine[i], x.Item) &&
+                x.Item.Quantity == x.Quantity && x.Item.OwnershipReference == x.Title &&
+                ReferenceEquals(x.Item.GetItemType<IAmmo>(), x.Ammo) && ReferenceEquals(x.Item.GetItemType<IStackable>(), x.Stack) &&
+                ReferenceEquals(x.Ammo?.Prototype, x.AmmoPrototype) && ReferenceEquals(x.Stack?.Prototype, x.StackPrototype) &&
+                ComponentUnloadCompletion.OwnedBy(x.Item, Parent)).All(x => x);
+        bool HeldSource(int quantity) => !source.Deleted && !source.Destroyed && source.Quantity == quantity &&
+            source.OwnershipReference == title && ReferenceEquals(source.GetItemType<IAmmo>(), sourceAmmo) &&
+            ReferenceEquals(sourceAmmo.Prototype, ammoPrototype) && ReferenceEquals(sourceHolder?.Prototype, holderPrototype) &&
+            ReferenceEquals(sourceStack?.Prototype, stackPrototype) &&
+            ReferenceEquals(source.GetItemType<IHoldable>(), sourceHolder) && ReferenceEquals(source.GetItemType<IStackable>(), sourceStack) &&
+            ReferenceEquals(sourceHolder?.HeldBy, receiver) && receiver.HeldItems.Any(x => ReferenceEquals(x, source)) &&
+            source.ContainedIn is null && ComponentItemTransfer.DirectLocationOf(source) is null;
+        var space = capacity - magazine.Sum(x => x.Quantity);
+        if (sourceQuantity <= 0 || space <= 0)
+        {
+            plan.FinalisePlan();
+            return;
+        }
+        var floor = ComponentUnloadCompletion.PrepareFloorDestination(loader, loader);
+        if (floor is null || !MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader) || !MagazineUnchanged() || !HeldSource(sourceQuantity))
+        {
+            plan.FinalisePlan();
+            return;
+        }
+        var whole = sourceQuantity <= space;
+        var quantity = Math.Min(sourceQuantity, space);
+        var participant = source;
+        var participantAmmo = sourceAmmo;
+        var participantHolder = sourceHolder;
+        var participantStack = sourceStack;
+        bool ExactParticipant() => MagazineUnchanged() && participant.Quantity == quantity &&
+            participant.OwnershipReference == title && ReferenceEquals(participant.GetItemType<IAmmo>(), participantAmmo) &&
+            ReferenceEquals(participant.GetItemType<IHoldable>(), participantHolder) &&
+            ReferenceEquals(participant.GetItemType<IStackable>(), participantStack) &&
+            ReferenceEquals(participantAmmo.Prototype, ammoPrototype) && ReferenceEquals(participantHolder?.Prototype, holderPrototype) &&
+            ReferenceEquals(participantStack?.Prototype, stackPrototype) &&
+            (whole || HeldSource(sourceQuantity - quantity));
+        bool Ready() => MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader) &&
+            ComponentItemTransfer.IsDetached(participant) && ExactParticipant();
+        static bool MatchesClone(IGameItemComponent actual, Type originalClass, IGameItemComponentProto originalPrototype) => originalClass is null
+            ? actual is null : actual is not null && actual.GetType() == originalClass && ReferenceEquals(actual.Prototype, originalPrototype);
         List<IGameItem> exemptions = new();
-        if (ammo.Parent.Quantity > _prototype.InternalMagazineCapacity - _roundsInMagazine.Sum(x => x.Quantity))
+        if (whole) exemptions.Add(source);
+        try
         {
-            ammo = ammo.Parent.Get(null, _prototype.InternalMagazineCapacity - _roundsInMagazine.Sum(x => x.Quantity))
-                       .GetItemType<IAmmo>();
+            if (whole) receiver.Take(source);
+            else
+            {
+				if (source is GameItem { IsQuiescentNativeAmmoStack: true } nativeSource && sourceStack is StackableGameItemComponent nativeStack)
+				{
+					if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader) || !MagazineUnchanged() || !HeldSource(sourceQuantity)) return;
+					participant = nativeStack.SplitPrepared(quantity, () => MagazineUnchanged() && HeldSource(sourceQuantity), copy =>
+					{
+						participant = copy;
+						MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted(loader);
+					});
+				}
+				else participant = source.Get(null, quantity);
+                var splitAmmo = participant.GetItemType<IAmmo>();
+                var splitHolder = participant.GetItemType<IHoldable>();
+                var splitStack = participant.GetItemType<IStackable>();
+                if (!MatchesClone(splitAmmo, ammoClass, ammoPrototype) || !MatchesClone(splitHolder, holderClass, holderPrototype) ||
+                    !MatchesClone(splitStack, stackClass, stackPrototype)) return;
+                participantAmmo = splitAmmo; participantHolder = splitHolder; participantStack = splitStack;
+            }
+            if (!Ready()) return;
+            loader.OutputHandler.Handle(new EmoteOutput(
+                new Emote(prototype.LoadEmote, loader, loader, Parent, participant), flags: OutputFlags.InnerWrap));
+            if (!Ready()) return;
+            IGameItem mergeTarget = null;
+            foreach (var candidate in magazine)
+            {
+                var matches = candidate.Item.CanMerge(participant);
+                if (!Ready()) return;
+                if (matches) { mergeTarget = candidate.Item; break; }
+            }
+            if (mergeTarget is not null)
+            {
+                Changed = true;
+				if (mergeTarget is GameItem nativeSurvivor && participant is GameItem nativeParticipant &&
+					nativeSurvivor.GetItemType<StackableGameItemComponent>() is not null && nativeParticipant.GetItemType<StackableGameItemComponent>() is not null)
+					nativeSurvivor.MergeCommittedAmmoStackForLoad(nativeParticipant, receiver);
+				else
+				{
+					// Non-native adapters retain their legacy merge contract.
+					mergeTarget.Merge(participant);
+					participant.Delete();
+				}
+            }
+            else
+            {
+                ComponentItemTransfer.ContainPrepared(participant, Parent, ExactParticipant,
+                    () => { _roundsInMagazine.Add(participant); Changed = true; },
+                    () => { _roundsInMagazine.RemoveAll(x => ReferenceEquals(x, participant)); Changed = true; });
+            }
         }
-        else
+        finally
         {
-            exemptions.Add(ammo.Parent);
-            loader.Body.Take(ammo.Parent);
+            try { plan.FinalisePlanWithExemptions(exemptions); }
+            finally { if (ComponentItemTransfer.IsDetached(participant)) floor(participant); }
         }
-
-        loader.OutputHandler.Handle(new EmoteOutput(
-            new Emote(_prototype.LoadEmote, loader, loader, Parent, ammo.Parent),
-            flags: OutputFlags.InnerWrap));
-        IGameItem mergeTarget = _roundsInMagazine.FirstOrDefault(x => x.CanMerge(ammo.Parent));
-        if (mergeTarget != null)
-        {
-            mergeTarget.Merge(ammo.Parent);
-            ammo.Parent.Delete();
-        }
-        else
-        {
-            _roundsInMagazine.Add(ammo.Parent);
-            ammo.Parent.ContainedIn = Parent;
-        }
-
-        plan.FinalisePlanWithExemptions(exemptions);
-        Changed = true;
     }
 
     public override bool CanUnload(ICharacter loader)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(loader);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return false;
+
+
         if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
         {
             return false;
@@ -274,6 +461,10 @@ public class InternalMagazineGunGameItemComponent : FirearmBaseGameItemComponent
 
     public override string WhyCannotUnload(ICharacter loader)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(loader);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return string.Empty;
+
+
         if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
         {
             return manipulationReason;
@@ -289,51 +480,76 @@ public class InternalMagazineGunGameItemComponent : FirearmBaseGameItemComponent
 
     public override IEnumerable<IGameItem> Unload(ICharacter loader)
     {
-        if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
-        {
-            return [];
-        }
-
-        if (!CanUnload(loader))
-        {
-            loader.Send(WhyCannotUnload(loader));
-            return Enumerable.Empty<IGameItem>();
-        }
-
-        List<IGameItem> results = new();
-        if (_roundsInMagazine.Count > 1)
-        {
-            loader.OutputHandler.Handle(
-                new EmoteOutput(new Emote(_prototype.UnloadEmote, loader, loader, Parent,
-                    new PerceivableGroup(_roundsInMagazine))));
-        }
-        else
-        {
-            loader.OutputHandler.Handle(new EmoteOutput(new Emote(_prototype.UnloadEmote, loader, loader, Parent,
-                _roundsInMagazine.First())));
-        }
-
-        foreach (IGameItem item in _roundsInMagazine.ToList())
-        {
-            results.Add(item);
-            if (loader.Body.CanGet(item, 0))
-            {
-                loader.Body.Get(item, silent: true);
-            }
-            else
-            {
-                item.RoomLayer = loader.RoomLayer;
-                item.InsertAtSource(loader);
-            }
-        }
-
-        _roundsInMagazine.Clear();
-        Changed = true;
-        return results;
+		using var execution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(loader);
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return [];
+		var gunBody = Parent.InInventoryOf;
+		var gunContainer = Parent.ContainedIn;
+		var gunCell = ComponentItemTransfer.DirectLocationOf(Parent);
+		var gunLayer = Parent.RoomLayer;
+		var gunPosition = Parent.RoutePositionMetres;
+		var gunTitle = Parent.OwnershipReference;
+		var prototype = _prototype;
+		var capacity = prototype.InternalMagazineCapacity;
+		bool GunUnchanged() => !Parent.Deleted && !Parent.Destroyed && ReferenceEquals(_prototype, prototype) &&
+			prototype.InternalMagazineCapacity == capacity && ReferenceEquals(Parent.GetItemType<InternalMagazineGunGameItemComponent>(), this) &&
+			ReferenceEquals(Parent.InInventoryOf, gunBody) && ReferenceEquals(Parent.ContainedIn, gunContainer) &&
+			ReferenceEquals(ComponentItemTransfer.DirectLocationOf(Parent), gunCell) && Parent.RoomLayer == gunLayer &&
+			Parent.RoutePositionMetres == gunPosition && Parent.OwnershipReference == gunTitle;
+		var canUnload = CanUnload(loader);
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader) || !GunUnchanged()) return [];
+		if (!canUnload)
+		{
+			var reason = WhyCannotUnload(loader);
+			if (MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) loader.Send(reason);
+			return [];
+		}
+		var snapshot = _roundsInMagazine.ToArray();
+		var results = new List<IGameItem>();
+		var announced = false;
+		foreach (var item in snapshot)
+		{
+			if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) break;
+			if (!_roundsInMagazine.Any(x => ReferenceEquals(x, item)) || !ComponentUnloadCompletion.OwnedBy(item, Parent)) continue;
+			var quantity = item.Quantity;
+			var title = item.OwnershipReference;
+			var components = item.Components.Select(x => (Item: x, Prototype: x.Prototype)).ToArray();
+			var receiver = loader.Body;
+			var receiverActor = receiver.Actor;
+			bool Exact() => GunUnchanged() && item.Quantity == quantity && item.OwnershipReference == title &&
+				ReferenceEquals(loader.Body, receiver) && ReferenceEquals(receiver.Actor, receiverActor) &&
+				item.Components.Count() == components.Length && components.All(x => item.Components.Any(y => ReferenceEquals(x.Item, y)) &&
+					ReferenceEquals(x.Item.Prototype, x.Prototype)) && _roundsInMagazine.Any(x => ReferenceEquals(x, item));
+			var completion = ComponentUnloadCompletion.PrepareReceiveWithResult(loader, item);
+			var floor = ComponentUnloadCompletion.PrepareFloor(loader, item, loader);
+			if (completion is null || floor is null || !MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) break;
+			if (!announced)
+			{
+				var perceivable = snapshot.Length > 1 ? (IPerceivable)new PerceivableGroup(snapshot) : item;
+				loader.OutputHandler.Handle(new EmoteOutput(new Emote(_prototype.UnloadEmote, loader, loader, Parent, perceivable)));
+				announced = true;
+			}
+			var detached = false;
+			var acquired = ComponentUnloadCompletion.CompleteWithRecovery<IGameItem?>(() =>
+			{
+				if (!Exact() || !ComponentUnloadCompletion.Detach(loader, item, Parent, () =>
+					{
+						_roundsInMagazine.RemoveAll(x => ReferenceEquals(x, item));
+						detached = true; Changed = true;
+					}, Exact)) return null;
+				return completion();
+			}, floor);
+			if (!detached) break;
+			if (acquired is { Deleted: false, Destroyed: false }) results.Add(acquired);
+		}
+		return results;
     }
 
     public override bool CanFire(ICharacter actor, IPerceivable target)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return false;
+
+
         if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
         {
             return false;
@@ -344,6 +560,10 @@ public class InternalMagazineGunGameItemComponent : FirearmBaseGameItemComponent
 
     public override string WhyCannotFire(ICharacter actor, IPerceivable target)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return string.Empty;
+
+
         if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
         {
             return manipulationReason;
@@ -355,23 +575,85 @@ public class InternalMagazineGunGameItemComponent : FirearmBaseGameItemComponent
     #region Overrides of FirearmBaseGameItemComponent
 
     /// <inheritdoc />
-    protected override void HandleShellCasingOnFire(ICharacter actor, SpatialLocation originalLocation, IGameItem casing)
-    {
-        if (casing != null)
-        {
-            if (_prototype.EjectOnFire)
-            {
-                originalLocation.Cell.Handle(new EmoteOutput(new Emote("@ tumble|tumbles to the ground.", casing),
-                    flags: OutputFlags.Insigificant));
-				casing.InsertAtSpatialLocation(originalLocation);
-            }
-            else
-            {
-                ChamberedCasing = casing;
-                casing.ContainedIn = Parent;
-            }
-        }
-    }
+	private Func<bool> PrepareGunCustodyFacts(ICharacter actor)
+	{
+		var receiver = actor.Body;
+		var receiverActor = receiver.Actor;
+		var actorCell = actor.Location; var actorLayer = actor.RoomLayer; var actorPosition = actor.RoutePositionMetres;
+		var gunComponent = Parent.GetItemType<InternalMagazineGunGameItemComponent>();
+		var gunBody = Parent.InInventoryOf;
+		var gunContainer = Parent.ContainedIn;
+		var gunCell = ComponentItemTransfer.DirectLocationOf(Parent);
+		var gunLayer = Parent.RoomLayer;
+		var gunPosition = Parent.RoutePositionMetres;
+		var gunTitle = Parent.OwnershipReference;
+		var itemPrototype = Parent.Prototype;
+		var prototype = _prototype;
+		var eject = prototype.EjectOnFire; var capacity = prototype.InternalMagazineCapacity; var cycle = prototype.CycleType;
+		return () => !Parent.Deleted && !Parent.Destroyed && ReferenceEquals(_prototype, prototype) &&
+			prototype.EjectOnFire == eject && prototype.InternalMagazineCapacity == capacity && prototype.CycleType == cycle &&
+			ReferenceEquals(actor.Location, actorCell) && actor.RoomLayer == actorLayer && actor.RoutePositionMetres == actorPosition && ReferenceEquals(Parent.Prototype, itemPrototype) &&
+			ReferenceEquals(Parent.GetItemType<InternalMagazineGunGameItemComponent>(), gunComponent) &&
+			ReferenceEquals(actor.Body, receiver) && ReferenceEquals(receiver.Actor, receiverActor) &&
+			ReferenceEquals(Parent.InInventoryOf, gunBody) && ReferenceEquals(Parent.ContainedIn, gunContainer) &&
+			ReferenceEquals(ComponentItemTransfer.DirectLocationOf(Parent), gunCell) && Parent.RoomLayer == gunLayer &&
+			Parent.RoutePositionMetres == gunPosition && Parent.OwnershipReference == gunTitle;
+	}
+
+	protected override Func<bool> PrepareAcceptedRoundOnFire(ICharacter actor, IAmmo ammo)
+	{
+		var gunUnchanged = PrepareGunCustodyFacts(actor);
+		var item = ammo.Parent;
+		var quantity = item.Quantity; var title = item.OwnershipReference;
+		var components = item.Components.Select(x => (Item: x, Prototype: x.Prototype)).ToArray();
+		return () => gunUnchanged() && ReferenceEquals(ChamberedRound, ammo) && ComponentUnloadCompletion.OwnedBy(item, Parent) &&
+			item.Quantity == quantity && item.OwnershipReference == title && item.Components.Count() == components.Length &&
+			components.All(x => item.Components.Any(y => ReferenceEquals(x.Item, y)) && ReferenceEquals(x.Item.Prototype, x.Prototype));
+	}
+
+	protected override Func<bool> PrepareCyclingOnFire(ICharacter actor) => PrepareGunCustodyFacts(actor);
+
+	protected override Func<IGameItem, Action<bool>> PrepareShellCasingOnFire(ICharacter actor, SpatialLocation originalLocation)
+	{
+		var GunUnchanged = PrepareGunCustodyFacts(actor);
+		var eject = _prototype.EjectOnFire;
+		return casing =>
+		{
+			if (casing is null) return _ => { };
+			var completion = new ProjectileCustodyCompletion(actor, casing, null, originalLocation);
+			var quantity = casing.Quantity;
+			var title = casing.OwnershipReference;
+			var components = casing.Components.Select(x => (Item: x, Prototype: x.Prototype)).ToArray();
+			bool ExactCasing() => casing.Quantity == quantity && casing.OwnershipReference == title &&
+				casing.Components.Count() == components.Length && components.All(x => casing.Components.Any(y => ReferenceEquals(x.Item, y)) &&
+					ReferenceEquals(x.Item.Prototype, x.Prototype));
+			return completed =>
+			{
+				if (!completed) { completion.Finish(); return; }
+				using var execution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
+				try
+				{
+					if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor) || !GunUnchanged() || !ExactCasing() || !completion.IsUnclaimed) return;
+					if (eject)
+					{
+						originalLocation.Cell.Handle(new EmoteOutput(new Emote("@ tumble|tumbles to the ground.", casing), flags: OutputFlags.Insigificant));
+						if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor) || !GunUnchanged() || !ExactCasing()) return;
+						completion.PlaceAt(originalLocation);
+					}
+					else if (ChamberedCasing is null)
+					{
+						ComponentItemTransfer.ContainPrepared(casing, Parent, () => GunUnchanged() && ExactCasing() && ChamberedCasing is null,
+							() => { ChamberedCasing = casing; Changed = true; },
+							() => { if (ReferenceEquals(ChamberedCasing, casing)) { ChamberedCasing = null; Changed = true; } });
+					}
+				}
+				finally { completion.Finish(); }
+			};
+		};
+	}
+
+	protected override void HandleShellCasingOnFire(ICharacter actor, SpatialLocation originalLocation, IGameItem casing) =>
+		PrepareShellCasingOnFire(actor, originalLocation)(casing)(true);
 
     #endregion
 
@@ -379,54 +661,29 @@ public class InternalMagazineGunGameItemComponent : FirearmBaseGameItemComponent
 
     public override bool Unready(ICharacter readier)
     {
-        if (!CanUnready(readier))
+        using var execution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(readier);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(readier) || !CanUnready(readier)) return false;
+        var round = ChamberedRound;
+        var casing = ChamberedCasing;
+        var item = round?.Parent ?? casing;
+        if (item is null)
         {
-            readier.Send(WhyCannotUnready(readier));
-            return false;
+            readier.OutputHandler.Handle(new EmoteOutput(new Emote(_prototype.UnreadyEmoteNoChamberedRound, readier, readier, Parent)));
+            return MudSharp.NPC.AI.CommandExecutionScope.TryContinue(readier);
         }
 
-        if (ChamberedRound != null)
-        {
-            readier.OutputHandler.Handle(
-                new EmoteOutput(new Emote(_prototype.UnreadyEmote, readier, readier, Parent,
-                    ChamberedRound.Parent)));
-            ChamberedRound.Parent.ContainedIn = null;
-            if (readier.Body.CanGet(ChamberedRound.Parent, 0))
+        bool ExactSlot() => round is not null ? ReferenceEquals(ChamberedRound, round) : ReferenceEquals(ChamberedCasing, casing);
+        var completion = ComponentUnloadCompletion.PrepareReceive(readier, item);
+        if (completion is null || !ExactSlot() || !ComponentUnloadCompletion.OwnedBy(item, Parent)) return false;
+        readier.OutputHandler.Handle(new EmoteOutput(new Emote(_prototype.UnreadyEmote, readier, readier, Parent, item)));
+        if (!ComponentUnloadCompletion.Detach(readier, item, Parent, () =>
             {
-                readier.Body.Get(ChamberedRound.Parent, silent: true);
-            }
-            else
-            {
-                ChamberedRound.Parent.RoomLayer = readier.RoomLayer;
-                ChamberedRound.Parent.InsertAtSource(readier);
-            }
-
-            ChamberedRound = null;
-        }
-        else if (ChamberedCasing != null)
-        {
-            readier.OutputHandler.Handle(
-                new EmoteOutput(new Emote(_prototype.UnreadyEmote, readier, readier, Parent,
-                    ChamberedCasing)));
-            ChamberedCasing.ContainedIn = null;
-            if (readier.Body.CanGet(ChamberedCasing, 0))
-            {
-                readier.Body.Get(ChamberedCasing, silent: true);
-            }
-            else
-            {
-                ChamberedCasing.RoomLayer = readier.RoomLayer;
-                ChamberedCasing.InsertAtSource(readier);
-            }
-
-            ChamberedCasing = null;
-        }
-        else
-        {
-            readier.OutputHandler.Handle(
-                new EmoteOutput(new Emote(_prototype.UnreadyEmoteNoChamberedRound, readier, readier, Parent)));
-        }
-
+                if (!ExactSlot()) return;
+                if (round is not null) ChamberedRound = null;
+                else ChamberedCasing = null;
+                Changed = true;
+            }, ExactSlot)) return false;
+        completion();
         return true;
     }
 

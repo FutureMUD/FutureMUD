@@ -1,4 +1,4 @@
-﻿using MudSharp.Construction.Boundary;
+using MudSharp.Construction.Boundary;
 using MudSharp.RPG.Checks;
 
 namespace MudSharp.Combat.Moves;
@@ -13,6 +13,8 @@ public class CombatMoveRoom : CombatMoveBase
 
     public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
     {
+		using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterMove(this);
+		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
         if (Assailant.CanMove(Direction))
         {
             if (!(Direction.Exit.Door?.IsOpen ?? true))

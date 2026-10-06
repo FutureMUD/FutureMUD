@@ -1,0 +1,167 @@
+{
+  "status": "PASS_MANAGED_STALE_WRITE_CORRECTION_REVIEW_PENDING",
+  "recorded_utc": "2026-10-05T16:06:07.959124+00:00",
+  "base_head": "1fc55fb66305df4ba2b45fd137332a2e0a35f25c",
+  "commit_scope": [
+    "MudSharpCore/Body/Traits/Trait.cs",
+    "MudSharpCore/Body/Traits/Subtypes/Skill.cs",
+    "MudSharpCore/RPG/Checks/CheckLearningScope.cs",
+    "MudSharpCore Unit Tests/OrderedNpcCheckLearningStaleWriteTests.cs"
+  ],
+  "focused": {
+    "status": "PASS",
+    "run_id": "20261005T152618Z-c64b8b2ab84a",
+    "summary": ".artifacts/test-runs/regression-p2-focused08/20261005T152618Z-c64b8b2ab84a/summary.json",
+    "summary_sha256": "7ba919b998a2304ef21a9187458737b1316234586d9c913d440be0387719daa2",
+    "counts": {
+      "executed": 253,
+      "passed": 253,
+      "failed": 0,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 253
+    },
+    "source_start": "3a2ee9f211821a8d1445d458655ca1774f796853a4654de3f9a173c2e13cf199",
+    "source_stable": true,
+    "projects": [
+      "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+    ]
+  },
+  "fast": {
+    "status": "PASS",
+    "run_id": "20261005T152716Z-7ef0af812f3c",
+    "summary": ".artifacts/test-runs/regression-p2-fast03/20261005T152716Z-7ef0af812f3c/summary.json",
+    "summary_sha256": "070eacd971a3364ddb005dd5efc0b0ff1553057d77067ed14895cf71fc6e33c0",
+    "counts": {
+      "executed": 7475,
+      "passed": 7475,
+      "failed": 0,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 7475
+    },
+    "source_start": "42af0b0dd04619837d181cde70bd2b2a8068133710efc1dbf8782315f78c7139",
+    "source_stable": true,
+    "projects": [
+      "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+      "ExpressionEngine Unit Tests/ExpressionEngine Unit Tests.csproj",
+      "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+      "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+      "MudsharpDatabaseLibrary Unit Tests/MudsharpDatabaseLibrary Unit Tests.csproj",
+      "DiscordBotCore Unit Tests/DiscordBotCore Unit Tests.csproj",
+      "RPI Engine Worldfile Converter Tests/RPI Engine Worldfile Converter Tests.csproj",
+      "FutureMUD.Web.Tests/FutureMUD.Web.Tests.csproj",
+      "TerrainPlanner/TerrainPlanner.Tests/TerrainPlanner.Tests.csproj",
+      "scripts/TestReporting.Tests/TestReporting.Tests.csproj"
+    ]
+  },
+  "new_regression_cases": 13,
+  "contract": [
+    "Preserve valid independent/direct callback value60",
+    "Detect ABA60to40",
+    "Refuse stale45 without repeating gain",
+    "ImprovedTraits excludes refused gain; rolled outcome and prior enclosing commit preserved"
+  ],
+  "source_review": {
+    "status": "No remaining established P1/P2 in bounded correction",
+    "reviewer": "fm_reviewer",
+    "mode": "SOURCE_ONLY"
+  },
+  "native_new_stale_write_injection": "NOT_RUN",
+  "native_selected_melee_scoring_merit_fault": "NOT_RUN",
+  "prior_native_Check_fixture_limits": "Historical d331 StandardCheck/Skill/Classic/Save; explicit CheckImprovementScope configured cast, not actual cast or selected melee",
+  "co_tested_p2_verification_sha256": "5df19bc83b994700b40fc6d837fa54b7a3ad8e0fd26d24ce7f89bc8e37b94516",
+  "composite_native_regression": {
+    "status": "PASS",
+    "attempt": "native12",
+    "cases": 13,
+    "fresh_native_stack_readers": 4,
+    "manifest": ".artifacts/test-runs/armageddon-regression-p2-checkpoint09/native12-inputs.json",
+    "manifest_sha256": "a70cba7e3db5219caff9a2a7ab16c7375ccf9a2470647a962d09b3d9ded0177a",
+    "source_files": 4734,
+    "dll_entries": 19,
+    "aligned": true,
+    "owned_database_server_cleanup": "PASS",
+    "owned_processes_remaining": 0,
+    "before_after_fingerprints": "PASS"
+  },
+  "native_regression_controls": {
+    "status": "PASS",
+    "attempt": "checkcontrols01",
+    "cases": 6,
+    "fresh_durable_trait_row_readers": 6,
+    "manifest_sha256": "a70cba7e3db5219caff9a2a7ab16c7375ccf9a2470647a962d09b3d9ded0177a",
+    "same_final_runtime_as_p2_native": true,
+    "new_stale_write_injection": "NOT_RUN",
+    "selected_melee_scoring_merit_fault": "NOT_RUN",
+    "scope": "Actual opt-in command dispatch into StandardCheck/Skill/Classic/Save; explicit CheckImprovementScope configured cast, not actual cast",
+    "before_after_fingerprints": "PASS",
+    "owned_database_server_cleanup": "PASS",
+    "owned_processes_remaining": 0
+  },
+  "intermediate_commit_separately_tested": false,
+  "remaining": [
+    {
+      "id": "historical-stack-conservation",
+      "status": "OPEN_NOT_QUALIFIED",
+      "scope": "Ordinary valid merge absorbed-source cleanup, native total quantity/title/custody and cold reader"
+    },
+    {
+      "id": "eat-with-detection",
+      "status": "DEMONSTRATED_NATIVE_BLOCKER_NEXT_SEPARATE_CHECKPOINT",
+      "scope": "Admit ordinary Sense/detection in spell item removal; preserve custody/reacquisition/dependency refusal and commit-safe persistence/rollback"
+    },
+    {
+      "id": "component-boarding-countershot",
+      "status": "NOT_COMPLETE",
+      "scope": "Representative gun families load/chamber/unready/unload/fire, accepted-shot costs, boarding and actual independent defender countershot"
+    },
+    {
+      "id": "selected-melee-check-fault",
+      "status": "NATIVE_NOT_RUN",
+      "scope": "Actual selected melee attack with native scoring-merit fault; prior native Check fixture dispatch and explicit casting scope do not qualify this"
+    },
+    {
+      "id": "fury-calm-hooks",
+      "status": "NOT_ALLOCATED_OR_INTEGRATED",
+      "scope": "Stock da9af18a departing-Fury stamina correction independently cleared. Native victim LeaveCombat may retarget caster via AcquireTarget; pair cessation must inspect current post-removal opponent, with another-opponent shared-combat regression. Endurance defaults and Calm break behavior await Luke. Live shared combat hooks untouched"
+    },
+    {
+      "id": "whole-plan-release",
+      "status": "OPEN",
+      "scope": "PC charm N13, stock/device/provision integration, eight larger features, production/repertoire/installer and all remaining native release gates. Sibling installer reports Pierce and seven of82 closed admissions, prepared-world entry/guide only; new provision installation remains gated on active-Sense persisted removal repair. Installer owns SeederMetadataRegistry.cs and DebugSeederReplay.cs; no runtime overlap"
+    }
+  ],
+  "whole_plan_complete": false,
+  "stop_for_review": true,
+  "published": false,
+  "merged": false,
+  "deployed": false,
+  "shared_or_production_database_written": false,
+  "checkpoint08_check_learning_receipts_and_133_artifacts_preserved": true,
+  "checkpoint07_commit_receipt_sha256": "fe87cdf94ffed691c104ad6171de6f715ac6377540d3633520a06b794070c629",
+  "checkpoint07_398_artifacts_33_helpers_preserved": true,
+  "primary": {
+    "head": "34eb234eb5a1e2784c595b4f848f6f785b426302",
+    "branch": "master",
+    "status": ""
+  },
+  "prior_fourteen_receipts_1486_artifacts_42_helpers_unchanged": true,
+  "C1_addendum_clarification_and_C1P2_closing_helpers_unchanged": true,
+  "source_tree_preserved": true,
+  "C2_receipt_311_artifacts_6_helpers_and_closing_evidence_preserved": true,
+  "D1_200_artifacts_7_helpers_13_build_logs_and_closing_evidence_preserved": true,
+  "D1P2_91_artifacts_6_helpers_2_build_logs_and_closing_evidence_preserved": true,
+  "D1P1_96_artifacts_6_helpers_4_build_logs_and_closing_evidence_preserved": true,
+  "D1P1M_133_artifacts_6_helpers_2_build_logs_and_closing_evidence_preserved": true,
+  "stock_186_artifacts_6_helpers_13_build_logs_historical_source_and_closing_evidence_preserved": true,
+  "security_92_artifacts_8_helpers_and_postcommit_evidence_preserved": true,
+  "pause_snapshots_and_historical_source_preserved": true,
+  "storm_258_artifacts_10_helpers_and_postcommit_preserved": true,
+  "flame_186_artifacts_12_helpers_and_postcommit_preserved": true,
+  "sand_173_artifacts_12_helpers_and_postcommit_preserved": true,
+  "queued_authority_223_artifacts_5_helpers_and_postcommit_preserved": true,
+  "callback_192_artifacts_6_helpers_and_closing_proofs_preserved": true
+}

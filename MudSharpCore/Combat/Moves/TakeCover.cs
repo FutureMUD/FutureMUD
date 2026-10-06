@@ -1,4 +1,4 @@
-﻿using MudSharp.Body.Position;
+using MudSharp.Body.Position;
 using MudSharp.Movement;
 using MudSharp.RPG.Checks;
 
@@ -171,6 +171,8 @@ public class TakeCover : CombatMoveBase
 
     public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
     {
+		using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterMove(this);
+		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
         if (!Assailant.CanMove(CanMoveFlags.IgnoreCancellableActionBlockers))
         {
             Assailant.Send("You need to be able to move to be able to seek cover.");
@@ -191,14 +193,18 @@ public class TakeCover : CombatMoveBase
         }
 
         Assailant.Cover?.LeaveCover();
+		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
         Assailant.OutputHandler.Handle(
             new EmoteOutput(Cover.Cover.DescribeAction(Assailant, Cover.CoverItem?.Parent),
                 style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
+		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
         Assailant.SetPosition(
             Cover.Cover.HighestPositionState.CompareTo(Assailant.PositionState) == PositionHeightComparison.Lower
                 ? Assailant.PositionState = Cover.Cover.HighestPositionState
                 : Assailant.PositionState, Cover.CoverItem != null ? PositionModifier.Behind : PositionModifier.None,
             Cover.CoverItem?.Parent, null);
+		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
+		MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted();
         Assailant.Cover = Cover;
         Cover.RegisterEvents();
         return new CombatMoveResult

@@ -1,4 +1,4 @@
-﻿using Dapper;
+using Dapper;
 using MudSharp.Accounts;
 using MudSharp.Body.Disfigurements;
 using MudSharp.Body.Traits;
@@ -2962,16 +2962,14 @@ The syntax is as follows:
                 return;
             }
 
+			var corpses = actor.Gameworld.Items
+				.SelectNotNull(x => x.GetItemType<ICorpse>())
+				.Where(x => x.GetOriginalCharacterWithMatchingBody()?.Id == value)
+				.ToList();
             character.Resurrect(actor.Location);
 
-            // First, check to see if there are any corpses of this character already in the world
-            foreach (ICorpse corpseitem in actor.Gameworld.Items.SelectNotNull(x => x.GetItemType<ICorpse>()).ToList())
+            foreach (ICorpse corpseitem in corpses)
             {
-                if (!corpseitem.RepresentsFinalCharacterDeath || corpseitem.OriginalCharacter.Id != value)
-                {
-                    continue;
-                }
-
                 corpseitem.Parent.Delete();
             }
         }
@@ -2997,7 +2995,14 @@ The syntax is as follows:
                 return;
             }
 
-            character = corpse.OriginalCharacter.Resurrect(actor.Location);
+			character = corpse.GetOriginalCharacterWithMatchingBody();
+			if (character is null)
+			{
+				actor.Send("Those remains' original body or owner can no longer be identified as the same character body.");
+				return;
+			}
+
+            character = character.Resurrect(actor.Location);
             item.Delete();
         }
 
@@ -4170,15 +4175,15 @@ The syntax is as follows:
                 text = ss.PopSpeech();
                 if (long.TryParse(text, out long value))
                 {
-                    drawings = drawings.Where(x => x.Author.Id == value);
+                    drawings = drawings.Where(x => x.AuthorId == value);
                 }
                 else if (text[0] == '*' && text.Length > 1)
                 {
-                    drawings = drawings.Where(x => x.Author.Account.Name.EqualTo(text[1..]));
+                    drawings = drawings.Where(x => x.Author?.Account?.Name.EqualTo(text[1..]) == true);
                 }
                 else
                 {
-                    drawings = drawings.Where(x => x.Author.PersonalName.GetName(NameStyle.FullName).EqualTo(text));
+                    drawings = drawings.Where(x => x.AuthorName().EqualTo(text));
                 }
 
                 continue;
@@ -4207,7 +4212,7 @@ The syntax is as follows:
                 select new string[]
                 {
                     drawing.Id.ToString("N0", actor),
-                    drawing.Author.PersonalName.GetName(NameStyle.FullName),
+                    drawing.AuthorName(),
                     drawing.ImplementType.Describe(),
                     drawing.DrawingSize.DescribeEnum(true),
                     drawing.ShortDescription
@@ -4265,15 +4270,15 @@ The syntax is as follows:
                 text = ss.PopSpeech();
                 if (long.TryParse(text, out long value))
                 {
-                    writings = writings.Where(x => x.Author?.Id == value);
+                    writings = writings.Where(x => x.AuthorId == value);
                 }
                 else if (text[0] == '*' && text.Length > 1)
                 {
-                    writings = writings.Where(x => x.Author?.Account.Name.EqualTo(text[1..]) == true);
+                    writings = writings.Where(x => x.Author?.Account?.Name.EqualTo(text[1..]) == true);
                 }
                 else
                 {
-                    writings = writings.Where(x => x.Author?.PersonalName.GetName(NameStyle.FullName).EqualTo(text) == true);
+                    writings = writings.Where(x => x.AuthorName().EqualTo(text));
                 }
 
                 continue;
@@ -4312,7 +4317,7 @@ The syntax is as follows:
                 select new string[]
                 {
                     writing.Id.ToString("N0", actor),
-                    writing.Author?.PersonalName.GetName(NameStyle.FullName) ?? "Printed/Anonymous",
+                    writing.AuthorName(),
                     writing.Language.Name,
                     writing.Script.Name,
                     writing.ImplementType.Describe(),
@@ -4447,7 +4452,15 @@ The syntax is as follows:
             $"Written in the {writing.Language.Name.ColourValue()} language and the {writing.Script.Name.ColourValue()} script.");
         sb.AppendLine(
             $"Written in {writing.Style.DescribeEnum().A_An().Colour(Telnet.Yellow)} style with {(writing.WritingColour?.Name ?? "default").ColourValue()} {writing.ImplementType.Describe(writing.WritingColour).ColourValue()}.");
-        if (writing.Author is null)
+        if (writing.ArchivedAuthor is { } archivedAuthor)
+        {
+            sb.AppendLine($"Written by {archivedAuthor.DisplayName.ColourName()} (ID #{archivedAuthor.CharacterId.ToString("N0", actor)} - archived identity).");
+        }
+        else if (writing.Author is null && writing.AuthorId is > 0)
+        {
+            sb.AppendLine($"Written by {writing.AuthorName().ColourName()}.");
+        }
+        else if (writing.Author is null)
         {
             var provenance = writing.GetProperty("provenance")?.GetObject as string;
             sb.AppendLine($"Printed source: {provenance.IfNullOrWhiteSpace("unspecified").ColourName()}.");
@@ -4455,7 +4468,7 @@ The syntax is as follows:
         else
         {
             sb.AppendLine(
-                $"Written by {writing.Author.PersonalName.GetName(NameStyle.FullWithNickname).ColourName()} (ID #{writing.Author.Id.ToString("N0", actor)} - Account {writing.Author.Account.Name.ColourName()}).");
+                $"Written by {writing.AuthorName(NameStyle.FullWithNickname).ColourName()} (ID #{writing.AuthorId.Value.ToString("N0", actor)} - Account {(writing.Author.Account?.Name ?? "none").ColourName()}).");
         }
         sb.AppendLine();
         sb.AppendLine(writing.ParseFor(actor));

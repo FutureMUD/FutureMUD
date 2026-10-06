@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.Body.Needs;
 using MudSharp.Construction;
 using MudSharp.Database;
@@ -120,7 +120,7 @@ public class SimpleOrganicWound : PerceivedItem, IContinuousExposureWound
         _currentStun = IsNecroticDamage ? 0.0 : Math.Max(0.0, stun * bodypart.StunModifier);
         Bodypart = bodypart;
         _lodged = lodged;
-        _actorOriginId = actorOrigin?.Id ?? 0;
+        _actorOriginId = MudSharp.Character.CharacterInstanceIdentityComparer.IdentityId(actorOrigin);
         _toolOriginId = toolOrigin?.Id ?? 0;
         RealTimeOfWound = RuntimeClock.UtcNow;
         if (actorOrigin?.Combat?.Friendly == true)
@@ -674,12 +674,15 @@ public class SimpleOrganicWound : PerceivedItem, IContinuousExposureWound
                 conditions.Add($"{Infection.VirulenceDifficulty.DescribeColoured()} {Infection.InfectionType.DescribeEnum().Colour(Telnet.BoldGreen)} ({Infection.Intensity.ToStringP2Colour()}|{Infection.Immunity.ToStringP2Colour()})");
             }
 
-            if ((_ownerBody ?? CharacterParent.Body).AffectedBy<IAntisepticTreatmentEffect>(Bodypart))
+			var body = _parent is ICharacter character
+				? _ownerBody ?? character.Body
+				: (_parent as IGameItem)?.GetItemType<ISeveredBodypart>()?.OriginalBody;
+            if (body?.AffectedBy<IAntisepticTreatmentEffect>(Bodypart) == true)
             {
                 conditions.Add("Antiseptic".Colour(Telnet.Yellow));
             }
 
-            if ((_ownerBody ?? CharacterParent.Body).AffectedBy<AntiInflammatoryTreatment>(Bodypart))
+            if (body?.AffectedBy<AntiInflammatoryTreatment>(Bodypart) == true)
             {
                 conditions.Add("Anti-Inflammatory".Colour(Telnet.BoldGreen));
             }
@@ -802,7 +805,7 @@ public class SimpleOrganicWound : PerceivedItem, IContinuousExposureWound
         get => Gameworld.TryGetCharacter(_actorOriginId, true);
         set
         {
-            _actorOriginId = value?.Id ?? 0;
+            _actorOriginId = MudSharp.Character.CharacterInstanceIdentityComparer.IdentityId(value);
             Changed = true;
         }
     }
@@ -869,6 +872,7 @@ public class SimpleOrganicWound : PerceivedItem, IContinuousExposureWound
             double oldDamage = _currentDamage;
             _currentDamage = Math.Max(0.0, value);
             Changed = true;
+			(Parent as MudSharp.GameItems.GameItem)?.NotifyImplantAttributeCapacityChange();
             if (oldDamage < _currentDamage && Bodypart is IOrganProto)
             {
                 CheckForOrganBleeding();
@@ -942,13 +946,13 @@ public class SimpleOrganicWound : PerceivedItem, IContinuousExposureWound
                 return $"{Severity.Describe()} {_damageDescription}".A_An().ToLowerInvariant();
             case WoundExaminationType.Look:
                 return
-                    $"{Severity.Describe()} {_damageDescription}{(BleedStatus == BleedStatus.Bleeding && CharacterParent.LongtermExertion > ExertionLevel.Stasis ? " (Bleeding)".Colour(Telnet.Red) : BleedStatus == BleedStatus.TraumaControlled ? " (Bound)".Colour(Telnet.Blue) : BleedStatus == BleedStatus.Closed ? " (Sutured)".Colour(Telnet.Green) : "")}{Infection?.WoundTag(type, outcome)}"
+                    $"{Severity.Describe()} {_damageDescription}{(BleedStatus == BleedStatus.Bleeding && _parent is ICharacter { LongtermExertion: > ExertionLevel.Stasis } ? " (Bleeding)".Colour(Telnet.Red) : BleedStatus == BleedStatus.TraumaControlled ? " (Bound)".Colour(Telnet.Blue) : BleedStatus == BleedStatus.Closed ? " (Sutured)".Colour(Telnet.Green) : "")}{Infection?.WoundTag(type, outcome)}"
                         .A_An().ToLowerInvariant();
             case WoundExaminationType.Self:
                 {
                     double painfulThreshold = CurrentDamage * Gameworld.GetStaticDouble("WoundPainfulRatioThreshold");
                     return
-                        $"{Severity.Describe()} {_damageDescription}{(CurrentPain > painfulThreshold ? " (Painful)" : "")}{(BleedStatus == BleedStatus.Bleeding && CharacterParent.LongtermExertion > ExertionLevel.Stasis ? " (Bleeding)".Colour(Telnet.Red) : BleedStatus == BleedStatus.TraumaControlled ? " (Bound)".Colour(Telnet.Blue) : BleedStatus == BleedStatus.Closed ? " (Sutured)".Colour(Telnet.Green) : "")}{Infection?.WoundTag(type, outcome)}"
+                        $"{Severity.Describe()} {_damageDescription}{(CurrentPain > painfulThreshold ? " (Painful)" : "")}{(BleedStatus == BleedStatus.Bleeding && _parent is ICharacter { LongtermExertion: > ExertionLevel.Stasis } ? " (Bleeding)".Colour(Telnet.Red) : BleedStatus == BleedStatus.TraumaControlled ? " (Bound)".Colour(Telnet.Blue) : BleedStatus == BleedStatus.Closed ? " (Sutured)".Colour(Telnet.Green) : "")}{Infection?.WoundTag(type, outcome)}"
                             .A_An().ToLowerInvariant();
                 }
             case WoundExaminationType.Examination:
@@ -956,7 +960,7 @@ public class SimpleOrganicWound : PerceivedItem, IContinuousExposureWound
             case WoundExaminationType.SurgicalExamination:
             case WoundExaminationType.Omniscient:
                 return
-                    $"{Severity.Describe()} {_damageDescription}{(BleedStatus == BleedStatus.Bleeding && CharacterParent.LongtermExertion > ExertionLevel.Stasis ? " (Bleeding)".Colour(Telnet.Red) : BleedStatus == BleedStatus.TraumaControlled ? " (Bound)".Colour(Telnet.Blue) : BleedStatus == BleedStatus.Closed ? " (Sutured)".Colour(Telnet.Green) : "")}{Infection?.WoundTag(type, outcome).LeadingSpaceIfNotEmpty() ?? ""}"
+                    $"{Severity.Describe()} {_damageDescription}{(BleedStatus == BleedStatus.Bleeding && _parent is ICharacter { LongtermExertion: > ExertionLevel.Stasis } ? " (Bleeding)".Colour(Telnet.Red) : BleedStatus == BleedStatus.TraumaControlled ? " (Bound)".Colour(Telnet.Blue) : BleedStatus == BleedStatus.Closed ? " (Sutured)".Colour(Telnet.Green) : "")}{Infection?.WoundTag(type, outcome).LeadingSpaceIfNotEmpty() ?? ""}"
                         .A_An().ToLowerInvariant();
         }
 

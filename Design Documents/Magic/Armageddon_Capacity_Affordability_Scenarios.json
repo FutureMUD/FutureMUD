@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "status": "Provisional engineering scenarios; no approved stock attribute mapping or coefficients",
+  "source_roster": "Armageddon_Sorcerer_Source_Tree.json",
+  "capacity_formula": "Min(12*variable,Max(2*variable,100+3*(variable-13)))",
+  "attribute_mapping": "Explicit native body attribute selected by builder; ARM02 Agility is a disposable fixture only",
+  "basis": "raw",
+  "scenarios": [
+    { "key": "lower", "attribute": 4.0, "expected_capacity": 48.0 },
+    { "key": "ordinary", "attribute": 11.5, "expected_capacity": 95.5 },
+    { "key": "advanced", "attribute": 19.0, "expected_capacity": 118.0 }
+  ],
+  "profiles": [
+    { "key": "source_reference", "energy_scale": 1.0, "overreach_multiplier": 1.0, "secondary_cost": 0.0 },
+    { "key": "provisional_native", "energy_scale": 0.5, "overreach_multiplier": 1.5, "secondary_cost": 0.0 }
+  ],
+  "modes": {
+    "normal": "requested grade 1 through controlled grade 1-7",
+    "overreach": "exact next grade through 7, subject to raw proficiency and difficulty gates",
+    "quiet": "Not implemented or advertised as usable; proposed costs await phase 2 qualification",
+    "area": "Not implemented or advertised as usable; authored adapter costs await phase 2 qualification"
+  },
+  "coverage": {
+    "spells": 82,
+    "normal_pairs_per_spell": 28,
+    "overreach_pairs_per_spell": 6,
+    "expected_matrix_rows": 16728,
+    "remaining_candidates": 72,
+    "limitations": "Energy envelopes only. No claim that effects, material costs, targets, permissions, other traditions or the stock installer are qualified. Printed minima apply only to the exact 82-spell source roster. Additional secondary costs must be aggregated and checked explicitly. Maximum capacity is distinct from available balance."
+  }
+}

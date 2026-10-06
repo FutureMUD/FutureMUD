@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using MudSharp.Body.Disfigurements;
 using MudSharp.Body.Needs;
 using MudSharp.Body.Position;
@@ -43,6 +43,11 @@ public partial class Body : PerceiverItem, IBody
     protected double _weight;
 
     public Body(IFuturemud gameworld, ICharacter character, ICharacterTemplate template)
+        : this(gameworld, character, template, false)
+    {
+    }
+
+	internal Body(IFuturemud gameworld, ICharacter character, ICharacterTemplate template, bool deferInitialisation)
     {
         _noSave = true;
         Gameworld = gameworld;
@@ -103,56 +108,13 @@ public partial class Body : PerceiverItem, IBody
         }
 
         List<ComboMerit> comboMerits = new();
-        foreach (ICharacterMerit merit in template.SelectedMerits)
-        {
-            if (merit is ComboMerit cm)
-            {
-                comboMerits.Add(cm);
-            }
-
-            if (merit.MeritScope != MeritScope.Body)
-            {
-                continue;
-            }
-
-            _merits.Add(merit);
-        }
-
+        CharacterTemplateMerits.AddSelected(template.SelectedMerits, MeritScope.Body, _merits, comboMerits);
         foreach (IChargenRole role in template.SelectedRoles)
         {
-            foreach (IMerit merit in role.AdditionalMerits)
-            {
-                if (Merits.Contains(merit))
-                {
-                    continue;
-                }
-
-                if (merit is ComboMerit cm)
-                {
-                    comboMerits.Add(cm);
-                }
-
-                if (merit.MeritScope != MeritScope.Body)
-                {
-                    continue;
-                }
-
-                _merits.Add(merit);
-            }
+            CharacterTemplateMerits.AddRole(role.AdditionalMerits, MeritScope.Body, _merits, comboMerits);
         }
 
-        foreach (ComboMerit merit in comboMerits)
-        {
-            foreach (ICharacterMerit included in merit.CharacterMerits.Where(x => x.MeritScope == MeritScope.Body))
-            {
-                if (_merits.Contains(included))
-                {
-                    continue;
-                }
-
-                _merits.Add(included);
-            }
-        }
+        CharacterTemplateMerits.ExpandCombos(comboMerits, MeritScope.Body, _merits);
 
         foreach (ISelectedTattoo tattoo in template.SelectedTattoos)
         {
@@ -187,7 +149,7 @@ public partial class Body : PerceiverItem, IBody
         RecalculateItemHelpers();
 
         PositionState = PositionStanding.Instance;
-        _noSave = false;
+        _noSave = deferInitialisation;
     }
 
     public Body(MudSharp.Models.Body body, IFuturemud gameworld, ICharacter actor)
@@ -945,9 +907,17 @@ public partial class Body : PerceiverItem, IBody
 
     public override void Save()
     {
+		ForeignCustodyTransferContext.RecordSave(this);
+        if (Actor is MudSharp.Character.Character { IsArchived: true }) { Changed = false; return; }
         try
         {
             Models.Body dbentity = FMDB.Context.Bodies.Find(Id);
+            if (dbentity is null && FMDB.Context.CharacterArchives.Any(x => x.OriginalBodyId == Id))
+            {
+                _noSave = true;
+                Changed = false;
+                return;
+            }
             dbentity.Height = Height;
             dbentity.Weight = Weight;
             dbentity.Position = PositionState.Id;
@@ -995,6 +965,7 @@ public partial class Body : PerceiverItem, IBody
 
             if (NeedsChanged)
             {
+				ForeignCustodyTransferContext.RecordNeedsSave(this);
                 NeedsChanged = false;
             }
 

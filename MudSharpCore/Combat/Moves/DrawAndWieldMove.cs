@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.GameItems;
 using MudSharp.RPG.Checks;
 
@@ -18,6 +18,8 @@ public class DrawAndWieldMove : CombatMoveBase
 
     public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
     {
+		using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterMove(this);
+		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
         if (Weapon != null && Assailant.Body.ExternalItems.SelectNotNull(x => x.GetItemType<ISheath>())
                                        .All(x => x.Content != Weapon))
         {

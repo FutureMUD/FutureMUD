@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.RPG.Checks;
 using MudSharp.Vehicles;
 
@@ -45,7 +45,10 @@ internal class AuxiliaryMove : CombatMoveBase
     /// <inheritdoc />
     public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
     {
+		using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterMove(this);
+		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
 		defenderMove = MagicDefenseMove.Revalidate(defenderMove, this);
+		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
 		if (!VehicleCombatService.Instance.CanCrossVehicleBoundary(Assailant, _target, false, false,
 			    out var boundaryReason))
 		{
@@ -58,24 +61,32 @@ internal class AuxiliaryMove : CombatMoveBase
         }
 
         WorsenCombatPosition(defenderMove.Assailant, Assailant);
+		if (!CanContinueCommand()) return CompletedResult();
         CheckOutcome attackRoll = Gameworld.GetCheck(Check)
                                   .Check(Assailant, CheckDifficulty, _action.CheckTrait,
                                       defenderMove.Assailant,
                                       Assailant.OffensiveAdvantage);
+		if (!CanContinueCommand()) return CompletedResult();
         Assailant.OffensiveAdvantage = 0;
         string emote = attackRoll.IsPass() ?
             Gameworld.CombatMessageManager.GetMessageFor(Assailant, defenderMove.Assailant, _action, attackRoll.Outcome) :
             Gameworld.CombatMessageManager.GetFailMessageFor(Assailant, defenderMove.Assailant, _action, attackRoll.Outcome);
         Assailant.OutputHandler.Handle(new EmoteOutput(new Emote(emote, Assailant, Assailant, _target)));
+		if (!CanContinueCommand()) return CompletedResult();
         if (defenderMove is MagicDefenseMove magicalDefense && magicalDefense.TryDefend(this, attackRoll, out var magicResult)) return magicResult;
 
         foreach (IAuxiliaryEffect effect in _action.AuxiliaryEffects)
         {
+			if (!CanContinueCommand()) break;
             effect.ApplyEffect(Assailant, _target, attackRoll);
         }
 
-        return CombatMoveResult.Irrelevant;
+        return CompletedResult();
     }
+
+	private CombatMoveResult CompletedResult() => MudSharp.NPC.AI.CommandExecutionScope.HasCommitted
+		? new CombatMoveResult { RecoveryDifficulty = RecoveryDifficultyFailure }
+		: CombatMoveResult.Irrelevant;
 
     #region Overrides of CombatMoveBase
 

@@ -6,7 +6,7 @@ using MudSharp.Models;
 
 namespace MudSharp.Magic.Resources;
 
-public class SimpleMagicResource : BaseMagicResource
+public partial class SimpleMagicResource : BaseMagicResource
 {
     public override IMagicResource Clone(string newName, string newShortName)
     {
@@ -22,6 +22,8 @@ public class SimpleMagicResource : BaseMagicResource
         StartingResourceAmountItemProg = rhs.StartingResourceAmountItemProg;
         StartingResourceAmountLocationProg = rhs.StartingResourceAmountLocationProg;
         ResourceCapProg = rhs.ResourceCapProg;
+		AttributeCapacity = rhs.AttributeCapacity;
+		_unreadableAttributeCapacity = rhs._unreadableAttributeCapacity is null ? null : new XElement(rhs._unreadableAttributeCapacity);
 
         using (new FMDB())
         {
@@ -52,6 +54,7 @@ public class SimpleMagicResource : BaseMagicResource
         StartingResourceAmountItemProg = Gameworld.FutureProgs.GetByIdOrName(root.Element("StartingResourceAmountItemProg")?.Value ?? "0");
         StartingResourceAmountLocationProg = Gameworld.FutureProgs.GetByIdOrName(root.Element("StartingResourceAmountLocationProg")?.Value ?? "0");
         ResourceCapProg = Gameworld.FutureProgs.GetByIdOrName(root.Element("ResourceCapProg")?.Value ?? "0");
+		LoadAttributeCapacity(root);
     }
 
     public SimpleMagicResource(IFuturemud gameworld, string name, string shortName) : base(gameworld, name, shortName)
@@ -125,6 +128,8 @@ public class SimpleMagicResource : BaseMagicResource
 
     public override double ResourceCap(IHaveMagicResource thing)
     {
+		if (HasAttributeCapacity && thing is ICharacter actor)
+			return TryAttributeCapacity(actor, out var cap, out _) ? cap : double.NaN;
 		if (thing is MudSharp.Construction.ICell cell &&
 			Gameworld.EnvironmentalMagic?.TryInspectResource(cell, this, out var output) == true)
 			return output.IsValid ? output.Maximum : double.NaN;
@@ -148,6 +153,9 @@ public class SimpleMagicResource : BaseMagicResource
         sb.AppendLine($"Items Starting Amount: {StartingResourceAmountItemProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
         sb.AppendLine($"Rooms Starting Amount: {StartingResourceAmountLocationProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
         sb.AppendLine($"Resource Cap: {ResourceCapProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+		if (AttributeCapacity is { } c)
+			sb.AppendLine($"Character Attribute Capacity: #{c.AttributeId.ToString("N0", actor)} in expression #{c.ExpressionId.ToString("N0", actor)} ({(c.UseRawAttribute ? "raw" : "effective")}); canonical reserve holder's body.");
+		if (AttributeCapacityError() is { } error) sb.AppendLine($"Capacity Error: {error.ColourError()}");
         return sb.ToString();
     }
 
@@ -160,11 +168,14 @@ public class SimpleMagicResource : BaseMagicResource
             new XElement("ShouldStartWithResourceCharacterProg", ShouldStartWithResourceCharacterProg?.Id ?? 0),
             new XElement("ShouldStartWithResourceLocationProg", ShouldStartWithResourceLocationProg?.Id ?? 0),
             new XElement("ShouldStartWithResourceItemProg", ShouldStartWithResourceItemProg?.Id ?? 0),
-            new XElement("ResourceCapProg", ResourceCapProg?.Id ?? 0)
+            new XElement("ResourceCapProg", ResourceCapProg?.Id ?? 0),
+			SaveAttributeCapacity()
         ).ToString();
     }
 
     protected override string SubtypeHelpText => @"	#3cap <prog>#0 - sets the prog for resource caps
+	#3capattribute <attribute> <expression> [raw|effective]#0 - configures character attribute capacity
+	#3capattribute none#0 - restores the existing cap Prog
 	#3characterstart <prog>#0 - sets the prog for character starting amounts
 	#3itemstart <prog>#0 - sets the prog for item starting amounts
 	#3roomstart <prog>#0 - sets the prog for room starting amounts
@@ -176,6 +187,8 @@ public class SimpleMagicResource : BaseMagicResource
     {
         switch (command.PopForSwitch())
         {
+			case "capattribute":
+				return BuildingCommandAttributeCapacity(actor, command);
             case "cap":
             case "resourcecap":
             case "resourcecapprog":
@@ -367,7 +380,8 @@ public class SimpleMagicResource : BaseMagicResource
         }
 
         ResourceCapProg = prog;
-        Changed = true;
+		ClearAttributeCapacity();
+		CapacityDefinitionChanged();
         actor.OutputHandler.Send($"This resource will now use the prog {prog.MXPClickableFunctionName()} to control maximum resource amounts.");
         return true;
     }

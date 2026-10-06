@@ -9,6 +9,11 @@ namespace MudSharp.GameItems.Components;
 
 public class SheathGameItemComponent : GameItemComponent, IMultiSlotSheath, IContainer
 {
+	internal override Action CaptureCustodyRollback()
+	{
+		var contents = _contents.ToArray();
+		return () => { _contents.Clear(); _contents.AddRange(contents); };
+	}
     protected SheathGameItemComponentProto _prototype;
     public override IGameItemComponentProto Prototype => _prototype;
 

@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using MoreLinq.Extensions;
 using MudSharp.Accounts;
 using MudSharp.Body;
@@ -69,7 +69,9 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
 {
     private IPersonalName _currentName;
     public PlanarPresenceDefinition BasePlanarPresence => Body.BasePlanarPresence;
+    private bool _deferredNativeInitialisation;
     private bool CanRunCharacterOngoingProcesses =>
+        !_deferredNativeInitialisation &&
         !State.HasFlag(CharacterState.Dead) &&
         !State.HasFlag(CharacterState.Stasis);
 
@@ -80,10 +82,15 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
         {
             throw new ApplicationException("Trying to load non existent character");
         }
+		if (character.IsArchived || character.BodyId is null)
+		{
+			throw new InvalidOperationException("Archived identities cannot be materialised as characters.");
+		}
 
         EffectHandler = new EffectHandler(this);
         QueuedMoveCommands = new Queue<string>();
         Gameworld = gameworld;
+        using var capacityRestoration = DeferCastingCapacityReconciliation(false);
         LoadFromDatabase(character);
         CommandTree = Gameworld.RetrieveAppropriateCommandTree(this);
         _loginDateTime = character.LastLoginTime ?? DateTime.MinValue;
@@ -102,6 +109,8 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
         (Body as MudSharp.Body.Implementations.Body)?.SanitizeIncompatibleHealthState(true);
         InitialiseStamina();
         LoadHooks(character.HooksPerceivables, "Character");
+        capacityRestoration.Dispose();
+        ReconcileCastingResourceCapacities();
     }
 
     public Character(long characterId, IFuturemud game)
@@ -110,9 +119,17 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
     }
 
     public Character(IFuturemud gameworld, ICharacterTemplate template)
+        : this(gameworld, template, NativeInitialisationMode.Immediate)
     {
+    }
+
+	private protected Character(IFuturemud gameworld, ICharacterTemplate template, NativeInitialisationMode initialisationMode)
+    {
+        var deferInitialisation = initialisationMode == NativeInitialisationMode.Deferred;
+        _deferredNativeInitialisation = deferInitialisation;
         _noSave = true;
         Gameworld = gameworld;
+        using var capacityRestoration = DeferCastingCapacityReconciliation(false);
         Account = template.Account;
         Location = Gameworld.Cells.Get(template.SelectedStartingLocation?.Id ?? 0);
         Culture = template.SelectedCulture;
@@ -130,12 +147,12 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
             : PermissionLevel.Player;
         _dubs = new List<IDub>();
 
-        Body = new Body.Implementations.Body(gameworld, this, template);
+        Body = new Body.Implementations.Body(gameworld, this, template, deferInitialisation);
         Body.Handedness = _handedness;
         InitialiseDefaultForm(Body);
         InitialiseCharacterTraitsFromTemplate(template);
 
-        NeedsModel = NeedsModelFactory.LoadNeedsModel(CharacterCreation.Chargen.NeedsModelProg != null
+        NeedsModel = NeedsModelFactory.LoadNeedsModel(!deferInitialisation && CharacterCreation.Chargen.NeedsModelProg != null
             ? (string)CharacterCreation.Chargen.NeedsModelProg.Execute(template)
             : "NoNeeds", this);
 
@@ -149,20 +166,7 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
         InitialisePrimaryInstanceDefaults();
 
         List<ComboMerit> comboMerits = new();
-        foreach (ICharacterMerit merit in template.SelectedMerits)
-        {
-            if (merit is ComboMerit cm)
-            {
-                comboMerits.Add(cm);
-            }
-
-            if (merit.MeritScope != MeritScope.Character)
-            {
-                continue;
-            }
-
-            _merits.Add(merit);
-        }
+        CharacterTemplateMerits.AddSelected(template.SelectedMerits, MeritScope.Character, _merits, comboMerits);
 
         foreach (IChargenRole role in template.SelectedRoles)
         {
@@ -185,7 +189,7 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
                         PersonalName = CurrentName,
                         JoinDate = clan.Key.Calendar.CurrentDate
                     };
-                    clan.Key.Memberships.Add(newMembership);
+                    if (!deferInitialisation) clan.Key.Memberships.Add(newMembership);
                     AddMembership(newMembership);
                 }
                 else
@@ -215,46 +219,18 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
                 Body.SetTraitValue(adjustment.Key, Body.TraitRawValue(adjustment.Key) + adjustment.Value.amount);
             }
 
-            foreach (IMerit merit in role.AdditionalMerits)
-            {
-                if (Merits.Contains(merit))
-                {
-                    continue;
-                }
-
-                if (merit is ComboMerit cm)
-                {
-                    comboMerits.Add(cm);
-                }
-
-                if (merit.MeritScope != MeritScope.Character)
-                {
-                    continue;
-                }
-
-                _merits.Add(merit);
-            }
+            CharacterTemplateMerits.AddRole(role.AdditionalMerits, MeritScope.Character, _merits, comboMerits, Body.Merits);
         }
 
-        foreach (ComboMerit merit in comboMerits)
-        {
-            foreach (ICharacterMerit included in merit.CharacterMerits.Where(x => x.MeritScope == MeritScope.Character))
-            {
-                if (_merits.Contains(included))
-                {
-                    continue;
-                }
+        CharacterTemplateMerits.ExpandCombos(comboMerits, MeritScope.Character, _merits);
 
-                _merits.Add(included);
-            }
-        }
-
+        EnsureNativeCreationHasNoAdditionalForms();
         EnsureProvisionedFormsFromMerits();
         RefreshForcedTransformationHeartbeatRegistration();
 
         foreach (IKnowledge knowledge in template.SelectedKnowledges)
         {
-            _characterKnowledges.Add(new RPG.Knowledge.CharacterKnowledge(this, knowledge, "Chargen"));
+            _characterKnowledges.Add(new RPG.Knowledge.CharacterKnowledge(this, knowledge, "Chargen", deferInitialisation));
             foreach (IScript script in Gameworld.Scripts.Where(x => x.ScriptKnowledge == knowledge))
             {
                 if (_scripts.Contains(script))
@@ -266,10 +242,10 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
             }
         }
 
-        Body.TotalBloodVolumeLitres = TotalBloodVolume(this);
+        Body.TotalBloodVolumeLitres = deferInitialisation ? 0 : TotalBloodVolume(this);
         Body.CurrentBloodVolumeLitres = Body.TotalBloodVolumeLitres;
         //Body.BaseLiverAlcoholRemovalKilogramsPerHour = LiverFunction(this);
-        InitialiseStamina();
+        if (!deferInitialisation) InitialiseStamina();
         foreach (ILanguage language in template.SkillValues.SelectMany(skill =>
                      Gameworld.Languages.Where(x => x.LinkedTrait == skill.Item1)).Distinct())
         {
@@ -303,29 +279,26 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
             trait.Initialise(this);
         }
 
-		ResolveNativeLanguage(template.SelectedNativeLanguage, template.SelectedEthnicity?.NativeLanguage, template.SelectedCulture?.NativeLanguage);
-		var selectedNativeAccent = template.SelectedAccents.Where(x => x.Language == NativeLanguage && x.Role == AccentRole.Native).OrderBy(x => x.Id).FirstOrDefault();
-		if (selectedNativeAccent is not null) _preferredAccents[NativeLanguage] = selectedNativeAccent;
-		foreach (var language in _languages) EnsureAcquisitionAccent(language, available: language.Accents.Where(x => x.IsAvailableInChargen(template)));
-		// Apply the floor to new starting familiarity; existing character loads bypass this path.
-		var startingAccents = _accents.ToList();
-		_accents.Clear();
-		foreach (var entry in startingAccents) LearnAccent(entry.Key, entry.Value);
-		_currentAccent = PreferredAccent(_currentLanguage);
+		if (!deferInitialisation) InitialiseTemplateLanguageChoices(template);
 
         Body.RecalculatePartsAndOrgans(); // Sometimes character merits can change these after the body already sets them
         Body.RecalculateItemHelpers();
-        _noSave = false;
+        _noSave = deferInitialisation;
         SetCombatSettingsProvisional(CharacterCombatSettingsResolver.ResolveProvisional(this));
 
-        List<IDefaultHook> hooks = Gameworld.DefaultHooks.Where(x => x.Applies(template, "Character")).ToList();
+        List<IDefaultHook> hooks = deferInitialisation ? [] : Gameworld.DefaultHooks.Where(x => x.Applies(template, "Character")).ToList();
         foreach (IDefaultHook hook in hooks)
         {
             InstallHook(hook.Hook);
         }
 
-        CurrentStamina = MaximumStamina;
-        Gameworld.SaveManager.AddInitialisation(this);
+        if (!deferInitialisation)
+        {
+            CurrentStamina = MaximumStamina;
+            Gameworld.SaveManager.AddInitialisation(this);
+        }
+        capacityRestoration.Dispose();
+        if (!deferInitialisation) ReconcileCastingResourceCapacities();
     }
 
 	internal static IReadOnlyCollection<ISignedLanguage> ResolveSignedLanguagesForTemplate(IFuturemud gameworld,
@@ -592,6 +565,14 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
 
     public override void Save()
     {
+        if (IsArchived) { Changed = false; return; }
+		if (FMDB.Context.Characters.AsNoTracking().Any(x => x.Id == Id && x.IsArchived))
+		{
+			IsArchived = true;
+			_noSave = true;
+			Changed = false;
+			return;
+		}
         Models.Character dbchar = FMDB.Context.Characters.Find(Id);
         if (dbchar == null)
         {
@@ -609,6 +590,7 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
 #endif
         }
 
+		if (dbchar.IsArchived) { IsArchived = true; _noSave = true; Changed = false; return; }
         SaveCompatibilityWorldPresence(dbchar);
         dbchar.CurrencyId = Currency?.Id;
         dbchar.Gender = (short)Gender.Enum;
@@ -1453,9 +1435,9 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
             AccountId = Account?.Id != 0 ? Account?.Id : default,
             NameInfo = SaveNames().ToString(),
             Name = PersonalName.GetName(NameStyle.GivenOnly),
-            NeedsModel = CharacterCreation.Chargen.NeedsModelProg != null
+            NeedsModel = !_deferredNativeInitialisation && CharacterCreation.Chargen.NeedsModelProg != null
                 ? (string)CharacterCreation.Chargen.NeedsModelProg.Execute(this)
-                : "NoNeeds",
+                : NeedsModel.ModelName,
             State = (int)State,
             Status = (int)_status,
             RoomLayer = (int)RoomLayer,
@@ -2217,6 +2199,7 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
 
     bool IControllable.ExecuteCommand(string command)
     {
+		using var commandOrigin = MagicSpeechContext.CharacterCommand(this);
 		if (!IsPrimaryInstance && State.IsConscious() && !State.HasFlag(CharacterState.Sleeping) && Identity?.PrimaryInstance is Character primary)
 			primary.InterruptVancianWork();
         Gameworld?.LogManager.LogCharacterCommand(this, command);
@@ -2340,6 +2323,7 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
 
     public virtual void OutOfContextExecuteCommand(string command)
     {
+		using var commandOrigin = MagicSpeechContext.Suppress();
         if (Controller != null)
         {
             Controller.HandleCommand(command);
@@ -2367,6 +2351,8 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
 
     public bool Stop(bool force)
     {
+		using var execution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(this);
+		if (!force && !MudSharp.NPC.AI.CommandExecutionScope.TryContinue(this)) return false;
         // Movement
         if (Movement != null)
         {
@@ -2390,24 +2376,30 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
 
             if (Movement.Phase == MovementPhase.NewRoom)
             {
+				if (!force && !MudSharp.NPC.AI.CommandExecutionScope.TryContinue(this)) return false;
+				MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted(this);
                 QueuedMoveCommands.Clear();
                 OutputHandler.Send("You clear all your pending movement commands.");
                 return false;
             }
 
-            Movement.StopMovement();
+			if (!force && !MudSharp.NPC.AI.CommandExecutionScope.TryContinue(this)) return false;
+			MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted(this);
             QueuedMoveCommands.Clear();
+            Movement.StopMovement();
             return true;
         }
 
         // Effects
         List<IEffect> stoppingEffects =
             Effects.Where(x => x.IsBlockingEffect(string.Empty) && x.CanBeStoppedByPlayer).ToList();
+		if (!force && !MudSharp.NPC.AI.CommandExecutionScope.TryContinue(this)) return false;
         if (!stoppingEffects.Any() && !force)
         {
             // Combat Truces
             if (Combat != null)
             {
+				MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted(this);
                 Combat.TruceRequested(this);
                 return true;
             }
@@ -2419,6 +2411,9 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
         List<IEffect> stoppedList = new();
         foreach (IEffect effect in stoppingEffects)
         {
+			if (!force && !MudSharp.NPC.AI.CommandExecutionScope.TryContinue(this)) break;
+			if (!Effects.Contains(effect)) continue;
+			MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted(this);
             stoppedList.Add(effect);
             RemoveEffect(effect);
             effect.CancelEffect();

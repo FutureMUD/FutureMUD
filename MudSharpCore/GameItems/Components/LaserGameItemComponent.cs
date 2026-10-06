@@ -1,4 +1,4 @@
-﻿using MudSharp.GameItems;
+using MudSharp.GameItems;
 using MudSharp.Body;
 using MudSharp.Body.Traits;
 using MudSharp.Combat;
@@ -129,12 +129,20 @@ public class LaserGameItemComponent : GameItemComponent, IRangedWeapon, ISwitcha
     /// <inheritdoc />
     public bool CanWield(ICharacter actor)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return false;
+
+
         return _prototype.CanWieldProg?.ExecuteBool(false, actor, Parent) ?? true;
     }
 
     /// <inheritdoc />
     public string WhyCannotWield(ICharacter actor)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return string.Empty;
+
+
         return _prototype.WhyCannotWieldProg?.ExecuteString(actor, Parent) ?? "You can't wield that for an unknown reason.";
     }
 
@@ -145,6 +153,10 @@ public class LaserGameItemComponent : GameItemComponent, IRangedWeapon, ISwitcha
 
     public bool CanLoad(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(loader);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return false;
+
+
         if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
         {
             return false;
@@ -168,6 +180,10 @@ public class LaserGameItemComponent : GameItemComponent, IRangedWeapon, ISwitcha
 
     public string WhyCannotLoad(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(loader);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return string.Empty;
+
+
         if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
         {
             return manipulationReason;
@@ -200,6 +216,10 @@ public class LaserGameItemComponent : GameItemComponent, IRangedWeapon, ISwitcha
 
     public void Load(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(loader);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return;
+
+
         if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
         {
             loader?.OutputHandler.Send(manipulationReason);
@@ -216,6 +236,7 @@ public class LaserGameItemComponent : GameItemComponent, IRangedWeapon, ISwitcha
             ? _prototype.LoadTemplateIgnoreEmpty.CreatePlan(loader)
             : _prototype.LoadTemplate.CreatePlan(loader);
         IEnumerable<InventoryPlanActionResult> results = plan.ExecuteWholePlan();
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return;
         ILaserPowerPack ammo = results.Where(x => (string)x.OriginalReference == "loaditem")
                           .SelectNotNull(x => x.PrimaryTarget.GetItemType<ILaserPowerPack>()).First();
         plan.FinalisePlanWithExemptions(new List<IGameItem> { ammo.Parent });
@@ -229,6 +250,10 @@ public class LaserGameItemComponent : GameItemComponent, IRangedWeapon, ISwitcha
 
     public bool CanUnload(ICharacter loader)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(loader);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return false;
+
+
         if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
         {
             return false;
@@ -239,6 +264,10 @@ public class LaserGameItemComponent : GameItemComponent, IRangedWeapon, ISwitcha
 
     public string WhyCannotUnload(ICharacter loader)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(loader);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return string.Empty;
+
+
         if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
         {
             return manipulationReason;
@@ -254,6 +283,10 @@ public class LaserGameItemComponent : GameItemComponent, IRangedWeapon, ISwitcha
 
     public IEnumerable<IGameItem> Unload(ICharacter loader)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(loader);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return [];
+
+
         if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
         {
             return [];
@@ -285,6 +318,10 @@ public class LaserGameItemComponent : GameItemComponent, IRangedWeapon, ISwitcha
 
     public bool CanFire(ICharacter actor, IPerceivable target)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return false;
+
+
         if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
         {
             return false;
@@ -295,6 +332,10 @@ public class LaserGameItemComponent : GameItemComponent, IRangedWeapon, ISwitcha
 
     public string WhyCannotFire(ICharacter actor, IPerceivable target)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return string.Empty;
+
+
         if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
         {
             return manipulationReason;
@@ -306,6 +347,10 @@ public class LaserGameItemComponent : GameItemComponent, IRangedWeapon, ISwitcha
     public void Fire(ICharacter actor, IPerceiver target, Outcome shotOutcome, Outcome coverOutcome,
         OpposedOutcome defenseOutcome, IBodypart bodypart, IEmoteOutput defenseEmote, IPerceiver originalTarget)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return;
+
+
         if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
         {
             actor?.OutputHandler.Send(manipulationReason);
@@ -327,10 +372,12 @@ public class LaserGameItemComponent : GameItemComponent, IRangedWeapon, ISwitcha
                 Parent), style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
 
         Changed = true;
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return;
+        MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted(actor);
         PowerPack.Draw(_prototype.WattsPerShot);
-        PowerPack.Fire(actor, target, shotOutcome, coverOutcome, defenseOutcome, bodypart, WeaponType,
+        if (MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) PowerPack.Fire(actor, target, shotOutcome, coverOutcome, defenseOutcome, bodypart, WeaponType,
             _prototype.PainMultiplier, _prototype.StunMultiplier, defenseEmote);
-        UseCondition(new ItemConditionUseContext(ItemConditionUseKind.RangedFire, shotOutcome,
+        if (MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) UseCondition(new ItemConditionUseContext(ItemConditionUseKind.RangedFire, shotOutcome,
             (int)(defenseOutcome?.Degree ?? OpposedOutcomeDegree.None)));
 
         if (PowerPack.PowerLevel <= 0.0)
@@ -350,6 +397,10 @@ public class LaserGameItemComponent : GameItemComponent, IRangedWeapon, ISwitcha
 
     public bool CanReady(ICharacter readier)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(readier);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(readier)) return false;
+
+
         if (!ItemManipulationGuard.CanManipulate(readier, out var manipulationReason, Parent))
         {
             return false;
@@ -371,6 +422,10 @@ public class LaserGameItemComponent : GameItemComponent, IRangedWeapon, ISwitcha
 
     public string WhyCannotReady(ICharacter readier)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(readier);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(readier)) return string.Empty;
+
+
         if (!ItemManipulationGuard.CanManipulate(readier, out var manipulationReason, Parent))
         {
             return manipulationReason;
@@ -393,6 +448,10 @@ public class LaserGameItemComponent : GameItemComponent, IRangedWeapon, ISwitcha
 
     public bool Ready(ICharacter readier)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(readier);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(readier)) return false;
+
+
         if (!ItemManipulationGuard.CanManipulate(readier, out var manipulationReason, Parent))
         {
             return false;
@@ -413,16 +472,28 @@ public class LaserGameItemComponent : GameItemComponent, IRangedWeapon, ISwitcha
 
     public bool CanUnready(ICharacter readier)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(readier);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(readier)) return false;
+
+
         return IsReadied;
     }
 
     public string WhyCannotUnready(ICharacter readier)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(readier);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(readier)) return string.Empty;
+
+
         return $"{Parent.HowSeen(readier, true)} is already in storage mode, and does not need further unreadying.";
     }
 
     public bool Unready(ICharacter readier)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(readier);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(readier)) return false;
+
+
         if (!CanUnready(readier))
         {
             readier.Send(WhyCannotUnready(readier));
@@ -448,6 +519,10 @@ public class LaserGameItemComponent : GameItemComponent, IRangedWeapon, ISwitcha
 
     public bool CanSwitch(ICharacter actor, string setting)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return false;
+
+
 		if (!ItemManipulationGuard.CanManipulate(actor, out _, Parent))
 		{
 			return false;
@@ -468,6 +543,10 @@ public class LaserGameItemComponent : GameItemComponent, IRangedWeapon, ISwitcha
 
     public string WhyCannotSwitch(ICharacter actor, string setting)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return string.Empty;
+
+
 		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
 		{
 			return manipulationReason;
@@ -489,6 +568,10 @@ public class LaserGameItemComponent : GameItemComponent, IRangedWeapon, ISwitcha
 
     public bool Switch(ICharacter actor, string setting)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return false;
+
+
 		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
 		{
 			return false;

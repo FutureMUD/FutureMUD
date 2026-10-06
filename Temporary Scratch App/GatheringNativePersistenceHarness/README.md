@@ -24,3 +24,82 @@ The Land extension authors a capability through the production editor and comple
 The ARM-02 casting extension uses `-CastingOnly` to exercise production builders, the non-admin school command, casting and gathering services, canonical second-body skill/resource ownership, detached Stone Skin scalars, delivered Ember Lance wounds and Wardcraft prerequisites. Separate reader processes verify persistence and conservative recovery after payment/effect/progression faults, including a real provider-trigger failure after mastery sampling. The minimal living anatomy includes real functioning brain/heart prototypes; check outcomes and mastery randomness remain controlled. This is native command/service persistence acceptance, not a full installed-world Telnet smoke. See [the casting handover](../../Design%20Documents/Magic/Configurable_Casting_Handover.md) for requirements and evidence. `-RefreshSnapshot` additionally refreshes the maintained blank database snapshot in a separate disposable `fm_snap_*` schema; build DatabaseSeeder first.
 
 The output records the base revision and dirty/clean worktree state, MySQL version, generated database names, fixture and operation IDs, expected/observed channels, and cleanup result. Cleanup first verifies the temporary server's data directory and the database ownership marker; it removes only resources created by that run.
+
+The phase2A practice extension is included in `-CastingOnly`, or selected alone with
+`-PracticeOnly` after rebuilding the harness. It uses real native Character/Body/Skill
+and ClassicImprovement objects, an authored enrolment Prog, the non-admin practice command,
+and MySQL operation/resource/trait persistence. A controlled successful check and mastery
+sample with an accelerated clock prove raw 30-to-60 and controlled 1-to-7 through paid
+practice alone. A restrictive native difficulty interval blocks real gain; a permissive
+one permits it. A nearby native injured/warded actor, damage/caster templates and forbidden
+resistance lookup check practice purity. Stop, focus reset, speech loss, capability loss
+and quit signals retain full payment. Actual native silence is added to body or character
+and removed or expired entirely between heartbeats; required speech loss must retain payment
+and both deadlines, write `PracticeInterrupted`, and perform no check or progression.
+Speech-free profiles also complete while silence remains. The minimal anatomy's communication
+adapter uses the production silence predicate; full vocal anatomy/volume remains unqualified.
+Native body-part effects similarly exercise live manipulation loss/restoration and hand-free
+policy, while brief native paralysis is checked before a health-state refresh.
+A separate process reconstructs pending prepaid
+work, checks shared deadlines and refuses automatic resume/refund/reroll; staff recovery
+leaves the old timer unable to overwrite its terminal receipt. Its material plan is
+explicitly empty; material execution/finalisation is covered by focused automated tests.
+This controlled cap60 fixture is not an installed Mend Flesh, full hostile-AI scenario,
+real-time scheduler or Telnet/login stock qualification.
+
+The Phase3D1 corpse-animation extension is selected with `-CorpseAnimationOnly`
+after rebuilding Debug. It exercises paid native grade-3 casting, an actual selected
+CombatEnd AI and compiled resource Prog, same-corpse expiry/dispel/death/Quit,
+exact ownership, activation and provider failure recovery, guarded placement,
+ordinary saves and separate-process cold recovery. Source anatomy and room catalogues
+are controlled. Callback fault injection uses native item/body methods; stale cell-join
+loss is an explicit database simulation, not a native Cell.Save execution. The old
+host remains quiescent after restart recovery. Final-death NPC corpses are qualified;
+PC and nonfinal corpses, installed stock AI/combat profiles, arbitrary callbacks,
+simultaneous-host recovery and high-volume N16 remain unqualified. Use the stage
+verification receipt for exact passed checks and retained failed exploratory probes.
+
+The Phase3D1P2 extension in the same packet uses the real EffectScheduler and its
+virtual clock for paid animations with ordinary parent durations of 30, 180 and 300
+seconds against an independent 180-second lifecycle. A native glow sibling verifies
+ordinary duration is neither extended nor shortened. Native proxy dispel is exercised
+at 15 seconds and after the short parent's ordinary expiry at 60 seconds. These expiry
+checks do not call the lifecycle reconciliation worker. The duplicate activation
+marker describes sequential calls; concurrent activation and cleanup races remain
+unqualified. Cell/save/combat fixture limitations above still apply.
+
+The same corpse packet also runs `--corpse-animation-saved-parent-run` in a separate
+owned database. It saves a real paid parent/child, checks inert active boot loading,
+and injects a completion-update refusal after restoration commits while paid XML remains
+unsaved. Fresh processes load that XML during disallowed boot and allowed runtime,
+before and after journal completion. They assert one corpse construction, exact original
+identity/body/foreign gear, unchanged deadline and deferred cleanup through the real
+effect scheduler. The final reader normally saves removal of stale XML. Intermediate
+readers deliberately do not flush the corpse, and the producer remains quiescent;
+this qualifies a controlled crash boundary, not simultaneous-host recovery or power loss.
+
+These readers retain a positive persisted corpse morph duration and verify both native
+morph schedules during blocked boot, unchanged timing through recovery and remaining
+duration on normal save. Separate `--corpse-animation-active-future-run` and
+`--corpse-animation-active-expired-run` databases cold-load still-active paid parents
+and complete actual Logout/Expiry recovery after boot. They assert exact secondary
+retirement, unchanged canonical/body/item IDs and foreign gear, no scripted AI
+construction or resource-program replay, and durable stale XML removal. The same
+corpse packet runs these modes after the pending/completed checkpoint matrix.
+
+`Run-IsolatedAcceptance.ps1 -RaiseServitorStockOnly` runs the bounded stock Raise
+Servitor packet in a fresh owned database. It creates the stock through the ordinary
+spell builder, persists/reloads its definition, and refuses excessive control duration
+before payment. Actual paid grade-3 casts use the recovered 5,399-second control and
+7,799-second animation deadlines. Real Cell/CellOverlay saving, creator-only follow/hit
+orders, continuing three-actor combat, selected inventory-action execution and both
+pending/consumed action subscriptions are asserted. Silt/Shallows grant refusal keeps
+independent following. A real secondary-row DELETE trigger holds retirement; queued
+work and orders stop, exact retry restores the same corpse/body/foreign gear, and fresh
+reader processes verify persisted Active/held command grants without actor loading.
+
+Combine `-RaiseServitorStockOnly -CorpseAnimationOnly` to rerun the stock packet with
+the four-database paid corpse/morph restart regression packet. World/anatomy catalogues
+and specialized caster Save remain controlled. Damage/defence delivery, autonomous
+historical aggression, guard/rescue orders, PC-corpse stock casts, complete boot/Telnet
+and concurrent recovery remain outside this bounded acceptance.

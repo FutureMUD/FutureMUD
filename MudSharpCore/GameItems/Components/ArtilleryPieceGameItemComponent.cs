@@ -155,12 +155,21 @@ public sealed class ArtilleryPieceGameItemComponent : GameItemComponent, IArtill
 
 	public bool IsCrewedBy(ICharacter character)
 	{
+		using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(character);
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(character)) return false;
+
+
 		PruneCrew();
 		return _crew.ContainsKey(character);
 	}
 
 	public bool TryJoinCrew(ICharacter character, string role, out string reason)
 	{
+		using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(character);
+		reason = string.Empty;
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(character)) return false;
+
+
 		if (character.Location != Parent.Location)
 		{
 			reason = "You must be beside the artillery piece to join its crew.";
@@ -194,6 +203,10 @@ public sealed class ArtilleryPieceGameItemComponent : GameItemComponent, IArtill
 
 	public bool LeaveCrew(ICharacter character)
 	{
+		using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(character);
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(character)) return false;
+
+
 		var result = _crew.Remove(character);
 		Changed |= result;
 		return result;
@@ -201,6 +214,11 @@ public sealed class ArtilleryPieceGameItemComponent : GameItemComponent, IArtill
 
 	public bool CanPerform(ICharacter character, ArtilleryCrewAction action, out string reason)
 	{
+		using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(character);
+		reason = string.Empty;
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(character)) return false;
+
+
 		if (action != ArtilleryCrewAction.Command &&
 		    !ItemManipulationGuard.CanManipulate(character, out reason, Parent))
 		{
@@ -231,6 +249,11 @@ public sealed class ArtilleryPieceGameItemComponent : GameItemComponent, IArtill
 
 	public bool SetFiringSolution(ICharacter actor, ArtilleryFiringSolution solution, out string reason)
 	{
+		using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
+		reason = string.Empty;
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return false;
+
+
 		if (!CanPerform(actor, ArtilleryCrewAction.Aim, out reason)) return false;
 		var mount = Parent.ContainedIn?.GetItemType<IArtilleryMount>();
 		var maximumTraverse = Math.Min(_prototype.MaximumTraverse, mount?.TraverseArc ?? _prototype.MaximumTraverse);
@@ -269,6 +292,11 @@ public sealed class ArtilleryPieceGameItemComponent : GameItemComponent, IArtill
 
 	public bool SetFuse(ICharacter actor, TimeSpan? fuse, out string reason)
 	{
+		using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
+		reason = string.Empty;
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return false;
+
+
 		if (!CanPerform(actor, ArtilleryCrewAction.Prime, out reason))
 		{
 			return false;
@@ -308,9 +336,15 @@ public sealed class ArtilleryPieceGameItemComponent : GameItemComponent, IArtill
 		}
 		var results = plan.ExecuteWholePlan();
 		var source = results.First(x => x.OriginalReference?.ToString() == "fuse").PrimaryTarget;
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor))
+		{
+			reason = string.Empty;
+			return false;
+		}
 		var installedFuse = TakeOnePhysicalItem(actor, source);
+		if (installedFuse is null) { reason = string.Empty; return false; }
 		ReturnContainedItem(actor, ref _fuse);
-		ContainItem(installedFuse, ref _fuse);
+		if (!ContainItem(installedFuse, ref _fuse)) { reason = string.Empty; return false; }
 		plan.FinalisePlanWithExemptions([installedFuse]);
 		_firingSolution = _firingSolution with { Fuse = fuse };
 		Changed = true;
@@ -320,6 +354,10 @@ public sealed class ArtilleryPieceGameItemComponent : GameItemComponent, IArtill
 
 	public void Limber(ICharacter actor)
 	{
+		using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return;
+
+
 		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
 		{
 			actor?.OutputHandler.Send(manipulationReason);
@@ -336,6 +374,10 @@ public sealed class ArtilleryPieceGameItemComponent : GameItemComponent, IArtill
 
 	public void Emplace(ICharacter actor)
 	{
+		using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return;
+
+
 		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
 		{
 			actor?.OutputHandler.Send(manipulationReason);
@@ -349,6 +391,10 @@ public sealed class ArtilleryPieceGameItemComponent : GameItemComponent, IArtill
 
 	public bool CanLoad(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
 	{
+		using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(loader);
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return false;
+
+
 		if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
 		{
 			return false;
@@ -377,6 +423,10 @@ public sealed class ArtilleryPieceGameItemComponent : GameItemComponent, IArtill
 
 	public string WhyCannotLoad(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
 	{
+		using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(loader);
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return string.Empty;
+
+
 		if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
 		{
 			return manipulationReason;
@@ -424,6 +474,10 @@ public sealed class ArtilleryPieceGameItemComponent : GameItemComponent, IArtill
 
 	public void Load(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
 	{
+		using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(loader);
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return;
+
+
 		if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
 		{
 			loader?.OutputHandler.Send(manipulationReason);
@@ -465,6 +519,7 @@ public sealed class ArtilleryPieceGameItemComponent : GameItemComponent, IArtill
 		};
 		var plan = CreateStagePlan(loader);
 		var results = plan.ExecuteWholePlan().ToList();
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return;
 		var primary = results.FirstOrDefault(x => x.OriginalReference?.ToString() != "piece")?.PrimaryTarget;
 		var exemptions = new List<IGameItem>();
 		switch (stage)
@@ -472,7 +527,7 @@ public sealed class ArtilleryPieceGameItemComponent : GameItemComponent, IArtill
 			case ArtilleryLoadingStage.Empty when UsesFixedAmmunition:
 				var breechAmmoSource = results.First(x => x.OriginalReference?.ToString() == "ammunition").PrimaryTarget;
 				var breechAmmoItem = TakeOnePhysicalItem(loader, breechAmmoSource);
-				breechAmmoItem.ContainedIn = Parent;
+				if (!ComponentItemTransfer.Contain(breechAmmoItem, Parent)) return;
 				_loadedAmmo = breechAmmoItem.GetItemType<IAmmo>();
 				exemptions.Add(breechAmmoItem);
 				primary = breechAmmoItem;
@@ -482,23 +537,23 @@ public sealed class ArtilleryPieceGameItemComponent : GameItemComponent, IArtill
 				break;
 			case ArtilleryLoadingStage.Cleared:
 				var powderSource = results.First(x => x.OriginalReference?.ToString() == "powder").PrimaryTarget;
-				var powder = powderSource.GetByWeight(loader.Body, _prototype.PowderMass);
-				ContainItem(powder, ref _powderCharge);
+				var powder = ComponentItemTransfer.TakeByWeight(loader, powderSource, _prototype.PowderMass);
+				if (!ContainItem(powder, ref _powderCharge)) return;
 				exemptions.Add(powder);
 				primary = powder;
 				break;
 			case ArtilleryLoadingStage.Charged:
 				var wadSource = results.First(x => x.OriginalReference?.ToString() == "wad").PrimaryTarget;
 				var wad = TakeOnePhysicalItem(loader, wadSource);
-				ContainItem(wad, ref _wad);
+				if (!ContainItem(wad, ref _wad)) return;
 				exemptions.Add(wad);
 				primary = wad;
 				break;
 			case ArtilleryLoadingStage.Wadded when LoadingMechanism == ArtilleryLoadingMechanism.RemovableChamber:
 				var chamber = results.First(x => x.OriginalReference?.ToString() == "chamber").PrimaryTarget
 					.GetItemType<IArtilleryChamber>()!;
-				loader.Body.Take(chamber.Parent);
-				chamber.Parent.ContainedIn = Parent;
+				var chamberItem = TakeOnePhysicalItem(loader, chamber.Parent);
+				if (!ComponentItemTransfer.Contain(chamberItem, Parent)) return;
 				_installedChamber = chamber;
 				exemptions.Add(chamber.Parent);
 				primary = chamber.Parent;
@@ -506,15 +561,15 @@ public sealed class ArtilleryPieceGameItemComponent : GameItemComponent, IArtill
 			case ArtilleryLoadingStage.Wadded:
 				var ammoSource = results.First(x => x.OriginalReference?.ToString() == "ammunition").PrimaryTarget;
 				var ammoItem = TakeOnePhysicalItem(loader, ammoSource);
-				ammoItem.ContainedIn = Parent;
+				if (!ComponentItemTransfer.Contain(ammoItem, Parent)) return;
 				_loadedAmmo = ammoItem.GetItemType<IAmmo>();
 				exemptions.Add(ammoItem);
 				primary = ammoItem;
 				break;
 			case ArtilleryLoadingStage.Vented:
 				var primerSource = results.First(x => x.OriginalReference?.ToString() == "primer").PrimaryTarget;
-				var primer = primerSource.GetByWeight(loader.Body, _prototype.PrimingPowderMass);
-				ContainItem(primer, ref _primerCharge);
+				var primer = ComponentItemTransfer.TakeByWeight(loader, primerSource, _prototype.PrimingPowderMass);
+				if (!ContainItem(primer, ref _primerCharge)) return;
 				exemptions.Add(primer);
 				primary = primer;
 				break;
@@ -542,6 +597,10 @@ public sealed class ArtilleryPieceGameItemComponent : GameItemComponent, IArtill
 
 	public bool CanReady(ICharacter readier)
 	{
+		using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(readier);
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(readier)) return false;
+
+
 		if (!ItemManipulationGuard.CanManipulate(readier, out var manipulationReason, Parent))
 		{
 			return false;
@@ -556,6 +615,10 @@ public sealed class ArtilleryPieceGameItemComponent : GameItemComponent, IArtill
 	}
 	public string WhyCannotReady(ICharacter readier)
 	{
+		using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(readier);
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(readier)) return string.Empty;
+
+
 		if (!ItemManipulationGuard.CanManipulate(readier, out var manipulationReason, Parent))
 		{
 			return manipulationReason;
@@ -571,6 +634,10 @@ public sealed class ArtilleryPieceGameItemComponent : GameItemComponent, IArtill
 	}
 	public bool Ready(ICharacter readier)
 	{
+		using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(readier);
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(readier)) return false;
+
+
 		if (!ItemManipulationGuard.CanManipulate(readier, out var manipulationReason, Parent))
 		{
 			return false;
@@ -593,6 +660,7 @@ public sealed class ArtilleryPieceGameItemComponent : GameItemComponent, IArtill
 		}
 		var plan = CreateTaggedPlan(readier, _prototype.LinstockTag, "linstock");
 		var linstock = plan.ExecuteWholePlan().First(x => x.OriginalReference?.ToString() == "linstock").PrimaryTarget;
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(readier)) return false;
 		readier.OutputHandler.Handle(new EmoteOutput(new Emote("@ bring|brings $1's glowing match to the prepared vent of $0.",
 			readier, Parent, linstock)));
 		plan.FinalisePlan();
@@ -607,6 +675,10 @@ public sealed class ArtilleryPieceGameItemComponent : GameItemComponent, IArtill
 		: "That artillery piece is not readied.";
 	public bool Unready(ICharacter readier)
 	{
+		using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(readier);
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(readier)) return false;
+
+
 		if (!CanUnready(readier)) return false;
 		readier.OutputHandler.Handle(new EmoteOutput(new Emote(
 			"@ stand|stands down $0 from immediate ignition readiness.", readier, Parent)));
@@ -617,6 +689,10 @@ public sealed class ArtilleryPieceGameItemComponent : GameItemComponent, IArtill
 
 	public bool CanUnload(ICharacter loader)
 	{
+		using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(loader);
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return false;
+
+
 		if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
 		{
 			return false;
@@ -627,6 +703,10 @@ public sealed class ArtilleryPieceGameItemComponent : GameItemComponent, IArtill
 	}
 	public string WhyCannotUnload(ICharacter loader)
 	{
+		using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(loader);
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return string.Empty;
+
+
 		if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
 		{
 			return manipulationReason;
@@ -640,34 +720,73 @@ public sealed class ArtilleryPieceGameItemComponent : GameItemComponent, IArtill
 	}
 	public IEnumerable<IGameItem> Unload(ICharacter loader)
 	{
-		if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
+		using var execution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(loader);
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader) || !CanUnload(loader)) return [];
+		// Remove the drill in reverse assembly order; retain untouched physical participants.
+		var resultOrder = AllContainedItems.ToArray();
+		var fuse = _fuse;
+		var primer = _primerCharge;
+		var ammunition = _loadedAmmo;
+		var chamber = _installedChamber;
+		var wad = _wad;
+		var powder = _powderCharge;
+		var snapshot = new[] { fuse, primer, ammunition?.Parent, chamber?.Parent, wad, powder }
+			.Where(x => x is not null).Cast<IGameItem>().Distinct().ToArray();
+		var results = new List<IGameItem>();
+		var announced = false;
+		foreach (var item in snapshot)
 		{
-			return [];
+			if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) break;
+			bool StillReferenced() => (ReferenceEquals(_fuse, fuse) && ReferenceEquals(fuse, item)) ||
+				(ReferenceEquals(_primerCharge, primer) && ReferenceEquals(primer, item)) ||
+				(ReferenceEquals(_loadedAmmo, ammunition) && ReferenceEquals(ammunition?.Parent, item)) ||
+				(ReferenceEquals(_installedChamber, chamber) && ReferenceEquals(chamber?.Parent, item)) ||
+				(ReferenceEquals(_wad, wad) && ReferenceEquals(wad, item)) ||
+				(ReferenceEquals(_powderCharge, powder) && ReferenceEquals(powder, item));
+			if (!StillReferenced() || !ComponentUnloadCompletion.OwnedBy(item, Parent)) continue;
+			var completion = ComponentUnloadCompletion.PrepareFloor(loader, item, Parent.LocationLevelPerceivable ?? loader);
+			if (completion is null || !MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) break;
+			if (!announced)
+			{
+				loader.OutputHandler.Handle(new EmoteOutput(new Emote(
+					"@ unload|unloads the physical charge, wadding, ammunition, primer and fuse from $0.", loader, Parent)));
+				announced = true;
+			}
+			if (!StillReferenced() || !ComponentUnloadCompletion.Detach(loader, item, Parent, () =>
+			{
+				if (ReferenceEquals(_fuse, fuse) && ReferenceEquals(fuse, item)) _fuse = null;
+				if (ReferenceEquals(_primerCharge, primer) && ReferenceEquals(primer, item)) _primerCharge = null;
+				if (ReferenceEquals(_loadedAmmo, ammunition) && ReferenceEquals(ammunition?.Parent, item)) _loadedAmmo = null;
+				if (ReferenceEquals(_installedChamber, chamber) && ReferenceEquals(chamber?.Parent, item)) _installedChamber = null;
+				if (ReferenceEquals(_wad, wad) && ReferenceEquals(wad, item)) _wad = null;
+				if (ReferenceEquals(_powderCharge, powder) && ReferenceEquals(powder, item)) _powderCharge = null;
+				IsReadied = false;
+				NormaliseLoadingStage();
+				if (!AllContainedItems.Any()) LoadingStage = ArtilleryLoadingStage.Empty;
+				Changed = true;
+			}, StillReferenced)) break;
+			results.Add(item);
+			completion();
 		}
-
-		if (!CanUnload(loader)) return [];
-		var items = AllContainedItems.Distinct().ToList();
-		_installedChamber = null;
-		_loadedAmmo = null;
-		_powderCharge = null;
-		_wad = null;
-		_primerCharge = null;
-		_fuse = null;
-		LoadingStage = ArtilleryLoadingStage.Empty;
-		IsReadied = false;
-		foreach (var item in items)
+		if (snapshot.Length == 0 && MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader))
 		{
-			item.ContainedIn = null;
-			item.InsertAtSource(Parent.LocationLevelPerceivable ?? loader);
+			loader.OutputHandler.Handle(new EmoteOutput(new Emote(
+				"@ unload|unloads the physical charge, wadding, ammunition, primer and fuse from $0.", loader, Parent)));
+			if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return [];
+			MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted(loader);
+			LoadingStage = ArtilleryLoadingStage.Empty;
+			IsReadied = false;
+			Changed = true;
 		}
-		loader.OutputHandler.Handle(new EmoteOutput(new Emote(
-			"@ unload|unloads the physical charge, wadding, ammunition, primer and fuse from $0.", loader, Parent)));
-		Changed = true;
-		return items;
+		return resultOrder.Where(item => results.Any(x => ReferenceEquals(x, item))).ToArray();
 	}
 
 	public bool CanFire(ICharacter actor, IPerceivable target)
 	{
+		using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return false;
+
+
 		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
 		{
 			return false;
@@ -680,6 +799,10 @@ public sealed class ArtilleryPieceGameItemComponent : GameItemComponent, IArtill
 	}
 	public string WhyCannotFire(ICharacter actor, IPerceivable target)
 	{
+		using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return string.Empty;
+
+
 		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
 		{
 			return manipulationReason;
@@ -696,6 +819,10 @@ public sealed class ArtilleryPieceGameItemComponent : GameItemComponent, IArtill
 	public void Fire(ICharacter actor, IPerceiver target, Outcome shotOutcome, Outcome coverOutcome, OpposedOutcome defenseOutcome,
 		IBodypart bodypart, IEmoteOutput defenseEmote, IPerceiver originalTarget)
 	{
+		using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return;
+
+
 		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
 		{
 			actor?.OutputHandler.Send(manipulationReason);
@@ -727,8 +854,7 @@ public sealed class ArtilleryPieceGameItemComponent : GameItemComponent, IArtill
 		var ammo = LoadingMechanism == ArtilleryLoadingMechanism.RemovableChamber
 			? _installedChamber!.LoadedAmmunition!
 			: _loadedAmmo!;
-		var projectile = ammo.GetFiredItem ?? ammo.Parent;
-		var firedSeparateProjectile = projectile != ammo.Parent;
+
 		var dischargeEmote = LoadingMechanism == ArtilleryLoadingMechanism.DropFireMortar
 			? "@ drop|drops the fixed round into $0's tube; it fires with a thunderous discharge."
 			: !UsesLinstock
@@ -740,13 +866,18 @@ public sealed class ArtilleryPieceGameItemComponent : GameItemComponent, IArtill
 			linstock ?? (IPerceivable)new DummyPerceivable("the firing control")),
 			style: OutputStyle.CombatMessage));
 		linstockPlan?.FinalisePlan();
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return;
 		if (bodypart is null && firingTarget is IHaveABody { Body: not null } targetWithBody)
 		{
 			bodypart = targetWithBody.Body.RandomBodyPartGeometry(Orientation.Centre, Alignment.Front, Facing.Front);
 		}
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return;
+		MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted(actor);
+		var projectile = ammo.GetFiredItem ?? ammo.Parent;
+		var firedSeparateProjectile = projectile != ammo.Parent;
 		ammo.Fire(actor, firingTarget, shotOutcome, coverOutcome, defenseOutcome, bodypart, projectile, WeaponType, defenseEmote,
 			new RangedFireContext(0, Math.Max(1, ammo.AmmoType.ProjectileCount), ammo.AmmoType.ScatterType));
-		if (!projectile.Deleted && projectile.IsItemType<IImpactDetonator>())
+		if (MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor) && !projectile.Deleted && projectile.IsItemType<IImpactDetonator>())
 		{
 			if (projectile.Location is null && firingTarget?.Location is not null)
 			{
@@ -813,6 +944,7 @@ public sealed class ArtilleryPieceGameItemComponent : GameItemComponent, IArtill
 
 	public override void FinaliseLoad()
 	{
+
 		foreach (var item in AllContainedItems.Distinct()) item.FinaliseLoadTimeTasks();
 	}
 
@@ -837,10 +969,18 @@ public sealed class ArtilleryPieceGameItemComponent : GameItemComponent, IArtill
 
 	private bool IsOperationalFor(ICharacter actor)
 	{
+		using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return false;
+
+
 		return IsAssignedAndPresent(actor) && (!_prototype.RequiresEmplacement || IsEmplaced || IsMounted);
 	}
 	private bool IsAssignedAndPresent(ICharacter actor)
 	{
+		using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return false;
+
+
 		PruneCrew();
 		return _crew.ContainsKey(actor) && actor.Location == Parent.Location && !actor.State.HasFlag(CharacterState.Dead) &&
 		       CharacterState.Able.HasFlag(actor.State);
@@ -854,6 +994,7 @@ public sealed class ArtilleryPieceGameItemComponent : GameItemComponent, IArtill
 
 	private bool LoadedAmmunitionRequiresFuse()
 	{
+
 		if (!UsesLinstock)
 		{
 			return false;
@@ -925,28 +1066,23 @@ public sealed class ArtilleryPieceGameItemComponent : GameItemComponent, IArtill
 		return template.CreatePlan(actor);
 	}
 
-	private static IGameItem TakeOnePhysicalItem(ICharacter actor, IGameItem source)
-	{
-		var stack = source.GetItemType<IStackable>();
-		if (stack is not null && stack.Quantity > 1)
-		{
-			var split = stack.Split(1);
-			split.Login();
-			split.HandleEvent(EventType.ItemFinishedLoading, split);
-			return split;
-		}
-		actor.Body.Take(source);
-		return source;
-	}
+	private static IGameItem? TakeOnePhysicalItem(ICharacter actor, IGameItem source) =>
+		ComponentItemTransfer.TakeOne(actor, source);
 
-	private void ContainItem(IGameItem item, ref IGameItem? field)
+	private bool ContainItem(IGameItem? item, ref IGameItem? field)
 	{
-		item.ContainedIn = Parent;
+		if (!ComponentItemTransfer.Contain(item, Parent)) return false;
 		field = item;
+		Changed = true;
+		return true;
 	}
 
 	private static void ReturnContainedItem(ICharacter actor, ref IGameItem? item)
 	{
+		using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return;
+
+
 		if (item is null) return;
 		item.ContainedIn = null;
 		item.InsertAtSource(actor);
@@ -1012,6 +1148,11 @@ public sealed class ArtilleryPieceGameItemComponent : GameItemComponent, IArtill
 
 	private bool ValidateCellPath(ICharacter actor, IReadOnlyList<long> cellPath, out string reason)
 	{
+		using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
+		reason = string.Empty;
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return false;
+
+
 		if (cellPath.Count == 0)
 		{
 			reason = string.Empty;

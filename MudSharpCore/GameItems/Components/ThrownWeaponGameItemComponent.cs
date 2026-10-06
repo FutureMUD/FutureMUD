@@ -1,4 +1,5 @@
-﻿using MudSharp.Body;
+using MudSharp.Combat.Moves;
+using MudSharp.Body;
 using MudSharp.Body.Traits;
 using MudSharp.Combat;
 using MudSharp.Construction;
@@ -84,12 +85,20 @@ public class ThrownWeaponGameItemComponent : GameItemComponent, IRangedWeapon, I
     /// <inheritdoc />
     public bool CanWield(ICharacter actor)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return false;
+
+
         return _prototype.CanWieldProg?.ExecuteBool(false, actor, Parent) ?? true;
     }
 
     /// <inheritdoc />
     public string WhyCannotWield(ICharacter actor)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return string.Empty;
+
+
         return _prototype.WhyCannotWieldProg?.ExecuteString(actor, Parent) ?? "You can't wield that for an unknown reason.";
     }
 
@@ -106,6 +115,10 @@ public class ThrownWeaponGameItemComponent : GameItemComponent, IRangedWeapon, I
 
     public bool CanUnload(ICharacter loader)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(loader);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return false;
+
+
         if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
         {
             return false;
@@ -116,6 +129,10 @@ public class ThrownWeaponGameItemComponent : GameItemComponent, IRangedWeapon, I
 
     public string WhyCannotUnload(ICharacter loader)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(loader);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return string.Empty;
+
+
         if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
         {
             return manipulationReason;
@@ -126,6 +143,10 @@ public class ThrownWeaponGameItemComponent : GameItemComponent, IRangedWeapon, I
 
     public IEnumerable<IGameItem> Unload(ICharacter loader)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(loader);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return [];
+
+
         if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
         {
             return [];
@@ -136,6 +157,10 @@ public class ThrownWeaponGameItemComponent : GameItemComponent, IRangedWeapon, I
 
     public bool CanLoad(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(loader);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return false;
+
+
         if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
         {
             return false;
@@ -146,6 +171,10 @@ public class ThrownWeaponGameItemComponent : GameItemComponent, IRangedWeapon, I
 
     public string WhyCannotLoad(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(loader);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return string.Empty;
+
+
         if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
         {
             return manipulationReason;
@@ -156,6 +185,10 @@ public class ThrownWeaponGameItemComponent : GameItemComponent, IRangedWeapon, I
 
     public void Load(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(loader);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return;
+
+
         if (!ItemManipulationGuard.CanManipulate(loader, out var manipulationReason, Parent))
         {
             loader?.OutputHandler.Send(manipulationReason);
@@ -167,6 +200,10 @@ public class ThrownWeaponGameItemComponent : GameItemComponent, IRangedWeapon, I
 
     public bool CanFire(ICharacter actor, IPerceivable target)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return false;
+
+
         if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
         {
             return false;
@@ -177,6 +214,10 @@ public class ThrownWeaponGameItemComponent : GameItemComponent, IRangedWeapon, I
 
     public string WhyCannotFire(ICharacter actor, IPerceivable target)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return string.Empty;
+
+
         if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
         {
             return manipulationReason;
@@ -194,215 +235,258 @@ public class ThrownWeaponGameItemComponent : GameItemComponent, IRangedWeapon, I
     public void Fire(ICharacter actor, IPerceiver target, Outcome shotOutcome, Outcome coverOutcome,
         OpposedOutcome defenseOutcome, IBodypart bodypart, IEmoteOutput defenseEmote, IPerceiver originalTarget)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return;
+
+
         if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
         {
             actor?.OutputHandler.Send(manipulationReason);
             return;
         }
 
-        actor.OutputHandler.Handle(new EmoteOutput(new Emote("@ hurl|hurls $1 at $0.", actor, target, Parent),
-            style: OutputStyle.CombatMessage));
-        if (defenseEmote != null)
+        var completion = new ProjectileCustodyCompletion(actor, Parent, target, awaitDetach: true);
+        var impact = completion.CaptureImpact(target);
+        try
         {
-            originalTarget.OutputHandler.Handle(defenseEmote);
-        }
+            actor.OutputHandler.Handle(new EmoteOutput(new Emote("@ hurl|hurls $1 at $0.", actor, target, Parent),
+                style: OutputStyle.CombatMessage));
+            if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return;
+            if (defenseEmote != null)
+            {
+                originalTarget.OutputHandler.Handle(defenseEmote);
+            }
 
-        actor.Aim = null;
-        actor.Body.Take(Parent);
-        IEnumerable<ICellExit> path = actor.PathBetween(target, 10, false, false, true);
-        string dirDesc = path.Select(x => x.OutboundDirection).DescribeDirection();
-        string oppDirDesc = path.Select(x => x.OutboundDirection).DescribeOppositeDirection();
-        foreach (ICell cell in actor.CellsUnderneathFlight(target, 10))
-        {
-            cell.Handle(
-                cell.OutdoorsType(null) == CellOutdoorsType.Outdoors
-                    ? new EmoteOutput(new Emote(
-                        $"@ fly|flies overhead from the {oppDirDesc} towards the {dirDesc}", Parent))
-                    : new EmoteOutput(
-                        new Emote($"@ fly|flies through the area from the {oppDirDesc} towards the {dirDesc}",
-                            Parent)));
-        }
+            if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return;
+            actor.Body.Take(Parent);
+            completion.ArmAfterDetach();
+            if (!completion.IsUnclaimed) return;
+            void FinishDetachedThrow() => completion.Finish();
+            void PlaceThrownProjectile(bool preventPickup = false)
+            {
+                completion.PlaceAt(impact, allowMerge: true);
+                if (preventPickup && completion.IsAt(impact) &&
+                    MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor) && actor.Combat != null)
+                    Parent.AddEffect(new CombatNoGetEffect(Parent, actor.Combat), TimeSpan.FromSeconds(20));
+            }
+            if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) { FinishDetachedThrow(); return; }
+            actor.Aim = null;
+            if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) { FinishDetachedThrow(); return; }
+            IEnumerable<ICellExit> path = actor.PathBetween(target, 10, false, false, true);
+            string dirDesc = path.Select(x => x.OutboundDirection).DescribeDirection();
+            string oppDirDesc = path.Select(x => x.OutboundDirection).DescribeOppositeDirection();
+            foreach (ICell cell in actor.CellsUnderneathFlight(target, 10).ToArray())
+            {
+                if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor) || !completion.IsUnclaimed) return;
+                cell.Handle(
+                    cell.OutdoorsType(null) == CellOutdoorsType.Outdoors
+                        ? new EmoteOutput(new Emote(
+                            $"@ fly|flies overhead from the {oppDirDesc} towards the {dirDesc}", Parent))
+                        : new EmoteOutput(
+                            new Emote($"@ fly|flies through the area from the {oppDirDesc} towards the {dirDesc}",
+                                Parent)));
+            }
 
-        if (actor.Location != target.Location)
-        {
-            target.OutputHandler.Handle(
-                new EmoteOutput(new Emote($"$1 $1|fly|flies in from the {oppDirDesc}.", target, target, Parent)));
-        }
-        else if (actor.RoomLayer != target.RoomLayer)
-        {
-            target.OutputHandler.Handle(new EmoteOutput(
-                new Emote(
-                    $"$1 $1|fly|flies in from {(target.RoomLayer.IsHigherThan(actor.RoomLayer) ? "below" : "above")}.",
-                    target, target, Parent), style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
-        }
-
-        var payloadEffects = Parent.EffectsOfType<IMagicProjectilePayloadEffect>(x =>
-            x.AppliesToProjectileAttack(actor, target, Parent)).ToList();
-        Damage damage = new()
-        {
-            ActorOrigin = actor,
-            ToolOrigin = Parent,
-            Bodypart = bodypart,
-            DamageAmount =
-                _prototype.RangedWeaponType.DamageBonusExpression.EvaluateWith(actor,
-                    _prototype.RangedWeaponType.FireTrait,
-                    values: [("quality", (int)Parent.Quality +
-                                         (int)Math.Round(payloadEffects.Sum(x => x.ProjectileQualityBonus))),
-                        ("degrees", (int)defenseOutcome.Degree), ("range", actor.DistanceBetween(target, 10))]) +
-                payloadEffects.Sum(x => x.ProjectileDamageBonus),
-            DamageType = _prototype.MeleeWeaponType.Attacks.FirstMax(x => x.Weighting).Profile.DamageType,
-            PainAmount = payloadEffects.Sum(x => x.ProjectilePainBonus),
-            StunAmount = payloadEffects.Sum(x => x.ProjectileStunBonus),
-            LodgableItem = Parent
-        };
-        UseCondition(new ItemConditionUseContext(ItemConditionUseKind.RangedFire, shotOutcome,
-            (int)(defenseOutcome?.Degree ?? OpposedOutcomeDegree.None)));
-
-        List<IWound> wounds = new();
-		var effectiveCover = target is ICharacter targetCharacter
-			? VehicleCombatService.Instance.ResolveEffectiveRangedCover(actor, targetCharacter)
-			: null;
-		var cover = effectiveCover?.Cover ?? target.Cover?.Cover;
-		var coverItem = effectiveCover?.Provider ?? target.Cover?.CoverItem?.Parent;
-		if (shotOutcome.IsPass() && coverOutcome.IsFail() && cover is not null)
-        {
-            // Shot would've hit if it wasn't for cover
-			bool strikeCover = cover.CoverType == CoverType.Hard || shotOutcome == Outcome.MajorPass ||
-                              coverOutcome == Outcome.MinorFail;
-            if (strikeCover)
+            if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor) || !completion.IsUnclaimed) return;
+            if (actor.Location != target.Location)
             {
                 target.OutputHandler.Handle(
-                    new EmoteOutput(new Emote($"The {Parent.Name} strikes $?1|$1, ||$$0's cover!", target, target,
-						coverItem)));
-                actor.Send("You hit your target's cover instead.".Colour(Telnet.Yellow));
-				if (effectiveCover?.IsVehicleCover != true)
-				{
-					wounds.AddRange(coverItem?.PassiveSufferDamage(damage) ?? Enumerable.Empty<IWound>());
-				}
-                wounds.ProcessPassiveWounds();
-                defenseOutcome = new OpposedOutcome(OpposedOutcomeDirection.Opponent, OpposedOutcomeDegree.Total);
+                    new EmoteOutput(new Emote($"$1 $1|fly|flies in from the {oppDirDesc}.", target, target, Parent)));
             }
-        }
-
-        if (defenseOutcome.Outcome == OpposedOutcomeDirection.Opponent)
-        {
-            target.OutputHandler.Handle(
-                new EmoteOutput(new Emote(
-                    $"The {Parent.Name} {(shotOutcome.IsPass() ? "narrowly misses @!" : "misses @ by a wide margin.")}",
-                    target, Parent)));
-            if (!actor.ColocatedWith(target))
+            else if (actor.RoomLayer != target.RoomLayer)
             {
-                actor.Send("You missed your target.".Colour(Telnet.Red));
+                target.OutputHandler.Handle(new EmoteOutput(
+                    new Emote(
+                        $"$1 $1|fly|flies in from {(target.RoomLayer.IsHigherThan(actor.RoomLayer) ? "below" : "above")}.",
+                        target, target, Parent), style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
             }
 
-            if (wounds.All(x => x.Lodged != Parent))
+            if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor) || !completion.IsUnclaimed) return;
+            var payloadEffects = new List<IMagicProjectilePayloadEffect>();
+            foreach (var payload in Parent.EffectsOfType<IMagicProjectilePayloadEffect>().ToArray())
             {
-                Parent.RoomLayer = target.RoomLayer;
-                Parent.InsertAtSource(target);
-                if (actor.Combat != null)
+                if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) { FinishDetachedThrow(); return; }
+                var applies = payload.AppliesToProjectileAttack(actor, target, Parent);
+                if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) { FinishDetachedThrow(); return; }
+                if (applies && Parent.EffectsOfType<IMagicProjectilePayloadEffect>().Contains(payload)) payloadEffects.Add(payload);
+            }
+            Damage damage = new()
+            {
+                ActorOrigin = actor,
+                ToolOrigin = Parent,
+                Bodypart = bodypart,
+                DamageAmount =
+                    _prototype.RangedWeaponType.DamageBonusExpression.EvaluateWith(actor,
+                        _prototype.RangedWeaponType.FireTrait,
+                        values: [("quality", (int)Parent.Quality +
+                                             (int)Math.Round(payloadEffects.Sum(x => x.ProjectileQualityBonus))),
+                            ("degrees", (int)defenseOutcome.Degree), ("range", actor.DistanceBetween(target, 10))]) +
+                    payloadEffects.Sum(x => x.ProjectileDamageBonus),
+                DamageType = _prototype.MeleeWeaponType.Attacks.FirstMax(x => x.Weighting).Profile.DamageType,
+                PainAmount = payloadEffects.Sum(x => x.ProjectilePainBonus),
+                StunAmount = payloadEffects.Sum(x => x.ProjectileStunBonus),
+                LodgableItem = Parent
+            };
+            if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) { FinishDetachedThrow(); return; }
+            UseCondition(new ItemConditionUseContext(ItemConditionUseKind.RangedFire, shotOutcome,
+                (int)(defenseOutcome?.Degree ?? OpposedOutcomeDegree.None)));
+
+            if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor) || !completion.IsUnclaimed) return;
+            List<IWound> wounds = new();
+			var effectiveCover = target is ICharacter targetCharacter
+				? VehicleCombatService.Instance.ResolveEffectiveRangedCover(actor, targetCharacter)
+				: null;
+			var cover = effectiveCover?.Cover ?? target.Cover?.Cover;
+			var coverItem = effectiveCover?.Provider ?? target.Cover?.CoverItem?.Parent;
+			if (shotOutcome.IsPass() && coverOutcome.IsFail() && cover is not null)
+            {
+                // Shot would've hit if it wasn't for cover
+				bool strikeCover = cover.CoverType == CoverType.Hard || shotOutcome == Outcome.MajorPass ||
+                                  coverOutcome == Outcome.MinorFail;
+                if (strikeCover)
                 {
-                    Parent.AddEffect(new CombatNoGetEffect(Parent, actor.Combat), TimeSpan.FromSeconds(20));
+                    target.OutputHandler.Handle(
+                        new EmoteOutput(new Emote($"The {Parent.Name} strikes $?1|$1, ||$$0's cover!", target, target,
+							coverItem)));
+                    actor.Send("You hit your target's cover instead.".Colour(Telnet.Yellow));
+					if (effectiveCover?.IsVehicleCover != true)
+					{
+						completion.SetFallback(impact);
+						wounds.AddRange(coverItem?.CommandSufferDamage(damage) ?? Enumerable.Empty<IWound>());
+                        completion.PreserveWoundClaim(wounds);
+					}
+                    wounds.ProcessPassiveWounds();
+                    defenseOutcome = new OpposedOutcome(OpposedOutcomeDirection.Opponent, OpposedOutcomeDegree.Total);
                 }
             }
 
-            return;
-        }
-
-        if (!target.ColocatedWith(actor))
-        {
-            actor.Send("You hit your target.".Colour(Telnet.BoldGreen));
-        }
-
-        if (target is ICharacter targetChar)
-        {
-            wounds.AddRange(targetChar.Body.PassiveSufferDamage(damage));
-            if (!wounds.Any())
+            if (defenseOutcome.Outcome == OpposedOutcomeDirection.Opponent)
             {
                 target.OutputHandler.Handle(
-                    new EmoteOutput(
-                        new Emote(
-                            $"$1 hit|hits $0 on &0's {bodypart.FullDescription()} but bounces right off without causing any damage!",
-                            target, target, Parent)));
-                Parent.RoomLayer = target.RoomLayer;
-                Parent.InsertAtSource(target);
-                if (actor.Combat != null)
+                    new EmoteOutput(new Emote(
+                        $"The {Parent.Name} {(shotOutcome.IsPass() ? "narrowly misses @!" : "misses @ by a wide margin.")}",
+                        target, Parent)));
+                if (!actor.ColocatedWith(target))
                 {
-                    Parent.AddEffect(new CombatNoGetEffect(Parent, actor.Combat), TimeSpan.FromSeconds(20));
+                    actor.Send("You missed your target.".Colour(Telnet.Red));
+                }
+
+                if (wounds.All(x => x.Lodged != Parent))
+                {
+                    PlaceThrownProjectile(preventPickup: true);
                 }
 
                 return;
             }
 
-            if (wounds.Any(x => x.Lodged == Parent))
+            if (!target.ColocatedWith(actor))
             {
-                IWound lodgedWound = wounds.First(x => x.Lodged == Parent);
-                if (lodgedWound.Parent == targetChar)
+                actor.Send("You hit your target.".Colour(Telnet.BoldGreen));
+            }
+
+            if (target is ICharacter targetChar)
+            {
+                if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor) || !completion.IsUnclaimed) return;
+                completion.SetFallback(impact);
+                wounds.AddRange(targetChar.Body.CommandSufferDamage(damage));
+                completion.PreserveWoundClaim(wounds);
+                if (!wounds.Any())
                 {
                     target.OutputHandler.Handle(
                         new EmoteOutput(
                             new Emote(
-                                $"$0 lodges in $1's {lodgedWound.Bodypart.FullDescription()}!",
-                                target, Parent, target)));
+                                $"$1 hit|hits $0 on &0's {bodypart.FullDescription()} but bounces right off without causing any damage!",
+                                target, target, Parent)));
+                    PlaceThrownProjectile(preventPickup: true);
+
+                    return;
                 }
-                else
+
+                if (wounds.Any(x => x.Lodged == Parent))
+                {
+                    IWound lodgedWound = wounds.First(x => x.Lodged == Parent);
+                    if (lodgedWound.Parent == targetChar)
+                    {
+                        target.OutputHandler.Handle(
+                            new EmoteOutput(
+                                new Emote(
+                                    $"$0 lodges in $1's {lodgedWound.Bodypart.FullDescription()}!",
+                                    target, Parent, target)));
+                    }
+                    else
+                    {
+                        target.OutputHandler.Handle(
+                            new EmoteOutput(new Emote($"$0 lodges in $1's !2!", target, Parent, target,
+                                lodgedWound.Parent)));
+                    }
+
+                    wounds.ProcessPassiveWounds();
+                    return;
+                }
+
+                PlaceThrownProjectile();
+                if (!completion.IsAt(impact) || !MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor))
+                {
+                    wounds.ProcessPassiveWounds();
+                    return;
+                }
+                target.OutputHandler.Handle(
+                    new EmoteOutput(
+                        new Emote($"$0 strikes $1's {bodypart.FullDescription()}, and then falls to the ground!", target,
+                            Parent, target)));
+                wounds.ProcessPassiveWounds();
+                return;
+            }
+
+            if (target is IGameItem targetItem)
+            {
+                if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor) || !completion.IsUnclaimed) return;
+                completion.SetFallback(impact);
+                wounds.AddRange(targetItem.CommandSufferDamage(damage));
+                completion.PreserveWoundClaim(wounds);
+                if (!wounds.Any())
                 {
                     target.OutputHandler.Handle(
-                        new EmoteOutput(new Emote($"$0 lodges in $1's !2!", target, Parent, target,
-                            lodgedWound.Parent)));
+                        new EmoteOutput(new Emote("$1 hit|hits $0 but bounces right off without causing any damage!",
+                            targetItem, targetItem, Parent)));
+                    PlaceThrownProjectile(preventPickup: true);
+
+                    return;
                 }
 
-                wounds.ProcessPassiveWounds();
-                return;
-            }
-
-            Parent.RoomLayer = target.RoomLayer;
-            Parent.InsertAtSource(target);
-            target.OutputHandler.Handle(
-                new EmoteOutput(
-                    new Emote($"$0 strikes $1's {bodypart.FullDescription()}, and then falls to the ground!", target,
-                        Parent, target)));
-            wounds.ProcessPassiveWounds();
-            return;
-        }
-
-        if (target is IGameItem targetItem)
-        {
-            wounds.AddRange(targetItem.PassiveSufferDamage(damage));
-            if (!wounds.Any())
-            {
-                target.OutputHandler.Handle(
-                    new EmoteOutput(new Emote("$1 hit|hits $0 but bounces right off without causing any damage!",
-                        targetItem, targetItem, Parent)));
-                Parent.RoomLayer = target.RoomLayer;
-                Parent.InsertAtSource(target);
-                if (actor.Combat != null)
+                if (wounds.Any(x => x.Lodged == Parent))
                 {
-                    Parent.AddEffect(new CombatNoGetEffect(Parent, actor.Combat), TimeSpan.FromSeconds(20));
+                    target.OutputHandler.Handle(new EmoteOutput(new Emote($"$0 lodges in $1!", actor, Parent, target)));
+                    wounds.ProcessPassiveWounds();
+                    return;
                 }
 
-                return;
-            }
-
-            if (wounds.Any(x => x.Lodged == Parent))
-            {
-                target.OutputHandler.Handle(new EmoteOutput(new Emote($"$0 lodges in $1!", actor, Parent, target)));
+                PlaceThrownProjectile();
+                if (!completion.IsAt(impact) || !MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor))
+                {
+                    wounds.ProcessPassiveWounds();
+                    return;
+                }
+                target.OutputHandler.Handle(
+                    new EmoteOutput(new Emote($"$0 strikes $1, and then falls to the ground!", actor, Parent, target)));
                 wounds.ProcessPassiveWounds();
                 return;
             }
 
-            Parent.RoomLayer = target.RoomLayer;
-            Parent.InsertAtSource(target); // Put the thrown weapon on the ground
-            target.OutputHandler.Handle(
-                new EmoteOutput(new Emote($"$0 strikes $1, and then falls to the ground!", actor, Parent, target)));
-            wounds.ProcessPassiveWounds();
-            return;
+            throw new NotImplementedException("Unknown target type in Fire.");
         }
-
-        throw new NotImplementedException("Unknown target type in Fire.");
+        finally
+        {
+            completion.Finish();
+        }
     }
 
     public bool CanReady(ICharacter readier)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(readier);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(readier)) return false;
+
+
         if (!ItemManipulationGuard.CanManipulate(readier, out var manipulationReason, Parent))
         {
             return false;
@@ -413,6 +497,10 @@ public class ThrownWeaponGameItemComponent : GameItemComponent, IRangedWeapon, I
 
     public string WhyCannotReady(ICharacter readier)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(readier);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(readier)) return string.Empty;
+
+
         if (!ItemManipulationGuard.CanManipulate(readier, out var manipulationReason, Parent))
         {
             return manipulationReason;
@@ -423,6 +511,10 @@ public class ThrownWeaponGameItemComponent : GameItemComponent, IRangedWeapon, I
 
     public bool Ready(ICharacter readier)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(readier);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(readier)) return false;
+
+
         if (!ItemManipulationGuard.CanManipulate(readier, out var manipulationReason, Parent))
         {
             return false;
@@ -434,16 +526,28 @@ public class ThrownWeaponGameItemComponent : GameItemComponent, IRangedWeapon, I
 
     public bool CanUnready(ICharacter readier)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(readier);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(readier)) return false;
+
+
         return false;
     }
 
     public string WhyCannotUnready(ICharacter readier)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(readier);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(readier)) return string.Empty;
+
+
         return $"{Parent.HowSeen(readier, true)} is not something that needs to be unreadied.";
     }
 
     public bool Unready(ICharacter readier)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(readier);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(readier)) return false;
+
+
         readier.Send(WhyCannotUnready(readier));
         return false;
     }

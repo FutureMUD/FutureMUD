@@ -72,6 +72,19 @@ public abstract class Location : PerceivedItem, ILocation
     protected readonly List<ICharacter> _characters = new();
     protected List<IGameItem> _gameItems = new();
 
+	// Restore only the captured items, preserving unrelated location contents and saves.
+	internal Action CaptureCustodyMembershipRollback(IEnumerable<IGameItem> graph)
+	{
+		var items = new HashSet<IGameItem>(graph, ReferenceEqualityComparer.Instance);
+		var present = _gameItems.Where(items.Contains).ToArray();
+		return () =>
+		{
+			_gameItems.RemoveAll(items.Contains);
+			_gameItems.AddRange(present);
+			if (this is Cell cell) cell.ContentsChanged = true;
+		};
+	}
+
     public IEnumerable<ICharacter> Characters => _characters;
 
     public IEnumerable<ICharacter> LayerCharacters(RoomLayer layer)
@@ -92,6 +105,12 @@ public abstract class Location : PerceivedItem, ILocation
 
     public IEnumerable<IHandleEvents> EventHandlers
         => Characters.Cast<IHandleEvents>().Concat(GameItems).Concat(new IHandleEvents[] { this });
+
+	internal void SetPreparedCurrencyMembership(IGameItem item, bool present)
+	{
+		_gameItems.RemoveAll(x => ReferenceEquals(x, item));
+		if (present) _gameItems.Add(item);
+	}
 
     public virtual void Insert(IGameItem thing, bool newStack)
     {
@@ -119,6 +138,13 @@ public abstract class Location : PerceivedItem, ILocation
 
         _characters.Add(movingCharacter);
     }
+
+
+	internal void SetNativeCharacterMembership(ICharacter actor, bool present)
+	{
+		_characters.RemoveAll(x => ReferenceEquals(x, actor));
+		if (present) _characters.Add(actor);
+	}
 
     protected void DoEnterEvent(ICharacter character)
     {

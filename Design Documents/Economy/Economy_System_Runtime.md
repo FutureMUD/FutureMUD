@@ -67,6 +67,10 @@ The current runtime model is:
 - `CurrencyGameItemComponent` and `ICurrencyPile` bridge abstract value into physical carried money
 - physical currency manipulation selects coins from one legal-owner group and preserves that durable ownership reference on the reconstructed pile
 
+Body currency Get (floor or container), Put, Drop, and Give (living body or corpse) prepare all selected source piles and the exact destination before changing money. Preparation pins denomination maps, legal ownership, native custody and membership, the actor and recipient bodies, open-container state, and the selected hand or compatible merge survivor. The final gate executes authority policy before checking the captured body and spatial snapshots, so a valid policy that moves the actor cannot commit money from the old location or layer. The final commit debits every source and credits one survivor with coherent destination membership before loading hooks, ownership notifications, inventory events or witnesses run. An absorbed candidate carries no coins from that transfer; ordinary merge and Drop `newStack` behavior are retained.
+
+Currency Can/Why queries use unpublished previews: they do not register items, enqueue persistence, install hooks, execute load programs or notify owners. Committed loading and cleanup finish even if ordered-NPC control expires, while reentrant commands from that original order retain their normal authority checks. Empty-source cleanup removes only the captured membership and rechecks after deletion observers; a refill or new custody claim survives. This is an in-process callback boundary, not a database transaction or crash-recovery guarantee.
+
 Important consequences of the current implementation:
 
 - player-facing parsing is regex-driven through division abbreviations
@@ -209,6 +213,8 @@ Runtime safety invariants:
 - permanent-shop public stock comes from shopfront-held items and shallow shopfront/stockroom display paths, not private workshops or deeply nested private containers
 - merchandise repricing permits ordinary reductions and rejects unsafe markup multipliers rather than allowing decimal arithmetic to crash command handling
 - item preview follows normal container visibility rules; closed opaque containers do not reveal contents through shop preview
+- temporary spell-created material, including a temporary child or attachment of ordinary merchandise, is refused by shop stock admission, sale and purchase guards before payment or custody changes; auction listing applies the same value guard
+- ordinary and keyword-variant purchase quotes, previews and execution use the same clean-stock selection, excluding contaminated goods without blocking clean goods in that merchandise group; lawful-purchase checks and near-morph confirmation inspect those clean preview goods, and exact purchases reject contaminated selections, including contamination introduced after the quote or preview
 
 Partial stack and commodity retrieval preserve shop display identity. Stock removal resolves that merchandise before generic prototype matching, values the actual split, and does not decrement a residual commodity pile for a split never separately indexed. Read-only commodity previews never enter the world or save queue. Source lawful/access checks run before splitting or debiting. See [Physical Manipulation Audit](../Items/Physical_Manipulation_Audit.md).
 
@@ -518,6 +524,14 @@ This integrates economy and legal runtime behavior:
 - if no estate exists, the corpse is still stored and its belongings remain on the corpse
 - `morgue` commands in the office list releasable corpses and personally owned belongings
 
+Morgue intake refuses a final corpse with an unresolved original body or owner, or a body
+different from the owner's current body, before
+estate lookup, removal from custody, relocation, effects, stripping or probate changes.
+`TryIntakeCorpse` reports custody success separately from the optional estate: a valid
+intake without an estate still succeeds. Recovery only emits its success emote and marks
+the report completed after successful intake. Refused unresolved remains retain their
+location, effects, estate state and assigned recovery report for later resolution.
+
 ## Important Runtime Flows
 ### Currency Parsing and Description
 The runtime currently separates money input from money display.
@@ -679,7 +693,7 @@ That sequence is inferred from current implementation style rather than enforced
 
 Holding and ledger records retain native values and contemporaneous global-base values for calculation, filtering, and cross-currency comparison, but reports never expose those raw decimal base units. Native values are rendered through their own `ICurrency.Describe(..., ShortDecimal)` pattern. Cross-currency totals first convert the stored global-base value into the base units of `EconomyAnalyticsGlobalDisplayCurrencyId`, then use that currency's same description path. An unset value of `0`, a missing currency, or a currency with no usable global conversion falls back to the world's first currency; if that legacy currency has a zero conversion, the first usable currency is selected instead. This setting is available through static configuration and through `economy config currency <currency>`; changing it affects presentation only, not stored analytics values.
 
-The physical-currency census reads every persisted currency component so offline PC inventories remain visible, walks container ancestry to its root, and classifies custody in this order: explicit item ownership, body custody, shop till, clan treasury, property, or unclaimed cell. An ancestry walk fetches only currency piles and their actual parent chains; custody lookups are then restricted to those root items and relevant cells rather than loading the complete item-location tables. Character control is resolved in bounded batches from persisted owner references, so bank-account reporting does not materialise offline characters or issue a query per account. A loaded currency component overlays its current in-memory value on the persisted row so unsaved coin changes are reflected without counting the same pile twice. Malformed component XML and conflicting treasury/property claims are reported as ambiguous rather than silently assigned.
+The physical-currency census reads every persisted currency component so offline PC inventories remain visible, walks container ancestry to its root, and classifies custody in this order: explicit item ownership, body custody, shop till, clan treasury, property, or unclaimed cell. An ancestry walk fetches only currency piles and their actual parent chains; custody lookups are then restricted to those root items and relevant cells rather than loading the complete item-location tables. Character control is resolved in bounded batches from persisted owner references, so bank-account reporting does not materialise offline characters or issue a query per account. Body-custody attribution excludes archived canonical tombstones and requires a non-null physical body pointer. A loaded currency component overlays its current in-memory value on the persisted row so unsaved coin changes are reflected without counting the same pile twice. Malformed component XML and conflicting treasury/property claims are reported as ambiguous rather than silently assigned.
 
 PC control means effective access by an ordinary account-backed, non-admin-avatar character. Direct character holdings remain individually attributable. Clan, shop, property, leased-property, bodyguard, and controllable-instance paths are reported as shared PC-controlled wealth when their effective access resolves to such a character. Shared organisational wealth is not attributed to a single PC for inequality calculations. Property equity uses an active visible sale reserve or otherwise the last sale value, multiplied by each owner's share; leaseholders control cash in the leased property but do not receive its equity.
 

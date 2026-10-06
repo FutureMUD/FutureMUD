@@ -12,6 +12,8 @@ public sealed class MountedDisengageMove : CombatMoveBase
 
 	public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
 	{
+		using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterMove(this);
+		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
 		var context = MountedCombatService.Instance.ResolveContext(Assailant);
 		if (context is null || Assailant.CombatTarget is not ICharacter target)
 		{

@@ -1,5 +1,11 @@
 # Multiple Body Form System
 
+Spell-owned canonical NPC archival is a separate final-death boundary documented in
+[`Spell_Owned_Lifecycle.md`](../Magic/Spell_Owned_Lifecycle.md). It preserves the canonical ID
+while releasing a proven empty physical body. Foreign form/source/ordinary-retirement rows,
+borrowed bodies and additional instances hold compaction. An archived identity has no active
+body and cannot be loaded, resurrected or switched through ordinary form APIs.
+
 ## Purpose
 
 The multiple body form system lets one character own more than one physical body and switch which body is currently active. The initial design driver was transformation content such as werewolves, ghosts, astral forms, robots, animal polymorphs, and other cases where the same character identity needs a different anatomy, health model, appearance, or racial package.
@@ -126,7 +132,7 @@ The shipped remains contexts are:
 | `SpentClone` | Reserved for clone bodies or failed vessels that remain physically meaningful but are not a dead character. |
 | `Other` | Fallback for game-specific remains contexts. |
 
-Legacy targeting that asks for an actor-or-corpse only resolves final-death corpses back to their original character. Body-specific command paths should use the body-target helper and operate on the corpse's body instead. This avoids the sleeve bug where a command targets an old corpse but accidentally mutates the surviving character's new current body.
+Legacy targeting that asks for an actor-or-corpse only resolves a final-death corpse back to its original character when its exact body resolves and matches that character's current body. Dressing and corpse-based resurrection use the same validation. Independently visible live actors remain targetable. Body-specific command paths use the body-target helper, which rejects unresolved anatomy but permits physical operations on other resolved corpse bodies. This avoids a command targeting an old corpse and mutating the surviving character's new current body.
 
 Butchery and skinning use the original body's race and butchery profile. This matters for transformation and sleeve stories where the surviving character's current race or body may differ from the remains in the room.
 
@@ -144,6 +150,10 @@ The transfer hook runs at the start of `Character.Die()`, before permanent-death
 This is still a one-active-body system. The old body remains in world as a corpse/remains item when the dying body's race produces corpses, but it is no longer a controllable form and does not keep character heartbeats, command routing, or perception routing alive. If the race produces no corpse item, the retired body is immediately eligible for cleanup after the transfer. True simultaneous bodies, projection, possession, and vulnerability routing remain future work.
 
 Retired body cleanup is reference-driven. Deleting non-final remains asks the original character to reclaim the old body, but the body is only deleted if it is not the current body, no longer appears in the character's runtime forms or sources, is not targeted by an active body backup, and no other loaded corpse or severed bodypart still points at the same `OriginalBodyId`. Corpse deletion and severed-part deletion both use this path, so a butchered sleeve is retained while any physical trace remains and is reclaimed once the last trace is gone.
+
+Ordinary backup death retains exact body/character retirement provenance in `CharacterBodyRetirements`. Form save commits this record alongside the new canonical body pointer and removal of the old form/source mappings, after validating persisted ownership. Successful cleanup consumes the record and body in the same transaction; persisted possessions, instances, effects and other physical references continue to block it. No spell ownership is fabricated for an ordinary backup, and already-unmapped legacy bodies receive no speculative ownership backfill.
+
+After reboot, remains loaders read the exact positive source body ID independently of cleanup authority. Pre-upgrade remains can recover an existing body and inventory even without a retirement record, while known foreign ownership and non-final references to current or embodied bodies are rejected. Cached bodies follow the same validation. Living-owner severed parts and final-death corpses may reference their owner's exact current body. The read creates no controllable form or ownership record, and a positive ID never redirects to another body. Missing or unsafe references retain their saved ID, show unidentifiable remains, contribute no missing anatomy mass, and refuse anatomy-dependent surgery, butchery and resurrection. Corpse damage/illumination and both release callbacks tolerate that state without touching the surviving body's inventory. Guarded cleanup still requires its independent ownership evidence.
 
 ### Loading and Compatibility
 
@@ -355,7 +365,7 @@ An implementor uses `body addform` to add a robot, wolf, bird, ghost, or other r
 
 ### Staff Deletes an Incorrect Dormant Form
 
-An implementor uses `body delform <character> <form> confirm` to remove an incorrectly provisioned dormant form. The command refuses to delete the current body, any form with a live embodied instance, any form referenced by persisted instance rows, any form referenced by body backup effects, or any form whose body still has corpse/remains-style physical references. A successful delete removes the form metadata, source mappings for that body, the dormant body row, and any items on that dormant body.
+An implementor uses `body delform <character> <form> confirm` to remove an incorrectly provisioned dormant form. The command refuses to delete the current body, any form with a live embodied instance, any form referenced by persisted instance rows, any form referenced by body backup effects, or any form whose body still has corpse/remains-style physical references. Possessions must be moved out first; runtime and persisted inventory, implants, prosthetics and lodged items block removal. A successful delete removes the allowed form/source metadata and the empty dormant body while preserving the canonical identity, current body and foreign goods.
 
 ### A Racial Merit Grants a Reusable Form
 

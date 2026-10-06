@@ -153,11 +153,13 @@ public class ImplantBaseGameItemComponent : GameItemComponent, IImplant
     public virtual void OnPowerCutIn()
     {
         _powered = true;
+		if (this is IImplantTraitChange && InstalledBody?.Actor is { } actor) actor.Gameworld.MagicCasting?.NotifyCapacityChange(actor);
     }
 
     public virtual void OnPowerCutOut()
     {
         _powered = false;
+		if (this is IImplantTraitChange && InstalledBody?.Actor is { } actor) actor.Gameworld.MagicCasting?.NotifyCapacityChange(actor);
     }
 
     #endregion

@@ -18,6 +18,6 @@ public static class TargetExtensions
 		}
 
 		ICorpse? corpse = targeter.TargetCorpse(keyword, ignoreFlags);
-		return corpse is null ? null : new BodyTargetResult(corpse.Parent, corpse, corpse.OriginalCharacter, corpse);
+		return corpse?.Body is null ? null : new BodyTargetResult(corpse.Parent, corpse, corpse.OriginalCharacter, corpse);
 	}
 }

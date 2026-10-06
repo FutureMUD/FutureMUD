@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Body.Traits;
@@ -74,6 +74,8 @@ public class TakedownMove : WeaponAttackMove
 
     public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
     {
+		using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterMove(this);
+		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
 		defenderMove = MagicDefenseMove.Revalidate(defenderMove, this);
         CheckOutcome attackRoll = Gameworld.GetCheck(Check)
                                   .Check(Assailant, CheckDifficulty, defenderMove.Assailant, null,
@@ -116,16 +118,20 @@ public class TakedownMove : WeaponAttackMove
             Attack.Profile.DamageExpression.EvaluateWith(Assailant, null, TraitBonusContext.UnarmedDamageCalculation,
                 ("degree", formulaDegree), ("quality", quality));
 
-		CharacterTarget.DoCombatKnockdown(attackRoll.Outcome.SuccessDegrees(),
-			VehicleCombatDisplacementType.Throw);
+        if (!CanContinueCommand()) return RefusedContinuationResult();
+        ApplyOwnedMutation(CharacterTarget, () => CharacterTarget.DoCombatKnockdown(attackRoll.Outcome.SuccessDegrees(),
+            VehicleCombatDisplacementType.Throw));
+        if (!CanContinueCommand()) return RefusedContinuationResult();
         Assailant.DoCombatKnockdown();
+        if (!CanContinueCommand()) return RefusedContinuationResult();
         Gameworld.Scheduler.DelayScheduleType(CharacterTarget, ScheduleType.Combat,
             TimeSpan.FromMilliseconds(Gameworld.GetStaticDouble("TakedownReelTime")));
         CharacterTarget.AddEffect(new Staggered(CharacterTarget),
             TimeSpan.FromMilliseconds(Gameworld.GetStaticDouble("StaggeringBlowStaggerEffectLength")));
+        if (!CanContinueCommand()) return RefusedContinuationResult();
         CharacterTarget.DefensiveAdvantage -= Gameworld.GetStaticDouble("TakedownDefensiveAdvantage");
 
-        IEnumerable<IWound> wounds = CharacterTarget.PassiveSufferDamage(new Damage
+        IEnumerable<IWound> wounds = CharacterTarget.CommandSufferDamage(new Damage
         {
             ActorOrigin = Assailant,
             LodgableItem = null,

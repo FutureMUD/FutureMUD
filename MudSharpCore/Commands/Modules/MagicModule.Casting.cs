@@ -12,9 +12,23 @@ public partial class MagicModule
 		var capabilities = actor.Gameworld.MagicCapabilities.OfType<IMagicCastingCapability>()
 			.Where(x => x.School.Id == school.Id && x.HasCastingPolicy).ToArray();
 		if (capabilities.Length == 0) return false;
-		if (command.EqualToAny("practice", "formula", "quiet", "area"))
+		var method = "Say";
+		if (command.EqualTo("quiet"))
 		{
-			actor.OutputHandler.Send("Practice, formula, quiet and area casting are unavailable in this implementation slice."); return true;
+			method = "Whisper";
+			if (input.IsFinished) { actor.OutputHandler.Send("Quiet casting is unavailable without an authored incantation policy and a complete named cast or formula."); return true; }
+			if (input.PeekSpeech().EqualTo("practice")) { actor.OutputHandler.Send("That quiet mode combination is not explicitly enabled."); return true; }
+			command = input.PeekSpeech().EqualToAny("formula", "area") ? input.PopSpeech() : "cast";
+		}
+		var area = command.EqualTo("area");
+		if (area)
+		{
+			if (input.IsFinished) { actor.OutputHandler.Send("Area casting is unavailable without an authored policy and complete area \"<spell>\" grade <1..7> on here request."); return true; }
+			command = input.PeekSpeech().EqualTo("formula") ? input.PopSpeech() : "cast";
+		}
+		if (command.EqualTo("formula"))
+		{
+			actor.OutputHandler.Send(service.CastFormula(actor, (area ? "area " : "") + input.RemainingArgument, method, school.Id)?.Message ?? "No complete authored formula matches."); return true;
 		}
 		var admitted = capabilities.SelectMany(x => x.CastingPolicy?.Admissions ?? []).Select(x => x.SpellId).ToHashSet();
 		if (command.EqualTo("spells"))
@@ -31,29 +45,47 @@ public partial class MagicModule
 			}
 			actor.OutputHandler.Send(sb.ToString()); return true;
 		}
-		if (!command.EqualToAny("cast", "spell", "spellhelp")) return false;
+		if (!command.EqualToAny("cast", "practice", "spell", "spellhelp")) return false;
+		var practice = command.EqualTo("practice");
 		var args = new StringStack(input.RemainingArgument);
 		var spellText = args.PopSpeech();
 		var selected = actor.Gameworld.MagicSpells.Where(x => x.Name.EqualTo(spellText) || x.Id.ToString() == spellText).ToArray();
-		if (selected.Length != 1 || !admitted.Contains(selected[0].Id)) return false;
+		if (selected.Length != 1 || !admitted.Contains(selected[0].Id))
+		{
+			if (!practice && !area && method == "Say") return false;
+			actor.OutputHandler.Send("No unique explicitly admitted spell matches that configured casting request."); return true;
+		}
 		var chosen = selected[0];
-		if (!command.EqualTo("cast"))
+		if (!command.EqualToAny("cast", "practice"))
 		{
 			var known = service.Acquisition(actor, chosen.Id);
 			var sb = new StringBuilder($"{chosen.Name}\n{chosen.Description}\nAcquisition: {(known is null ? "not acquired" : $"controlled grade {known.ControlledGrade}; {known.Provenance}")}\nNative school: {chosen.School.Name}\n");
 			AppendRoutes(sb, chosen.Id);
 			sb.AppendLine($"{school.SchoolVerb} cast \"{chosen.Name}\" grade <1..7> [overreach] on <target> [via <capability>]");
+			sb.AppendLine($"{school.SchoolVerb} practice \"{chosen.Name}\" grade <1..7> [overreach] [via <capability>] (target-free, explicitly authored practice only)");
+			if (chosen is MagicSpell { GradeProfile.Area: { } areaPolicy })
+			{
+				sb.AppendLine($"{school.SchoolVerb} area \"{chosen.Name}\" grade <1..7> [overreach] on here [via <capability>]");
+				sb.AppendLine($"Area includes caster {areaPolicy.IncludeCaster}, allies {areaPolicy.IncludeAllies}, others {areaPolicy.IncludeOthers}; {areaPolicy.Scope.DescribeEnum()}, {areaPolicy.Selection.DescribeEnum()}. Explicit native methods: {areaPolicy.Deliveries.Select(x => x.Method).ListToString()}.");
+			}
+			if (chosen is MagicSpell { GradeProfile.Incantation: { } incantation })
+			{
+				sb.AppendLine($"{school.SchoolVerb} quiet \"{chosen.Name}\" grade <1..7> [overreach] on <target> [via <capability>]");
+				sb.AppendLine($"{school.SchoolVerb} formula <POWER> {string.Join(" ", incantation.CategoryWords)} [overreach] on <target> [via <capability>] (five words in any order)");
+				sb.AppendLine($"Native speech or POWER + alias: {string.Join(", ", incantation.Aliases)}; select {actor.Gameworld.Languages.Get(incantation.LanguageId)?.Name}. Category vocabulary: {incantation.VocabularyProvenance}.");
+			}
 			actor.OutputHandler.Send(sb.ToString()); return true;
 		}
 		if (!args.PopSpeech().EqualTo("grade"))
 		{
-			if (chosen is MagicSpell native && native.HasLegacyRoute(actor)) return false;
-			actor.OutputHandler.Send("Configured casting requires grade <1..7>, optional overreach, and on <target>."); return true;
+			if (!practice && !area && method == "Say" && chosen is MagicSpell native && native.HasLegacyRoute(actor)) return false;
+			actor.OutputHandler.Send(practice ? "Practice requires grade <1..7> and optional overreach; it is target-free." :
+				"Configured casting requires grade <1..7>, optional overreach, and on <target>."); return true;
 		}
 		if (!int.TryParse(args.PopSpeech(), out var grade) || grade is < 1 or > 7)
 		{ actor.OutputHandler.Send("Specify an integer grade from 1 to 7."); return true; }
 		var overreach = args.PeekSpeech().EqualTo("overreach"); if (overreach) args.PopSpeech();
-		if (!args.PopSpeech().EqualTo("on")) { actor.OutputHandler.Send("Specify on <target> after the grade and optional overreach."); return true; }
+		if (!practice && !args.PopSpeech().EqualTo("on")) { actor.OutputHandler.Send("Specify on <target> after the grade and optional overreach."); return true; }
 		List<string> targets = []; string? via = null;
 		while (!args.IsFinished)
 		{
@@ -66,14 +98,16 @@ public partial class MagicModule
 			}
 			if (token.EqualToAny("practice", "formula", "quiet", "area"))
 			{ actor.OutputHandler.Send("That later casting mode is unavailable."); return true; }
+			if (practice) { actor.OutputHandler.Send("Practice is target-free; only a final via <capability> argument is permitted."); return true; }
 			targets.Add(token.Contains(' ') ? token.DoubleQuotes() : token);
 		}
-		if (targets.Count == 0) { actor.OutputHandler.Send("Specify a target; use self for a self-targeted spell."); return true; }
+		if (!practice && targets.Count == 0) { actor.OutputHandler.Send("Specify a target; use self for a self-targeted spell."); return true; }
 		var routes = capabilities.Where(x => actor.Capabilities.Any(c => c.Id == x.Id) && x.CastingPolicy?.Admissions.Any(a => a.SpellId == chosen.Id) == true &&
 			(via is null || x.Name.EqualTo(via) || x.Id.ToString() == via)).ToArray();
 		if (routes.Length != 1)
 		{ actor.OutputHandler.Send(routes.Length == 0 ? "No current explicitly admitted route matches that capability." : "Multiple routes admit that spell. Select via <capability>; energy does not select a route."); return true; }
-		actor.OutputHandler.Send(service.Cast(new(actor, routes[0].Id, chosen.Id, grade, overreach, string.Join(" ", targets))).Message);
+		actor.OutputHandler.Send(service.Cast(new(actor, routes[0].Id, chosen.Id, grade, overreach, string.Join(" ", targets),
+			practice ? MagicCastingMode.Practice : area ? MagicCastingMode.Area : MagicCastingMode.Manifest, Method: method)).Message);
 		return true;
 
 		void AppendRoutes(StringBuilder sb, long spellId)

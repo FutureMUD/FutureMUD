@@ -186,33 +186,14 @@ public partial class Character : ITarget
             return this;
         }
 
-        if (ignoreFlags.HasFlag(PerceiveIgnoreFlags.IgnoreLayers))
-        {
-            var body = Body!;
-            return SpatiallyTargetableCharacters(true)
-                           .Except(this)
-                           .Concat(SpatiallyTargetableItems(true).Select(x => x.GetItemType<ICorpse>())
-                                           .Where(x => x is { RepresentsFinalCharacterDeath: true })
-                                           .Select(x => x!.OriginalCharacter))
-                           .Concat(body.ExternalItems.Select(x => x.GetItemType<ICorpse>())
-                                       .Where(x => x is { RepresentsFinalCharacterDeath: true })
-                                       .Select(x => x!.OriginalCharacter))
-                           .Where(x => CanSee(x, ignoreFlags))
-                           .GetFromItemListByKeyword(keyword, this);
-        }
-
-        var localBody = Body!;
-        return SpatiallyTargetableCharacters()
-                       .Except(this)
-                       .Concat(SpatiallyTargetableItems()
-                                       .Select(x => x.GetItemType<ICorpse>())
-                                       .Where(x => x is { RepresentsFinalCharacterDeath: true })
-                                       .Select(x => x!.OriginalCharacter))
-                       .Concat(localBody.ExternalItems.Select(x => x.GetItemType<ICorpse>())
-                                      .Where(x => x is { RepresentsFinalCharacterDeath: true })
-                                      .Select(x => x!.OriginalCharacter))
-                       .Where(x => CanSee(x, ignoreFlags))
-                       .GetFromItemListByKeyword(keyword, this);
+		var ignoreLayers = ignoreFlags.HasFlag(PerceiveIgnoreFlags.IgnoreLayers);
+		return SpatiallyTargetableCharacters(ignoreLayers)
+			.Except(this)
+			.Concat(SpatiallyTargetableItems(ignoreLayers)
+				.Concat(Body!.ExternalItems)
+				.SelectNotNull(x => x?.GetItemType<ICorpse>().GetOriginalCharacterWithMatchingBody()))
+			.Where(x => CanSee(x, ignoreFlags))
+			.GetFromItemListByKeyword(keyword, this);
     }
 
     public ICorpse? TargetCorpse(string keyword, PerceiveIgnoreFlags ignoreFlags = PerceiveIgnoreFlags.None)

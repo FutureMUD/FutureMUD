@@ -1291,6 +1291,10 @@ public static class CharacterInstanceService
 
 	public static bool Retire(ICharacterInstance instance, out string whyNot, bool deleteTemporaryRows = true,
 		bool deathRetirement = false, bool removeOwningEffects = true)
+		=> RetireCore(instance, out whyNot, deleteTemporaryRows, deathRetirement, removeOwningEffects, false);
+
+	internal static bool RetireCore(ICharacterInstance instance, out string whyNot, bool deleteTemporaryRows,
+		bool deathRetirement, bool removeOwningEffects, bool bypassCorpseLifecycle)
 	{
 		if (instance is not Character secondary)
 		{
@@ -1303,6 +1307,10 @@ public static class CharacterInstanceService
 			whyNot = "Primary instances cannot be retired.";
 			return false;
 		}
+
+		if (!bypassCorpseLifecycle && secondary.InstanceKind == CharacterInstanceKind.AnimatedCorpse &&
+			secondary.Gameworld.SpellOwnedCorpseAnimations is { } animations && animations.OwnsInstance(secondary.InstanceId))
+			return animations.TryRetire(secondary.InstanceId, deathRetirement ? MudSharp.Magic.SpellRetirementReason.EarlyDeath : MudSharp.Magic.SpellRetirementReason.Dismissal, out whyNot);
 
 		var owner = secondary.Identity as Character;
 		if (removeOwningEffects &&
@@ -1370,6 +1378,8 @@ public static class CharacterInstanceService
 		secondary.Movement?.CancelForMoverOnly(secondary);
 		secondary.CombatTarget = null;
 		secondary.PositionTarget = null!;
+		secondary.CeaseFollowing();
+		secondary.QueuedMoveCommands.Clear();
 		secondary.Gameworld.EffectScheduler.Destroy(secondary, true);
 		secondary.Gameworld.Scheduler.Destroy(secondary);
 		secondary.Location?.Leave(secondary);
@@ -1393,6 +1403,8 @@ public static class CharacterInstanceService
 			owner.ForgetSecondaryInstance(secondary);
 		}
 
+		// The durable corpse adapter has already committed exact row removal in its own transaction.
+		if (!bypassCorpseLifecycle)
 		using (new FMDB())
 		{
 			var dbinstance = FMDB.Context.CharacterInstances.Find(secondary.InstanceId);

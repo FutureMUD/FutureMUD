@@ -657,6 +657,7 @@ public partial class Character
 
 	private void SaveForms(MudSharp.Models.Character dbchar)
 	{
+		SaveBodyRetirements(dbchar);
 		dbchar.BodyId = Body.Id;
 
 		var removedForms = dbchar.CharacterBodies
@@ -1478,6 +1479,7 @@ public partial class Character
 		_isSwitchingBodies = true;
 		try
 		{
+			using var capacityRestoration = DeferCastingCapacityReconciliation(false);
 			PrepareForBodySwitch();
 			Body = newBody;
 			newBody.ActivateForCharacter();
@@ -1486,6 +1488,8 @@ public partial class Character
 			_gender = Body.Gender;
 			PostProcessBodySwitch();
 			newBody.FinaliseSwitchActivation();
+			capacityRestoration.Dispose();
+			ReconcileCastingResourceCapacities();
 			EmitTransformationEcho(form, oldBody, Body);
 			CurrentBodyChanged?.Invoke(this, oldBody, Body);
 			Gameworld.MagicCasting?.Reconcile(this);

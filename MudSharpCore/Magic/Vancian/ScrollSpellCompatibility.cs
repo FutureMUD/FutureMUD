@@ -65,6 +65,20 @@ public static class ScrollSpellCompatibility
 				yield return ("Budget", x.BudgetExpression, e => x.BudgetExpression = e);
 				yield return ("Rate", x.RateExpression, e => x.RateExpression = e);
 				break;
+			case CreateNPCEffect { LifetimeExpression: { } expression } x:
+				yield return ("LifetimeSeconds", expression, e => x.LifetimeExpression = e);
+				break;
+			case CreateLiquidEffect { LitresExpression: { } liquidExpression } x:
+				yield return ("Litres", liquidExpression, e => x.LitresExpression = e);
+				break;
+			case CreateItemEffect { LifetimeExpression: { } itemExpression } x:
+				yield return ("LifetimeSeconds", itemExpression, e => x.LifetimeExpression = e);
+				break;
+			case AnimateCorpseSpellEffect { LifetimeExpression: { } corpseExpression } x:
+				yield return ("LifetimeSeconds", corpseExpression, e => x.LifetimeExpression = e);
+				if (x.ControlExpression is { } controlExpression)
+					yield return ("ControlSeconds", controlExpression, e => x.ControlExpression = e);
+				break;
 		}
 	}
 	public static IReadOnlyList<string> Errors(IMagicSpell spell, bool requireOptIn = true)

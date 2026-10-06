@@ -48,6 +48,7 @@ namespace MudSharp.GameItems
         IReadOnlyDictionary<string, string> DefaultVariables { get; }
         IGameItemGroup ItemGroup { get; }
         bool Morphs { get; }
+		long? MorphTargetId { get; }
         TimeSpan MorphTimeSpan { get; }
 		bool RefrigerationSensitive { get; }
         string MorphEmote { get; }

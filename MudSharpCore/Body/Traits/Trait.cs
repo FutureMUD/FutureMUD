@@ -1,5 +1,6 @@
-﻿using MudSharp.Database;
+using MudSharp.Database;
 using MudSharp.RPG.Checks;
+using MudSharp.Body.Traits.Subtypes;
 
 namespace MudSharp.Body.Traits;
 
@@ -17,6 +18,8 @@ public abstract class Trait : FrameworkItem, ITrait
     protected IHaveTraits _owner;
 
     protected double _value;
+	private ulong _valueMutationVersion;
+	internal ulong ValueMutationVersion => _valueMutationVersion;
 
     protected Trait(MudSharp.Models.Trait trait, IHaveTraits owner)
     {
@@ -36,13 +39,17 @@ public abstract class Trait : FrameworkItem, ITrait
         get => _value;
         set
         {
+            using var write = CheckLearningScope.EnterValueWrite(this);
             if (value > MaxValue)
             {
                 value = Math.Max(_value, MaxValue);
             }
 
+            if (!write.CanContinue()) return;
             double oldVal = _value;
             _value = value;
+			if (_value != oldVal) ++_valueMutationVersion;
+            write.RecordChange(_value != oldVal);
             if (_value != oldVal)
             {
                 TraitChanged(oldVal, _value);
@@ -136,5 +143,7 @@ public abstract class Trait : FrameworkItem, ITrait
         Changed = true;
 		if (Definition.OwnerScope == TraitOwnerScope.Character && Owner is ICharacter character)
 			Gameworld.MagicCasting?.NotifyProgress(character, traitId: Definition.Id);
+		if (Definition is IAttributeDefinition && Owner is IBody { Actor: { } actor })
+			Gameworld.MagicCasting?.NotifyCapacityChange(actor);
     }
 }

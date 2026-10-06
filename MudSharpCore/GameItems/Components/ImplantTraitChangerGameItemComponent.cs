@@ -11,6 +11,8 @@ public class ImplantTraitChangerGameItemComponent : ImplantBaseGameItemComponent
     protected override void UpdateComponentNewPrototype(IGameItemComponentProto newProto)
     {
         _prototype = (ImplantTraitChangerGameItemComponentProto)newProto;
+		base.UpdateComponentNewPrototype(newProto);
+		if (InstalledBody?.Actor is { } actor) actor.Gameworld.MagicCasting?.NotifyCapacityChange(actor);
     }
 
     #region Constructors

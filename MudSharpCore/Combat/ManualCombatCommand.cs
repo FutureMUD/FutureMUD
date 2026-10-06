@@ -136,7 +136,9 @@ public class ManualCombatCommand : SaveableItem, IManualCombatCommand
 
 	public bool IsUsableBy(ICharacter actor, ICharacter target)
 	{
-		return UsabilityProg?.ExecuteBool(actor, null, target) ?? true;
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue()) return false;
+		var permitted = UsabilityProg?.ExecuteBool(actor, null, target) ?? true;
+		return MudSharp.NPC.AI.CommandExecutionScope.TryContinue() && permitted;
 	}
 
 	public IManualCombatCommand Clone(string name)

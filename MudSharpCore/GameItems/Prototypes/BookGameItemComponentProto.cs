@@ -1,4 +1,4 @@
-﻿using MudSharp.Accounts;
+using MudSharp.Accounts;
 using MudSharp.Communication;
 using MudSharp.Communication.Language;
 using MudSharp.Framework.Revision;
@@ -462,7 +462,8 @@ public class BookGameItemComponentProto : GameItemComponentProto, IWriteableProt
 
 		actor.EditorMode((text, handler, _) =>
 		{
-			var provenance = writing.Author?.Name ?? (writing.GetProperty("provenance")?.GetObject as string) ?? string.Empty;
+			var provenance = writing.Author?.Name ?? writing.ArchivedAuthor?.DisplayName ??
+				(writing.AuthorId is > 0 ? writing.AuthorName() : (writing.GetProperty("provenance")?.GetObject as string) ?? string.Empty);
 			var replacement = new PrintedWriting(Gameworld, text, writing.Language, writing.Script, provenance, writing.Style,
 				writing.WritingColour, writing.LiteracySkill, writing.LanguageSkill, writing.HandwritingSkill, writing.ForgerySkill);
 			var index = _initialReadables.IndexOf(template);

@@ -642,6 +642,7 @@ public class CharacterCommandManager : CommandManager<ICharacter>, ICharacterCom
             return false;
         }
 
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(argument)) return false;
         return command.Execute(argument, playerInput, state, permissionLevel, outputHandler);
     }
 

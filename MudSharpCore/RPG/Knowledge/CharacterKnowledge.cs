@@ -17,7 +17,15 @@ public class CharacterKnowledge : SaveableItem, ICharacterKnowledge
     private DateTime _whenAcquired;
 
     public CharacterKnowledge(ICharacter character, IKnowledge knowledge, string howacquired)
+        : this(character, knowledge, howacquired, deferInitialisation: false)
     {
+    }
+
+    internal CharacterKnowledge(ICharacter character, IKnowledge knowledge, string howacquired, bool deferInitialisation)
+    {
+        // The native character insertion owns the initial knowledge row. Suppress this child's
+        // independent save queue and ID-triggered flush until that graph has committed.
+        _noSave = deferInitialisation;
         Gameworld = character.Gameworld;
         Character = character;
         Knowledge = knowledge;

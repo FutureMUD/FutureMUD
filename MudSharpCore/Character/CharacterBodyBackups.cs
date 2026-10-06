@@ -62,6 +62,7 @@ public partial class Character
 
 	private void RetireBodyForm(IBody body)
 	{
+		RecordBodyRetirement(body);
 		_forms.RemoveAll(x => x.Body == body);
 		_formSources.RemoveAll(x => x.Body == body);
 		Changed = true;
@@ -112,6 +113,7 @@ public partial class Character
 		}
 
 		var oldLocation = Location;
+		using var capacityRestoration = DeferCastingCapacityReconciliation(false);
 		var oldLayer = RoomLayer;
 		var oldBodyInterface = Body;
 		var combatTarget = CombatTarget;
@@ -158,10 +160,13 @@ public partial class Character
 		}
 
 		newBody.FinaliseSwitchActivation();
+		capacityRestoration.Dispose();
+		ReconcileCastingResourceCapacities();
 		EmitBodyBackupEcho(backup.NewLocationEcho, remains, oldBodyInterface, newBody);
 		SendBodyBackupSelfEcho(backup.SelfEcho, remains, oldBodyInterface, newBody);
 		PostProcessBodySwitch();
 		CurrentBodyChanged?.Invoke(this, oldBodyInterface, Body);
+		Gameworld.MagicCasting?.Reconcile(this);
 		Changed = true;
 		return true;
 	}

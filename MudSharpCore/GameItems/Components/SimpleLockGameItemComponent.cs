@@ -9,6 +9,12 @@ namespace MudSharp.GameItems.Components;
 
 public class SimpleLockGameItemComponent : GameItemComponent, ILock
 {
+	internal override Action CaptureCustodyRollback()
+	{
+		var locked = _isLocked; var pattern = _pattern; var exit = InstalledExit;
+		return () => { _isLocked = locked; _pattern = pattern; InstalledExit = exit; };
+	}
+
     private SimpleLockGameItemComponentProto _prototype;
     public IExit InstalledExit { get; set; }
     public override IGameItemComponentProto Prototype => _prototype;

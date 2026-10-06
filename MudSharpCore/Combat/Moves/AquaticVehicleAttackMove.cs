@@ -33,6 +33,8 @@ public sealed class AquaticVehicleAttackMove : CombatMoveBase
 
 	public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
 	{
+		using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterMove(this);
+		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
 		var vehicle = _targetItem.GetItemType<IVehicleExterior>()?.Vehicle;
 		if (vehicle is null || vehicle.Destroyed || !vehicle.IsSurfaceWaterVehicle() ||
 		    !ReferenceEquals(vehicle.ExteriorItem, _targetItem) || !vehicle.Occupants.Any())

@@ -171,6 +171,13 @@ public partial class Character : IMagicUser
     {
 		var owner = CastingResourceOwner(resource);
 		if (!ReferenceEquals(owner, this)) return owner.CanUseResource(resource, amount);
+		if (IsCastingReserve(resource))
+		{
+			if (!double.IsFinite(amount) || amount < 0 || !double.IsFinite(_magicResourceAmounts[resource]) ||
+				!MagicResourceCapacity.TryGetCap(resource, this, out var cap, out _)) return false;
+			var available = CastingCapacityMutationActive ? _magicResourceAmounts[resource] : Math.Min(_magicResourceAmounts[resource], cap);
+			return available >= amount;
+		}
         return _magicResourceAmounts[resource] >= amount;
     }
 
@@ -178,6 +185,16 @@ public partial class Character : IMagicUser
     {
 		var owner = CastingResourceOwner(resource);
 		if (!ReferenceEquals(owner, this)) return owner.UseResource(resource, amount);
+		using var deviceAdmission = MagicResourceCapacityAdmission.BeginDebit(this, resource, amount);
+		if (IsCastingReserve(resource))
+		{
+			if (!double.IsFinite(amount) || amount < 0 || !double.IsFinite(_magicResourceAmounts[resource]) ||
+				!MagicResourceCapacity.TryGetCap(resource, this, out var cap, out _)) return false;
+			var available = CastingCapacityMutationActive ? _magicResourceAmounts[resource] : Math.Min(_magicResourceAmounts[resource], cap);
+			if (available < amount) return false;
+			_magicResourceAmounts[resource] = available - amount; ResourcesChanged = true;
+			return true;
+		}
         if (_magicResourceAmounts[resource] >= amount)
         {
             _magicResourceAmounts[resource] -= amount;
@@ -203,10 +220,14 @@ public partial class Character : IMagicUser
             return;
         }
 
+        if (!double.IsFinite(amount) || !MagicResourceCapacity.TryGetCap(resource, this, out var cap, out _)) return;
         double old = _magicResourceAmounts[resource];
-        _magicResourceAmounts[resource] += amount;
+		if (!double.IsFinite(old) || IsCastingReserve(resource) && old < 0) return;
+        var credited = old + amount;
+		if (!double.IsFinite(credited)) return;
+		// A compound mutation applies legitimate deltas before its completed maximum clamps the reserve.
         _magicResourceAmounts[resource] = Math.Max(0.0,
-            Math.Min(_magicResourceAmounts[resource], resource.ResourceCap(this)));
+			IsCastingReserve(resource) && CastingCapacityMutationActive ? credited : Math.Min(credited, cap));
         if (old != _magicResourceAmounts[resource])
         {
             ResourcesChanged = true;

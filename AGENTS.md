@@ -82,6 +82,12 @@ Only the coordinator delegates or escalates; children return blockers and eviden
 
 QA agents do not repair code or weaken assertions. The coordinator diagnoses/fixes failed checks and requests a focused rerun. Preserve failures and unexecuted checks in the final result. A blocked check, ambiguous transcript or successful build is not proof that gameplay works.
 
+### Scope discipline
+
+Keep work focused on the assigned outcome. When you encounter a useful unrelated finding, record its location, reproducible evidence (such as a command, failing check or concrete code path), and likely impact. Within your permitted actions, you may make a trivial, obvious correction on the spot, such as a single straightforward logical error with no broader ramifications; report the correction with the task result. A small diff alone does not make a change trivial. Report other findings to the coordinator for a GitHub issue or separate task and defer their fixes; ask the coordinator when scope is uncertain. Do not expand the investigation beyond the evidence needed to explain the finding.
+
+Distinguish a true blocker that must be resolved to complete or correctly verify the requested work from an adjacent improvement that can wait. Surface any necessary scope expansion, with its reason, for the coordinator to decide before proceeding. Continue unblocked assigned work; keep required checks and correctness standards intact, and report failures rather than suppressing them.
+
 ### Escalation
 
 Use `fm_escalation_specialist` for one unresolved root cause or high-risk design decision, not merely because a task is large. First distinguish missing evidence, tools, permissions or requirements from a reasoning bottleneck. Do not force cheaper-model failures before an obviously high-risk consultation.

@@ -19,6 +19,12 @@ The implementation is intentionally zone-local. A deceased character may generat
 - After the owning economic zone's `EstateDefaultDiscoverTime` expires, the estate moves to `ClaimPhase`.
 - Administrators or authorised zone managers can move an `Undiscovered` estate directly into `ClaimPhase` with `estate open <id>`.
 - Morgue intake opens probate immediately rather than waiting for the discovery timer, but only when an estate actually exists for the deceased in that zone.
+
+Morgue intake prevalidates the corpse's original body and owner. If either reference is
+unresolved, or the exact corpse body differs from the owner's current body, it returns
+refusal before estate processing or custody mutations. Corpse
+recovery preserves the assigned report and does not emit a success emote for that refusal;
+a resolved intake can complete successfully even when it has no estate.
 - After the owning economic zone's `EstateClaimPeriodLength` expires:
   - estates with no approved claims finalise directly;
   - estates with approved claims only move to `Liquidating` if at least one approved claim actually requires liquidation.

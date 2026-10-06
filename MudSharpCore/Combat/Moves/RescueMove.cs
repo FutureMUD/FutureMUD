@@ -1,4 +1,4 @@
-﻿using MudSharp.Effects.Concrete;
+using MudSharp.Effects.Concrete;
 using MudSharp.RPG.Checks;
 
 namespace MudSharp.Combat.Moves;
@@ -16,6 +16,8 @@ public class RescueMove : CombatMoveBase
 
     public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
     {
+		using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterMove(this);
+		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
         List<ICharacter> targets =
             Target.Combat.Combatants.Where(
                       x => x.CombatTarget == Target && x.MeleeRange && x.ColocatedWith(Target) &&

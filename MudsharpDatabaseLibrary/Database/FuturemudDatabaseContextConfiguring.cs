@@ -24,6 +24,9 @@ namespace MudSharp.Database
 			ConfigureNativeLanguages(modelBuilder);
 			ConfigureVancianMagic(modelBuilder);
 			ConfigureMagicCasting(modelBuilder);
+			ConfigureSpellLifecycles(modelBuilder);
+			ConfigureBodyRetirements(modelBuilder);
+			ConfigureCharacterArchives(modelBuilder);
 			ConfigureEnvironmentalMagic(modelBuilder);
 			ConfigureMagicGathering(modelBuilder);
             OnModelCreatingPartial(modelBuilder);

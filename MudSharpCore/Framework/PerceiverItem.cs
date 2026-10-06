@@ -11,6 +11,8 @@ using MudSharp.Events;
 using MudSharp.Form.Material;
 using MudSharp.GameItems;
 using MudSharp.Movement;
+using MudSharp.NPC.AI;
+using MudSharp.Character;
 using System.Globalization;
 
 namespace MudSharp.Framework;
@@ -143,11 +145,13 @@ public abstract class PerceiverItem : PerceivedItem, IPerceiver
         get => _combatTarget;
         set
         {
+            if (this is ICharacter actor && !CommandExecutionScope.TryContinue(actor)) return;
             if (_combatTarget != value)
             {
                 //Aim?.ReleaseEvents();
                 //Aim = null;
                 RemoveAllEffects(x => x.IsEffectType<ICombatEffectRemovedOnTargetChange>());
+                if (this is ICharacter executor && !CommandExecutionScope.TryContinue(executor)) return;
                 if (TargettedBodypart != null &&
                     !(value is ICharacter tch && tch.Body.Bodyparts.Contains(TargettedBodypart)))
                 {
@@ -155,6 +159,7 @@ public abstract class PerceiverItem : PerceivedItem, IPerceiver
                 }
             }
 
+            if (this is ICharacter current && !CommandExecutionScope.TryContinue(current)) return;
             _combatTarget = value;
         }
     }
@@ -169,12 +174,14 @@ public abstract class PerceiverItem : PerceivedItem, IPerceiver
         get => _aim;
         set
         {
+            if (this is ICharacter actor && !CommandExecutionScope.TryContinue(actor)) return;
             if (_aim != null)
             {
                 _aim.AimInvalidated -= Aim_AimInvalidated;
                 _aim.ReleaseEvents();
             }
 
+            if (this is ICharacter current && !CommandExecutionScope.TryContinue(current)) return;
             _aim = value;
             if (_aim != null)
             {

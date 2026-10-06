@@ -77,6 +77,7 @@ public class EffectHandler : IEffectHandler
         {
             EffectsChanged = true;
         }
+		NotifyCastingInputChange(effect);
     }
 
     public void AddEffect(IEffect effect, TimeSpan duration)
@@ -104,6 +105,7 @@ public class EffectHandler : IEffectHandler
         }
 
         _effects.Remove(effect);
+		NotifyCastingInputChange(effect);
         Gameworld.EffectScheduler.Unschedule(effect);
         if (effect.SavingEffect)
         {
@@ -119,15 +121,40 @@ public class EffectHandler : IEffectHandler
 
     public void RemoveAllEffects()
     {
-        foreach (IEffect effect in _effects.ToList())
+        var effects = _effects.ToList();
+		using var capacityChange = DeferAttributeCapacityChanges(effects);
+        foreach (IEffect effect in effects)
         {
             RemoveEffect(effect);
         }
     }
 
+	private void NotifyCastingInputChange(IEffect effect)
+	{
+		var physicalInput = effect is ISilencedEffect or IBodypartIneffectiveEffect or ILimbIneffectiveEffect or IForceParalysisEffect;
+		var capacityInput = effect is ITraitBonusEffect or MudSharp.Effects.Concrete.PsychicSuppressionEffect;
+		if (!physicalInput && !capacityInput) return;
+		var actor = Parent as MudSharp.Character.ICharacter ?? (Parent as MudSharp.Body.IBody)?.Actor;
+		if (actor is null) return;
+		if (physicalInput) Gameworld.MagicCasting?.NotifyPracticeInputsChanged(actor);
+		if (capacityInput) Gameworld.MagicCasting?.NotifyCapacityChange(actor);
+	}
+
+	private IDisposable? DeferAttributeCapacityChanges(IEnumerable<IEffect> effects)
+	{
+		if (!effects.Any(x => x is ITraitBonusEffect or MudSharp.Effects.Concrete.PsychicSuppressionEffect ||
+			x is IMagicSpellEffectParent parent && parent.SpellEffects.Any(child =>
+				child is ITraitBonusEffect or MudSharp.Effects.Concrete.PsychicSuppressionEffect))) return null;
+		var actor = Parent as MudSharp.Character.Character ??
+			(Parent as MudSharp.Body.IBody)?.Actor as MudSharp.Character.Character;
+		return actor?.DeferCastingCapacityReconciliationForMutation();
+	}
+
     public void RemoveAllEffects(Predicate<IEffect> predicate, bool fireRemovalAction = false)
     {
-        foreach (IEffect effect in _effects.Where(x => predicate(x)).ToList())
+        var effects = _effects.Where(x => predicate(x)).ToList();
+		using var capacityChange = DeferAttributeCapacityChanges(effects);
+        foreach (IEffect effect in effects)
         {
             RemoveEffect(effect, fireRemovalAction);
         }
@@ -137,6 +164,7 @@ public class EffectHandler : IEffectHandler
     {
         List<T> effects = (predicate != null ? _effects.OfType<T>().Where(x => predicate(x)) : _effects.OfType<T>())
             .ToList();
+		using var capacityChange = DeferAttributeCapacityChanges(effects.Cast<IEffect>());
         foreach (T effect in effects)
         {
             RemoveEffect(effect, fireRemovalAction);

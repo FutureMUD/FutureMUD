@@ -1,4 +1,4 @@
-﻿using MudSharp.Database;
+using MudSharp.Database;
 using MudSharp.Framework.Save;
 using MudSharp.Models;
 
@@ -52,7 +52,7 @@ public class Drawing : LateInitialisingItem, IDrawing, ILazyLoadDuringIdleTime
         Gameworld = rhs.Gameworld;
         Gameworld.SaveManager.AddInitialisation(this);
         _authorId = rhs._authorId;
-        _author = rhs.Author;
+        _author = rhs._author;
         ShortDescription = rhs.ShortDescription;
         FullDescription = rhs.FullDescription;
         ImplementType = rhs.ImplementType;
@@ -66,7 +66,7 @@ public class Drawing : LateInitialisingItem, IDrawing, ILazyLoadDuringIdleTime
         Gameworld = author.Gameworld;
         Gameworld.SaveManager.AddInitialisation(this);
         _authorId = author.Id;
-        _author = author;
+        _author = new WeakReference<ICharacter>(author);
         ShortDescription = shortDescription;
         FullDescription = fullDescription;
         ImplementType = implementType;
@@ -135,20 +135,13 @@ public class Drawing : LateInitialisingItem, IDrawing, ILazyLoadDuringIdleTime
     public DrawingSize DrawingSize { get; protected set; }
 
     private long _authorId;
-    private ICharacter _author;
+    private WeakReference<ICharacter> _author;
 
-    public ICharacter Author
-    {
-        get
-        {
-            if (_author == null)
-            {
-                _author = Gameworld.TryGetCharacter(_authorId, true);
-            }
+    public long? AuthorId => _authorId;
+    public MudSharp.Character.ArchivedCharacterIdentity ArchivedAuthor =>
+        HistoricalAuthorReference.Archived(Gameworld, _authorId, ref _author);
 
-            return _author;
-        }
-    }
+    public ICharacter Author => HistoricalAuthorReference.Live(Gameworld, _authorId, ref _author);
 
     public double DrawingSkill { get; protected set; }
 
@@ -159,10 +152,7 @@ public class Drawing : LateInitialisingItem, IDrawing, ILazyLoadDuringIdleTime
 
     public void DoLoad()
     {
-        if (_author == null && _authorId != 0)
-        {
-            _author = Gameworld.TryGetCharacter(_authorId, true);
-        }
+        _ = Author;
     }
 
     public string ParseFor(ICharacter voyeur)

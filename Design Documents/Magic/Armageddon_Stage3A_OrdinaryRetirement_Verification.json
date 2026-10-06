@@ -1,0 +1,721 @@
+{
+  "schema_version": 1,
+  "stage": "Phase3A P2 ordinary backup-body retirement correction",
+  "status": "implemented_and_verified_parent_rereview_pending",
+  "base_commit": "a059338c9d15a8c7135c5192509f28e3c0f7a5ee",
+  "implementation_commit": "8ab37546b050d895a31d3d3097e818da0a987d9b",
+  "branch": "codex/armageddon-completion-phase1",
+  "recorded_utc": "2026-10-02T23:14:27.210821+00:00",
+  "source_authority": {
+    "library_file_id": "libfile_a4606cd0097081918d6c9d9e220e6da0",
+    "file_id": "file_00000000273481fab2e542daf8801228",
+    "reported_version": 0,
+    "read_version_id": null,
+    "size_bytes": 131071,
+    "total_lines": 905,
+    "windows": [
+      [
+        1,
+        300
+      ],
+      [
+        301,
+        450
+      ],
+      [
+        451,
+        600
+      ],
+      [
+        601,
+        750
+      ],
+      [
+        751,
+        905
+      ]
+    ],
+    "has_more": false,
+    "complete_content_read": true,
+    "access_route": "Library read; full contiguous windows; no materialized substitute",
+    "read_complete_at_utc": "2026-10-02T07:41:07.312Z",
+    "rendered_content_utf8_bytes": 131070
+  },
+  "parent_review_finding": "RetireBodyForm removes ordinary ownership mappings; SaveForms persists that removal; last non-final remains release then lacks spell or form ownership and refuses cleanup indefinitely.",
+  "prior_phase3A": {
+    "implementation": "65c41a99d8a6c296311bbaaf47149cf8e38a7163",
+    "handoff": "a059338c9d15a8c7135c5192509f28e3c0f7a5ee",
+    "receipt": "Armageddon_Stage3A_Verification.json",
+    "receipt_sha256": "06d591e0476e07539e4da37cd008d796f0df36d49d0d9fc7c58cd85e96694246",
+    "receipt_unchanged": true,
+    "actual_result": "5002 composite project passes, including retained two-TEMP-failure combined run followed by owned-TEMP database64 pass; 123 native markers and eight owned DBs cleaned"
+  },
+  "implemented": [
+    "Capture exact ordinary body/character/UTC retirement before runtime mapping removal; validate persisted canonical/form/source ownership and save provenance atomically with form/source pruning and current-body movement.",
+    "Generated EF9.0.11 migration/designer/snapshot adds CharacterBodyRetirements only: body primary key, body-dependent Cascade and canonical-character Restrict FK; no ordinary spell claim.",
+    "Corpse and severed-part loaders recover the exact retired body plus inventory after restart without recreating a controllable form; positive non-final IDs cannot silently redirect to the current body.",
+    "Validated serializable body cleanup accepts exact ordinary provenance while retaining canonical/current/borrowed/instance/reference/possession protections, and consumes provenance with body deletion.",
+    "Three Core regressions and one persistence-model regression; native failing-before and passing-after path, forced provider rollback/retry and independent-process exact reload."
+  ],
+  "managed": {
+    "focused_core": {
+      "run_id": "20261002T225830Z-1516a1770e66",
+      "head": "a059338c9d15a8c7135c5192509f28e3c0f7a5ee",
+      "status": "PASS",
+      "counts": {
+        "executed": 85,
+        "passed": 85,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 85
+      },
+      "filter": "FullyQualifiedName~RetiredBodyCleanupTests|FullyQualifiedName~BodyFormLifecyclePolicyTests|FullyQualifiedName~BodyFormLifecycleGuardTests|FullyQualifiedName~CharacterInstance",
+      "configuration": "Debug",
+      "sdk": "10.0.401",
+      "started_utc": "2026-10-02T22:58:30.4585848+00:00",
+      "ended_utc": "2026-10-02T22:58:42.2818414+00:00",
+      "source_start": "ad84bcdc55f9d3dcc3027155128ace9302ed068ab9a2785903fb8639f9d5306f",
+      "source_end": "ad84bcdc55f9d3dcc3027155128ace9302ed068ab9a2785903fb8639f9d5306f",
+      "source_stable": true,
+      "execution_complete": true,
+      "counts_complete": true,
+      "projects": [
+        "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+      ],
+      "summary_path": ".artifacts/test-runs/20261002T225830Z-1516a1770e66/summary.json",
+      "summary_sha256": "2f52ca7bb812237a29d380fd5c6ca97ffa1ce04fcba4c307f9f2ee997d643732",
+      "failures_path": ".artifacts/test-runs/20261002T225830Z-1516a1770e66/failures.json",
+      "failures_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "issues": [],
+      "project_counts": [
+        {
+          "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+          "counts": {
+            "executed": 85,
+            "passed": 85,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 85
+          }
+        }
+      ]
+    },
+    "focused_database": {
+      "run_id": "20261002T225933Z-15a21c867a08",
+      "head": "a059338c9d15a8c7135c5192509f28e3c0f7a5ee",
+      "status": "PASS",
+      "counts": {
+        "executed": 2,
+        "passed": 2,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 2
+      },
+      "filter": "FullyQualifiedName~OrdinaryBodyRetirementModelTests|FullyQualifiedName~SpellLifecycleModelTests",
+      "configuration": "Debug",
+      "sdk": "10.0.401",
+      "started_utc": "2026-10-02T22:59:33.0692975+00:00",
+      "ended_utc": "2026-10-02T22:59:39.4392978+00:00",
+      "source_start": "4cbe950acf2236e4e369cd6b42896c617a0d67667cc887ca38d96539383479b3",
+      "source_end": "4cbe950acf2236e4e369cd6b42896c617a0d67667cc887ca38d96539383479b3",
+      "source_stable": true,
+      "execution_complete": true,
+      "counts_complete": true,
+      "projects": [
+        "MudsharpDatabaseLibrary Unit Tests/MudsharpDatabaseLibrary Unit Tests.csproj"
+      ],
+      "summary_path": ".artifacts/test-runs/20261002T225933Z-15a21c867a08/summary.json",
+      "summary_sha256": "0aef79e014e33d7798e01cb68b0074756be2d3e438a8189427b3d4c6b8e3b72e",
+      "failures_path": ".artifacts/test-runs/20261002T225933Z-15a21c867a08/failures.json",
+      "failures_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "issues": [],
+      "project_counts": [
+        {
+          "project": "MudsharpDatabaseLibrary Unit Tests/MudsharpDatabaseLibrary Unit Tests.csproj",
+          "counts": {
+            "executed": 2,
+            "passed": 2,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 2
+          }
+        }
+      ]
+    },
+    "aggregate": {
+      "run_id": "20261002T230052Z-ae8dd8f99fff",
+      "head": "a059338c9d15a8c7135c5192509f28e3c0f7a5ee",
+      "status": "PASS",
+      "counts": {
+        "executed": 5006,
+        "passed": 5006,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 5006
+      },
+      "filter": null,
+      "configuration": "Debug",
+      "sdk": "10.0.401",
+      "started_utc": "2026-10-02T23:00:52.7907374+00:00",
+      "ended_utc": "2026-10-02T23:01:52.3746669+00:00",
+      "source_start": "6677aa1ec53240f4a8611c2db83e2639e7cf0ca7889fd8c084044bf6a1443962",
+      "source_end": "6677aa1ec53240f4a8611c2db83e2639e7cf0ca7889fd8c084044bf6a1443962",
+      "source_stable": true,
+      "execution_complete": true,
+      "counts_complete": true,
+      "projects": [
+        "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+        "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+        "MudsharpDatabaseLibrary Unit Tests/MudsharpDatabaseLibrary Unit Tests.csproj"
+      ],
+      "summary_path": ".artifacts/test-runs/20261002T230052Z-ae8dd8f99fff/summary.json",
+      "summary_sha256": "13f49dfeb20a7be7ca3bd31f955ede6fe7d58dde0d372f289aed304d866d920a",
+      "failures_path": ".artifacts/test-runs/20261002T230052Z-ae8dd8f99fff/failures.json",
+      "failures_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "issues": [],
+      "project_counts": [
+        {
+          "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+          "counts": {
+            "executed": 4380,
+            "passed": 4380,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 4380
+          }
+        },
+        {
+          "project": "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+          "counts": {
+            "executed": 561,
+            "passed": 561,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 561
+          }
+        },
+        {
+          "project": "MudsharpDatabaseLibrary Unit Tests/MudsharpDatabaseLibrary Unit Tests.csproj",
+          "counts": {
+            "executed": 65,
+            "passed": 65,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 65
+          }
+        }
+      ]
+    },
+    "single_combined_run_passed": true,
+    "project_counts": {
+      "core": 4380,
+      "library": 561,
+      "database": 65,
+      "aggregate": 5006
+    },
+    "new_regressions": 4,
+    "environment": "Owned unique process-local TEMP/TMP and exact process-local Git safe.directory trust, restored afterward; no global setting changes."
+  },
+  "migration": {
+    "tool": "EF9.0.11 repository-local tool",
+    "name": "20261002225323_OrdinaryBodyRetirement",
+    "generation": ".artifacts/phase3a-ordinary-migration-generation.log",
+    "generation_sha256": "3b37e330a054a7d31a4068f3d0d6964b1ad48330e40c1f21aeb243ac3f6bec3b",
+    "model_parity": "PASS; no pending model changes",
+    "parity_log": ".artifacts/phase3a-ordinary-model-parity.log",
+    "parity_sha256": "c924da1693ad60eb6a78717ddd333946a8a61a056c2ce2868ae514384f01c866",
+    "application": "PASS on owned disposable MySQL acceptance databases; no shared/production target"
+  },
+  "native": {
+    "schema_version": 1,
+    "status": "PASS",
+    "base": "a059338c9d15a8c7135c5192509f28e3c0f7a5ee",
+    "mode": "CastingOnly+LifecycleOnly+BodyRetirementOnly",
+    "started_utc": "2026-10-02T23:04:47.876804+00:00",
+    "ended_utc": "2026-10-02T23:11:23.3412584Z",
+    "exit_code": 0,
+    "configuration": "Debug",
+    "mysql": "8.0.45",
+    "log": ".artifacts/test-runs/native-armageddon-20261002-stage3A-review/final-native.log",
+    "log_sha256": "afabd9f3dd7cbed31411c03f6af978533088be663332fd9d324dd48b21540491",
+    "input_manifest": ".artifacts/test-runs/native-armageddon-20261002-stage3A-review/final-inputs.json",
+    "input_manifest_sha256": "9fcd109228bf1b2b3b423058f2a2974a517bf275cfd2a895677b28ef3c4a34b4",
+    "marker_count": 127,
+    "ordinary_marker_count": 4,
+    "lifecycle_marker_count": 16,
+    "prior_casting_marker_count": 107,
+    "owned_databases_cleaned": 9,
+    "temporary_mysql_cleanup_verified": true,
+    "owned_processes_remaining": 0,
+    "passed_markers": [
+      "ARM02-schema=passed blank-snapshot-import empty-casting-tables generated-migration-and-model-parity",
+      "ARM02-receipt=passed operation:10c4450e-413e-4891-8dc3-1ace9a3cd000 character:1 actor:1 body:1 capability:1 spell:1 trait:1 reserve:1 stage:Completed",
+      "ARM02-reader=passed grade:3 balance:77.5 unresolved:0 operation:none process:43536",
+      "ARM02-native-cast=passed non-admin-command real-Skill real-Body payment:22.5 grade:3 separate-process-reload",
+      "ARM02-sorcerer=passed second-non-admin distinct-reserve:77.5 agility:-3 armour:92 gathering-only",
+      "ARM02-reader=passed grade:3 balance:77.5 unresolved:0 operation:none process:89580",
+      "ARM02-second-body=passed focus detach restore single-passive-tick grade-one-cost:5 shared-opportunity native-gathering-canonical-credit-physical-costs",
+      "ARM02-reader=passed grade:3 balance:77.5 unresolved:0 operation:none process:37976",
+      "ARM02-second-body-restart=passed persisted-instance-effects shared-skill shared-deadlines shared-reserve",
+      "ARM02-reader=passed grade:3 balance:72.5 unresolved:0 operation:none process:24532",
+      "ARM02-reader=passed grade:2 balance:100 unresolved:0 operation:none process:45732",
+      "ARM02-fault=passed stage:BeforePayment status:Refused operation:none no-replay-no-refund-no-reroll",
+      "ARM02-quarantine-restart=passed alternate-route shared-trait shared-reserve untouched-route",
+      "ARM02-reader=passed grade:2 balance:77.5 unresolved:1 operation:41538e47-e7c7-4df1-b274-b2cd64d1a4c8 process:79608",
+      "ARM02-fault=passed stage:PaymentMutated status:NeedsReview operation:41538e47-e7c7-4df1-b274-b2cd64d1a4c8 no-replay-no-refund-no-reroll",
+      "ARM02-quarantine-restart=passed alternate-route shared-trait shared-reserve untouched-route",
+      "ARM02-reader=passed grade:2 balance:77.5 unresolved:1 operation:5c4a51da-f256-4e91-abc0-1ae84a0c8585 process:74096",
+      "ARM02-fault=passed stage:EffectsExecuted status:NeedsReview operation:5c4a51da-f256-4e91-abc0-1ae84a0c8585 no-replay-no-refund-no-reroll",
+      "ARM02-quarantine-restart=passed alternate-route shared-trait shared-reserve untouched-route",
+      "ARM02-reader=passed grade:2 balance:77.5 unresolved:1 operation:8ef98f9b-2ca5-418c-820a-2dd5d89a2427 process:74536",
+      "ARM02-fault=passed stage:MasterySampledBeforeWrite status:NeedsReview operation:8ef98f9b-2ca5-418c-820a-2dd5d89a2427 no-replay-no-refund-no-reroll",
+      "ARM02-quarantine-restart=passed alternate-route shared-trait shared-reserve untouched-route",
+      "ARM02-reader=passed grade:2 balance:77.5 unresolved:1 operation:bc30be48-d5ae-42f2-9946-46950aa39e2f process:34312",
+      "ARM02-fault=passed stage:MasterySampleRecorded status:NeedsReview operation:bc30be48-d5ae-42f2-9946-46950aa39e2f no-replay-no-refund-no-reroll",
+      "ARM02-provider=passed operation:10c48270-99fa-4e3c-97d4-b312426e4cd5 At SamplingMastery: An error occurred while saving the entity changes. See the inner exception for details. (ARM02 controlled provider sample failure)",
+      "ARM02-quarantine-restart=passed alternate-route shared-trait shared-reserve untouched-route",
+      "ARM02-reader=passed grade:2 balance:77.5 unresolved:1 operation:10c48270-99fa-4e3c-97d4-b312426e4cd5 process:88036",
+      "ARM02-auxiliary=passed Ember-Lance-native-wounds Wardcraft-native-tag-ward per-spell-trait shared-trait-edge native-school-preserved",
+      "ARM02-native=passed",
+      "ARM-COMP-opening-cap=passed native-Skill opening:30/60 cap:60 route-loss-history-preserved",
+      "ARM-COMP-efficiency=passed mastery:1 requested:1 cost:50 non-admin-command",
+      "ARM-COMP-efficiency=passed mastery:2 requested:1 cost:25 non-admin-command",
+      "ARM-COMP-cap-loss-reload=passed removed-admission cap:0 history:60 independent-process",
+      "ARM02-reader=passed grade:7 balance:18 unresolved:0 operation:none process:34400",
+      "ARM-COMP-native=passed cap:60 max-grade:7 efficiency:50/25/7 overreach-cost:75 balance:18 receipts:4 separate-process-reload practice:NOT_RUN",
+      "ARM-SUPPORT-cap-adoption=passed uncapped-original-grant same-policy-and-key cap:90 native-opening:30 separate-terminal-marker",
+      "ARM-SUPPORT-reload=passed native-Skill raw:90 cap:90 Identify-grade:1 balance:17 immutable-uncapped-grant cap-adoption-history removed:False",
+      "ARM02-reader=passed grade:1 balance:17 unresolved:0 operation:none process:9128",
+      "ARM-SUPPORT-reload=passed native-Skill raw:90 cap:0 Identify-grade:1 balance:17 immutable-uncapped-grant cap-adoption-history removed:True",
+      "ARM02-reader=passed grade:1 balance:17 unresolved:0 operation:none process:45796",
+      "ARM-SUPPORT-native=passed authored-enrolment parent-native-use:30-to-80 second-focused-body-support-native-use:30-to-80-to-90 Identify-grade:1 cap:90 no-dummy-spell no-refill terminal-immutable separate-process-reload craft-command:NOT_RUN",
+      "ARM-CAPACITY-matrix=passed rows:16728 spells:82 normal-pairs:28 overreach-pairs:6 profiles:2 scenarios:3 advanced-unaffordable:0 provisional-mapping-and-coefficients energy-envelope-only",
+      "ARM-CAPACITY-reload=passed persisted-explicit-raw-attribute-expression max:118 balance:17 enrolment-no-refill attribute-rise-max:121-balance:17 grade7-insufficient-spent-balance",
+      "ARM02-reader=passed grade:7 balance:17 unresolved:0 operation:none process:89248",
+      "ARM-CAPACITY-compound=passed both-child-orders normal-command-casts:4 prepared-targets:4 combined-target-caster:4 complete-removals:14 neutral-90-preserved final-application-decrease:70 final-removal-decrease:100 no-refill native-resource-delta:17-to-24 mixed-native-deltas:30 neutral-credit:97 final-decrease:70 final-increase-credit:140 negative-delta:83 large-debit:30 command-cost:25",
+      "ARM-CAPACITY-effective-reload=passed service-before-balance-inventory-effects-load persisted-bonuses:3+7 raw:10 max:200 saved-balance:150 preserved-until-complete bonus-removal-max:100-balance:100 production-restoration-scope full-character-login:NOT_RUN",
+      "ARM02-reader=passed grade:7 balance:150 unresolved:0 operation:none process:56876",
+      "ARM-CAPACITY-native=passed production-attribute-evaluator raw-and-effective immediate-clamp no-refill invalid-cap-payment-refusal canonical-focus owner-body-fixture-replacement grade7-normal:25 grade7-overreach:56.25 pairs:34 balance:17 max:118 separate-process-reload full-body-form-and-backup-command:NOT_RUN stock-mapping:PROVISIONAL",
+      "ARM-PRACTICE-grade=passed grade:1 raw:40 cap:60 balance:50 samples:0 duration:30 accelerated-clock",
+      "ARM-PRACTICE-grade=passed grade:2 raw:50 cap:60 balance:25 samples:1 duration:30 accelerated-clock",
+      "ARM-PRACTICE-grade=passed grade:3 raw:60 cap:60 balance:25 samples:2 duration:30 accelerated-clock",
+      "ARM-PRACTICE-grade=passed grade:4 raw:60 cap:60 balance:25 samples:3 duration:30 accelerated-clock",
+      "ARM-PRACTICE-grade=passed grade:5 raw:60 cap:60 balance:25 samples:4 duration:30 accelerated-clock",
+      "ARM-PRACTICE-grade=passed grade:6 raw:60 cap:60 balance:25 samples:5 duration:30 accelerated-clock",
+      "ARM-PRACTICE-grade=passed grade:7 raw:60 cap:60 balance:25 samples:6 duration:30 accelerated-clock",
+      "ARM-PRACTICE-restrictions=passed native-interval:1-blocks/20-improves maximum:6-refuses7 disabled:refuses",
+      "ARM-PRACTICE-interrupt=passed signal:stop balance:93 no-progress no-refund no-replay",
+      "ARM-PRACTICE-interrupt=passed signal:focus balance:93 no-progress no-refund no-replay",
+      "ARM-PRACTICE-interrupt=passed signal:speech balance:93 no-progress no-refund no-replay",
+      "ARM-PRACTICE-interrupt=passed signal:capability balance:93 no-progress no-refund no-replay",
+      "ARM-PRACTICE-interrupt=passed signal:quit balance:93 no-progress no-refund no-replay",
+      "ARM-PRACTICE-native-silence=passed speech-required:True owner:body removal:expiry between-heartbeats checks:0 balance:93 deadlines-preserved",
+      "ARM-PRACTICE-native-silence=passed speech-required:True owner:body removal:remove between-heartbeats checks:0 balance:93 deadlines-preserved",
+      "ARM-PRACTICE-native-silence=passed speech-required:True owner:actor removal:expiry between-heartbeats checks:0 balance:93 deadlines-preserved",
+      "ARM-PRACTICE-native-silence=passed speech-required:True owner:actor removal:remove between-heartbeats checks:0 balance:93 deadlines-preserved",
+      "ARM-PRACTICE-native-silence=passed speech-required:False owner:body removal:expiry between-heartbeats checks:1 balance:93 deadlines-preserved",
+      "ARM-PRACTICE-native-silence=passed speech-required:False owner:body removal:remove between-heartbeats checks:1 balance:93 deadlines-preserved",
+      "ARM-PRACTICE-native-silence=passed speech-required:False owner:actor removal:expiry between-heartbeats checks:1 balance:93 deadlines-preserved",
+      "ARM-PRACTICE-native-silence=passed speech-required:False owner:actor removal:remove between-heartbeats checks:1 balance:93 deadlines-preserved",
+      "ARM-PRACTICE-native-manipulation=passed hand-required:True between-heartbeats checks:0 balance:93 deadlines-preserved",
+      "ARM-PRACTICE-native-manipulation=passed hand-required:False between-heartbeats checks:1 balance:93 deadlines-preserved",
+      "ARM-PRACTICE-native-paralysis=passed owner:body before-health-refresh checks:0 balance:93 deadlines-preserved",
+      "ARM-PRACTICE-native-paralysis=passed owner:actor before-health-refresh checks:0 balance:93 deadlines-preserved",
+      "ARM-PRACTICE-reader=passed process:66388 operation:29fbf946-33d4-4f9b-8508-f9059ac540bb raw:60 grade:7 balance:93 deadline:2026-10-02T04:59:00.0000000Z no-resume/refund/reroll",
+      "ARM-PRACTICE-native=passed raw:30-to-60 controlled:1-to-7 actual-ClassicImprovement shared-deadlines target/caster/resistance/ward-purity separate-process-recovery stale-action-terminal-preserved stock-installed-world:NOT_RUN material-plan:explicit-empty",
+      "ARM-SPEECH-named=passed kral:grade3 native-language-output one-utterance one-check one-operation balance:85 ward-bonus:-3",
+      "ARM-SPEECH-formula=passed unordered-five-category-command same-grade/payment/effect single-generated-utterance",
+      "ARM-SPEECH-native=passed loopback-TCP queue original-utterance empty-second-dispatch duplicate-origin-refused one-check one-operation",
+      "ARM-SPEECH-alias=passed native-dot-command concise-POWER/spell-token single-original-utterance",
+      "ARM-SPEECH-quiet=passed native-whisper energy:x2 difficulty:+1 balance:70 visible-gesture ward-bonus:-3",
+      "ARM-SPEECH-whisper=passed player-origin quiet parity no-second-utterance",
+      "ARM-SPEECH-configured-volume=passed native-Whisper energy:x1.25 difficulty:+2 actual-check:VeryHard balance:81.25 restored-fixture",
+      "ARM-SPEECH-invalid=passed ordinary-native-utterances unknown-vocabulary target-tail-refused no-payment/check/operation",
+      "ARM-SPEECH-scripted=passed native-character-out-of-context speech remains ordinary no-cast",
+      "ARM-SPEECH-silence=passed owner:actor quiet-refused no-utterance/payment/check",
+      "ARM-SPEECH-silence=passed owner:body quiet-refused no-utterance/payment/check",
+      "ARM-SPEECH-anatomy=passed actual-mouth/tongue/trachea native-part-ineffective both-volumes-refused restoration",
+      "ARM-SPEECH-manipulation=passed native-hand-restrictions ordinary-whisper remains audible no-cast/payment/check restoration",
+      "ARM-SPEECH-mute=passed concrete-MuteMerit both-volumes-refused no-utterance/payment/check",
+      "ARM-SPEECH-volume=passed actual-synthesizer cached-native-function:0.4 normal-refused whisper-eligible",
+      "ARM-SPEECH-listeners=passed two-eligible-observers no-observer-cast unknown-language-no-formula/knowledge own-repeat-separate-payment",
+      "ARM-SPEECH-hearing=passed native-deafness receiver-language-parser no-formula-words no-listener-cast",
+      "ARM-SPEECH-callbacks=passed adapter:named self-output-nested-command native-witness-effect-Body.Say no-recast one-payment/check/operation",
+      "ARM-SPEECH-callbacks=passed adapter:speech self-output-nested-command native-witness-effect-Body.Say no-recast one-payment/check/operation",
+      "ARM-SPEECH-relay=passed native-recitation-effect witness/output callback eligible-proxy no-recast/payment",
+      "ARM-SPEECH-deadspeak-forwarding=passed concrete-DeadSpeak-InitialEffect recite-installation no-proxy-cast/payment corpse-lifecycle-not-qualified",
+      "ARM-SPEECH-reader=passed process:25020 native-XML profile/language costs knowledge immutable-origin:1eafdb50-77eb-43ea-a8bf-463d2aca9c6e no-replay",
+      "ARM-SPEECH-acceptance=passed native-anatomy language communication commands quiet guarded-casting persistence-reader",
+      "ARM-AREA-earthquake=passed concrete-Cell native-wounds caster:4 ally:12 protected/flying/layer/staff/plane:0 ward:0 physical-dedup one-payment/check/mastery",
+      "ARM-AREA-chain=passed caster:3 ally:24 repeat-body-twice random-at-commit:3 journal-selected-order one-payment/check/mastery provisional-three-hit-count",
+      "ARM-AREA-fireball=passed room-variant caster:0 native-ally:12 staff/plane:0 independent-of-selected-character-trigger",
+      "ARM-AREA-second-body=passed shared-canonical-identity distinct-instance/body caster:0 sibling:12 duplicate-sibling-once canonical-payment:15",
+      "ARM-AREA-dynamic=passed paid-snapshot removed:0 new-arrival:0 explicit-ally-exclusion:0 concrete-cell-list-mutation-bounded",
+      "ARM-AREA-all-rejected=passed native-reflect-ward-becomes-fail depth:0 three-selected-hits cost:30 lockout-retained no-native-wound/mastery",
+      "ARM-AREA-empty=passed no-payment/check/operation for caster-excluding-empty-room",
+      "ARM-AREA-reader=passed process:2172 concrete-cell native-bodies:11 immutable-completed-origins:6 no-selection/replay",
+      "ARM-AREA-persistence=passed native-damage/pain/stun independently-read all-completed-application-journals immutable-paid-origin-restart",
+      "ARM03-schema=passed generated-EF9-migration-from-maintained-snapshot two-empty-tables model-parity",
+      "ARM03-borrowed=passed existing-body-refused no-ownership-or-entity-change",
+      "ARM03-rollback=passed callback-and-post-save-provider-fault atomic-entity-plus-ownership caller-context-restored",
+      "ARM03-primary=passed new-primary-instance-refused canonical-character-and-wound-preserved",
+      "ARM03-generated=passed exact-added-item-claim explicit-generated-possession-role live-row-blocks-completion",
+      "ARM03-canonical-pointer=passed stale-persisted-pointer-moved-to-current-body-before-retirement canonical-identity-survives-cascade-boundary",
+      "ARM03-permanent=passed no-expiry released-as-ordinary-durable-creation body-survives",
+      "ARM03-intent=passed immutable-creation-key absolute-deadline durable-retiring stale-version-and-live-completion-refused",
+      "ARM03-suppression=passed sandbox-create-update-and-body-retirement-refused readonly-nested-lookup-restores-suppressed-caller no-persistent-state-change",
+      "ARM03-possession=passed native-character-and-body unloaded-foreign-join-refuses-cleanup intact-item explicitly-rehomed-to-existing-cell",
+      "ARM03-references=passed unloaded-secondary-effect-and-serialized-remains retain-body-with-durable-hold",
+      "ARM03-death-journal=passed persisted-secondary-dead-state-correlated early-death-cancels-later-death-intent idempotent-observation canonical-identity-survives",
+      "ARM03-missing-death=passed absent-owned-rows-cannot-complete-unobserved-native-death recoverable-diagnostic",
+      "ARM03-steady-state=passed 16-native-body-create-retire-complete-cycles only-permanent-and-reference-held-physical-rows-retained lightweight-ownership-receipts",
+      "ARM03-reader=passed separate-process reconstructs-intent-ownership-permanent-policy-and-missing-death-hold no-recreation preserves-reference-until-release anatomy-collision-safe idempotent-completion",
+      "ARM03-row-counts=passed characters:1 bodies:2 instances:0 items:1 wounds:1 lifecycles:22 claims:24 pending:1",
+      "ARM03-ordinary-rollback=passed forced-provider-insert-refusal ordinary-provenance-form-source-canonical-body-and-remains-save-atomic retryable",
+      "ARM03-ordinary-save=passed native-backup-death-and-form-save canonical-body-moved ordinary-provenance-persisted retired-form-and-source-mappings-pruned no-spell-ownership",
+      "ARM03-ordinary-guards=passed separate-process-real-corpse-reload resolves-exact-retired-body-without-preload unloaded-foreign-item-and-other-reference-refuse intact-possession explicitly-rehomed",
+      "ARM03-ordinary-release=passed native-CorpseGameItemComponent.Delete reference-free-ordinary-body-retired canonical-current-body-history-and-foreign-goods-preserved no-spell-ownership"
+    ],
+    "ordinary_acceptance": [
+      "Native backup-death transfer and actual form save after exact provenance capture",
+      "Provider insert failure rolls back ordinary receipt, canonical body pointer, form/source pruning and remains component; fresh-scope retry succeeds",
+      "Separate-process actual corpse reload resolves the exact retired body without preloading it or restoring it as a form",
+      "Deliberately unloaded persisted foreign inventory join and other physical component retain body; fixture rehomes the foreign item before release",
+      "Actual corpse component Delete callback reclaims eligible ordinary body and provenance while preserving canonical identity, current body, foreign goods and historical wound attribution"
+    ],
+    "qualification_limits": [
+      "Controlled item host and world services; real backup helper/Body.Die/form save/corpse loader/Delete callback, not full Character.Die/command session/GameItem.Delete",
+      "Last non-final remains release is exercised by Delete callback; timed corpse decay remains unqualified",
+      "Foreign SQL join is deliberately introduced after body load to test unloaded possession guard; automatic evacuation and loaded-inventory corpse deletion are not qualified",
+      "Full N14/N15/N16, native NPC adapters, canonical compaction/archival and heavy actor/AI/timer steady state remain not_run or pending"
+    ]
+  },
+  "preserved_history": {
+    "ordinary_native_attempts": [
+      {
+        "attempt": 1,
+        "status": "FAIL",
+        "exit_code": 1,
+        "mode": "BodyRetirementOnly",
+        "ended_utc": "2026-10-02T22:25:10.1246904Z",
+        "purpose": "fixture setup failure",
+        "log": ".artifacts/test-runs/native-armageddon-20261002-stage3A-review/ordinary-attempt1.log",
+        "log_sha256": "4eaf67f22ba264fc990de86b2bc265af820a8b1a3f45f18cd871572331e33399",
+        "input_manifest": ".artifacts/test-runs/native-armageddon-20261002-stage3A-review/ordinary-attempt1-inputs.json",
+        "input_manifest_sha256": "e38876c5c6e31c6c22bbf72ce06a130cc82b5fd7b70bc7e1fb20bafd1a314298",
+        "owned_databases_cleaned": 1,
+        "temporary_mysql_cleanup_verified": true,
+        "passed_markers": []
+      },
+      {
+        "attempt": 2,
+        "status": "FAIL",
+        "exit_code": 1,
+        "mode": "BodyRetirementOnly",
+        "ended_utc": "2026-10-02T22:27:14.8618344Z",
+        "purpose": "fixture setup failure",
+        "log": ".artifacts/test-runs/native-armageddon-20261002-stage3A-review/ordinary-attempt2.log",
+        "log_sha256": "9fda2462e3a637f51b5134696e3709e22c464be5bb1b94bddb9325891933bdad",
+        "input_manifest": ".artifacts/test-runs/native-armageddon-20261002-stage3A-review/ordinary-attempt2-inputs.json",
+        "input_manifest_sha256": "104977c97986af0b20e843422cfee397645bc4db3b9c4e72f8a62f50efae653c",
+        "owned_databases_cleaned": 1,
+        "temporary_mysql_cleanup_verified": true,
+        "passed_markers": []
+      },
+      {
+        "attempt": 3,
+        "status": "FAIL",
+        "exit_code": 1,
+        "mode": "BodyRetirementOnly",
+        "ended_utc": "2026-10-02T22:32:08.2600610Z",
+        "purpose": "fixture setup failure",
+        "log": ".artifacts/test-runs/native-armageddon-20261002-stage3A-review/ordinary-attempt3.log",
+        "log_sha256": "ca5b0c376138a39e3572ff5a2a30053e37bc36e609e89ab112856e868b7d3582",
+        "input_manifest": ".artifacts/test-runs/native-armageddon-20261002-stage3A-review/ordinary-attempt3-inputs.json",
+        "input_manifest_sha256": "7c4891a94d46ffd4a99bab2770743a76481f7a02042174bd03e7c18e99b92b7a",
+        "owned_databases_cleaned": 1,
+        "temporary_mysql_cleanup_verified": true,
+        "passed_markers": []
+      },
+      {
+        "attempt": 4,
+        "status": "FAIL",
+        "exit_code": 1,
+        "mode": "BodyRetirementOnly",
+        "ended_utc": "2026-10-02T22:40:03.0609620Z",
+        "purpose": "executed P2 reproduction with preloaded exact body",
+        "log": ".artifacts/test-runs/native-armageddon-20261002-stage3A-review/ordinary-attempt4.log",
+        "log_sha256": "1f52e8734fe7a53fba5681c08e83037d9db6ce553229051ea9c5eed0a123e59b",
+        "input_manifest": ".artifacts/test-runs/native-armageddon-20261002-stage3A-review/ordinary-attempt4-inputs.json",
+        "input_manifest_sha256": "51acd1403d7c2b471063d68925912112108be0b0a4fee45ee884a00900edd0b1",
+        "owned_databases_cleaned": 1,
+        "temporary_mysql_cleanup_verified": true,
+        "passed_markers": [
+          "ARM03-ordinary-save=passed native-backup-death-and-form-save canonical-body-moved retired-form-and-source-mappings-pruned no-spell-ownership",
+          "ARM03-ordinary-guards=passed separate-process-real-corpse-reload foreign-item-and-other-reference-refuse intact-possession explicitly-rehomed"
+        ]
+      },
+      {
+        "attempt": 5,
+        "status": "PASS",
+        "exit_code": 0,
+        "mode": "BodyRetirementOnly",
+        "ended_utc": "2026-10-02T23:04:30.4308919Z",
+        "purpose": "repaired path without retired-body preload",
+        "log": ".artifacts/test-runs/native-armageddon-20261002-stage3A-review/ordinary-attempt5.log",
+        "log_sha256": "27d80d2f76fc56e8811b6e5baef359aa1e7efff94a3cb0cd63831024f1c83c76",
+        "input_manifest": ".artifacts/test-runs/native-armageddon-20261002-stage3A-review/ordinary-attempt5-inputs.json",
+        "input_manifest_sha256": "675f6b18213f75ebc8517bec9b43caf5b21b874524391c22e74690ddbaee41a2",
+        "owned_databases_cleaned": 1,
+        "temporary_mysql_cleanup_verified": true,
+        "passed_markers": [
+          "ARM03-ordinary-rollback=passed forced-provider-insert-refusal ordinary-provenance-form-source-canonical-body-and-remains-save-atomic retryable",
+          "ARM03-ordinary-save=passed native-backup-death-and-form-save canonical-body-moved ordinary-provenance-persisted retired-form-and-source-mappings-pruned no-spell-ownership",
+          "ARM03-ordinary-guards=passed separate-process-real-corpse-reload resolves-exact-retired-body-without-preload unloaded-foreign-item-and-other-reference-refuse intact-possession explicitly-rehomed",
+          "ARM03-ordinary-release=passed native-CorpseGameItemComponent.Delete reference-free-ordinary-body-retired canonical-current-body-history-and-foreign-goods-preserved no-spell-ownership"
+        ]
+      }
+    ],
+    "managed_reporting_or_build_failures": [
+      {
+        "run_id": "20261002T225448Z-e3f2661b0592",
+        "head": "",
+        "status": "INCONCLUSIVE",
+        "counts": null,
+        "filter": "FullyQualifiedName~RetiredBodyCleanupTests|FullyQualifiedName~BodyFormLifecyclePolicyTests|FullyQualifiedName~BodyFormLifecycleGuardTests|FullyQualifiedName~CharacterInstance",
+        "configuration": "Debug",
+        "sdk": "",
+        "started_utc": "2026-10-02T22:54:48.3340602+00:00",
+        "ended_utc": "2026-10-02T22:54:48.4074097+00:00",
+        "source_start": "",
+        "source_end": null,
+        "source_stable": null,
+        "execution_complete": false,
+        "counts_complete": false,
+        "projects": [
+          "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+        ],
+        "summary_path": ".artifacts/test-runs/20261002T225448Z-e3f2661b0592/summary.json",
+        "summary_sha256": "a4335525b75c0718ad78f1e0b8ce99399961146c093006c730cc0a192e2cf61b",
+        "failures_path": ".artifacts/test-runs/20261002T225448Z-e3f2661b0592/failures.json",
+        "failures_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "issues": [
+          {
+            "kind": "REPORTING_ERROR",
+            "project": null,
+            "detail": "git rev-parse HEAD: git rev-parse HEAD exited 128: fatal: detected dubious ownership in repository at 'C:/Users/luker/Documents/Codex/2026-10-02/task/FutureMUD'\n'C:/Users/luker/Documents/Codex/2026-10-02/task/FutureMUD/.git' is owned by:\n\tPERCIVAL/luk…"
+          }
+        ],
+        "project_counts": [
+          {
+            "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+            "counts": null
+          }
+        ]
+      },
+      {
+        "run_id": "20261002T225640Z-464c263e58ea",
+        "head": "a059338c9d15a8c7135c5192509f28e3c0f7a5ee",
+        "status": "FAIL",
+        "counts": null,
+        "filter": "FullyQualifiedName~RetiredBodyCleanupTests|FullyQualifiedName~BodyFormLifecyclePolicyTests|FullyQualifiedName~BodyFormLifecycleGuardTests|FullyQualifiedName~CharacterInstance",
+        "configuration": "Debug",
+        "sdk": "10.0.401",
+        "started_utc": "2026-10-02T22:56:40.3559123+00:00",
+        "ended_utc": "2026-10-02T22:57:37.3967746+00:00",
+        "source_start": "53778ed914f6513eb229e1e43abb7687e48a6d6c86f9b3715d5be5a8d1c75c56",
+        "source_end": "53778ed914f6513eb229e1e43abb7687e48a6d6c86f9b3715d5be5a8d1c75c56",
+        "source_stable": true,
+        "execution_complete": false,
+        "counts_complete": false,
+        "projects": [
+          "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+        ],
+        "summary_path": ".artifacts/test-runs/20261002T225640Z-464c263e58ea/summary.json",
+        "summary_sha256": "af3b7865597697dbc03748117a36582b10383f975156555c5a715cbbfab4bc53",
+        "failures_path": ".artifacts/test-runs/20261002T225640Z-464c263e58ea/failures.json",
+        "failures_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "issues": [
+          {
+            "kind": "BUILD_FAILED",
+            "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+            "detail": "  Determining projects to restore...\r"
+          }
+        ],
+        "project_counts": [
+          {
+            "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+            "counts": null
+          }
+        ]
+      },
+      {
+        "run_id": "20261002T225802Z-0daf9d521b27",
+        "head": "a059338c9d15a8c7135c5192509f28e3c0f7a5ee",
+        "status": "FAIL",
+        "counts": null,
+        "filter": "FullyQualifiedName~RetiredBodyCleanupTests|FullyQualifiedName~BodyFormLifecyclePolicyTests|FullyQualifiedName~BodyFormLifecycleGuardTests|FullyQualifiedName~CharacterInstance",
+        "configuration": "Debug",
+        "sdk": "10.0.401",
+        "started_utc": "2026-10-02T22:58:02.8560188+00:00",
+        "ended_utc": "2026-10-02T22:58:06.6134474+00:00",
+        "source_start": "57675407c8396c7d074d14e69d1e5c6a146a26f85a4f95154cac6cad2b7c234d",
+        "source_end": "57675407c8396c7d074d14e69d1e5c6a146a26f85a4f95154cac6cad2b7c234d",
+        "source_stable": true,
+        "execution_complete": false,
+        "counts_complete": false,
+        "projects": [
+          "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+        ],
+        "summary_path": ".artifacts/test-runs/20261002T225802Z-0daf9d521b27/summary.json",
+        "summary_sha256": "1a8c59b10de53069feccffa893da52a2caedd71b1ca49863d9f97bad7a323c4f",
+        "failures_path": ".artifacts/test-runs/20261002T225802Z-0daf9d521b27/failures.json",
+        "failures_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "issues": [
+          {
+            "kind": "BUILD_FAILED",
+            "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+            "detail": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\MudSharpCore Unit Tests\\RetiredBodyCleanupTests.cs(53,26): error CS0117: 'Assert' does not contain a definition for 'ThrowsExactly' [C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\Mud…"
+          }
+        ],
+        "project_counts": [
+          {
+            "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+            "counts": null
+          }
+        ]
+      }
+    ],
+    "managed_failure_causes": [
+      "Reporter child Git rejected checkout ownership before tests; repaired with exact process-local trust.",
+      "New test omitted explicit System/collections imports.",
+      "New tests used assertion APIs newer than pinned MSTest2.2.10; repaired without upgrading dependencies."
+    ],
+    "build_logs": [
+      {
+        "path": ".artifacts/phase3a-review-native-build1.log",
+        "sha256": "0d86d566f1918c0a55b2243287c29464403e85ef6a90c697635ee8cd98568c6e",
+        "status": "FAIL"
+      },
+      {
+        "path": ".artifacts/phase3a-review-native-build2.log",
+        "sha256": "d50e01e03eda463096eef526b1702a89ad871c107b53c28f82b8cfb423193af8",
+        "status": "PASS"
+      },
+      {
+        "path": ".artifacts/phase3a-review-native-build3.log",
+        "sha256": "fa3ac0a2fb3a0c4d8354c0a1d712f1cf60110f2b085bbcc86d824dbecdf4781c",
+        "status": "PASS"
+      },
+      {
+        "path": ".artifacts/phase3a-review-native-build4.log",
+        "sha256": "ec6205aac6cb2a8196ddd7918048912d261140f592ed2f4a4ec53c1705fc1a0a",
+        "status": "PASS"
+      },
+      {
+        "path": ".artifacts/phase3a-review-native-build5.log",
+        "sha256": "fa3ac0a2fb3a0c4d8354c0a1d712f1cf60110f2b085bbcc86d824dbecdf4781c",
+        "status": "PASS"
+      },
+      {
+        "path": ".artifacts/phase3a-review-repair-build1.log",
+        "sha256": "b86c7b4d6a27eed6304d7bed8f62e1215453e7d966a16985bcd286d49bdc70a0",
+        "status": "PASS"
+      },
+      {
+        "path": ".artifacts/phase3a-review-repair-build2.log",
+        "sha256": "ad034fbc44ea1431cb81ff372fb8ff2c6ea42c7c5c6ea461000670a49f8c4071",
+        "status": "PASS"
+      }
+    ],
+    "original_phase3A_history_unchanged": true
+  },
+  "fingerprints": {
+    "manifest": "final-inputs.json",
+    "manifest_sha256": "9fcd109228bf1b2b3b423058f2a2974a517bf275cfd2a895677b28ef3c4a34b4",
+    "verification": "final-fingerprint-verification.json",
+    "verification_sha256": "0e184c85bebef60d7c8fd7045bd652f7b8703a5be86a54eb63a03100c8c363bc",
+    "frozen_source_inputs": 142,
+    "frozen_native_assemblies": 5,
+    "unit_native_dependency_and_test_assemblies": 14,
+    "all_sources_and_binaries_match": true
+  },
+  "independent_source_review": {
+    "agent": "fm_reviewer",
+    "result": "No actionable production defect found in two bounded read-only reviews; final migration/fixture/tests meaningful for this correction.",
+    "execution": "not performed by reviewer; exact managed/native evidence supplied above"
+  },
+  "preservation": {
+    "checked_utc": "2026-10-02T23:12:30.0036540Z",
+    "primary_path": "C:\\Users\\Luke\\source\\repos\\FutureMUD",
+    "primary_expected_head": "aca21bfc39298199291933375226d8982352420d",
+    "primary_head": "aca21bfc39298199291933375226d8982352420d",
+    "primary_branch": "codex/monster-ai-v1",
+    "primary_status": [
+      "?? .artifacts/"
+    ],
+    "primary_head_unchanged": true,
+    "primary_only_preexisting_artifacts": true,
+    "publication_merge_deployment_actions": [],
+    "production_or_shared_database_actions": [],
+    "settings_usage_reset_actions": [],
+    "primary_mutations": []
+  },
+  "qualification_limits": [
+    "Controlled item host and world services; real backup helper/Body.Die/form save/corpse loader/Delete callback, not full Character.Die/command session/GameItem.Delete",
+    "Last non-final remains release is exercised by Delete callback; timed corpse decay remains unqualified",
+    "Foreign SQL join is deliberately introduced after body load to test unloaded possession guard; automatic evacuation and loaded-inventory corpse deletion are not qualified",
+    "Full N14/N15/N16, native NPC adapters, canonical compaction/archival and heavy actor/AI/timer steady state remain not_run or pending",
+    "This checkpoint introduces the shared lifecycle protocol and safe retired-body boundary. createnpc/createitem, corpse animation, projections, all eight larger features and the heartbeat/autoload worker are not yet connected to it.",
+    "The native lifecycle fixture uses real Character/Body objects and actual MySQL joins, serialized component/effect references and separate reader process. Persisted secondary Dead state is a correlation fixture, not an invocation of NPC.Die. Raw component XML tests physical reference retention without claiming actual corpse creation/decay.",
+    "The foreign GameItem is an actual persisted item and inventory/cell join. Explicit rehoming is fixture work; automatic native inventory/container/occupant evacuation and safe fallback are pending. Ordinary corpse Delete still has its existing destructive inventory path and is not qualified by this checkpoint.",
+    "The three modes are qualified as persistence policy and journal transitions, not the same native NPC template under all modes. N14/N15/N16 remain not_run for their full specified scenarios.",
+    "Sixteen repeated native body create/retire/complete cycles establish no accumulation of eligible body rows. They do not qualify high-volume NPC/AI/item/timer/subscription steady state.",
+    "Canonical NPC compaction/archival requires an explicit primary-body FK accommodation, preserved crimes/logs/witness/dub/corpse/effect attribution and non-loading tombstones. No canonical identity is deleted here; indefinite full actor/body graph retention is not an acceptable final solution.",
+    "Journal and exact-ownership rows currently retain lightweight evidence. Bounded retention/archival and post-death/remains-release integration are pending. Missing-death intents stay recoverable; the store does not infer death from absence or repeatedly call native Die.",
+    "Creation factories must register created entities before the atomic save and avoid their own saves, external effects and runtime exposure. Adapter implementation must preserve that contract; no factory/world activation adapter is claimed here.",
+    "Serialized-reference guards conservatively check known physical-body fields and fail closed on malformed XML. Arbitrary new Prog/component reference surfaces are not exhaustively inventoried.",
+    "N11 has controlled native quiet and three area-policy fixture evidence; installed stock, full source behavior, player command/network area flows and whole-session qualification remain pending.",
+    "Earthquake one-third caster/full allies-and-others, Chain Lightning repeated random hits/quarter caster, and room Fireball caster exclusion/ally inclusion are source-backed. The three-hit chain limit, grade*4 burning damage, 100-unit reserve, accelerated clock and deterministic checks/mastery/selection are provisional fixture choices.",
+    "Native layer/grounding/staff/plane adaptations are explicitly labelled provisional. Complete historical race/StoneSkin/EnergyShield filters, nearby Earthquake falls/messages, final hit counts/damage and other per-spell source policies require later stock authoring and native qualification.",
+    "The native fixture uses a concrete persisted Cell/Terrain and real Character/Body/Wound, wards, planar effect, compiled Prog and native SetAlly. Room/package catalogues, checks and output receiver spies are controlled. Cell membership changes directly at the payment commit seam; native Cell.Enter/Leave/movement, per-hit body/focus/membership mutations and production output filtering are not fully qualified by this fixture.",
+    "Physical siblings sharing a canonical identity are verified in the native writer with one payment/check. The reader reconstructs every body/wound but does not restore sibling canonical identity through the production instance-loading service; broader identity restart evidence remains historical Phase2B evidence.",
+    "Area uses native group reflection-to-fail with maximum reflection depth zero. Ordered and random-with-replacement native examples pass; RandomDistinct, RouteCell ImmediateCharacters, canonical deduplication, per-target resistance, callback replacement and partial/exception child cleanup have managed coverage, not full native area lifecycle qualification.",
+    "Speech body/focus switching, production OutputHandler visibility/filtering, full Telnet/login, native wearable gagging and full DeadSpeak/corpse animation/collapse/restoration/restart lifecycle remain explicit qualification gaps.",
+    "Installed source/support/crafting/chargen stock, non-empty material/focus plans, hostile AI, real-time scheduling, complete Mend Flesh and gathering restrictions/environmental accounting remain pending. Phase3 is partial; portable production, full stock installer and release phases4-6 have not started.",
+    "Already-unmapped pre-migration ordinary bodies are not assigned speculative ownership; repair qualifies provenance captured by the corrected backup path.",
+    "The ordinary fixture invokes the actual corpse component Delete callback with a controlled item host, then removes its persisted parent row as explicit fixture teardown.",
+    "No subsequent implementation phase has started; await parent rereview of this immutable repair checkpoint."
+  ],
+  "whole_plan_inventory": {
+    "phases": 7,
+    "decisions": 16,
+    "candidate_entries": 154,
+    "native_scenarios": 25,
+    "source_spells": 82,
+    "support_skills": 12
+  },
+  "full_N14_N15_N16": "not_run",
+  "next_work": "Parent review of this immutable checkpoint, then bounded canonical NPC compaction/archival and native creation/post-death/remains-release adapters before the eight larger features and full N14-N16.",
+  "post_suite_source_changes": [
+    "Only the new verification receipt and whole-plan progress JSON/Markdown are written after verification; all 142 frozen implementation/document inputs and 14 assemblies remain matched."
+  ],
+  "publication_merge_deployment_actions": [],
+  "production_or_shared_database_actions": []
+}

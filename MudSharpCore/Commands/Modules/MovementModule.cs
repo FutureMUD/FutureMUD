@@ -99,6 +99,7 @@ The syntax is as follows:
         string starget = ss.SafeRemainingArgument;
 
         ICharacter target = actor.TargetActor(starget);
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return;
         if (target is null)
         {
             actor.OutputHandler.Send("You don't see anyone like that.");
@@ -114,6 +115,7 @@ The syntax is as follows:
             }
 
             actor.Send("You stop following {0}.", actor.Following.HowSeen(actor));
+			if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return;
             actor.Follow(null);
             return;
         }

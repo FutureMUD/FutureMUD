@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.Body.PartProtos;
 using MudSharp.Effects;
 using MudSharp.Effects.Concrete;
@@ -26,6 +26,8 @@ public class StrangleAttack : NaturalAttackMove
 
     public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
     {
+		using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterMove(this);
+		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
 		defenderMove = MagicDefenseMove.Revalidate(defenderMove, this);
         // Find a target limb which contains breathing organs
         ILimb targetLimb = CharacterTarget.Body.Limbs
@@ -51,6 +53,7 @@ public class StrangleAttack : NaturalAttackMove
     {
         _moveType = BuiltInCombatMoveType.StrangleAttackExtendGrapple;
         ICombatMove defenderMove = CharacterTarget.ResponseToMove(this, Assailant);
+		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
         CheckOutcome attackRoll = Gameworld.GetCheck(Check)
                                   .Check(Assailant, CheckDifficulty, CharacterTarget, null,
                                       Assailant.OffensiveAdvantage);
@@ -64,6 +67,7 @@ public class StrangleAttack : NaturalAttackMove
         if (defenderMove is MagicDefenseMove magicalDefense)
         {
 			if (magicalDefense.TryDefend(this, attackRoll, out var magicResult)) return magicResult;
+			if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
 			defenderMove = new HelplessDefenseMove { Assailant = magicalDefense.Assailant };
         }
         if (defenderMove is HelplessDefenseMove)
@@ -130,6 +134,8 @@ public class StrangleAttack : NaturalAttackMove
         IEffect effect = Assailant.EffectsOfType<Strangling>().FirstOrDefault(x => x.Target == CharacterTarget);
         if (effect == null)
         {
+            if (!CanContinueCommand()) return RefusedContinuationResult();
+            MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted();
             effect = new Strangling(Assailant, CharacterTarget);
             Assailant.AddEffect(effect);
         }
@@ -139,11 +145,15 @@ public class StrangleAttack : NaturalAttackMove
             effect = CharacterTarget.Body.EffectsOfType<BeingStrangled>().FirstOrDefault(x => x.Bodypart == trachea);
             if (effect == null)
             {
+                if (!CanContinueCommand()) return RefusedContinuationResult();
+                MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted();
                 effect = new BeingStrangled(CharacterTarget.Body, Assailant) { Bodypart = trachea };
                 CharacterTarget.Body.AddEffect(effect);
             }
         }
 
+        if (!CanContinueCommand()) return RefusedContinuationResult();
+        MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted();
         wounds.AddRange(CharacterTarget.SufferDamage(finalDamage));
 
         return new CombatMoveResult
@@ -177,6 +187,8 @@ public class StrangleAttack : NaturalAttackMove
                 new Emote($"{attackEmote}{counterEmote}", Assailant, Assailant, CharacterTarget),
                 style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
             IGrappling grapple = Assailant.EffectsOfType<IGrappling>().First();
+            if (!CanContinueCommand()) return RefusedContinuationResult();
+            MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted();
             grapple.AddLimb(targetLimb);
             return new CombatMoveResult
             {
@@ -190,6 +202,8 @@ public class StrangleAttack : NaturalAttackMove
         {
             IGrappling grapple = Assailant.EffectsOfType<IGrappling>().First();
             Assailant.RemoveEffect(grapple);
+            if (!CanContinueCommand()) return RefusedContinuationResult();
+            MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted();
             Grappling effect = new(CharacterTarget, Assailant);
             CharacterTarget.AddEffect(effect);
             int freeLimbs = 0;
@@ -217,6 +231,8 @@ public class StrangleAttack : NaturalAttackMove
                 }
 
                 ILimb limb = potentialLimbs.GetRandomElement();
+                if (!CanContinueCommand()) return RefusedContinuationResult();
+                MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted();
                 effect.AddLimb(limb);
                 potentialLimbs.Remove(limb);
             }
@@ -259,6 +275,8 @@ public class StrangleAttack : NaturalAttackMove
                 new Emote($"{attackEmote}{failEmote}".Fullstop(), Assailant, Assailant, CharacterTarget),
                 style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
             IGrappling grapple = Assailant.EffectsOfType<IGrappling>().First();
+            if (!CanContinueCommand()) return RefusedContinuationResult();
+            MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted();
             grapple.AddLimb(targetLimb);
             return new CombatMoveResult
             {
@@ -297,6 +315,8 @@ public class StrangleAttack : NaturalAttackMove
                     Assailant, Assailant, CharacterTarget, null), style: OutputStyle.CombatMessage,
                 flags: OutputFlags.InnerWrap));
         IGrappling grapple = Assailant.EffectsOfType<IGrappling>().First();
+        if (!CanContinueCommand()) return RefusedContinuationResult();
+        MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted();
         grapple.AddLimb(targetLimb);
         return new CombatMoveResult
         {

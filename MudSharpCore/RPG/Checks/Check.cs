@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.Body.Traits;
 using MudSharp.Body.Traits.Subtypes;
 using MudSharp.Effects.Concrete;
@@ -100,6 +100,7 @@ public class StandardCheck : FrameworkItem, ICheck
         Difficulty difficulty, ITraitDefinition trait, bool permitBranchingAndImprovement = true,
         TraitUseType traitUseType = TraitUseType.Practical, IEnumerable<Tuple<string, double>> bonuses = null)
     {
+        using var learning = CheckLearningScope.EnterIfNeeded(checkee);
         bool abject = false;
 		permitBranchingAndImprovement &= !CheckImprovementScope.Suppresses(checkee, Type);
         // Handle checks that specify traits must be possessed by the owner
@@ -133,14 +134,15 @@ public class StandardCheck : FrameworkItem, ICheck
                 ITrait tr in TargetNumberExpression.Parameters.Values.Where(x => x.CanImprove)
                                                 .Select(x => checkee.GetTrait(x.Trait)).Where(tr => tr != null))
             {
+                if (!CheckLearningScope.CanContinue(checkee)) break;
                 if (tr.TraitUsed(checkee, outcome, difficulty.Lowest(MaximumDifficultyForImprovement), traitUseType, bonuses))
                 {
                     improvedTraits.Add(tr.Definition);
                 }
             }
 
-            if (chTrait?.TraitUsed(checkee, outcome, difficulty.Lowest(MaximumDifficultyForImprovement),
-                    traitUseType, bonuses) ?? false)
+            if (CheckLearningScope.CanContinue(checkee) && (chTrait?.TraitUsed(checkee, outcome, difficulty.Lowest(MaximumDifficultyForImprovement),
+                    traitUseType, bonuses) ?? false))
             {
                 improvedTraits.Add(chTrait.Definition);
             }
@@ -166,8 +168,9 @@ public class StandardCheck : FrameworkItem, ICheck
             foreach (TraitExpressionParameter item in TargetNumberExpression.Parameters.Values.Where(
                          x => x.CanBranch && !checkee.HasTrait(x.Trait)))
             {
+                if (!CheckLearningScope.CanContinue(checkee)) break;
                 ISkillDefinition itemAsSkill = item.Trait as ISkillDefinition;
-                if (itemAsSkill?.CanLearn(checkeeAsCharacter) != true)
+                if (itemAsSkill?.CanLearn(checkeeAsCharacter) != true || !CheckLearningScope.CanContinue(checkee))
                 {
                     continue;
                 }
@@ -179,20 +182,18 @@ public class StandardCheck : FrameworkItem, ICheck
                     branchCheckOutcome);
                 if (branchOutcome.IsPass())
                 {
-                    checkee.AddTrait(
-                        item.Trait,
-                        branchOutcome.SuccessDegrees() *
-                        Gameworld.GetStaticDouble("SkillBranchBaseValue")); // TODO - opening value soft coded
+                    var openingValue = branchOutcome.SuccessDegrees() * Gameworld.GetStaticDouble("SkillBranchBaseValue");
+                    if (!CheckLearningScope.CanContinue(checkee) || !checkee.AddTrait(item.Trait, openingValue)) continue;
                     checkee.RemoveAllEffects(x =>
                         x.GetSubtype<IncreasedBranchChance>()?.BranchSkill(itemAsSkill) == true);
                     newTraits.Add(item.Trait);
                 }
             }
 
-            if (trait != null && chTrait == null)
+            if (trait != null && chTrait == null && CheckLearningScope.CanContinue(checkee))
             {
                 ISkillDefinition itemAsSkill = trait as ISkillDefinition;
-                if (itemAsSkill?.CanLearn(checkeeAsCharacter) != true)
+                if (itemAsSkill?.CanLearn(checkeeAsCharacter) != true || !CheckLearningScope.CanContinue(checkee))
                 {
                     return new CheckOutcome
                     {
@@ -219,10 +220,12 @@ public class StandardCheck : FrameworkItem, ICheck
                     };
                 }
 
-                checkee.AddTrait(
-                    trait, branchOutcome.SuccessDegrees() * Gameworld.GetStaticDouble("SkillBranchBaseValue"));
-                newTraits.Add(trait);
-                checkee.RemoveAllEffects(x => x.GetSubtype<IncreasedBranchChance>()?.BranchSkill(itemAsSkill) == true);
+                var openingValue = branchOutcome.SuccessDegrees() * Gameworld.GetStaticDouble("SkillBranchBaseValue");
+                if (CheckLearningScope.CanContinue(checkee) && checkee.AddTrait(trait, openingValue))
+                {
+                    newTraits.Add(trait);
+                    checkee.RemoveAllEffects(x => x.GetSubtype<IncreasedBranchChance>()?.BranchSkill(itemAsSkill) == true);
+                }
             }
         }
 
@@ -334,6 +337,7 @@ public class StandardCheck : FrameworkItem, ICheck
         IPerceivable target = null, double externalBonus = 0.0, TraitUseType traitUseType = TraitUseType.Practical,
         params (string Parameter, object value)[] customParameters)
     {
+        using var learning = CheckLearningScope.Enter(checkee);
         Dictionary<Difficulty, CheckOutcome> results = new();
 
         ICharacter checkeeAsCharacter = checkee as ICharacter ?? (checkee as IBody)?.Actor;
@@ -422,6 +426,7 @@ public class StandardCheck : FrameworkItem, ICheck
         double externalBonus = 0.0, TraitUseType traitUseType = TraitUseType.Practical,
         params (string Parameter, object value)[] customParameters)
     {
+        using var learning = CheckLearningScope.Enter(checkee);
         ICharacter checkeeAsCharacter = checkee as ICharacter ?? (checkee as IBody)?.Actor;
         // Final difficulty
 
@@ -548,6 +553,7 @@ public class StandardCheck : FrameworkItem, ICheck
         TraitUseType traitUseType = TraitUseType.Practical,
         params (string Parameter, object value)[] customParameters)
     {
+        using var learning = CheckLearningScope.Enter(checkee);
         return Check(checkee, difficulty, tool?.Trait, target, externalBonus, traitUseType, customParameters);
     }
 
@@ -594,6 +600,7 @@ public class StandardCheck : FrameworkItem, ICheck
         TraitUseType traitUseType = TraitUseType.Practical,
         params (string Parameter, object value)[] customParameters)
     {
+        using var learning = CheckLearningScope.Enter(checkee);
         ICharacter checkeeAsCharacter = checkee as ICharacter ?? (checkee as IBody)?.Actor;
         // Final difficulty
 

@@ -1,4 +1,4 @@
-﻿
+
 using MudSharp.Construction;
 
 namespace MudSharp.GameItems.Inventory.Plans;
@@ -28,7 +28,7 @@ public class InventoryPlanActionAttach : InventoryPlanAction
             executor.Inventory.SelectNotNull(x => x.GetItemType<IBelt>())
                     .FirstOrDefault(
                         x =>
-                            x.Parent.IsA(DesiredSecondaryTag) && (SecondaryItemSelector?.Invoke(x.Parent) ?? true) &&
+                            x.Parent.IsA(DesiredSecondaryTag) && (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => SecondaryItemSelector?.Invoke(x.Parent) ?? true, false)) &&
                             x.CanAttachBeltable(beltable) == IBeltCanAttachBeltableResult.Success)?.Parent;
     }
 
@@ -36,7 +36,7 @@ public class InventoryPlanActionAttach : InventoryPlanAction
     {
         List<IBelt> belts =
             executor.Inventory.SelectNotNull(x => x.GetItemType<IBelt>())
-                    .Where(x => x.Parent.IsA(DesiredSecondaryTag) && (SecondaryItemSelector?.Invoke(x.Parent) ?? true))
+                    .Where(x => x.Parent.IsA(DesiredSecondaryTag) && (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => SecondaryItemSelector?.Invoke(x.Parent) ?? true, false)))
                     .ToList();
 
         // Attached to inventory items first
@@ -45,7 +45,7 @@ public class InventoryPlanActionAttach : InventoryPlanAction
                     .Select(
                         x =>
                             x.ConnectedItems.FirstOrDefault(
-                                    y => y.Parent.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x.Parent) ?? true))?
+                                    y => y.Parent.IsA(DesiredTag) && (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(x.Parent) ?? true, false)))?
                                 .Parent)
                     .FirstOrDefault(x => x != null);
         if (item != null)
@@ -57,7 +57,7 @@ public class InventoryPlanActionAttach : InventoryPlanAction
         item =
             executor.Body.HeldItems.FirstOrDefault(
                 x =>
-                    x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true) && x.IsItemType<IBeltable>() &&
+                    x.IsA(DesiredTag) && (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(x) ?? true, false)) && x.IsItemType<IBeltable>() &&
                     belts.Any(
                         y => y.CanAttachBeltable(x.GetItemType<IBeltable>()) == IBeltCanAttachBeltableResult.Success));
         if (item != null)
@@ -69,7 +69,7 @@ public class InventoryPlanActionAttach : InventoryPlanAction
         item =
             executor.Body.WieldedItems.FirstOrDefault(
                 x =>
-                    x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true) && x.IsItemType<IBeltable>() &&
+                    x.IsA(DesiredTag) && (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(x) ?? true, false)) && x.IsItemType<IBeltable>() &&
                     belts.Any(
                         y => y.CanAttachBeltable(x.GetItemType<IBeltable>()) == IBeltCanAttachBeltableResult.Success));
         if (item != null)
@@ -81,7 +81,7 @@ public class InventoryPlanActionAttach : InventoryPlanAction
         item =
             executor.Body.WornItems.FirstOrDefault(
                 x =>
-                    x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true) && executor.Body.CanRemoveItem(x) &&
+                    x.IsA(DesiredTag) && (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(x) ?? true, false)) && executor.Body.CanRemoveItem(x) &&
                     x.IsItemType<IBeltable>() &&
                     belts.Any(
                         y => y.CanAttachBeltable(x.GetItemType<IBeltable>()) == IBeltCanAttachBeltableResult.Success));
@@ -96,7 +96,7 @@ public class InventoryPlanActionAttach : InventoryPlanAction
                     .SelectNotNull(x => x.Content?.Parent)
                     .FirstOrDefault(
                         x =>
-                            x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true) &&
+                            x.IsA(DesiredTag) && (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(x) ?? true, false)) &&
                             x.IsItemType<IBeltable>() &&
                             belts.Any(
                                 y =>
@@ -114,7 +114,7 @@ public class InventoryPlanActionAttach : InventoryPlanAction
                     .SelectMany(x => x.Contents)
                     .FirstOrDefault(
                         x =>
-                            x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true) &&
+                            x.IsA(DesiredTag) && (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(x) ?? true, false)) &&
                             x.IsItemType<IBeltable>() &&
                             belts.Any(
                                 y =>
@@ -129,7 +129,7 @@ public class InventoryPlanActionAttach : InventoryPlanAction
         item =
             executor.Location.GameItemsInImmediateVicinity(executor).FirstOrDefault(
                 x =>
-                    x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true) &&
+                    x.IsA(DesiredTag) && (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(x) ?? true, false)) &&
                     x.IsItemType<IHoldable>() &&
                     x.GetItemType<IHoldable>().IsHoldable &&
                     x.IsItemType<IBeltable>() &&
@@ -147,7 +147,7 @@ public class InventoryPlanActionAttach : InventoryPlanAction
                         x =>
                             x.ConnectedItems.FirstOrDefault(
                                     y =>
-                                        y.Parent.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(y.Parent) ?? true) &&
+                                        y.Parent.IsA(DesiredTag) && (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(y.Parent) ?? true, false)) &&
                                         belts.Any(z => z.CanAttachBeltable(y) == IBeltCanAttachBeltableResult.Success))?
                                 .Parent)
                     .FirstOrDefault(x => x != null);
@@ -162,7 +162,7 @@ public class InventoryPlanActionAttach : InventoryPlanAction
                     .SelectNotNull(x => x.Content?.Parent)
                     .FirstOrDefault(
                         x =>
-                            x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true) &&
+                            x.IsA(DesiredTag) && (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(x) ?? true, false)) &&
                             x.IsItemType<IBeltable>() &&
                             belts.Any(
                                 y =>
@@ -180,7 +180,7 @@ public class InventoryPlanActionAttach : InventoryPlanAction
                     .SelectMany(x => x.Contents)
                     .FirstOrDefault(
                         x =>
-                            x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true) &&
+                            x.IsA(DesiredTag) && (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(x) ?? true, false)) &&
                             x.IsItemType<IBeltable>() &&
                             belts.Any(
                                 y =>

@@ -62,7 +62,8 @@ public partial class Character
     public int State { get; set; }
     public short Gender { get; set; }
     public long Location { get; set; }
-    public long BodyId { get; set; }
+    public long? BodyId { get; set; }
+    public bool IsArchived { get; set; }
     public long CultureId { get; set; }
     public string EffectData { get; set; }
     public string BirthdayDate { get; set; }

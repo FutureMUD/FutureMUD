@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 
 using MudSharp.Construction;
 
@@ -70,7 +70,7 @@ public class InventoryPlanActionApply : InventoryPlanAction
         IGameItem item = null;
 
         item = executor.Body.HeldItems.FirstOrDefault(x =>
-            x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true) &&
+            x.IsA(DesiredTag) && (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(x) ?? true, false)) &&
             x.GetItemType<IApply>()?.CanApply(executor.Body, part) == WhyCannotApply.CanApply);
         if (item != null)
         {
@@ -78,7 +78,7 @@ public class InventoryPlanActionApply : InventoryPlanAction
         }
 
         item = executor.Body.WieldedItems.FirstOrDefault(x =>
-            x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true) &&
+            x.IsA(DesiredTag) && (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(x) ?? true, false)) &&
             x.GetItemType<IApply>()?.CanApply(executor.Body, part) == WhyCannotApply.CanApply);
         if (item != null)
         {
@@ -86,7 +86,7 @@ public class InventoryPlanActionApply : InventoryPlanAction
         }
 
         item = executor.Body.WornItems.FirstOrDefault(x =>
-            x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true) &&
+            x.IsA(DesiredTag) && (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(x) ?? true, false)) &&
             executor.Body.CanRemoveItem(x) &&
             x.GetItemType<IApply>()?.CanApply(executor.Body, part) == WhyCannotApply.CanApply);
         if (item != null)
@@ -97,7 +97,7 @@ public class InventoryPlanActionApply : InventoryPlanAction
         item = executor.Inventory.SelectNotNull(x => x.GetItemType<IBelt>())
             .Select(x =>
                 x.ConnectedItems.FirstOrDefault(y =>
-                    y.Parent.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(y.Parent) ?? true) &&
+                    y.Parent.IsA(DesiredTag) && (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(y.Parent) ?? true, false)) &&
                     y.Parent.GetItemType<IApply>()?.CanApply(executor.Body, part) == WhyCannotApply.CanApply)?.Parent)
             .FirstOrDefault(x => x != null);
         if (item != null)
@@ -108,7 +108,7 @@ public class InventoryPlanActionApply : InventoryPlanAction
         item = executor.Inventory.SelectNotNull(x => x.GetItemType<ISheath>())
             .SelectNotNull(x => x.Content?.Parent)
             .FirstOrDefault(x =>
-                x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true) &&
+                x.IsA(DesiredTag) && (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(x) ?? true, false)) &&
                 x.GetItemType<IApply>()?.CanApply(executor.Body, part) == WhyCannotApply.CanApply);
         if (item != null)
         {
@@ -119,7 +119,7 @@ public class InventoryPlanActionApply : InventoryPlanAction
             .Where(x => x.Parent.GetItemType<IOpenable>()?.IsOpen ?? true)
             .SelectMany(x => x.Contents)
             .FirstOrDefault(x =>
-                x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true) &&
+                x.IsA(DesiredTag) && (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(x) ?? true, false)) &&
                 x.GetItemType<IApply>()?.CanApply(executor.Body, part) == WhyCannotApply.CanApply);
         if (item != null)
         {
@@ -127,7 +127,7 @@ public class InventoryPlanActionApply : InventoryPlanAction
         }
 
         item = executor.Location.GameItemsInImmediateVicinity(executor).FirstOrDefault(x =>
-            x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true) &&
+            x.IsA(DesiredTag) && (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(x) ?? true, false)) &&
             x.IsItemType<IHoldable>() &&
             x.GetItemType<IHoldable>().IsHoldable &&
             x.GetItemType<IApply>()?.CanApply(executor.Body, part) == WhyCannotApply.CanApply);
@@ -139,7 +139,7 @@ public class InventoryPlanActionApply : InventoryPlanAction
         item = executor.Location.GameItemsInImmediateVicinity(executor).SelectNotNull(x => x.GetItemType<IBelt>())
             .Select(x =>
                 x.ConnectedItems.FirstOrDefault(y =>
-                    y.Parent.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(y.Parent) ?? true) &&
+                    y.Parent.IsA(DesiredTag) && (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(y.Parent) ?? true, false)) &&
                     y.Parent.GetItemType<IApply>()?.CanApply(executor.Body, part) == WhyCannotApply.CanApply)?.Parent)
             .FirstOrDefault(x => x != null);
         if (item != null)
@@ -150,7 +150,7 @@ public class InventoryPlanActionApply : InventoryPlanAction
         item = executor.Location.GameItemsInImmediateVicinity(executor).SelectNotNull(x => x.GetItemType<ISheath>())
             .SelectNotNull(x => x.Content?.Parent)
             .FirstOrDefault(x =>
-                x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true) &&
+                x.IsA(DesiredTag) && (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(x) ?? true, false)) &&
                 x.GetItemType<IApply>()?.CanApply(executor.Body, part) == WhyCannotApply.CanApply);
         if (item != null)
         {
@@ -161,7 +161,7 @@ public class InventoryPlanActionApply : InventoryPlanAction
             .Where(x => x.Parent.GetItemType<IOpenable>()?.IsOpen ?? true)
             .SelectMany(x => x.Contents)
             .FirstOrDefault(x =>
-                x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true) &&
+                x.IsA(DesiredTag) && (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(x) ?? true, false)) &&
                 x.GetItemType<IApply>()?.CanApply(executor.Body, part) == WhyCannotApply.CanApply);
         return item;
     }

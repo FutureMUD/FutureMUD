@@ -1,4 +1,4 @@
-﻿
+
 using MudSharp.Construction;
 
 namespace MudSharp.GameItems.Inventory.Plans;
@@ -45,7 +45,7 @@ public class InventoryPlanActionWear : InventoryPlanAction
 
     protected double GetItemFitness(ICharacter executor, IGameItem item)
     {
-        if (!item.IsA(DesiredTag) || !(PrimaryItemSelector?.Invoke(item) ?? true))
+        if (!item.IsA(DesiredTag) || !(MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(item) ?? true, false)))
         {
             return 0.0;
         }
@@ -57,10 +57,10 @@ public class InventoryPlanActionWear : InventoryPlanAction
                 return double.MaxValue;
             }
 
-            return (PrimaryItemFitnessScorer?.Invoke(item) ?? 1.0) * ItemsAlreadyInPlaceMultiplier;
+            return (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemFitnessScorer?.Invoke(item) ?? 1.0, 0.0)) * ItemsAlreadyInPlaceMultiplier;
         }
 
-        return PrimaryItemFitnessScorer?.Invoke(item) ?? 1.0;
+        return MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemFitnessScorer?.Invoke(item) ?? 1.0, 0.0);
     }
 
     public override IGameItem ScoutSecondary(ICharacter executor, IGameItem item)
@@ -77,7 +77,7 @@ public class InventoryPlanActionWear : InventoryPlanAction
             executor.Body.WornItems.Where(
                 x =>
                     x.IsA(DesiredTag) &&
-                    (PrimaryItemSelector?.Invoke(x) ?? true) &&
+                    (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(x) ?? true, false)) &&
                     executor.Body.CanRemoveItem(x) &&
                     x.IsItemType<IWearable>() &&
                     executor.Body.CanRemoveItem(x, ItemCanGetIgnore.IgnoreFreeHands) &&
@@ -94,7 +94,7 @@ public class InventoryPlanActionWear : InventoryPlanAction
         // Already wielded items next
         items =
             executor.Body.WieldedItems.Where(
-                x => x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true) && x.IsItemType<IWearable>() &&
+                x => x.IsA(DesiredTag) && (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(x) ?? true, false)) && x.IsItemType<IWearable>() &&
                      executor.Body.CanWear(x));
         foreach (IGameItem item in items)
         {
@@ -108,7 +108,7 @@ public class InventoryPlanActionWear : InventoryPlanAction
         // Already held items next
         items =
             executor.Body.HeldItems.Where(
-                x => x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true) && x.IsItemType<IWearable>() &&
+                x => x.IsA(DesiredTag) && (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(x) ?? true, false)) && x.IsItemType<IWearable>() &&
                      executor.Body.CanWear(x));
         foreach (IGameItem item in items)
         {
@@ -124,7 +124,7 @@ public class InventoryPlanActionWear : InventoryPlanAction
             executor.Inventory.SelectNotNull(x => x.GetItemType<ISheath>())
                     .SelectNotNull(x => x.Content?.Parent)
                     .Where(x => x.IsA(DesiredTag) &&
-                                (PrimaryItemSelector?.Invoke(x) ?? true) && x.IsItemType<IWearable>() &&
+                                (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(x) ?? true, false)) && x.IsItemType<IWearable>() &&
                                 executor.Body.CanWear(x)
                     );
         foreach (IGameItem item in items)
@@ -144,7 +144,7 @@ public class InventoryPlanActionWear : InventoryPlanAction
                         x =>
                             x.ConnectedItems.Where(
                                 y =>
-                                    y.Parent.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(y.Parent) ?? true) &&
+                                    y.Parent.IsA(DesiredTag) && (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(y.Parent) ?? true, false)) &&
                                     y.Parent.IsItemType<IWearable>() && executor.Body.CanWear(y.Parent)
                             ))
                     .SelectNotNull(x => x?.Parent)
@@ -164,7 +164,7 @@ public class InventoryPlanActionWear : InventoryPlanAction
             items = container.Contents.Where(
                 x =>
                     x.IsA(DesiredTag) &&
-                    (PrimaryItemSelector?.Invoke(x) ?? true) &&
+                    (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(x) ?? true, false)) &&
                     executor.Body.CanGet(x, container.Parent, 0,
                         ItemCanGetIgnore.IgnoreInventoryPlans | ItemCanGetIgnore.IgnoreFreeHands) &&
                     x.IsItemType<IWearable>() && executor.Body.CanWear(x)
@@ -184,7 +184,7 @@ public class InventoryPlanActionWear : InventoryPlanAction
             executor.Location.GameItemsInImmediateVicinity(executor).Where(
                 x =>
                     x.IsA(DesiredTag) &&
-                    (PrimaryItemSelector?.Invoke(x) ?? true) && x.IsItemType<IWearable>() &&
+                    (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(x) ?? true, false)) && x.IsItemType<IWearable>() &&
                     executor.Body.CanWear(x));
         foreach (IGameItem item in items)
         {
@@ -203,7 +203,7 @@ public class InventoryPlanActionWear : InventoryPlanAction
                         x =>
                             x.ConnectedItems.Where(
                                 y =>
-                                    y.Parent.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(y.Parent) ?? true) &&
+                                    y.Parent.IsA(DesiredTag) && (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(y.Parent) ?? true, false)) &&
                                     y.Parent.IsItemType<IWearable>() && executor.Body.CanWear(y.Parent)
                             ))
                     .SelectNotNull(x => x?.Parent)
@@ -223,7 +223,7 @@ public class InventoryPlanActionWear : InventoryPlanAction
                     .Where(x => executor.Location.CanGetAccess(x.Parent, executor))
                     .SelectNotNull(x => x.Content?.Parent)
                     .Where(x => x.IsA(DesiredTag) &&
-                                (PrimaryItemSelector?.Invoke(x) ?? true) && x.IsItemType<IWearable>() &&
+                                (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(x) ?? true, false)) && x.IsItemType<IWearable>() &&
                                 executor.Body.CanWear(x));
         foreach (IGameItem item in items)
         {
@@ -242,7 +242,7 @@ public class InventoryPlanActionWear : InventoryPlanAction
             items = container.Contents.Where(
                 x =>
                     x.IsA(DesiredTag) &&
-                    (PrimaryItemSelector?.Invoke(x) ?? true) &&
+                    (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(x) ?? true, false)) &&
                     executor.Body.CanGet(x, container.Parent, 0,
                         ItemCanGetIgnore.IgnoreInventoryPlans | ItemCanGetIgnore.IgnoreFreeHands) &&
                     x.IsItemType<IWearable>() && executor.Body.CanWear(x)

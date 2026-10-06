@@ -144,6 +144,8 @@ If omitted, the defense trait defaults to the auxiliary action's check trait and
 		var defender = Subject == FacingSubject.Attacker ? tch : attacker;
 		for (var i = 0; i < steps; i++)
 		{
+			if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue()) return;
+			MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted();
 			if (Direction == FacingDirection.Improve)
 			{
 				CombatPositioningUtilities.ImproveCombatPosition(actor, defender);

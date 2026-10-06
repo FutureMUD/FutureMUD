@@ -28,7 +28,7 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
         return true;
     }
 
-    public override bool WarnBeforePurge => OriginalBody.AllItems.Any();
+    public override bool WarnBeforePurge => OriginalBody?.AllItems.Any() ?? true;
 
     public override IGameItemComponentProto Prototype => _prototype;
 
@@ -53,19 +53,22 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
             return "a corpse";
         }
 
-        return Model.Describe(type, Decay, OriginalCharacter, OriginalBody, voyeur,
-                   EatenWeight / (Model.EdiblePercentage * OriginalBody.Weight)) +
+        var body = OriginalBody;
+        var character = OriginalCharacter;
+        if (body is null || character is null) return "an unidentifiable corpse";
+        return Model.Describe(type, Decay, character, body, voyeur,
+                   EatenWeight / (Model.EdiblePercentage * body.Weight)) +
                (Skinned && type == DescriptionType.Short ? " (Skinned)".Colour(Telnet.Red) : "");
     }
 
-    public override double ComponentWeight => OriginalBody.Weight + OriginalBody.ExternalItems.Sum(x => x.Weight) +
-                OriginalBody.Implants.Sum(x => x.Parent.Weight) +
-                OriginalBody.Prosthetics.Sum(x => x.Parent.Weight) - EatenWeight;
+    public override double ComponentWeight => OriginalBody is { } body
+        ? body.Weight + body.ExternalItems.Sum(x => x.Weight) + body.Implants.Sum(x => x.Parent.Weight) +
+          body.Prosthetics.Sum(x => x.Parent.Weight) - EatenWeight : 0.0;
 
     public override double ComponentBuoyancy(double fluidDensity)
     {
-        return (fluidDensity - 1.01) * (OriginalBody.Weight - EatenWeight) +
-               OriginalBody.AllItems.Sum(x => x.Buoyancy(fluidDensity));
+        return OriginalBody is { } body ? (fluidDensity - 1.01) * (body.Weight - EatenWeight) +
+               body.AllItems.Sum(x => x.Buoyancy(fluidDensity)) : 0.0;
     }
 
     public override bool OverridesMaterial => OverridenMaterial != null;
@@ -235,7 +238,7 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
         ICharacter originalCharacter = OriginalCharacter;
         IBody originalBody = OriginalBody;
         bool finalDeath = RepresentsFinalCharacterDeath;
-        if (finalDeath && originalCharacter.Corpse == this)
+        if (finalDeath && originalCharacter?.Corpse == this)
         {
             originalCharacter.Corpse = null;
         }
@@ -245,7 +248,7 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
         // If a final-death corpse is deleted and its owner is still dead (i.e. hasn't been resurrected), delete the inventory.
         // Non-final remains own their physical contents independently of the surviving character, so deleting the remains
         // deletes the old body's inventory too.
-        if (!finalDeath || originalCharacter.Status == CharacterStatus.Deceased)
+        if (originalBody is not null && (!finalDeath || originalCharacter?.Status == CharacterStatus.Deceased))
         {
             foreach (IGameItem item in originalBody.ExternalItems.ToList())
             {
@@ -253,7 +256,7 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
             }
         }
 
-        if (!finalDeath)
+        if (!finalDeath && originalBody is not null && originalCharacter is not null)
         {
             originalCharacter.TryCleanupRetiredBody(originalBody, Parent);
         }
@@ -273,7 +276,7 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
 
     public override bool Take(IGameItem item)
     {
-        if (OriginalBody.ExternalItems.Contains(item))
+        if (OriginalBody?.ExternalItems.Contains(item) == true)
         {
             OriginalBody.Take(item);
             return true;
@@ -303,7 +306,7 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
         }
     }
 
-    public double RemainingEdibleWeight => OriginalBody.Weight * Model.EdiblePercentage - EatenWeight;
+    public double RemainingEdibleWeight => OriginalBody is { } body ? body.Weight * Model.EdiblePercentage - EatenWeight : 0.0;
 
     public BodyRemainsContext RemainsContext
     {
@@ -330,9 +333,9 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
             _originalCharacter?.Corpse = this;
         }
 
-        _originalBody = Gameworld.Bodies.Get(_originalBodyId) ??
-                        _originalCharacter?.Bodies.FirstOrDefault(x => x.Id == _originalBodyId);
-        if (_originalBody == null && _originalCharacter != null)
+        _originalBody = RemainsBodyReferenceResolver.Resolve(Gameworld, _originalCharacter, _originalBodyId, RepresentsFinalCharacterDeath);
+        if (_originalBody == null && _originalCharacter != null &&
+            _originalBodyId == 0 && RepresentsFinalCharacterDeath)
         {
             _originalBody = _originalCharacter.Body;
             _originalBodyId = _originalBody.Id;
@@ -369,7 +372,7 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
 
     public long OriginalBodyId => _originalBodyId;
 
-    public MudSharp.Character.Heritage.IRace OriginalRace => OriginalBody.Race;
+    public MudSharp.Character.Heritage.IRace OriginalRace => OriginalBody?.Race;
 
     public IBody OriginalBody
     {
@@ -439,13 +442,14 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
         }
     }
 
-    public IEnumerable<IBodypart> Parts => OriginalBody.Bodyparts;
+    public IEnumerable<IBodypart> Parts => OriginalBody?.Bodyparts ?? Enumerable.Empty<IBodypart>();
 
     private readonly List<string> _butcheredSubcategories = new();
     public IEnumerable<string> ButcheredSubcategories => _butcheredSubcategories;
 
     public bool Butcher(ICharacter butcher, string subcategory = null)
     {
+		if (OriginalBody is null || OriginalRace?.ButcheryProfile is null) return false;
 		if (!ItemManipulationGuard.CanManipulate(butcher, out var manipulationReason, Parent))
 		{
 			return false;
@@ -546,6 +550,7 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
 
     public void Skin(ICharacter skinner)
     {
+		if (OriginalBody is null || OriginalRace?.ButcheryProfile is null) return;
 		if (!ItemManipulationGuard.CanManipulate(skinner, out var manipulationReason, Parent))
 		{
 			return;
@@ -616,93 +621,93 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
 
     double IHaveWeight.Weight
     {
-        set => OriginalBody.Weight = value;
-        get => OriginalBody.Weight;
+        set { if (OriginalBody is { } body) body.Weight = value; }
+        get => OriginalBody?.Weight ?? 0.0;
     }
 
     double IHaveHeight.Height
     {
-        set => OriginalBody.Height = value;
-        get => OriginalBody.Height;
+        set { if (OriginalBody is { } body) body.Height = value; }
+        get => OriginalBody?.Height ?? 0.0;
     }
 
-    Alignment IHaveABody.Handedness => OriginalBody.Handedness;
+    Alignment IHaveABody.Handedness => OriginalBody?.Handedness ?? Alignment.Irrelevant;
     #endregion
 
     #region IOverrideItemWoundBehaviour Implementation
 
-    public IHealthStrategy HealthStrategy => OriginalBody.HealthStrategy;
-    public IEnumerable<IWound> Wounds => OriginalBody.Wounds;
+    public IHealthStrategy HealthStrategy => OriginalBody?.HealthStrategy;
+    public IEnumerable<IWound> Wounds => OriginalBody?.Wounds ?? Enumerable.Empty<IWound>();
 
     public IEnumerable<IWound> VisibleWounds(IPerceiver voyeur, WoundExaminationType examinationType)
     {
-        return OriginalBody.VisibleWounds(voyeur, examinationType);
+        return OriginalBody?.VisibleWounds(voyeur, examinationType) ?? Enumerable.Empty<IWound>();
     }
 
     public IEnumerable<IWound> SufferDamage(IDamage damage)
     {
-        return OriginalBody.SufferDamage(damage);
+        return OriginalBody?.SufferDamage(damage) ?? Enumerable.Empty<IWound>();
     }
 
     public IEnumerable<IWound> PassiveSufferDamage(IDamage damage)
     {
-        return OriginalBody.PassiveSufferDamage(damage);
+        return OriginalBody?.PassiveSufferDamage(damage) ?? Enumerable.Empty<IWound>();
     }
 
     public IEnumerable<IWound> PassiveSufferDamage(IExplosiveDamage damage, Proximity proximity, Facing facing)
     {
-        return OriginalBody.PassiveSufferDamage(damage, proximity, facing);
+        return OriginalBody?.PassiveSufferDamage(damage, proximity, facing) ?? Enumerable.Empty<IWound>();
     }
 
     public void ProcessPassiveWound(IWound wound)
     {
-        OriginalBody.ProcessPassiveWound(wound);
+        OriginalBody?.ProcessPassiveWound(wound);
     }
 
     public WoundSeverity GetSeverityFor(IWound wound)
     {
-        return OriginalBody.GetSeverityFor(wound);
+        return OriginalBody?.GetSeverityFor(wound) ?? default;
     }
 
     public double GetSeverityFloor(WoundSeverity severity, bool usePercentageModel = false)
     {
-        return OriginalBody.GetSeverityFloor(severity, usePercentageModel);
+        return OriginalBody?.GetSeverityFloor(severity, usePercentageModel) ?? 0.0;
     }
 
     public void EvaluateWounds()
     {
-        OriginalBody.EvaluateWounds();
+        OriginalBody?.EvaluateWounds();
     }
 
     public void CureAllWounds()
     {
-        OriginalBody.CureAllWounds();
+        OriginalBody?.CureAllWounds();
     }
 
     public void StartHealthTick(bool initial = false)
     {
-        OriginalBody.StartHealthTick(initial);
+        OriginalBody?.StartHealthTick(initial);
     }
 
     public void EndHealthTick()
     {
-        OriginalBody.EndHealthTick();
+        OriginalBody?.EndHealthTick();
     }
 
     public void AddWound(IWound wound)
     {
-        OriginalBody.AddWound(wound);
+        OriginalBody?.AddWound(wound);
     }
 
     public void AddWounds(IEnumerable<IWound> wounds)
     {
-        OriginalBody.AddWounds(wounds);
+        OriginalBody?.AddWounds(wounds);
     }
 
     public bool TryTransferWoundTo(IWound wound, IHaveWounds newOwner, IBodypart newBodypart,
         IBodypart newSeveredBodypart = null)
     {
-        return OriginalBody.TryTransferWoundTo(wound, newOwner, newBodypart, newSeveredBodypart);
+        return OriginalBody?.TryTransferWoundTo(wound, newOwner, newBodypart, newSeveredBodypart) ?? false;
     }
 
     #endregion

@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Body.Traits;
@@ -78,7 +78,10 @@ public class MeleeWeaponAttack : WeaponAttackMove
 
     public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
     {
+		using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterMove(this);
+		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
 		defenderMove = MagicDefenseMove.Revalidate(defenderMove, this);
+		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
 		using var scope = new MagicDefenseDamageScope(this, defenderMove);
 		return scope.Finish(ResolveAttackWithDefense(defenderMove));
     }
@@ -99,14 +102,15 @@ public class MeleeWeaponAttack : WeaponAttackMove
         }
 
         WorsenCombatPosition(defenderMove.Assailant, Assailant);
-        var magicAttackBonus = Weapon.Parent
-                                      .EffectsOfType<IMagicWeaponEnhancementEffect>(x =>
-                                          x.AppliesToWeaponAttack(Assailant, defenderMove.Assailant, Weapon.Parent))
-                                      .Sum(x => x.AttackCheckBonus);
+        if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
+        var magicAttackBonus = ApplicableWeaponEnhancements(Weapon.Parent, defenderMove.Assailant)
+            .Sum(x => x.AttackCheckBonus);
+        if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
         Dictionary<Difficulty, CheckOutcome> attackRoll = Gameworld.GetCheck(Check)
                                   .CheckAgainstAllDifficulties(Assailant, CheckDifficulty,
                                       Weapon.WeaponType.AttackTrait,
                                       defenderMove.Assailant, Assailant.OffensiveAdvantage + magicAttackBonus);
+		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
         Assailant.OffensiveAdvantage = 0;
         if (defenderMove.Assailant is not IHaveWounds defenderHaveWounds)
         {
@@ -121,10 +125,12 @@ public class MeleeWeaponAttack : WeaponAttackMove
                 Gameworld.CombatMessageManager.GetMessageFor(Assailant, defenderMove.Assailant, Weapon.Parent,
                     Attack, MoveType, attackRoll[CheckDifficulty], null), "",
                 TargetBodypart.FullDescription());
+		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
 
         if (defenderMove is MagicDefenseMove magicalDefense)
         {
 			if (magicalDefense.TryDefend(this, attackRoll[CheckDifficulty], out var magicResult)) return magicResult;
+			if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
 			defenderMove = new HelplessDefenseMove { Assailant = magicalDefense.Assailant };
         }
 
@@ -138,6 +144,7 @@ public class MeleeWeaponAttack : WeaponAttackMove
         if (ward != null)
         {
             wardResult = ResolveWard(ward);
+			if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
             if (wardResult.WardSucceeded)
             {
                 Assailant.OutputHandler.Handle(
@@ -149,15 +156,18 @@ public class MeleeWeaponAttack : WeaponAttackMove
                 return new CombatMoveResult { RecoveryDifficulty = RecoveryDifficultyFailure };
             }
 
-            WardBeaten newEffect = new(defenderMove.Assailant, defenderMove.Assailant.Combat);
-            defenderMove.Assailant.AddEffect(newEffect);
-            defenderMove = defenderMove.Assailant.ResponseToMove(this, Assailant);
-            defenderMove.Assailant.RemoveEffect(newEffect);
+			var warder = defenderMove.Assailant;
+            WardBeaten newEffect = new(warder, warder.Combat);
+            warder.AddEffect(newEffect);
+			try { if (!CanContinueCommand()) return CombatMoveResult.Irrelevant; defenderMove = warder.ResponseToMove(this, Assailant) ?? new HelplessDefenseMove { Assailant = warder }; }
+			finally { warder.RemoveEffect(newEffect); }
+			if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
         }
 
         if (defenderMove is MagicDefenseMove fallbackMagic)
         {
 			if (fallbackMagic.TryDefend(this, attackRoll[CheckDifficulty], out var fallbackResult)) return fallbackResult;
+			if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
 			defenderMove = new HelplessDefenseMove { Assailant = fallbackMagic.Assailant };
         }
 
@@ -268,8 +278,8 @@ public class MeleeWeaponAttack : WeaponAttackMove
                         defenderMove.Shield.Parent, wardResult?.WardWeapon?.Parent),
                     style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
             wardWounds.AddRange(ProcessWardFreeAttack(Assailant, defenderMove.Assailant, wardResult));
-            wounds.AddRange(defenderHaveWounds.PassiveSufferDamage(finalDamage));
-            wounds.AddRange(defenderMove.Shield.Parent.PassiveSufferDamage(finalDamage));
+            wounds.AddRange(defenderHaveWounds.CommandSufferDamage(finalDamage));
+            wounds.AddRange(defenderMove.Shield.Parent.CommandSufferDamage(finalDamage));
             CheckLodged(wounds);
             wardWounds.ProcessPassiveWounds();
             wounds.ProcessPassiveWounds();
@@ -329,7 +339,7 @@ public class MeleeWeaponAttack : WeaponAttackMove
                 ShockAmount = 0,
                 StunAmount = 0
             };
-            wounds.AddRange(defenderMove.Shield.Parent.PassiveSufferDamage(finalDamage));
+            wounds.AddRange(defenderMove.Shield.Parent.CommandSufferDamage(finalDamage));
             CheckLodged(wounds);
             wounds.ProcessPassiveWounds();
         }
@@ -460,9 +470,9 @@ public class MeleeWeaponAttack : WeaponAttackMove
                         $"{attackEmote}{string.Format(parryEmote, "", TargetBodypart.FullDescription())}".Fullstop(),
                         Assailant, Assailant, defenderMove.Assailant, Weapon.Parent, parry.Weapon.Parent, null),
                     style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
-            wounds.AddRange(defenderHaveWounds.PassiveSufferDamage(finalDamage));
+            wounds.AddRange(defenderHaveWounds.CommandSufferDamage(finalDamage));
             CheckLodged(wounds);
-            wardWounds.AddRange(parry.Weapon.Parent.PassiveSufferDamage(finalDamage));
+            wardWounds.AddRange(parry.Weapon.Parent.CommandSufferDamage(finalDamage));
             CheckLodged(wardWounds);
             wounds.ProcessPassiveWounds();
             wardWounds.ProcessPassiveWounds();
@@ -518,7 +528,7 @@ public class MeleeWeaponAttack : WeaponAttackMove
                 ShockAmount = 0,
                 StunAmount = 0
             };
-            wardWounds.AddRange(parry.Weapon.Parent.PassiveSufferDamage(finalDamage));
+            wardWounds.AddRange(parry.Weapon.Parent.CommandSufferDamage(finalDamage));
             CheckLodged(wardWounds);
             wardWounds.ProcessPassiveWounds();
 
@@ -675,8 +685,8 @@ public class MeleeWeaponAttack : WeaponAttackMove
             }
 
             selfWounds.AddRange(ProcessWardFreeAttack(Assailant, defenderMove.Assailant, wardResult));
-            wounds.AddRange(defenderHaveWounds.PassiveSufferDamage(damage));
-            wounds.AddRange(Weapon.Parent.PassiveSufferDamage(selfDamage));
+            wounds.AddRange(defenderHaveWounds.CommandSufferDamage(damage));
+            wounds.AddRange(Weapon.Parent.CommandSufferDamage(selfDamage));
             CheckLodged(wounds);
             CheckLodged(selfWounds);
             wounds.ProcessPassiveWounds();
@@ -753,8 +763,8 @@ public class MeleeWeaponAttack : WeaponAttackMove
                     Assailant, Assailant, defenderMove.Assailant, Weapon.Parent, null, null),
                 style: OutputStyle.CombatMessage,
                 flags: OutputFlags.InnerWrap));
-        List<IWound> wounds = defenderHaveWounds.PassiveSufferDamage(damage).ToList();
-        wounds.AddRange(Weapon.Parent.PassiveSufferDamage(selfDamage));
+        List<IWound> wounds = defenderHaveWounds.CommandSufferDamage(damage).ToList();
+        wounds.AddRange(Weapon.Parent.CommandSufferDamage(selfDamage));
         CheckLodged(wounds);
         wounds.ProcessPassiveWounds();
         Assailant.Body?.SetExertionToMinimumLevel(AssociatedExertion);

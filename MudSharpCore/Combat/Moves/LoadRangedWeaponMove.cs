@@ -1,4 +1,4 @@
-﻿using MudSharp.RPG.Checks;
+using MudSharp.RPG.Checks;
 
 namespace MudSharp.Combat.Moves;
 
@@ -20,6 +20,8 @@ public class LoadRangedWeaponMove : CombatMoveBase
 
     public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
     {
+		using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterMove(this);
+		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
         if (!Weapon.CanLoad(Assailant, true, Mode))
         {
             Assailant.OutputHandler.Send(Weapon.WhyCannotLoad(Assailant, true, Mode));

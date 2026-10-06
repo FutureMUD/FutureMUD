@@ -1,4 +1,4 @@
-﻿using MudSharp.Database;
+using MudSharp.Database;
 using MudSharp.RPG.Checks;
 
 namespace MudSharp.Body.Traits.Improvement;
@@ -70,17 +70,23 @@ public class BranchingImprover : ClassicImprovement
         TraitUseType usetype)
     {
         double result = base.GetImprovement(person, trait, difficulty, outcome, usetype);
+		EvaluateBranches(person, trait);
+		return result;
+	}
+
+	internal void EvaluateBranches(IHaveTraits person, ITrait trait)
+	{
         foreach ((ITraitDefinition BaseTrait, double TraitValue, double OpenValue, ITraitDefinition BranchTrait) item in BranchMap)
         {
             if (person.TraitRawValue(item.BaseTrait) >= item.TraitValue && !person.HasTrait(item.BranchTrait))
             {
-                person.AddTrait(item.BranchTrait, item.OpenValue);
+                if (!CheckLearningScope.CanContinue(person)) break;
+                if (!person.AddTrait(item.BranchTrait, item.OpenValue)) continue;
                 trait.Gameworld.LogManager.CustomLogEntry(Logging.LogEntryType.SkillBranch, person, item.BranchTrait,
                     Outcome.MajorPass);
             }
         }
 
-        return result;
     }
 
     /// <inheritdoc />

@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.Character.Heritage;
 using MudSharp.Effects.Concrete;
 using MudSharp.RPG.Checks;
@@ -20,6 +20,8 @@ public class InitiateGrappleMove : NaturalAttackMove
 
     public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
     {
+		using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterMove(this);
+		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
 		defenderMove = MagicDefenseMove.Revalidate(defenderMove, this);
 		if (!VehicleCombatService.Instance.CanCrossVehicleBoundary(Assailant, CharacterTarget, false, false,
 			    out var boundaryReason))
@@ -93,6 +95,8 @@ public class InitiateGrappleMove : NaturalAttackMove
             Assailant.OutputHandler.Handle(new EmoteOutput(
                 new Emote($"{attackEmote}{counterEmote}", Assailant, Assailant, CharacterTarget),
                 style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
+            if (!CanContinueCommand()) return RefusedContinuationResult();
+            MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted();
             Grappling effect = new(Assailant, CharacterTarget);
             Assailant.AddEffect(effect);
             return new CombatMoveResult
@@ -111,6 +115,8 @@ public class InitiateGrappleMove : NaturalAttackMove
             Assailant.OutputHandler.Handle(new EmoteOutput(
                 new Emote($"{attackEmote}{counterEmote}", Assailant, Assailant, CharacterTarget),
                 style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
+            if (!CanContinueCommand()) return RefusedContinuationResult();
+            MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted();
             Grappling effect = new(CharacterTarget, Assailant);
             CharacterTarget.AddEffect(effect);
             return new CombatMoveResult
@@ -143,6 +149,8 @@ public class InitiateGrappleMove : NaturalAttackMove
             Assailant.OutputHandler.Handle(new EmoteOutput(
                 new Emote($"{attackEmote}{dodgeEmote}", Assailant, Assailant, CharacterTarget),
                 style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
+            if (!CanContinueCommand()) return RefusedContinuationResult();
+            MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted();
             Grappling effect = new(Assailant, CharacterTarget);
             Assailant.AddEffect(effect);
             return new CombatMoveResult
@@ -181,6 +189,8 @@ public class InitiateGrappleMove : NaturalAttackMove
                 new Emote($"{attackEmote}, and #1 %1|are|is successfully engaged in a grapple!",
                     Assailant, Assailant, CharacterTarget, null), style: OutputStyle.CombatMessage,
                 flags: OutputFlags.InnerWrap));
+        if (!CanContinueCommand()) return RefusedContinuationResult();
+        MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted();
         Grappling effect = new(Assailant, CharacterTarget);
         Assailant.AddEffect(effect);
         return new CombatMoveResult

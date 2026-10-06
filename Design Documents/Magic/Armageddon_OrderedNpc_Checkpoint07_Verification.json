@@ -1,0 +1,2651 @@
+{
+  "recorded_utc": "2026-10-05T12:57:28.454435+00:00",
+  "status": "currency_milestone_only_comprehensive_clearance_open",
+  "head": "02b8994ce4d6c6104e0187e9f0026fc575af58fa",
+  "focused": {
+    "run_id": "20261005T123910Z-21d297c20904",
+    "passed": 218,
+    "failed": 0,
+    "skipped": 0,
+    "source_fingerprint": "9bf7a02f812ed6d1e8ad3ff1585a0cfb8ed3eae2d079d0754ff0f9e6f7a03243",
+    "selection": "QueuedCommandAuthority, PreparedCurrencyTransfer, GameItemSpatialPlacement, ForeignCustodySave, SpellOwnedItem"
+  },
+  "fast": {
+    "run_id": "20261005T124117Z-f903dfd278c8",
+    "executed": 7402,
+    "passed": 7402,
+    "failed": 0,
+    "skipped": 0,
+    "inconclusive": 0,
+    "other": 0,
+    "total": 7402,
+    "source_fingerprint": "557e7b43159994c023b341fe798812a7c19e1c1baa173b832e77ac4c8833e8ac",
+    "summary_sha256": "a61d0c695f04a87b4df223316d7253c3e58dab2addc5ef71dbe837e9c29f6d1e"
+  },
+  "native": {
+    "attempt": "nativecurrency11",
+    "status": "PASS",
+    "passed_cases": 34,
+    "currency_cases": 21,
+    "container_cases": 2,
+    "source_count": 4728,
+    "shared_dll_count": 19,
+    "strict_alignment": true,
+    "manifest_sha256": "7c71020c882a88fe434dc19e4d416cf031634ee1ffa1123881d953e1abbb6faa",
+    "owned_database_and_server_cleanup": "PASS",
+    "owned_processes_remaining": 0
+  },
+  "new_commit": null,
+  "running_tests": false,
+  "runtime_changes_after_fast_and_native": false,
+  "documentation_updated_after_verification": true,
+  "native_fixture_only_repair_after_fast": "new container helper missing currency namespace import",
+  "prior_native": [
+    {
+      "attempt": "checkpoint07-servitor02",
+      "status": "PASS",
+      "owned_cleanup": "PASS",
+      "fingerprints": "PASS"
+    },
+    {
+      "attempt": "checkpoint07-queue02",
+      "status": "PASS",
+      "owned_cleanup": "PASS",
+      "fingerprints": "PASS"
+    },
+    {
+      "attempt": "checkpoint07-callback02",
+      "status": "PASS",
+      "owned_cleanup": "PASS",
+      "fingerprints": "PASS"
+    },
+    {
+      "attempt": "checkpoint07-sand02",
+      "status": "PASS",
+      "owned_cleanup": "PASS",
+      "fingerprints": "PASS"
+    },
+    {
+      "attempt": "checkpoint07-flame02",
+      "status": "PASS",
+      "owned_cleanup": "PASS",
+      "fingerprints": "PASS"
+    },
+    {
+      "attempt": "checkpoint07-storm02",
+      "status": "PASS",
+      "owned_cleanup": "PASS",
+      "fingerprints": "PASS"
+    }
+  ],
+  "container_compatibility": {
+    "status": "PASS_bounded_slice_no_remaining_established_P1_P2",
+    "repairs": [
+      "Container.Put accepts only an exact already-extracted native cell source and clears its spatial pointer in the custody commit",
+      "Container cleanup distinguishes direct body claims from body inherited through the destination bag"
+    ],
+    "managed": "14 additional native GameItem regression rows, including extracted source, actual merge call/consumption, callback reacquisition/relocation/revocation and inherited holder",
+    "native": "Two ordinary native floor/held bag controls: CanPut purity, Insert-Extract-Put, real currency merge/15u/exact maps, absorbed source row removal, container XML and ContainerId, independent native cold readers",
+    "historical_failures_retained": [
+      "checkpoint07-sand",
+      "checkpoint07-sand-diagnostic02"
+    ],
+    "root_cause_evidence": "Owned expiry reached Deleted=true and Completed; foreign sibling ContainerId was already null before reader reconciliation because Put refused its Cell.Extract pointer",
+    "sand_repair_qualification": "checkpoint07-sand02 unchanged original Sand helper and reader PASS",
+    "native_build_failures_retained": [
+      "nativebuild25: diagnostic helper missing RuntimeClock namespace",
+      "nativebuild27: new container helper missing ICurrencyPile namespace"
+    ],
+    "after_fast": "Only new native helper currency-namespace import; production runtime and managed tests unchanged"
+  },
+  "shared_check_callback_scope": {
+    "status": "parent_scope_decision_pending_no_Check_cs_edits",
+    "evidence": "Check.cs CheckBonuses effect/merit callbacks around613 can revoke control before TraitUsed around130-145; caller postcheck cannot prevent intrinsic learning/branch mutation",
+    "boundary": "Record existing supported action dependency; do not silently broaden generic check audit or supported commands"
+  },
+  "next_component_review": {
+    "status": "source_design_only_not_implemented_or_native_qualified",
+    "methods": [
+      "InternalMagazineGunGameItemComponent.Load",
+      "InternalMagazineGunGameItemComponent.ChamberRound",
+      "InternalMagazineGunGameItemComponent.Unready",
+      "FirearmBaseGameItemComponent.Ready"
+    ],
+    "recommendation": "Capture exact gun/ammunition/body/prototype/list/quantity/chamber/casing state; check executable callbacks; detach/split only one accepted ammo participant and complete its exact custody; finalise the plan in finally with actual adopted exemptions; use prepared detach/receive for ejection; gate each later participant afresh; Ready reports actual chamber transition",
+    "required_controls": "Whole/partial-stack load, real merge, old round plus casing plus next magazine round, expiry/rebind at output/split/containment, callback relocation/replacement, ordinary direct/independent foreign body, native flush/cold XML and exact ContainerId/residual quantity/no duplicate/no orphan"
+  },
+  "post_verification_changed_paths": [
+    "Design Documents/Economy/Economy_System_Runtime.md",
+    "Design Documents/Items/Item_System_Runtime_Model.md",
+    "Design Documents/Magic/Armageddon_Completion_Progress.json",
+    "Design Documents/Magic/Armageddon_Completion_Progress.md",
+    "Design Documents/Magic/Armageddon_OrderedNpc_Closure_Checklist.md",
+    "Design Documents/Magic/Armageddon_QueuedCommand_Callback_Audit.md"
+  ],
+  "executable_sources_and_binaries_unchanged_after_verification": true,
+  "remaining": [
+    "native_displacement_membership_route_boarding_controls",
+    "remaining_component_load_chamber_ready_fire_unload_and_projectile_caller_detachment",
+    "noncurrency_prepared_inventory_merge_conservation_and_native_controls",
+    "actual_defender_countershot",
+    "final_complete_closure_suites_docs_receipt_one_local_commit_parent_review"
+  ],
+  "files": [
+    {
+      "path": "Design Documents/Economy/Economy_System_Runtime.md",
+      "sha256": "13e8a8bc7957b3dd3d9e06d5ef142ac392d75b94e3c9288b0634dc13e162f099"
+    },
+    {
+      "path": "Design Documents/Items/Item_System_Runtime_Model.md",
+      "sha256": "fa863c77e9988af6b76944002bee0e3f10227e2a2c1d5f27f29bd642449e2c54"
+    },
+    {
+      "path": "Design Documents/Magic/Armageddon_Completion_Progress.json",
+      "sha256": "9c48ca4166b1f0c1151b35c5d63d87ca7fde63329fca5ba565c7194bb36ff3fe"
+    },
+    {
+      "path": "Design Documents/Magic/Armageddon_Completion_Progress.md",
+      "sha256": "04560d56eb7fe4a74e1cd549caa1445b6019c8f37d38814146b8eea120434754"
+    },
+    {
+      "path": "Design Documents/Magic/Armageddon_OrderedNpc_Closure_Checklist.md",
+      "sha256": "7fed58c22c11f4c1db6893577a0795b48e8fd2f3ad2fa5e5c0939e74e8ad2322"
+    },
+    {
+      "path": "Design Documents/Magic/Armageddon_QueuedCommand_Callback_Audit.md",
+      "sha256": "4e9b705893160b36bb2548f9df8f0746e5495ae3f7c52c14a3cd3624f159d8b2"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/BlackPowderPhysicalLoadingSourceTests.cs",
+      "sha256": "95a37a310c4b1e801fa7510a2827e5b4bae3623da7e4b88ed253276469ee30ec"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/CommandableAiTests.cs",
+      "sha256": "028e2e8b5a0c57c34561ddf69343c5532722ab4c8c320c8a3d159b31aca97872"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/OrderedNpcCallbackTests.cs",
+      "sha256": "ce9218900d560af013235f75f37571232955ecb5f10f47ba7e02d1afd3ca873c"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/PredatorHuntingTests.cs",
+      "sha256": "560b3f062329476395ea0eabfd776437e496c67d39d8f6a5f1d7848201fcdef4"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/PreparedCurrencyTransferTests.cs",
+      "sha256": "ebe279bd41cb922638fb9518f459b1c61469bfdefac766528101b52b75ab864f"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/QueuedCommandAuthorityDisplacementTests.cs",
+      "sha256": "70df6e579862d4abdd5bf8697291413f1920e2e5f5a264bb5dc0679a4279b057"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/QueuedCommandAuthorityTests.cs",
+      "sha256": "125f9c32a031f8d05f2c462fa8fa82cef0d13c11d9b671f3553c21c6ca29988e"
+    },
+    {
+      "path": "MudSharpCore/Body/CommunicationStrategies/HumanoidCommunicationStrategy.cs",
+      "sha256": "56ed1633505a7bec9da2f5b61e41faae89c488b857a4a76243bf28b4c8de36b6"
+    },
+    {
+      "path": "MudSharpCore/Body/CommunicationStrategies/NonCommunicatorCommunicationStrategy.cs",
+      "sha256": "3167a6b7949aeff7ab0f41966765354ccdc5f15d819e2a219e8564a15d7566ec"
+    },
+    {
+      "path": "MudSharpCore/Body/Implementations/BodyBehaviours.cs",
+      "sha256": "46f9fc77684ce7a9245327133665a048338f1883a2e076194775c236fc085c89"
+    },
+    {
+      "path": "MudSharpCore/Body/Implementations/BodyBiology.cs",
+      "sha256": "c31c69f9185880090784bb6d45933a7a1b3108147354d81eaa83bb6944262b7e"
+    },
+    {
+      "path": "MudSharpCore/Body/Implementations/BodyCurrencyTransfer.cs",
+      "sha256": "052a3bbd6ed474886bc929e007a62e8b18f6e5ddf4375b9c2c9d1cd6952091a5"
+    },
+    {
+      "path": "MudSharpCore/Body/Implementations/BodyInventory.cs",
+      "sha256": "0d75c5a8d65b9d6240c098535f2916a21abe04ef7a51a73281e18c334ab84336"
+    },
+    {
+      "path": "MudSharpCore/Character/Character.cs",
+      "sha256": "32496e5736c03ff0cfb1673eb041c163b0c8f7faf146c831c6ffc11ebddba56d"
+    },
+    {
+      "path": "MudSharpCore/Character/CharacterCombat.cs",
+      "sha256": "135a311b88ab8029ce9e13bf29ff043cc72fad49e5da96ed5eff70b1f12e6299"
+    },
+    {
+      "path": "MudSharpCore/Character/CharacterMovement.cs",
+      "sha256": "7a74281c1eee7489d78e6335c6ea762ff7fb0abab9bf968fdd9419634a0e7e29"
+    },
+    {
+      "path": "MudSharpCore/Character/CharacterPosition.cs",
+      "sha256": "e76dba09eedc5d810406b6241fbf2829944c520cb7c4103903e668e56b5c3457"
+    },
+    {
+      "path": "MudSharpCore/Combat/AuxiliaryCombatAction.cs",
+      "sha256": "8c2eee9f61c50655fe9934e2b5b484c18290c630160c0adb01c2c53d05a7c6e2"
+    },
+    {
+      "path": "MudSharpCore/Combat/AuxiliaryEffects/AttackerAdvantage.cs",
+      "sha256": "0e433f8936c96901f508c5976ab67ad0fc223ed461408cf68b4eaf72e2ea9718"
+    },
+    {
+      "path": "MudSharpCore/Combat/AuxiliaryEffects/DefenderAdvantage.cs",
+      "sha256": "639ecd709fc27a4c166f3fdfaca029aeb5fbe6be2c433818c5e31d5897482a9b"
+    },
+    {
+      "path": "MudSharpCore/Combat/AuxiliaryEffects/Disarm.cs",
+      "sha256": "c92a57aa3bff3f3a737b8b6d65f2d92ef87cd09847ee8afb79492894fcdf9fdd"
+    },
+    {
+      "path": "MudSharpCore/Combat/AuxiliaryEffects/FacingChange.cs",
+      "sha256": "b0fd3af75a52ae6ff2a7d7eb6e30ce6bd521ae3095e086460d76d59860cbcf8f"
+    },
+    {
+      "path": "MudSharpCore/Combat/AuxiliaryEffects/OpposedAuxiliaryEffectBase.cs",
+      "sha256": "307916eb1c727c211077427d1464f7eea7d1905a36eb0b62070130a0c353b6da"
+    },
+    {
+      "path": "MudSharpCore/Combat/AuxiliaryEffects/PositionChange.cs",
+      "sha256": "376db50330ccd58f1f9d1a8d2625f907ef190beee51ed0fd27951b8102c37f20"
+    },
+    {
+      "path": "MudSharpCore/Combat/AuxiliaryEffects/TargetDelay.cs",
+      "sha256": "a67d9c42f3f1b6cde75ddc8a59af4b243d2f2240b0ddbb972c6cbedd0f11632a"
+    },
+    {
+      "path": "MudSharpCore/Combat/AuxiliaryEffects/TargetStamina.cs",
+      "sha256": "80c94355639b41f37dceb53d7f191628872cb089c9b2fd718b4834d63ed2bece"
+    },
+    {
+      "path": "MudSharpCore/Combat/CombatBase.cs",
+      "sha256": "cc89df99600502d0b715117face9c18a4f1b52d226006bb943fecd4a973e28dc"
+    },
+    {
+      "path": "MudSharpCore/Combat/CombatMessageManager.cs",
+      "sha256": "4185a7b866720ae963f51a5e378bd1f3d124fbff15f12a0c2725d5f0df06a09a"
+    },
+    {
+      "path": "MudSharpCore/Combat/ManualCombatCommand.cs",
+      "sha256": "27f5c99f76f68d5d20f41e5532667b5ba4f7e1b9228dd228d4df4bbd60f2fcdd"
+    },
+    {
+      "path": "MudSharpCore/Combat/ManualCombatCommandResolver.cs",
+      "sha256": "4f3892fc7d5332605226c7573be22523fb1252faf45278008414faf0877c24bd"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/AdvanceAlongRouteMove.cs",
+      "sha256": "8dc42d9611c1e770c46d4f5a1b9fbb1ce80e8e2a755fd8c83f0e4fcfabcc6795"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/AimRangedWeaponMove.cs",
+      "sha256": "36912c0273bbab92c50b04c7e7b445007c4c2bf1275c599661e6ed22b25332ba"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/AmbushAttackMove.cs",
+      "sha256": "cf4c0bbd68a67bee3d83d939187b0475129cf606fa7428c909098a7b026b695e"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/AquaticVehicleAttackMove.cs",
+      "sha256": "caf5781995c8402ee981416c448d7d809bd8f77fc05132a279c44e7bb8796c41"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/AuxiliaryMove.cs",
+      "sha256": "a9a44d07b82fc3bff392a7a490862ee584d375c02d594da5e28fb988d34d142d"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/BlockMove.cs",
+      "sha256": "d199c2995d3735870949030332dd94655cc256dea9f1b1901041cfefdb323d10"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/BoardVehicleCombatMove.cs",
+      "sha256": "71a8814c3301b1ef86badb2175c9f18517153e4ea6c27f7831366b7c2206e21d"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/BreakClinchMove.cs",
+      "sha256": "ed6ac64f3b6ac6ef81503b18628ac4b391df8e18154fb133c311b04f49b7daa1"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/BreakoutMove.cs",
+      "sha256": "cb84c00844db2a39045aa71c2a563fdbfc6ed7146bf9c40d0612856a26d00dfe"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/BreathSwoopAttackMove.cs",
+      "sha256": "87ee65b8486b537eca29084a5eb5c146f8a86d08524da40522bb1dafdc202fb6"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/BreathWeaponAttackMove.cs",
+      "sha256": "e6999718a6031c53a52e44803e97890011f74508f90d665b5078d00c568b22c0"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/ChangePositionMove.cs",
+      "sha256": "fa0ab418873e9e8cee97eaaeedc8e56473d86b79afe8a56454456cd8426290b3"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/ChargeToMeleeMove.cs",
+      "sha256": "19a865c064e69ae67a559a10ea6fea83a9b34f60e78c07af27a81bc0dd766ec0"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/ClinchAttackMove.cs",
+      "sha256": "a23e41f38cf88ef4525ba3c8085cb0d7d923cf0da82ddef80341d29e6b3a5c1b"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/ClinchNaturalAttackMove.cs",
+      "sha256": "4645d1d48722b675f45cf8de6715c09779e09a9458c40c3d9ee58e6bc6d0b2d6"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/CombatForcedMovementUtilities.cs",
+      "sha256": "4b986db3d0c98f9e2cc9345b23e0a5ad5f0db959475691cc75a00fa4eff5609e"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/CombatMoveBase.cs",
+      "sha256": "9f549c234f4b9e034897fe41124643cfa05add2e33cf7ae6c7b2d60a0546a7b6"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/CombatMoveRoom.cs",
+      "sha256": "85225b07bfaea319361c7c8dd09dad3b05a91f088026b6a4f1fbca079fd521bc"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/CombatPositioningUtilities.cs",
+      "sha256": "bf4ff5adfa71b1143f0799e7e348aff1ca70057c913eabcaece599551ada3588"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/CommandDamageExtensions.cs",
+      "sha256": "5ea0c985804af34f340f61a9b1d84c75d5d999845b245cb9b0b6a0bd74741b2a"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/CouchedLanceMove.cs",
+      "sha256": "f12051d47cc5acdafb48065051e345c6757e0aee53fd54caf33ce15d15204361"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/CounterGrappleMove.cs",
+      "sha256": "e58ed01fd09714e7fc9a8d11722f09f3f34d01506459d2954ead21ab773b8690"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/CoupDeGrace.cs",
+      "sha256": "727dc5b73743b1c88e4022357cdf9a8e58c158a0bd76b96e90aab7a382297f41"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/DodgeMove.cs",
+      "sha256": "2764d8709f706618ca28cbe8efe8d5bbbba119d0c25e0febe48c4fa563bf8d28"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/DodgeRangeMove.cs",
+      "sha256": "51a9ad68ccfc163e40c55d7727edbf2a361a8a2cd15ef668d0170712a6917dc8"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/DownedMeleeAttack.cs",
+      "sha256": "12cc9e5b0f9f7f9cd441e77fbe607ab92fff6a1f8227a624ad2c3787c7ed7e61"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/DrawAndWieldMove.cs",
+      "sha256": "af51280c8c92ab7c93a390058ab4da271528766fbba355fe7c74be74fa15af2f"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/DropGrappledTargetMove.cs",
+      "sha256": "7b445d971dc37464ee3dc4da5ec6801721a895c339e0588f92912d61a6fab183"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/EnvenomingAttackMove.cs",
+      "sha256": "c58d245181feb41932727cb7b679c15de8b68d37713771ce5ce94920f772aecf"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/EnvenomingClinchAttack.cs",
+      "sha256": "d8e8896f7bac7ab59147c6b7ec0b20404cc9936d67fcafadd9f4cd8259649ad7"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/ExplosiveNaturalAttackMove.cs",
+      "sha256": "471cf9c7477b31216b5567bcb5a134946e091aa11e94738f3f6a1bc9fc76a5b6"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/ExtendGrappleMove.cs",
+      "sha256": "2b0b3ca2b09dbe20793fbb69695f73dc4a34552e431f87f8878c68c3bc23057c"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/FireAndAdvanceToMeleeMove.cs",
+      "sha256": "a881c6333a74e4da81d8da6369066f03e7f12c9065d4317b89c657d34c037e84"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/FleeMove.cs",
+      "sha256": "2468994cfddf7ca685a5cf551873472ffbbf068e253de17c9433be9f81a90d44"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/ForcedMovementMove.cs",
+      "sha256": "78728e00904ad9f9c297a0d415f197badd2b61899537c0f046725c906551aad7"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/HelplessDefenseMove.cs",
+      "sha256": "409c55702eb8ad56a4e93515d6bb43095fce36d2fb4939d8a084833184de004e"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/InitiateGrappleMove.cs",
+      "sha256": "dd97bc93c438db3c47d10016341948ff30297a8dc21ecea4d455c544dd32998f"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/InterposeMove.cs",
+      "sha256": "2212bf4c9ec458dff42c8ec5cee706087d525df1ba34700a5004b71eaa03bda7"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/InventoryPlanMove.cs",
+      "sha256": "f3278afe5f4c21f32de083bdd071b12bb5d00d44d358d39f08130d69b9b24594"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/LayerChangeMove.cs",
+      "sha256": "1d6230a76b6b2430dc9b2adc2dbb3313f07791dca47d1f5b525f68e84a34541d"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/LoadRangedWeaponMove.cs",
+      "sha256": "c7d33c6699e2366bb670b74ea54388f0c56f1c045054cfd4e7f3b0cb2b1f8010"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/MagicDefenseMove.cs",
+      "sha256": "d3dc40008bfc31727c0af24537e68145d972893b8532c633cfb2724ec3b2af2c"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/MagicPowerAttackMove.cs",
+      "sha256": "a6c56f13af8efbb472bfc42fa108eb8f0b463a48d1845f4877f5df95bbdcb813"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/MagicPowerSmashItemMove.cs",
+      "sha256": "b17f3a4c2407b0b0157952e9b915833c5bc446a391be4b07f655b775df63f241"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/MeleeWeaponAttack.cs",
+      "sha256": "8b7e0155149d40b5f1ae52f6ad9e73042bc742d465070921fd14ccb81457be9a"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/MeleeWeaponSmashItemAttack.cs",
+      "sha256": "0e4238ee207e79182e494ac652a516a00caf480dc7405254bcc62d53a7579064"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/MountedChargeResponseMoves.cs",
+      "sha256": "58d48827453c3437de8b0be67e69aca41e1809c4bbb03033f5f8ca3d639368fd"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/MountedDisengageMove.cs",
+      "sha256": "afb351be594c9298485faf94de83a8d710dd5f85f0d6a86492bb3899941a4b52"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/MountedImpactNaturalAttackMove.cs",
+      "sha256": "e77157226c3f769fc7478add8054ec034d625d944504051c56fcbacad32e0988"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/MountedWeaponAttackMove.cs",
+      "sha256": "cd0885eaca48425b34b87b6f19b8f37b0754d299df078393b2899e9060b5dfc6"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/MoveToMeleeMove.cs",
+      "sha256": "6cd78bfe8cd6d02908a632a24ad8cc95f0c1d40889f6f4498ce874701ece2a05"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/MultiTargetCombatMove.cs",
+      "sha256": "9464a2749878b05d8e0f45865f8d577235a236c86f3e7e3358b8c31b3170a05f"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/NaturalAttackMove.cs",
+      "sha256": "2b2a13b86a950d67a1a1cfe41e03ae2731e8439f3b3d4f4156f114546911a0e3"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/NaturalRangedAttackMoveBase.cs",
+      "sha256": "5959b25652b906cb6127bf02032e2fdcf825abf8a5d885989c7733fe893bca23"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/OpposeRetrieveItemMove.cs",
+      "sha256": "9acf3c36f51a6f925800bce7c4c1f8857716b36c13aabec34250b4041d581611"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/OpposeWithdrawFromMeleeMove.cs",
+      "sha256": "39590e81063d2b35da0365a5c131024114aca74d23f902e98fe9ed00a20f8ba2"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/ParryMove.cs",
+      "sha256": "6a128bb62049e7e7800407c0683c1ec9bbbf2e88a56f583c7f9145da7ef98583"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/PullToMeleeMove.cs",
+      "sha256": "a3ab9ed2ea21b4d9f209132f7f1ae74af3c0a82713453e3f0eb944f74e2256ae"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/PullToMeleeUnarmedMove.cs",
+      "sha256": "84cd08a68e3d137ecaadcdcd57b9c0acb3fd006363050abd5a176daad5e7bfe3"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/PushbackMove.cs",
+      "sha256": "bf9bb53ea08c35e8f6947671c3abd82f516d0ff1e132bfbe2d7a05db3122e307"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/PushbackUnarmedMove.cs",
+      "sha256": "e979679e40aa8e030b8e9eda10a899de22c1f305c9c46d74ad13f5878f3e9c4e"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/RangedWeaponAttackBase.cs",
+      "sha256": "0bfa88228da8af575200777834acefc247aa377b630386a81d75d7c09e693f3f"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/ReadyRangedWeaponMove.cs",
+      "sha256": "e0c62293b9afdaa3d98221b2344dbe0680f30dee9a974a3e9e2f54d12015ce14"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/ReloadFirearmMove.cs",
+      "sha256": "3f7175d4ee80e75bc5548ce509a965fadc393d10c01022ca509c0423d833d2ac"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/RemoveAndWieldMove.cs",
+      "sha256": "87dae46159d5cab725d5684fa46de1360bcd69b6c61edc6ecb180723500b6259"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/RemoveItemMove.cs",
+      "sha256": "9c418cb6c6d2f28a11bf16c27ff372657b5fbf82e6eec05fdb413fa888978ed6"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/RepositionMove.cs",
+      "sha256": "5e2630369250db09ea4ed9a0d3d1c38eb44f25eacf351e818737f8dd93c8b5e2"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/RescueMove.cs",
+      "sha256": "052df9970de6557a3e26e1e8acf3986ad25bb906194d8ef49a59d357a5183ae6"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/RetrieveItemMove.cs",
+      "sha256": "2c748340d9bf84d7bcb0b18bb29780b987c5047a8f196b2f3d817263a602ea8b"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/RouteCombatMovementUtilities.cs",
+      "sha256": "92e98c651c4784faf4a69940a6d9c6dbd45f1d0fa87dac9518185d1aa985ead1"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/ScreechAttackMove.cs",
+      "sha256": "90212be50cf842c3ac3ec447340b13eea664f4e8e359244f362db5bf393e18b0"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/SkirmishResponseMove.cs",
+      "sha256": "09074b80ce2adb4f08a8bd7d4c64f168e91d310b5d71fd870259f398389c342d"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/StaggeringBlowMove.cs",
+      "sha256": "f9ec2078a5a85eb90eec2b224042764c615776aae9d2b26abda20caf2428cefe"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/StaggeringBlowUnarmedMove.cs",
+      "sha256": "c6f2c3a187ce18fa855a2c90d516b9aad102b36ed54cf8f6a1aca73b9f4ebe7b"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/StandMove.cs",
+      "sha256": "53de0669737406ea840ab2b47bec0716766bef21a3416818088898b649c5d35d"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/StartClinchMove.cs",
+      "sha256": "9941cd2dc76270ede29ca362ce91a821133421ea6dbebda00489fca79195ac3e"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/StrangleAttack.cs",
+      "sha256": "db009320da899c76b66b41d646c84c85fbd5f8d089343609199e965a0f28ba01"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/StruggleMove.cs",
+      "sha256": "5c454c8c9be1f5b44298447dbf31c1673c6bb66f72a3a7f94ca261cd2e6085f7"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/TakeCover.cs",
+      "sha256": "b7e1cc8eac9f71d2feed9ee0eedece8c81564d4cb6ddc148329a1a420a99eaed"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/TakedownMove.cs",
+      "sha256": "96417e0de3bdab28d1a5796172e982ca3e6de38e152bb007c10bc954dd0a2cc1"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/TooExhaustedMove.cs",
+      "sha256": "2a268c6a7215b05b840d9ccfcaf36fac818c8d72bab76db0c2e61276749a3a56"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/UnarmedDownedMeleeAttack.cs",
+      "sha256": "67ec7baa61217665f815a758ce2855e15310aad76a0a7c65cd2a6adb50efb1c7"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/UnarmedSmashItemAttack.cs",
+      "sha256": "5370d4354b74ba0aca4b0f2b2b6d000bc4bfb1cceb1dbae8bb2c945ebe7e614b"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/UnarmedSwoopAttack.cs",
+      "sha256": "93b54cce1820b85d3d98bec7a9f1ab1cbf6d87b43da5c3699c8d4a64e0666c85"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/UnbalancingBlowMove.cs",
+      "sha256": "49ef87e4ff4eef08b6dc3ab0a3f412b98e44d3ed4290550c768c0439200651b6"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/UnbalancingBlowUnarmedMove.cs",
+      "sha256": "c7879d45a02abad41bae52865e8fa37be6d4595b89a8df1b4aeec97060cf40b2"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/WakeMove.cs",
+      "sha256": "00a321ef8d63a4ff8cef8e67c8f91321e1201fc40fb8da259a5921dbd75af2c9"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/WardDefenseMove.cs",
+      "sha256": "1052414ab4164b64c7c062645501eccc9d3eb82ee2ee3a996f4021eeee8caf85"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/WeaponAttackMove.cs",
+      "sha256": "95cd52aaaccf63238a4d457331560b88635c6d0d78c5f2b97c57f33062284a81"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/WearItemMove.cs",
+      "sha256": "67497ba2b6d316c8b50ecbd8fb84d4ec55c1d10aceb7a7744097a5a2ca20f0d9"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/WieldMove.cs",
+      "sha256": "3482c739af1cb6873e0a4af63de01d744d2a77314156d881286ce686516b1d55"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/WithdrawFromMeleeMove.cs",
+      "sha256": "3597c9cd7c2c5bf3c342f538b0e72ffd43637d840a27d20c892883fc33a3fafb"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/WrenchingAttack.cs",
+      "sha256": "e3f2139fde361f307c6f68c209bcded6e43c14aa65939b5eebdb1b55a46bab69"
+    },
+    {
+      "path": "MudSharpCore/Combat/WeaponAttack.cs",
+      "sha256": "45ffb068a76f14d0e64122079b21939c84d521d9d1677627d1ce448b747bc8bf"
+    },
+    {
+      "path": "MudSharpCore/Combat/WeaponType.cs",
+      "sha256": "28d49ef4f0ec05554e61a1ea81b92e012fbe6d3bd68d3314510ff19ac53b8058"
+    },
+    {
+      "path": "MudSharpCore/Commands/CommandManager.cs",
+      "sha256": "d416dc82ad0a1374adb961eda14b45c48daf20586927a083862ebbd89dfb507c"
+    },
+    {
+      "path": "MudSharpCore/Commands/Modules/CombatModule.cs",
+      "sha256": "a2e58c364718003ee3c9dd9be337a3da2e127f13424a4e3c72992669aec559d8"
+    },
+    {
+      "path": "MudSharpCore/Commands/Modules/MovementModule.cs",
+      "sha256": "ce24ac59c4b229603b8c8fcead8928e5e6aac435262b1c016715e31fb2a13849"
+    },
+    {
+      "path": "MudSharpCore/Construction/Cell.cs",
+      "sha256": "de0a222412a18dd8ceda9f8eeaec7e479c3a4e45bf6196928ef07838ee30f871"
+    },
+    {
+      "path": "MudSharpCore/Construction/Location.cs",
+      "sha256": "7abad05c291d2d6e055bd0e5331156d774bf7c073cfbd334676b9dbb3e197efb"
+    },
+    {
+      "path": "MudSharpCore/Effects/Concrete/LoadingMusket.cs",
+      "sha256": "e018a5feb8bfa2f7215285b3f89c84dd623f51ae74b2925e67710ecf4f906255"
+    },
+    {
+      "path": "MudSharpCore/Effects/Concrete/SelectedCombatAction.cs",
+      "sha256": "9d7dcb4c76f44ce9cfb9dc9bce3f720cb8e00a5fc1fc6a805fe6b4790b1e4e0c"
+    },
+    {
+      "path": "MudSharpCore/Framework/PerceivedItem.cs",
+      "sha256": "7082995a7f2417f044c03804c591fa1dcaf4d18f88278843acb24b0a4c9ccffd"
+    },
+    {
+      "path": "MudSharpCore/Framework/PerceiverItem.cs",
+      "sha256": "1a8a3b28a26005eabedf9cd6ba7f1d259fb06a61a391166cc04b6d730e10b6c5"
+    },
+    {
+      "path": "MudSharpCore/GameItems/ComponentItemTransfer.cs",
+      "sha256": "ab8666f9f6da546032f706f848f7207ae4e6882af52f126b64053b27612e4ce0"
+    },
+    {
+      "path": "MudSharpCore/GameItems/ComponentUnloadCompletion.cs",
+      "sha256": "49306a1913caf994e8a0be19129066a7debe2653a74d073c4b3a261b90b6b121"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Components/AmmunitionGameItemComponent.cs",
+      "sha256": "5077586d2747809d8a2a9a26ee3d16f9b96f11e326832774de503c7d008c5c09"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Components/ArtilleryPieceGameItemComponent.cs",
+      "sha256": "989574ee9da6451b4736476c1968094aca5feb3f7115b9fa7dbb34eab100af60"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Components/BlowgunGameItemComponent.cs",
+      "sha256": "6de0e4ffc5a0a7fa88b2ce3dfe7263b385e16ac69d3e080395f5fdea7b8bd857"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Components/BoltActionGameItemComponent.cs",
+      "sha256": "3a338761a81038032ddc5f3c8854e96bcac3e1a740dfe8e69e1fefb375d3af61"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Components/BowGameItemComponent.cs",
+      "sha256": "87320adc98c264667868ad2f2202233402fe6d3a3eed80a69a08e4aed8a37886"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Components/ContainerGameItemComponent.cs",
+      "sha256": "58d2eb412a3d35d743173e906594e11f85e62fd2dec67d6439e2ab86255f821e"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Components/CrossbowGameItemComponent.cs",
+      "sha256": "8cd6d834124f0a9446dc820491d5b3254e9ac0c022fba56a5bfb4cd73438dc58"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Components/CurrencyGameItemComponent.cs",
+      "sha256": "cb8cb7cd64b0c862f277bdc48237867b908b358e7d4a951b944f272e5a3adb03"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Components/FirearmBaseGameItemComponent.cs",
+      "sha256": "a28524cb6c228b318ad7a209977aefcc2b8c9736720e0c6b8adc53a80eb822d2"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Components/FlareAmmunitionGameItemComponent.cs",
+      "sha256": "55cc9bbe23d33be373567860129beaaee08a129095fc31cfe799cf8880bb9e3e"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Components/FlareGameItemComponent.cs",
+      "sha256": "4880c8c00c6b8ecf53a5cdf75f22ede5fcfc5b7dbe58369443086789072db200"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Components/GunGameItemComponent.cs",
+      "sha256": "a44bfe8e9df426db3884fc3a12e4e0d35efa380748dd5291fa2b43c800c0d4f1"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Components/InternalMagazineGunGameItemComponent.cs",
+      "sha256": "1e7a35a6fb9bc9829d0587565f85b3664bea11ab417e9ab82fe106ad8e0634b3"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Components/LaserGameItemComponent.cs",
+      "sha256": "5c4d1edeb54400c0e9f2164730ec186aa9b53b2d6bdc11ece595b418390bd62e"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Components/MusketGameItemComponent.cs",
+      "sha256": "c460c363e7f3debfa56f42961c2b3c3e6e12bd32cfc43068b1c89386651c3242"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Components/PileGameItemComponent.cs",
+      "sha256": "0375748876e6fcaadf96f74c040d714e2bf30e89cb61bb67ea44757f4a1dbb37"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Components/SlingGameItemComponent.cs",
+      "sha256": "46667992c8c7fec705571ba223ff55e720cfd6279a9ae3b3f904dcbba20a1372"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Components/ThrownWeaponGameItemComponent.cs",
+      "sha256": "59846f7d99ac19db289865483909fa15c86852cc1f3a4331e969e10839bcb0a7"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Components/WearableGameItemComponent.cs",
+      "sha256": "0110aa915ab61663ea7848e8ce35bdcd531a56664844a48902ef311b62ec9724"
+    },
+    {
+      "path": "MudSharpCore/GameItems/GameItem.cs",
+      "sha256": "7f129b727b65cb74670064f845fde47edcf968e246dbc26876ac3fedcfa4d39b"
+    },
+    {
+      "path": "MudSharpCore/GameItems/GameItemHealth.cs",
+      "sha256": "8301b080386a31d3d2ec4e331a34cbb9f47b6aa1687722d4d3c3a629467871df"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Inventory/Plans/InventoryPlan.cs",
+      "sha256": "28067c65da1214c05187f85bf78bdafdb7cba3e4d43def2ddd87c0d97c7a1f43"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Inventory/Plans/InventoryPlanAction.cs",
+      "sha256": "aa939a6377bd101c8a8e1d03643afe6c3f01bd4f4f9db72cd3cb488e22e047fb"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Inventory/Plans/InventoryPlanActionApply.cs",
+      "sha256": "4b3a9e339637365fbe31cf22c0cf6d276e0c170cb080b10937d67f5da87bd8b7"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Inventory/Plans/InventoryPlanActionAttach.cs",
+      "sha256": "0a94de6f0507cb4381f3e1f7d8e3386ce3bc64b498d9968d72531c2a6a030f7f"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Inventory/Plans/InventoryPlanActionConsume.cs",
+      "sha256": "145f1bd607b34ebef5a4019a406740c3a28d4947658ab5ca03ce8ebb384566cb"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Inventory/Plans/InventoryPlanActionConsumeLiquid.cs",
+      "sha256": "ec52998cded043357544cdc36b7b371c1c35b9ee9536ff20bece3ef6afed49d2"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Inventory/Plans/InventoryPlanActionDrop.cs",
+      "sha256": "561add40c1c4fa9a6cd34440ddc1d76734cf34418ef8104e7fa3d390a43c770a"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Inventory/Plans/InventoryPlanActionHold.cs",
+      "sha256": "208e55d3cb93a2613ace7b40afe65f8818c2becaf9d58af64c27eb043c102729"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Inventory/Plans/InventoryPlanActionPut.cs",
+      "sha256": "5eeb676193a6c40f3f7852b7a5eada49e24b38328eecc963a0409b14bdc295c2"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Inventory/Plans/InventoryPlanActionSheath.cs",
+      "sha256": "958182bbe9ccb90ef8b2fec5c095cf20fdcb379adbdcec5af53e5d0d7a158431"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Inventory/Plans/InventoryPlanActionWear.cs",
+      "sha256": "71e5b350255a929445454601de38d5c95e273c4dc2173fffe2797b82a6bffc33"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Inventory/Plans/InventoryPlanActionWield.cs",
+      "sha256": "3ee8432b683ce7dfb3c7fdd09bcd55672b2b318741e2f3f43b7abb3ae2511a9f"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Inventory/Plans/InventoryPlanTemplate.cs",
+      "sha256": "ba4e538ae2da925632a0bf44cec303b20e20bcc0c908b8310df1e51cb514d0c0"
+    },
+    {
+      "path": "MudSharpCore/GameItems/ItemManipulationGuard.cs",
+      "sha256": "3d4b80ecf69fdbfffddaa388f8ffea85bc4008b35f8bf948591bbef90e239ff0"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Prototypes/CurrencyGameItemComponentProto.cs",
+      "sha256": "af7c6038d705ff58ebc34929d9f30f40be252d148410ebea80e3294f537cf50d"
+    },
+    {
+      "path": "MudSharpCore/Health/Wounds/BoneFracture.cs",
+      "sha256": "da1bf1d9b57b37a5205e6ebed4e1f97ce54d2c7ae3981f8dbd43bd24f750ef95"
+    },
+    {
+      "path": "MudSharpCore/Health/Wounds/HealingSimpleWound.cs",
+      "sha256": "701dc132498978943397153dd5c58c917ceedf0d7d48733202cc5bc8ac159baa"
+    },
+    {
+      "path": "MudSharpCore/Health/Wounds/RobotWound.cs",
+      "sha256": "2231dd0a4e592d8d2a26ad1846e984a51bd04620eb3c14d12efb904025439115"
+    },
+    {
+      "path": "MudSharpCore/Health/Wounds/SimpleOrganicWound.cs",
+      "sha256": "6c0688ddd9c34264f9a07b5b0cf223634797d3b8f9e59ce69e35c5d659c18af0"
+    },
+    {
+      "path": "MudSharpCore/Health/Wounds/SimpleWound.cs",
+      "sha256": "385637479ade6a7687f2dab8ef3a570df1f8163c1839bea00b5fb2f91fa82277"
+    },
+    {
+      "path": "MudSharpCore/NPC/AI/CommandExecutionAuthority.cs",
+      "sha256": "772df1995b91ea28b4566c2f94eb34b168c9afa4a02c5a5e7ac0f2b86d99ff43"
+    },
+    {
+      "path": "MudSharpCore/NPC/AI/CommandExecutionScope.cs",
+      "sha256": "bfbd3f7e614d117767765777fe2d3e86916f39e49cce6f9179548acd51f0453c"
+    },
+    {
+      "path": "MudSharpCore/NPC/AI/CommandableAI.cs",
+      "sha256": "9e7fcf1c10c9a1abb6430046704e147e8b3e5f064930c1d7f079938eaeb8e3b3"
+    },
+    {
+      "path": "MudSharpCore/NPC/AI/NativeDisplacementReceipt.cs",
+      "sha256": "798454952975d057c997cab81d5b1140387eaa957e1b765ed9afca1b68a296b8"
+    },
+    {
+      "path": "MudSharpCore/Vehicles/Vehicle.cs",
+      "sha256": "75eec49e327b5a877084de1eec6c7f4c1433948523d8d1f8c5590586077c280d"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.OrderedNpcCallbacks.cs",
+      "sha256": "c21f9a73679664b09caf077585ba4b3e762d2d22368bead91c3258290294df65"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.OrderedNpcContainer.cs",
+      "sha256": "dccf0d4720cde1215fcb80739909f1f2830fa524895b38c360d12414af91bbfb"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.OrderedNpcCurrency.cs",
+      "sha256": "5dbe7e2aa9c6d4d019a0221ef2471435978513c560dd0e7e4d0ca0304d3fbd42"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.OrderedNpcCurrencyReload.cs",
+      "sha256": "d363fbe3a24630dadf8fe831f9dea2b27c3317d519177a996e8282f673e8f50b"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.OrderedNpcManualAttack.cs",
+      "sha256": "b97de4b53eab977d943a7b42e5d029e204414b7a03ccd6d620e2c3db13311105"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.OrderedNpcSandDiagnostics.cs",
+      "sha256": "804900978ab8bb19710a44cf42196edd8f8dbe75553325337cb0b42858b075db"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.RaiseServitorStock.cs",
+      "sha256": "fb4cd3394f2acb4280d2bca3b486b8bf0fd978b91ae0d3432336888fec2f5b00"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.cs",
+      "sha256": "25ece76032a2fda3752178fb9fe353d552ea09400e549a4ed24fe0bd3ada0d6d"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Run-IsolatedAcceptance.ps1",
+      "sha256": "a084e44d0a5cb6b1e1513656dc1ce2e53ed585bcdfc8e03fa4d33a5971b194e1"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/checkpoint07-callback-after-fingerprints.json",
+      "sha256": "048ac25b8aadf0526a919fe7ff8414dd56e95502d03ea7602a973f564926178a"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/checkpoint07-callback-before-fingerprints.json",
+      "sha256": "187275c79b0e441464c0e61f953687df80874e6dcd580cd302da265df99a182c"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/checkpoint07-callback-native-exit.json",
+      "sha256": "a3543cb29a15307eb70b1a1552fe46175437789b844a0d6691102499c33d6d3e"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/checkpoint07-callback-native.log",
+      "sha256": "ef5209f3adb46fc1df753d747d303221cda50a97c10c8c91fd114699080e6060"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/checkpoint07-callback-process-cleanup.json",
+      "sha256": "af54b706236199389122e541b843b6b22e7b84c001e750b12dd930e3603ff20e"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/checkpoint07-callback02-after-fingerprints.json",
+      "sha256": "52ba9b1523feb7ec4ea50421badfb2acfee0348bcc947e04cf6d824f809aca2e"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/checkpoint07-callback02-before-fingerprints.json",
+      "sha256": "dad5b965987cee6e0cd174af315f96224fad06320b9d02e6425cbf6ee2f3109b"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/checkpoint07-callback02-native-exit.json",
+      "sha256": "2c484aac46ec6be0a4e24a47c20e634efd3893ec1fe30c6e726f745ba677ee7f"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/checkpoint07-callback02-native.log",
+      "sha256": "407cb67e7f4f1cb480ee133a62c577f3e79c7c5f1c62c792fee3984565af3693"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/checkpoint07-callback02-process-cleanup.json",
+      "sha256": "6bd95b4d12afb19f1e6946b9dc07d582524cbb9757de5ced590ab5f3cf3cafdd"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/checkpoint07-container-aligned-inputs.json",
+      "sha256": "14212807032d352602f3162579a07214585a652675b04d9a995aeabc69afc16c"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/checkpoint07-flame02-after-fingerprints.json",
+      "sha256": "41ed2e25360fbf48b00eecfef5a5026189660230201918f0370c5e0119e0e7cd"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/checkpoint07-flame02-before-fingerprints.json",
+      "sha256": "0e7564365af891dd59fae7344806ba4b17f0fb93ddb48e99ff81c672ce534964"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/checkpoint07-flame02-native-exit.json",
+      "sha256": "bdd694222ee67e5d091d2b4cc63d40ad28eafaab69deeba10e0824acc0f07518"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/checkpoint07-flame02-native.log",
+      "sha256": "18d03acb2d417e0494dbbf0abdcdf5a10bd160edbc9cd874d7743d9a3d683719"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/checkpoint07-flame02-process-cleanup.json",
+      "sha256": "ef812048fdbb451d3fe17f2749fd70a8f17bc5033f84b0d0df9a52b2698625ee"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/checkpoint07-queue-after-fingerprints.json",
+      "sha256": "920811be95a7fc7211a554ba7a7eaea1c8aacbe1dfbcf65a28a037432196f556"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/checkpoint07-queue-before-fingerprints.json",
+      "sha256": "6556eeb8eecf7f386b53b64a7c0aa4c1223b5088e1f116e46e9d2df97a4c812b"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/checkpoint07-queue-native-exit.json",
+      "sha256": "4a5e413c597272d52e6c38ecc5b4b6793faf023ee4c5b685e036d2be092e88a0"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/checkpoint07-queue-native.log",
+      "sha256": "321177a268460c7d8844a4cead3ffd5500ccaa2e46741efc19200c6fe2f7aa61"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/checkpoint07-queue-process-cleanup.json",
+      "sha256": "f12ed98a5ea3ec980353a458c645a1598d5c1b90e2bb710a0053eae92db89bb3"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/checkpoint07-queue02-after-fingerprints.json",
+      "sha256": "423ec991116dbd27ad73206c563fb24075cfff391e4b0cc27f59e6c008d6f05d"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/checkpoint07-queue02-before-fingerprints.json",
+      "sha256": "945518deecd8966f6b611e703adbae80b9801cbb956c5297716d66eda56a560f"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/checkpoint07-queue02-native-exit.json",
+      "sha256": "c7259fcbfb1a94b182803c55ac6a64d309ed5176550048d7a2071c8755ea4bb2"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/checkpoint07-queue02-native.log",
+      "sha256": "eb46b9517db0c73b60885f283753c85ce46590a0c5ee94a91bfa4762c32a441d"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/checkpoint07-queue02-process-cleanup.json",
+      "sha256": "462ecd978c6b67d57775fa746b19f3eebcea7604eba90a9a7cc4336fe9fb4638"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/checkpoint07-sand-after-fingerprints.json",
+      "sha256": "4dcb08b257c4fd5943eb9e172870ef19ed0214621480f05d5d1fb700f3d85c69"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/checkpoint07-sand-before-fingerprints.json",
+      "sha256": "0846fe00f63702c6ec7d1c844e425f77afd5fb8ffe6eb1d134bca4ddec7d33b1"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/checkpoint07-sand-diagnostic-inputs.json",
+      "sha256": "0432988878b3804919929e88d93e8d133fe0ddca6aa388736762ac076bc99354"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/checkpoint07-sand-diagnostic02-after-fingerprints.json",
+      "sha256": "cef45f11bfde329f79d13e934d67417cde4d85efacfa8348ad9934e561f8c6cd"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/checkpoint07-sand-diagnostic02-before-fingerprints.json",
+      "sha256": "e556d5a4933a7607dc5841a63bcbdeafd779a56235959aed91ca266af6cc731c"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/checkpoint07-sand-diagnostic02-inputs.json",
+      "sha256": "ca561a97349f795e121e866d56830b12e2e5ed251b9a70f959ca8ad89fb924e6"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/checkpoint07-sand-diagnostic02-native-exit.json",
+      "sha256": "72d389dac544a556f62de8c19e28476012abc38ecc128c5f7cf4b03cc1d2ac18"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/checkpoint07-sand-diagnostic02-native.log",
+      "sha256": "4f5264a94d7ef7542b9e8a9a1bd04a080ed3bf0d46211bc24bbeaa81a0dd67c5"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/checkpoint07-sand-diagnostic02-process-cleanup.json",
+      "sha256": "007e32964bfa8bbbfd13c1d6643c496b9f0a418a4ebd6bae9af36868bf821076"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/checkpoint07-sand-native-exit.json",
+      "sha256": "905bfb6f133c6cc57fadf23c74fbcb987aa14c98a1179bf43cd3a53289fefad1"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/checkpoint07-sand-native.log",
+      "sha256": "c57a8eb467c6a2b431ef6e69289cb96d988ba7f0227d6dd842731feef3f70b4e"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/checkpoint07-sand-process-cleanup.json",
+      "sha256": "caf85aa998dd04eb7c252145155b16cbba2dcfb0be11205466bcb6b9becb661c"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/checkpoint07-sand02-after-fingerprints.json",
+      "sha256": "d23cc70ff202aba7f0adbc798a65d0b5cd0a18f867fe627811a51469c88958c8"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/checkpoint07-sand02-before-fingerprints.json",
+      "sha256": "b07d2b001ee1a282034db789bfc59167c01ec1f448fb63e746f849c465c6db2b"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/checkpoint07-sand02-native-exit.json",
+      "sha256": "0e2a7f1b23058799b10ebb9c4f5a6285d6ffd227075c62dc8e9828c4f6c54f30"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/checkpoint07-sand02-native.log",
+      "sha256": "fb145a4ebbc5d7b2aabbd5fec09fd93d041ed5832f4a7526cf03db3313ec9f5b"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/checkpoint07-sand02-process-cleanup.json",
+      "sha256": "55a94407d2aed1d287dc0fb42eb280388a2d5d970aa949a5214a3b27fde194a2"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/checkpoint07-servitor-after-fingerprints.json",
+      "sha256": "11b58e26887ec311e8d13f649f469ba88354b0cdb0b630554901d6a211f1f03d"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/checkpoint07-servitor-before-fingerprints.json",
+      "sha256": "a990735fa9abd18d436decba779e4813e6a92caa078937b320cea67be01c9ff9"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/checkpoint07-servitor-native-exit.json",
+      "sha256": "4afcbdf0bb1329dc79be2f0d693a310c5916014c1bce922f90e3aaee0d524862"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/checkpoint07-servitor-native.log",
+      "sha256": "be6ba7fca4cc73504ee56a09dbf7ce4a86f39ae2897d44e239e2b06075f51bc0"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/checkpoint07-servitor-process-cleanup.json",
+      "sha256": "d41ae6407507e3a5456aeca67465271e5fc743d015f92ea613ea697dbb0415e0"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/checkpoint07-servitor02-after-fingerprints.json",
+      "sha256": "93ab2284b2e7e61da43b07a5a918b0f7bc229361fbf711323c38e1e4d7daf678"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/checkpoint07-servitor02-before-fingerprints.json",
+      "sha256": "32495e94cde74bdf9988a6d0e1d573e985ed84341b561f627fe803799f6dc42c"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/checkpoint07-servitor02-native-exit.json",
+      "sha256": "cb7ca39b69bbfeddc673b76155964149b2bda1f88b934be7dae62547c2a9fcbe"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/checkpoint07-servitor02-native.log",
+      "sha256": "cff3f76f1c915c3b43353d49703bcaeb0e790b07310ae412092afc9f557f666f"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/checkpoint07-servitor02-process-cleanup.json",
+      "sha256": "0fc312f2e62813b0746687fc8c8dd34e31e9ab1f4c4d2ca6718bd84a802189e4"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/checkpoint07-storm02-after-fingerprints.json",
+      "sha256": "84487f541650cb859af1a1fc324e4f6108ad0f6ce1beebca80a0b280d8ab0ed6"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/checkpoint07-storm02-before-fingerprints.json",
+      "sha256": "7ee42e7b459f09f919d98277d12f5f1156262e62b8a0cfcad146f3d22dd011fd"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/checkpoint07-storm02-native-exit.json",
+      "sha256": "3308a8adcf6e3142c4e9a7402bf9e30a48861110ffe7c7ffaf6df4324d7fd4ea"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/checkpoint07-storm02-native.log",
+      "sha256": "9750a674cdb89b0afe55f1f25effd831485cc8e5d89f3495dd6c25c9df53165f"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/checkpoint07-storm02-process-cleanup.json",
+      "sha256": "d89da86a6e939e5afffaf6440cfbf8dfa6bdcfa531c69608eb8a0aa43c4e4698"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/native-build01.log",
+      "sha256": "586cb967bc4d551e7a8e02f8c33f5cb2fe7ade166840067a62ba5d53d2550865"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/native-build02.log",
+      "sha256": "ccf24ead61b762b19098ec5e9d053078f852c5bf392042c78b577f2bd7471129"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/native-build03.log",
+      "sha256": "8a1d35a582db6e972d6b25c1952dbcb6abaaf84408c46c3d373db91bbae208c6"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/native-build04.log",
+      "sha256": "ea47fcddd0257441444f7750951c279f635203a4f28b53e0c837fef09d278ea1"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/native-build05.log",
+      "sha256": "9d9f61f7426f9dfbdf5be56abc8d69995ebe84c6d0fa26a9942f59b757b7c5ed"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/native-build06.log",
+      "sha256": "07ea52cdc801bbe4aedf883987f126b6874cc857f5dfd8cc21c18c4d6ed824b3"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/native-build07.log",
+      "sha256": "905487ae92c27f650f1c41262e5ac57c8a69ce53dcdfe66a9643d8877926c2e3"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/native-build08.log",
+      "sha256": "c5866e01e8cfc325e54e7f30e0f521b187aba1d196111ea74e18ed6c127b298e"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/native-build09.log",
+      "sha256": "037929d93a532d04ff7e25462048673f594d7f0e67eb79ee948ed36b9d714ced"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/native-build10-wound-identity.log",
+      "sha256": "8c6793256319dac4aa77dab1a45455e9598cf26fb2fffb196293d5d7774b8326"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/native-build11-autonomous-settings.log",
+      "sha256": "8fce2f8f607bcbc0bed6b19132d1d7f56a677bd89428e3261b61babd1275f667"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/native-build12-post-travel-projectile.log",
+      "sha256": "dfa8dab5fe87f89bec0a71f7ed02cf07fe7dc72656aba60b485cbd2568effbd4"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/nativebuild13-autonomous-direct.log",
+      "sha256": "318205ecb17fb02305359712a3afbb66dbdc44959ccefa15393006279c607a4a"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/nativebuild14-currency-baseline.log",
+      "sha256": "4ac24e247ff4bb228165d9f9cce64e41696ed6a32294c89638f120ea0403301c"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/nativebuild15-currency-order.log",
+      "sha256": "097d594ee133f930877af15fc04ab8ed5d617089993f121883962290a2504118"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/nativebuild16-currency-admission.log",
+      "sha256": "4822e5f96dee027fd9d8f2872daa6d555286ee20f8de7ce0788e4a5a08c9005c"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/nativebuild17-currency-path-diagnostic.log",
+      "sha256": "f122c1e71869ad1c944c620d6fa636bf7ed5eb5aef500b6b4a5c009c6dfaea98"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/nativebuild18.log",
+      "sha256": "a8f724f73f29b42379cf13f98c58ac63ee0248e981ddfbc4bcd0ee71dd82a2ef"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/nativebuild19.log",
+      "sha256": "e05aa5aa9cf788d1bd496f9c617ab350ddf094be9d3c2038512d6020cc0e1c38"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/nativebuild20.log",
+      "sha256": "c48c8e190ad56143789d811a023fd72b55b85d0c17171b8d1fda50d44090a152"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/nativebuild21.log",
+      "sha256": "6322c9871adc20cdd74e2501dc9a3030c30262c34af9bce511778b7d41f17c09"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/nativebuild22.log",
+      "sha256": "eac2a9c048c115b1563da9b3bc0cb3c5d7d9dcbcb79c8b93a625fa684c30da10"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/nativebuild23.log",
+      "sha256": "f1b90de6004578f2577d85fb443bf7a69666728cad62a77913554ede0a5bcbf8"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/nativebuild24.log",
+      "sha256": "8767cec56d65a68a5e8ad4efc25effa7fef5a75be826a2e0d88854448503aa49"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/nativebuild25.log",
+      "sha256": "c05213cee39ffe9db6e2cac4295cc59fc6c651b1eed1ddd74a38b90fda88425f"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/nativebuild26.log",
+      "sha256": "a4777ec3821d68e989986f9b74844ab6528b693d0f1505b8a9b5adb980cc56ed"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/nativebuild27.log",
+      "sha256": "791dfbed328ff9a327553a674d1a35b4c7ef598c72391f1c460e0aeb529e2da7"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/nativebuild28.log",
+      "sha256": "e13e8c3cb3f1e540f69d45ed92583ef4363a8f627d463f77f0ddafd3e15ae374"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/nativecurrency07-after-fingerprints.json",
+      "sha256": "985af4cd50fc780b9d9534394bb870053e393f674cb0fe080265c93b3cce7220"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/nativecurrency07-before-fingerprints.json",
+      "sha256": "730dcff6bcc36f292c6fd4f93799340d70caf9f3406467cebc935d23cd81a50f"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/nativecurrency07-inputs.json",
+      "sha256": "06c43ce94849ada5702f81d656f43b0e15952003f28c568f0eab57bc336d3017"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/nativecurrency07-native-exit.json",
+      "sha256": "6bfaec91f5adedd7454100ba2f39945ae7825b03b35ed81028d97e188239b37d"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/nativecurrency07-native.log",
+      "sha256": "3f3b8419b10045f809796e610257a114624262546ed545f3dba656e7813c5cae"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/nativecurrency07-process-cleanup.json",
+      "sha256": "7b1cc306404a26eab3f98a97d117ac4c52710f2eb9f59918021e04a879ca2d67"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/nativecurrency08-after-fingerprints.json",
+      "sha256": "bd1a4cdfc227976f1eed0fa4778afd723c72b33bd633d39542d4b30705e06c11"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/nativecurrency08-before-fingerprints.json",
+      "sha256": "1657caaa21b614bbf7bf24801c12e6eed2072a39cee72082f76809d8b0bb4d61"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/nativecurrency08-inputs.json",
+      "sha256": "68f831205da22c024c84e0d692632bbb81f58cb525376848b6ce4c9d0ffd6049"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/nativecurrency08-native-exit.json",
+      "sha256": "698882483bb60989d539cd0ce62eab99b4eeedead870f708a5b8cbca286c5d8e"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/nativecurrency08-native.log",
+      "sha256": "d2ab4d80e452bca4608e29eff810f1c41229893a6acff90cb4d509bccb0a6d4a"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/nativecurrency08-process-cleanup.json",
+      "sha256": "415784ce2dabb3d8a6f13c175a1161adb96f9f02012309dfc7ba218c8b7a2b86"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/nativecurrency09-after-fingerprints.json",
+      "sha256": "f9e9132eee6c8ee0d95708f590288de73fe2028146939c8db360cad9f341b550"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/nativecurrency09-before-fingerprints.json",
+      "sha256": "404403be56a9f9286d4ff6943aa3aa3cc8d07fbc17fb41b1d49d940c5b12289e"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/nativecurrency09-inputs.json",
+      "sha256": "e871c366629cea0250d189dc3a055d3989f3f474051396ba74a30c5c3bfc560b"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/nativecurrency09-native-exit.json",
+      "sha256": "d28f843bec04caa400ae86adee1108ea182a9048aef8f2768b431bc9af534a1a"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/nativecurrency09-native.log",
+      "sha256": "e94f9a4b64ae77657ffd08ca340a78b9ca7155b229c6e051646c36f1600c231d"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/nativecurrency09-process-cleanup.json",
+      "sha256": "e52c69f6c1baa0f62d44f766f62ab9983e8afecec90c1364a5cd28cf7a24fa96"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/nativecurrency10-after-fingerprints.json",
+      "sha256": "e7bf909e044edc2acdaae228a4c4fd31b4e7ab0a71680b934e61978e8a16fe06"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/nativecurrency10-before-fingerprints.json",
+      "sha256": "288a1d3bf895e21c13ad2e389e0673ca21ee9ba39d236a568470cf6063b4f2dd"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/nativecurrency10-inputs.json",
+      "sha256": "3bf7003754e21951ee6bbb616fdffef4995dabc969e247735a5a7617509c807e"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/nativecurrency10-native-exit.json",
+      "sha256": "172c64d5a2ce5e5aa51ccff51a6c7d3582a711edce72bf5bccceb0e7a1625728"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/nativecurrency10-native.log",
+      "sha256": "2ad590db25039b6f725a3191992bed2a137b22f96029c17705ddb89fbb2048fd"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/nativecurrency10-process-cleanup.json",
+      "sha256": "1a84f5a30c9e61d0ce2fe570af91734bfead96cf0eb674b9eb256c7edaa948af"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/nativecurrency11-after-fingerprints.json",
+      "sha256": "739699bc6e2e8270e34fae5028f515fbb5dae755a26f677f8ea2f042021f146a"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/nativecurrency11-before-fingerprints.json",
+      "sha256": "632cdeeb9cf62b383308a349d82ab0c94c6b5c9e62352c42f0d69c17efa5360f"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/nativecurrency11-inputs.json",
+      "sha256": "7c71020c882a88fe434dc19e4d416cf031634ee1ffa1123881d953e1abbb6faa"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/nativecurrency11-native-exit.json",
+      "sha256": "85ad2bc6322f68689cf136dcee5b48694172f0779378410c8289cd8c671771d2"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/nativecurrency11-native.log",
+      "sha256": "698c11ac94b31254e5d2a76bb9b9a494ad759c9ff9956926189bd4224fbefa98"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/nativecurrency11-process-cleanup.json",
+      "sha256": "c9f841e22eb37eaf949c2c14cf0ab99e1b46bb9f350a5ec078639e16c4553613"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T045136Z-beee7864eb34/failures.json",
+      "sha256": "6ac249f2614d4ee97f4978f7cc8a83d3034595cca28fe0753de4a52eb36dabba"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T045136Z-beee7864eb34/run.json",
+      "sha256": "62c04efeac457d040fc795008fae57993c3fe37d093c0d0c705edea9bda9ea26"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T045136Z-beee7864eb34/source-end.json",
+      "sha256": "7eac4cc133de04a80e51d30713e2897dcaebc447571aa1b96e4d9fbd997231e5"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T045136Z-beee7864eb34/source-start.json",
+      "sha256": "b88c2895303fe8d7e509a1e829c36fa46e5f55dcfbc2b66e34c1d40cd203b5df"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T045136Z-beee7864eb34/summary.json",
+      "sha256": "ab2ee37187a4bdbdca1e1ef9e18d9276b4640f8e1d1ba017a91bc59977861f9a"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T045136Z-beee7864eb34/test-results.json",
+      "sha256": "f896ee559b0266d2aa5638167898db0859d62b00a3710db0626919062c4f032e"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T050731Z-6c212839740f/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T050731Z-6c212839740f/run.json",
+      "sha256": "9d1f64635dfa3da0e4909efb4d981d9f63fbfc9f9408b3d43707af9faf5db7b6"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T050731Z-6c212839740f/source-end.json",
+      "sha256": "89462aa7ddcc52a287640ba5a5fed5dad3e67e77672610a649a32f5d57406a10"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T050731Z-6c212839740f/source-start.json",
+      "sha256": "d50a5d462d0f60d7ee87b79635541af66b3f3081a4535e49e68637797bf478d2"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T050731Z-6c212839740f/summary.json",
+      "sha256": "eca41118abfac117f21e7feb5de400e9d85bd9aa64153f960c4d2d53ba7973b9"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T050731Z-6c212839740f/test-results.json",
+      "sha256": "ae5bbfe1f50c8aa4ec928ec8d4051e711925741babdb84faf26f56b9f6f3438a"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T051816Z-87e235aebbd5/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T051816Z-87e235aebbd5/run.json",
+      "sha256": "aa103571f2935ed5b5154d8c4e2e821814b10ece2bb4fea0a7adfe992b5b618c"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T051816Z-87e235aebbd5/source-end.json",
+      "sha256": "85893b142cc086796431dc3a4cf0dc25cfe1855344487e2261923f3006de8bc7"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T051816Z-87e235aebbd5/source-start.json",
+      "sha256": "c3afb86f668ba32057efa8b369570535da41d66cb0ec7de39cff6d298a0780d7"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T051816Z-87e235aebbd5/summary.json",
+      "sha256": "929d7e92ba60fa38d85e4764086075b181229e2f13f74cd9a650d6899a4144d7"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T051816Z-87e235aebbd5/test-results.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T052719Z-1a3b3fd7b888/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T052719Z-1a3b3fd7b888/run.json",
+      "sha256": "8aef24140101cf6ff08d1ef5df05ccf8c6921a421f41845a0ca3e10e4a3064ad"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T052719Z-1a3b3fd7b888/source-end.json",
+      "sha256": "a74b7036e20e1d301acfe981fac0f7d9e9a5a8c5b3989871aa4140ce8eee5c25"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T052719Z-1a3b3fd7b888/source-start.json",
+      "sha256": "5a4a3a98178811ece7282cc18b6edb397a0f29e9f8eda1a9a7271d85e2fdc82b"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T052719Z-1a3b3fd7b888/summary.json",
+      "sha256": "b44a97e9c61a749c6abd2232d6459d98e58c8730061639a59ecfe81ad8ca798a"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T052719Z-1a3b3fd7b888/test-results.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T052940Z-f5348d7d4273/failures.json",
+      "sha256": "b4085621a277c57de508396f793b11900d495ddbaa347492dee824265fe47646"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T052940Z-f5348d7d4273/run.json",
+      "sha256": "ebf26a33c81b7d2ffc2bd2232e99d3805bed235d8a1c16f9b0d09391289fef58"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T052940Z-f5348d7d4273/source-end.json",
+      "sha256": "9888b9372e9347a7f31d79ab7b9e5bfd6a1b14b444d1000795aa3a1ec1ce0a67"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T052940Z-f5348d7d4273/source-start.json",
+      "sha256": "136b9f085a167087e260fb1ca499003125f3ff5a7cf0f65f9ff3028330ba48e7"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T052940Z-f5348d7d4273/summary.json",
+      "sha256": "62258850094f598b3484708c509cda7a572d068394a28faf666015e5501f2b18"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T052940Z-f5348d7d4273/test-results.json",
+      "sha256": "b4a9e026126a25effe026a81c8f8067b0502b88cf05806653c2f03b537187a64"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T053410Z-143a8a7d6e27/failures.json",
+      "sha256": "f56aa36634dd76351d9218318f362a0814775ab8c410977e74532ba561b96d18"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T053410Z-143a8a7d6e27/run.json",
+      "sha256": "2fd58dd1922abbc066557b59dc4729cb5c78efb036db6515aa80dec480332830"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T053410Z-143a8a7d6e27/source-end.json",
+      "sha256": "feac4f7dc46335bab40eac44c5351fe3095b45f67017ecfaf064fc9f77703f5b"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T053410Z-143a8a7d6e27/source-start.json",
+      "sha256": "4f59a87a39d15bc1beb892bae6910fba19cb754b946c1861aa954fad508dac45"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T053410Z-143a8a7d6e27/summary.json",
+      "sha256": "63bb6ef678a1b1262363c87a490723aef959ca42bdfe7343bd63ebafb25c2da9"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T053410Z-143a8a7d6e27/test-results.json",
+      "sha256": "f56aa36634dd76351d9218318f362a0814775ab8c410977e74532ba561b96d18"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T053732Z-f289a9bb14cf/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T053732Z-f289a9bb14cf/run.json",
+      "sha256": "0a7140c72c24316f45f5bac9e9023b1ea1366bda3c9182feca81303ddd4cc8ef"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T053732Z-f289a9bb14cf/source-end.json",
+      "sha256": "19a1c2c51fe7f0793a5f2e3bb248eacf38af7f7ba7c20c162772d26a84a0f06d"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T053732Z-f289a9bb14cf/source-start.json",
+      "sha256": "b4442e330329b95977c70fdebb8eca3cd28e5ba4d4b7a8d66d7a6bef6286eb63"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T053732Z-f289a9bb14cf/summary.json",
+      "sha256": "72462f635bb9d97df0d187b9c80a866557aa2eeec7d4210095cb59c75602e834"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T053732Z-f289a9bb14cf/test-results.json",
+      "sha256": "51330a5148432921f73436c8f1e2122e88b096d6f379474c5e74fbab0f70d9ab"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T055858Z-526501219667/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T055858Z-526501219667/run.json",
+      "sha256": "946077d3b8db7b450f19a0b0f3975d7b284a7f98c046f77d04bfa14c16ceff6e"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T055858Z-526501219667/source-end.json",
+      "sha256": "ef0c04fe5f304023f29b126178d629c3d6af62e3aa2fc8bde4db74d2ab2b5b92"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T055858Z-526501219667/source-start.json",
+      "sha256": "6130d43ebdb59766372c4f29fc6bf411a6550c7dec5febd9a8272c9589f7c23e"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T055858Z-526501219667/summary.json",
+      "sha256": "9598212d1804e984f8c9aad72e8e93ff8781198f63ff5e649beeec05ea8154f5"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T055858Z-526501219667/test-results.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T060118Z-e1af0bd8486c/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T060118Z-e1af0bd8486c/run.json",
+      "sha256": "3ac11dd9e181dd295d69ccb618f5199569cdb9345db7587b2b266702aefa250b"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T060118Z-e1af0bd8486c/source-end.json",
+      "sha256": "40cd5b1d7e6bf306ec166d037f98425f279bf8099a1e44ede0ec9955e5b05e4e"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T060118Z-e1af0bd8486c/source-start.json",
+      "sha256": "1d1deb3e97abf71d878372393977ead2a76620f1f5356c2aa7538177ee18d391"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T060118Z-e1af0bd8486c/summary.json",
+      "sha256": "d9e7dca07a7ab3aeb1ed1806322ec98d3fe7472b44fb80d99139e885a5bed36c"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T060118Z-e1af0bd8486c/test-results.json",
+      "sha256": "f76b681550b6c2399363623a85377f7a17d866618e2e787929fea65ae4287bf6"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T061541Z-c0967e9e46d4/failures.json",
+      "sha256": "f0e95c9a8ab7ba32bd934ddaa311ee42b39fe73dceb9ce70d3d60a29e7ea4572"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T061541Z-c0967e9e46d4/run.json",
+      "sha256": "9c1e0d0366b1f03c1cf24ac0777607bdcfcee46119ec42ec43f327ad4993637c"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T061541Z-c0967e9e46d4/source-end.json",
+      "sha256": "a26427b4ceef06eaf057e0369221a4dc865ba113dd60a607f562f8fdd98d3da0"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T061541Z-c0967e9e46d4/source-start.json",
+      "sha256": "914d78b0163900ca2ed03266cccab4e91584a8daeedd472cf6283b7cff6c13a6"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T061541Z-c0967e9e46d4/summary.json",
+      "sha256": "9e2d4b3bd50ac3b69b77bf683c1d80a281c6cf747e917bf57800578d752eb59a"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T061541Z-c0967e9e46d4/test-results.json",
+      "sha256": "65d65970c2c62c193b55032f2cabd53288b35b5fd89da5262c2b945c08c1bdb5"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T063818Z-0648607b4806/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T063818Z-0648607b4806/run.json",
+      "sha256": "cd9db1a17c58b5d71475cddd5b88bb1a0e90bb60cbeb75ad4037fbb3b3fbc536"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T063818Z-0648607b4806/source-end.json",
+      "sha256": "efb428caa0ba0ebf6fc6001b11057eda727bb62f85f30bc131bb2d551a1034cd"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T063818Z-0648607b4806/source-start.json",
+      "sha256": "c08d50716d3dfb83e86007a0319547d7366c475dc66926389310593a7cedab06"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T063818Z-0648607b4806/summary.json",
+      "sha256": "a0a4a2e18d19be11d0c759b73a4bd1b741b5033e3529851271c8f5a0bf85e78c"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T063818Z-0648607b4806/test-results.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T064438Z-c3da505ef852/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T064438Z-c3da505ef852/run.json",
+      "sha256": "d4b96e5ce72a6a4bd9ff0c9fa56e67496c52475b3beb6c9bfe2ec0f69ce49231"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T064438Z-c3da505ef852/source-end.json",
+      "sha256": "aeb626b4375185580a17f25833d22a54e17d630c5f4f42610a438cd2168619ae"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T064438Z-c3da505ef852/source-start.json",
+      "sha256": "4244a71cd6c832073bbb7d3e3257e81ecc771bab2b067ad71b5a87af03ee66fd"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T064438Z-c3da505ef852/summary.json",
+      "sha256": "cffdeb764f6e63a5d14487fff8154f4af750621a7a9dd3c108a1c25453f87bab"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T064438Z-c3da505ef852/test-results.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T064944Z-c329b2547a4b/failures.json",
+      "sha256": "2ee61b33c9e6ded4103a378159d9aa047b09a613fa42f5ba9dbf5c276e457b42"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T064944Z-c329b2547a4b/run.json",
+      "sha256": "2471fd32d9849474bb096860907d22594da3c6fd1510c2b17b7b97350ba19963"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T064944Z-c329b2547a4b/source-end.json",
+      "sha256": "04abdbf84407725fc6b22f861f56f712460d3f3fc36c463ba55c8754af39f34f"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T064944Z-c329b2547a4b/source-start.json",
+      "sha256": "6be19fd65091de921c534f5ba5f1e044242064d08489ec7369fccd7853bfcb5b"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T064944Z-c329b2547a4b/summary.json",
+      "sha256": "728a2116e0bb97e8906cd8ea7ccdb768c250a147017229b00e46015453ef1405"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T064944Z-c329b2547a4b/test-results.json",
+      "sha256": "2959cda26ae360007056761346ca1f93833a8730f5d89df074e683c3b2a5e62c"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T065441Z-8ceb52347f96/failures.json",
+      "sha256": "41dc52c8712492cde1f93e35d77e8897a46aa7c2028915cdc682ee2cce6148e6"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T065441Z-8ceb52347f96/run.json",
+      "sha256": "a9bb5b95301ab541906692fbda8c0f5da8c60f768c81b018f1592810881f7a41"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T065441Z-8ceb52347f96/source-end.json",
+      "sha256": "9a6681f2f2f62e53392e1f604068300f82a4fad6a19e27ddd5771beeeff8abed"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T065441Z-8ceb52347f96/source-start.json",
+      "sha256": "4e06a380f3b8cbdda3c61074175776d6faf35f4b5429399e6c56119295c03b60"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T065441Z-8ceb52347f96/summary.json",
+      "sha256": "f3dc9fd3156acbf5645ae1bb571c600340182b27eb6d3385f770151b5673f825"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T065441Z-8ceb52347f96/test-results.json",
+      "sha256": "e8adb807a1390ef413609e58c90096b0d58c1274f549d0b5435c77b2249d5976"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T065926Z-40d03f64366d/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T065926Z-40d03f64366d/run.json",
+      "sha256": "bcad4ab70c112a5868260be13bae3e803a4bbbb9e3728a93e5f7f7f2fba18a52"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T065926Z-40d03f64366d/source-end.json",
+      "sha256": "67411c9892723445e24c9d2c4714fd214c7365c8619668c08656b4700b69b15d"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T065926Z-40d03f64366d/source-start.json",
+      "sha256": "0e297bb76b774059ae51b0854ee8a9f4168b0c1f5fd7f9039ae7572ec88f9167"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T065926Z-40d03f64366d/summary.json",
+      "sha256": "5a33bb49c3affe4be7b27b77c6736e024432f70e7995a63af17f91fd66c51f2f"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T065926Z-40d03f64366d/test-results.json",
+      "sha256": "035a5cb04076ee2b84febc146da2fa574abab5290d37cb1de447f0ee536a9855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T071903Z-de9e5c712b0d/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T071903Z-de9e5c712b0d/run.json",
+      "sha256": "5a0739bb401b0ce04be1ded98a60f00562eaff17700b4b05bbc5aeee1c7fd08b"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T071903Z-de9e5c712b0d/source-end.json",
+      "sha256": "f14a1d5f43c19ac84ca39a17cd5914489bf2d5dbbb0b422a66741ac32bab6f1d"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T071903Z-de9e5c712b0d/source-start.json",
+      "sha256": "c93c316332f612dd6c4adf1fc8ffc7ff2262bd4abcc233ce523f78c5b1c07151"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T071903Z-de9e5c712b0d/summary.json",
+      "sha256": "3b475988d7f7a468cd06d368061dc2d8f5da7e7f2ee61d13dd276661d0634fd2"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T071903Z-de9e5c712b0d/test-results.json",
+      "sha256": "d791c482a24397bb68b94fc2093452e60be005685337b472465be83caa3226d7"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T073153Z-b491ea00d9ea/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T073153Z-b491ea00d9ea/run.json",
+      "sha256": "04043da35929040153b309543ba60910e138b98150e28a4d1f6d4f9e42d1842b"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T073153Z-b491ea00d9ea/source-end.json",
+      "sha256": "15c978ad9ae9f7c549871c8d5d0ca5aae9e533ca376a78db163b9901a5da3dca"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T073153Z-b491ea00d9ea/source-start.json",
+      "sha256": "b038c4e5cb942b113ce181ba2e6170da6ae313003c025e41eb4e91551102a23b"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T073153Z-b491ea00d9ea/summary.json",
+      "sha256": "217846939eb86f4f28772946b4731aec075b6dc75eb26fad19ed8ad3856dc0f9"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T073153Z-b491ea00d9ea/test-results.json",
+      "sha256": "8f3e137860ce9319536fb4da4016cdaacfbd68ffa4aff4aa3ef089a405e4d2c2"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T074741Z-7b82ed600cd8/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T074741Z-7b82ed600cd8/run.json",
+      "sha256": "8182a32836b753735613b100bb38be9b5fc993c406495cae0932e66c085bc10b"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T074741Z-7b82ed600cd8/source-end.json",
+      "sha256": "6218fb2c96ddd8da83560b3692abf6f1b57ffeed673b487b054d024f1e75a554"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T074741Z-7b82ed600cd8/source-start.json",
+      "sha256": "81a873422ed9133b2f2b614cf3e0dc488888c0746a1a4cbcc87cd77a9e85f8ba"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T074741Z-7b82ed600cd8/summary.json",
+      "sha256": "445df84cab4ecc2daa9c22a6d2db77430aa33a0c49ce4c2c7b4d83fe26774c89"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T074741Z-7b82ed600cd8/test-results.json",
+      "sha256": "797a37ec74b98c1547a03023c0695497ca7a0c99af5c598df7b58c9e24618459"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T082317Z-fadca898bb34/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T082317Z-fadca898bb34/run.json",
+      "sha256": "89c059f2e5cd70178da089d4b4704b7b356bdf21d21c369b03ff6e06e39b9735"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T082317Z-fadca898bb34/source-end.json",
+      "sha256": "c2a6e65a5dc8a76d03b41cf6c56fda75024a0f8b8051e65b42b9d69adc5937b6"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T082317Z-fadca898bb34/source-start.json",
+      "sha256": "46d62dbe18602f771432f44b0ea8f96b7c70a3d668f1050771e4a1b8baefe456"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T082317Z-fadca898bb34/summary.json",
+      "sha256": "63163af522a5fa79ef495266ff0db3a0b0c3f10a59c09d37b569bc0bf4937a8d"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T082317Z-fadca898bb34/test-results.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T082831Z-7d8c86659be9/failures.json",
+      "sha256": "1899d82d524f141ad997db49d0859db37c7507e50eb41c8fe5f62186d5d2313e"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T082831Z-7d8c86659be9/run.json",
+      "sha256": "8d5fa83cf6a999402b913c1d81b9331d4b80eb91dce0086fed11d184e31b40ac"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T082831Z-7d8c86659be9/source-end.json",
+      "sha256": "f7633c210303bbbc54b1c8c81bfdee57588115935fcccc421f2a21373d482763"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T082831Z-7d8c86659be9/source-start.json",
+      "sha256": "79d2273735d4aeea1b5260e650ce8de1aa15cc71df5622d983bbde2513894598"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T082831Z-7d8c86659be9/summary.json",
+      "sha256": "a210ac3bc4710bb990a61d259123c176c8f9496f0ebbf519c4e35d41c56df2d6"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T082831Z-7d8c86659be9/test-results.json",
+      "sha256": "052ee4cf47b0c04627dc02120c0ac115592db1525c924e71bfe51216c1ca31f5"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T083048Z-3af0c4e5d632/failures.json",
+      "sha256": "2f73a3cd91f575c8f1f162df7fa90956ba7af548680fe7eea050706013e189d9"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T083048Z-3af0c4e5d632/run.json",
+      "sha256": "6e67884f834a23af68211854016ecc74197eef5aef4287c1d282c0954eef78db"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T083048Z-3af0c4e5d632/source-end.json",
+      "sha256": "e49b26888e0326ea145254ee4c25bc3d83403d2a7af981f197da558c80b27316"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T083048Z-3af0c4e5d632/source-start.json",
+      "sha256": "01a8af2c30c9ee56583a563932dbaf8a8f2910440d0e6fe18c704cafa945d25b"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T083048Z-3af0c4e5d632/summary.json",
+      "sha256": "23f7fb7da75732536b73517056f3671fa825794531454ac972af42ec9ee872e0"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T083048Z-3af0c4e5d632/test-results.json",
+      "sha256": "cf0fef937a9bf146f7e38ef0bf1a78f7208db66ea75105066bf1761ec85bfc55"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T083311Z-7ba2b0fe25ff/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T083311Z-7ba2b0fe25ff/run.json",
+      "sha256": "37272a8da23ac70d369e9ad59010c36f0ed7c33ba735986bf4f0de2a3ddd7487"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T083311Z-7ba2b0fe25ff/source-end.json",
+      "sha256": "f2913cd389e958f372f877466a48a0c67f81426dc61942b65efe721823bed5d5"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T083311Z-7ba2b0fe25ff/source-start.json",
+      "sha256": "6e1a442944b6f7134a03bd1f17aedcbe55a52c8bb38c4ab2275db12e544738a3"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T083311Z-7ba2b0fe25ff/summary.json",
+      "sha256": "3abc40177735f57df679dec3b93c820da46c43c6dab8756a5ffc4b2668db2bdd"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T083311Z-7ba2b0fe25ff/test-results.json",
+      "sha256": "5ad292e0c431efe4868184c624c0f1e1ca8bcd0ade491b8ebbd33e52fe960e0a"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T085626Z-1762d0689f67/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T085626Z-1762d0689f67/run.json",
+      "sha256": "40fa2ec1a71e2f7040f0ebe9acfe5bdb9eefff72ce6b49633a668b9f769eadf3"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T085626Z-1762d0689f67/source-end.json",
+      "sha256": "697e233d7c608d2d2c92ce9bdc94e0d4d1c3da07e6dde4884984185911a53350"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T085626Z-1762d0689f67/source-start.json",
+      "sha256": "a5800f7e1426cfc7ef7cc28d55d48adb6a385d028adee9c739d1b7986f4d15d8"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T085626Z-1762d0689f67/summary.json",
+      "sha256": "f8bfa221ba6884d528233644e54ef3d22b7266cf87ee4fbf958e0702e7e021ad"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T085626Z-1762d0689f67/test-results.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T085730Z-5feaf3d0e5ab/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T085730Z-5feaf3d0e5ab/run.json",
+      "sha256": "40d8244633b4e5b343466a0bd3dedf390145b5e55c4d498ff095e1e639e0f88b"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T085730Z-5feaf3d0e5ab/source-end.json",
+      "sha256": "b128a85770ad711d185ac7a036dccfddf382679b997f799487f3499fb21d2a91"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T085730Z-5feaf3d0e5ab/source-start.json",
+      "sha256": "aae8d8ae33dfaa405db5f4345de9361a67914f5ddc71cee60c24414c0111d3b2"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T085730Z-5feaf3d0e5ab/summary.json",
+      "sha256": "bc3cac88b2be7461a735942c4b7550d8a4b30ea04e11a2161f56d923712ac75d"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T085730Z-5feaf3d0e5ab/test-results.json",
+      "sha256": "8eb25660adcabca7796ecb8091bca1410b54961da5ca2497ab35d36af94d896a"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T090629Z-5abaab029eba/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T090629Z-5abaab029eba/run.json",
+      "sha256": "b88e719f3527b5bc3b71c334d823dd8279fcbec96d0d64936a6cbd47afcc93f9"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T090629Z-5abaab029eba/source-end.json",
+      "sha256": "767477dc48c2020d2f1203a83e9f39b0ecb82b6b887bf18e3347dfeef55fc34f"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T090629Z-5abaab029eba/source-start.json",
+      "sha256": "375a5ee88eb62240e4558bd5256088466fbecc42268c489c0a4b0f1b78b1352d"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T090629Z-5abaab029eba/summary.json",
+      "sha256": "edf2b24d71c684ba582df18a204fea85996c278dbf7cb402f86fd2a927689deb"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T090629Z-5abaab029eba/test-results.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T090837Z-24ee23145a9b/failures.json",
+      "sha256": "2420a18af0a1148374b31a373b436f9127c22238a1e7bc69fb708d6cd0ed4d22"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T090837Z-24ee23145a9b/run.json",
+      "sha256": "4b5da9412234efe12a9bd82b0f7f336d8dc8e1edeb662f9d1565b27893175c6e"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T090837Z-24ee23145a9b/source-end.json",
+      "sha256": "473b09645b2d801294bfcf8343f390eb2f8d2fd8660c6cce9a15605b03aaae88"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T090837Z-24ee23145a9b/source-start.json",
+      "sha256": "cd1f971078aa8cc91affe0e6eb6934c3dd6aa8eae2c6c56c0d513ba759224014"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T090837Z-24ee23145a9b/summary.json",
+      "sha256": "13e1130af46dfaa8d90786853e5128b254e62a3264c448ac6f0b529bd69d868a"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T090837Z-24ee23145a9b/test-results.json",
+      "sha256": "6b67f4a5b4426ab3987b6e79aabbe5bf30410be5ba5092bd169a95929d2bac80"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T091011Z-c905795de17e/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T091011Z-c905795de17e/run.json",
+      "sha256": "43a1ec067c7643430e72cb83460328383b4d82b459a39814f791247cc59be539"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T091011Z-c905795de17e/source-end.json",
+      "sha256": "c14883b6e6ff00d3cf84ed4b890fef1c878872e40c2b7c6bb6a2b41ea1d1e00e"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T091011Z-c905795de17e/source-start.json",
+      "sha256": "0b20ec6c6a6a739b9cd7660122174f83731c08269b54c256fbfea0c13d60d4b4"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T091011Z-c905795de17e/summary.json",
+      "sha256": "d3934e9034c7dd3df8888f2a6789e6511eab661ad55fd94f8ce8f6686b0f1ea7"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T091011Z-c905795de17e/test-results.json",
+      "sha256": "e51cdc75bdddf23c0300e7d892ef5d88425eeb1eea8d79dc0625fa7dced5e041"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T092052Z-3f41dea77190/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T092052Z-3f41dea77190/run.json",
+      "sha256": "cd59646baea52a886a95be14b64a330ce28662cece4f2b705c441012458970af"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T092052Z-3f41dea77190/source-end.json",
+      "sha256": "393416d609cb5cbecfd06fdd0f95a97d96fea3972f1dc280d654507877796d62"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T092052Z-3f41dea77190/source-start.json",
+      "sha256": "949d09c582b3fa0a42b4a17991fc09ed27c9b2b6f324d6fa12300328dbbea2ac"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T092052Z-3f41dea77190/summary.json",
+      "sha256": "ea196269cf499e35919e817e4de08078f24b6baf1a164ccb06d9ab86c0f3f51d"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T092052Z-3f41dea77190/test-results.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T092422Z-886765811c16/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T092422Z-886765811c16/run.json",
+      "sha256": "02e44952611e6c21b41c73a228004237f8ef259a058fb0f0aeab00be3354c49d"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T092422Z-886765811c16/source-end.json",
+      "sha256": "40b5fd46d94d4dfbe4b6a08aabd80d84604b9a44a7506ce558b8d272854616bd"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T092422Z-886765811c16/source-start.json",
+      "sha256": "816b8bc5e61a8033ce6ba906d21ca65f2a8c5bd3c9b7adb1889092d7addc484d"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T092422Z-886765811c16/summary.json",
+      "sha256": "42218440dae9ae9bc4eb3a2126ebf787606a24f1153de0a957af54a839a77395"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T092422Z-886765811c16/test-results.json",
+      "sha256": "ed442b1d7c3c4c70bda5c0fc419a330510269564a8049286fa61bbdfe3f6680a"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T094009Z-938c3e738a03/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T094009Z-938c3e738a03/run.json",
+      "sha256": "a2dcac0372e68cd933ea6c523cf3a67048bff44af6291457e02afffe58638db7"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T094009Z-938c3e738a03/source-end.json",
+      "sha256": "88e8aeb3361dd0e301aa5c9433af2dc6c11f55d3a533c66dd849d0c73ebe88a1"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T094009Z-938c3e738a03/source-start.json",
+      "sha256": "0ce1f459160719882be78c613c1d92b96e245510bb91e17c309e27eb2263da94"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T094009Z-938c3e738a03/summary.json",
+      "sha256": "e779a9577ecd04d6ff6ca1325b82935b225f5438c5aa5e64394f07532a2bba17"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T094009Z-938c3e738a03/test-results.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T094128Z-380caf8675ba/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T094128Z-380caf8675ba/run.json",
+      "sha256": "60a38b792e9b5ba68d7b8a1b9fe40fb8258cc64503b511e78329ace5903d8ab3"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T094128Z-380caf8675ba/source-end.json",
+      "sha256": "f6f3270624fc06fd21a3cabf52f5846f3d59949cb532b076bf436cad15b04756"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T094128Z-380caf8675ba/source-start.json",
+      "sha256": "9b479fd6d3db515649f91b885e673d6b0591326076076448c49aac94c2a66bbb"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T094128Z-380caf8675ba/summary.json",
+      "sha256": "7311beae17eed5cc8b15ea77412a146a0e6196efb9629003d487fe5e602df23d"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T094128Z-380caf8675ba/test-results.json",
+      "sha256": "55325885a9b38a5571661752b56da3b0d01c387ff05be680e1ca5f429d77bd87"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T101610Z-51269c3c27d1/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T101610Z-51269c3c27d1/run.json",
+      "sha256": "646179ebbd2d92c276232bbbaf8e4cd55e5c3e39b590a97c68a418a4f9c5edba"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T101610Z-51269c3c27d1/source-end.json",
+      "sha256": "0b1a696ce408c7bc14c2848d41135cf370edb41d949ff4e3b4fcd64d9cf6a41d"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T101610Z-51269c3c27d1/source-start.json",
+      "sha256": "67eea8d2f8dde90737630f5fc45dc29e20925f9c15d3d9db53c21902478a7ed0"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T101610Z-51269c3c27d1/summary.json",
+      "sha256": "5613b0ed6a8f358f3a04fcf26d06d1952811878f817771b8e3b0937186168733"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T101610Z-51269c3c27d1/test-results.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T101838Z-83cd1b098d05/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T101838Z-83cd1b098d05/run.json",
+      "sha256": "a4dfbfa8751448ae7b02d7913c23735909e2905acb3a5a0a623c16b8593214c5"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T101838Z-83cd1b098d05/source-end.json",
+      "sha256": "dbfd88a9254a82a13be051bca11a5048a2bd1f68e934cfaec643ce28587a88de"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T101838Z-83cd1b098d05/source-start.json",
+      "sha256": "d33733c85499b4e47bc7de3f5afe334ef671ece9023c94ed11ac403ca3be4a82"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T101838Z-83cd1b098d05/summary.json",
+      "sha256": "b80f9e63e5d71d01a0ca59b0b563217d11ba63b8d2d109fb82992a6419503f0b"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T101838Z-83cd1b098d05/test-results.json",
+      "sha256": "06079fd0ea84599a8850ac2322d6d7e38bb40b80390bb6d5d52890ac093b24cc"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T102421Z-b96155f74912/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T102421Z-b96155f74912/run.json",
+      "sha256": "3b887f0003aab484492415d5ddcca72dfbfc23802e39b4540ec28e4047b8b643"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T102421Z-b96155f74912/source-end.json",
+      "sha256": "854c96b835e1aa109a041d70d8455717a0179d7e5324d1a5a8dc97c5964edcb2"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T102421Z-b96155f74912/source-start.json",
+      "sha256": "a33b27b86851fc42c0081f7cb8d6483343975d9b42080c8676b6265b0b791b8a"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T102421Z-b96155f74912/summary.json",
+      "sha256": "498e47321186add367db1e29d88bc6d22a78b06dd9f4393ee2a28bcce71d6b3f"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T102421Z-b96155f74912/test-results.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T102550Z-61bcc36eec44/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T102550Z-61bcc36eec44/run.json",
+      "sha256": "b0596a1c97b2c4eb89b19c7eb4d498c99e9319a7a4aeb415194345c2579ada86"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T102550Z-61bcc36eec44/source-end.json",
+      "sha256": "48bcf754e8eaab7b92658854698dc579ba7cb2c8095507f7df2c5bbaaf17e3cb"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T102550Z-61bcc36eec44/source-start.json",
+      "sha256": "59bc870b595e5b04c4460350e8be5cbdbb265d20307129f6404f9e0238832fbc"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T102550Z-61bcc36eec44/summary.json",
+      "sha256": "443aa369cb41b370984c1c497a837171ec24c28b48c65cf65b3162826a2bbaa7"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T102550Z-61bcc36eec44/test-results.json",
+      "sha256": "f2f4c77dddc6161e1f369b631d2a0d7e6324fb05b99d55e219285f0378019d8e"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T104013Z-401159f05198/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T104013Z-401159f05198/run.json",
+      "sha256": "4e5a2dcc4c9fb8203f7ccc0cf5557137c51e8b151390a8e0001cb6a05cbf3f76"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T104013Z-401159f05198/source-end.json",
+      "sha256": "f2b42715fe8a08d36c77221dae85c93ba74066ab867a9fb0293c617d96082d7f"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T104013Z-401159f05198/source-start.json",
+      "sha256": "52de46ead0b82cae5104fd91b6ab3611668be70b3db1a18a9ea4ae834310db2b"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T104013Z-401159f05198/summary.json",
+      "sha256": "61f727cc07c68b9592524d05abc3cc1b926c390d62774399dc7582abddac005e"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T104013Z-401159f05198/test-results.json",
+      "sha256": "90d38901ba616b514f789cfb45ac9f3bcc13482ac938385b36cc545a94f19d5b"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T110919Z-26647caa38f1/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T110919Z-26647caa38f1/run.json",
+      "sha256": "4679a0dd00343f1b492c56f3b7684f3662532910ae25d9ce5aee0584c85a614e"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T110919Z-26647caa38f1/source-end.json",
+      "sha256": "52bddee5db306e4a5e7d4a6ece9f7a70a14d471494727231b51bb33eddf6b9ff"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T110919Z-26647caa38f1/source-start.json",
+      "sha256": "fb3fa4c3cfd5ab599cba4ac791afd197c4d730940a2b94f35e25ca76897bfb0d"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T110919Z-26647caa38f1/summary.json",
+      "sha256": "9d4a368984ead96d8eeeac62bbe52cab47a01701cc67e74d59adfc8dc246f744"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T110919Z-26647caa38f1/test-results.json",
+      "sha256": "dc870c602121e12fe7800867d642c84878178c07421b51286609a77173f34bd4"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T112547Z-f981cf319889/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T112547Z-f981cf319889/run.json",
+      "sha256": "c23bf1c313baf9f9eedd5e1e254f84a829482216b54efdc4ab7badbd2d1e876f"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T112547Z-f981cf319889/source-end.json",
+      "sha256": "209d0966c198e2faebace7a79dde3f21927fecdc99bcb18aeaa89189d31b28ea"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T112547Z-f981cf319889/source-start.json",
+      "sha256": "36c57a89c7d24935313824c4c0c745fbd80d5b4fbc58a0d5f3d2d1ebbf754c2e"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T112547Z-f981cf319889/summary.json",
+      "sha256": "7a034f187699ad7818f267a15616c002148be47a7f70fec0143ed89d964d4ee6"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T112547Z-f981cf319889/test-results.json",
+      "sha256": "c37da8895c8b260cf19c4608814f0762d27b86065d1ba97417561c7f4a479f8b"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T113841Z-a5e2156e0d25/failures.json",
+      "sha256": "4a22fb3922d2b639d81fcd13b89126b35ad83e17cec613467075e4fef9828d3e"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T113841Z-a5e2156e0d25/run.json",
+      "sha256": "fdbfb87cec5da96dd63cdd221fb1571aee45e2bb0c5611371e8d4134170eb599"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T113841Z-a5e2156e0d25/source-end.json",
+      "sha256": "4a7bf9b3d06e2fea67f5841bf7efd4c40f6b1d7e405571515f0aa0e968d3111c"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T113841Z-a5e2156e0d25/source-start.json",
+      "sha256": "3c87126ec0b8a5029a7306d8bf4f301cc654642180c27ff8181630a0ce432598"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T113841Z-a5e2156e0d25/summary.json",
+      "sha256": "5974f8e0ee41703a448e9002120c3297a2f40f553e7bc4a4fe6a0124ec842f71"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T113841Z-a5e2156e0d25/test-results.json",
+      "sha256": "9105348cec08c60dbebed0e134800f2351c136584a93d1cbf354e36278a43cad"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T115001Z-c386275e04c4/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T115001Z-c386275e04c4/run.json",
+      "sha256": "df87535922043ab0ffcdaa8efa3455b44c0159800ac7ce2dd4e53a4b4d18d7db"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T115001Z-c386275e04c4/source-end.json",
+      "sha256": "367438747634122ad67f55204f71b3f729c70f6f9edba33b813479263e67ea2d"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T115001Z-c386275e04c4/source-start.json",
+      "sha256": "51562b6f258a6a11e62d5b814a5dd701e439e24db236815c728e81807fcddc97"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T115001Z-c386275e04c4/summary.json",
+      "sha256": "ac0c0b65095904ee734984d5a1e2ca15390a4419f836e3d27ec50cce57b95a95"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T115001Z-c386275e04c4/test-results.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T115256Z-e3d630547b16/failures.json",
+      "sha256": "0b02a58f81600cbfc8820fcf276e4950ea25d9b02758f803fcbcb7fc8ddd0e9d"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T115256Z-e3d630547b16/run.json",
+      "sha256": "a64f34f28b6c6393f81be8939fcb5a352ee957c28c09a93942e7325a072baa4d"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T115256Z-e3d630547b16/source-end.json",
+      "sha256": "71ce8ae48a8f2ea332797fe46611f130f30ead84162b4505aadd23fb7dd5f952"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T115256Z-e3d630547b16/source-start.json",
+      "sha256": "afdf0021081fcaccd40dbd5c8a7ef9cfbf16d6222d3e3b831ae020f42dae7134"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T115256Z-e3d630547b16/summary.json",
+      "sha256": "3b710c011c37c2af41efbba6ecc269ea4a92fe11d69a44d37e1d94b638ddb41d"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T115256Z-e3d630547b16/test-results.json",
+      "sha256": "c499cdbfbba20e0e532e4de75dbd4cd4843bacd65f0ead8f37cbe16a41152fe2"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T115550Z-93ee032e7dcf/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T115550Z-93ee032e7dcf/run.json",
+      "sha256": "336b8d5dc53730e5caf4eff69e8e13788893efae51fcfd7d5875920b180a647d"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T115550Z-93ee032e7dcf/source-end.json",
+      "sha256": "c8efb41721a227df6fc679ef8e10a739e5fe9c97df160a50f04d88dae43efc90"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T115550Z-93ee032e7dcf/source-start.json",
+      "sha256": "0f67d89eb6e17c05383a85d1809e2a4211b33e034f523ef00d6d03ae4677861c"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T115550Z-93ee032e7dcf/summary.json",
+      "sha256": "1f1a960eec2dc97bbd1daf0fef47dec4e579d0aa31cd04d3986dcb3e5b038f85"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T115550Z-93ee032e7dcf/test-results.json",
+      "sha256": "f18072a80dff363be8d70145f849ed801c1c3ddf8baf1782a7c8be07c37caa5b"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T115750Z-6d8ac91d3aae/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T115750Z-6d8ac91d3aae/run.json",
+      "sha256": "bb0c51f19f40b1d8f9cacf41f9f21f0ed96f1b1ca27b2084ab7a040135239e09"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T115750Z-6d8ac91d3aae/source-end.json",
+      "sha256": "1ba8b7a1bd8697cfd4db4434b281173f2ebe84a1c67010499867549a5a51547b"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T115750Z-6d8ac91d3aae/source-start.json",
+      "sha256": "dedc1a9d4daccb17ed2ff650b3c6ee3d87ca626c9297d99b390a87ba2fba7b67"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T115750Z-6d8ac91d3aae/summary.json",
+      "sha256": "40b6de4bb88989e7feca994bc3336e46a839cda210fceaed62378ed9e2c2327d"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T115750Z-6d8ac91d3aae/test-results.json",
+      "sha256": "1e3e503aa50b21417a12d35c5c8511ba51c2e94eb1f4c940be88b6ada53b1a8b"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T123351Z-d965ad76b3c2/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T123351Z-d965ad76b3c2/run.json",
+      "sha256": "e49383ab8e9f16c6ba414db0b1bfdbe83df20bdc0ec745763894bb1f232f64d8"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T123351Z-d965ad76b3c2/source-end.json",
+      "sha256": "b3f014c1765f9686099ca5b85c1b08c5a5a946bcc1d6225602a18cd627f53bf3"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T123351Z-d965ad76b3c2/source-start.json",
+      "sha256": "66ed2925edaef4cd744e12865d02c5ecf7363cb7bd51acd98f777696ac77ee86"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T123351Z-d965ad76b3c2/summary.json",
+      "sha256": "caa515e3383f456e59101fc18836412cd33865a27309d95c9192e34f3e28c478"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T123351Z-d965ad76b3c2/test-results.json",
+      "sha256": "cb9d43fbaf17fad127217f8359164ca7863cf2a68f07628025c5a96cd9340dad"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T123554Z-ee180a618b0e/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T123554Z-ee180a618b0e/run.json",
+      "sha256": "c785e18569f6b357a1f138d0d7b89ff384f86ac9cedabc13e0a111317e6f06b9"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T123554Z-ee180a618b0e/source-end.json",
+      "sha256": "6f9b57f009986068cbadf1a788bf008a7759ef52569c28a885407297256eb74b"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T123554Z-ee180a618b0e/source-start.json",
+      "sha256": "5d2bb9d77131adf24a83b2d9147ee29b22d5b3f8f0c3e060d0712073b18796de"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T123554Z-ee180a618b0e/summary.json",
+      "sha256": "8a8e7e33feb91e252d08bdcfd14269ef1755d3cc1e82b8ccca87336ee15e1be3"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T123554Z-ee180a618b0e/test-results.json",
+      "sha256": "fc3d1a695dc3fa7c2f3fa706011c583eb0e914f86301cd7c71a803f033905354"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T123910Z-21d297c20904/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T123910Z-21d297c20904/run.json",
+      "sha256": "cc0838a9d82df94f36a4ddf7b98d192a51b6841bc30bb6d840eaa76784050994"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T123910Z-21d297c20904/source-end.json",
+      "sha256": "3a1a5d4c10b834912f7649e4540a404933e6531a4ae016c66a4cf8561847508d"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T123910Z-21d297c20904/source-start.json",
+      "sha256": "3b3da20f197d38d12614b48ae615f612a3ea1f749afed970d338158a9034e705"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T123910Z-21d297c20904/summary.json",
+      "sha256": "af83b859555e18c3ec98031a963e6ab84a1121cd9d4f405fba103221da73c009"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T123910Z-21d297c20904/test-results.json",
+      "sha256": "2043bf012100d68f3e80dd8c664416323c6b61517c4b6798bdddaef16dacd49a"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T124117Z-f903dfd278c8/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T124117Z-f903dfd278c8/run.json",
+      "sha256": "329a1c0ae6d6c9f948625cfa1327605fb8d4db1b51efd883e2d7e9aae9f544a1"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T124117Z-f903dfd278c8/source-end.json",
+      "sha256": "995dc2c0395c9ccc9d3f3f878d2e9c9330f7e0b5793a60c9e5fc476ccdba68d3"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T124117Z-f903dfd278c8/source-start.json",
+      "sha256": "2a56fe744135f727bd0030c196d63a76facf186eacf5f38d385c3288d46465dd"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T124117Z-f903dfd278c8/summary.json",
+      "sha256": "a61d0c695f04a87b4df223316d7253c3e58dab2addc5ef71dbe837e9c29f6d1e"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261005-ordered-npc/20261005T124117Z-f903dfd278c8/test-results.json",
+      "sha256": "72d54cec926b58e36188f14d4e803823343e9b050170425505179d1f27f66d37"
+    }
+  ],
+  "helper_fingerprints": [
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\npc_cell_insert_proposed.patch",
+      "sha256": "dbd3e834c58a3f08ca547080e2850df3a521e045f3d9e91988507459ecbbab6a"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\npc_coordinator_checkpoint05.py",
+      "sha256": "4ca323b0ddc83daae84113b89b96124c7636dfe7f017446d57570257c720a7a5"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\npc_coordinator_checkpoint06.py",
+      "sha256": "d843c85ee7aefe4eee39faf00533a9441aaa275352184ceb85f70009d82e248d"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\npc_coordinator_checkpoint07.py",
+      "sha256": "9e3ba59e9ea25f8ea6a0a73dbcfd01693232b219795c7fd11fb1c0a99f830ea7"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\npc_currency_adversarial07_proposal.cs.txt",
+      "sha256": "b0c7ed9f648aa201c2811597f4375d49b472d1a4854ff1cb36c4a5f35631d5af"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\npc_currency_integrate07.py",
+      "sha256": "5e3c532ba985ada39b185191e39fddba93680d96e771c25d5e63a31614d08212"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\npc_currency_native_fixture_proposal.cs",
+      "sha256": "54d64156c4167c591ce76c4019d88026768eabd2dc451c82764a4cffee1107b5"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\npc_currency_native_fixture_proposal.notes.md",
+      "sha256": "1441c711e00affcd52a088265e0034f3ffd2258959f5ce661d65b9d5640b42ee"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\npc_currency_proposed.notes.md",
+      "sha256": "33c7f5dc0a3a584ccc71ae89ef95c9d3e2564f06b358036905ae1ec0ff1587e4"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\npc_currency_proposed.patch",
+      "sha256": "c6b5f95be57980022094c5e6ac378d2254c55ef6160b3d4865d0be918508006e"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\npc_currency_route06.py",
+      "sha256": "ae10f39b03362da927ddd097dc8d953aa9cc747f20a9bb585dc31a4918df6bb1"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\npc_diffcheck07.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\npc_displacement_proposal_builder.py",
+      "sha256": "202cf5ad26c9322ba3b810ad33852229ac16d44ea11f23204a6cfaf6c61550ba"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\npc_displacement_proposed.inputs.json",
+      "sha256": "dab29abf83978d5f2a08730088fbe6b34719f5ad925ec4c222d9f6369cbfb394"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\npc_displacement_proposed.patch",
+      "sha256": "91409b36641799b213917be31230221cbdb0e2a42c6c7bdccd9fd7c11b041898"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\npc_displacement_tests_proposed.cs",
+      "sha256": "97d7972744741183db8680a044a9d1d16eae47a361ef6d8f72ddcb027560d140"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\npc_displacement_tests_proposed.patch",
+      "sha256": "316ae95130de103652565f0efeb0ba6a09077e418960a45614f15fd2fd017368"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\npc_musket_fire_proposal_builder.py",
+      "sha256": "41f43b952e81e69cbe39d65019f14a2379025b67e3d6011a3d6a081709abb352"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\npc_musket_fire_proposed.acceptance.md",
+      "sha256": "f0ac42b8d7f3331b5367b0b38f8e7e6b14118421e22a8d8b033e37ac32eb08f9"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\npc_musket_fire_proposed.inputs.json",
+      "sha256": "62bd8a8c0d53c9c280d3da44cebcdff1e64511677ed5ca6ee82b6611686903aa"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\npc_musket_fire_proposed.patch",
+      "sha256": "ea118232fddf5879cf08a65d9e1dd3bf5f857b5a1b941902db94dfb8f43339b0"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\npc_native_attack05_cleanup_review.json",
+      "sha256": "58d0ada3bf05c26195d5d205b26f1177d7eb85b6717cb8a0e3a134df69b3710a"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\npc_native_attack05_cleanup_review_v2.json",
+      "sha256": "a2a06650e599354a89e195d08137b21ab89fc433c7558d17c09f6b28df9f881e"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\npc_progress_checkpoint04.py",
+      "sha256": "10a3a79e9171e89c5ab5e4848e48a13fddfe167b90ce55097f1b6185baad29a1"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\npc_projectile_proposed.patch",
+      "sha256": "df295638418b9f36910dd0aa42554da46768e04c8efd8cc7521eeeb1c8778345"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\npc_put_proposal.py",
+      "sha256": "1c03b67db4639e19a7c6c7cbd82bdfdbf52d6d9e9887342269850251111b5e41"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\npc_put_proposed.patch",
+      "sha256": "45d8ce1e812d0b46ad587408f25111c6ffbf438d386ce5ac7fcb6c6dd9683984"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\npc_simple_shot_release.py",
+      "sha256": "0c099405c633df813b89dae31dd49535d97522cce51bb8b69048fa9ba5c428f1"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\npc_unload_proposal_builder.py",
+      "sha256": "2a3eece85ad17d300436f8fbb825777449d5aa78ed025a66e3c635359276e3dc"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\npc_unload_proposed.acceptance.md",
+      "sha256": "185ec1d2a8a4175fdc3a70530305b2efec3c4b0a88fb770523708de56b2e5697"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\npc_unload_proposed.inputs.json",
+      "sha256": "88f3dae7be9e810876d548c5a9befd3da78755125885027a77401e151e6ee688"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\npc_unload_proposed.patch",
+      "sha256": "e62d59875e71b414a0915de47cf2191def259b66887647a5b056d5d61e37342d"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\npc_wound_identity_repair.py",
+      "sha256": "baa4564802127a322f4ed1ea45b67001db2748054d982d430bea735ac088b9d0"
+    }
+  ]
+}

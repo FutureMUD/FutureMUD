@@ -8,6 +8,7 @@ using MudSharp.Character.Heritage;
 using MudSharp.Climate;
 using MudSharp.Combat;
 using MudSharp.Construction;
+using Cell = MudSharp.Construction.Cell;
 using MudSharp.Construction.Boundary;
 using MudSharp.Effects;
 using MudSharp.Effects.Concrete;
@@ -103,11 +104,21 @@ public partial class Character
 			throw new ArgumentException(spatialError, nameof(routePositionMetres));
 		}
 
+
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(this)) return;
+		using var displacement = MudSharp.NPC.AI.CommandExecutionScope.BeginDisplacement(this, target, layer, spatialTarget.RoutePositionMetres);
+		if (MudSharp.NPC.AI.CommandExecutionScope.IsOrdered(this) && displacement is null) return;
+		if (displacement is not null && (target is not Cell || Location is not Cell)) return;
         ICell sourceLocation = Location;
         Movement?.CancelForMoverOnly(this);
+		if (displacement is not null && !displacement.Continue()) return;
         RemoveAllEffects(x => x.IsEffectType<IActionEffect>(), true);
+		if (displacement is not null && !displacement.Continue()) return;
         RemoveAllEffects<IRemoveOnMovementEffect>(fireRemovalAction: true);
+		if (displacement is not null && !displacement.Continue()) return;
         RemoveAllEffects<Dragging.DragTarget>(fireRemovalAction: true);
+		if (displacement is not null && !displacement.Continue()) return;
+		if (displacement is not null && !displacement.Continue()) return;
         List<ICharacter> otherMovers = new();
         List<IGameItem> otherItems = new();
         IDragging drag = EffectHandler.EffectsOfType<IDragging>().FirstOrDefault();
@@ -142,6 +153,7 @@ public partial class Character
             if (drag is not null)
             {
                 RemoveEffect(drag, true);
+		if (displacement is not null && !displacement.Continue()) return;
             }
         }
 
@@ -153,11 +165,13 @@ public partial class Character
         otherMovers.AddRange(_riders);
         otherMovers = otherMovers.Distinct().ToList();
 
+		if (displacement is not null && !displacement.CaptureCompanions(otherMovers)) return;
         foreach (ICharacter mover in otherMovers)
         {
             Movement?.CancelForMoverOnly(mover);
             mover.RemoveAllEffects(x => x.IsEffectType<IActionEffect>(), true);
             mover.RemoveAllEffects<IRemoveOnMovementEffect>(fireRemovalAction: true);
+			if (displacement is not null && !displacement.Continue()) return;
         }
 
         if (echo)
@@ -178,34 +192,64 @@ public partial class Character
             }
         }
 
+		if (displacement is not null && !displacement.Continue()) return;
+		if (displacement is not null && !displacement.CaptureItems(otherItems)) return;
         SetPosition(PositionState, PositionModifier.None, null, null);
-        sourceLocation?.Leave(this);
+		if (displacement is not null && !displacement.Continue()) return;
+
+		if (displacement is not null)
+		{
+			if (!((Cell)sourceLocation).LeaveDisplaced(this, displacement)) return;
+		}
+		else sourceLocation?.Leave(this);
         foreach (IGameItem item in otherItems)
         {
+			if (displacement is not null && !displacement.Continue()) return;
             sourceLocation?.Extract(item);
         }
-        RoomLayer = layer;
+        // Cell entry publishes the destination cell, layer and route position together.
+        // Keep the captured source position intact while the membership receipt is leaving.
+        if (displacement is null) RoomLayer = layer;
         Dictionary<ICharacter, ICell> moverOrigins = new();
 
         foreach (ICharacter mover in otherMovers)
         {
+			if (displacement is not null && !displacement.Continue()) return;
             mover.SetPosition(mover.PositionState, PositionModifier.None, null, null);
+			if (displacement is not null && !displacement.Continue()) return;
             ICell moverSourceLocation = mover.Location;
             moverOrigins[mover] = moverSourceLocation;
-            moverSourceLocation?.Leave(mover);
-            mover.RoomLayer = layer;
+
+			if (displacement is not null)
+			{
+				if (moverSourceLocation is not Cell nativeSource || !nativeSource.LeaveDisplaced(mover, displacement)) return;
+			}
+			else moverSourceLocation?.Leave(mover);
+            if (displacement is null) mover.RoomLayer = layer;
         }
 
-        target.Enter(this, roomLayer: layer);
+
+		if (displacement is not null)
+		{
+			if (!((Cell)target).EnterDisplaced(this, displacement)) return;
+		}
+		else target.Enter(this, roomLayer: layer);
         foreach (ICharacter mover in otherMovers)
         {
-            target.Enter(mover, roomLayer: layer);
+
+			if (displacement is not null)
+			{
+				if (!((Cell)target).EnterDisplaced(mover, displacement)) return;
+			}
+			else target.Enter(mover, roomLayer: layer);
         }
 
         foreach (IGameItem item in otherItems)
         {
             item.RoomLayer = layer;
+			if (displacement is not null && !displacement.Continue()) return;
             target.Insert(item, true);
+			if (displacement is not null && !displacement.Continue()) return;
         }
 
 		SetRoutePosition(spatialTarget.RoutePositionMetres);
@@ -234,10 +278,13 @@ public partial class Character
             }
         }
 
+		if (displacement is not null && !displacement.Complete()) return;
         Body.Look();
+		if (displacement is not null && !displacement.Continue()) return;
         foreach (ICharacter mover in otherMovers)
         {
             mover.Body.Look();
+			if (displacement is not null && !displacement.Continue()) return;
         }
     }
 
@@ -247,7 +294,7 @@ public partial class Character
         foreach (ICell duplicateCell in new[] { source, target }
                  .Where(x => x is not null && !ReferenceEquals(x, canonicalCell))
                  .Distinct()
-                 .Where(x => x.Characters.Contains(character)))
+                 .Where(x => x.Characters.ContainsPhysicalInstance(character)))
         {
             duplicateCell.Leave(character);
         }
@@ -1505,7 +1552,11 @@ public partial class Character
 
     public void Follow(IMove thing)
     {
+		using var execution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(this);
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(this)) return;
+		MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted(this);
         CeaseFollowing();
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(this)) return;
         Following = thing;
         if (thing is not null)
         {

@@ -9,6 +9,12 @@ namespace MudSharp.GameItems.Components;
 
 public class WearableGameItemComponent : GameItemComponent, IWearable
 {
+	internal override Action CaptureCustodyRollback()
+	{
+		var wornBy = WornBy; var profile = _currentProfile;
+		return () => { WornBy = wornBy; _currentProfile = profile; };
+	}
+
     protected WearableGameItemComponentProto _prototype;
     private IWearProfile _currentProfile;
 
@@ -163,6 +169,7 @@ public class WearableGameItemComponent : GameItemComponent, IWearable
 
     public bool CanWear(IBody wearer, IWearProfile profile)
     {
+		if (!CanWear(wearer)) return false;
         if (Bulky)
         {
             foreach (KeyValuePair<IWear, IWearlocProfile> location in profile.Profile(wearer))
@@ -222,7 +229,11 @@ public class WearableGameItemComponent : GameItemComponent, IWearable
 
     public bool CanWear(IBody wearer)
     {
-        return _prototype.WearableProg?.ExecuteBool(wearer?.Actor, Parent) ?? true;
+		var executor = wearer?.Actor;
+        var permitted = _prototype.WearableProg?.ExecuteBool(executor, Parent) ?? true;
+		// Eligibility may retire an animation and rebind this borrowed body.
+        return MudSharp.NPC.AI.CommandExecutionScope.TryContinue(executor) &&
+		       ReferenceEquals(wearer?.Actor, executor) && permitted;
     }
 
     public WhyCannotDrapeReason WhyCannotWear(IBody wearer)

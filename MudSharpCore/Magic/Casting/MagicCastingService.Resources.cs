@@ -23,11 +23,33 @@ public sealed partial class MagicCastingService
 			.Select(x => x.Id).ToHashSet();
 		var previous = _permanentEntitlements.GetValueOrDefault(owner.Id) ?? [];
 		_permanentEntitlements[owner.Id] = current;
-		foreach (var id in current.Except(previous))
+		foreach (var id in current)
+		{
+			var c = (IMagicCastingCapability)_world.MagicCapabilities.Get(id)!;
+			if (c.CastingConfigurationErrors().Count > 0) continue;
+			lock (Guard(actor))
+			{
+				foreach (var admission in c.CastingPolicy!.Admissions.Where(x => x.RawSkillCap.HasValue && Acquisition(actor, x.SpellId) is not null))
+					RecordSkillCap(actor, c, admission);
+				foreach (var support in c.CastingPolicy.Supports.Where(x => x.RawSkillCap.HasValue))
+					RecordSupportSkillCap(actor, c, support);
+			}
+		}
+		foreach (var id in current.Where(id => !previous.Contains(id) || ((IMagicCastingCapability)_world.MagicCapabilities.Get(id)!).CastingPolicy!.Supports.Count > 0))
 		{
 			var c = (IMagicCastingCapability)_world.MagicCapabilities.Get(id)!;
 			if (_store.Enrolment(owner.Id, c.CastingPolicy!.Identity) is null) continue;
-			lock (Guard(actor)) EvaluateEdges(actor, c.CastingPolicy.Admissions.Select(x => (id, x.SpellId)));
+			lock (Guard(actor)) EvaluateEdges(actor, ProgressionNodes(c));
+		}
+		ValidatePractices(actor);
+	}
+
+	public void NotifyCapacityChange(ICharacter actor)
+	{
+		lock (Guard(actor))
+		{
+			(Owner(actor) as MudSharp.Character.Character)?.ReconcileCastingResourceCapacities();
+			ValidatePractices(actor);
 		}
 	}
 }

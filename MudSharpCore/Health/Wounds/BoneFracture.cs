@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.Database;
 using MudSharp.Effects.Concrete;
 using MudSharp.GameItems;
@@ -63,7 +63,7 @@ public class BoneFracture : PerceivedItem, IImmobilisableWound
         CurrentStun = stun * bodypart.StunModifier;
         DamageType = damageType;
         Bodypart = bodypart;
-        _actorOriginId = actorOrigin?.Id ?? 0;
+        _actorOriginId = MudSharp.Character.CharacterInstanceIdentityComparer.IdentityId(actorOrigin);
         _toolOriginId = toolOrigin?.Id ?? 0;
         RealTimeOfWound = RuntimeClock.UtcNow;
         if (actorOrigin?.Combat?.Friendly == true)
@@ -553,7 +553,7 @@ public class BoneFracture : PerceivedItem, IImmobilisableWound
         get => Gameworld.TryGetCharacter(_actorOriginId, true);
         set
         {
-            _actorOriginId = value?.Id ?? 0;
+            _actorOriginId = MudSharp.Character.CharacterInstanceIdentityComparer.IdentityId(value);
             Changed = true;
         }
     }

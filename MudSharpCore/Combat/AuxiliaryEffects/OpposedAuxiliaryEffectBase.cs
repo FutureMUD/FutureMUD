@@ -155,6 +155,7 @@ internal abstract class OpposedAuxiliaryEffectBase : IAuxiliaryEffect
 	protected bool TryGetOpposedSuccess(ICharacter attacker, IPerceiver target, CheckOutcome outcome, out OpposedOutcome opposed)
 	{
 		opposed = new OpposedOutcome(OpposedOutcomeDirection.Stalemate, OpposedOutcomeDegree.None);
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue()) return false;
 		if (target is not ICharacter tch)
 		{
 			return false;
@@ -163,6 +164,7 @@ internal abstract class OpposedAuxiliaryEffectBase : IAuxiliaryEffect
 		var defenderOutcome = Gameworld.GetCheck(CheckType.CombatMoveCheck)
 		                               .Check(tch, DefenseDifficulty, DefenseTrait, attacker);
 		opposed = new OpposedOutcome(outcome, defenderOutcome);
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue()) return false;
 		return opposed.Outcome == OpposedOutcomeDirection.Proponent && opposed.Degree >= MinimumDegree;
 	}
 
@@ -404,6 +406,7 @@ internal abstract class OpposedAuxiliaryEffectBase : IAuxiliaryEffect
 
 	protected void SendEcho(string? echo, ICharacter attacker, IPerceivable target, params IPerceivable[] additionalTargets)
 	{
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue()) return;
 		if (string.IsNullOrWhiteSpace(echo))
 		{
 			return;

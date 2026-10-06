@@ -6,12 +6,16 @@ namespace MudSharp.Magic.Casting;
 
 public sealed record CastingSkillOpportunity(long CharacterId, long TraitId, DateTime NextUtc, long Version);
 public sealed record CastingEnrolment(long CharacterId, Guid CapabilityIdentity, long CapabilityId, DateTime EnrolledUtc, int StartingVersion);
+public sealed record CastingSupportAcquisition(Guid OperationId, Guid CapabilityIdentity, Guid GrantKey, long TraitId,
+	double OpeningSkill, double? RawSkillCap, string Provenance);
 public sealed record CastingOperation(Guid Id, long CharacterId, long ActorId, long BodyId, long CapabilityId,
 	long SpellId, long TraitId, long ReserveId, string Stage, string Definition, DateTime CreatedUtc, DateTime UpdatedUtc,
 	string Diagnostic = "");
 
 public interface IMagicCastingStateStore
 {
+	IReadOnlySet<long> CappedTraits(long characterId);
+	CastingSupportAcquisition? SupportGrant(long characterId, Guid identity, Guid key);
 	AcquiredSpell? Acquisition(long characterId, long spellId);
 	CastingSkillOpportunity? Opportunity(long characterId, long traitId);
 	CastingEnrolment? Enrolment(long characterId, Guid capabilityIdentity);
@@ -24,6 +28,35 @@ public interface IMagicCastingStateStore
 /// <summary>Immediate isolated writes. Progress and the operation stage cross one optimistic transaction.</summary>
 public sealed class MagicCastingStateStore : IMagicCastingStateStore
 {
+	public const string SkillCapRecorded = "SkillCapRecorded";
+	public const string SupportGranted = "SupportGranted", CappedSupportGranted = "CappedSupportGranted", EnrolmentRecorded = "EnrolmentRecorded";
+	public static IReadOnlyList<string> TerminalStages { get; } = Array.AsReadOnly(new[] { "Completed", "PracticeInterrupted", "Reconciled", SkillCapRecorded, SupportGranted, CappedSupportGranted, EnrolmentRecorded });
+	public static bool IsSupportRecord(string stage) => stage is SupportGranted or CappedSupportGranted;
+	public CastingSupportAcquisition? SupportGrant(long characterId, Guid identity, Guid key)
+	{
+		using (new FMDB()) return FMDB.Context.MagicCastingOperations.AsNoTracking()
+			.Where(x => x.CharacterId == characterId && (x.Stage == SupportGranted || x.Stage == CappedSupportGranted))
+			.AsEnumerable().Select(x => ReadSupportGrant(Read(x))).SingleOrDefault(x => x.CapabilityIdentity == identity && x.GrantKey == key);
+	}
+	public static CastingSupportAcquisition ReadSupportGrant(CastingOperation op)
+	{
+		var xml = XElement.Parse(op.Definition);
+		if (!IsSupportRecord(op.Stage) || xml.Name != "SupportGrant" || (int?)xml.Attribute("version") != 1 ||
+			(long?)xml.Attribute("trait") != op.TraitId) throw new InvalidOperationException($"Invalid support grant receipt {op.Id}.");
+		var record = new CastingSupportAcquisition(op.Id, Guid.Parse((string)xml.Attribute("identity")!), Guid.Parse((string)xml.Attribute("key")!),
+			op.TraitId, (double)xml.Attribute("opening")!, (double?)xml.Attribute("rawCap"), xml.Element("Provenance")?.Value ?? "");
+		if (record.CapabilityIdentity == Guid.Empty || record.GrantKey == Guid.Empty || !double.IsFinite(record.OpeningSkill) ||
+			record.OpeningSkill < 0 || string.IsNullOrWhiteSpace(record.Provenance) ||
+			record.RawSkillCap is { } cap && (!double.IsFinite(cap) || cap <= 0 || record.OpeningSkill > cap) ||
+			(op.Stage == CappedSupportGranted) != record.RawSkillCap.HasValue) throw new InvalidOperationException($"Invalid support policy receipt {op.Id}.");
+		return record;
+	}
+	public IReadOnlySet<long> CappedTraits(long characterId)
+	{
+		using (new FMDB()) return FMDB.Context.MagicCastingOperations.AsNoTracking()
+			.Where(x => x.CharacterId == characterId && (x.Stage == SkillCapRecorded || x.Stage == CappedSupportGranted))
+			.Select(x => x.TraitDefinitionId).Distinct().ToHashSet();
+	}
 	public AcquiredSpell? Acquisition(long characterId, long spellId)
 	{
 		using (new FMDB())
@@ -52,7 +85,7 @@ public sealed class MagicCastingStateStore : IMagicCastingStateStore
 	public IReadOnlyList<CastingOperation> Unresolved(long? characterId = null)
 	{
 		using (new FMDB()) return FMDB.Context.MagicCastingOperations.AsNoTracking().Where(x => (!characterId.HasValue || x.CharacterId == characterId) &&
-			x.Stage != "Completed" && x.Stage != "Reconciled").AsEnumerable().Select(Read).ToArray();
+			!TerminalStages.Contains(x.Stage)).AsEnumerable().Select(Read).ToArray();
 	}
 	public CastingOperation? Operation(Guid id)
 	{

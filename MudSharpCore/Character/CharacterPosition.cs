@@ -1,4 +1,5 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
+using MudSharp.NPC.AI;
 using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Construction;
@@ -101,6 +102,8 @@ public partial class Character
 
     public override void SetTarget(IPerceivable target)
     {
+		using var execution = CommandExecutionScope.EnterBodyOperation(this);
+		if (!CommandExecutionScope.TryContinue(this)) return;
 		if (ReferenceEquals(PositionTarget, target))
 		{
 			return;
@@ -127,6 +130,8 @@ public partial class Character
 
     public void ResetPositionTarget(IEmote playerEmote, IEmote playerPmote)
     {
+		using var execution = CommandExecutionScope.EnterBodyOperation(this);
+		if (!CommandExecutionScope.TryContinue(this)) return;
         if (PositionTarget == null)
         {
             OutputHandler.Send("You are not " + PositionState.DefaultDescription() + " near anything.");
@@ -156,21 +161,29 @@ public partial class Character
                 break;
         }
 
+        if (!CommandExecutionScope.TryContinue(this)) return;
         MixedEmoteOutput output =
             new(
                 new Emote("@ " + PositionState.DescribePositionMovement + text + "$0", this, PositionTarget),
                 flags: OutputFlags.SuppressObscured);
         output.Append(playerEmote);
         OutputHandler.Handle(output);
+        if (!CommandExecutionScope.TryContinue(this)) return;
+        if (!CommandExecutionScope.TryContinue(this)) return;
         SetTarget(null);
+        if (!CommandExecutionScope.TryContinue(this)) return;
         SetEmote(playerPmote);
+        if (!CommandExecutionScope.TryContinue(this)) return;
         SetModifier(PositionModifier.None);
+        if (!CommandExecutionScope.TryContinue(this)) return;
         PositionHasChanged();
     }
 
     public void MovePosition(IPositionState whichPosition, PositionModifier whichModifier, IPerceivable? target,
             IEmote? playerEmote, IEmote? playerPmote, bool ignoreMovementRestrictions = false, bool ignoreMovement = false)
     {
+		using var execution = CommandExecutionScope.EnterBodyOperation(this);
+		if (!CommandExecutionScope.TryContinue(this)) return;
         if (RidingMount is not null && RidingMount.IsPrimaryRider(this))
         {
             RidingMount.RiderMovePosition(whichPosition, whichModifier, target, this, playerEmote,
@@ -183,6 +196,7 @@ public partial class Character
             return;
         }
 
+        if (!CommandExecutionScope.TryContinue(this)) return;
         if (!ignoreMovementRestrictions && Combat != null)
         {
             if (TakeOrQueueCombatAction(
@@ -209,19 +223,22 @@ public partial class Character
             return;
         }
 
+        if (!CommandExecutionScope.TryContinue(this)) return;
         MixedEmoteOutput output =
             new(
                 whichPosition.DescribeTransition(this, PositionState, PositionModifier, whichModifier,
                     PositionTarget, target), flags: OutputFlags.SuppressObscured);
         output.Append(playerEmote);
         OutputHandler.Handle(output);
+        if (!CommandExecutionScope.TryContinue(this)) return;
 
         if (!PositionState.Upright && whichPosition.Upright)
         {
             foreach (IPerceivable thing in TargetedBy.Where(x =>
                          x.PositionTarget == this && x.Location == Location &&
-                         x.PositionModifier == PositionModifier.On))
+                         x.PositionModifier == PositionModifier.On).ToArray())
             {
+                if (!CommandExecutionScope.TryContinue(this)) return;
                 thing.SetModifier(PositionModifier.None);
                 if (!(thing is ICharacter body))
                 {
@@ -230,20 +247,28 @@ public partial class Character
                 }
                 else
                 {
+                    using var owned = CommandExecutionScope.EnterOwnedOperation(body);
                     body.MovePosition(PositionStanding.Instance, null, null);
                 }
             }
         }
 
+        if (!CommandExecutionScope.TryContinue(this)) return;
         SetState(whichPosition);
+        if (!CommandExecutionScope.TryContinue(this)) return;
         SetModifier(whichModifier);
+        if (!CommandExecutionScope.TryContinue(this)) return;
         SetTarget(target);
+        if (!CommandExecutionScope.TryContinue(this)) return;
         SetEmote(playerPmote);
+        if (!CommandExecutionScope.TryContinue(this)) return;
         PositionHasChanged();
     }
 
     public void MovePosition(IPositionState whichPosition, IEmote? playerEmote, IEmote? playerPmote)
     {
+		using var execution = CommandExecutionScope.EnterBodyOperation(this);
+		if (!CommandExecutionScope.TryContinue(this)) return;
         if (RidingMount is not null && RidingMount.IsPrimaryRider(this))
         {
             RidingMount.RiderMovePosition(whichPosition, PositionModifier, PositionTarget, this, playerEmote, playerPmote);
@@ -261,18 +286,21 @@ public partial class Character
             return;
         }
 
+        if (!CommandExecutionScope.TryContinue(this)) return;
         MixedEmoteOutput output =
             new(
                 whichPosition.DescribeTransition(this, PositionState, PositionModifier, PositionModifier,
                     PositionTarget, PositionTarget), flags: OutputFlags.SuppressObscured);
         output.Append(playerEmote);
         OutputHandler.Handle(output);
+        if (!CommandExecutionScope.TryContinue(this)) return;
         if (!PositionState.Upright && whichPosition.Upright)
         {
             foreach (IPerceivable thing in TargetedBy.Where(x =>
                          x.PositionTarget == this && x.Location == Location &&
-                         x.PositionModifier == PositionModifier.On))
+                         x.PositionModifier == PositionModifier.On).ToArray())
             {
+                if (!CommandExecutionScope.TryContinue(this)) return;
                 thing.SetModifier(PositionModifier.None);
                 if (!(thing is ICharacter body))
                 {
@@ -281,13 +309,17 @@ public partial class Character
                 }
                 else
                 {
+                    using var owned = CommandExecutionScope.EnterOwnedOperation(body);
                     body.MovePosition(PositionStanding.Instance, null, null);
                 }
             }
         }
 
+        if (!CommandExecutionScope.TryContinue(this)) return;
         SetState(whichPosition);
+        if (!CommandExecutionScope.TryContinue(this)) return;
         SetEmote(playerPmote);
+        if (!CommandExecutionScope.TryContinue(this)) return;
         PositionHasChanged();
     }
 
@@ -295,6 +327,8 @@ public partial class Character
 
     public override void SetEmote(IEmote emote)
     {
+		using var execution = CommandExecutionScope.EnterBodyOperation(this);
+		if (!CommandExecutionScope.TryContinue(this)) return;
         Body.SetEmote(emote);
     }
 

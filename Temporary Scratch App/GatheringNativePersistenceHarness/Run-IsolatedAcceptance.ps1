@@ -1,7 +1,12 @@
 [CmdletBinding()]
-param([switch]$LandOnly, [switch]$RejuvenationOnly, [switch]$CastingOnly, [switch]$RefreshSnapshot)
+param([switch]$LandOnly, [switch]$RejuvenationOnly, [switch]$CastingOnly, [switch]$PracticeOnly, [switch]$SpeechOnly, [switch]$AreaOnly, [switch]$LifecycleOnly, [switch]$BodyRetirementOnly, [switch]$LegacyRemainsOnly, [switch]$NpcArchiveOnly, [switch]$NpcArchiveMaintenanceOnly, [switch]$SpellOwnedNpcOnly, [switch]$SpellOwnedRetirementOnly, [switch]$SpellOwnedItemOnly, [switch]$CreatedConsumablesOnly, [switch]$CorpseAnimationOnly, [switch]$RaiseServitorStockOnly, [switch]$StormSpearStockOnly, [switch]$FlameKnifeStockOnly, [switch]$SandKnifeStockOnly, [switch]$QueuedCommandOnly, [switch]$QueuedCallbackOnly, [switch]$OrderedNpcCallbacksOnly, [switch]$CheckLearningOnly, [switch]$RegressionP2Only, [switch]$StackMergeOnly, [switch]$CustodyMergeOnly, [switch]$LoadOutputOnly, [switch]$AmmoConservationOnly, [switch]$AmmoDetachRecoveryOnly, [switch]$NativeBoardingOnly, [switch]$ProductionRestartOnly, [switch]$SelectedMeleeCheckOnly, [switch]$FirearmAuthorityOnly, [switch]$CountershotAuthorityOnly, [switch]$DefendedMeleeOnly, [switch]$OwnershipOnly, [switch]$RefreshSnapshot)
 
 $ErrorActionPreference = 'Stop'
+if ($CustodyMergeOnly) { $RegressionP2Only = $true }
+if ($StackMergeOnly) { $RegressionP2Only = $true }
+if ($DefendedMeleeOnly) { $SelectedMeleeCheckOnly = $true }
+if ($ProductionRestartOnly) { $OrderedNpcCallbacksOnly = $true }
+if ($SelectedMeleeCheckOnly -or $FirearmAuthorityOnly -or $CountershotAuthorityOnly -or $LoadOutputOnly -or $AmmoConservationOnly -or $AmmoDetachRecoveryOnly -or $NativeBoardingOnly) { $OrderedNpcCallbacksOnly = $true }
 
 $workspaceRoot = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
 $harnessDll = Join-Path $PSScriptRoot 'bin\Debug\net10.0\GatheringNativePersistenceHarness.dll'
@@ -18,6 +23,32 @@ $reachable = $false
 $cleanupSucceeded = $false
 $runExit = 1
 $previousSnapshotConnection = $env:FUTUREMUD_SNAPSHOT_CONNECTION_STRING
+$ownedEnvironmentNames = @('FUTUREMUD_GATHERING_TEST_CONNECTION', 'FUTUREMUD_OWNED_MYSQL_UUID', 'FUTUREMUD_OWNED_MYSQL_PORT', 'FUTUREMUD_OWNED_MYSQL_DATADIR', 'FUTUREMUD_CAPACITY_ACCEPTANCE_OUTPUT')
+$ownedPreviousEnvironment = @{}
+foreach ($ownedName in $ownedEnvironmentNames) { $ownedPreviousEnvironment[$ownedName] = [Environment]::GetEnvironmentVariable($ownedName) }
+
+function Require-OwnedServer {
+	param([string]$Boundary)
+	$ownedDescriptor = @(& $mysql '--no-defaults' '--protocol=tcp' '--host=127.0.0.1' "--port=$taskPort" '--user=root' '--skip-password' '--batch' '--skip-column-names' '--execute=SELECT @@server_uuid, @@datadir, @@port')
+	if ($LASTEXITCODE -ne 0 -or $ownedDescriptor.Count -ne 1) { throw 'Unable to verify the owned MySQL process boundary.' }
+	$ownedFields = $ownedDescriptor[0].Split([char]9)
+	$ownedUuidLine = @(Get-Content -LiteralPath (Join-Path $taskData 'auto.cnf') | Where-Object { $_.StartsWith('server-uuid=') })
+	if ($ownedFields.Count -ne 3 -or $ownedUuidLine.Count -ne 1 -or $ownedFields[0] -ne $ownedUuidLine[0].Substring(12) -or
+		[int]$ownedFields[2] -ne $taskPort -or
+		-not $ownedFields[1].Replace('/', '\').Replace('\\', '\').TrimEnd('\').Equals(([IO.Path]::GetFullPath($taskData)).TrimEnd('\'), [StringComparison]::OrdinalIgnoreCase)) {
+		throw 'The MySQL endpoint does not match this run''s exact owned instance.'
+	}
+	$env:FUTUREMUD_OWNED_MYSQL_UUID = $ownedFields[0]
+	$env:FUTUREMUD_OWNED_MYSQL_PORT = [string]$taskPort
+	$env:FUTUREMUD_OWNED_MYSQL_DATADIR = [IO.Path]::GetFullPath($taskData)
+	Write-Output "ownedServer=verified boundary=$Boundary endpoint=127.0.0.1:$taskPort exact-instance=true"
+}
+
+function Invoke-OwnedHarness {
+	param([string]$Mode)
+	Require-OwnedServer -Boundary ('process-' + $Mode)
+	& dotnet $harnessDll $Mode
+}
 
 function Require-TemporaryRoot {
 	param([string]$Path)
@@ -104,6 +135,10 @@ try {
 	if (-not $reachable) {
 		throw 'The owned MySQL instance did not become reachable.'
 	}
+	Require-OwnedServer -Boundary 'runner-ready'
+	if (-not $env:FUTUREMUD_CAPACITY_ACCEPTANCE_OUTPUT) {
+		$env:FUTUREMUD_CAPACITY_ACCEPTANCE_OUTPUT = Join-Path $workspaceRoot ('.artifacts/test-runs/native-capacity-' + [guid]::NewGuid().ToString('N'))
+	}
 	if ($RefreshSnapshot) {
 		$snapshotDatabase = 'fm_snap_' + [guid]::NewGuid().ToString('N')
 		$env:FUTUREMUD_SNAPSHOT_CONNECTION_STRING = "Server=127.0.0.1;Port=$taskPort;User ID=root;Database=$snapshotDatabase;SslMode=None;AllowPublicKeyRetrieval=True;Default Command Timeout=300"
@@ -113,28 +148,137 @@ try {
 			# The snapshot helper's shared temporary subdirectory may belong to another Windows identity.
 			$env:TEMP = $taskRoot
 			$env:TMP = $taskRoot
+			Require-OwnedServer -Boundary 'process-snapshot-helper'
 			& dotnet (Join-Path $workspaceRoot 'DatabaseSeeder\bin\Debug\net10.0\DatabaseSeeder.dll') --refresh-blank-snapshot
 			if ($LASTEXITCODE -ne 0) { throw 'The owned blank-snapshot refresh failed.' }
 		}
 		finally { $env:TEMP = $previousTemporaryDirectory; $env:TMP = $previousTmpDirectory }
 	}
-	& dotnet $harnessDll --probe
+	Invoke-OwnedHarness '--probe'
 	$runExit = $LASTEXITCODE
-	if (-not $LandOnly -and -not $RejuvenationOnly -and -not $CastingOnly -and $runExit -eq 0) {
-		& dotnet $harnessDll --run
+	if (-not $RegressionP2Only -and -not $CheckLearningOnly -and -not $OrderedNpcCallbacksOnly -and -not $QueuedCallbackOnly -and -not $QueuedCommandOnly -and -not $SandKnifeStockOnly -and -not $FlameKnifeStockOnly -and -not $StormSpearStockOnly -and -not $SpellOwnedItemOnly -and -not $CreatedConsumablesOnly -and -not $RaiseServitorStockOnly -and -not $CorpseAnimationOnly -and -not $OwnershipOnly -and -not $SpellOwnedRetirementOnly -and -not $LandOnly -and -not $RejuvenationOnly -and -not $CastingOnly -and -not $PracticeOnly -and -not $SpeechOnly -and -not $AreaOnly -and -not $LifecycleOnly -and -not $BodyRetirementOnly -and -not $LegacyRemainsOnly -and -not $NpcArchiveOnly -and -not $NpcArchiveMaintenanceOnly -and -not $SpellOwnedNpcOnly -and $runExit -eq 0) {
+		Invoke-OwnedHarness '--run'
 		$runExit = $LASTEXITCODE
 	}
-	if ($runExit -eq 0 -and -not $RejuvenationOnly -and -not $CastingOnly) {
-		& dotnet $harnessDll --land-run
+	if ($runExit -eq 0 -and -not $RegressionP2Only -and -not $CheckLearningOnly -and -not $OrderedNpcCallbacksOnly -and -not $QueuedCallbackOnly -and -not $QueuedCommandOnly -and -not $SandKnifeStockOnly -and -not $FlameKnifeStockOnly -and -not $StormSpearStockOnly -and -not $SpellOwnedItemOnly -and -not $CreatedConsumablesOnly -and -not $RaiseServitorStockOnly -and -not $CorpseAnimationOnly -and -not $OwnershipOnly -and -not $SpellOwnedRetirementOnly -and -not $RejuvenationOnly -and -not $CastingOnly -and -not $PracticeOnly -and -not $SpeechOnly -and -not $AreaOnly -and -not $LifecycleOnly -and -not $BodyRetirementOnly -and -not $LegacyRemainsOnly -and -not $NpcArchiveOnly -and -not $NpcArchiveMaintenanceOnly -and -not $SpellOwnedNpcOnly) {
+		Invoke-OwnedHarness '--land-run'
 		$runExit = $LASTEXITCODE
 	}
 	if ($runExit -eq 0 -and $RejuvenationOnly) {
-		& dotnet $harnessDll --rejuvenation-run
+		Invoke-OwnedHarness '--rejuvenation-run'
 		$runExit = $LASTEXITCODE
 	}
 	if ($runExit -eq 0 -and $CastingOnly) {
-		& dotnet $harnessDll --casting-run
+		Invoke-OwnedHarness '--casting-run'
 		$runExit = $LASTEXITCODE
+	}
+	if ($runExit -eq 0 -and $PracticeOnly) {
+		Invoke-OwnedHarness '--practice-run'
+		$runExit = $LASTEXITCODE
+	}
+	if ($runExit -eq 0 -and $SpeechOnly) {
+		Invoke-OwnedHarness '--speech-run'
+		$runExit = $LASTEXITCODE
+	}
+	if ($runExit -eq 0 -and $AreaOnly) {
+		Invoke-OwnedHarness '--area-run'
+		$runExit = $LASTEXITCODE
+	}
+	if ($runExit -eq 0 -and $LifecycleOnly) {
+		Invoke-OwnedHarness '--lifecycle-run'
+		$runExit = $LASTEXITCODE
+	}
+	if ($runExit -eq 0 -and $BodyRetirementOnly) {
+		Invoke-OwnedHarness '--body-retirement-run'
+		$runExit = $LASTEXITCODE
+	}
+	if ($runExit -eq 0 -and $LegacyRemainsOnly) {
+		Invoke-OwnedHarness '--legacy-remains-run'
+		$runExit = $LASTEXITCODE
+	}
+	if ($runExit -eq 0 -and $NpcArchiveOnly) {
+		Invoke-OwnedHarness '--npc-archive-run'
+		$runExit = $LASTEXITCODE
+	}
+	if ($runExit -eq 0 -and $NpcArchiveMaintenanceOnly) {
+		Invoke-OwnedHarness '--npc-archive-maintenance-run'
+		$runExit = $LASTEXITCODE
+	}
+	if ($runExit -eq 0 -and $SpellOwnedNpcOnly) {
+		Invoke-OwnedHarness '--spell-owned-npc-run'
+		$runExit = $LASTEXITCODE
+	}
+	if ($runExit -eq 0 -and $SpellOwnedRetirementOnly) {
+		Invoke-OwnedHarness '--spell-owned-retirement-run'
+		$runExit = $LASTEXITCODE
+	}
+	if ($runExit -eq 0 -and $SpellOwnedItemOnly) {
+		Invoke-OwnedHarness '--spell-owned-item-run'
+		$runExit = $LASTEXITCODE
+	}
+	if ($runExit -eq 0 -and $CreatedConsumablesOnly) {
+		Invoke-OwnedHarness '--created-consumables-run'
+		$runExit = $LASTEXITCODE
+	}
+	if ($runExit -eq 0 -and $RaiseServitorStockOnly) {
+		Invoke-OwnedHarness '--raise-servitor-stock-run'
+		$runExit = $LASTEXITCODE
+	}
+	if ($runExit -eq 0 -and $RegressionP2Only) {
+		Invoke-OwnedHarness $(if ($CustodyMergeOnly) { '--custody-merge-run' } elseif ($StackMergeOnly) { '--stack-merge-run' } else { '--regression-p2-run' })
+		$runExit = $LASTEXITCODE
+	}
+	if ($runExit -eq 0 -and $CheckLearningOnly) {
+		Invoke-OwnedHarness '--check-learning-run'
+		$runExit = $LASTEXITCODE
+	}
+	if ($runExit -eq 0 -and $OrderedNpcCallbacksOnly) {
+		if ($ProductionRestartOnly) {
+            $restartCasePrevious = [Environment]::GetEnvironmentVariable('FUTUREMUD_PRODUCTION_RESTART_CASE')
+            try {
+                foreach ($restartCase in @('active-future','active-overdue','pending-stale','completed-stale')) {
+                    $env:FUTUREMUD_PRODUCTION_RESTART_CASE = $restartCase
+                    Invoke-OwnedHarness '--production-restart-run'
+                    if ($LASTEXITCODE -ne 0) { break }
+                }
+            } finally { [Environment]::SetEnvironmentVariable('FUTUREMUD_PRODUCTION_RESTART_CASE', $restartCasePrevious) }
+        } elseif ($NativeBoardingOnly) { Invoke-OwnedHarness '--native-boarding-run' } elseif ($AmmoDetachRecoveryOnly) { Invoke-OwnedHarness '--ammo-detach-recovery-run' } elseif ($AmmoConservationOnly) { Invoke-OwnedHarness '--ammo-conservation-run' } elseif ($LoadOutputOnly) { Invoke-OwnedHarness '--load-output-run' } elseif ($CountershotAuthorityOnly) { Invoke-OwnedHarness '--countershot-authority-run' } elseif ($DefendedMeleeOnly) { Invoke-OwnedHarness '--defended-melee-run' } elseif ($FirearmAuthorityOnly) { Invoke-OwnedHarness '--firearm-authority-run' } elseif ($SelectedMeleeCheckOnly) { Invoke-OwnedHarness '--selected-melee-check-run' } else { Invoke-OwnedHarness '--ordered-npc-callback-run' }
+		$runExit = $LASTEXITCODE
+	}
+	if ($runExit -eq 0 -and $QueuedCallbackOnly) {
+		Invoke-OwnedHarness '--queued-callback-run'
+		$runExit = $LASTEXITCODE
+	}
+	if ($runExit -eq 0 -and $QueuedCommandOnly) {
+		Invoke-OwnedHarness '--queued-command-run'
+		$runExit = $LASTEXITCODE
+	}
+
+	if ($runExit -eq 0 -and $SandKnifeStockOnly) {
+		Invoke-OwnedHarness '--sand-knife-stock-run'
+		$runExit = $LASTEXITCODE
+	}
+
+	if ($runExit -eq 0 -and $FlameKnifeStockOnly) {
+		Invoke-OwnedHarness '--flame-knife-stock-run'
+		$runExit = $LASTEXITCODE
+	}
+	if ($runExit -eq 0 -and $StormSpearStockOnly) {
+		Invoke-OwnedHarness '--storm-spear-stock-run'
+		$runExit = $LASTEXITCODE
+	}
+	if ($runExit -eq 0 -and $CorpseAnimationOnly) {
+		Invoke-OwnedHarness '--corpse-animation-run'
+		$runExit = $LASTEXITCODE
+		if ($runExit -eq 0) {
+			Invoke-OwnedHarness '--corpse-animation-saved-parent-run'
+			$runExit = $LASTEXITCODE
+		}
+		foreach ($restartMode in @('--corpse-animation-active-future-run', '--corpse-animation-active-expired-run')) {
+			if ($runExit -ne 0) { break }
+			Invoke-OwnedHarness $restartMode
+			$runExit = $LASTEXITCODE
+		}
 	}
 	Write-Output "nativeHarnessExit=$runExit"
 }
@@ -146,6 +290,7 @@ finally {
 	$env:FUTUREMUD_SNAPSHOT_CONNECTION_STRING = $previousSnapshotConnection
 	try {
 		if ($reachable) {
+			Require-OwnedServer -Boundary 'cleanup-before-shutdown'
 			Stop-OwnedMySql $taskPort
 		}
 		elseif ($serverLaunched) {
@@ -162,6 +307,9 @@ finally {
 	}
 	catch {
 		Write-Output "cleanupFailure=$($_.Exception.Message)"
+	}
+	finally {
+		foreach ($ownedName in $ownedEnvironmentNames) { [Environment]::SetEnvironmentVariable($ownedName, $ownedPreviousEnvironment[$ownedName]) }
 	}
 }
 

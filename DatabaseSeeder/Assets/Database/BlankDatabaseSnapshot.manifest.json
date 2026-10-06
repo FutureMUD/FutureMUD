@@ -1,5 +1,5 @@
 {
   "ProductVersion": "3.6.1.0",
-  "LatestMigrationId": "20260927132805_WeatherForecastSchedule",
-  "GeneratedUtc": "2026-09-27T14:34:36.7508951Z"
+  "LatestMigrationId": "20261003170627_SpellOwnedRemainsRemovalIntent",
+  "GeneratedUtc": "2026-10-03T17:59:11.833749Z"
 }

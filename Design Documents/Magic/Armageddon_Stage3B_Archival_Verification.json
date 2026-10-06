@@ -1,0 +1,2186 @@
+{
+  "schema_version": 1,
+  "stage": "Phase3B1 canonical spell-NPC archival/compaction boundary",
+  "status": "implemented_and_verified_parent_independent_review_pending",
+  "base_commit": "7900ab041aeec82711960ad99d8c8294a91e6d05",
+  "implementation_commit": "5177e5dab90750339b6c32ce10829483f86e96b9",
+  "branch": "codex/armageddon-completion-phase1",
+  "recorded_utc": "2026-10-03T04:44:50.092174+00:00",
+  "source_authority": {
+    "library_file_id": "libfile_a4606cd0097081918d6c9d9e220e6da0",
+    "file_id": "file_00000000273481fab2e542daf8801228",
+    "reported_version": 0,
+    "read_version_id": null,
+    "size_bytes": 131071,
+    "total_lines": 905,
+    "windows": [
+      [
+        1,
+        300
+      ],
+      [
+        301,
+        450
+      ],
+      [
+        451,
+        600
+      ],
+      [
+        601,
+        750
+      ],
+      [
+        751,
+        905
+      ]
+    ],
+    "has_more": false,
+    "complete_content_read": true,
+    "access_route": "Library read; full contiguous windows; no materialized substitute",
+    "read_complete_at_utc": "2026-10-02T07:41:07.312Z",
+    "rendered_content_utf8_bytes": 131070
+  },
+  "prior_checkpoints": [
+    {
+      "implementation": "65c41a99d8a6c296311bbaaf47149cf8e38a7163",
+      "handoff": "a059338c9d15a8c7135c5192509f28e3c0f7a5ee",
+      "receipt": "Armageddon_Stage3A_Verification.json",
+      "receipt_sha256": "06d591e0476e07539e4da37cd008d796f0df36d49d0d9fc7c58cd85e96694246",
+      "unchanged": true,
+      "actual_result": "5002 composite project passes, retained two TEMP failures and subsequent DB64 pass; native123/eight owned databases cleaned"
+    },
+    {
+      "implementation": "8ab37546b050d895a31d3d3097e818da0a987d9b",
+      "handoff": "ed686eb5feb21db7a0c728ef9614c8649ade45fe",
+      "receipt": "Armageddon_Stage3A_OrdinaryRetirement_Verification.json",
+      "receipt_sha256": "d913428f07ecca840d7be633c6a9fded3ff12ec62e273e38a844352e373392c3",
+      "unchanged": true,
+      "parent_rereview": "Original ownership P2 closed; new legacy compatibility P2 requested before phase clearance",
+      "actual_result": "5006 single aggregate passes plus Core85/database2 focused; native127/nine owned databases cleaned"
+    },
+    {
+      "implementation": "7e6f180365e1dfb64b81fe31c54735463b62bce0",
+      "handoff": "f320f08bcf11b991a8418036a128bdefa421abf4",
+      "receipt": "Armageddon_Stage3A_LegacyRemains_Verification.json",
+      "receipt_sha256": "1581e08e8db6670511d1c24f85be7c6961aa71454ec7261aae25bde5a8f1716a",
+      "unchanged": true,
+      "parent_rereview": "Component-level legacy P2 closed; runtime consumers require this separate correction",
+      "actual_result": "5024 aggregate,104 focused,136 native;152 inputs,14 assembly fingerprints,10 owned databases cleaned"
+    },
+    {
+      "implementation": "18252348ab3cc8b6753fc022886100045212390b",
+      "handoff": "7900ab041aeec82711960ad99d8c8294a91e6d05",
+      "receipt": "Armageddon_Stage3A_RuntimeRemains_Verification.json",
+      "receipt_sha256": "3c1c464c50d8f662862e1e0d8990ded630a13b76a12d0b50d6b5b4719e96e384",
+      "unchanged": true,
+      "parent_rereview": "Parent independently cleared Phase3A and all three P2 corrections before authorizing this boundary slice.",
+      "actual_result": "146 focused,5073 aggregate,151 native;171 inputs,14 assemblies,51 artifact receipts verified by parent"
+    }
+  ],
+  "implemented_scope": [
+    "Generated EF archive schema, nullable canonical BodyId only for archive tombstones, restrictive physical-body and archive-canonical foreign keys, maintained blank SQL snapshot and manifest.",
+    "Transactional exact autonomous-NPC creation ownership and persisted/runtime death checks; bounded immutable archive identity/wound summary while preserving canonical attribution.",
+    "Metadata-classified foreign key, polymorphic scalar, XML/JSON/plain serialized reference and runtime-root holds; unloaded foreign form/source/retirement references never become owned rows.",
+    "All unfinished criminal crimes, all Writing and Drawing author links and uncertain physical/runtime relations remain durable holds; finalized Crime/log/external wound-origin history is preserved.",
+    "After-commit queue/timer/subscription/controller/body/world release with exact retry, weak finalized Crime caches, archived constructor/load/save/death/resurrection exclusion and archive-aware economy custody.",
+    "World archive-service seam prevents in-memory history readers constructing a database service; offline injected identity regression and unchanged missing-victim regression pass.",
+    "Real persisted NPC death and independent archive readers plus controlled repeated-death/reload/fault checks qualify this bounded archival boundary."
+  ],
+  "managed": {
+    "focused_core": {
+      "run_id": "20261003T041925Z-830b4f302099",
+      "head": "7900ab041aeec82711960ad99d8c8294a91e6d05",
+      "status": "PASS",
+      "counts": {
+        "executed": 30,
+        "passed": 30,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 30
+      },
+      "filter": "FullyQualifiedName~NpcArchive|FullyQualifiedName~CrimeDescribeCrimeAtTrial_MissingVictim",
+      "configuration": "Debug",
+      "sdk": "10.0.401",
+      "started_utc": "2026-10-03T04:19:25.0586086+00:00",
+      "ended_utc": "2026-10-03T04:19:47.1348850+00:00",
+      "source_start": "364f716d02e263935f041d36d7ad38965d47f37e9a39bb023855ddd077642737",
+      "source_end": "364f716d02e263935f041d36d7ad38965d47f37e9a39bb023855ddd077642737",
+      "source_stable": true,
+      "execution_complete": true,
+      "counts_complete": true,
+      "projects": [
+        "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+      ],
+      "issues": [],
+      "summary_path": ".artifacts/test-runs/20261003T041925Z-830b4f302099/summary.json",
+      "summary_sha256": "78c1b4751ee90d4824d49e262d41b7363f42d7f14b990f45bbf54ae51654e033",
+      "failures_path": ".artifacts/test-runs/20261003T041925Z-830b4f302099/failures.json",
+      "failures_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "project_counts": [
+        {
+          "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+          "counts": {
+            "executed": 30,
+            "passed": 30,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 30
+          }
+        }
+      ]
+    },
+    "focused_database": {
+      "run_id": "20261003T040947Z-eba98cb1d216",
+      "head": "7900ab041aeec82711960ad99d8c8294a91e6d05",
+      "status": "PASS",
+      "counts": {
+        "executed": 2,
+        "passed": 2,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 2
+      },
+      "filter": "FullyQualifiedName~NpcArchive",
+      "configuration": "Debug",
+      "sdk": "10.0.401",
+      "started_utc": "2026-10-03T04:09:47.0214029+00:00",
+      "ended_utc": "2026-10-03T04:09:54.0665673+00:00",
+      "source_start": "5b81bba9c365533329933884589e4ecacffb764f7763c903c51bd662df29d4d5",
+      "source_end": "5b81bba9c365533329933884589e4ecacffb764f7763c903c51bd662df29d4d5",
+      "source_stable": true,
+      "execution_complete": true,
+      "counts_complete": true,
+      "projects": [
+        "MudsharpDatabaseLibrary Unit Tests/MudsharpDatabaseLibrary Unit Tests.csproj"
+      ],
+      "issues": [],
+      "summary_path": ".artifacts/test-runs/20261003T040947Z-eba98cb1d216/summary.json",
+      "summary_sha256": "584aed53072db8043d31ef9b390bd320561b4c67f4e6bd36462c7d48875cceaf",
+      "failures_path": ".artifacts/test-runs/20261003T040947Z-eba98cb1d216/failures.json",
+      "failures_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "project_counts": [
+        {
+          "project": "MudsharpDatabaseLibrary Unit Tests/MudsharpDatabaseLibrary Unit Tests.csproj",
+          "counts": {
+            "executed": 2,
+            "passed": 2,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 2
+          }
+        }
+      ]
+    },
+    "focused_snapshot": {
+      "run_id": "20261003T041001Z-a3eee625b413",
+      "head": "7900ab041aeec82711960ad99d8c8294a91e6d05",
+      "status": "PASS",
+      "counts": {
+        "executed": 9,
+        "passed": 9,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 9
+      },
+      "filter": "FullyQualifiedName~BlankDatabaseSnapshotTests",
+      "configuration": "Debug",
+      "sdk": "10.0.401",
+      "started_utc": "2026-10-03T04:10:01.5481803+00:00",
+      "ended_utc": "2026-10-03T04:10:10.1967828+00:00",
+      "source_start": "9b2c249650e8af6aca5b810e1d78eaff9791bc81f47fa64d6ae003f04aef4366",
+      "source_end": "9b2c249650e8af6aca5b810e1d78eaff9791bc81f47fa64d6ae003f04aef4366",
+      "source_stable": true,
+      "execution_complete": true,
+      "counts_complete": true,
+      "projects": [
+        "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj"
+      ],
+      "issues": [],
+      "summary_path": ".artifacts/test-runs/20261003T041001Z-a3eee625b413/summary.json",
+      "summary_sha256": "752237bcc07591063b4228cce2d378e67e24ddebf4793687cd638b41a3c01aa1",
+      "failures_path": ".artifacts/test-runs/20261003T041001Z-a3eee625b413/failures.json",
+      "failures_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "project_counts": [
+        {
+          "project": "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+          "counts": {
+            "executed": 9,
+            "passed": 9,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 9
+          }
+        }
+      ]
+    },
+    "fast_all_ten_projects": {
+      "run_id": "20261003T041956Z-9b65656d7c4e",
+      "head": "7900ab041aeec82711960ad99d8c8294a91e6d05",
+      "status": "PASS",
+      "counts": {
+        "executed": 6772,
+        "passed": 6772,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 6772
+      },
+      "filter": null,
+      "configuration": "Debug",
+      "sdk": "10.0.401",
+      "started_utc": "2026-10-03T04:19:56.0958914+00:00",
+      "ended_utc": "2026-10-03T04:23:24.1696479+00:00",
+      "source_start": "d30676709e2e137b44545dc8c82bc044c34c7b84eb19f2c62a15d6bbff983335",
+      "source_end": "d30676709e2e137b44545dc8c82bc044c34c7b84eb19f2c62a15d6bbff983335",
+      "source_stable": true,
+      "execution_complete": true,
+      "counts_complete": true,
+      "projects": [
+        "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+        "ExpressionEngine Unit Tests/ExpressionEngine Unit Tests.csproj",
+        "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+        "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+        "MudsharpDatabaseLibrary Unit Tests/MudsharpDatabaseLibrary Unit Tests.csproj",
+        "DiscordBotCore Unit Tests/DiscordBotCore Unit Tests.csproj",
+        "RPI Engine Worldfile Converter Tests/RPI Engine Worldfile Converter Tests.csproj",
+        "FutureMUD.Web.Tests/FutureMUD.Web.Tests.csproj",
+        "TerrainPlanner/TerrainPlanner.Tests/TerrainPlanner.Tests.csproj",
+        "scripts/TestReporting.Tests/TestReporting.Tests.csproj"
+      ],
+      "issues": [],
+      "summary_path": ".artifacts/test-runs/20261003T041956Z-9b65656d7c4e/summary.json",
+      "summary_sha256": "97ee931eebbaeace2bc1378b76cb793ed600a8b2c4c8b40f1bb43c77b0397f14",
+      "failures_path": ".artifacts/test-runs/20261003T041956Z-9b65656d7c4e/failures.json",
+      "failures_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "project_counts": [
+        {
+          "project": "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+          "counts": {
+            "executed": 568,
+            "passed": 568,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 568
+          }
+        },
+        {
+          "project": "ExpressionEngine Unit Tests/ExpressionEngine Unit Tests.csproj",
+          "counts": {
+            "executed": 36,
+            "passed": 36,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 36
+          }
+        },
+        {
+          "project": "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+          "counts": {
+            "executed": 1441,
+            "passed": 1441,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 1441
+          }
+        },
+        {
+          "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+          "counts": {
+            "executed": 4469,
+            "passed": 4469,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 4469
+          }
+        },
+        {
+          "project": "MudsharpDatabaseLibrary Unit Tests/MudsharpDatabaseLibrary Unit Tests.csproj",
+          "counts": {
+            "executed": 67,
+            "passed": 67,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 67
+          }
+        },
+        {
+          "project": "DiscordBotCore Unit Tests/DiscordBotCore Unit Tests.csproj",
+          "counts": {
+            "executed": 22,
+            "passed": 22,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 22
+          }
+        },
+        {
+          "project": "RPI Engine Worldfile Converter Tests/RPI Engine Worldfile Converter Tests.csproj",
+          "counts": {
+            "executed": 43,
+            "passed": 43,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 43
+          }
+        },
+        {
+          "project": "FutureMUD.Web.Tests/FutureMUD.Web.Tests.csproj",
+          "counts": {
+            "executed": 54,
+            "passed": 54,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 54
+          }
+        },
+        {
+          "project": "TerrainPlanner/TerrainPlanner.Tests/TerrainPlanner.Tests.csproj",
+          "counts": {
+            "executed": 34,
+            "passed": 34,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 34
+          }
+        },
+        {
+          "project": "scripts/TestReporting.Tests/TestReporting.Tests.csproj",
+          "counts": {
+            "executed": 38,
+            "passed": 38,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 38
+          }
+        }
+      ]
+    }
+  },
+  "new_regressions": {
+    "core": 29,
+    "database": 2,
+    "total": 31
+  },
+  "native": {
+    "schema_version": 1,
+    "status": "PASS",
+    "base": "7900ab041aeec82711960ad99d8c8294a91e6d05",
+    "mode": "CastingOnly+LifecycleOnly+BodyRetirementOnly+LegacyRemainsOnly+NpcArchiveOnly",
+    "started_utc": "2026-10-03T04:30:44.372584+00:00",
+    "ended_utc": "2026-10-03T04:40:34.1530130Z",
+    "exit_code": 0,
+    "configuration": "Debug",
+    "mysql": "8.0.45",
+    "log": ".artifacts/test-runs/native-armageddon-20261003-stage3B-archive/final-native2.log",
+    "log_sha256": "c60cca2fda80633a026d1e5787b385fa12acfb9e5bb3213698484c5b6dfea587",
+    "input_manifest": ".artifacts/test-runs/native-armageddon-20261003-stage3B-archive/final-inputs.json",
+    "input_manifest_sha256": "6cd38ff10c96163718bf2a30ccc9bff185fa63829883191ffd9dddf91e01e8ea",
+    "marker_count": 162,
+    "group_marker_counts": {
+      "ordinary": 4,
+      "legacy": 13,
+      "runtime": 11,
+      "archival": 11,
+      "lifecycle": 16
+    },
+    "prior_casting_marker_count": 107,
+    "owned_databases_cleaned": 11,
+    "temporary_mysql_cleanup_verified": true,
+    "owned_processes_remaining": 0,
+    "passed_markers": [
+      "ARM02-schema=passed blank-snapshot-import empty-casting-tables generated-migration-and-model-parity",
+      "ARM02-receipt=passed operation:44d824c3-de57-401f-98fc-498a5afa2bcc character:1 actor:1 body:1 capability:1 spell:1 trait:1 reserve:1 stage:Completed",
+      "ARM02-reader=passed grade:3 balance:77.5 unresolved:0 operation:none process:65628",
+      "ARM02-native-cast=passed non-admin-command real-Skill real-Body payment:22.5 grade:3 separate-process-reload",
+      "ARM02-sorcerer=passed second-non-admin distinct-reserve:77.5 agility:-3 armour:92 gathering-only",
+      "ARM02-reader=passed grade:3 balance:77.5 unresolved:0 operation:none process:82176",
+      "ARM02-second-body=passed focus detach restore single-passive-tick grade-one-cost:5 shared-opportunity native-gathering-canonical-credit-physical-costs",
+      "ARM02-reader=passed grade:3 balance:77.5 unresolved:0 operation:none process:28696",
+      "ARM02-second-body-restart=passed persisted-instance-effects shared-skill shared-deadlines shared-reserve",
+      "ARM02-reader=passed grade:3 balance:72.5 unresolved:0 operation:none process:74560",
+      "ARM02-reader=passed grade:2 balance:100 unresolved:0 operation:none process:84040",
+      "ARM02-fault=passed stage:BeforePayment status:Refused operation:none no-replay-no-refund-no-reroll",
+      "ARM02-quarantine-restart=passed alternate-route shared-trait shared-reserve untouched-route",
+      "ARM02-reader=passed grade:2 balance:77.5 unresolved:1 operation:7a297124-748d-4fd1-a3ac-35fa2ab366b3 process:50724",
+      "ARM02-fault=passed stage:PaymentMutated status:NeedsReview operation:7a297124-748d-4fd1-a3ac-35fa2ab366b3 no-replay-no-refund-no-reroll",
+      "ARM02-quarantine-restart=passed alternate-route shared-trait shared-reserve untouched-route",
+      "ARM02-reader=passed grade:2 balance:77.5 unresolved:1 operation:b4256f6c-772d-4644-bd8c-78fdc8896a23 process:58936",
+      "ARM02-fault=passed stage:EffectsExecuted status:NeedsReview operation:b4256f6c-772d-4644-bd8c-78fdc8896a23 no-replay-no-refund-no-reroll",
+      "ARM02-quarantine-restart=passed alternate-route shared-trait shared-reserve untouched-route",
+      "ARM02-reader=passed grade:2 balance:77.5 unresolved:1 operation:db1ff3b2-c387-462e-9b15-19a8186143c5 process:53576",
+      "ARM02-fault=passed stage:MasterySampledBeforeWrite status:NeedsReview operation:db1ff3b2-c387-462e-9b15-19a8186143c5 no-replay-no-refund-no-reroll",
+      "ARM02-quarantine-restart=passed alternate-route shared-trait shared-reserve untouched-route",
+      "ARM02-reader=passed grade:2 balance:77.5 unresolved:1 operation:c0aba108-1b72-4282-8f1c-132dfc418e07 process:37792",
+      "ARM02-fault=passed stage:MasterySampleRecorded status:NeedsReview operation:c0aba108-1b72-4282-8f1c-132dfc418e07 no-replay-no-refund-no-reroll",
+      "ARM02-provider=passed operation:1ac5b4ce-67aa-4c40-acea-3beaf8ac49d8 At SamplingMastery: An error occurred while saving the entity changes. See the inner exception for details. (ARM02 controlled provider sample failure)",
+      "ARM02-quarantine-restart=passed alternate-route shared-trait shared-reserve untouched-route",
+      "ARM02-reader=passed grade:2 balance:77.5 unresolved:1 operation:1ac5b4ce-67aa-4c40-acea-3beaf8ac49d8 process:73388",
+      "ARM02-auxiliary=passed Ember-Lance-native-wounds Wardcraft-native-tag-ward per-spell-trait shared-trait-edge native-school-preserved",
+      "ARM02-native=passed",
+      "ARM-COMP-opening-cap=passed native-Skill opening:30/60 cap:60 route-loss-history-preserved",
+      "ARM-COMP-efficiency=passed mastery:1 requested:1 cost:50 non-admin-command",
+      "ARM-COMP-efficiency=passed mastery:2 requested:1 cost:25 non-admin-command",
+      "ARM-COMP-cap-loss-reload=passed removed-admission cap:0 history:60 independent-process",
+      "ARM02-reader=passed grade:7 balance:18 unresolved:0 operation:none process:11472",
+      "ARM-COMP-native=passed cap:60 max-grade:7 efficiency:50/25/7 overreach-cost:75 balance:18 receipts:4 separate-process-reload practice:NOT_RUN",
+      "ARM-SUPPORT-cap-adoption=passed uncapped-original-grant same-policy-and-key cap:90 native-opening:30 separate-terminal-marker",
+      "ARM-SUPPORT-reload=passed native-Skill raw:90 cap:90 Identify-grade:1 balance:17 immutable-uncapped-grant cap-adoption-history removed:False",
+      "ARM02-reader=passed grade:1 balance:17 unresolved:0 operation:none process:72448",
+      "ARM-SUPPORT-reload=passed native-Skill raw:90 cap:0 Identify-grade:1 balance:17 immutable-uncapped-grant cap-adoption-history removed:True",
+      "ARM02-reader=passed grade:1 balance:17 unresolved:0 operation:none process:75100",
+      "ARM-SUPPORT-native=passed authored-enrolment parent-native-use:30-to-80 second-focused-body-support-native-use:30-to-80-to-90 Identify-grade:1 cap:90 no-dummy-spell no-refill terminal-immutable separate-process-reload craft-command:NOT_RUN",
+      "ARM-CAPACITY-matrix=passed rows:16728 spells:82 normal-pairs:28 overreach-pairs:6 profiles:2 scenarios:3 advanced-unaffordable:0 provisional-mapping-and-coefficients energy-envelope-only",
+      "ARM-CAPACITY-reload=passed persisted-explicit-raw-attribute-expression max:118 balance:17 enrolment-no-refill attribute-rise-max:121-balance:17 grade7-insufficient-spent-balance",
+      "ARM02-reader=passed grade:7 balance:17 unresolved:0 operation:none process:37496",
+      "ARM-CAPACITY-compound=passed both-child-orders normal-command-casts:4 prepared-targets:4 combined-target-caster:4 complete-removals:14 neutral-90-preserved final-application-decrease:70 final-removal-decrease:100 no-refill native-resource-delta:17-to-24 mixed-native-deltas:30 neutral-credit:97 final-decrease:70 final-increase-credit:140 negative-delta:83 large-debit:30 command-cost:25",
+      "ARM-CAPACITY-effective-reload=passed service-before-balance-inventory-effects-load persisted-bonuses:3+7 raw:10 max:200 saved-balance:150 preserved-until-complete bonus-removal-max:100-balance:100 production-restoration-scope full-character-login:NOT_RUN",
+      "ARM02-reader=passed grade:7 balance:150 unresolved:0 operation:none process:48368",
+      "ARM-CAPACITY-native=passed production-attribute-evaluator raw-and-effective immediate-clamp no-refill invalid-cap-payment-refusal canonical-focus owner-body-fixture-replacement grade7-normal:25 grade7-overreach:56.25 pairs:34 balance:17 max:118 separate-process-reload full-body-form-and-backup-command:NOT_RUN stock-mapping:PROVISIONAL",
+      "ARM-PRACTICE-grade=passed grade:1 raw:40 cap:60 balance:50 samples:0 duration:30 accelerated-clock",
+      "ARM-PRACTICE-grade=passed grade:2 raw:50 cap:60 balance:25 samples:1 duration:30 accelerated-clock",
+      "ARM-PRACTICE-grade=passed grade:3 raw:60 cap:60 balance:25 samples:2 duration:30 accelerated-clock",
+      "ARM-PRACTICE-grade=passed grade:4 raw:60 cap:60 balance:25 samples:3 duration:30 accelerated-clock",
+      "ARM-PRACTICE-grade=passed grade:5 raw:60 cap:60 balance:25 samples:4 duration:30 accelerated-clock",
+      "ARM-PRACTICE-grade=passed grade:6 raw:60 cap:60 balance:25 samples:5 duration:30 accelerated-clock",
+      "ARM-PRACTICE-grade=passed grade:7 raw:60 cap:60 balance:25 samples:6 duration:30 accelerated-clock",
+      "ARM-PRACTICE-restrictions=passed native-interval:1-blocks/20-improves maximum:6-refuses7 disabled:refuses",
+      "ARM-PRACTICE-interrupt=passed signal:stop balance:93 no-progress no-refund no-replay",
+      "ARM-PRACTICE-interrupt=passed signal:focus balance:93 no-progress no-refund no-replay",
+      "ARM-PRACTICE-interrupt=passed signal:speech balance:93 no-progress no-refund no-replay",
+      "ARM-PRACTICE-interrupt=passed signal:capability balance:93 no-progress no-refund no-replay",
+      "ARM-PRACTICE-interrupt=passed signal:quit balance:93 no-progress no-refund no-replay",
+      "ARM-PRACTICE-native-silence=passed speech-required:True owner:body removal:expiry between-heartbeats checks:0 balance:93 deadlines-preserved",
+      "ARM-PRACTICE-native-silence=passed speech-required:True owner:body removal:remove between-heartbeats checks:0 balance:93 deadlines-preserved",
+      "ARM-PRACTICE-native-silence=passed speech-required:True owner:actor removal:expiry between-heartbeats checks:0 balance:93 deadlines-preserved",
+      "ARM-PRACTICE-native-silence=passed speech-required:True owner:actor removal:remove between-heartbeats checks:0 balance:93 deadlines-preserved",
+      "ARM-PRACTICE-native-silence=passed speech-required:False owner:body removal:expiry between-heartbeats checks:1 balance:93 deadlines-preserved",
+      "ARM-PRACTICE-native-silence=passed speech-required:False owner:body removal:remove between-heartbeats checks:1 balance:93 deadlines-preserved",
+      "ARM-PRACTICE-native-silence=passed speech-required:False owner:actor removal:expiry between-heartbeats checks:1 balance:93 deadlines-preserved",
+      "ARM-PRACTICE-native-silence=passed speech-required:False owner:actor removal:remove between-heartbeats checks:1 balance:93 deadlines-preserved",
+      "ARM-PRACTICE-native-manipulation=passed hand-required:True between-heartbeats checks:0 balance:93 deadlines-preserved",
+      "ARM-PRACTICE-native-manipulation=passed hand-required:False between-heartbeats checks:1 balance:93 deadlines-preserved",
+      "ARM-PRACTICE-native-paralysis=passed owner:body before-health-refresh checks:0 balance:93 deadlines-preserved",
+      "ARM-PRACTICE-native-paralysis=passed owner:actor before-health-refresh checks:0 balance:93 deadlines-preserved",
+      "ARM-PRACTICE-reader=passed process:80736 operation:f49fd3b1-f316-45af-92ba-eaeac5c6b127 raw:60 grade:7 balance:93 deadline:2026-10-02T04:59:00.0000000Z no-resume/refund/reroll",
+      "ARM-PRACTICE-native=passed raw:30-to-60 controlled:1-to-7 actual-ClassicImprovement shared-deadlines target/caster/resistance/ward-purity separate-process-recovery stale-action-terminal-preserved stock-installed-world:NOT_RUN material-plan:explicit-empty",
+      "ARM-SPEECH-named=passed kral:grade3 native-language-output one-utterance one-check one-operation balance:85 ward-bonus:-3",
+      "ARM-SPEECH-formula=passed unordered-five-category-command same-grade/payment/effect single-generated-utterance",
+      "ARM-SPEECH-native=passed loopback-TCP queue original-utterance empty-second-dispatch duplicate-origin-refused one-check one-operation",
+      "ARM-SPEECH-alias=passed native-dot-command concise-POWER/spell-token single-original-utterance",
+      "ARM-SPEECH-quiet=passed native-whisper energy:x2 difficulty:+1 balance:70 visible-gesture ward-bonus:-3",
+      "ARM-SPEECH-whisper=passed player-origin quiet parity no-second-utterance",
+      "ARM-SPEECH-configured-volume=passed native-Whisper energy:x1.25 difficulty:+2 actual-check:VeryHard balance:81.25 restored-fixture",
+      "ARM-SPEECH-invalid=passed ordinary-native-utterances unknown-vocabulary target-tail-refused no-payment/check/operation",
+      "ARM-SPEECH-scripted=passed native-character-out-of-context speech remains ordinary no-cast",
+      "ARM-SPEECH-silence=passed owner:actor quiet-refused no-utterance/payment/check",
+      "ARM-SPEECH-silence=passed owner:body quiet-refused no-utterance/payment/check",
+      "ARM-SPEECH-anatomy=passed actual-mouth/tongue/trachea native-part-ineffective both-volumes-refused restoration",
+      "ARM-SPEECH-manipulation=passed native-hand-restrictions ordinary-whisper remains audible no-cast/payment/check restoration",
+      "ARM-SPEECH-mute=passed concrete-MuteMerit both-volumes-refused no-utterance/payment/check",
+      "ARM-SPEECH-volume=passed actual-synthesizer cached-native-function:0.4 normal-refused whisper-eligible",
+      "ARM-SPEECH-listeners=passed two-eligible-observers no-observer-cast unknown-language-no-formula/knowledge own-repeat-separate-payment",
+      "ARM-SPEECH-hearing=passed native-deafness receiver-language-parser no-formula-words no-listener-cast",
+      "ARM-SPEECH-callbacks=passed adapter:named self-output-nested-command native-witness-effect-Body.Say no-recast one-payment/check/operation",
+      "ARM-SPEECH-callbacks=passed adapter:speech self-output-nested-command native-witness-effect-Body.Say no-recast one-payment/check/operation",
+      "ARM-SPEECH-relay=passed native-recitation-effect witness/output callback eligible-proxy no-recast/payment",
+      "ARM-SPEECH-deadspeak-forwarding=passed concrete-DeadSpeak-InitialEffect recite-installation no-proxy-cast/payment corpse-lifecycle-not-qualified",
+      "ARM-SPEECH-reader=passed process:54168 native-XML profile/language costs knowledge immutable-origin:41294f9d-f73a-46fc-bce2-4748ca49dec7 no-replay",
+      "ARM-SPEECH-acceptance=passed native-anatomy language communication commands quiet guarded-casting persistence-reader",
+      "ARM-AREA-earthquake=passed concrete-Cell native-wounds caster:4 ally:12 protected/flying/layer/staff/plane:0 ward:0 physical-dedup one-payment/check/mastery",
+      "ARM-AREA-chain=passed caster:3 ally:24 repeat-body-twice random-at-commit:3 journal-selected-order one-payment/check/mastery provisional-three-hit-count",
+      "ARM-AREA-fireball=passed room-variant caster:0 native-ally:12 staff/plane:0 independent-of-selected-character-trigger",
+      "ARM-AREA-second-body=passed shared-canonical-identity distinct-instance/body caster:0 sibling:12 duplicate-sibling-once canonical-payment:15",
+      "ARM-AREA-dynamic=passed paid-snapshot removed:0 new-arrival:0 explicit-ally-exclusion:0 concrete-cell-list-mutation-bounded",
+      "ARM-AREA-all-rejected=passed native-reflect-ward-becomes-fail depth:0 three-selected-hits cost:30 lockout-retained no-native-wound/mastery",
+      "ARM-AREA-empty=passed no-payment/check/operation for caster-excluding-empty-room",
+      "ARM-AREA-reader=passed process:74336 concrete-cell native-bodies:11 immutable-completed-origins:6 no-selection/replay",
+      "ARM-AREA-persistence=passed native-damage/pain/stun independently-read all-completed-application-journals immutable-paid-origin-restart",
+      "ARM03-schema=passed generated-EF9-migration-from-maintained-snapshot two-empty-tables model-parity",
+      "ARM03-borrowed=passed existing-body-refused no-ownership-or-entity-change",
+      "ARM03-rollback=passed callback-and-post-save-provider-fault atomic-entity-plus-ownership caller-context-restored",
+      "ARM03-primary=passed new-primary-instance-refused canonical-character-and-wound-preserved",
+      "ARM03-generated=passed exact-added-item-claim explicit-generated-possession-role live-row-blocks-completion",
+      "ARM03-canonical-pointer=passed stale-persisted-pointer-moved-to-current-body-before-retirement canonical-identity-survives-cascade-boundary",
+      "ARM03-permanent=passed no-expiry released-as-ordinary-durable-creation body-survives",
+      "ARM03-intent=passed immutable-creation-key absolute-deadline durable-retiring stale-version-and-live-completion-refused",
+      "ARM03-suppression=passed sandbox-create-update-and-body-retirement-refused readonly-nested-lookup-restores-suppressed-caller no-persistent-state-change",
+      "ARM03-possession=passed native-character-and-body unloaded-foreign-join-refuses-cleanup intact-item explicitly-rehomed-to-existing-cell",
+      "ARM03-references=passed unloaded-secondary-effect-and-serialized-remains retain-body-with-durable-hold",
+      "ARM03-death-journal=passed persisted-secondary-dead-state-correlated early-death-cancels-later-death-intent idempotent-observation canonical-identity-survives",
+      "ARM03-missing-death=passed absent-owned-rows-cannot-complete-unobserved-native-death recoverable-diagnostic",
+      "ARM03-steady-state=passed 16-native-body-create-retire-complete-cycles only-permanent-and-reference-held-physical-rows-retained lightweight-ownership-receipts",
+      "ARM03-reader=passed separate-process reconstructs-intent-ownership-permanent-policy-and-missing-death-hold no-recreation preserves-reference-until-release anatomy-collision-safe idempotent-completion",
+      "ARM03-row-counts=passed characters:1 bodies:2 instances:0 items:1 wounds:1 lifecycles:22 claims:24 pending:1",
+      "ARM03-ordinary-rollback=passed forced-provider-insert-refusal ordinary-provenance-form-source-canonical-body-and-remains-save-atomic retryable",
+      "ARM03-ordinary-save=passed native-backup-death-and-form-save canonical-body-moved ordinary-provenance-persisted retired-form-and-source-mappings-pruned no-spell-ownership",
+      "ARM03-ordinary-guards=passed separate-process-real-corpse-reload resolves-exact-retired-body-without-preload unloaded-foreign-item-and-other-reference-refuse intact-possession explicitly-rehomed",
+      "ARM03-ordinary-release=passed native-CorpseGameItemComponent.Delete reference-free-ordinary-body-retired canonical-current-body-history-and-foreign-goods-preserved no-spell-ownership",
+      "ARM03-legacy-seed=passed persisted-positive-body-IDs existing-missing-and-current-body cases no-old-body-form-source-retirement-or-spell-ownership",
+      "ARM03-runtime-corpse=passed exposure-refresh-registration eating:not-run physical-and-actor-targets:checked gift-and-implant-conservation:not-run morgue-recovery-refusal:not-run persisted-part-wound-inspection:not-applicable",
+      "ARM03-legacy-corpse=passed separate-process-reload description-weight-buoyancy-race-and-Delete-callback safe corpse-item-illumination-and-unresolved-damage exact-positive-ID-kept canonical-current-body-and-history-preserved no-cleanup-authority-inferred",
+      "ARM03-runtime-part=passed exposure-refresh-registration eating:not-run physical-and-actor-targets:not-applicable gift-and-implant-conservation:not-run morgue-recovery-refusal:not-run persisted-part-wound-inspection:checked",
+      "ARM03-legacy-part=passed separate-process-reload description-weight-buoyancy-race-and-Delete-callback safe corpse-item-illumination-and-unresolved-damage exact-positive-ID-kept canonical-current-body-and-history-preserved no-cleanup-authority-inferred",
+      "ARM03-runtime-missing-corpse=passed exposure-refresh-registration eating:refused physical-and-actor-targets:checked gift-and-implant-conservation:checked morgue-recovery-refusal:checked persisted-part-wound-inspection:not-applicable",
+      "ARM03-legacy-missing-corpse=passed separate-process-reload description-weight-buoyancy-race-and-Delete-callback safe corpse-item-illumination-and-unresolved-damage exact-positive-ID-kept canonical-current-body-and-history-preserved no-cleanup-authority-inferred",
+      "ARM03-runtime-missing-part=passed exposure-refresh-registration eating:refused physical-and-actor-targets:not-applicable gift-and-implant-conservation:not-run morgue-recovery-refusal:not-run persisted-part-wound-inspection:checked",
+      "ARM03-legacy-missing-part=passed separate-process-reload description-weight-buoyancy-race-and-Delete-callback safe corpse-item-illumination-and-unresolved-damage exact-positive-ID-kept canonical-current-body-and-history-preserved no-cleanup-authority-inferred",
+      "ARM03-runtime-current-corpse=passed exposure-refresh-registration eating:refused physical-and-actor-targets:checked gift-and-implant-conservation:checked morgue-recovery-refusal:checked persisted-part-wound-inspection:not-applicable",
+      "ARM03-legacy-current-corpse=passed separate-process-reload description-weight-buoyancy-race-and-Delete-callback safe corpse-item-illumination-and-unresolved-damage exact-positive-ID-kept canonical-current-body-and-history-preserved no-cleanup-authority-inferred",
+      "ARM03-runtime-current-part=passed exposure-refresh-registration eating:not-run physical-and-actor-targets:not-applicable gift-and-implant-conservation:not-run morgue-recovery-refusal:not-run persisted-part-wound-inspection:checked",
+      "ARM03-legacy-current-part=passed separate-process-reload description-weight-buoyancy-race-and-Delete-callback safe corpse-item-illumination-and-unresolved-damage exact-positive-ID-kept canonical-current-body-and-history-preserved no-cleanup-authority-inferred",
+      "ARM03-runtime-final-current-corpse=passed exposure-refresh-registration eating:not-run physical-and-actor-targets:checked gift-and-implant-conservation:not-run morgue-recovery-refusal:not-run persisted-part-wound-inspection:not-applicable",
+      "ARM03-legacy-final-current-corpse=passed separate-process-reload description-weight-buoyancy-race-and-Delete-callback safe corpse-item-illumination-and-unresolved-damage exact-positive-ID-kept canonical-current-body-and-history-preserved no-cleanup-authority-inferred",
+      "ARM03-runtime-missing-final-corpse=passed exposure-refresh-registration eating:refused physical-and-actor-targets:checked gift-and-implant-conservation:checked morgue-recovery-refusal:checked persisted-part-wound-inspection:not-applicable",
+      "ARM03-legacy-missing-final-corpse=passed separate-process-reload description-weight-buoyancy-race-and-Delete-callback safe corpse-item-illumination-and-unresolved-damage exact-positive-ID-kept canonical-current-body-and-history-preserved no-cleanup-authority-inferred",
+      "ARM03-runtime-missing-owner-corpse=passed exposure-refresh-registration eating:refused physical-and-actor-targets:checked gift-and-implant-conservation:checked morgue-recovery-refusal:checked persisted-part-wound-inspection:not-applicable",
+      "ARM03-legacy-missing-owner-corpse=passed separate-process-reload description-weight-buoyancy-race-and-Delete-callback safe corpse-item-illumination-and-unresolved-damage exact-positive-ID-kept canonical-current-body-and-history-preserved no-cleanup-authority-inferred",
+      "ARM03-runtime-missing-owner-part=passed exposure-refresh-registration eating:refused physical-and-actor-targets:not-applicable gift-and-implant-conservation:not-run morgue-recovery-refusal:not-run persisted-part-wound-inspection:checked",
+      "ARM03-legacy-missing-owner-part=passed separate-process-reload description-weight-buoyancy-race-and-Delete-callback safe corpse-item-illumination-and-unresolved-damage exact-positive-ID-kept canonical-current-body-and-history-preserved no-cleanup-authority-inferred",
+      "ARM03-runtime-final-inactive-corpse=passed exposure-refresh-registration eating:not-run physical-and-actor-targets:checked gift-and-implant-conservation:not-run morgue-recovery-refusal:checked persisted-part-wound-inspection:not-applicable",
+      "ARM03-legacy-final-inactive-corpse=passed separate-process-reload description-weight-buoyancy-race-and-Delete-callback safe corpse-item-illumination-and-unresolved-damage exact-positive-ID-kept canonical-current-body-and-history-preserved no-cleanup-authority-inferred",
+      "ARM03-legacy-acceptance=passed eleven-separate-process-readers exact-read-without-cleanup-authority safe-unresolved-body context-specific-current-body-validation runtime-consumer-boundaries",
+      "ARM03B-schema=passed maintained-snapshot-import empty-archive-down-to-prior-migration generated-upgrade model-parity existing-canonical-preserved restrictive-body-FK",
+      "ARM03B-native-death=passed loaded-production-NPC-Die pre-death-callback-refusal persisted-death-time primary-instance-death ownership-correlation no-remains-model",
+      "ARM03B-foreign-ownership=passed independently-unloaded-form-source-retirement-mismatch durable-hold foreign-rows-and-heavy-NPC-preserved",
+      "ARM03B-holds=passed foreign-custody serialized-remains-reference malformed-serialization writing-author-and-trueauthor drawing-history runtime-role-root durable-diagnostic no-graph-or-foreign-mutation",
+      "ARM03B-rollback=passed provider-insert-fault identity-body-NPC-instance-history-atomic runtime-release-after-commit-only",
+      "ARM03B-release-retry=passed post-commit-runtime-fault durable-archive-retained physical-graph-gone cached-actor-released-on-exact-retry",
+      "ARM03B-compaction=passed exact-archive canonical-ID-retained body-NPC-instance-released caller-restored stale-save-refused queued-saves-aborted real-cache-loader-no-materialization idempotent-retry",
+      "ARM03B-crime-history=passed stale-unfinished-witness-crime-durable-hold finalized-crime-weak-cache archived-criminal-victim-display-and-trial-name canonical-attribution-preserved",
+      "ARM03B-steady-state=passed four-repeated-native-deaths heavy-body-NPC-instance-rows-at-baseline bounded-archives weak-actor-graphs-collected foreign-wound-and-item-preserved",
+      "ARM03B-controller-release=passed monitored-native-death-and-persisted-dead-reload retained-controller-context-and-output-detached weak-actor-graphs-collected",
+      "ARM03B-reader=passed independent-process tombstone-and-archive history-attribution-preserved no-heavy-actor-materialization completed-idempotence no-pending-work"
+    ],
+    "archival_markers": [
+      "ARM03B-schema=passed maintained-snapshot-import empty-archive-down-to-prior-migration generated-upgrade model-parity existing-canonical-preserved restrictive-body-FK",
+      "ARM03B-native-death=passed loaded-production-NPC-Die pre-death-callback-refusal persisted-death-time primary-instance-death ownership-correlation no-remains-model",
+      "ARM03B-foreign-ownership=passed independently-unloaded-form-source-retirement-mismatch durable-hold foreign-rows-and-heavy-NPC-preserved",
+      "ARM03B-holds=passed foreign-custody serialized-remains-reference malformed-serialization writing-author-and-trueauthor drawing-history runtime-role-root durable-diagnostic no-graph-or-foreign-mutation",
+      "ARM03B-rollback=passed provider-insert-fault identity-body-NPC-instance-history-atomic runtime-release-after-commit-only",
+      "ARM03B-release-retry=passed post-commit-runtime-fault durable-archive-retained physical-graph-gone cached-actor-released-on-exact-retry",
+      "ARM03B-compaction=passed exact-archive canonical-ID-retained body-NPC-instance-released caller-restored stale-save-refused queued-saves-aborted real-cache-loader-no-materialization idempotent-retry",
+      "ARM03B-crime-history=passed stale-unfinished-witness-crime-durable-hold finalized-crime-weak-cache archived-criminal-victim-display-and-trial-name canonical-attribution-preserved",
+      "ARM03B-steady-state=passed four-repeated-native-deaths heavy-body-NPC-instance-rows-at-baseline bounded-archives weak-actor-graphs-collected foreign-wound-and-item-preserved",
+      "ARM03B-controller-release=passed monitored-native-death-and-persisted-dead-reload retained-controller-context-and-output-detached weak-actor-graphs-collected",
+      "ARM03B-reader=passed independent-process tombstone-and-archive history-attribution-preserved no-heavy-actor-materialization completed-idempotence no-pending-work"
+    ],
+    "archival_acceptance": [
+      "Maintained blank snapshot imports; empty-archive Down then generated Up restores exact model parity; raw body deletion cannot cascade into the canonical character.",
+      "A persisted production NPC loads and executes NPC.Die using a controlled no-remains race. Archival during the pre-death callback refuses; persisted death and its exact primary instance correlate before archival.",
+      "Foreign possession, serialized remains IDs, malformed serialization, Drawing, Writing Author and TrueAuthor, unfinished stale witness crime and a runtime GroupRoles-only root persist diagnostic holds without mutating actor/foreign graphs.",
+      "Independently unloaded foreign CharacterBody, CharacterBodySource and CharacterBodyRetirement rows referencing the owned body each hold rather than acquire authority or delete foreign rows.",
+      "An archive-insert database trigger fault rolls back archive, canonical flag, body, NPC and instances together. Runtime roots survive the failed transaction.",
+      "A post-commit runtime Forget fault preserves the durable archive and removed physical graph. Exact retry releases cached runtime state without creating another archive.",
+      "Compaction retains canonical ID, log, foreign wound-origin and foreign item; removes owned physical body, NPC, primary instance and bounded owned wound state; aborts queued saves and rejects stale caller save/construction/loading.",
+      "Finalized Crime weak actor cache and criminal/victim/trial presentation resolve retained archive identities through the owned world service.",
+      "Four additional persisted NPC deaths, including persisted-dead reload, release controller context/output/monitor roots and weak actor graphs; eligible heavy rows return to Body1/NPC0/Instance0 with five bounded archives.",
+      "An independent reader process verifies archives, preserved history and foreign state, absence of heavy materialization, and completed lifecycle idempotence."
+    ],
+    "qualification_limits": [
+      "Native database and production NPC/Body construction, death, archive, save/controller/cache methods use controlled world, account, model and catalogue dependencies.",
+      "NPC creation is an EF lifecycle-owned fixture callback, not native NPCTemplate.Create with provenance before on-load callbacks; actual creation adapter remains pending.",
+      "The race produces no corpse. The remains hold uses persisted component Definition XML; corpse creation, full GameItem.Delete, timed decay/default dissipation and automatic foreign-goods/container/occupant evacuation are not qualified.",
+      "Distinct canonical/body/instance/wound ID ranges avoid conservative token namespace collisions. Recursive fixture mock invocation receipts are cleared before GC while production world/controller/queue/subscription roots remain untouched.",
+      "Four repeats and one independent reader are bounded archival support, not N16 high-volume summon/use/kill/expire/restart timer/AI steady-state acceptance.",
+      "All Writing and Drawing author references retain physical graphs until their runtime historical adapters exist. Unclassified relations/scalar references and scan limits retain holds; arbitrary future serialized encodings are not proven clear.",
+      "Full N14/N15/N16, installed-world sessions, all three same-template native lifetime modes and later plan phases remain not_run or pending."
+    ]
+  },
+  "fingerprints": {
+    "status": "PASS",
+    "checked_utc": "2026-10-03T04:41:39.287493+00:00",
+    "manifest": ".artifacts/test-runs/native-armageddon-20261003-stage3B-archive/final-inputs.json",
+    "manifest_sha256": "6cd38ff10c96163718bf2a30ccc9bff185fa63829883191ffd9dddf91e01e8ea",
+    "frozen_inputs": 200,
+    "frozen_assemblies": 19,
+    "all_frozen_inputs_and_assemblies_match": true,
+    "prior_four_receipts_unchanged": true,
+    "mismatches": []
+  },
+  "post_implementation_commit_fingerprints": {
+    "status": "PASS",
+    "checked_utc": "2026-10-03T04:43:41.609691+00:00",
+    "manifest": ".artifacts/test-runs/native-armageddon-20261003-stage3B-archive/final-inputs.json",
+    "manifest_sha256": "6cd38ff10c96163718bf2a30ccc9bff185fa63829883191ffd9dddf91e01e8ea",
+    "frozen_inputs": 200,
+    "frozen_assemblies": 19,
+    "all_frozen_inputs_and_assemblies_match": true,
+    "prior_four_receipts_unchanged": true,
+    "mismatches": []
+  },
+  "preservation": {
+    "checked_utc": "2026-10-03T04:41:52.2536206Z",
+    "primary_head": "aca21bfc39298199291933375226d8982352420d",
+    "primary_branch": "codex/monster-ai-v1",
+    "primary_status": [
+      "?? .artifacts/"
+    ],
+    "primary_head_branch_status_unchanged": true,
+    "owned_processes_remaining": 0,
+    "process_query_succeeded": true,
+    "process_query_scope": "Read-only task-owned MySQL prefix and this native harness; no process termination or database access.",
+    "publication_merge_deployment_actions": [],
+    "production_or_shared_database_mutations": [],
+    "primary_mutations": [],
+    "denied_default_database_handshake": {
+      "run": "20261003T041020Z-c207e3eecfc9",
+      "queries_or_writes_completed": false,
+      "reason": "Missing-victim unit regression constructed archive DB service; provider autodetection handshake denied. Fixed world-service routing and retained regression."
+    }
+  },
+  "managed_attempt_history": [
+    {
+      "run_id": "20261003T040723Z-0f71e517bd7d",
+      "head": "7900ab041aeec82711960ad99d8c8294a91e6d05",
+      "status": "FAIL",
+      "counts": null,
+      "filter": "FullyQualifiedName~NpcArchive",
+      "configuration": "Debug",
+      "sdk": "10.0.401",
+      "started_utc": "2026-10-03T04:07:23.9660471+00:00",
+      "ended_utc": "2026-10-03T04:07:46.5447135+00:00",
+      "source_start": "89c71d45a18786eee8fca9961636d82c3d6dccbf047af4597866ad35342d0ceb",
+      "source_end": "89c71d45a18786eee8fca9961636d82c3d6dccbf047af4597866ad35342d0ceb",
+      "source_stable": true,
+      "execution_complete": false,
+      "counts_complete": false,
+      "projects": [
+        "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+      ],
+      "issues": [
+        {
+          "kind": "BUILD_FAILED",
+          "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+          "detail": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\MudSharpCore Unit Tests\\NpcArchiveReferencePolicyTests.cs(57,70): error CS0118: 'Character' is a namespace but is used like a type [C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\MudS…"
+        }
+      ],
+      "summary_path": ".artifacts/test-runs/20261003T040723Z-0f71e517bd7d/summary.json",
+      "summary_sha256": "77a33b739b1aa1956e45838d9e6238b9a0c5b5aab8ce867c92ae9d97ec8790c4",
+      "failures_path": ".artifacts/test-runs/20261003T040723Z-0f71e517bd7d/failures.json",
+      "failures_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "project_counts": [
+        {
+          "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+          "counts": null
+        }
+      ],
+      "build_failed_before_execution": true
+    },
+    {
+      "run_id": "20261003T040931Z-7dc2fb0e7aec",
+      "head": "7900ab041aeec82711960ad99d8c8294a91e6d05",
+      "status": "PASS",
+      "counts": {
+        "executed": 28,
+        "passed": 28,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 28
+      },
+      "filter": "FullyQualifiedName~NpcArchive",
+      "configuration": "Debug",
+      "sdk": "10.0.401",
+      "started_utc": "2026-10-03T04:09:31.8755385+00:00",
+      "ended_utc": "2026-10-03T04:09:39.9688277+00:00",
+      "source_start": "dd9cd830ff988e1c20ea51e99307bdc412a423691ca51f2b1cb4ec6bc0a39ef4",
+      "source_end": "dd9cd830ff988e1c20ea51e99307bdc412a423691ca51f2b1cb4ec6bc0a39ef4",
+      "source_stable": true,
+      "execution_complete": true,
+      "counts_complete": true,
+      "projects": [
+        "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+      ],
+      "issues": [],
+      "summary_path": ".artifacts/test-runs/20261003T040931Z-7dc2fb0e7aec/summary.json",
+      "summary_sha256": "120b0de7fef12a19ed1ba757e478052819b4c27da1d37e29489af70c78708dad",
+      "failures_path": ".artifacts/test-runs/20261003T040931Z-7dc2fb0e7aec/failures.json",
+      "failures_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "project_counts": [
+        {
+          "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+          "counts": {
+            "executed": 28,
+            "passed": 28,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 28
+          }
+        }
+      ]
+    },
+    {
+      "run_id": "20261003T041020Z-c207e3eecfc9",
+      "head": "7900ab041aeec82711960ad99d8c8294a91e6d05",
+      "status": "FAIL",
+      "counts": {
+        "executed": 6771,
+        "passed": 6770,
+        "failed": 1,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 6771
+      },
+      "filter": null,
+      "configuration": "Debug",
+      "sdk": "10.0.401",
+      "started_utc": "2026-10-03T04:10:20.3875193+00:00",
+      "ended_utc": "2026-10-03T04:13:47.9377830+00:00",
+      "source_start": "585febbbfabc34ba1246e21d12ad4222106004040533a0db7a5a63b0b0d94a99",
+      "source_end": "585febbbfabc34ba1246e21d12ad4222106004040533a0db7a5a63b0b0d94a99",
+      "source_stable": true,
+      "execution_complete": true,
+      "counts_complete": true,
+      "projects": [
+        "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+        "ExpressionEngine Unit Tests/ExpressionEngine Unit Tests.csproj",
+        "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+        "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+        "MudsharpDatabaseLibrary Unit Tests/MudsharpDatabaseLibrary Unit Tests.csproj",
+        "DiscordBotCore Unit Tests/DiscordBotCore Unit Tests.csproj",
+        "RPI Engine Worldfile Converter Tests/RPI Engine Worldfile Converter Tests.csproj",
+        "FutureMUD.Web.Tests/FutureMUD.Web.Tests.csproj",
+        "TerrainPlanner/TerrainPlanner.Tests/TerrainPlanner.Tests.csproj",
+        "scripts/TestReporting.Tests/TestReporting.Tests.csproj"
+      ],
+      "issues": [
+        {
+          "kind": "TEST_FAILED",
+          "project": null,
+          "detail": "1 failing test records"
+        }
+      ],
+      "summary_path": ".artifacts/test-runs/20261003T041020Z-c207e3eecfc9/summary.json",
+      "summary_sha256": "359a685b487c956ee7bd70ed2b5ce93245dd017e45c6dd3d318fe5e1e2f605f0",
+      "failures_path": ".artifacts/test-runs/20261003T041020Z-c207e3eecfc9/failures.json",
+      "failures_sha256": "f8f04fdd19624d378f71d85c8faaae68f8d6081447261cc4c167a45d04db15a1",
+      "project_counts": [
+        {
+          "project": "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+          "counts": {
+            "executed": 568,
+            "passed": 568,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 568
+          }
+        },
+        {
+          "project": "ExpressionEngine Unit Tests/ExpressionEngine Unit Tests.csproj",
+          "counts": {
+            "executed": 36,
+            "passed": 36,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 36
+          }
+        },
+        {
+          "project": "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+          "counts": {
+            "executed": 1441,
+            "passed": 1441,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 1441
+          }
+        },
+        {
+          "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+          "counts": {
+            "executed": 4468,
+            "passed": 4467,
+            "failed": 1,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 4468
+          }
+        },
+        {
+          "project": "MudsharpDatabaseLibrary Unit Tests/MudsharpDatabaseLibrary Unit Tests.csproj",
+          "counts": {
+            "executed": 67,
+            "passed": 67,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 67
+          }
+        },
+        {
+          "project": "DiscordBotCore Unit Tests/DiscordBotCore Unit Tests.csproj",
+          "counts": {
+            "executed": 22,
+            "passed": 22,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 22
+          }
+        },
+        {
+          "project": "RPI Engine Worldfile Converter Tests/RPI Engine Worldfile Converter Tests.csproj",
+          "counts": {
+            "executed": 43,
+            "passed": 43,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 43
+          }
+        },
+        {
+          "project": "FutureMUD.Web.Tests/FutureMUD.Web.Tests.csproj",
+          "counts": {
+            "executed": 54,
+            "passed": 54,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 54
+          }
+        },
+        {
+          "project": "TerrainPlanner/TerrainPlanner.Tests/TerrainPlanner.Tests.csproj",
+          "counts": {
+            "executed": 34,
+            "passed": 34,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 34
+          }
+        },
+        {
+          "project": "scripts/TestReporting.Tests/TestReporting.Tests.csproj",
+          "counts": {
+            "executed": 38,
+            "passed": 38,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 38
+          }
+        }
+      ]
+    }
+  ],
+  "native_attempt_history": [
+    {
+      "attempt": 1,
+      "status": "FAIL",
+      "log": ".artifacts/phase3b-archive-native-attempt1.log",
+      "log_sha256": "dcb3ad2ff48cf41835908beb23d2483b24dc0554c2d1e9ea64f36424162244c6",
+      "passed_markers": [],
+      "owned_database_cleanup_markers": 0,
+      "temporary_instance_cleanup_marker": true
+    },
+    {
+      "attempt": 2,
+      "status": "FAIL",
+      "log": ".artifacts/phase3b-archive-native-attempt2.log",
+      "log_sha256": "a61a1527f5009731c066a7a5f62e09d2a213f7a39ae5e1e8387996771b3adc68",
+      "passed_markers": [],
+      "owned_database_cleanup_markers": 0,
+      "temporary_instance_cleanup_marker": true
+    },
+    {
+      "attempt": 3,
+      "status": "FAIL",
+      "log": ".artifacts/phase3b-archive-native-attempt3-refresh.log",
+      "log_sha256": "0a059d41d27282eafe66f82c615eeef92366865f2c11de59ed07466e48447d5d",
+      "passed_markers": [],
+      "owned_database_cleanup_markers": 0,
+      "temporary_instance_cleanup_marker": true
+    },
+    {
+      "attempt": 4,
+      "status": "FAIL",
+      "log": ".artifacts/phase3b-archive-native-attempt4-refresh.log",
+      "log_sha256": "ca4b0759be4393b998919bad9e78db00d82f9827d4a1ec480fe4c35f81b01c62",
+      "passed_markers": [],
+      "owned_database_cleanup_markers": 1,
+      "temporary_instance_cleanup_marker": true
+    },
+    {
+      "attempt": 5,
+      "status": "FAIL",
+      "log": ".artifacts/phase3b-archive-native-attempt5.log",
+      "log_sha256": "4fa70fbf75e84bdca12b00b672cd2368d7a0e2de3a399c3245a52ee4fde60f28",
+      "passed_markers": [
+        "ARM03B-schema=passed maintained-snapshot-import empty-archive-down-to-prior-migration generated-upgrade model-parity existing-canonical-preserved restrictive-body-FK"
+      ],
+      "owned_database_cleanup_markers": 1,
+      "temporary_instance_cleanup_marker": true
+    },
+    {
+      "attempt": 6,
+      "status": "FAIL",
+      "log": ".artifacts/phase3b-archive-native-attempt6.log",
+      "log_sha256": "4969d26ee86b8a5b66f57e3bf4493ebcd06bf2c6b0fa4ec113dfa1f9800fc039",
+      "passed_markers": [
+        "ARM03B-schema=passed maintained-snapshot-import empty-archive-down-to-prior-migration generated-upgrade model-parity existing-canonical-preserved restrictive-body-FK"
+      ],
+      "owned_database_cleanup_markers": 1,
+      "temporary_instance_cleanup_marker": true
+    },
+    {
+      "attempt": 7,
+      "status": "FAIL",
+      "log": ".artifacts/phase3b-archive-native-attempt7.log",
+      "log_sha256": "c552fadc1450f8efebefe488c03376021b376ee04c6ea103007eafc7e000ebc7",
+      "passed_markers": [
+        "ARM03B-schema=passed maintained-snapshot-import empty-archive-down-to-prior-migration generated-upgrade model-parity existing-canonical-preserved restrictive-body-FK"
+      ],
+      "owned_database_cleanup_markers": 1,
+      "temporary_instance_cleanup_marker": true
+    },
+    {
+      "attempt": 8,
+      "status": "FAIL",
+      "log": ".artifacts/phase3b-archive-native-attempt8.log",
+      "log_sha256": "b64c15b49de66c0cee9482ee91237613b6ea209034a292aae34d114e021f3d99",
+      "passed_markers": [
+        "ARM03B-schema=passed maintained-snapshot-import empty-archive-down-to-prior-migration generated-upgrade model-parity existing-canonical-preserved restrictive-body-FK",
+        "ARM03B-native-death=passed loaded-production-NPC-Die pre-death-callback-refusal persisted-death-time primary-instance-death ownership-correlation no-remains-model",
+        "ARM03B-foreign-ownership=passed independently-unloaded-form-source-retirement-mismatch durable-hold foreign-rows-and-heavy-NPC-preserved",
+        "ARM03B-holds=passed foreign-custody persisted-remains malformed-serialization unclassified-history runtime-role-root durable-diagnostic no-graph-or-foreign-mutation"
+      ],
+      "owned_database_cleanup_markers": 1,
+      "temporary_instance_cleanup_marker": true
+    },
+    {
+      "attempt": 9,
+      "status": "FAIL",
+      "log": ".artifacts/phase3b-archive-native-attempt9.log",
+      "log_sha256": "e0c68efe80802b467a052f6b8a136cd322d89959084d47b1716e35982fee2eb1",
+      "passed_markers": [
+        "ARM03B-schema=passed maintained-snapshot-import empty-archive-down-to-prior-migration generated-upgrade model-parity existing-canonical-preserved restrictive-body-FK",
+        "ARM03B-native-death=passed loaded-production-NPC-Die pre-death-callback-refusal persisted-death-time primary-instance-death ownership-correlation no-remains-model",
+        "ARM03B-foreign-ownership=passed independently-unloaded-form-source-retirement-mismatch durable-hold foreign-rows-and-heavy-NPC-preserved",
+        "ARM03B-holds=passed foreign-custody persisted-remains malformed-serialization unclassified-history runtime-role-root durable-diagnostic no-graph-or-foreign-mutation"
+      ],
+      "owned_database_cleanup_markers": 1,
+      "temporary_instance_cleanup_marker": true
+    },
+    {
+      "attempt": 10,
+      "status": "FAIL",
+      "log": ".artifacts/phase3b-archive-native-attempt10.log",
+      "log_sha256": "0751879b17237d35ad7b3705ab9b910e9e5c5fbaf17d61e6016e75b6ce8705e8",
+      "passed_markers": [
+        "ARM03B-schema=passed maintained-snapshot-import empty-archive-down-to-prior-migration generated-upgrade model-parity existing-canonical-preserved restrictive-body-FK",
+        "ARM03B-native-death=passed loaded-production-NPC-Die pre-death-callback-refusal persisted-death-time primary-instance-death ownership-correlation no-remains-model",
+        "ARM03B-foreign-ownership=passed independently-unloaded-form-source-retirement-mismatch durable-hold foreign-rows-and-heavy-NPC-preserved",
+        "ARM03B-holds=passed foreign-custody persisted-remains malformed-serialization unclassified-history runtime-role-root durable-diagnostic no-graph-or-foreign-mutation",
+        "ARM03B-rollback=passed provider-insert-fault identity-body-NPC-instance-history-atomic runtime-release-after-commit-only",
+        "ARM03B-release-retry=passed post-commit-runtime-fault durable-archive-retained physical-graph-gone cached-actor-released-on-exact-retry",
+        "ARM03B-compaction=passed exact-archive canonical-ID-retained body-NPC-instance-released caller-restored stale-save-refused queued-saves-aborted real-cache-loader-no-materialization idempotent-retry",
+        "ARM03B-crime-history=passed stale-unfinished-witness-crime-durable-hold finalized-crime-weak-cache archived-criminal-victim-display-and-trial-name canonical-attribution-preserved"
+      ],
+      "owned_database_cleanup_markers": 1,
+      "temporary_instance_cleanup_marker": true
+    },
+    {
+      "attempt": 11,
+      "status": "PASS",
+      "log": ".artifacts/phase3b-archive-native-attempt11.log",
+      "log_sha256": "fc29b200d51050e77449d6b50a4d5c403598be0734caaf97d520ddb57c929e5a",
+      "passed_markers": [
+        "ARM03B-schema=passed maintained-snapshot-import empty-archive-down-to-prior-migration generated-upgrade model-parity existing-canonical-preserved restrictive-body-FK",
+        "ARM03B-native-death=passed loaded-production-NPC-Die pre-death-callback-refusal persisted-death-time primary-instance-death ownership-correlation no-remains-model",
+        "ARM03B-foreign-ownership=passed independently-unloaded-form-source-retirement-mismatch durable-hold foreign-rows-and-heavy-NPC-preserved",
+        "ARM03B-holds=passed foreign-custody persisted-remains malformed-serialization unclassified-history runtime-role-root durable-diagnostic no-graph-or-foreign-mutation",
+        "ARM03B-rollback=passed provider-insert-fault identity-body-NPC-instance-history-atomic runtime-release-after-commit-only",
+        "ARM03B-release-retry=passed post-commit-runtime-fault durable-archive-retained physical-graph-gone cached-actor-released-on-exact-retry",
+        "ARM03B-compaction=passed exact-archive canonical-ID-retained body-NPC-instance-released caller-restored stale-save-refused queued-saves-aborted real-cache-loader-no-materialization idempotent-retry",
+        "ARM03B-crime-history=passed stale-unfinished-witness-crime-durable-hold finalized-crime-weak-cache archived-criminal-victim-display-and-trial-name canonical-attribution-preserved",
+        "ARM03B-steady-state=passed four-repeated-native-deaths heavy-body-NPC-instance-rows-at-baseline bounded-archives weak-actor-graphs-collected foreign-wound-and-item-preserved",
+        "ARM03B-controller-release=passed monitored-native-death-and-persisted-dead-reload retained-controller-context-and-output-detached weak-actor-graphs-collected",
+        "ARM03B-reader=passed independent-process tombstone-and-archive history-attribution-preserved no-heavy-actor-materialization completed-idempotence no-pending-work"
+      ],
+      "owned_database_cleanup_markers": 1,
+      "temporary_instance_cleanup_marker": true
+    }
+  ],
+  "retained_failures_and_corrections": [
+    "Early core builds exposed nullable BodyId analytics use, sealed EF proxy archive model and controller connection typing; corrected before final managed/native verification.",
+    "Native compilation exposed missing namespaces/DbSet names, concrete Character.Instances usage and a PowerShell-induced encoding error; exact unrelated SimpleWriting HEAD bytes were restored and left outside the commit.",
+    "Attempts1-4 exposed owned database prefix, long TEMP paths/snapshot helper and migration fixture issues; maintained snapshot refresh completed in attempt4 before its later fixture failure. Attempt2 database marker cleanup refused after failed import; entire verified owned TEMP instance cleanup still succeeded.",
+    "Attempts5-7 exposed controlled account/race/calendar/death catalogue omissions; corrected fixture dependencies without bypassing production death methods.",
+    "Attempts8-9 exposed an over-conservative generated instance uniqueness-key hold; only audited matching primary rows and exact generated metadata keys now qualify for removal.",
+    "Attempt10 passed transactional archival/retry/history but failed weak GC because recursive fixture mocks retained call receipts; clearing only fixture receipts exposes actual production roots. Attempt11 passed but predates final world-service routing and marker clarification.",
+    "FocusedCore1 namespace ambiguity failed build; corrected fully qualified constructor. Fast1 completed 6770 passes and one missing-victim failure; unintended default-provider autodetection handshake was denied before any query or write. Fixed archive reads through the optional world service, then focused30 and Fast2 all6772 passed.",
+    "Final combined attempt1 used Windows PowerShell5.1 and terminated on a MySQL client warning before gameplay; cleanup guard refused unverified instance. Null-safe process inspection and MySQL escaped-path normalization then verified its exact loopback datadir, gracefully shut down and deleted it. Final combined attempt2 in PowerShell7 passed."
+  ],
+  "schema_receipts": {
+    "generated_migration": "20261003023907_SpellNpcArchival",
+    "ef_tool": "9.0.11",
+    "model_parity_log": ".artifacts/phase3b-archive-ef-parity-final.log",
+    "snapshot_manifest": {
+      "ProductVersion": "3.6.1.0",
+      "LatestMigrationId": "20261003023907_SpellNpcArchival",
+      "GeneratedUtc": "2026-10-03T03:18:54.0534157Z"
+    },
+    "downgrade_limit": "Generated Down was verified only with no archives. Physical compaction is irreversible by schema downgrade; restoring a pre-compaction backup is required after archival."
+  },
+  "review": {
+    "bounded_local_review": "No actionable defect remaining after the foreign ownership P1 and writing/unfinished-crime/controller/reentrant-command/history-service corrections; reviewer performed no execution.",
+    "parent_independent_review": "pending",
+    "later_feature_slice_started": false
+  },
+  "remaining_work": [
+    "Native database and production NPC/Body construction, death, archive, save/controller/cache methods use controlled world, account, model and catalogue dependencies.",
+    "NPC creation is an EF lifecycle-owned fixture callback, not native NPCTemplate.Create with provenance before on-load callbacks; actual creation adapter remains pending.",
+    "The race produces no corpse. The remains hold uses persisted component Definition XML; corpse creation, full GameItem.Delete, timed decay/default dissipation and automatic foreign-goods/container/occupant evacuation are not qualified.",
+    "Distinct canonical/body/instance/wound ID ranges avoid conservative token namespace collisions. Recursive fixture mock invocation receipts are cleared before GC while production world/controller/queue/subscription roots remain untouched.",
+    "Four repeats and one independent reader are bounded archival support, not N16 high-volume summon/use/kill/expire/restart timer/AI steady-state acceptance.",
+    "All Writing and Drawing author references retain physical graphs until their runtime historical adapters exist. Unclassified relations/scalar references and scan limits retain holds; arbitrary future serialized encodings are not proven clear.",
+    "Full N14/N15/N16, installed-world sessions, all three same-template native lifetime modes and later plan phases remain not_run or pending."
+  ],
+  "full_N14_N15_N16": "not_run",
+  "whole_plan_preserved": {
+    "phases": 7,
+    "approved_decisions": 16,
+    "candidates": 154,
+    "selected_sorcerer_spells": 82,
+    "support_source_rows": 12,
+    "native_acceptance_scenarios": 25,
+    "all_candidate_and_scenario_requirements_preserved": true,
+    "source_tree_sha256": "ada4e574d1c2243b2bad30cb0d65b98a5413a20ad1d8917965335fb9e481d496"
+  },
+  "artifact_fingerprints": [
+    {
+      "path": ".artifacts/phase3b-archive-build1.log",
+      "sha256": "9b90c103fe3aa1c1898825497c02621689e06e01b02be9e48f5e6626d9f83f15"
+    },
+    {
+      "path": ".artifacts/phase3b-archive-build2.log",
+      "sha256": "0cc8b13eeda858e7a824dcdf8d9b42e9942de48d99099381fb97136b36159746"
+    },
+    {
+      "path": ".artifacts/phase3b-archive-build3.log",
+      "sha256": "164b850244bd09ad63863ef87188d4dae25ddb799e4e22cad6f4ffc72a1ab486"
+    },
+    {
+      "path": ".artifacts/phase3b-archive-build4.log",
+      "sha256": "ae513c4cfca018fe79802c3d932329dae20ce17b1a561a8c3f31d0c67bab0813"
+    },
+    {
+      "path": ".artifacts/phase3b-archive-ef-before.log",
+      "sha256": "bd8ba7721b0230bd4f042666ef056c9c30a9ff94b7d5b14f5d7a678c04a8bf96"
+    },
+    {
+      "path": ".artifacts/phase3b-archive-ef-before2.log",
+      "sha256": "b6ac75e685674a5b3f1260114079e544e56fde7f8b695d3a3c6c84244b96aa97"
+    },
+    {
+      "path": ".artifacts/phase3b-archive-ef-generate.log",
+      "sha256": "bd8ba7721b0230bd4f042666ef056c9c30a9ff94b7d5b14f5d7a678c04a8bf96"
+    },
+    {
+      "path": ".artifacts/phase3b-archive-ef-generate2.log",
+      "sha256": "3b37e330a054a7d31a4068f3d0d6964b1ad48330e40c1f21aeb243ac3f6bec3b"
+    },
+    {
+      "path": ".artifacts/phase3b-archive-ef-parity-final.log",
+      "sha256": "c924da1693ad60eb6a78717ddd333946a8a61a056c2ce2868ae514384f01c866"
+    },
+    {
+      "path": ".artifacts/phase3b-archive-ef-parity1.log",
+      "sha256": "c924da1693ad60eb6a78717ddd333946a8a61a056c2ce2868ae514384f01c866"
+    },
+    {
+      "path": ".artifacts/phase3b-archive-native-attempt1.log",
+      "sha256": "dcb3ad2ff48cf41835908beb23d2483b24dc0554c2d1e9ea64f36424162244c6"
+    },
+    {
+      "path": ".artifacts/phase3b-archive-native-attempt10.log",
+      "sha256": "0751879b17237d35ad7b3705ab9b910e9e5c5fbaf17d61e6016e75b6ce8705e8"
+    },
+    {
+      "path": ".artifacts/phase3b-archive-native-attempt11.log",
+      "sha256": "fc29b200d51050e77449d6b50a4d5c403598be0734caaf97d520ddb57c929e5a"
+    },
+    {
+      "path": ".artifacts/phase3b-archive-native-attempt2.log",
+      "sha256": "a61a1527f5009731c066a7a5f62e09d2a213f7a39ae5e1e8387996771b3adc68"
+    },
+    {
+      "path": ".artifacts/phase3b-archive-native-attempt3-refresh.log",
+      "sha256": "0a059d41d27282eafe66f82c615eeef92366865f2c11de59ed07466e48447d5d"
+    },
+    {
+      "path": ".artifacts/phase3b-archive-native-attempt4-refresh.log",
+      "sha256": "ca4b0759be4393b998919bad9e78db00d82f9827d4a1ec480fe4c35f81b01c62"
+    },
+    {
+      "path": ".artifacts/phase3b-archive-native-attempt5.log",
+      "sha256": "4fa70fbf75e84bdca12b00b672cd2368d7a0e2de3a399c3245a52ee4fde60f28"
+    },
+    {
+      "path": ".artifacts/phase3b-archive-native-attempt6.log",
+      "sha256": "4969d26ee86b8a5b66f57e3bf4493ebcd06bf2c6b0fa4ec113dfa1f9800fc039"
+    },
+    {
+      "path": ".artifacts/phase3b-archive-native-attempt7.log",
+      "sha256": "c552fadc1450f8efebefe488c03376021b376ee04c6ea103007eafc7e000ebc7"
+    },
+    {
+      "path": ".artifacts/phase3b-archive-native-attempt8.log",
+      "sha256": "b64c15b49de66c0cee9482ee91237613b6ea209034a292aae34d114e021f3d99"
+    },
+    {
+      "path": ".artifacts/phase3b-archive-native-attempt9.log",
+      "sha256": "e0c68efe80802b467a052f6b8a136cd322d89959084d47b1716e35982fee2eb1"
+    },
+    {
+      "path": ".artifacts/phase3b-archive-native-build1.log",
+      "sha256": "f3232d3c6b2f604617f57f9e3121523766da8f16c8d29931190a6ed7d2856152"
+    },
+    {
+      "path": ".artifacts/phase3b-archive-native-build10.log",
+      "sha256": "d2b44152383987d107857c7aa459f923e50b2a83f2440de2c1b90c63374e11eb"
+    },
+    {
+      "path": ".artifacts/phase3b-archive-native-build11.log",
+      "sha256": "f156e291fb05c7dad62a4854f87b7d66c1c0860d876a82acc8e2fe616b23ce1c"
+    },
+    {
+      "path": ".artifacts/phase3b-archive-native-build12.log",
+      "sha256": "55b5df384652913b6dcccd9c8fa496a010706e4b6d32cae533ba80ffe8f3ee48"
+    },
+    {
+      "path": ".artifacts/phase3b-archive-native-build13.log",
+      "sha256": "f2a1b140d1f2e22b01a0656bf7f8d97632dd6b51b30d6c077f64d3421e8a282a"
+    },
+    {
+      "path": ".artifacts/phase3b-archive-native-build14.log",
+      "sha256": "f2a1b140d1f2e22b01a0656bf7f8d97632dd6b51b30d6c077f64d3421e8a282a"
+    },
+    {
+      "path": ".artifacts/phase3b-archive-native-build15.log",
+      "sha256": "13260ef5cfe85dd65ea1969aa5d9b8c0ed2a0175b457037c12c2b8cc2faaeb95"
+    },
+    {
+      "path": ".artifacts/phase3b-archive-native-build16.log",
+      "sha256": "21e94f059141c7abd176f4c6def4bdf37977ff89cffa99e3078c5e1376e8147d"
+    },
+    {
+      "path": ".artifacts/phase3b-archive-native-build17.log",
+      "sha256": "858340e7ebd87d70771d9b630a1793cc7b8a95474d6c60d74a179c5a2806258a"
+    },
+    {
+      "path": ".artifacts/phase3b-archive-native-build18.log",
+      "sha256": "e8cbc4e497ef551927ad2da75135c2791d724bb913aee9befd9c778c9bdee7e0"
+    },
+    {
+      "path": ".artifacts/phase3b-archive-native-build19.log",
+      "sha256": "a70f04fe1165d6d54649e1ca6c9fe78cff44e2a48b4858c98ea7ce4c657faeb6"
+    },
+    {
+      "path": ".artifacts/phase3b-archive-native-build2.log",
+      "sha256": "5bac4351ef2f51c941043f13a46a69e2e48de88a36292843bbbf0bdf10b33d53"
+    },
+    {
+      "path": ".artifacts/phase3b-archive-native-build20.log",
+      "sha256": "7d102c6f5580f1c857d8654653c13eb9e186161a9fd60b43a639721606cffea2"
+    },
+    {
+      "path": ".artifacts/phase3b-archive-native-build21.log",
+      "sha256": "d6b39cbfc94a2c288f38775005694d717bd69f929c1e811949489d119dd27f32"
+    },
+    {
+      "path": ".artifacts/phase3b-archive-native-build3.log",
+      "sha256": "ae2601a9337fda33eabf05ec63fe0451ce87e4f52321ed36effeae5f7d1f321f"
+    },
+    {
+      "path": ".artifacts/phase3b-archive-native-build4.log",
+      "sha256": "d7593d9441f1990b6280d6aaf480ee06de07f66e5e3a03b8b30f61cf2e318c67"
+    },
+    {
+      "path": ".artifacts/phase3b-archive-native-build5.log",
+      "sha256": "5984a1a58dd3dc82ae20fcfb8fb4f53e7d3473e08be5c0707df3066a2ce6c49b"
+    },
+    {
+      "path": ".artifacts/phase3b-archive-native-build6.log",
+      "sha256": "c194fe344bb1c37e4e567e6d7c29505aa2199f438c286c1ef8a792008159fa61"
+    },
+    {
+      "path": ".artifacts/phase3b-archive-native-build7.log",
+      "sha256": "8e38af80f5a37142eb2ee1e05e373889c33b59cd1cb98bb55182f1bb999c0786"
+    },
+    {
+      "path": ".artifacts/phase3b-archive-native-build8.log",
+      "sha256": "d2b44152383987d107857c7aa459f923e50b2a83f2440de2c1b90c63374e11eb"
+    },
+    {
+      "path": ".artifacts/phase3b-archive-native-build9.log",
+      "sha256": "cb15fa8b4fd92a55599d1107da48335847643f70f2a79b0a26a0da8da54b07f0"
+    },
+    {
+      "path": ".artifacts/phase3b-archive-nativebuild-final.log",
+      "sha256": "415d4730a29aab6bea6665f7c360e45042f7ae75f92264c4a0a2220526ca6e1e"
+    },
+    {
+      "path": ".artifacts/phase3b-archive-seeder-build1.log",
+      "sha256": "27bf31f81507e019ac793f428594c530d88a174d0cc9ad28d8f8a796d7130d67"
+    },
+    {
+      "path": ".artifacts/phase3b-archive-tests-fast1.log",
+      "sha256": "f8b440a1a4821229552474bb6fb91c8e034fd70181d2a8e84037821c6bdf4a4c"
+    },
+    {
+      "path": ".artifacts/phase3b-archive-tests-fast2.log",
+      "sha256": "715e3558afd692491c4d1891780fa4da1cb20ac2b415f8d4fca31b1745d92e3f"
+    },
+    {
+      "path": ".artifacts/phase3b-archive-tests-focused-core1.log",
+      "sha256": "63561fdcd3d7f91f67fa0d5baa7a745aca6b35855af7daa4e70ab3ec5cdac9e2"
+    },
+    {
+      "path": ".artifacts/phase3b-archive-tests-focused-core2.log",
+      "sha256": "068734c02b01e5433266c6ef94b896b300bed39b878797f7cd553738cc91f4ac"
+    },
+    {
+      "path": ".artifacts/phase3b-archive-tests-focused-core3.log",
+      "sha256": "df3bb05d9269041c878ceaa67370a52948d15ffa38b4a3080414121fefde968d"
+    },
+    {
+      "path": ".artifacts/phase3b-archive-tests-focused-db1.log",
+      "sha256": "291f38a53938d0035228e71949c8293f0ecf7113ccf22678b8dc9b46a9a51a45"
+    },
+    {
+      "path": ".artifacts/phase3b-archive-tests-snapshot1.log",
+      "sha256": "e23bfa6cf5eea453a824fbe2815c427bed15a811aebaca6101de867fc6430323"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T040723Z-0f71e517bd7d/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T040723Z-0f71e517bd7d/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T040723Z-0f71e517bd7d/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stdout.log",
+      "sha256": "e3a5e28a0f257975563572bcf004f144f9f85b9f12158f13bee9cfad38785cff"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T040723Z-0f71e517bd7d/run.json",
+      "sha256": "3f692cdd0a6328f1d7169f2083b4263b76d2d70355ca792bbae1d39db73fe83b"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T040723Z-0f71e517bd7d/sdk/sdk.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T040723Z-0f71e517bd7d/sdk/sdk.stdout.log",
+      "sha256": "3db6bca4b50618b2e0d2d55d23b3d0541fe039ab6f731df0e9c47317b400ce52"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T040723Z-0f71e517bd7d/source-end.json",
+      "sha256": "57caf93c57e66f4291d2567a3c8e37420648c20cb3e3ddb80361355a771b2a2b"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T040723Z-0f71e517bd7d/source-start.json",
+      "sha256": "66d29abe17b9171cfca21030e53808f6b01d153e57174d045cecb348f5c42e5b"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T040723Z-0f71e517bd7d/summary.json",
+      "sha256": "77a33b739b1aa1956e45838d9e6238b9a0c5b5aab8ce867c92ae9d97ec8790c4"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T040723Z-0f71e517bd7d/summary.txt",
+      "sha256": "31a02122fbe10d800b01b63aae9ed629393bab2d1ea5e19e3a8cc274c055296a"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T040723Z-0f71e517bd7d/test-results.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T040931Z-7dc2fb0e7aec/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T040931Z-7dc2fb0e7aec/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T040931Z-7dc2fb0e7aec/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stdout.log",
+      "sha256": "30475aebd9465d3ba4af54405bef51b2f9029c795d044199fdbbff62cfa0b9b5"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T040931Z-7dc2fb0e7aec/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/results.trx",
+      "sha256": "9d847a936230d930217a065a975473cea451b410b004d69c87cb36a47bf24a15"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T040931Z-7dc2fb0e7aec/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T040931Z-7dc2fb0e7aec/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stdout.log",
+      "sha256": "dd0bce7ed40fda2f49ff9261d5bf0c2472f370562ce7fb38a14b0ba65ebeaec3"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T040931Z-7dc2fb0e7aec/run.json",
+      "sha256": "300add4b1d8448d89567a2e9c70a2b4348ac744b7fc97911d9cfd7fcae076ec0"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T040931Z-7dc2fb0e7aec/sdk/sdk.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T040931Z-7dc2fb0e7aec/sdk/sdk.stdout.log",
+      "sha256": "3db6bca4b50618b2e0d2d55d23b3d0541fe039ab6f731df0e9c47317b400ce52"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T040931Z-7dc2fb0e7aec/source-end.json",
+      "sha256": "873e1d35ef99320d03f5268acbf03f71d86b3102e1500b6a6c132f0e10968e7f"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T040931Z-7dc2fb0e7aec/source-start.json",
+      "sha256": "ec278442f90d14d9fb701ad1019fdc9b573adbcfbac70d45b6cae97b33ffc3a8"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T040931Z-7dc2fb0e7aec/summary.json",
+      "sha256": "120b0de7fef12a19ed1ba757e478052819b4c27da1d37e29489af70c78708dad"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T040931Z-7dc2fb0e7aec/summary.txt",
+      "sha256": "d285c17d3a4977b637a465ceaa6354699ded3d2569e782f3880acae8704c0a23"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T040931Z-7dc2fb0e7aec/test-results.json",
+      "sha256": "3ce0b4d09ddf6f409ca43eaee99c5f2a65eff96580f367991d28dc660ca11780"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T040947Z-eba98cb1d216/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T040947Z-eba98cb1d216/invocations/MudsharpDatabaseLibrary_Unit_Tests-6ef1914c/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T040947Z-eba98cb1d216/invocations/MudsharpDatabaseLibrary_Unit_Tests-6ef1914c/build/build.stdout.log",
+      "sha256": "12bf4de1cf71c00bdd28965b8dc506837cf7aee83a558bcbb75411a330c40da0"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T040947Z-eba98cb1d216/invocations/MudsharpDatabaseLibrary_Unit_Tests-6ef1914c/net10-41544e89/1/results.trx",
+      "sha256": "eae4dba293057e3028116f110e40d5085d6462a1069f3dedbb45bc311120ed80"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T040947Z-eba98cb1d216/invocations/MudsharpDatabaseLibrary_Unit_Tests-6ef1914c/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T040947Z-eba98cb1d216/invocations/MudsharpDatabaseLibrary_Unit_Tests-6ef1914c/net10-41544e89/1/test.stdout.log",
+      "sha256": "3ccd15a727e6df80148d88a81073084df767ab8fecf6a0c82a11dbee2b6cf89a"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T040947Z-eba98cb1d216/run.json",
+      "sha256": "e60b160b5b20a28e1637c39388926ba76175b563839b5ac885e0bd1feb4c738b"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T040947Z-eba98cb1d216/sdk/sdk.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T040947Z-eba98cb1d216/sdk/sdk.stdout.log",
+      "sha256": "3db6bca4b50618b2e0d2d55d23b3d0541fe039ab6f731df0e9c47317b400ce52"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T040947Z-eba98cb1d216/source-end.json",
+      "sha256": "a0a7512e37eeb7a37063e740f388210af735ed8acb1b52b0373df0a456f58ca7"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T040947Z-eba98cb1d216/source-start.json",
+      "sha256": "44ce8bb9be854c8767e313f9ae1a55d978a827f262c3f33a3f70a29d2499eaa5"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T040947Z-eba98cb1d216/summary.json",
+      "sha256": "584aed53072db8043d31ef9b390bd320561b4c67f4e6bd36462c7d48875cceaf"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T040947Z-eba98cb1d216/summary.txt",
+      "sha256": "017bc91fdea2940e3ed23f4da337f0df0f97f4e359d7fbab1b9491021d218a81"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T040947Z-eba98cb1d216/test-results.json",
+      "sha256": "b3f6a0aa7076204ec236a4496276a47973ec1c24f21f0fe509572140a44f47f5"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041001Z-a3eee625b413/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041001Z-a3eee625b413/invocations/DatabaseSeeder_Unit_Tests-e14dcedb/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041001Z-a3eee625b413/invocations/DatabaseSeeder_Unit_Tests-e14dcedb/build/build.stdout.log",
+      "sha256": "606872a8d57a521c717e516875613384e83e9e5d4ba84746fad44804e6add3e1"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041001Z-a3eee625b413/invocations/DatabaseSeeder_Unit_Tests-e14dcedb/net10-41544e89/1/results.trx",
+      "sha256": "89263ed3c397fdc0e6ffe642d2ca95e9e86be8dedab9fec052aec28351f6968f"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041001Z-a3eee625b413/invocations/DatabaseSeeder_Unit_Tests-e14dcedb/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041001Z-a3eee625b413/invocations/DatabaseSeeder_Unit_Tests-e14dcedb/net10-41544e89/1/test.stdout.log",
+      "sha256": "998edb895785b9f7d4b14add12893391ce8eb6ba9ccc3c83daf5cd45b46e18cd"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041001Z-a3eee625b413/run.json",
+      "sha256": "055e5882ec577fab831f96731957831e1a238c58536e88f8c0d1f89e48c0138d"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041001Z-a3eee625b413/sdk/sdk.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041001Z-a3eee625b413/sdk/sdk.stdout.log",
+      "sha256": "3db6bca4b50618b2e0d2d55d23b3d0541fe039ab6f731df0e9c47317b400ce52"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041001Z-a3eee625b413/source-end.json",
+      "sha256": "1ded7429fd199c035a67f4e3183580c887d5470533762391124a05312bbecdba"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041001Z-a3eee625b413/source-start.json",
+      "sha256": "2b170b7d1378cd86dda1e7b639b2eabd01b9581f8805e9cfdb201f3e5c9b10ce"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041001Z-a3eee625b413/summary.json",
+      "sha256": "752237bcc07591063b4228cce2d378e67e24ddebf4793687cd638b41a3c01aa1"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041001Z-a3eee625b413/summary.txt",
+      "sha256": "5316fb0cd667279b208c318ff3449992efea77bacee536fa44189f7df1259cc0"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041001Z-a3eee625b413/test-results.json",
+      "sha256": "8996e0e04f84bd67b2c074d78530d8c065f852cf071a2da4cd2c4d425051ace2"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041020Z-c207e3eecfc9/failures.json",
+      "sha256": "f8f04fdd19624d378f71d85c8faaae68f8d6081447261cc4c167a45d04db15a1"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041020Z-c207e3eecfc9/invocations/DatabaseSeeder_Unit_Tests-e14dcedb/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041020Z-c207e3eecfc9/invocations/DatabaseSeeder_Unit_Tests-e14dcedb/build/build.stdout.log",
+      "sha256": "28cfd169aa2874142e0bc53832f0e3d25518bbda83d8062340ead454492e269f"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041020Z-c207e3eecfc9/invocations/DatabaseSeeder_Unit_Tests-e14dcedb/net10-41544e89/1/results.trx",
+      "sha256": "c457c71406fdb729116d82155f51e0ea1965cd89662eda551a57bca6e8d0e824"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041020Z-c207e3eecfc9/invocations/DatabaseSeeder_Unit_Tests-e14dcedb/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041020Z-c207e3eecfc9/invocations/DatabaseSeeder_Unit_Tests-e14dcedb/net10-41544e89/1/test.stdout.log",
+      "sha256": "487c81ef9dd47103763022d36147c8367d0b3ccab7234acd94ea83685af026ff"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041020Z-c207e3eecfc9/invocations/DiscordBotCore_Unit_Tests-4ffa2b0e/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041020Z-c207e3eecfc9/invocations/DiscordBotCore_Unit_Tests-4ffa2b0e/build/build.stdout.log",
+      "sha256": "13d2d5f0c62a9d8240f01bd7f7bcd2dc5462242e5d299f8ed5e87322ed4242b3"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041020Z-c207e3eecfc9/invocations/DiscordBotCore_Unit_Tests-4ffa2b0e/net10-41544e89/1/results.trx",
+      "sha256": "2eec32f48b9b11dd8917bf21824dc12ee19bf231097002efcf7a51566d5dc415"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041020Z-c207e3eecfc9/invocations/DiscordBotCore_Unit_Tests-4ffa2b0e/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041020Z-c207e3eecfc9/invocations/DiscordBotCore_Unit_Tests-4ffa2b0e/net10-41544e89/1/test.stdout.log",
+      "sha256": "c39055df766221c3d61e31ba0770127d4b419df8e2814826b70826a1b7f80a29"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041020Z-c207e3eecfc9/invocations/ExpressionEngine_Unit_Tests-8cdb3e65/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041020Z-c207e3eecfc9/invocations/ExpressionEngine_Unit_Tests-8cdb3e65/build/build.stdout.log",
+      "sha256": "4c91fbe8839760312c3baa2e00ad916b05b2ac4cfc5545834fc271f72cfa948c"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041020Z-c207e3eecfc9/invocations/ExpressionEngine_Unit_Tests-8cdb3e65/net10-41544e89/1/results.trx",
+      "sha256": "0e575a747b3298e192a9c7ed8d73f0772756cfec6950c2239fc4b09392186ce1"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041020Z-c207e3eecfc9/invocations/ExpressionEngine_Unit_Tests-8cdb3e65/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041020Z-c207e3eecfc9/invocations/ExpressionEngine_Unit_Tests-8cdb3e65/net10-41544e89/1/test.stdout.log",
+      "sha256": "af39fd85666b587d74d394c43ddc81b8bd6b21192c16e25268fbfac21127ef06"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041020Z-c207e3eecfc9/invocations/FutureMUD.Web.Tests-ac492d08/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041020Z-c207e3eecfc9/invocations/FutureMUD.Web.Tests-ac492d08/build/build.stdout.log",
+      "sha256": "ab55fd39a797cf9947bd281880b8f4fd79622fd4532827b4c52244f181889463"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041020Z-c207e3eecfc9/invocations/FutureMUD.Web.Tests-ac492d08/net10-41544e89/1/results.trx",
+      "sha256": "6640e81d80e9b9cbe536ba28f00b80d3aee15d65833b8d32e3f591e158fe1da0"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041020Z-c207e3eecfc9/invocations/FutureMUD.Web.Tests-ac492d08/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041020Z-c207e3eecfc9/invocations/FutureMUD.Web.Tests-ac492d08/net10-41544e89/1/test.stdout.log",
+      "sha256": "946a1eae4b3ecfbcd212201c50279e569f383e7e2a2fec5cd0f8b3f1b0715cb5"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041020Z-c207e3eecfc9/invocations/FutureMUDLibrary_Unit_Tests-45c02d6c/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041020Z-c207e3eecfc9/invocations/FutureMUDLibrary_Unit_Tests-45c02d6c/build/build.stdout.log",
+      "sha256": "758e203466f9cf2969d85e1508d1cd532f4a7be6b1a709277a96d5d48521f226"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041020Z-c207e3eecfc9/invocations/FutureMUDLibrary_Unit_Tests-45c02d6c/net10-41544e89/1/results.trx",
+      "sha256": "7ebf36bb14cb30c0b34174f02565ad663478c8155d7bf5ff2c181a31f6d399b1"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041020Z-c207e3eecfc9/invocations/FutureMUDLibrary_Unit_Tests-45c02d6c/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041020Z-c207e3eecfc9/invocations/FutureMUDLibrary_Unit_Tests-45c02d6c/net10-41544e89/1/test.stdout.log",
+      "sha256": "47cebf3653846a6d9e014f807578bacead1f793264706e9faa72cd76835a53ed"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041020Z-c207e3eecfc9/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041020Z-c207e3eecfc9/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stdout.log",
+      "sha256": "b6ade9cef8d48d080067ccd245f6a751c0d4fe826a44713ca717acf7b107c191"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041020Z-c207e3eecfc9/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/results.trx",
+      "sha256": "c5bb17b4ef92f9ee03bd3fd2dea0fd47df5f1565c854bad1d8b27966103a70a2"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041020Z-c207e3eecfc9/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041020Z-c207e3eecfc9/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stdout.log",
+      "sha256": "01633b7093b55d83c6fa47e5b28b0376516d35a232648094ac047226184b9c76"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041020Z-c207e3eecfc9/invocations/MudsharpDatabaseLibrary_Unit_Tests-6ef1914c/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041020Z-c207e3eecfc9/invocations/MudsharpDatabaseLibrary_Unit_Tests-6ef1914c/build/build.stdout.log",
+      "sha256": "e117a1da7259117d35d294f44ab7f2f5ef82933949db8b37e08627a15b4e1756"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041020Z-c207e3eecfc9/invocations/MudsharpDatabaseLibrary_Unit_Tests-6ef1914c/net10-41544e89/1/results.trx",
+      "sha256": "95fa3be89728c2c5d478d59dc2268c3ea9ab5f88ee8ab33dea9181bbda83361b"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041020Z-c207e3eecfc9/invocations/MudsharpDatabaseLibrary_Unit_Tests-6ef1914c/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041020Z-c207e3eecfc9/invocations/MudsharpDatabaseLibrary_Unit_Tests-6ef1914c/net10-41544e89/1/test.stdout.log",
+      "sha256": "ea633b75afc9e48291b6b97e1f3926bd8f9c8866d4d38b1253e10bdf6e745a31"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041020Z-c207e3eecfc9/invocations/RPI_Engine_Worldfile_Converter_Tests-14d87d34/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041020Z-c207e3eecfc9/invocations/RPI_Engine_Worldfile_Converter_Tests-14d87d34/build/build.stdout.log",
+      "sha256": "5fb52a51af91a0fef8d03b34f38225139c0a2c818c84ff4ac6dfc805099b1b6d"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041020Z-c207e3eecfc9/invocations/RPI_Engine_Worldfile_Converter_Tests-14d87d34/net10-41544e89/1/results.trx",
+      "sha256": "f8795daaa546752bbf8a3f25d833592c4310b4c5d56e9346ab0b54ab42ea84ff"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041020Z-c207e3eecfc9/invocations/RPI_Engine_Worldfile_Converter_Tests-14d87d34/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041020Z-c207e3eecfc9/invocations/RPI_Engine_Worldfile_Converter_Tests-14d87d34/net10-41544e89/1/test.stdout.log",
+      "sha256": "2faa3b705fd8cdca576e825617b503f857b8ffb0d6969ca70dafa5f3ec8c70f4"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041020Z-c207e3eecfc9/invocations/TerrainPlanner.Tests-1085b5fa/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041020Z-c207e3eecfc9/invocations/TerrainPlanner.Tests-1085b5fa/build/build.stdout.log",
+      "sha256": "0ed397b4be95e8adcebbb0a19c1cad731c828f17515477d1b7e4624bddcd6b73"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041020Z-c207e3eecfc9/invocations/TerrainPlanner.Tests-1085b5fa/net10-41544e89/1/results.trx",
+      "sha256": "d0660203419d64c5f722a7b0bd7be83f47e02e15d30ee3b2d2d8ba3495796324"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041020Z-c207e3eecfc9/invocations/TerrainPlanner.Tests-1085b5fa/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041020Z-c207e3eecfc9/invocations/TerrainPlanner.Tests-1085b5fa/net10-41544e89/1/test.stdout.log",
+      "sha256": "009d9498758f2dc3356ce6013bf2fac1e22abceab5ff3f9644d9ad00b7870496"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041020Z-c207e3eecfc9/invocations/TestReporting.Tests-25b07e44/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041020Z-c207e3eecfc9/invocations/TestReporting.Tests-25b07e44/build/build.stdout.log",
+      "sha256": "05ccd3378ab5b526ab70bd491765c7f7c2824cbd29d118ab790c56f10f82abf4"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041020Z-c207e3eecfc9/invocations/TestReporting.Tests-25b07e44/net10-41544e89/1/results.trx",
+      "sha256": "fc1c45a70325a211b7bb0a0b16ad3f2d91f514af17ba13a72124ab786b19b303"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041020Z-c207e3eecfc9/invocations/TestReporting.Tests-25b07e44/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041020Z-c207e3eecfc9/invocations/TestReporting.Tests-25b07e44/net10-41544e89/1/test.stdout.log",
+      "sha256": "2c20c40b369e30c0a4e3ecb031685041d6c0634241df231df985341f7ba664a6"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041020Z-c207e3eecfc9/run.json",
+      "sha256": "4d6da7c515ae905a19cae6bf5e466dbf09599138730552eff3b63f218714fc79"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041020Z-c207e3eecfc9/sdk/sdk.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041020Z-c207e3eecfc9/sdk/sdk.stdout.log",
+      "sha256": "3db6bca4b50618b2e0d2d55d23b3d0541fe039ab6f731df0e9c47317b400ce52"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041020Z-c207e3eecfc9/source-end.json",
+      "sha256": "e3a8e0cedd3547504458eb60fb89a00f3f8dacc3deeec51d7cd1c040d4771645"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041020Z-c207e3eecfc9/source-start.json",
+      "sha256": "952c7f90f2d831bc141870b28c815178f09f4c5c58fb93d82069ffba73de94c7"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041020Z-c207e3eecfc9/summary.json",
+      "sha256": "359a685b487c956ee7bd70ed2b5ce93245dd017e45c6dd3d318fe5e1e2f605f0"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041020Z-c207e3eecfc9/summary.txt",
+      "sha256": "b0d87ac587c0bb16dd993bf701012f6a008f5977ddf60d4784013235faeb4591"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041020Z-c207e3eecfc9/test-results.json",
+      "sha256": "bf4ab5ffde4a43619fae04911436a60edd1853b099aa6f3a1050cf687096162b"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041925Z-830b4f302099/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041925Z-830b4f302099/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041925Z-830b4f302099/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stdout.log",
+      "sha256": "2a57634a7ddb1e12e6194cdee58ac800cca0dfa89967cfc768193217c1f63bf9"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041925Z-830b4f302099/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/results.trx",
+      "sha256": "56866242c330c4d3289cedd9cf9aa9a23d7c8666fd82dabdc88154c625e995fb"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041925Z-830b4f302099/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041925Z-830b4f302099/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stdout.log",
+      "sha256": "2132c591e6dd7d03c3f2b9cee10ca1a4992d8991e6da58949fd5a28422660976"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041925Z-830b4f302099/run.json",
+      "sha256": "f06ba122b1305857959de5f95abc4b92e4d5d2c92ad3ab65394bc2372b656efd"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041925Z-830b4f302099/sdk/sdk.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041925Z-830b4f302099/sdk/sdk.stdout.log",
+      "sha256": "3db6bca4b50618b2e0d2d55d23b3d0541fe039ab6f731df0e9c47317b400ce52"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041925Z-830b4f302099/source-end.json",
+      "sha256": "4c11feda594cca62b1bd3a49787c83393e32f885b45fbaf13214eec9659bc8e5"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041925Z-830b4f302099/source-start.json",
+      "sha256": "2249f848a783a84788150890ddfb4f195b333084a4c03ede323154471866107b"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041925Z-830b4f302099/summary.json",
+      "sha256": "78c1b4751ee90d4824d49e262d41b7363f42d7f14b990f45bbf54ae51654e033"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041925Z-830b4f302099/summary.txt",
+      "sha256": "eeb737e311b90beeb5cc794c786f07ce7ee06fb9f880dbc1a6c6eece883b9534"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041925Z-830b4f302099/test-results.json",
+      "sha256": "3f354aa03bf877bd7f7205198acc7fb1941de257b9f19fd0389aeba582431bdf"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041956Z-9b65656d7c4e/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041956Z-9b65656d7c4e/invocations/DatabaseSeeder_Unit_Tests-e14dcedb/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041956Z-9b65656d7c4e/invocations/DatabaseSeeder_Unit_Tests-e14dcedb/build/build.stdout.log",
+      "sha256": "b01f438f9fbfb06686c641740d7db06f7c0af657cd7a0715e80f8f3645800ef2"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041956Z-9b65656d7c4e/invocations/DatabaseSeeder_Unit_Tests-e14dcedb/net10-41544e89/1/results.trx",
+      "sha256": "1c01877598abf7cf0229444d8115b9fcee2145439c3ff5e05f4e8bd0a852dfa1"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041956Z-9b65656d7c4e/invocations/DatabaseSeeder_Unit_Tests-e14dcedb/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041956Z-9b65656d7c4e/invocations/DatabaseSeeder_Unit_Tests-e14dcedb/net10-41544e89/1/test.stdout.log",
+      "sha256": "dc93cded4f00246436ed6c2d8ac55f255726d69ce7b405ec35da9690c85a0c07"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041956Z-9b65656d7c4e/invocations/DiscordBotCore_Unit_Tests-4ffa2b0e/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041956Z-9b65656d7c4e/invocations/DiscordBotCore_Unit_Tests-4ffa2b0e/build/build.stdout.log",
+      "sha256": "f249c78b7951069d66d87af8d5acf09c4f4b38c5df2626b2100af6fb323ccd1a"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041956Z-9b65656d7c4e/invocations/DiscordBotCore_Unit_Tests-4ffa2b0e/net10-41544e89/1/results.trx",
+      "sha256": "41e2313f76b4b7642f11eb39906e0f003fe315a381fd5ef6695424ff7095b4af"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041956Z-9b65656d7c4e/invocations/DiscordBotCore_Unit_Tests-4ffa2b0e/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041956Z-9b65656d7c4e/invocations/DiscordBotCore_Unit_Tests-4ffa2b0e/net10-41544e89/1/test.stdout.log",
+      "sha256": "469da4d998a0dc08512c6ef1bf27b672c2cd843ca5c39a535aeec0c50293453a"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041956Z-9b65656d7c4e/invocations/ExpressionEngine_Unit_Tests-8cdb3e65/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041956Z-9b65656d7c4e/invocations/ExpressionEngine_Unit_Tests-8cdb3e65/build/build.stdout.log",
+      "sha256": "2474b8fcaf1ff807e033517963cfb8ba05bae2337941bada4fb9111db3b279f8"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041956Z-9b65656d7c4e/invocations/ExpressionEngine_Unit_Tests-8cdb3e65/net10-41544e89/1/results.trx",
+      "sha256": "853d6df1b1c3ded5444449e337e9c33bc9e6b30855b64e0177c2f5b68f4ebcb4"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041956Z-9b65656d7c4e/invocations/ExpressionEngine_Unit_Tests-8cdb3e65/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041956Z-9b65656d7c4e/invocations/ExpressionEngine_Unit_Tests-8cdb3e65/net10-41544e89/1/test.stdout.log",
+      "sha256": "f07e53bd374a3fb655f5f4f9ccd245a545aca156b5faa3a34c251841aca25d46"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041956Z-9b65656d7c4e/invocations/FutureMUD.Web.Tests-ac492d08/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041956Z-9b65656d7c4e/invocations/FutureMUD.Web.Tests-ac492d08/build/build.stdout.log",
+      "sha256": "023469573df4bdb51aad82174b56e6b06b3c1159f8faeb309caf90377a1da379"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041956Z-9b65656d7c4e/invocations/FutureMUD.Web.Tests-ac492d08/net10-41544e89/1/results.trx",
+      "sha256": "66b89550c34574d97a1d9607ca695ec81d14378cbe3770f51ae95da77ff65f29"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041956Z-9b65656d7c4e/invocations/FutureMUD.Web.Tests-ac492d08/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041956Z-9b65656d7c4e/invocations/FutureMUD.Web.Tests-ac492d08/net10-41544e89/1/test.stdout.log",
+      "sha256": "44531cdc3bd4769be6c92adc7dae44eb8bc45f790073289ae2bf1e3ae71c53e4"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041956Z-9b65656d7c4e/invocations/FutureMUDLibrary_Unit_Tests-45c02d6c/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041956Z-9b65656d7c4e/invocations/FutureMUDLibrary_Unit_Tests-45c02d6c/build/build.stdout.log",
+      "sha256": "e1b8b4af23accb62742ce8ebebaf458d73c1593bcbdf2f678c55bdbbf9b86148"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041956Z-9b65656d7c4e/invocations/FutureMUDLibrary_Unit_Tests-45c02d6c/net10-41544e89/1/results.trx",
+      "sha256": "709fd85c53f7795af861a956a9975501a10c8c7153b1ab421de6f8749fe5bf1f"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041956Z-9b65656d7c4e/invocations/FutureMUDLibrary_Unit_Tests-45c02d6c/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041956Z-9b65656d7c4e/invocations/FutureMUDLibrary_Unit_Tests-45c02d6c/net10-41544e89/1/test.stdout.log",
+      "sha256": "ea3b39db962b8e8ce129242a068645288ea277052834013062d59cafb9de770e"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041956Z-9b65656d7c4e/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041956Z-9b65656d7c4e/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stdout.log",
+      "sha256": "cc054b1159fbdf5122ced35d41f3dea215c5b3fdabda97ef284dc31d62cd7d31"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041956Z-9b65656d7c4e/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/results.trx",
+      "sha256": "0f464e4aa80d1267fb1ebd11d412f42700fcf3c3c615cfb13263543a0b3d5e97"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041956Z-9b65656d7c4e/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041956Z-9b65656d7c4e/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stdout.log",
+      "sha256": "2b96863a02aff4decd380e54a6c00e58dde39678d96418af333b6a427150e618"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041956Z-9b65656d7c4e/invocations/MudsharpDatabaseLibrary_Unit_Tests-6ef1914c/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041956Z-9b65656d7c4e/invocations/MudsharpDatabaseLibrary_Unit_Tests-6ef1914c/build/build.stdout.log",
+      "sha256": "c93b7589f64009ffb89706c8d4ef3c33942b6dbb3d929601ef45926c30fca61b"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041956Z-9b65656d7c4e/invocations/MudsharpDatabaseLibrary_Unit_Tests-6ef1914c/net10-41544e89/1/results.trx",
+      "sha256": "b0d34a9f8fcc3419e0ca952bb97cc310505a012f5b1b13a2fa340021ac54108c"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041956Z-9b65656d7c4e/invocations/MudsharpDatabaseLibrary_Unit_Tests-6ef1914c/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041956Z-9b65656d7c4e/invocations/MudsharpDatabaseLibrary_Unit_Tests-6ef1914c/net10-41544e89/1/test.stdout.log",
+      "sha256": "da9de21a2a11f3cb0a3e08993d93d094fb25a621a1b44d6c2da2349338106efe"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041956Z-9b65656d7c4e/invocations/RPI_Engine_Worldfile_Converter_Tests-14d87d34/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041956Z-9b65656d7c4e/invocations/RPI_Engine_Worldfile_Converter_Tests-14d87d34/build/build.stdout.log",
+      "sha256": "d75a4c64e1282ca2ddd35b25e52af5ef7fce7c3895766cfc185c590773df7da3"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041956Z-9b65656d7c4e/invocations/RPI_Engine_Worldfile_Converter_Tests-14d87d34/net10-41544e89/1/results.trx",
+      "sha256": "d92cf9734ae4cb3d7993c3fd20355a088cbcad4425bc6ec0761e94c0d1f68900"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041956Z-9b65656d7c4e/invocations/RPI_Engine_Worldfile_Converter_Tests-14d87d34/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041956Z-9b65656d7c4e/invocations/RPI_Engine_Worldfile_Converter_Tests-14d87d34/net10-41544e89/1/test.stdout.log",
+      "sha256": "2f368bf9d844897b14230d094cbff3414115029c733aa3e664f153a8dd789c10"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041956Z-9b65656d7c4e/invocations/TerrainPlanner.Tests-1085b5fa/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041956Z-9b65656d7c4e/invocations/TerrainPlanner.Tests-1085b5fa/build/build.stdout.log",
+      "sha256": "8973ebb336714a33e494817b578e41ca59c6ead23085da65d16f9024bb277d22"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041956Z-9b65656d7c4e/invocations/TerrainPlanner.Tests-1085b5fa/net10-41544e89/1/results.trx",
+      "sha256": "8f0866e432e82d276f1512b90d28262965c56d3aeb6df2536399c72285388264"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041956Z-9b65656d7c4e/invocations/TerrainPlanner.Tests-1085b5fa/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041956Z-9b65656d7c4e/invocations/TerrainPlanner.Tests-1085b5fa/net10-41544e89/1/test.stdout.log",
+      "sha256": "502d958f3d6521362861e1cdf4d474c88e5067d855c52252b39ffecffdc78f8b"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041956Z-9b65656d7c4e/invocations/TestReporting.Tests-25b07e44/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041956Z-9b65656d7c4e/invocations/TestReporting.Tests-25b07e44/build/build.stdout.log",
+      "sha256": "c014285e4cb9cdcb3ecda981286d35c38b20eb8e83cda8b49955b79a7d93247f"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041956Z-9b65656d7c4e/invocations/TestReporting.Tests-25b07e44/net10-41544e89/1/results.trx",
+      "sha256": "a68821e860e5873c34997e8a3e0d892549c0f37b99c378edc9a4493c13ce7f65"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041956Z-9b65656d7c4e/invocations/TestReporting.Tests-25b07e44/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041956Z-9b65656d7c4e/invocations/TestReporting.Tests-25b07e44/net10-41544e89/1/test.stdout.log",
+      "sha256": "e1c89ca86e1d27b75464477a775e604df949be3740959b46859ff732af9744b7"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041956Z-9b65656d7c4e/run.json",
+      "sha256": "0cfeeea409f08f6cc2f5dc93c1b8c0e48b6925d673b42e72e337a1de74997ab2"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041956Z-9b65656d7c4e/sdk/sdk.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041956Z-9b65656d7c4e/sdk/sdk.stdout.log",
+      "sha256": "3db6bca4b50618b2e0d2d55d23b3d0541fe039ab6f731df0e9c47317b400ce52"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041956Z-9b65656d7c4e/source-end.json",
+      "sha256": "4aeb57345abb0d3eca51419bc936500491b3ad6a033b26aa992fdbe090640d2a"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041956Z-9b65656d7c4e/source-start.json",
+      "sha256": "5b1f44a3548265d8cd799c510b37fcb56ca04382fdb9e3fd293f53580a74f4db"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041956Z-9b65656d7c4e/summary.json",
+      "sha256": "97ee931eebbaeace2bc1378b76cb793ed600a8b2c4c8b40f1bb43c77b0397f14"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041956Z-9b65656d7c4e/summary.txt",
+      "sha256": "5a481dd73016aa8922e87bb4d90849a770584ef27b0dc0f6ade20609948135ec"
+    },
+    {
+      "path": ".artifacts/test-runs/20261003T041956Z-9b65656d7c4e/test-results.json",
+      "sha256": "bcfe7a35ad367be3b44d982740bf8afa875a1ba217ae7a218b56d24f034b46a0"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261003-stage3B-archive/after-launch-cleanup-fingerprint-verification.json",
+      "sha256": "e0bbea6a3963cdc789e8dcb812afa793afaca6f16bba4e824f2f603b9cd8f714"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261003-stage3B-archive/final-fingerprint-verification.json",
+      "sha256": "33c8bd8cc9cc163dc37a519b24575e108bbef01b4dae257c867de95bf6264fa0"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261003-stage3B-archive/final-inputs.json",
+      "sha256": "6cd38ff10c96163718bf2a30ccc9bff185fa63829883191ffd9dddf91e01e8ea"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261003-stage3B-archive/final-native-exit.json",
+      "sha256": "6f5969ccc1afe6a3b6b1060267d3d00c37c3e214f25b975aa3bc2f08530b1579"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261003-stage3B-archive/final-native-launch-cleanup-admin-warning.log",
+      "sha256": "0028ae8ae9144e89454792bcd9091b8954da5d5e43cad3e1cf7e75dcb763bf1e"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261003-stage3B-archive/final-native-launch-cleanup-client-warning.log",
+      "sha256": "d4e67a7d9e00757615b379c072e9e50bed9377f149256e4d5eb34d7ff3006dd2"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261003-stage3B-archive/final-native-launch-cleanup.json",
+      "sha256": "8e701890b81375b298ddafa0a5b9a800a20f330ad94cc277b493f25fdef98952"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261003-stage3B-archive/final-native-launch-cleanup2.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261003-stage3B-archive/final-native-launch-cleanup3.log",
+      "sha256": "8adbe5d38b4baed17132cab1a7a231ffa72ea6646854fd15e8690dc478b03b36"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261003-stage3B-archive/final-native-summary.json",
+      "sha256": "5f83ab2686725b38a72d6f55a3ca8a333341e96c55ac000fe99bf34d5e5e1ce4"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261003-stage3B-archive/final-native.log",
+      "sha256": "d355df9afe9de9ad6cadf1e06e4087edb7435b3235cf25c2369f426fe31a3a04"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261003-stage3B-archive/final-native2-exit.json",
+      "sha256": "bfc24e73bd328c945a5c5b9ccd619584fed8dd7a4c7f52126cff282814bf5536"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261003-stage3B-archive/final-native2.log",
+      "sha256": "c60cca2fda80633a026d1e5787b385fa12acfb9e5bb3213698484c5b6dfea587"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261003-stage3B-archive/final-preservation.json",
+      "sha256": "c06c71e617afa61a45717ad739d796db1089e4afd1a303838d79a9f3d41c8c28"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261003-stage3B-archive/implementation-commit.log",
+      "sha256": "b5f46acd7c2533dde7f312efae47551afd77f57cddcfe2451872adadc40d53bd"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261003-stage3B-archive/launch-datadir-warning.log",
+      "sha256": "d4e67a7d9e00757615b379c072e9e50bed9377f149256e4d5eb34d7ff3006dd2"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261003-stage3B-archive/post-code-fingerprint-verification.json",
+      "sha256": "0964eda3957ed9fd701847b1b2b44b16317358c858241c14f133257d7c7cba6f"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261003-stage3B-archive/precommit-diff-check.stderr.log",
+      "sha256": "49d22a5a7ba85aa73717e0a605074d80df46c0ebd46822c3e67c8896633116d2"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261003-stage3B-archive/restored-writing-index-receipt.json",
+      "sha256": "4086ee4899f3c6880ec9c4c346dd4b7a9492ad4795387a22ea950d63df9f1054"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261003-stage3B-archive/start-fingerprint-verification.json",
+      "sha256": "a12d517bcbb27d74c62c9c48e6f308c744670ad87c7444a8fcf22c7eb03fec55"
+    }
+  ],
+  "workspace_helper_fingerprints": [
+    {
+      "path": "capture_stage3b_archive_inputs.py",
+      "sha256": "b8994592eec291d9dff5b4655a70c44c6bff133ebab6775e9c18004bc835e99c"
+    },
+    {
+      "path": "Cleanup-Phase3BArchiveLaunchAttempt.ps1",
+      "sha256": "a34034fe405c7cf1eb01b4eb145cf3200168b93e2ed8ee79539418df29cc83f9"
+    },
+    {
+      "path": "Commit-Phase3BArchiveCheckpoint.ps1",
+      "sha256": "1c6d33a1796938e639ed9635f2c08e8aee0db61604e314acd923a1a28fe5f06b"
+    },
+    {
+      "path": "make_stage3b_archive_receipt.py",
+      "sha256": "014d626ae9460d158ebdae7fcbb069b48b3dfaf08eed604304e4715a2822044c"
+    },
+    {
+      "path": "Phase3BArchive-Implementation-commit-message.txt",
+      "sha256": "f2f2d07be7001b7604b0ad0e95b900ed9ddf43427bf730dfa91f76a7ca8daead"
+    },
+    {
+      "path": "Record-Phase3BArchivePreservation.ps1",
+      "sha256": "7fa77753bad276dccf417b5e4ab711df3c2b769afcad0b9753cb74b182323534"
+    },
+    {
+      "path": "record_stage3b_archive_final.py",
+      "sha256": "57d2e430fd4bd3aa866a545b14b5d85b43f7a1492dd7371db2a76a22a6406c1b"
+    },
+    {
+      "path": "Run-Phase3BArchiveFinalNative.ps1",
+      "sha256": "a8555587dcb1c37c454b051cedebb415c00d11e77c48212d722e42a15c5a27eb"
+    },
+    {
+      "path": "Run-Phase3BArchiveNative.ps1",
+      "sha256": "b6f24b938eda479c91d5ad3e2dbd7c9114d83572556a5aea4b024543b48bdf6e"
+    },
+    {
+      "path": "Run-Phase3BArchiveTests.ps1",
+      "sha256": "ae4a14c3b3ed18719cb98c8bab066adcc31fd270a7cece519efd0f227ab8b366"
+    },
+    {
+      "path": "summarize_stage3b_archive_native.py",
+      "sha256": "66d03c4da321abdd74c89f6074412babc62e47edf006586c7ed13f0cd0624f88"
+    },
+    {
+      "path": "verify_stage3b_archive_fingerprints.py",
+      "sha256": "9a9127e8767873908bb392b8446093f58103ace24fc6e7260e41fa12e41f56ca"
+    }
+  ],
+  "publication_merge_deployment_actions": [],
+  "production_or_shared_database_mutations": [],
+  "default_database_connection_incident": {
+    "run": "20261003T041020Z-c207e3eecfc9",
+    "status": "denied_handshake_no_query_or_write_completed",
+    "fixed_and_retested": true
+  }
+}

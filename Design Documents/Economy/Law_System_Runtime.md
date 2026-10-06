@@ -1,5 +1,12 @@
 # FutureMUD Law System Runtime
 
+Finalized crime attribution may reference a spell-owned archived NPC. The canonical
+ID and recorded descriptions remain, while the criminal cache uses a weak reference and
+history display/trial victim names can use the immutable archive without loading a body or
+AI. Every unfinished criminal crime retains the physical graph, including stale crimes that
+can be reported again by a surviving witness. The archival boundary and its held
+dependencies are documented in [Spell-owned lifecycle](../Magic/Spell_Owned_Lifecycle.md).
+
 ## Purpose
 
 This document records the current runtime behavior of the legal authority, sentencing, and patrol systems. It is intended as a builder-facing and implementer-facing reference for the coded law system rather than a setting-specific legal guide.

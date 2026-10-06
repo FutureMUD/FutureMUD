@@ -100,6 +100,10 @@ namespace MudSharp.Framework
 		MudSharp.Magic.Environment.IEnvironmentalMagicService? EnvironmentalMagic => null;
 		MudSharp.Magic.IMagicGatheringService? MagicGathering => null;
 		MudSharp.Magic.IMagicCastingService? MagicCasting => null;
+		ICharacterArchiveService? CharacterArchives => null;
+		MudSharp.Magic.ISpellOwnedNpcService? SpellOwnedNpcs => null;
+		MudSharp.Magic.ISpellOwnedItemService? SpellOwnedItems => null;
+		MudSharp.Magic.ISpellOwnedCorpseAnimationService? SpellOwnedCorpseAnimations => null;
 #nullable restore annotations
         void ReleasePrimedGameItems();
         void PrimeGameItems();
@@ -609,6 +613,7 @@ namespace MudSharp.Framework
         /// <param name="useCachedValues"></param>
         /// <returns></returns>
         ICharacter TryGetCharacter(long id, bool useCachedValues = false);
+        void ForgetArchivedCharacter(ICharacter character);
 
         /// <summary>
         /// Tries to find a player character by personal name, and loads them if not found

@@ -6,6 +6,7 @@ using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.Health;
 using MudSharp.RPG.Checks;
+using MudSharp.NPC.AI;
 
 namespace MudSharp.Combat.Moves;
 
@@ -43,24 +44,33 @@ public class MultiTargetCombatMove : CombatMoveBase
 	public override Difficulty RecoveryDifficultySuccess => PrimaryMove.RecoveryDifficultySuccess;
 	public override Difficulty RecoveryDifficultyFailure => PrimaryMove.RecoveryDifficultyFailure;
 	public override double BaseDelay => PrimaryMove.BaseDelay;
+	public override bool UsesStaminaWithResult(CombatMoveResult result) =>
+		!(ReferenceEquals(result, CombatMoveResult.Irrelevant) && CommandExecutionAuthority.IsOrdered(this)) &&
+		base.UsesStaminaWithResult(result);
 
 	public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
 	{
+		using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterMove(this);
+		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
 		_resolutions.Clear();
 		var results = new List<CombatMoveResult>(_moves.Count);
 		var wounds = new List<IWound>();
 		var selfWounds = new List<IWound>();
 		for (var i = 0; i < _moves.Count; i++)
 		{
+			if (!CanContinueCommand()) break;
 			var move = _moves[i];
+			CommandExecutionAuthority.Inherit(this, move);
 			var target = _moveTargets[i];
 			if (target.Combat != Assailant.Combat)
 			{
 				continue;
 			}
 
-			var response = target.ResponseToMove(move, Assailant);
-			var result = move.ResolveMove(response);
+			ICombatMove? response = null;
+			var result = CommandExecutionScope.ResolveOwned(this, move,
+				() => response = target.ResponseToMove(move, Assailant));
+			if (ReferenceEquals(result, CombatMoveResult.Irrelevant) && !CanContinueCommand()) break;
 			_resolutions.Add(new MultiTargetCombatResolution(move, response, result));
 			results.Add(result);
 			wounds.AddRange(result.WoundsCaused);
@@ -139,9 +149,12 @@ public class MultiTargetCombatMove : CombatMoveBase
 		var remaining = maximumTargets - 1;
 		foreach (var candidate in assailant.Combat.Combatants
 			         .OfType<ICharacter>()
-			         .Where(x => x != assailant && x != primaryTarget && !assailant.IsAlly(x))
-			         .Where(x => candidateFilter?.Invoke(x) ?? true))
+			         .Where(x => x != assailant && x != primaryTarget).ToArray())
 		{
+			if (!CommandExecutionScope.TryContinue(assailant)) yield break;
+			var permitted = !assailant.IsAlly(candidate) && (candidateFilter?.Invoke(candidate) ?? true);
+			if (!CommandExecutionScope.TryContinue(assailant)) yield break;
+			if (!permitted) continue;
 			if (ranged)
 			{
 				if (!assailant.CanSee(candidate) || !IsValidRangedSecondary(assailant, candidate, attack))
@@ -155,6 +168,7 @@ public class MultiTargetCombatMove : CombatMoveBase
 				continue;
 			}
 
+			if (!CommandExecutionScope.TryContinue(assailant)) yield break;
 			yield return candidate;
 			remaining--;
 			if (remaining == 0)

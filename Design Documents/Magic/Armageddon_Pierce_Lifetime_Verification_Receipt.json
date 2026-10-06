@@ -1,0 +1,1295 @@
+{
+  "schema_version": 1,
+  "stock_clear": false,
+  "entry_verification_passed": true,
+  "independent_review_pending": true,
+  "accumulation_policy_implemented": true,
+  "strongest_source_grade_retained": true,
+  "shared_repairs_qualified": true,
+  "verified_source_commit": "7108d334415965ed15233ca9bf6a3f1e3f3c4fe6",
+  "base_commit": "1ad24d636925da64e7a82ffa858b0af470e56b0a",
+  "branch": "codex/armageddon-five-stock-spells",
+  "worktree": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-4\\FutureMUD-five-stock",
+  "sdk": "10.0.401",
+  "implementation_commits": [
+    "d230a2efa7370f8df504917681ecbd77d1a57b2b",
+    "3162587cf93aab183149bb1101c493891792e6c7",
+    "16e9373e81321b00a53ae18fe1367915f87c1f11",
+    "7108d334415965ed15233ca9bf6a3f1e3f3c4fe6"
+  ],
+  "stock_configuration_commit": "64b0f6cf3744574eb1fdc24f890155e04658b08a",
+  "historical_source": {
+    "library_file_id": "libfile_befb4ae78d1c8191aaa2640c49912d9d",
+    "file_id": "file_00000000438871faac40c5042679ce3a",
+    "windows": [
+      "84574-84608 spell_detect_invisibility",
+      "81574-81592 stack_spell_affect",
+      "24979 RT_ZAL_HOUR",
+      "49438 affect_to_char",
+      "172611 affect_update"
+    ],
+    "access": "Supported Library content reads; no failed-transfer bypass or assumed local cloud path."
+  },
+  "historical_unit_seconds": 600,
+  "historical_cap_units": 48,
+  "historical_cap_seconds": 28800,
+  "group": "armageddon.detect_invisibility",
+  "grouping": "Recipient-local tagged source group across spell IDs and casters; untagged/different groups independent.",
+  "source_strength": "Maximum source grade, stored separately from editable native SpellPower; corresponding retained parent power.",
+  "adaptations": [
+    "Native exact/subsecond deadlines normalize the historical inclusive one-second endpoint.",
+    "Existing saved Remaining milliseconds and cached/offline schedule restoration are preserved; no new absolute expiry persisted.",
+    "Configured native world hours are independent of the authored historical 600-second unit.",
+    "Opt-in requires an explicit selected-grade invocation; unbound legacy releases refuse instead of inferring grade from power."
+  ],
+  "source_fingerprint": "1144b01f3244af02df24cad3c15d234354203c5ccda2d754cf18dd40eda09159",
+  "source_stable": true,
+  "aggregate": {
+    "status": "PASS",
+    "run_id": "20261005T132111Z-bd3bd16c3e43",
+    "counts": {
+      "executed": 7477,
+      "passed": 7477,
+      "failed": 0,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 7477
+    },
+    "projects": [
+      "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+      "ExpressionEngine Unit Tests/ExpressionEngine Unit Tests.csproj",
+      "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+      "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+      "MudsharpDatabaseLibrary Unit Tests/MudsharpDatabaseLibrary Unit Tests.csproj",
+      "DiscordBotCore Unit Tests/DiscordBotCore Unit Tests.csproj",
+      "RPI Engine Worldfile Converter Tests/RPI Engine Worldfile Converter Tests.csproj",
+      "FutureMUD.Web.Tests/FutureMUD.Web.Tests.csproj",
+      "TerrainPlanner/TerrainPlanner.Tests/TerrainPlanner.Tests.csproj",
+      "scripts/TestReporting.Tests/TestReporting.Tests.csproj"
+    ],
+    "summary": {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-units-03/20261005T132111Z-bd3bd16c3e43/summary.json",
+      "sha256": "c59106f075c3d6cf251ef3fa2a2b5ab34a9e2e9a7f32b17c595f07b196e9dc89"
+    },
+    "focused_passed": 57,
+    "focus": {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-units-03/pierce-lifetime-focus.json",
+      "sha256": "8f97c7f542feec4f56892c8390c9f2c92c0f3104c17afcfee7a543776aa7d07f"
+    }
+  },
+  "native": {
+    "status": "PASS entry verification and prior regressions",
+    "overall_passed": true,
+    "summary": {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-native-02/summary.json",
+      "sha256": "a83320b21549a29af10493bc4b6617ca1bd4aece6b950d57adddc80f33ccf71b"
+    },
+    "source_files": 7444,
+    "source_stable": true,
+    "assemblies_stable": true,
+    "source_manifest_sha256": "bf9c5b8f3c747302c4dfeb8f7b0e1cbbfe20ba03cc37aef8757bdae3b51fbe9e",
+    "assembly_manifest_sha256": "901140a59af8a86c9d47afde96e70d269ef510ecbc2f6d5f20b63b28ca96758b",
+    "runs": [
+      {
+        "mode": "pierce-stock",
+        "exit_code": 0,
+        "passed": true,
+        "owned_cleanup": true,
+        "log": ".artifacts/test-runs/pierce-lifetime-final-native-02/pierce-stock.log"
+      },
+      {
+        "mode": "pierce-shared-runtime",
+        "exit_code": 0,
+        "passed": true,
+        "owned_cleanup": true,
+        "log": ".artifacts/test-runs/pierce-lifetime-final-native-02/pierce-shared-runtime.log"
+      },
+      {
+        "mode": "provision-stock",
+        "exit_code": 0,
+        "passed": true,
+        "owned_cleanup": true,
+        "log": ".artifacts/test-runs/pierce-lifetime-final-native-02/provision-stock.log"
+      },
+      {
+        "mode": "five-stock",
+        "exit_code": 0,
+        "passed": true,
+        "owned_cleanup": true,
+        "log": ".artifacts/test-runs/pierce-lifetime-final-native-02/five-stock.log"
+      },
+      {
+        "mode": "regressions",
+        "exit_code": 0,
+        "passed": true,
+        "owned_cleanup": true,
+        "log": ".artifacts/test-runs/pierce-lifetime-final-native-02/regressions.log"
+      },
+      {
+        "mode": "devices",
+        "exit_code": 0,
+        "passed": true,
+        "owned_cleanup": true,
+        "log": ".artifacts/test-runs/pierce-lifetime-final-native-02/devices.log"
+      }
+    ]
+  },
+  "core_assembly_sha256": "385259f782aadaf44f94699c9c9035e57e1679f3de899f0bfbc66c144b25e9b8",
+  "core_copies": [
+    {
+      "path": "MudSharpCore Unit Tests/bin/Debug/net10.0/MudSharp.dll",
+      "sha256": "385259f782aadaf44f94699c9c9035e57e1679f3de899f0bfbc66c144b25e9b8"
+    },
+    {
+      "path": "Temporary Scratch App/PierceStockNativeHarness/bin/Debug/net10.0/MudSharp.dll",
+      "sha256": "385259f782aadaf44f94699c9c9035e57e1679f3de899f0bfbc66c144b25e9b8"
+    },
+    {
+      "path": "tests/ArmageddonChargedDeviceNativeHarness/bin/Debug/net10.0/MudSharp.dll",
+      "sha256": "385259f782aadaf44f94699c9c9035e57e1679f3de899f0bfbc66c144b25e9b8"
+    }
+  ],
+  "source_files": [
+    {
+      "path": "Design Documents/Magic/Armageddon_Pierce_Lifetime_Integration.md",
+      "sha256": "3bfbb9f62363294cff9e264c6c5b01f5f673e489309f13d899f20f444be20142",
+      "git_blob_sha1": "9fb248cc0717c7628fea807e567efed025164533"
+    },
+    {
+      "path": "Design Documents/Magic/Detection_Accumulation_Lifetime_Policy.md",
+      "sha256": "abf015c9c00c05dacd9ab29f1bafd2ee3cff32acb5c3d0528562cb3d3cd0d377",
+      "git_blob_sha1": "c66b22180e1007b7d18a3b7ae1f29b9b73357011"
+    },
+    {
+      "path": "FutureMUDLibrary/Effects/IEffectExpiryObserver.cs",
+      "sha256": "887659519e083d11872e8564c94ad834a14a09f8c93885f46a92eb58673f45fd",
+      "git_blob_sha1": "6485a8c842bcc3778949b7c42aa9c2df3ae3f600"
+    },
+    {
+      "path": "FutureMUDLibrary/FutureMUDLibrary.csproj",
+      "sha256": "6fae3b58fd45c2c364ddef329bbb3c231c6641a928e31374189954fa29cc26d4",
+      "git_blob_sha1": "b8e2faf84897cfd799415a11348b9ed22df7fdcf"
+    },
+    {
+      "path": "FutureMUDLibrary/GameItems/Interfaces/IChargedMagicDevice.cs",
+      "sha256": "fa69e2bac7cfd4307a16efeae638155e4c288dd6c3ea8d32bd7399e4d0405f9e",
+      "git_blob_sha1": "4a81b910c4d8aaa95c6d1b7e8dc5747d67d43e41"
+    },
+    {
+      "path": "FutureMUDLibrary/GameItems/Prototypes/IChargedMagicDevicePrototype.cs",
+      "sha256": "1e6ec5507213d6404479dbef680fe4b1cdff8f286d088cca04fd57ed78280626",
+      "git_blob_sha1": "d30ad38e77f027a1cbb33e72526b7fdfeffbb9e9"
+    },
+    {
+      "path": "FutureMUDLibrary/Magic/IMagicResourceCapacity.cs",
+      "sha256": "abe38cd2756dee19d4d0868fa05c1192a24ff3b73b18a44e46f8ec7e92b1057b",
+      "git_blob_sha1": "b5028f2fdc7adce48b2e2317e7655ef867c37b65"
+    },
+    {
+      "path": "FutureMUDLibrary/Magic/IMagicSpellEffectApplicationOperation.cs",
+      "sha256": "15bda6e8e99b850d4c85fef8be00320b7d79ad74ac18046f46b39bbdbabe3d25",
+      "git_blob_sha1": "adf21c7176df0a473a21940ed46ec5ca438d0b2d"
+    },
+    {
+      "path": "FutureMUDLibrary/Magic/IMagicSpellEffectLifetimePolicy.cs",
+      "sha256": "6d23580bae7d7d6433b5ee789c4e3626e63e7e0472dc99b4d521ebf0554f4968",
+      "git_blob_sha1": "daf3679c99e922182bd27c837e03534a4758aa9c"
+    },
+    {
+      "path": "FutureMUDLibrary/Magic/IMagicSpellEffectPreparedSelection.cs",
+      "sha256": "6c7fe04f7158086a792c799a1382406bd481059ad805086e700df6404f1b9fdf",
+      "git_blob_sha1": "d62d9c2709832f7f5c169b36c6ab0941bf193c27"
+    },
+    {
+      "path": "FutureMUDLibrary/Magic/MagicResourceCapacityAdmission.cs",
+      "sha256": "3b0196f7aff705d18c14c5ecada9863106efbdfd4016f1a588bace07a9b3b439",
+      "git_blob_sha1": "b1995941aa1f35cfda136b3c949c03ecbb0c5896"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/CastingTargetFilterTests.cs",
+      "sha256": "a030c65a0e741d19c2293d4f4e859f4b636a47ef828f74e41393cfa96ebcb700",
+      "git_blob_sha1": "320b1575f1fdb6bf5ff5c76e0498fb660bd7ecfd"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/ChargedMagicDeviceTests.cs",
+      "sha256": "f12fd12c791bf9f60d87ae80140e909ba89f5ce619638f4cbda67c519f61f11d",
+      "git_blob_sha1": "d7f099a77e8899a178d695dd2b128be2573a687a"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/DetectInvisibleLifetimeTests.cs",
+      "sha256": "fc99cc99bc56ea26b9948e1e3ac302a6d0fa1085bc003af3f057d083c17c1d32",
+      "git_blob_sha1": "41a32dcf590727e560e3282df6445de48f3b4f4f"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/DetectInvisibleOperationTests.cs",
+      "sha256": "d4f329fac49c2fd9bb6c6ee40522a90d3666bca757ce5a128d887fc521fc8ce0",
+      "git_blob_sha1": "0cff0e691f87d01ad840c028744bda7ea658d295"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/DispelNativeOperationReportingTests.cs",
+      "sha256": "c42d5063c3b5156e926366cee81abc4594db8303445dc2bd5914a757c8e5bd6e",
+      "git_blob_sha1": "c91179d4686baa6e545d1c6c5cc8e341823b6ee6"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/Documentation/DocumentationCatalogueExporterTests.cs",
+      "sha256": "41987c289d8ee2b3587e31a552ae867752c9a0f147ff16ae5e2eefcda07b88d2",
+      "git_blob_sha1": "0f14230cf9317d348b067c35b7f20f1efd26b201"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/FiveUtilityStockTests.cs",
+      "sha256": "2b6cf07f0b94863676f7ccc5ed0c1f8d776469657c77a3279881a547dd874a4c",
+      "git_blob_sha1": "72a32b9c6c775ef64bcf2cf19b587504af6e5add"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/GameItemComponentRegistrationAuditTests.cs",
+      "sha256": "98662a179b25cbc26c9b2aaf27378d3a5b10a63c7249a01a09fe4236659a9db6",
+      "git_blob_sha1": "aaf4d7b122cd2eaef57eb3bb0cfae5f31cfec738"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/MagicCastingAreaFilterTests.cs",
+      "sha256": "bbec7bf269cb1b2823792cf7363a7acbb468e8d78cb0158fb65a2687e2b1897b",
+      "git_blob_sha1": "457ce393af59b6e4d2cfb2b7d2941d9411f4fb08"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/MagicCastingAreaTests.cs",
+      "sha256": "ef3d071ab30b29877568b8affc551eb979b0cb02ebd847de80a3321b0596cc74",
+      "git_blob_sha1": "bad5f8bf041138ea7bafea2dae6ae2a1a9923c7c"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/MagicStockOperationReportingTests.cs",
+      "sha256": "20c67f8f4125d671af1071ba86d591c50ffc798aac5622bda894335fd2b62462",
+      "git_blob_sha1": "e57f62f1cb021f70167d840d071563dbcc953233"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/PierceConcealmentStockTests.cs",
+      "sha256": "92aba0c6092a85924b360f9c5cb5ff2ee8763b5e010dc074e0cdcb926f912ad3",
+      "git_blob_sha1": "fc79a72c4ad21535633d4eb7d65c01e6c453b96b"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/PreparedSelectionCastingTests.cs",
+      "sha256": "a5ed1996cc81338e7364eaed13e54ee8c53db9d860c97c31bce14ae1efa71ad2",
+      "git_blob_sha1": "c0d00f8c71a60ea3b2312c4e8f687454aeb4cc2b"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/ProvisionFoodAdmissionCastingTests.cs",
+      "sha256": "14e89c27c60c394e12fe6c26f4515c622e75854f78d541566705ba412335eb07",
+      "git_blob_sha1": "e1782deea1aeaf469199cb259bc5b28b4292b620"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/ProvisionProfileTests.cs",
+      "sha256": "68b95464f80c7d6358d5b458b704879452f64284f130378154ed511cdcff7ec9",
+      "git_blob_sha1": "feafb1ee4e92b8c198e28052b396fc42a0e3a660"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/ProvisionStockTests.cs",
+      "sha256": "4bbbb8a450da984160e0bcdd0f5aedcad390c5fb1428d7d1e1fea90793b9bb6b",
+      "git_blob_sha1": "a14f3bfbc67bb7860bb8b9ece3359b0de6ace3b3"
+    },
+    {
+      "path": "MudSharpCore/Body/Implementations/BodyPerception.cs",
+      "sha256": "fcd2436c7a1151d6ba9073710089fb141bcdf1be1f2430c424d911c46e39fd59",
+      "git_blob_sha1": "50323a700a178fec95cc394aac889fd011814ce5"
+    },
+    {
+      "path": "MudSharpCore/Character/CharacterMagic.cs",
+      "sha256": "dc68e94722b6020cb89c201e78b6de050755f989b5df387275cbaae6491ab081",
+      "git_blob_sha1": "799515813804221048935dc536144427f755abdf"
+    },
+    {
+      "path": "MudSharpCore/Commands/Helpers/EditableItemHelperMagic.PerceptionStock.cs",
+      "sha256": "9cb1c97278c418b891127f7f089e923cb6cb18c0595c42ed8cfd7ccd310d1514",
+      "git_blob_sha1": "3c93a124b9cfe4107bfd3dfff7a9642dab7b6f54"
+    },
+    {
+      "path": "MudSharpCore/Commands/Helpers/EditableItemHelperMagic.ProvisionStock.cs",
+      "sha256": "18440eba9d3b8d670710f0d1b61f01ce54933e218890cbb5ffdecd53b3dbc5fd",
+      "git_blob_sha1": "e507e55f03aca125a22da53dd4fe45bd73f0883a"
+    },
+    {
+      "path": "MudSharpCore/Commands/Helpers/EditableItemHelperMagic.Stock.cs",
+      "sha256": "19a77fdd1738cf32c66242345f545717d5485f70d532a456e5578259a6303071",
+      "git_blob_sha1": "c50d863c210a5452d15f4bc21b268560547839f9"
+    },
+    {
+      "path": "MudSharpCore/Commands/Helpers/EditableItemHelperMagic.UtilityStock.cs",
+      "sha256": "935a8a39d222331e8edb1a87acd9d1f70a4f11791907f061e92135b02b673cf5",
+      "git_blob_sha1": "9a9c6f2ab71533a29681e1d1abb911d1eadfd1e8"
+    },
+    {
+      "path": "MudSharpCore/Commands/Modules/MagicModule.Devices.cs",
+      "sha256": "4ba8cd496daeae6c3dca522d0f0209557fd0f4f89aa7ec71cf0b37d15e179d9a",
+      "git_blob_sha1": "36380b2fbea37b1a01fd8a01ca1e093be01d5bba"
+    },
+    {
+      "path": "MudSharpCore/Documentation/IndustrialisedPrerequisiteAuditExporter.cs",
+      "sha256": "6e606fdc221b60d7614e61b4c52d8f098c9d182f543b5743d34924ce2623ea94",
+      "git_blob_sha1": "fb8a7dd9a04720a314709096006f1702dcd77590"
+    },
+    {
+      "path": "MudSharpCore/Effects/Concrete/MagicSpellParent.cs",
+      "sha256": "df45b6b7f71222a37e78ba7af00a62a501c9c8ba436dd7e508c80bb93ead0f80",
+      "git_blob_sha1": "0cce1821b36e488b4c04671acf6dac3f5163808f"
+    },
+    {
+      "path": "MudSharpCore/Effects/EffectScheduler.cs",
+      "sha256": "013c874d0fd6c5c9557d9455b95a2b687a1fa7e5b577073c4be0c15bd59d2cdb",
+      "git_blob_sha1": "e853d1b50e24d239aef657d002f19300ab1f5dc8"
+    },
+    {
+      "path": "MudSharpCore/Effects/EffectScheduler.SpellExpiry.cs",
+      "sha256": "a0760b76d8da1c7c06945fd9940d0525ffa10d2502516081f7694a137d54b7bf",
+      "git_blob_sha1": "66c8fb9327980774719f269da88050193025fcad"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Components/ChargedMagicDeviceGameItemComponent.cs",
+      "sha256": "c58cb66a415eb7df9b24c485e7ffda0c50c5dc153212ce0efd420ec9a75db7e7",
+      "git_blob_sha1": "e23b2c9c418cf0a9bce9df227d3b8243f75a8660"
+    },
+    {
+      "path": "MudSharpCore/GameItems/GameItemComponent.cs",
+      "sha256": "d1142a90858acb1b6415fb8babcf086325133e4ee3b6d1b4f3dbd768d7c18e6b",
+      "git_blob_sha1": "18c1d57f570092bee5531ff74c7df86e04550e81"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Prototypes/ChargedMagicDeviceGameItemComponentProto.cs",
+      "sha256": "32477535da2b4d52c49350513357508928f76b04cc8df6d252c0d25a9f3df6bc",
+      "git_blob_sha1": "04ca92134d4105661854d6c8964e693fe72c4245"
+    },
+    {
+      "path": "MudSharpCore/Magic/ArmageddonDrawWaterStock.cs",
+      "sha256": "687cf3e2dabcebc8bd7ec8acd834c99a163e8b0f36d9e4ceac99cd2b3d2411e9",
+      "git_blob_sha1": "828fa94d0d877516ada2aa50fc52836c5f0bc9e8"
+    },
+    {
+      "path": "MudSharpCore/Magic/ArmageddonDrawWineStock.cs",
+      "sha256": "4fbae5e053b6e5b7075437080947e47bcf2731e9e59fb2c49762c71fc2a8d18e",
+      "git_blob_sha1": "5a47a2ce221ddbb9c32f8402a85f853f4b525f76"
+    },
+    {
+      "path": "MudSharpCore/Magic/ArmageddonHoveringLightStock.cs",
+      "sha256": "063a72766f9390d50f8fb56c4c1b6d9f2c5462e076d87d989e1fe7b75643a0e0",
+      "git_blob_sha1": "6321f9516c8f15392fd9c662b68ab05d45b920dc"
+    },
+    {
+      "path": "MudSharpCore/Magic/ArmageddonMendFleshStock.cs",
+      "sha256": "0cf7732d4a203daa975288ae88f996681fb65569d2ea1ddce8429fe72a4a8f9d",
+      "git_blob_sha1": "d7c37cabfbeffadfeeda51e24bd075294741f4c6"
+    },
+    {
+      "path": "MudSharpCore/Magic/ArmageddonPierceConcealmentStock.cs",
+      "sha256": "2b5deb1ec8ed0882da53452f4e7c2892c7b8c17837581ed0d6d968a0c45e8996",
+      "git_blob_sha1": "87e028ae7aab37c210a8e2351f7b261c30e509ac"
+    },
+    {
+      "path": "MudSharpCore/Magic/ArmageddonSenseEnchantmentStock.cs",
+      "sha256": "a95feda96d89d07282dbb79ede14075477bdb1c23db380775d892bcae5516ce5",
+      "git_blob_sha1": "239acfa6e096af434a322f6025dc1f1496e5630f"
+    },
+    {
+      "path": "MudSharpCore/Magic/ArmageddonSustainMealStock.cs",
+      "sha256": "90ebe7b5f3dca9ceccb77957214ca0b18ad0a6ee9f5c1387da0d0cf43c26373c",
+      "git_blob_sha1": "7b9a9d0a02bcf91e41eb4c425867678d4272f734"
+    },
+    {
+      "path": "MudSharpCore/Magic/ArmageddonUnravelEnchantmentStock.cs",
+      "sha256": "de74f1ebdd1d5fc1565d4b50bfd140a2325b0b59221dbc4e8844ad79e016ab72",
+      "git_blob_sha1": "2fe3c767996d8ff7d08e87a1cf5f1137910b16cb"
+    },
+    {
+      "path": "MudSharpCore/Magic/ArmageddonUtilityStock.cs",
+      "sha256": "3fd8c468b8b4b0c7d6b6529447e98e7c3804e5e7ce2eadead082a899c91079a8",
+      "git_blob_sha1": "1ff47ca6890fca2fd7561a1afb1538120ae36490"
+    },
+    {
+      "path": "MudSharpCore/Magic/Casting/MagicCastingService.Area.cs",
+      "sha256": "5f1a3252f2f425675fd80ffb390fcc52a5ffd302abd2d5c7b6a32d781367df0d",
+      "git_blob_sha1": "bb747c2cffb63bb407f803a61bdbb200920f8964"
+    },
+    {
+      "path": "MudSharpCore/Magic/Casting/MagicCastingService.cs",
+      "sha256": "80e0eaec676c9ce51d3ea023866315cd7d85d9e043af397630205dc92e8be739",
+      "git_blob_sha1": "3a59be69720e9bb7182a09c7b30762cd53dc2397"
+    },
+    {
+      "path": "MudSharpCore/Magic/Casting/MagicCastingService.Devices.cs",
+      "sha256": "558539a3d470d41f0b4f930e1f0714e767e6302c5405def322c0e12a0e13bd65",
+      "git_blob_sha1": "b20e964d10569f1cc418d261eea10e339be3fd46"
+    },
+    {
+      "path": "MudSharpCore/Magic/Casting/MagicCastingService.DeviceState.cs",
+      "sha256": "2c16ed13ad59bf800ed9902d3565e3a894bfbff84ffc69dbcdff8e1fed8cf61a",
+      "git_blob_sha1": "ffe7de0f6192d10afffac5b1ce7fa44c2392a365"
+    },
+    {
+      "path": "MudSharpCore/Magic/Casting/MagicCastingService.Execution.cs",
+      "sha256": "41bbeeb00c2bd2785f47e16c3fc6a9bb244f18190960d2190fb35a1f339bc8f4",
+      "git_blob_sha1": "3efc3541327ee26a652db39630d2ca2c2b0e724b"
+    },
+    {
+      "path": "MudSharpCore/Magic/Casting/MagicCastingService.PreparedSelection.cs",
+      "sha256": "9d1e70aca7cbee423803a2b6cabc2aa7f209bd65c3602cae212f6c23a6fc954b",
+      "git_blob_sha1": "70fa4fa63ea113c4258a6d5920ac73a71f59da66"
+    },
+    {
+      "path": "MudSharpCore/Magic/Casting/MagicCastingService.SelectionPayment.cs",
+      "sha256": "a95f8b00d5c908f98cc1b84d487e244408b38dce4674dceaa0e31a34e586dd50",
+      "git_blob_sha1": "319a5ee8bc19b316f1b2ce3073cc6ac71b0390fd"
+    },
+    {
+      "path": "MudSharpCore/Magic/Casting/MagicDeviceJournal.cs",
+      "sha256": "6cd8f14597e974c594210e4076b2f1bc25da9e67a56b6ddb14f85c66cbcd542a",
+      "git_blob_sha1": "a47ce3ce43d81e14b54f65776b735f78e516bd0b"
+    },
+    {
+      "path": "MudSharpCore/Magic/MagicSpell.cs",
+      "sha256": "a0b98a77494c27b46b372db352d7ac526d2659186665bd5ce36adbe3fefbbdb1",
+      "git_blob_sha1": "6d6ab01e83dcd0e8333b0aae1cf39ceca11bcbff"
+    },
+    {
+      "path": "MudSharpCore/Magic/MagicSpell.Lifetime.cs",
+      "sha256": "bab4e0fa54aef1dbde273c8053514c6cd9749e3ff5c9924ba148c316f278e72c",
+      "git_blob_sha1": "6d7f389ca4561b3a83ce7b2d75db7272ac26ceb6"
+    },
+    {
+      "path": "MudSharpCore/Magic/MagicSpell.TargetFilter.cs",
+      "sha256": "e548f9ea56b997a749bace3ec4c48d47c4555f2a4cccc788903e4097096262a2",
+      "git_blob_sha1": "14314c2b6a3cb34ff5ad33191a14fa74180c75f9"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/CreateItemEffect.cs",
+      "sha256": "5d8f51b6fca34951c4469ac261182faaf0956ccbc73865280ffcd7e6ea7bf16c",
+      "git_blob_sha1": "4329b9e722bc757e7ed411c6569bd6c87249b52b"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/CreateItemEffect.FoodProfiles.cs",
+      "sha256": "c20cbe91b7ed4a83ae6bbef90a7c9806d4bfcc0572e117dbec80b00bfb5acf23",
+      "git_blob_sha1": "f857f2bfac6cf943542c046df8ae422087bbb3d0"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/CreateItemEffect.Lifecycle.cs",
+      "sha256": "3732ce5a670ca5691d743dbb90315523d18512268d0d4c9e1e60ee5cd67fde66",
+      "git_blob_sha1": "d672224284826bc7ab152bf3c1996ba9bd687442"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/CreateLiquidEffect.ContainerFill.cs",
+      "sha256": "69e7bef051e08431dfd36ff82bf0215cb13585258073153c65c7e06ed5e22e69",
+      "git_blob_sha1": "dba2c71651c4a7755a7bb13a722c34c7e598f2ae"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/CreateLiquidEffect.cs",
+      "sha256": "579096b435d8f78aeb4685055285e48e597dca73f36f8beeaf2144135ba5698f",
+      "git_blob_sha1": "7d50db2d0cdd7fe2dec8aa64ab23bdcd27acba3c"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/CreateLiquidEffect.Recipes.cs",
+      "sha256": "4c3b1162645a3763353e4d89f4bc19823e5116673313d284fd4cd937756661d4",
+      "git_blob_sha1": "e370c981300daf64289d4b6b51061462f7b0fcc9"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/DetectInvisibleEffect.Lifetime.cs",
+      "sha256": "e7b7fef8aefda6dbf15849cbf0f2fd1ffa29f3c4bbc2436c0b7a0eae1e60d9f0",
+      "git_blob_sha1": "1477c83ac6837c3eeff673c1a8e72132fab5f0fb"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/DetectInvisibleEffect.Operation.cs",
+      "sha256": "d9cf75bf7dd751864a882b13da8a72867c69ec81bc33131eb849ace728ca6c52",
+      "git_blob_sha1": "8c6606b77dd2834460ee745cc10ded19cc6845c4"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/DetectMagickEffect.Operation.cs",
+      "sha256": "350005329a13baf28102ffe709a7659c22828b77f1ac56816300eee431c8ad4c",
+      "git_blob_sha1": "76fba79d7923f8ebbefa26b07f0b9c77e38d0ab8"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/DispelMagicEffect.cs",
+      "sha256": "9f65a7d41adb0660215a8f94f3bf033a1035d540d73d147e613a3db9a81ddeaf",
+      "git_blob_sha1": "31a410c6f4abdeb6856831f1920940d43df106d8"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/DispelMagicEffect.Operation.cs",
+      "sha256": "c28eb5df5ad7555f261577fec7dc8d10c1636e70104e0aa35e899c875ec06ca6",
+      "git_blob_sha1": "47d4fb8c7043cb564db46938be4992f99fd1ac96"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/HealEffect.cs",
+      "sha256": "0a52dff787631c4238d36c9ca3aa2496768e78c4c60f249eb29b5dcd4d0fcb00",
+      "git_blob_sha1": "7e16fa2f597a68238877c7c25cbbbc46db9dd016"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/HealEffect.Operation.cs",
+      "sha256": "6419583426959586e23a40b57938fee4bfd4b392a9c77e6743f52b6c0492bb1f",
+      "git_blob_sha1": "edd0cd6c5a764a18e208dcf649c43e8c7181ddc9"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/ProvisionProfilePolicy.cs",
+      "sha256": "437e911c7a62f348d1767b6f8e5b0d6b14f510944ce0f9290b2acf51db1b76da",
+      "git_blob_sha1": "3ae71ea644dfb1b6b1efff54ca2baf0c3b02b4e2"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/StandaloneStatusSpellEffects.cs",
+      "sha256": "f5f8e494198e494b80df2f9a0ebe4d8a3be03ed08cb5d0c3c9c374908ab86c94",
+      "git_blob_sha1": "eb10d91d60af5446004fbc1b552ac5301acc05ed"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellTriggers/CastingTargetFilter.cs",
+      "sha256": "2c3a212a8eac1fe1c1d61b2a98ba16d747375a065fff87f980d2ed1dedba6659",
+      "git_blob_sha1": "8a4fef2d6a4febcf35223f52a83db9da6340d3a6"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellTriggers/CastingTriggerCharacter.cs",
+      "sha256": "d5c6d3a819c7cd123f74fee2dfbb7ed89074937e00dda6adf83bd08041bdecbd",
+      "git_blob_sha1": "ecebbad3aa2850d0e5410bd7d734a513d3ea53a9"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellTriggers/CastingTriggerCharacter.Filter.cs",
+      "sha256": "c4bdd5d27b38fe770a2b1ba5f731e264574e874a84b3b41c93111449750933a0",
+      "git_blob_sha1": "a0eef12de2cb3992b7eb63ffb628ad81108087b5"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellTriggers/CastingTriggerItem.cs",
+      "sha256": "53c50bd852955b5d02989aeabaed4142290d5ef0872061cf4b0b829926ac6a71",
+      "git_blob_sha1": "fb15d4761939dd447ad6282138b6eb86f575ca72"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellTriggers/CastingTriggerItem.Filter.cs",
+      "sha256": "447b39564ee684d583f4a28877e1ec7189d0548da8d9b5d3645d15696e0577a9",
+      "git_blob_sha1": "bd7fac9f8708bd2f1341a6c92ba59421c286417e"
+    },
+    {
+      "path": "MudSharpCore/Magic/Vancian/SpellNumericalContext.cs",
+      "sha256": "74325f75a49281e329e0e677a9144a809e018c9e27cde69ba500957c4a34137c",
+      "git_blob_sha1": "9cce6cf2f74e5f88e79c46c8386c7484bac9b0ba"
+    },
+    {
+      "path": "MudSharpCore/Magic/Vancian/StoredSpellSnapshot.cs",
+      "sha256": "922043fa5a01daae4cf1e81138ed44ec137a24e36587e00f98854c44b943712d",
+      "git_blob_sha1": "2358b3acb8a3925216ad0df29cde280588c50501"
+    },
+    {
+      "path": "MudSharpCore/Magic/Vancian/StoredSpellSnapshot.Devices.cs",
+      "sha256": "44057f501cc793296670dd3ec31af6f454b9ac518511deb423b481afeddfef1f",
+      "git_blob_sha1": "cbeb3fac679e80a8b1560132a32fef9c42bac5c5"
+    },
+    {
+      "path": "MudSharpCore/MudSharpCore.csproj",
+      "sha256": "d503ce8726941f4c84db3a17af5342b95e151e77e17581ab9f53d7360fc0772e",
+      "git_blob_sha1": "34840a61f7abb215a852319495849b8286e508ad"
+    },
+    {
+      "path": "MudsharpDatabaseLibrary/MudsharpDatabaseLibrary.csproj",
+      "sha256": "f5a70c8dffbc96699f884817788da8eff96413345708d73f2aeb3e6dd61f92ce",
+      "git_blob_sha1": "cc089c41a7dee1f88a623e1ca0954f3cd8240677"
+    },
+    {
+      "path": "Temporary Scratch App/FiveStockNativeHarness/FiveStockEntry.cs",
+      "sha256": "04d7dbdc57e73e5cf84574ca6a4c0f2b58a05a0bcbf7c8d6666c02b8fd14b85d",
+      "git_blob_sha1": "c3d2f112013e14a936c0321b8869c65ee175d439"
+    },
+    {
+      "path": "Temporary Scratch App/FiveStockNativeHarness/FiveStockNativeHarness.csproj",
+      "sha256": "cf7c8fef51b07342acc1167bd10238fe5c5a512c81d18ffa06ceabdf3baa7ba5",
+      "git_blob_sha1": "88bcdfce89049726c16cf473dd6354994832690e"
+    },
+    {
+      "path": "Temporary Scratch App/FiveStockNativeHarness/Program.FiveStock.cs",
+      "sha256": "94620b9b3cf83ccfb3fd90f3e8450355098fc725a226814c9e60c0db5aa30262",
+      "git_blob_sha1": "8e7f9ffa6c8f2a43f0ddb53024fb7eb6698d9076"
+    },
+    {
+      "path": "Temporary Scratch App/FiveStockNativeHarness/Program.FiveStockFilters.cs",
+      "sha256": "8daebe729a085439463ce209155b889a8edecaae44877ab44920b4c66cec7a36",
+      "git_blob_sha1": "c4116dbc47b780b78d930251fa0f71dfea9211e9"
+    },
+    {
+      "path": "Temporary Scratch App/FiveStockNativeHarness/Run-FiveStockAcceptance.ps1",
+      "sha256": "76475e4e2d211f8d3ce7f7a0124bc2cc0e0da4d8c5be9a4bc7f2fed2001f8fc2",
+      "git_blob_sha1": "9d9ab7b80a6dc80ef154c7cea5e39a084f0a30bf"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.BodyRetirement.cs",
+      "sha256": "a3240efc961ea72ce4fdce821ecb09b50d86309f133b95cebe46dc415d4ba530",
+      "git_blob_sha1": "29650ac491dadba759d51b27b2c923b2c9b4bccb"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.Casting.cs",
+      "sha256": "64dc4e7539dee66838645443309b3dcd6e2c2527680ed7b4da643693160289cf",
+      "git_blob_sha1": "14dc59c1c4759199b9209f334fc3c40e16a24e17"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.CastingArea.cs",
+      "sha256": "e20470480521da52ad96350c4de57962d945c9565f9b0b963b1e59b6e2d14a0a",
+      "git_blob_sha1": "12b0782c1968ac7385905d266e5434d9a840147a"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.CastingCapacity.Compound.cs",
+      "sha256": "b07f29018f63fe60918d98624d3b8a14011e076911b34450df258188b702f600",
+      "git_blob_sha1": "e628f4860e8094902289f5d274d5701348c3b818"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.CastingCapacity.cs",
+      "sha256": "62f39d84894a421fd55eab3f90815d57814b06a4c4803fb594bd72e69f2060a3",
+      "git_blob_sha1": "078a4436f987bbeb365009214975b32579103cdc"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.CastingFixtures.cs",
+      "sha256": "ab11b05832f5a146c100dbc2d4d2f7ce668d3f4eb5cdcd929fe45f8c538c9e69",
+      "git_blob_sha1": "0d8d748621ddf3cbf26cdf06b43b97064ef55ef2"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.CastingLifecycle.cs",
+      "sha256": "b6455cfc72a303ca7635e67576e8ac2e84c264f07fdb375a854c76610a1903ee",
+      "git_blob_sha1": "ecf0ad97de5fcc5715be6311f1abfc0e9285a72d"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.CastingPractice.cs",
+      "sha256": "76252844eecfa4ad5b5d45b70d77eeb68d33e73c24ac38f5634ecfa978e721df",
+      "git_blob_sha1": "5a73d84d0e898550554883b2e3bbb9f30cc45753"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.CastingProgression.cs",
+      "sha256": "3138900d83bff03742c3d10f472fa680f3bab32fa6ab9d8bc1a462c51f2aa491",
+      "git_blob_sha1": "3d97b2e21e457c26a3acbbca33f5d85e30d38d96"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.CastingSpeech.cs",
+      "sha256": "c4288a98706111360d68705d49f64e7e5e6adc8105a7477512191a5ffcdc51a3",
+      "git_blob_sha1": "b5ca1d88849972422265c634f3b0c464d1f80e50"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.CastingSupport.cs",
+      "sha256": "4669417a4984beb11b656ce1957bbff5ce4b449b84a86849a536d85de1511e2f",
+      "git_blob_sha1": "be557123d6238f23b798e6160678276a9b3cdc75"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.CorpseAnimation.cs",
+      "sha256": "6f84fafa89eeb2496bdd15cc9fb9cd4a16f7cceacdced9a82b2da86692174eae",
+      "git_blob_sha1": "f4e7ee20d9f45d35b273afae42a033587d2bfc3e"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.CorpseAnimationReload.cs",
+      "sha256": "88f5f3df9acfc4a0d0327d842be0edc8685d079120e0c37fc61eeeedc0daeebc",
+      "git_blob_sha1": "af6e87ffa68fe3e704b546aaaa52018308995c56"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.CorpseAnimationScheduler.cs",
+      "sha256": "3f7af3d09b5f500554737c4e64daa1d435ca27bfff23b35b1006f911ff43e8e6",
+      "git_blob_sha1": "cd9dc341f00e54dd08b6e7d0a253185eec37e081"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.cs",
+      "sha256": "f9a98a816d1f5f420c376f28d89abb751ad0d82925ffc8361df1a67e3b279ef6",
+      "git_blob_sha1": "ba0b243fb1e2f8a3d5a61f64a568edb96b8de153"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.FlameKnifeStock.cs",
+      "sha256": "d94b06f08d1f7a17d7d05e70d601f3cbfa52043d646144b96b03750cc42b32f5",
+      "git_blob_sha1": "39ad8912232e283c6953fda067e401ebe18eb722"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.HistoricalAuthorship.cs",
+      "sha256": "20a579f5585eb901343eb3ffc87037d4b432bc82337e89d645d7ae64138a4432",
+      "git_blob_sha1": "1b9115261c4754527899bd4d96f127eff8c16b3f"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.LegacyRemains.cs",
+      "sha256": "b77640a520a5d5576275be9558e70824c886ad497b772112f03614171ee5f34f",
+      "git_blob_sha1": "d295ad477bef6b8968f99936b13ec3821aa46dbf"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.NativeOrganic.cs",
+      "sha256": "ca22f9cea2b998d61e6956a7895a59b25be6ea553a43825fb04463abf02caacd",
+      "git_blob_sha1": "25116782dc9f942566e9f3e15a3caef045e4e923"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.NpcArchive.cs",
+      "sha256": "e8e0a8f1e4ac8173f703e5b988c9f6feb2d98bf784d81c94133c1fcdad1096a5",
+      "git_blob_sha1": "94f22c5f43d9e7d768649ee7d27980f17a2d92c6"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.NpcArchiveMaintenance.cs",
+      "sha256": "9a30af58d5b94ec8e35f905da8c61c92fef647547f157000c3de32c1c9cd5505",
+      "git_blob_sha1": "373e1e8b0288c80edf58a9415dcd30bc04ed411a"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.OwnedConnections.cs",
+      "sha256": "c62500b62d334c8c72b49db3a3a9a1d86e0b970a79b3a5c4abd0ff3dbeae309e",
+      "git_blob_sha1": "48c03ec39a2bf2fb6f42b7c9f1ba7e46d3294617"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.QueuedCommandAuthority.cs",
+      "sha256": "8ba2c320aa2d9dd32df7bc082593d09b23d1304ae49f811ed40c0f5d48b09575",
+      "git_blob_sha1": "fdeea68e9a86be4ed3e4fad08f24fbee96859990"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.RaiseServitorStock.cs",
+      "sha256": "ae6ed025cc7e4383a9d967f0c284f218b4b96deb397830dd644e00ea51ffffb2",
+      "git_blob_sha1": "7e98a8090a983d68cd5b09fe8e9c595f0b70c2a2"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.Rejuvenation.cs",
+      "sha256": "9c1702282868aeb957a1631ebe95d7a0334f077efe9303e5f2b4f0c50053dd4f",
+      "git_blob_sha1": "42b0b5b8e0e776f5aa0baaa801b2ac198ef85d3b"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.RejuvenationVancian.cs",
+      "sha256": "eb5d665c7ad845fbbb716ab026d92f45e7638f86aca570c98ad013bc10892fc9",
+      "git_blob_sha1": "c5b4991312c0b641a7cb4322fa551c3567c9d4db"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.RemainsRuntime.cs",
+      "sha256": "25f4bc348185307ba158c455e52efc756cd6704f9c70dc5b74c28eb991cabb6d",
+      "git_blob_sha1": "2f073975331a6b3795a192deaf65ccb0cb5404b7"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.SandKnifeStock.cs",
+      "sha256": "c5fdafcf13349d2af44886eda97959de88c534d1f8d54fbf93c247c03c7d9bd5",
+      "git_blob_sha1": "2c2707c70d957cfcdec0bb95c8b0d8743960accc"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.SpellCreatedConsumables.cs",
+      "sha256": "3d6883a1405cbcd696c17ad759607b39199d5d7ed4d93a357887afae32b4e9a6",
+      "git_blob_sha1": "65c8899bd1fffbb313dea01e38d760c5b9fc6dfa"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.SpellLifecycle.cs",
+      "sha256": "fe74d9a4ed6eb8d5c3cdec54d22e346b07873847c34c014c164b457f233077e0",
+      "git_blob_sha1": "462d7fc98c4d79c0417a7627d6910cadb766da30"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.SpellOwnedItems.cs",
+      "sha256": "4d7162d5ba125392c3dc0f544d2d862746ec1f33fcad91ffd337c228c047d8ec",
+      "git_blob_sha1": "298cf5afba36a88a18fbbde69f791957ee02f8e9"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.SpellOwnedNpc.cs",
+      "sha256": "83168cf46c11852c6139943045a989f80b4ede45682f3512dacd3d8704f2e422",
+      "git_blob_sha1": "c22265e4c81fc83c8597fd68d989e71187f9c3f6"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.SpellOwnedNpcAdmission.cs",
+      "sha256": "1c58fed52a41e2b0636ae6028927983a68b7829bb25aacbbbc3d92591a339cf0",
+      "git_blob_sha1": "a1257e480cf356c5bef692ebfefaa8f18b14e0ad"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.SpellOwnedNpcRetirement.cs",
+      "sha256": "42fb0251b977b1c41eec98b6a3f0ea87b3be235278a7b1c585b77673bcb77d6b",
+      "git_blob_sha1": "babf013e0718894a12fd57983e5c3a954b7971b8"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.StormSpearStock.cs",
+      "sha256": "97026b9c5ba2f78071fcbf259a4bf01c397d6f8bc5704ba3cdddf49791e31eaa",
+      "git_blob_sha1": "ad56476a4e189205b928ef9c840c10710ef1c8f8"
+    },
+    {
+      "path": "Temporary Scratch App/PierceStockNativeHarness/PierceStockEntry.cs",
+      "sha256": "c953e3ed505d74b3f4f95dcba1554d2e29965916b8eb54db3a9f5c6bd8942c77",
+      "git_blob_sha1": "f7d0a74f49f28afd2d3e297c32c99d6e62e5b3cd"
+    },
+    {
+      "path": "Temporary Scratch App/PierceStockNativeHarness/PierceStockNativeHarness.csproj",
+      "sha256": "536e7a71202f3b23a19bff9402df9778e8c9ec310610656c2df0c1052ce6560d",
+      "git_blob_sha1": "8011554572c37aca607c28ce9a90b7f9044b4e80"
+    },
+    {
+      "path": "Temporary Scratch App/PierceStockNativeHarness/Program.PierceLifetime.cs",
+      "sha256": "c6eb2d17d21c2d864957be3ffbe05009175ba09e22d2868ed0d5509b6de89090",
+      "git_blob_sha1": "46b14a5c8c66098cf278fc28d96ade7692b26898"
+    },
+    {
+      "path": "Temporary Scratch App/PierceStockNativeHarness/Program.PierceSharedRuntime.cs",
+      "sha256": "9cff86f8475e55b1f68e36948e0ea2f19ac9b7a4696261773bfc8a7e8a4360be",
+      "git_blob_sha1": "746f72901fb308c2f28fd5fc66dbd991983fb95c"
+    },
+    {
+      "path": "Temporary Scratch App/PierceStockNativeHarness/Program.PierceStock.cs",
+      "sha256": "867ff2ec6c77026f86776b9459ab4de781c83150a634cf410d22882445adde45",
+      "git_blob_sha1": "650f0276a190643b9df77ab371bd4e506886202d"
+    },
+    {
+      "path": "Temporary Scratch App/PierceStockNativeHarness/Run-PierceStockAcceptance.ps1",
+      "sha256": "335bb43f2f4515026e5f44e0fdfb16c8d3175066841e3f08fb460fae59982db6",
+      "git_blob_sha1": "1f3c110aba39ab2726a427d332632a2019c9f1f1"
+    },
+    {
+      "path": "Temporary Scratch App/ProvisionStockNativeHarness/Program.ProvisionPayment.cs",
+      "sha256": "3a9dd20d4cd8a2385e199b639dc78e61779dadf587e1a1ddbb80b960a97d5229",
+      "git_blob_sha1": "308e25d81c62caf762391f05ad133caa0a5002b2"
+    },
+    {
+      "path": "Temporary Scratch App/ProvisionStockNativeHarness/Program.ProvisionStock.cs",
+      "sha256": "0ace584c942b5c86c5072b1f20f66624109bd7a67563296cb3ff70afde7c3d5b",
+      "git_blob_sha1": "1ee76decf529894685653b7dff8ac8d4759ff3a5"
+    },
+    {
+      "path": "Temporary Scratch App/ProvisionStockNativeHarness/ProvisionStockEntry.cs",
+      "sha256": "7cfec9de9fb815899224469d07300183cc4cd06557856325fff73aa86b8b208d",
+      "git_blob_sha1": "a7e9d4ec051f39b298a3b11edf674397d9ca017c"
+    },
+    {
+      "path": "Temporary Scratch App/ProvisionStockNativeHarness/ProvisionStockNativeHarness.csproj",
+      "sha256": "68c40ae95aad10f88c34f787f2acb8b2bd2cc99d06825bb7fcd96ac9cbb737fa",
+      "git_blob_sha1": "dd08f7ead35e7135eabc6c33eae94f4f923cf151"
+    },
+    {
+      "path": "Temporary Scratch App/ProvisionStockNativeHarness/Run-ProvisionStockAcceptance.ps1",
+      "sha256": "9586fc060a6db66abf15e0d48535fd372c07909dfcf4064e54b1d9e52b066f69",
+      "git_blob_sha1": "0a0fd3354db1ed7ad9de5b3ac0f181b5e732f2f3"
+    },
+    {
+      "path": "tests/ArmageddonChargedDeviceNativeHarness/ArmageddonChargedDeviceNativeHarness.csproj",
+      "sha256": "6e81951892258db3f22fa0c9f52c84ee10492522258d73e7a4e00243ee32c590",
+      "git_blob_sha1": "a1fdfdccddc9ad4eeb39c35434b68ac4a84bbddb"
+    },
+    {
+      "path": "tests/ArmageddonChargedDeviceNativeHarness/Program.DeviceIndirectReview.cs",
+      "sha256": "fb471dec8377a0d62503c4d7ffd6f2bff22ef64907d23d8cdee92e0da3148821",
+      "git_blob_sha1": "a20867081f83678a9f9c0eedb380f0d1ce180533"
+    },
+    {
+      "path": "tests/ArmageddonChargedDeviceNativeHarness/Program.DeviceQuarantineReview.cs",
+      "sha256": "2137fda42847993f0c56b05f96ecd44614644839238a9b985fdc9c04fbd9ccd6",
+      "git_blob_sha1": "4be3d3c18f854778a2319a99fe4af6c320d49f1d"
+    },
+    {
+      "path": "tests/ArmageddonChargedDeviceNativeHarness/Program.DeviceReview.cs",
+      "sha256": "744c0681f7e68afed8ae4e08236d912e0a5876cdecb405548651040b7a35fe84",
+      "git_blob_sha1": "d0219870567c43379003d380ffcd2dc1a2481a74"
+    },
+    {
+      "path": "tests/ArmageddonChargedDeviceNativeHarness/Program.Devices.cs",
+      "sha256": "a432d2b74ac6b69c27214143d564effb5b57e7ee05948b47b7067a4cfb600a02",
+      "git_blob_sha1": "75b083194c39f6e4f98f5011ca1b0553b83ab0de"
+    },
+    {
+      "path": "tests/ArmageddonChargedDeviceNativeHarness/Run-IsolatedDevices.ps1",
+      "sha256": "b98b9bdae8bbd973ab9f6eca7c15d486b355bb119d404aefccbbe3165fb42081",
+      "git_blob_sha1": "e1e71db2a4ecf1326b7baab292f395e64e703eca"
+    }
+  ],
+  "assemblies": [
+    {
+      "path": "DatabaseSeeder Unit Tests/bin/Debug/net10.0/DatabaseSeeder Unit Tests.dll",
+      "sha256": "3440d2c74f3422ee0d69c345d0e8a58a8422bb2fec952a3f85c2c76d7300840c"
+    },
+    {
+      "path": "DiscordBotCore Unit Tests/bin/Debug/net10.0/DiscordBotCore Unit Tests.dll",
+      "sha256": "2b3e3890f5b559666762d871971b871cecc7cc74aef0cbcd6d6b9ddca22a62ca"
+    },
+    {
+      "path": "ExpressionEngine Unit Tests/bin/Debug/net10.0/ExpressionEngine Unit Tests.dll",
+      "sha256": "9a6202fabc61f58653ffebf7aca75275d9f61274f8e2ae0536c78cdd520da92f"
+    },
+    {
+      "path": "FutureMUD.Web.Tests/bin/Debug/net10.0/FutureMUD.Web.Tests.dll",
+      "sha256": "4e588f9656ef739e019276a7424772f89120825b47d68504fe454ecb23470be5"
+    },
+    {
+      "path": "FutureMUDLibrary Unit Tests/bin/Debug/net10.0/FutureMUDLibrary Unit Tests.dll",
+      "sha256": "83b997514feb72dd9995e0d398598a0992ed006ab500f18278d71012f07611b0"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/bin/Debug/net10.0/MudSharp.dll",
+      "sha256": "385259f782aadaf44f94699c9c9035e57e1679f3de899f0bfbc66c144b25e9b8"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/bin/Debug/net10.0/MudSharpCore Unit Tests.dll",
+      "sha256": "f63ea07a7f5616ff383fe9e8d85fee8bb740558706a4bf3118b8eef752db40b6"
+    },
+    {
+      "path": "MudsharpDatabaseLibrary Unit Tests/bin/Debug/net10.0/MudsharpDatabaseLibrary Unit Tests.dll",
+      "sha256": "cb80817543704febb024cdc27d3f0aa2cbf98582767e3e18889105edc2e3518a"
+    },
+    {
+      "path": "RPI Engine Worldfile Converter Tests/bin/Debug/net10.0/RPI Engine Worldfile Converter Tests.dll",
+      "sha256": "85ce84d9934ecc7140ee3ddbb771320a55a60d860b3156b6e85da0a30ac358a7"
+    },
+    {
+      "path": "scripts/TestReporting.Tests/bin/Debug/net10.0/TestReporting.Tests.dll",
+      "sha256": "5a0d335f10141e7b6248340f23a09549ac29408aa56bda77ec77a4c4dbd98a99"
+    },
+    {
+      "path": "Temporary Scratch App/PierceStockNativeHarness/bin/Debug/net10.0/ExpressionEngine.dll",
+      "sha256": "ffe99809c6096001b97f652796807f6f4ab890334fe193c80243339361a2068f"
+    },
+    {
+      "path": "Temporary Scratch App/PierceStockNativeHarness/bin/Debug/net10.0/FutureMUDLibrary.dll",
+      "sha256": "e64a5890884f55ae8cd38e0e009c47677846ad75b71bc950cf55b68ec06c0343"
+    },
+    {
+      "path": "Temporary Scratch App/PierceStockNativeHarness/bin/Debug/net10.0/GatheringNativePersistenceHarness.dll",
+      "sha256": "97eae2f4571d53d6f869a67fa6e3b4f05eff0b88a38ceba76e4f45eeffc54e0a"
+    },
+    {
+      "path": "Temporary Scratch App/PierceStockNativeHarness/bin/Debug/net10.0/MudSharp.dll",
+      "sha256": "385259f782aadaf44f94699c9c9035e57e1679f3de899f0bfbc66c144b25e9b8"
+    },
+    {
+      "path": "Temporary Scratch App/PierceStockNativeHarness/bin/Debug/net10.0/MudsharpDatabaseLibrary.dll",
+      "sha256": "3d1f9bf856a0276976cf4e8e9df12256b6e64fef0e5bd9100cd9ec1a6c5ba100"
+    },
+    {
+      "path": "TerrainPlanner/TerrainPlanner.Tests/bin/Debug/net10.0/TerrainPlanner.Tests.dll",
+      "sha256": "08a3bf630149dfb09aac81217ca74fc7c6d2da6f1d3bd6370b905cc2a35e92fb"
+    },
+    {
+      "path": "tests/ArmageddonChargedDeviceNativeHarness/bin/Debug/net10.0/ExpressionEngine.dll",
+      "sha256": "ffe99809c6096001b97f652796807f6f4ab890334fe193c80243339361a2068f"
+    },
+    {
+      "path": "tests/ArmageddonChargedDeviceNativeHarness/bin/Debug/net10.0/FutureMUDLibrary.dll",
+      "sha256": "e64a5890884f55ae8cd38e0e009c47677846ad75b71bc950cf55b68ec06c0343"
+    },
+    {
+      "path": "tests/ArmageddonChargedDeviceNativeHarness/bin/Debug/net10.0/GatheringNativePersistenceHarness.dll",
+      "sha256": "f7668e23e85fae958db32e0dd381190ddd1530e5047d70baf81b651e00985ee3"
+    },
+    {
+      "path": "tests/ArmageddonChargedDeviceNativeHarness/bin/Debug/net10.0/MudSharp.dll",
+      "sha256": "385259f782aadaf44f94699c9c9035e57e1679f3de899f0bfbc66c144b25e9b8"
+    },
+    {
+      "path": "tests/ArmageddonChargedDeviceNativeHarness/bin/Debug/net10.0/MudsharpDatabaseLibrary.dll",
+      "sha256": "3d1f9bf856a0276976cf4e8e9df12256b6e64fef0e5bd9100cd9ec1a6c5ba100"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-device-build-02.log",
+      "sha256": "f77086b814571b7e8958c1937f1628066cd66320b1eabaa1b6bc5779f6cc9af3"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-harness-build-02.log",
+      "sha256": "f1350030f1a5f6d9e14544c960084025962975459d2cd1c288d80337ac30fa65"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-native-02.log",
+      "sha256": "1ee9580b26df31fcc8fe394e595203af850fd086c8bd194928a20cbd6b50fccf"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-native-02/assemblies-after.json",
+      "sha256": "901140a59af8a86c9d47afde96e70d269ef510ecbc2f6d5f20b63b28ca96758b"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-native-02/assemblies-before.json",
+      "sha256": "901140a59af8a86c9d47afde96e70d269ef510ecbc2f6d5f20b63b28ca96758b"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-native-02/devices.log",
+      "sha256": "2e5add32e173ec4020df0a2ef2c147cea9b5348adda64a352d0b598079ce19ed"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-native-02/five-stock.log",
+      "sha256": "70b929b2e853d678a13d773330e87354e4f7d7448780339ebff04539520c7609"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-native-02/pierce-shared-runtime.log",
+      "sha256": "09acb0f709789fce24428e5a9d25b68467f6d6890a9b7b27814137a9391df886"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-native-02/pierce-stock.log",
+      "sha256": "b13ba8ac945f6c701cb2df133ecf1e878edde5f27be28ebce62886aefb296df0"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-native-02/provision-stock.log",
+      "sha256": "928b6b71e075b2888e593eafdf062134558254abf06d99a44c43ed7299487df6"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-native-02/regressions.log",
+      "sha256": "0c523de81b9951a23bf2877e5f4bf046b129b7732f16983d4e1736e7e53fc8a7"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-native-02/source-after.json",
+      "sha256": "bf9c5b8f3c747302c4dfeb8f7b0e1cbbfe20ba03cc37aef8757bdae3b51fbe9e"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-native-02/source-before.json",
+      "sha256": "bf9c5b8f3c747302c4dfeb8f7b0e1cbbfe20ba03cc37aef8757bdae3b51fbe9e"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-native-02/summary.json",
+      "sha256": "a83320b21549a29af10493bc4b6617ca1bd4aece6b950d57adddc80f33ccf71b"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-units-03.log",
+      "sha256": "a12abae961d921b1a5d14147c3ece91a739c55950a43137651447b9d63236c7d"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-units-03/20261005T132111Z-bd3bd16c3e43/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-units-03/20261005T132111Z-bd3bd16c3e43/invocations/DatabaseSeeder_Unit_Tests-e14dcedb/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-units-03/20261005T132111Z-bd3bd16c3e43/invocations/DatabaseSeeder_Unit_Tests-e14dcedb/build/build.stdout.log",
+      "sha256": "d2a6c2d2484161353c33f28a82ce6bb9b4b1665f2390879623c07922377099c2"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-units-03/20261005T132111Z-bd3bd16c3e43/invocations/DatabaseSeeder_Unit_Tests-e14dcedb/net10-41544e89/1/results.trx",
+      "sha256": "71772b7e02f82f1e8d7d16901dd28e3ba51ac40f5819f762b1522e197dd69c46"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-units-03/20261005T132111Z-bd3bd16c3e43/invocations/DatabaseSeeder_Unit_Tests-e14dcedb/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-units-03/20261005T132111Z-bd3bd16c3e43/invocations/DatabaseSeeder_Unit_Tests-e14dcedb/net10-41544e89/1/test.stdout.log",
+      "sha256": "90e13ee53d3b3ed9a083c15e1acffc681e85d08e32c0253e51af00f2b893331e"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-units-03/20261005T132111Z-bd3bd16c3e43/invocations/DiscordBotCore_Unit_Tests-4ffa2b0e/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-units-03/20261005T132111Z-bd3bd16c3e43/invocations/DiscordBotCore_Unit_Tests-4ffa2b0e/build/build.stdout.log",
+      "sha256": "dc1a7cc178b53f444d2584ffd2d0ef8576a1d31b44094f2de78cb9df2daac93b"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-units-03/20261005T132111Z-bd3bd16c3e43/invocations/DiscordBotCore_Unit_Tests-4ffa2b0e/net10-41544e89/1/results.trx",
+      "sha256": "4314383b83d6152bb62cb87344cf52db6dda205e41287ff6044d9331b80915d8"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-units-03/20261005T132111Z-bd3bd16c3e43/invocations/DiscordBotCore_Unit_Tests-4ffa2b0e/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-units-03/20261005T132111Z-bd3bd16c3e43/invocations/DiscordBotCore_Unit_Tests-4ffa2b0e/net10-41544e89/1/test.stdout.log",
+      "sha256": "94cd0119c82c804297938dba7794099f8201e44ffc4beb0441c6bf450e3b0b84"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-units-03/20261005T132111Z-bd3bd16c3e43/invocations/ExpressionEngine_Unit_Tests-8cdb3e65/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-units-03/20261005T132111Z-bd3bd16c3e43/invocations/ExpressionEngine_Unit_Tests-8cdb3e65/build/build.stdout.log",
+      "sha256": "88e138751fbd8c258320977d326387b6c25c164e004460703adef6be8c00c9ce"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-units-03/20261005T132111Z-bd3bd16c3e43/invocations/ExpressionEngine_Unit_Tests-8cdb3e65/net10-41544e89/1/results.trx",
+      "sha256": "863627535666af3bbba8725463d285a1ea6d3b4e0ba118f2430377e4f8c40563"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-units-03/20261005T132111Z-bd3bd16c3e43/invocations/ExpressionEngine_Unit_Tests-8cdb3e65/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-units-03/20261005T132111Z-bd3bd16c3e43/invocations/ExpressionEngine_Unit_Tests-8cdb3e65/net10-41544e89/1/test.stdout.log",
+      "sha256": "c0b79e8c94b7d8f7c2db946561df99295fac20d3a74076cbf9a291188e4bd132"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-units-03/20261005T132111Z-bd3bd16c3e43/invocations/FutureMUD.Web.Tests-ac492d08/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-units-03/20261005T132111Z-bd3bd16c3e43/invocations/FutureMUD.Web.Tests-ac492d08/build/build.stdout.log",
+      "sha256": "2130ee93d44f6d0486f2d850674a177e3de94071ce1ff87729960a53c1250569"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-units-03/20261005T132111Z-bd3bd16c3e43/invocations/FutureMUD.Web.Tests-ac492d08/net10-41544e89/1/results.trx",
+      "sha256": "74ac7faab219dedea43af20e7037171a5bd9aeae69f7dd612bebd0be88962e4b"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-units-03/20261005T132111Z-bd3bd16c3e43/invocations/FutureMUD.Web.Tests-ac492d08/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-units-03/20261005T132111Z-bd3bd16c3e43/invocations/FutureMUD.Web.Tests-ac492d08/net10-41544e89/1/test.stdout.log",
+      "sha256": "9903411e37b6358bfd4111d7546d0075884842e977b6a68ccd462bb30b49f9ab"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-units-03/20261005T132111Z-bd3bd16c3e43/invocations/FutureMUDLibrary_Unit_Tests-45c02d6c/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-units-03/20261005T132111Z-bd3bd16c3e43/invocations/FutureMUDLibrary_Unit_Tests-45c02d6c/build/build.stdout.log",
+      "sha256": "4275a1a7b29674d05722cff97009d05ac804dfbea98e0af8ffb3c810c3c784eb"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-units-03/20261005T132111Z-bd3bd16c3e43/invocations/FutureMUDLibrary_Unit_Tests-45c02d6c/net10-41544e89/1/results.trx",
+      "sha256": "fa4789b40c99810e08de29c9ea7871736d3affd4a597507da3587aa922db2ecc"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-units-03/20261005T132111Z-bd3bd16c3e43/invocations/FutureMUDLibrary_Unit_Tests-45c02d6c/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-units-03/20261005T132111Z-bd3bd16c3e43/invocations/FutureMUDLibrary_Unit_Tests-45c02d6c/net10-41544e89/1/test.stdout.log",
+      "sha256": "a334860b6d432c76df56baf1ea86bd8a5bb724aee6be14339ed8590eb09d945f"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-units-03/20261005T132111Z-bd3bd16c3e43/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-units-03/20261005T132111Z-bd3bd16c3e43/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stdout.log",
+      "sha256": "dacdb46547456cfae6855f2920c9ba37b40e0aaae60629c39d98f1a6572372ae"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-units-03/20261005T132111Z-bd3bd16c3e43/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/luker_PERCIVAL_2026-10-06_00_22_38/In/c4f6790b-e487-4ff8-bad1-d9d9f4ba1617/PERCIVAL/authored-celestial-performance.json",
+      "sha256": "9ec8d4f6ffc4bd68bd6681021328b645977b4315f9eead6cc27c1b3111ce2f52"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-units-03/20261005T132111Z-bd3bd16c3e43/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/results.trx",
+      "sha256": "a76cb6fe7bb571f37b0bb34ba5467f3c586556437a432bbb5c4b5802031ea1a7"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-units-03/20261005T132111Z-bd3bd16c3e43/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-units-03/20261005T132111Z-bd3bd16c3e43/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stdout.log",
+      "sha256": "633d2085080a69ab3b6b0b064875ef945d485e50a2cf3417cf855ab48246900c"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-units-03/20261005T132111Z-bd3bd16c3e43/invocations/MudsharpDatabaseLibrary_Unit_Tests-6ef1914c/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-units-03/20261005T132111Z-bd3bd16c3e43/invocations/MudsharpDatabaseLibrary_Unit_Tests-6ef1914c/build/build.stdout.log",
+      "sha256": "50bf82c9ee872fb0d820c876820ec9dd42ecf80d6e8878ae57d80b22324906be"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-units-03/20261005T132111Z-bd3bd16c3e43/invocations/MudsharpDatabaseLibrary_Unit_Tests-6ef1914c/net10-41544e89/1/results.trx",
+      "sha256": "585f6de12629e6bb444cb4967e9d8d14ab1994007c6351f7421fde0809f125fc"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-units-03/20261005T132111Z-bd3bd16c3e43/invocations/MudsharpDatabaseLibrary_Unit_Tests-6ef1914c/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-units-03/20261005T132111Z-bd3bd16c3e43/invocations/MudsharpDatabaseLibrary_Unit_Tests-6ef1914c/net10-41544e89/1/test.stdout.log",
+      "sha256": "cd08732a94ee9e4a34b2f4a4e67e53ba85c021e3b11c8c4b3ad15df2a5510be4"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-units-03/20261005T132111Z-bd3bd16c3e43/invocations/RPI_Engine_Worldfile_Converter_Tests-14d87d34/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-units-03/20261005T132111Z-bd3bd16c3e43/invocations/RPI_Engine_Worldfile_Converter_Tests-14d87d34/build/build.stdout.log",
+      "sha256": "8b7acb0cdd93ec835e79f9bf2a0b1089a50cc042903b9a7d07507fd5aa87244f"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-units-03/20261005T132111Z-bd3bd16c3e43/invocations/RPI_Engine_Worldfile_Converter_Tests-14d87d34/net10-41544e89/1/results.trx",
+      "sha256": "316bba375bf3ae2ffa56b74b64c4f106492567d37f1669fa18bc42290bc1c714"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-units-03/20261005T132111Z-bd3bd16c3e43/invocations/RPI_Engine_Worldfile_Converter_Tests-14d87d34/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-units-03/20261005T132111Z-bd3bd16c3e43/invocations/RPI_Engine_Worldfile_Converter_Tests-14d87d34/net10-41544e89/1/test.stdout.log",
+      "sha256": "0e3b1ed2839980d5281b33506beb04a602d7b5735f0764937e14fc69a8019e30"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-units-03/20261005T132111Z-bd3bd16c3e43/invocations/TerrainPlanner.Tests-1085b5fa/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-units-03/20261005T132111Z-bd3bd16c3e43/invocations/TerrainPlanner.Tests-1085b5fa/build/build.stdout.log",
+      "sha256": "724ad8d184bc9ec772700f9e78b81efd0a11e9b76204be3bb0dd16f3594c91f5"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-units-03/20261005T132111Z-bd3bd16c3e43/invocations/TerrainPlanner.Tests-1085b5fa/net10-41544e89/1/results.trx",
+      "sha256": "91f3cbe7c497e924535abd507334b56dbac43b5db734a77e6b7fe98465d19689"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-units-03/20261005T132111Z-bd3bd16c3e43/invocations/TerrainPlanner.Tests-1085b5fa/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-units-03/20261005T132111Z-bd3bd16c3e43/invocations/TerrainPlanner.Tests-1085b5fa/net10-41544e89/1/test.stdout.log",
+      "sha256": "ab84a3f0accf6a619ff2806a6824eff36321c94dfb9f938582c4ca87f4fd0250"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-units-03/20261005T132111Z-bd3bd16c3e43/invocations/TestReporting.Tests-25b07e44/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-units-03/20261005T132111Z-bd3bd16c3e43/invocations/TestReporting.Tests-25b07e44/build/build.stdout.log",
+      "sha256": "8e65102dd58594b359955ac36b27d859a72e94101ec8066f8cd7f12ebde9a970"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-units-03/20261005T132111Z-bd3bd16c3e43/invocations/TestReporting.Tests-25b07e44/net10-41544e89/1/results.trx",
+      "sha256": "977ab59dbc240aac21464e00a1da40cdc441b8e6be98c1cfbefa1a023a01df03"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-units-03/20261005T132111Z-bd3bd16c3e43/invocations/TestReporting.Tests-25b07e44/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-units-03/20261005T132111Z-bd3bd16c3e43/invocations/TestReporting.Tests-25b07e44/net10-41544e89/1/test.stdout.log",
+      "sha256": "3cb24c139c99980f3585dec1642543783eeec39d360ee54ac26bebd97e15de36"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-units-03/20261005T132111Z-bd3bd16c3e43/run.json",
+      "sha256": "231582c1093e74fc842dfcc86797076dd8819396b67b13b5434a722ad26fd682"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-units-03/20261005T132111Z-bd3bd16c3e43/sdk/sdk.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-units-03/20261005T132111Z-bd3bd16c3e43/sdk/sdk.stdout.log",
+      "sha256": "3db6bca4b50618b2e0d2d55d23b3d0541fe039ab6f731df0e9c47317b400ce52"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-units-03/20261005T132111Z-bd3bd16c3e43/source-end.json",
+      "sha256": "a063454629c78a9af0c74d9cb3a13c0312460fc4c7c57881cab63d34150deb3c"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-units-03/20261005T132111Z-bd3bd16c3e43/source-start.json",
+      "sha256": "c37c9d6b6c3c37830d9fb2f08cf9752f5aab3989c9019271f12365b4899989a5"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-units-03/20261005T132111Z-bd3bd16c3e43/summary.json",
+      "sha256": "c59106f075c3d6cf251ef3fa2a2b5ab34a9e2e9a7f32b17c595f07b196e9dc89"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-units-03/20261005T132111Z-bd3bd16c3e43/summary.txt",
+      "sha256": "986419b0de792927158ed484fb2fc81643ff56bd212447cfc795002c7a5a5b06"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-units-03/20261005T132111Z-bd3bd16c3e43/test-results.json",
+      "sha256": "310125615987dce19e5b185222e0d8347095ea7ccf61ae7c58b3b9c0c780e298"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-units-03/pierce-lifetime-focus.json",
+      "sha256": "8f97c7f542feec4f56892c8390c9f2c92c0f3104c17afcfee7a543776aa7d07f"
+    }
+  ],
+  "diagnostic_artifacts": [
+    {
+      "path": ".artifacts/test-runs/pierce-policy-focused-04.log",
+      "sha256": "b4cd671e6f346527c6bf4efcbb84531e34767944868e07c927152a64f7d5502f"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-policy-focused-05.log",
+      "sha256": "43f9da938e407cca49fbcd62cee0d24405d2fb618774adba2b962fdc89cb280c"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-policy-caster-diagnostic-01.log",
+      "sha256": "fb6c7f307a5fb8b42374a4427e520f6986966e6008f330a9e34a77741cf3e366"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-policy-native-01.log",
+      "sha256": "565bc89d402d9c7eb849b1642d72b823ac4a62a03c8b8b75bd1f6ddd40041bdc"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-units-01/20261005T125153Z-923a6e165d66/summary.json",
+      "sha256": "bbea95f01f4e26be3aba5b320faf8efc22ed974505ecc994da2c1b7a06fda831"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-units-02/20261005T130435Z-284303ccb78f/summary.json",
+      "sha256": "53a9d7c52340cb563009d1e67877e6e80988fabd54c605da40466c3e9596b348"
+    },
+    {
+      "path": ".artifacts/test-runs/pierce-lifetime-final-native-01/summary.json",
+      "sha256": "64d73d252c95adf1098b56c5d9638f759e023a0e9fa36861a347b10283bf4217"
+    }
+  ],
+  "native_limits": "Real native character/body/effect/resource/SQL paths with controlled catalogues/checks/terrain/clock; no full Telnet/login or setting-specific acquisition certification. Cross-caster grouping and adversarial callbacks qualified in durable runtime tests; native grouping specifically covers different spell IDs.",
+  "remaining_blocker": "Parent independent review and integration acceptance only; no outstanding implementation/test failure.",
+  "integration": "Local commits only. No further central registry/shared-dispatch addition requested; existing owned stock-builder contribution remains. No merge, remote action, installer edits or central ledger rewrite."
+}

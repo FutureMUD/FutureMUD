@@ -1,4 +1,4 @@
-﻿using MudSharp.Body.Position;
+using MudSharp.Body.Position;
 using MudSharp.Construction.Boundary;
 using MudSharp.Movement;
 using MudSharp.RPG.Checks;
@@ -57,12 +57,15 @@ public class FireAndAdvanceToMeleeMove : CombatMoveBase
 
     public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
     {
+		using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterMove(this);
+		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
         ICharacter target = defenderMove?.Assailant ?? CharacterTargets.First();
         HandleSkirmish(target, defenderMove);
+        if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
 
         RangedWeaponAttackMove dummyMove = new(Assailant, target, Weapon) { SuppressAttackMessage = true };
-        ICombatMove shotResponse = target.ResponseToMove(dummyMove, Assailant);
-        return dummyMove.ResolveMove(shotResponse);
+        return MudSharp.NPC.AI.CommandExecutionScope.ResolveOwned(this, dummyMove,
+            () => target.ResponseToMove(dummyMove, Assailant));
     }
 
     #endregion

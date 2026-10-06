@@ -1,0 +1,273 @@
+{
+  "package": "ArmageddonMagicSeeder",
+  "module": "reviewed-five-utilities-and-blank-devices",
+  "version": "partial-1",
+  "partial": true,
+  "operatorSurface": "internal explicit opt-in API; no enabled seeder menu entry",
+  "ownership": "SeederManagedRecord identity and three-way seed-baseline reconciliation; no name adoption; missing and retired identities block the batch",
+  "exclusions": [
+    "stock scrolls",
+    "player refresh",
+    "character enrolment or acquisition",
+    "classes",
+    "other stock spells",
+    "all 82 skills",
+    "full Phase 5 completion"
+  ],
+  "ownedFields": {
+    "MagicSpell": [
+      "SpellLevel",
+      "ScrollInscriptionAllowed",
+      "Name",
+      "Blurb",
+      "Description",
+      "SpellKnownProgId",
+      "MagicSchoolId",
+      "ExclusiveDelay",
+      "NonExclusiveDelay",
+      "Definition",
+      "CastingDifficulty",
+      "ResistingDifficulty",
+      "CastingTraitDefinitionId",
+      "ResistingTraitDefinitionId",
+      "EffectDurationExpressionId",
+      "MinimumSuccessThreshold",
+      "AppliedEffectsAreExclusive",
+      "CastingEmote",
+      "FailCastingEmote",
+      "TargetEmote",
+      "TargetResistedEmote",
+      "TargetNullEmote",
+      "CastingEmoteFlags",
+      "TargetEmoteFlags"
+    ],
+    "TraitExpression": [
+      "Expression",
+      "Name"
+    ],
+    "FutureProg": [
+      "FunctionName",
+      "FunctionComment",
+      "FunctionText",
+      "ReturnTypeDefinition",
+      "Category",
+      "Subcategory",
+      "Public",
+      "AcceptsAnyParameters",
+      "StaticType"
+    ],
+    "GameItemComponentProto": [
+      "Type",
+      "Definition",
+      "Description",
+      "Name"
+    ],
+    "GameItemProto": [
+      "Name",
+      "UniqueName",
+      "BuilderNotes",
+      "Keywords",
+      "MaterialId",
+      "Size",
+      "Weight",
+      "ReadOnly",
+      "LongDescription",
+      "ItemGroupId",
+      "OnDestroyedGameItemProtoId",
+      "HealthStrategyId",
+      "BaseItemQuality",
+      "CustomColour",
+      "HighPriority",
+      "MorphGameItemProtoId",
+      "MorphTimeSeconds",
+      "RefrigerationSensitive",
+      "MorphEmote",
+      "ShortDescription",
+      "FullDescription",
+      "PermitPlayerSkins",
+      "CostInBaseCurrency",
+      "IsHiddenFromPlayers",
+      "PreserveRegisterVariables",
+      "PlanarData"
+    ]
+  },
+  "ownedRelations": {
+    "FutureProg": [
+      "parameter:<index>"
+    ],
+    "GameItemProto": [
+      "component:<id>:<revision>"
+    ]
+  },
+  "metadataFields": [
+    "$dependencies",
+    "$bindings"
+  ],
+  "contributions": [
+    {
+      "key": "arm.spell.sense_enchantment",
+      "entityType": "MagicSpell",
+      "dependencies": [
+        "arm.spell.sense_enchantment.duration",
+        "arm.spell.sense_enchantment.cost",
+        "external.school",
+        "external.resource",
+        "external.skill:arm.spell.sense_enchantment",
+        "external.always_false",
+        "arm.spell.sense_enchantment.eligibility"
+      ]
+    },
+    {
+      "key": "arm.spell.sense_enchantment.duration",
+      "entityType": "TraitExpression",
+      "dependencies": []
+    },
+    {
+      "key": "arm.spell.sense_enchantment.cost",
+      "entityType": "TraitExpression",
+      "dependencies": []
+    },
+    {
+      "key": "arm.spell.sense_enchantment.eligibility",
+      "entityType": "FutureProg",
+      "dependencies": []
+    },
+    {
+      "key": "arm.spell.unravel_enchantment",
+      "entityType": "MagicSpell",
+      "dependencies": [
+        "arm.spell.unravel_enchantment.duration",
+        "arm.spell.unravel_enchantment.cost",
+        "external.school",
+        "external.resource",
+        "external.skill:arm.spell.unravel_enchantment",
+        "external.always_false"
+      ]
+    },
+    {
+      "key": "arm.spell.unravel_enchantment.duration",
+      "entityType": "TraitExpression",
+      "dependencies": []
+    },
+    {
+      "key": "arm.spell.unravel_enchantment.cost",
+      "entityType": "TraitExpression",
+      "dependencies": []
+    },
+    {
+      "key": "arm.spell.mend_flesh",
+      "entityType": "MagicSpell",
+      "dependencies": [
+        "arm.spell.mend_flesh.duration",
+        "arm.spell.mend_flesh.cost",
+        "external.school",
+        "external.resource",
+        "external.skill:arm.spell.mend_flesh",
+        "external.always_false",
+        "external.mend_eligibility"
+      ]
+    },
+    {
+      "key": "arm.spell.mend_flesh.duration",
+      "entityType": "TraitExpression",
+      "dependencies": []
+    },
+    {
+      "key": "arm.spell.mend_flesh.cost",
+      "entityType": "TraitExpression",
+      "dependencies": []
+    },
+    {
+      "key": "arm.spell.draw_water",
+      "entityType": "MagicSpell",
+      "dependencies": [
+        "arm.spell.draw_water.duration",
+        "arm.spell.draw_water.cost",
+        "external.school",
+        "external.resource",
+        "external.skill:arm.spell.draw_water",
+        "external.always_false",
+        "arm.spell.draw_water.eligibility",
+        "external.water",
+        "external.water_bonus_plane"
+      ]
+    },
+    {
+      "key": "arm.spell.draw_water.duration",
+      "entityType": "TraitExpression",
+      "dependencies": []
+    },
+    {
+      "key": "arm.spell.draw_water.cost",
+      "entityType": "TraitExpression",
+      "dependencies": []
+    },
+    {
+      "key": "arm.spell.draw_water.eligibility",
+      "entityType": "FutureProg",
+      "dependencies": []
+    },
+    {
+      "key": "arm.spell.hovering_light",
+      "entityType": "MagicSpell",
+      "dependencies": [
+        "arm.spell.hovering_light.duration",
+        "arm.spell.hovering_light.cost",
+        "external.school",
+        "external.resource",
+        "external.skill:arm.spell.hovering_light",
+        "external.always_false",
+        "external.light",
+        "external.light_revision"
+      ]
+    },
+    {
+      "key": "arm.spell.hovering_light.duration",
+      "entityType": "TraitExpression",
+      "dependencies": []
+    },
+    {
+      "key": "arm.spell.hovering_light.cost",
+      "entityType": "TraitExpression",
+      "dependencies": []
+    },
+    {
+      "key": "arm.component.charged_wand",
+      "entityType": "GameItemComponentProto",
+      "dependencies": [
+        "arm.spell.mend_flesh",
+        "external.builder"
+      ]
+    },
+    {
+      "key": "arm.item.charged_wand",
+      "entityType": "GameItemProto",
+      "dependencies": [
+        "arm.component.charged_wand",
+        "external.holdable",
+        "external.holdable_revision",
+        "external.material",
+        "external.builder"
+      ]
+    },
+    {
+      "key": "arm.component.charged_staff",
+      "entityType": "GameItemComponentProto",
+      "dependencies": [
+        "arm.spell.mend_flesh",
+        "external.builder"
+      ]
+    },
+    {
+      "key": "arm.item.charged_staff",
+      "entityType": "GameItemProto",
+      "dependencies": [
+        "arm.component.charged_staff",
+        "external.holdable",
+        "external.holdable_revision",
+        "external.material",
+        "external.builder"
+      ]
+    }
+  ]
+}

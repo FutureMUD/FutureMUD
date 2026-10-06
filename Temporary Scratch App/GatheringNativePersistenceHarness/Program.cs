@@ -25,6 +25,7 @@ using MudSharp.Framework.Scheduling;
 using MudSharp.Form.Shape;
 using MudSharp.Form.Material;
 using MudSharp.FutureProg;
+using MudSharp.GameItems;
 using MudSharp.Health;
 using MudSharp.Health.Strategies;
 using MudSharp.Health.Wounds;
@@ -53,12 +54,78 @@ internal static partial class GNHProgram
 	{
 		try
 		{
+			OwnedConnections.Install();
 			return args switch
 			{
 				["--probe"] => Probe(),
 				["--schema"] => InspectFreshSchema(),
 				["--run"] => RunAcceptanceChecks(),
-				["--casting-run"] => RunCastingAcceptanceChecks(),
+				["--casting-run"] => RunAllCastingAcceptanceChecks(),
+				["--practice-run"] => RunPracticeAcceptanceChecks(),
+				["--speech-run"] => RunSpeechAcceptanceChecks(),
+				["--area-run"] => RunAreaAcceptanceChecks(),
+				["--lifecycle-run"] => RunLifecycleAcceptanceChecks(),
+				["--npc-archive-run"] => RunNpcArchiveAcceptanceChecks(),
+				["--npc-archive-maintenance-run"] => RunNpcArchiveMaintenanceChecks(),
+				["--spell-owned-npc-run"] => RunSpellOwnedNpcAcceptanceChecks(),
+				["--spell-owned-retirement-run"] => RunSpellOwnedNpcRetirementChecks(),
+				["--created-consumables-run"] => RunCreatedConsumablesChecks(),
+				["--corpse-animation-run"] => RunCorpseAnimationChecks(),
+				["--raise-servitor-stock-run"] => RunRaiseServitorStockChecks(),
+				["--queued-command-run"] => RunRaiseServitorStockChecks(queuedAuthorityOnly: true),
+				["--queued-callback-run"] => RunRaiseServitorStockChecks(queuedCallbackOnly: true),
+				["--ordered-npc-callback-run"] => RunRaiseServitorStockChecks(orderedCallbacks: true),
+				["--check-learning-run"] => RunRaiseServitorStockChecks(checkLearningOnly: true),
+				["--regression-p2-run"] => RunRaiseServitorStockChecks(regressionP2Only: true),
+				["--stack-merge-run"] => RunRaiseServitorStockChecks(regressionP2Only: true, stackMergeOnly: true),
+				["--ammo-detach-recovery-run"] => RunRaiseServitorStockChecks(orderedCallbacks: true, ammoConservationOnly: true, ammoDetachRecoveryOnly: true),
+				["--native-boarding-run"] => RunRaiseServitorStockChecks(orderedCallbacks: true, nativeBoardingOnly: true),
+				["--production-restart-run"] => RunRaiseServitorStockChecks(productionRestartOnly: true),
+				["--production-restart-reader", .. string[] restartArguments] => RunProductionRestartReader(restartArguments),
+				["--native-boarding-reader", .. string[] boardingArguments] => RunNativeBoardingReader(boardingArguments),
+				["--ammo-conservation-run"] => RunRaiseServitorStockChecks(orderedCallbacks: true, ammoConservationOnly: true),
+				["--load-output-run"] => RunRaiseServitorStockChecks(orderedCallbacks: true, loadOutputOnly: true),
+				["--custody-merge-run"] => RunRaiseServitorStockChecks(regressionP2Only: true, custodyMergeOnly: true),
+				["--countershot-authority-run"] => RunRaiseServitorStockChecks(orderedCallbacks: true, countershotAuthorityOnly: true),
+				["--defended-melee-run"] => RunRaiseServitorStockChecks(orderedCallbacks: true, selectedMeleeCheckOnly: true, defendedMeleeOnly: true),
+				["--firearm-authority-run"] => RunRaiseServitorStockChecks(orderedCallbacks: true, firearmAuthorityOnly: true),
+				["--firearm-authority-reader", .. string[] firearmArguments] => RunFirearmAuthorityReader(firearmArguments),
+				["--selected-melee-check-run"] => RunRaiseServitorStockChecks(orderedCallbacks: true, selectedMeleeCheckOnly: true),
+				["--selected-melee-check-reader", .. string[] selectedLearningArguments] => RunSelectedMeleeCheckReader(selectedLearningArguments),
+				["--ordered-currency-reader", .. string[] currencyArguments] => RunOrderedCurrencyReader(currencyArguments),
+				["--check-learning-reader", .. string[] learningArguments] => RunCheckLearningReader(learningArguments),
+				["--regression-p2-reader", .. string[] regressionArguments] => RunRegressionP2Reader(regressionArguments),
+				["--queued-command-reader", .. string[] queuedArguments] => RunQueuedCommandReader(queuedArguments),
+				["--storm-spear-stock-run"] => RunStormSpearStockChecks(),
+				["--flame-knife-stock-run"] => RunFlameKnifeStockChecks(),
+				["--flame-knife-stock-reader", .. string[] flameArguments] => RunFlameKnifeStockReader(flameArguments),
+				["--sand-knife-stock-run"] => RunSandKnifeStockChecks(),
+				["--sand-knife-stock-reader", .. string[] sandDiagnosticArguments] when
+					Environment.GetEnvironmentVariable("FUTUREMUD_STOCK_READER_DIAGNOSTICS") == "1" => RunOrderedSandReaderDiagnostics(sandDiagnosticArguments),
+				["--sand-knife-stock-reader", .. string[] sandArguments] => RunSandKnifeStockReader(sandArguments),
+				["--storm-spear-stock-reader", .. string[] spearArguments] => RunStormSpearStockReader(spearArguments),
+				["--storm-spear-placement-reader", .. string[] placementArguments] => RunStormSpearPlacementReader(placementArguments),
+				["--raise-servitor-stock-reader", .. string[] stockArguments] => RunRaiseServitorStockReader(stockArguments),
+				["--corpse-animation-saved-parent-run"] => RunCorpseAnimationChecks(savedParentRestart: true),
+				["--corpse-animation-active-future-run"] => RunCorpseAnimationChecks(true, "active-future-boot-recovery"),
+				["--corpse-animation-active-expired-run"] => RunCorpseAnimationChecks(true, "active-expired-boot-recovery"),
+				["--corpse-animation-saved-parent-reader", .. string[] savedParentArguments] => RunSavedCorpseAnimationParentReader(savedParentArguments),
+				["--corpse-animation-reader", .. string[] animationArguments] => RunCorpseAnimationReader(animationArguments),
+				["--created-consumables-reader", .. string[] consumableArguments] => RunCreatedConsumablesReader(consumableArguments),
+				["--spell-owned-item-run"] => RunSpellOwnedItemChecks(),
+				["--spell-owned-item-reader", .. string[] itemArguments] => RunSpellOwnedItemReader(itemArguments),
+				["--spell-owned-item-removal-reader", .. string[] removalArguments] => RunSpellOwnedItemRemovalReader(removalArguments),
+				["--spell-owned-retirement-reader", .. string[] ownedRetirementArguments] => RunSpellOwnedRetirementReader(ownedRetirementArguments),
+				["--spell-owned-npc-reader", .. string[] nativeNpcArguments] => RunSpellOwnedNpcReader(nativeNpcArguments),
+				["--npc-archive-reader", .. string[] archiveArguments] => RunNpcArchiveReader(archiveArguments),
+				["--body-retirement-run"] => RunBodyRetirementAcceptanceChecks(),
+				["--legacy-remains-run"] => RunLegacyRemainsAcceptanceChecks(),
+				["--legacy-remains-reader", .. string[] legacyArguments] => RunLegacyRemainsReader(legacyArguments),
+				["--body-retirement-reader", .. string[] retirementArguments] => RunBodyRetirementReader(retirementArguments),
+				["--lifecycle-reader", .. string[] lifecycleArguments] => RunLifecycleReader(lifecycleArguments),
+				["--area-reader", .. string[] areaReaderArguments] => RunAreaReader(areaReaderArguments),
+				["--speech-reader", .. string[] speechReaderArguments] => RunSpeechReader(speechReaderArguments),
+				["--practice-reader", .. string[] practiceReaderArguments] => RunPracticeReader(practiceReaderArguments),
 				["--casting-reader", .. string[] readerArguments] => RunCastingReader(readerArguments),
 				["--reader", .. string[] readerArguments] => RunReader(readerArguments),
 				["--land-run"] => RunNativeOrganicAcceptanceChecks(),
@@ -83,7 +150,7 @@ internal static partial class GNHProgram
 
 	private static int Usage()
 	{
-		Console.Error.WriteLine("Usage: GatheringNativePersistenceHarness --probe|--schema|--run|--reader <scenario arguments>|--land-run|--land-reader <scenario arguments>|--land-action-reader <scenario arguments>|--rejuvenation-run|--rejuvenation-reader <owned fixture descriptor>|--casting-run|--casting-reader <owned fixture descriptor>");
+		Console.Error.WriteLine("Usage: GatheringNativePersistenceHarness --probe|--schema|--run|--reader <scenario arguments>|--land-run|--land-reader <scenario arguments>|--land-action-reader <scenario arguments>|--rejuvenation-run|--rejuvenation-reader <owned fixture descriptor>|--casting-run|--casting-reader <owned fixture descriptor>|--practice-run|--practice-reader <owned fixture descriptor>");
 		return 2;
 	}
 
@@ -91,6 +158,7 @@ internal static partial class GNHProgram
 	{
 		using var database = TestDatabase.OpenServerConnection();
 		Console.WriteLine($"MySQL server reachable; version={database.ServerVersion}; test connection contains no selected database.");
+		OwnedConnections.CheckRefusals();
 		return 0;
 	}
 
@@ -307,14 +375,18 @@ internal static partial class GNHProgram
 
 	private static FuturemudDatabaseContext NewIndependentContext(string connectionString)
 	{
+		using var candidate = new MySqlConnector.MySqlConnection(connectionString);
+		OwnedConnections.Validate("independent-context-before-autodetect", candidate);
 		DbContextOptions<FuturemudDatabaseContext> options = new DbContextOptionsBuilder<FuturemudDatabaseContext>()
 			.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString))
+			.AddInterceptors(new FMDB.ValidatedConnectionInterceptor((boundary, connection) => OwnedConnections.ValidateIndependentConnection(boundary, connection, connectionString)))
 			.Options;
 		return new FuturemudDatabaseContext(options);
 	}
 
 	private static void ConfigureNativeDatabase(string connectionString)
 	{
+		OwnedConnections.SetActive(connectionString);
 		FMDB.ConnectionString = connectionString;
 		FMDB.Provider = "mysql";
 	}
@@ -512,7 +584,8 @@ internal static partial class GNHProgram
 		public IMagicResource Resource { get; }
 		public IMagicGatheringCapability Capability { get; }
 
-		public static NativeRuntime Load(FixtureIds fixture, string connectionString, bool casting = false)
+		public static NativeRuntime Load(FixtureIds fixture, string connectionString, bool casting = false,
+			Action<NativeRuntime>? beforeMagicLoad = null, bool vocalAnatomy = false, bool wielding = false, bool consumablesAnatomy = false)
 		{
 			using FuturemudDatabaseContext context = NewIndependentContext(connectionString);
 			Db.Character character = context.Characters
@@ -543,8 +616,23 @@ internal static partial class GNHProgram
 
 			Mock<IExternalBodypart> bodypart = NewBodypart(fixture.BodypartId, world.Object);
 			if (casting) bodypart.As<IGrab>();
+			Mock<IExternalBodypart>? extraBodypart = null;
+			if (wielding)
+			{
+				// The item fixture needs one hand for a real held component and another for casting.
+				extraBodypart = NewBodypart(fixture.BodypartId + 3, world.Object);
+				foreach (var hand in new[] { bodypart, extraBodypart })
+				{
+					hand.As<IGrab>();
+					var wield = hand.As<IWield>();
+					wield.Setup(x => x.CanWield(It.IsAny<IGameItem>(), It.IsAny<IInventory>())).Returns(IWieldItemWieldResult.Success);
+					wield.Setup(x => x.Hands(It.IsAny<IGameItem>())).Returns(1);
+					wield.Setup(x => x.SelfUnwielder()).Returns(true);
+				}
+			}
 			var bodyparts = new All<IBodypart>();
 			bodyparts.Add(bodypart.Object);
+			if (extraBodypart is not null) bodyparts.Add(extraBodypart.Object);
 			world.SetupGet(x => x.BodypartPrototypes).Returns(bodyparts);
 			Require(ReferenceEquals(bodyparts.Get(fixture.BodypartId), bodypart.Object),
 				"The fixture did not register the supported body part in the native world catalogue.");
@@ -560,6 +648,8 @@ internal static partial class GNHProgram
 			{
 				var speech = new Mock<MudSharp.Strategies.BodyStratagies.IBodyCommunicationStrategy>();
 				speech.Setup(x => x.CanVocalise(It.IsAny<IBody>())).Returns(true);
+				speech.Setup(x => x.CanVocalise(It.IsAny<IBody>(), It.IsAny<MudSharp.Form.Audio.AudioVolume>()))
+					.Returns<IBody, MudSharp.Form.Audio.AudioVolume>((body, _) => speech.Object.CanVocalise(body));
 				race.SetupGet(x => x.CommunicationStrategy).Returns(speech.Object);
 			}
 			var races = new All<IRace>();
@@ -571,7 +661,7 @@ internal static partial class GNHProgram
 			ethnicities.Add(ethnicity.Object);
 			world.SetupGet(x => x.Ethnicities).Returns(ethnicities);
 
-			Mock<IBodyPrototype> bodyPrototype = NewBodyPrototype(bodyModel.BodyPrototypeId, world.Object, bodypart.Object, casting);
+			Mock<IBodyPrototype> bodyPrototype = NewBodyPrototype(bodyModel.BodyPrototypeId, world.Object, bodypart.Object, casting, vocalAnatomy, extraBodypart?.Object, consumablesAnatomy);
 			var bodyPrototypes = new All<IBodyPrototype>();
 			bodyPrototypes.Add(bodyPrototype.Object);
 			world.SetupGet(x => x.BodyPrototypes).Returns(bodyPrototypes);
@@ -621,15 +711,24 @@ internal static partial class GNHProgram
 			world.SetupGet(x => x.MagicCapabilities).Returns(capabilities);
 
 			NativeHarnessCharacter actor = NativeHarnessCharacter.Create(world.Object, character.Id, cell.Object, culture.Object);
+			using var capacityRestoration = (IDisposable)typeof(RuntimeCharacter).GetMethod("DeferCastingCapacityReconciliation", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(actor, [false])!;
 			RuntimeBody body = new(bodyModel, world.Object, actor);
 			actor.AttachBody(body);
 			SetPrivateField(body, "_currentBloodVolumeLitres", 5.0);
 			body.TotalBloodVolumeLitres = 5.0;
 			SetPrivateField(body, "_healthTickActive", true);
+			var runtime = new NativeRuntime(world, actor, body, resource, capability);
+			beforeMagicLoad?.Invoke(runtime);
 			actor.LoadMagic(character);
 			actor.SetMerits([NewCapabilityMerit(capability)]);
-
-			return new NativeRuntime(world, actor, body, resource, capability);
+			if (beforeMagicLoad is not null)
+			{
+				body.RecalculateItemHelpers();
+				actor.RestoreCastingEffects(character.EffectData);
+			}
+			capacityRestoration.Dispose();
+			world.Object.MagicCasting?.NotifyCapacityChange(actor);
+			return runtime;
 		}
 
 		private static Mock<ITraitExpression> NewTraitExpression(long id, IFuturemud world)
@@ -665,7 +764,7 @@ internal static partial class GNHProgram
 			return bodypart;
 		}
 
-		private static Mock<IBodyPrototype> NewBodyPrototype(long id, IFuturemud world, IBodypart bodypart, bool livingAnatomy = false)
+		private static Mock<IBodyPrototype> NewBodyPrototype(long id, IFuturemud world, IBodypart bodypart, bool livingAnatomy = false, bool vocalAnatomy = false, IBodypart? extraBodypart = null, bool consumablesAnatomy = false)
 		{
 			var prototype = new Mock<IBodyPrototype>(MockBehavior.Loose);
 			// Real damage runs the living health strategy, which requires functioning brain and heart organs.
@@ -679,7 +778,31 @@ internal static partial class GNHProgram
 				? [new BrainProto(OrganModel(bodypart.Id + 1, "harness brain"), world),
 					new HeartProto(OrganModel(bodypart.Id + 2, "harness heart"), world)]
 				: [];
-			var allParts = new[] { bodypart }.Concat(organs).ToArray();
+			var external = extraBodypart is null ? new[] { bodypart } : new[] { bodypart, extraBodypart };
+			if (consumablesAnatomy)
+			{
+				var foodId = 2000000000L + id * 100;
+				organs = organs.Append(new EsophagusProto(OrganModel(foodId + 1, "harness esophagus"), world)).ToArray();
+				var wear = new DrapeableBodypartProto(OrganModel(foodId + 2, "harness light location"), world);
+				wear.SetBodyProto(prototype.Object); ((All<IBodypart>)world.BodypartPrototypes).Add(wear);
+				external = external.Append(wear).ToArray();
+				foreach (var eyeId in new[] { foodId + 3, foodId + 4 })
+				{
+					var eye = new EyeProto(OrganModel(eyeId, "harness eye"), world);
+					eye.SetBodyProto(prototype.Object); ((All<IBodypart>)world.BodypartPrototypes).Add(eye);
+					external = external.Append(eye).ToArray();
+				}
+			}
+			if (vocalAnatomy)
+			{
+				var vocalId = 1000000000L + id * 100;
+				organs = organs.Concat(new IOrganProto[] { new TracheaProto(OrganModel(vocalId + 1, "harness trachea"), world),
+					new SpeechSynthesizer(OrganModel(vocalId + 2, "harness synthesizer"), world), new EarProto(OrganModel(vocalId + 3, "harness ear"), world) }).ToArray();
+				external = external.Concat(new IBodypart[] { new MouthProto(OrganModel(vocalId + 4, "harness mouth"), world),
+					new TongueProto(OrganModel(vocalId + 5, "harness tongue"), world) }).ToArray();
+				foreach (var part in external.OfType<BodypartPrototype>()) { part.SetBodyProto(prototype.Object); ((All<IBodypart>)world.BodypartPrototypes).Add(part); }
+			}
+			var allParts = external.Concat(organs).ToArray();
 			if (livingAnatomy)
 			{
 				Mock.Get((IExternalBodypart)bodypart).SetupGet(x => x.Organs).Returns(organs);
@@ -695,9 +818,9 @@ internal static partial class GNHProgram
 			prototype.SetupGet(x => x.Name).Returns("Harness body prototype");
 			prototype.SetupGet(x => x.Gameworld).Returns(world);
 			prototype.Setup(x => x.BodypartsFor(It.IsAny<IRace>(), It.IsAny<Gender>())).Returns(allParts);
-			prototype.SetupGet(x => x.AllBodyparts).Returns(new[] { bodypart });
+			prototype.SetupGet(x => x.AllBodyparts).Returns(external);
 			prototype.SetupGet(x => x.AllBodypartsBonesAndOrgans).Returns(allParts);
-			prototype.SetupGet(x => x.AllExternalBodyparts).Returns(new[] { (IExternalBodypart)bodypart });
+			prototype.SetupGet(x => x.AllExternalBodyparts).Returns(external.Cast<IExternalBodypart>());
 			prototype.SetupGet(x => x.Organs).Returns(organs);
 			prototype.SetupGet(x => x.Bones).Returns(Array.Empty<IBone>());
 			prototype.SetupGet(x => x.Limbs).Returns(Array.Empty<ILimb>());
@@ -745,6 +868,7 @@ internal static partial class GNHProgram
 		private static Mock<ICell> NewCell(long id, IFuturemud world)
 		{
 			var cell = new Mock<ICell>(MockBehavior.Loose);
+			cell.As<ICustodyRollbackLocation>();
 			cell.SetupGet(x => x.Id).Returns(id);
 			cell.SetupGet(x => x.Name).Returns("Harness cell");
 			cell.SetupGet(x => x.Gameworld).Returns(world);
@@ -787,7 +911,7 @@ internal static partial class GNHProgram
 		{
 		}
 
-		public override double ResourceCap(IHaveMagicResource thing) => 100.0;
+		public override double ResourceCap(IHaveMagicResource thing) => HasAttributeCapacity ? base.ResourceCap(thing) : 100.0;
 	}
 
 	private sealed class NativeHarnessCharacter : RuntimeCharacter
@@ -839,9 +963,14 @@ internal static partial class GNHProgram
 		public void SetMerits(IEnumerable<IMerit> merits) => SetPrivateField(this, "_merits", merits.ToList());
 		public void RestoreCastingEffects(string xml) => LoadEffects(XElement.Parse(xml));
 
-		// The isolated fixture has no installed hooks, combat, or attached items. The normal event pipeline therefore
-		// has no observer work to perform after ProcessPassiveWound has run its native wound lifecycle.
-		public override bool HandleEvent(EventType type, params dynamic[] arguments) => false;
+		public bool NativeSpeechEvents { get; set; }
+
+		// Only the speech fixture initialises native hooks and witnesses. Other isolated fixtures have no observers.
+		public override bool HandleEvent(EventType type, params dynamic[] arguments) =>
+			NativeSpeechEvents && type is EventType.CharacterSpeaks or EventType.CharacterSpeaksWitness or
+				EventType.CharacterSpeaksDirect or EventType.CharacterSpeaksDirectTarget or
+				EventType.CharacterSpeaksDirectWitness or EventType.CharacterSpeaksNearbyWitness
+				? base.HandleEvent(type, arguments) : false;
 
 		public override void Save()
 		{
@@ -858,6 +987,15 @@ internal static partial class GNHProgram
 			if (MagicChanged || ResourcesChanged)
 			{
 				SaveMagic(character);
+			}
+			if (NeedsModel?.NeedsSave == true)
+			{
+				character.NeedsModel = NeedsModel.ModelName;
+				character.AlcoholLitres = NeedsModel.AlcoholLitres;
+				character.WaterLitres = NeedsModel.WaterLitres;
+				character.DrinkSatiatedHours = NeedsModel.DrinkSatiatedHours;
+				character.FoodSatiatedHours = NeedsModel.FoodSatiatedHours;
+				character.SatiationReserve = NeedsModel.SatiationReserve;
 			}
 			character.EffectData = SaveEffects().ToString();
 
@@ -907,6 +1045,7 @@ internal static partial class GNHProgram
 		private readonly string _ownershipToken;
 		private bool _created;
 		private bool _disposed;
+		private bool _markerReady;
 
 		private TestDatabase(MySqlConnectionStringBuilder serverBuilder, string name, string ownershipToken, string serverVersion)
 		{
@@ -926,7 +1065,9 @@ internal static partial class GNHProgram
 		{
 			MySqlConnectionStringBuilder builder = ServerConnectionBuilder();
 			using var connection = new MySqlConnection(builder.ConnectionString);
+			OwnedConnections.Validate("probe-before-connect", connection, allowServer: true);
 			connection.Open();
+			OwnedConnections.Validate("probe-connected", connection, allowServer: true);
 			using MySqlCommand command = connection.CreateCommand();
 			command.CommandText = "SELECT VERSION();";
 			string version = Convert.ToString(command.ExecuteScalar()) ?? "unknown";
@@ -942,7 +1083,9 @@ internal static partial class GNHProgram
 
 			MySqlConnectionStringBuilder builder = ServerConnectionBuilder();
 			using var server = new MySqlConnection(builder.ConnectionString);
+			OwnedConnections.Validate("reader-server-before-connect", server, allowServer: true);
 			server.Open();
+			OwnedConnections.Validate("reader-server-connected", server, allowServer: true);
 			using MySqlCommand versionCommand = server.CreateCommand();
 			versionCommand.CommandText = "SELECT VERSION();";
 			string version = Convert.ToString(versionCommand.ExecuteScalar()) ?? "unknown";
@@ -954,14 +1097,9 @@ internal static partial class GNHProgram
 				throw new InvalidOperationException("The requested owned database no longer exists.");
 			}
 
-			var database = new TestDatabase(builder, name, string.Empty, version);
-			using MySqlConnection connection = database.OpenDatabase();
-			using MySqlCommand markerCommand = connection.CreateCommand();
-			markerCommand.CommandText = $"SELECT COUNT(*) FROM `{OwnershipTable}`;";
-			if (Convert.ToInt32(markerCommand.ExecuteScalar()) < 1)
-			{
-				throw new InvalidOperationException("The reader refuses a database without a harness ownership marker.");
-			}
+			var database = new TestDatabase(builder, name, string.Empty, version) { _markerReady = true };
+			using var connection = new MySqlConnection(database.ConnectionString);
+			OwnedConnections.RegisterReaderDatabase(connection, name);
 
 			return database;
 		}
@@ -977,7 +1115,9 @@ internal static partial class GNHProgram
 			string name = GenerateName(prefix);
 			string token = Convert.ToHexString(RandomNumberGenerator.GetBytes(20)).ToLowerInvariant();
 			using var server = new MySqlConnection(builder.ConnectionString);
+			OwnedConnections.Validate("create-server-before-connect", server, allowServer: true);
 			server.Open();
+			OwnedConnections.Validate("create-server-connected", server, allowServer: true);
 			string version;
 			using (MySqlCommand versionCommand = server.CreateCommand())
 			{
@@ -1005,13 +1145,21 @@ internal static partial class GNHProgram
 					createCommand.ExecuteNonQuery();
 				}
 				database._created = true;
+				OwnedConnections.Register(name, token, ready: false);
 				database.ImportSupportedSnapshot();
 				database.WriteOwnershipMarker();
+				database._markerReady = true;
+				OwnedConnections.Register(name, token, ready: true);
 				return database;
 			}
-			catch
+			catch (Exception bootstrapFailure)
 			{
-				database.Dispose();
+				try { database.Dispose(); }
+				catch (Exception cleanupFailure)
+				{
+					throw new AggregateException("Owned snapshot bootstrap failed; database cleanup also refused without its matching marker.",
+						bootstrapFailure, cleanupFailure);
+				}
 				throw;
 			}
 		}
@@ -1087,7 +1235,9 @@ internal static partial class GNHProgram
 			}
 
 			using var server = new MySqlConnection(_serverBuilder.ConnectionString);
+			OwnedConnections.Validate("cleanup-server-before-connect", server, allowServer: true);
 			server.Open();
+			OwnedConnections.Validate("cleanup-server-connected", server, allowServer: true);
 			if (!DatabaseExists(server, Name))
 			{
 				Console.WriteLine("cleanup=database-already-absent");
@@ -1113,6 +1263,8 @@ internal static partial class GNHProgram
 				throw new FileNotFoundException("The supported blank database snapshot was not found.", snapshot);
 			}
 
+			using var candidate = new MySqlConnector.MySqlConnection(DatabaseConnectionString());
+			OwnedConnections.Validate("snapshot-import-service", candidate, bootstrap: true);
 			new DatabaseUpgradeCoordinator().ImportBlankDatabaseSnapshot(DatabaseConnectionString(), snapshot,
 				SnapshotDatabasePlaceholder);
 		}
@@ -1151,7 +1303,9 @@ internal static partial class GNHProgram
 		private MySqlConnection OpenDatabase()
 		{
 			var connection = new MySqlConnection(DatabaseConnectionString());
+			OwnedConnections.Validate("owned-database-before-connect", connection, bootstrap: !_markerReady);
 			connection.Open();
+			OwnedConnections.Validate("owned-database-connected", connection, bootstrap: !_markerReady);
 			return connection;
 		}
 
@@ -1191,7 +1345,7 @@ internal static partial class GNHProgram
 			return $"{prefix}{DateTime.UtcNow:yyyyMMddHHmmss}_{Convert.ToHexString(RandomNumberGenerator.GetBytes(5)).ToLowerInvariant()}";
 		}
 
-		private static bool HasOwnedPrefix(string name)
+		internal static bool HasOwnedPrefix(string name)
 		{
 			return name.StartsWith("futuremud_gather_gc_", StringComparison.Ordinal) ||
 			       name.StartsWith("futuremud_land_", StringComparison.Ordinal);

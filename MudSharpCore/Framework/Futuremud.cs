@@ -645,13 +645,14 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
         {
             List<long> PCsToLoad =
                 FMDB.Context.Characters.Where(
-                        x => !x.NpcsCharacter.Any() && x.Guest == null && !onlinePCIDs.Contains(x.Id))
+                        x => !x.IsArchived && !x.NpcsCharacter.Any() && x.Guest == null && !onlinePCIDs.Contains(x.Id))
                     .OrderBy(x => x.Id)
                     .Select(x => x.Id)
                     .ToList();
             foreach (long pc in PCsToLoad)
             {
                 ICharacter character = TryGetCharacter(pc, true); // This will add to the cache
+                if (character is null) continue;
                 character.Register(new NonPlayerOutputHandler());
                 loadedPCs.Add(character);
             }
@@ -1418,6 +1419,8 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
 
     public void Add(ICharacter actor, bool isNPC)
     {
+		if (actor is Character.Character { IsArchived: true })
+			throw new InvalidOperationException("Archived identities cannot be returned to active world collections.");
 		MudSharp.Form.Material.EnvironmentalExposureService.TrackExisting(this, actor);
         if (!_actors.Has(actor))
         {
@@ -1738,17 +1741,26 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
 
         if (_characters.Has(id))
         {
-            return _characters.Get(id);
+            var actor = _characters.Get(id);
+            if (actor is not Character.Character { IsArchived: true }) return actor;
+            ForgetArchivedCharacter(actor);
         }
 
         if (_actors.Has(id))
         {
-            return _actors.Get(id);
+            var actor = _actors.Get(id);
+            if (actor is not Character.Character { IsArchived: true }) return actor;
+            ForgetArchivedCharacter(actor);
         }
 
         if (_cachedActors.Has(id))
         {
-            if (useCachedValues || _characterMaterialisationBootPhase == CharacterMaterialisationBootPhase.Disallowed)
+            var cached = _cachedActors.Get(id);
+            if (cached is Character.Character { IsArchived: true })
+            {
+                ForgetArchivedCharacter(cached);
+            }
+            else if (useCachedValues || _characterMaterialisationBootPhase == CharacterMaterialisationBootPhase.Disallowed)
             {
                 return _cachedActors.Get(id);
             }
@@ -1799,12 +1811,13 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
                                                  .Include(x => x.NpcsCharacter)
                                                  .Include(x => x.Guest)
                                        */
-                                       where ch.Id == id
+                                       where ch.Id == id && !ch.IsArchived
                                        select ch).FirstOrDefault();
             if (dbchar == null)
             {
                 return null;
             }
+			if (MudSharp.Magic.Lifecycle.SpellOwnedNpcService.IsActivationPending(FMDB.Context, id)) return null;
 
             Models.Npc dbnpc = null;
             if (dbchar.NpcsCharacter.Any())
@@ -1845,6 +1858,8 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
         {
             return null;
         }
+		using (new FMDB())
+			if (MudSharp.Magic.Lifecycle.SpellOwnedItemService.IsActivationPending(FMDB.Context, dbitem.Id)) return null;
 
         if (_items.Has(dbitem.Id))
         {
@@ -1887,6 +1902,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
             {
                 return null;
             }
+			if (MudSharp.Magic.Lifecycle.SpellOwnedItemService.IsActivationPending(FMDB.Context, id)) return null;
 
             GameItem newItem = new(dbitem, this);
             if (addToGameworld)

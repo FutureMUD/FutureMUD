@@ -1,4 +1,4 @@
-﻿using MudSharp.Effects.Concrete;
+using MudSharp.Effects.Concrete;
 
 namespace MudSharp.Combat.Moves;
 
@@ -18,6 +18,8 @@ public class InterposeMove : CombatMoveBase
 
     public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
     {
+		using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterMove(this);
+		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
         Assailant.AddEffect(new PassiveInterdiction.PassivelyInterceding(Assailant, Target));
         Assailant.OutputHandler.Handle(new EmoteOutput(
             new Emote(Gameworld.GetStaticString("PassiveInterdictionEmote"), Assailant, Assailant, Target),

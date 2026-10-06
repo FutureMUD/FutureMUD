@@ -34,12 +34,17 @@ public partial class Body
 
     public void Emote(string emote, bool permitSpeech = true, OutputFlags additionalConditions = OutputFlags.Normal)
     {
+		var executor = Actor;
+		using var execution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(executor);
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(executor)) return;
         if (CurrentLanguage == null)
         {
             permitSpeech = false;
         }
 
-        Communications.Emote(this, emote, permitSpeech, additionalConditions);
+		var communications = Communications;
+		if (!ReferenceEquals(Actor, executor) || !MudSharp.NPC.AI.CommandExecutionScope.TryContinue(executor)) return;
+        communications.Emote(this, emote, permitSpeech, additionalConditions);
     }
 
     public void Say(IPerceivable target, string message, IEmote? emote = null)
@@ -213,6 +218,10 @@ public partial class Body
 
     public void Open(IOpenable openable, ICharacter openableOwner, IEmote playerEmote, bool useCouldLogic = false)
     {
+		var executor = Actor;
+		using var execution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(executor);
+		bool CanContinue() => ReferenceEquals(Actor, executor) && MudSharp.NPC.AI.CommandExecutionScope.TryContinue(executor);
+		if (!CanContinue()) return;
         if (!(useCouldLogic ? CouldOpen(openable) : CanOpen(openable)))
         {
             CanOpen(openable);
@@ -222,6 +231,7 @@ public partial class Body
 
         if (useCouldLogic)
         {
+			if (!CanContinue()) return;
             WhyCannotOpenReason why = openable.WhyCannotOpen(this);
             switch (why)
             {
@@ -257,16 +267,21 @@ public partial class Body
 
                     while (!plan.IsFinished)
                     {
-                        IKey key = plan.ExecutePhase().First(x => x.OriginalReference.Equals("key")).PrimaryTarget
-                                      .GetItemType<IKey>();
-                        foreach (ILock theLock in lockable.Locks)
+						if (!CanContinue()) return;
+						var phase = plan.ExecutePhase();
+						if (!CanContinue()) return;
+						var key = phase.FirstOrDefault(x => x.OriginalReference.Equals("key"))?.PrimaryTarget?.GetItemType<IKey>();
+						if (key is null) return;
+                        foreach (ILock theLock in lockable.Locks.ToArray())
                         {
                             if (!theLock.IsLocked || !theLock.CanUnlock(Actor, key))
                             {
                                 continue;
                             }
 
-                            theLock.Unlock(Actor, key, lockable.Parent, null);
+							if (!CanContinue()) return;
+							MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted(executor);
+                            theLock.Unlock(executor, key, lockable.Parent, null);
                         }
                     }
 
@@ -274,6 +289,7 @@ public partial class Body
             }
         }
 
+		if (!CanContinue()) return;
         if (openableOwner == null)
         {
             OutputHandler.Handle(
@@ -289,6 +305,8 @@ public partial class Body
                     playerEmote));
         }
 
+		if (!CanContinue()) return;
+		MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted(executor);
         openable.Open();
         HandleCharacterItemEvent(EventType.CharacterOpenedItem, EventType.ItemOpened,
             EventType.CharacterOpenedItemWitness, openable.Parent);

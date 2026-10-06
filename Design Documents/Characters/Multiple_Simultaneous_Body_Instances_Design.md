@@ -9,6 +9,12 @@
 
 ## 1. Executive Summary
 
+Current archival exception: a proven final-death spell-owned autonomous NPC can retain its
+canonical identity as an archived row with no `BodyId`. Ordinary live identities still
+require a body. Archived rows never load as PCs, NPCs or secondary instances. Additional
+instances and anchors retain the heavy graph until their adapters release them. See
+[Spell-owned lifecycle](../Magic/Spell_Owned_Lifecycle.md) for the bounded Phase3B1 contract.
+
 FutureMUD currently supports one `ICharacter` owning multiple `IBody` forms, with logic for provisioning, maintaining, and switching between those forms. The current system is deliberately conservative: there is only one active body in the world at a time, and inactive bodies are dormant form records rather than independent room occupants. This is appropriate for werewolf-style transformation, robot/organic switching, ghost forms, animal polymorphs, and death backup flows, but it is not sufficient for astral projection, mirror images, magical copies, multiple controllable shells, or simultaneous clone bodies.
 
 The core change proposed by this document is to introduce a world-presence layer:
@@ -1809,7 +1815,7 @@ Post-V1 hardening note, June 16, 2026:
 - Fixed: secondary instance materialisation now initialises `NeedsModel` from the primary identity before the secondary can be focused or queried by health/needs commands. Existing V1 behaviour keeps needs identity-wide and avoids registering duplicate needs heartbeats for secondary actors.
 - Fixed: primary load now creates the identity `NeedsModel` before persisted secondary rows are materialised, so reboot-loaded secondaries and newly spawned secondaries follow the same non-null needs initialisation path.
 - Fixed: newly provisioned dormant form bodies now choose target-race height/weight when the form race differs from the source body, generate target-race characteristic values from the selected ethnicity before validating description patterns, and initialise blood volume, liver function, organ state, and stamina before the form can be embodied as a secondary instance. Description patterns are still rejected if variables remain unresolved after characteristic generation, and secondary materialisation also repairs older dormant form rows with zero, negative, or non-finite blood/stamina values before they enter a room.
-- Added: `body delform <character> <form> confirm` lets founders permanently remove incorrectly provisioned dormant forms. The command requires explicit confirmation and refuses current bodies, live embodied instances, persisted instance references, body backup references, and corpse/remains-style physical references before deleting the form metadata, body source mappings, dormant body, and any items on that body.
+- Added: `body delform <character> <form> confirm` lets founders permanently remove incorrectly provisioned dormant forms. The command requires explicit confirmation and refuses current bodies, live embodied instances, persisted instance references, body backup references, and corpse/remains-style physical references before deleting the form metadata, body source mappings and empty dormant body. As hardened by the [spell-owned lifecycle foundation](../Magic/Spell_Owned_Lifecycle.md), possessions must be moved out first; runtime and persisted inventory, implants, prosthetics, lodged items and saved physical-body references block retirement without deleting items.
 - Added: `spawnbodyinstance(character, form, location, mode[, cloneInventory[, ais]])` exposes the secondary instance lifecycle to FutureProg. The function resolves owned dormant forms by alias or body id, supports passive, player-focusable, NPC AI, and scripted AI modes, optionally deep-clones the source body's direct inventory, and returns the spawned physical actor as a `Character` prog value.
 - Added: `ScriptedAi` secondary instances provide a PC-capable AI-controlled body path for builder-authored scenarios such as evil twins. They use a cell-local secondary `Character`, NPC command tree/controller semantics, effect-data metadata for attached AI ids, non-final `DestroyInstanceOnly` death, and remain out of global character/NPC actor caches.
 - Hardened: staff NPC possession now checks the target actor and its owning primary identity, so a non-player `ScriptedAi` or passive secondary attached to a PC identity cannot be possessed as if it were an ordinary NPC.
@@ -1847,6 +1853,12 @@ Post-V1 direct possession slice, June 17, 2026:
 - Boundary: these effects are temporary, spell-bound, and non-persistent across reboot. Live possession collapses on load/logout/death cleanup. Hidden corpse items with no active possessed or animated actor restore to their recorded location. Legal/criminal responsibility still follows the physical actor by default; possession and animation metadata is exposed for staff/FutureProg policy, but automatic recognition or liability reassignment remains a content/policy layer.
 
 Post-V1 design work:
+
+Phase3D1 extends `animatecorpse` with opt-in durable final-corpse restoration. The
+created AI instance still despawns on reboot; its ownership/recovery journal persists
+until the same borrowed corpse has been restored and only the exact secondary row
+has been removed. The default legacy effects retain their earlier behavior. Nonfinal
+corpse animation remains outside this adapter. See [Spell-owned lifecycle](../Magic/Spell_Owned_Lifecycle.md).
 
 Future phases can still add richer gameplay and deeper audits: body-specific legal personhood, disguise-aware identity discovery, observer memory and recognition decay, projection- or possession-specific criminal evidence, per-clone social consequences, send-shadow/shadow-identity control policy, channel/telepathy policy configuration, player-facing recognition controls, and broader FutureProg convenience APIs. Those are now content and policy layers on top of the V1 foundation and V6 possession primitives rather than blockers for simultaneous body instances.
 

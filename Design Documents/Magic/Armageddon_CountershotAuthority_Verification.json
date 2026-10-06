@@ -1,0 +1,406 @@
+{
+  "status": "PASS_BOUNDED_LOCAL_CHECKPOINT_PARENT_REVIEW_PENDING",
+  "utc": "2026-10-05T21:30:28.085335+00:00",
+  "base_head": "71728d7fb084584887004490a0cfa60bcfb29678",
+  "focused": {
+    "status": "PASS",
+    "run_id": "20261005T210715Z-12a3de76a55d",
+    "counts": {
+      "executed": 281,
+      "passed": 281,
+      "failed": 0,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 281
+    },
+    "source_start": "a655f6ff674900e5ea00da50757ffb6b101f9ed8ac1dd28a6deca2c9abfa36f7",
+    "source_end": "a655f6ff674900e5ea00da50757ffb6b101f9ed8ac1dd28a6deca2c9abfa36f7",
+    "projects": [
+      "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+    ],
+    "filter": "FullyQualifiedName~InternalMagazineReloadTests|FullyQualifiedName~QueuedCommandAuthorityTests|FullyQualifiedName~RangedWeaponFeatureTests|FullyQualifiedName~NaturalRangedAttackRuntimeTests",
+    "summary": ".artifacts/test-runs/armageddon-native-countershot/load-result-focused01/20261005T210715Z-12a3de76a55d/summary.json",
+    "summary_sha256": "f3ab9dc4af6ed1e0a87998f656952a92089a35e86035a3006f6cc910315da5aa"
+  },
+  "full_core": {
+    "status": "PASS",
+    "run_id": "20261005T210847Z-032c3feddece",
+    "counts": {
+      "executed": 5150,
+      "passed": 5150,
+      "failed": 0,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 5150
+    },
+    "source_start": "8bf0839783af547ff786923839f9656d4f8216e2689290ffd2f37034367bad8c",
+    "source_end": "8bf0839783af547ff786923839f9656d4f8216e2689290ffd2f37034367bad8c",
+    "projects": [
+      "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+    ],
+    "filter": null,
+    "summary": ".artifacts/test-runs/armageddon-native-countershot/full-core01/20261005T210847Z-032c3feddece/summary.json",
+    "summary_sha256": "38a0bd38aa7c293d2fae811a4d154a98ebf59c9a62d6dea4f63ce396b64ceec2"
+  },
+  "baseline": {
+    "status": "FAIL",
+    "run_id": "20261005T210634Z-20d7de7df3cd",
+    "counts": {
+      "executed": 3,
+      "passed": 1,
+      "failed": 2,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 3
+    },
+    "source_start": "e09f83ae5d59519458b490c54c25394a0cfd83009c075f31127328a931a37c55",
+    "source_end": "e09f83ae5d59519458b490c54c25394a0cfd83009c075f31127328a931a37c55",
+    "projects": [
+      "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+    ],
+    "filter": "FullyQualifiedName~NativeInternalMagazineLoad_RequiresSuccessfulPlanAndExactHeldCustody",
+    "summary": ".artifacts/test-runs/armageddon-native-countershot/load-result-reproduce01/20261005T210634Z-20d7de7df3cd/summary.json",
+    "summary_sha256": "ce299fccb110fbbb57b70fc6e285a1e4e6e6633aec5740ca93b9c9d644994b70"
+  },
+  "countershot": {
+    "status": "PASS",
+    "cases": [
+      "ordered-valid",
+      "queued-revoked",
+      "defender-check-expiry",
+      "direct-valid"
+    ],
+    "readers": [
+      "wielded-load-refusal",
+      "countershot-ordered-valid-loaded",
+      "countershot-ordered-valid-resolved",
+      "countershot-queued-revoked-loaded",
+      "countershot-queued-revoked-resolved",
+      "countershot-defender-check-expiry-loaded",
+      "countershot-defender-check-expiry-resolved",
+      "countershot-direct-valid-loaded",
+      "countershot-direct-valid-resolved"
+    ],
+    "results": [
+      "ARMFirearm-plan-acquisition=item:4 acquired:4 held:1 wield-hands:1",
+      "ARMFirearm-plan-acquisition=item:5 acquired: held:0 wield-hands:2",
+      "ARMFirearm-plan-refusal=passed actual-native-plan floor-cell-join-preserved exact-one-loaded no-false-detach cold-reader",
+      "ARMCountershot=ordered-valid passed actual-Charge-ResponseToMove-StandAndFire-ResolveIndependent native-wounds:12 charge-cost:2 defender-cost:3 condition:0.99 checks:1 expiries:0 tactic:1 contact:True independent-raw:40",
+      "ARMCountershot=queued-revoked passed actual-Charge-ResponseToMove-StandAndFire-ResolveIndependent native-wounds:0 charge-cost:0 defender-cost:0 condition:1 checks:0 expiries:0 tactic:0 contact:False independent-raw:40",
+      "ARMCountershot=defender-check-expiry passed actual-Charge-ResponseToMove-StandAndFire-ResolveIndependent native-wounds:12 charge-cost:2 defender-cost:3 condition:0.99 checks:1 expiries:1 tactic:0 contact:True independent-raw:60",
+      "ARMCountershot=direct-valid passed actual-Charge-ResponseToMove-StandAndFire-ResolveIndependent native-wounds:12 charge-cost:2 defender-cost:3 condition:0.99 checks:1 expiries:0 tactic:1 contact:True independent-raw:40"
+    ],
+    "log": ".artifacts/test-runs/armageddon-native-countershot/qualify07-native.log",
+    "log_sha256": "8c484507cc1fb14c584b7c094d040fdca9798470af26081bef5bda5f766afd02",
+    "owned_cleanup": ".artifacts/test-runs/armageddon-native-countershot/qualify07-process-cleanup.json",
+    "cleanup_sha256": "460919902c4acefb601d45891f9581feae5bae3ca1141ae5e61e3ae1523e7b6f",
+    "inputs": ".artifacts/test-runs/armageddon-native-countershot/qualify07-inputs.json",
+    "inputs_sha256": "86c606e796f02d71f9dcf322dd331717dcb61c40bba8ff6f523978b4b4a4ebb8",
+    "fingerprints": ".artifacts/test-runs/armageddon-native-countershot/qualify07-fingerprints.json",
+    "fingerprints_sha256": "446e114183989e5dcdacf65b72f75ad26a968d1bd855e61d1bd1db5134fa126f"
+  },
+  "defended_melee": {
+    "status": "PASS",
+    "cases": [
+      "ordered-defended-fail",
+      "ordered-revoked"
+    ],
+    "readers": [
+      "ordered-defended-fail",
+      "ordered-revoked"
+    ],
+    "results": [
+      "ARMSelectedDefense=ordered-defended-fail passed actual-ChooseMove-MeleeWeaponAttack-StandardCheck-Dodge failed-native-roll cost:1 defender-cost:0 wounds:0 defense-calls:1",
+      "ARMSelectedCheck=ordered-defended-fail passed physical:3 canonical:2 raw:45 improved:1 cooldown:1 cost:1 wound-delta:0 actual-ChooseMove-MeleeWeaponAttack-StandardCheck-native-merits",
+      "ARMSelectedDefense=ordered-revoked passed actual-ChooseMove-MeleeWeaponAttack-StandardCheck-Dodge failed-native-roll cost:0 defender-cost:0 wounds:0 defense-calls:0",
+      "ARMSelectedCheck=ordered-revoked passed physical:4 canonical:2 raw:40 improved:0 cooldown:0 cost:0 wound-delta:0 actual-ChooseMove-MeleeWeaponAttack-StandardCheck-native-merits"
+    ],
+    "log": ".artifacts/test-runs/armageddon-native-countershot/defended05-native.log",
+    "log_sha256": "84e26e7256b6689b2a3e6d1b41773e4914b0768d4bc3fc2e0520496306406689",
+    "owned_cleanup": ".artifacts/test-runs/armageddon-native-countershot/defended05-process-cleanup.json",
+    "cleanup_sha256": "c8f36f4537f9776fbb7665d32729924893b641005cb7cc2ea319c3c44a77ea28",
+    "inputs": ".artifacts/test-runs/armageddon-native-countershot/defended05-inputs.json",
+    "inputs_sha256": "7fca4249034aa81bf5458a80d8985cb807e63c6b0a7134cead3de11373d2dd4f",
+    "fingerprints": ".artifacts/test-runs/armageddon-native-countershot/defended05-fingerprints.json",
+    "fingerprints_sha256": "42c32cf6b98c9b5f0b88079f2668eb7d86a9617ed74ba8e35e6122f72c5d8db2"
+  },
+  "failed_plan_control": {
+    "status": "PASS",
+    "case": "wielded-load-refusal",
+    "reader": "wielded-load-refusal",
+    "evidence": {
+      "status": "PASS",
+      "cases": [
+        "ordered-valid",
+        "queued-revoked",
+        "defender-check-expiry",
+        "direct-valid"
+      ],
+      "readers": [
+        "wielded-load-refusal",
+        "countershot-ordered-valid-loaded",
+        "countershot-ordered-valid-resolved",
+        "countershot-queued-revoked-loaded",
+        "countershot-queued-revoked-resolved",
+        "countershot-defender-check-expiry-loaded",
+        "countershot-defender-check-expiry-resolved",
+        "countershot-direct-valid-loaded",
+        "countershot-direct-valid-resolved"
+      ],
+      "results": [
+        "ARMFirearm-plan-acquisition=item:4 acquired:4 held:1 wield-hands:1",
+        "ARMFirearm-plan-acquisition=item:5 acquired: held:0 wield-hands:2",
+        "ARMFirearm-plan-refusal=passed actual-native-plan floor-cell-join-preserved exact-one-loaded no-false-detach cold-reader",
+        "ARMCountershot=ordered-valid passed actual-Charge-ResponseToMove-StandAndFire-ResolveIndependent native-wounds:12 charge-cost:2 defender-cost:3 condition:0.99 checks:1 expiries:0 tactic:1 contact:True independent-raw:40",
+        "ARMCountershot=queued-revoked passed actual-Charge-ResponseToMove-StandAndFire-ResolveIndependent native-wounds:0 charge-cost:0 defender-cost:0 condition:1 checks:0 expiries:0 tactic:0 contact:False independent-raw:40",
+        "ARMCountershot=defender-check-expiry passed actual-Charge-ResponseToMove-StandAndFire-ResolveIndependent native-wounds:12 charge-cost:2 defender-cost:3 condition:0.99 checks:1 expiries:1 tactic:0 contact:True independent-raw:60",
+        "ARMCountershot=direct-valid passed actual-Charge-ResponseToMove-StandAndFire-ResolveIndependent native-wounds:12 charge-cost:2 defender-cost:3 condition:0.99 checks:1 expiries:0 tactic:1 contact:True independent-raw:40"
+      ],
+      "log": ".artifacts/test-runs/armageddon-native-countershot/qualify07-native.log",
+      "log_sha256": "8c484507cc1fb14c584b7c094d040fdca9798470af26081bef5bda5f766afd02",
+      "owned_cleanup": ".artifacts/test-runs/armageddon-native-countershot/qualify07-process-cleanup.json",
+      "cleanup_sha256": "460919902c4acefb601d45891f9581feae5bae3ca1141ae5e61e3ae1523e7b6f",
+      "inputs": ".artifacts/test-runs/armageddon-native-countershot/qualify07-inputs.json",
+      "inputs_sha256": "86c606e796f02d71f9dcf322dd331717dcb61c40bba8ff6f523978b4b4a4ebb8",
+      "fingerprints": ".artifacts/test-runs/armageddon-native-countershot/qualify07-fingerprints.json",
+      "fingerprints_sha256": "446e114183989e5dcdacf65b72f75ad26a968d1bd855e61d1bd1db5134fa126f"
+    }
+  },
+  "retained_native_failures": [
+    {
+      "label": "qualify01",
+      "log": ".artifacts/test-runs/armageddon-native-countershot/qualify01-native.log",
+      "sha256": "8e674b2134fc370ff906048bdd37c3bae771be1fdeb55e6e25fa98b4ca22a9fd",
+      "cleanup_sha256": "02bab49e5b7fda73207e49fe702e9f537bc6b2a34f22adf73fca93bb273463b2",
+      "fingerprints_sha256": "f88b0ff51029e9546bd52c66babc06920ffa8a891bc8ac8b44f9650a8eb88368"
+    },
+    {
+      "label": "qualify02",
+      "log": ".artifacts/test-runs/armageddon-native-countershot/qualify02-native.log",
+      "sha256": "43820c64978a525bf14a33faae91fc92ca7aa796fe53a8ecee15425846dde35d",
+      "cleanup_sha256": "8f82a6ca24f4436dd5f1a4566ceb3ed8cbc54c056e627832bbcf10ee8fcbd7c8",
+      "fingerprints_sha256": "4ab329d7cd6bcc902ac4ff32c0cb8c5b69340e598fcce9bbcaf64e83f0732d9b"
+    },
+    {
+      "label": "qualify03",
+      "log": ".artifacts/test-runs/armageddon-native-countershot/qualify03-native.log",
+      "sha256": "5feb354418328b16821d55cc81e1b1c4a7cea968cf47c3b298be2e389e799055",
+      "cleanup_sha256": "5a82cde4ec22f17255b68cabdd2f3ee1bb8e121ed15d9e8dab41ef635da7bf82",
+      "fingerprints_sha256": "1f49d7f110f6d1838822337a09a35cf4bcd3e84af1b38e8a22ee5d7029dfa1bc"
+    },
+    {
+      "label": "qualify04",
+      "log": ".artifacts/test-runs/armageddon-native-countershot/qualify04-native.log",
+      "sha256": "39a0ecdbc97b7f8b73b72a01430eca8bde037f31eb8f930bf9dd38a82c8c8fe0",
+      "cleanup_sha256": "0fa4006447d8d26a00c08d294d06d71ea2dc3c450b8af483acf74a5d5d7ad3d5",
+      "fingerprints_sha256": "28f3a493216ce2ea694c430d263ae5e9a10f1514ba18b430eed5070c9a5a4adc"
+    },
+    {
+      "label": "qualify05",
+      "log": ".artifacts/test-runs/armageddon-native-countershot/qualify05-native.log",
+      "sha256": "5db82b95df984aa49f505254032c2264b32ece3f74b8f90cd69f074197f8cc85",
+      "cleanup_sha256": "b52ae2267517189decc177c9b0f8c42f94a1d787ade9ace109a0642da55e9ca6",
+      "fingerprints_sha256": "07e3049908e9a9b1021fab22af9f259cd632f61de5900d300e02c51ff2465a34"
+    },
+    {
+      "label": "qualify06",
+      "log": ".artifacts/test-runs/armageddon-native-countershot/qualify06-native.log",
+      "sha256": "50f7e00011602a366bd76e956b05f0d1915343c62c68c8b4c92df76d43652364",
+      "cleanup_sha256": "82afe303a7a2bf106d70012610861a87cab43b8d1f347e5fc7b242c44d941961",
+      "fingerprints_sha256": "9c3bdf3924175eb27c179fc146097149fd3e2a521b50b101c24a0acfc288d58c"
+    },
+    {
+      "label": "defended01",
+      "log": ".artifacts/test-runs/armageddon-native-countershot/defended01-native.log",
+      "sha256": "c7035a474802b51974c96b827002500b99963ad0c0cde1e2a73858d6c7be406b",
+      "cleanup_sha256": "f20a6a56d72b770d06cb90d6edfc18bb8ab213926b3a7b205e21218ed39518cb",
+      "fingerprints_sha256": "446e114183989e5dcdacf65b72f75ad26a968d1bd855e61d1bd1db5134fa126f"
+    },
+    {
+      "label": "defended02",
+      "log": ".artifacts/test-runs/armageddon-native-countershot/defended02-native.log",
+      "sha256": "49f2b16ba0d4d9b1da79ebb92be00a38d9c3ec3120597fad26e660b84d157374",
+      "cleanup_sha256": "9d1b49ef135be0523ec55794584153a26946e7d988a42a140f195090e7c47964",
+      "fingerprints_sha256": "1c76c2171923ddd582a3b8645a885c48a8ad0bf2b2144704287c0959e9318a9f"
+    },
+    {
+      "label": "defended03",
+      "log": ".artifacts/test-runs/armageddon-native-countershot/defended03-native.log",
+      "sha256": "addd2890a494aac176b17d46a5de2e13f23111b48487feee8ba06f24a7b9cea4",
+      "cleanup_sha256": "a52785552353564d926f0718990129766db583cadde333e0ad5fefebdb3a9917",
+      "fingerprints_sha256": "9fcd7e7ad300ff8f75fdaae2577b0598c76995d1d392ee6d6e3d941cd90efac7"
+    },
+    {
+      "label": "defended04",
+      "log": ".artifacts/test-runs/armageddon-native-countershot/defended04-native.log",
+      "sha256": "e984903020a6b1df38ac274fc0e4bf6b9a63ddd96d9419c3cefb3e3bd7e9510e",
+      "cleanup_sha256": "04ab7abf9990a9f447e7beed339f06ce507e7f70a3e70d1337352144f147e34b",
+      "fingerprints_sha256": "3cdff63e10db79357fdf927a9dcfd25cea281a69d7c07e758752c09c2b55c66b"
+    }
+  ],
+  "retained_failure_explanation": [
+    "qualify01/02 before combat: second loaded round retained stale CellsGameItems row; initially incorrect wield/HeldBy hypothesis corrected without changing that property.",
+    "qualify03: absent fixture walking speed refused actual Charge command.",
+    "qualify04/05: archived zero unit conversion cached NaN empty-liquid weight; conversions moved before foreign item construction.",
+    "qualify06: real automatic response selected; absent fixture CombatMessageManager stopped Charge message.",
+    "load-result-reproduce01 managed1pass/2fail proves unsafe result/custody admission; fixed3 rows included focused281/fullCore5150.",
+    "defended01 no-wound assertion failed before reader; final fixture explicitly declares defender StandardMelee/posture/range and asserts native Dodge eligibility.",
+    "defended02 selected actual Dodge then targeting MinMax failed on archived zero hit weights. Final control declares positive hit weights and zero targeting bonus.",
+    "defended03 fixture attempted Moq binding on a native part; final fixture sets native prototype property and mock weights through their respective APIs.",
+    "defended04 admitted failing attack and freshreader passed, then later Cast hit a shared check binding. Final dedicated Dodge check leaves casting checks intact."
+  ],
+  "review": {
+    "status": "NO_ESTABLISHED_P1_P2",
+    "agent": "fm_reviewer",
+    "scope": "eight files; source-only review",
+    "scope_digest": "1f9776db6891dd9ffa02bb8aa407624acdb9f342c97d6fb5ff81fc15002ceed3"
+  },
+  "scope_paths": [
+    {
+      "path": "MudSharpCore Unit Tests/InternalMagazineReloadTests.cs",
+      "sha256": "86063987d47ff14259b6a53b92294c3d6b5f99eb4994e8de3a2326b6b4c3ed28"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Components/InternalMagazineGunGameItemComponent.cs",
+      "sha256": "ef9d52539da9f20b45096faf260dd1f5150f33ab0eb6b7f728345ca61fbaacf7"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.CountershotAuthority.cs",
+      "sha256": "005ca3e08f1dca88150f47527e5847af2612106a2426a9719a009ada984462e5"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.cs",
+      "sha256": "ee44a5ebc6e67a7c1a64bae6157cb3d82259b44bcae0a0994411c6f5904269fa"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.FirearmAuthority.cs",
+      "sha256": "ada6edc8acc93cc79cb6b27e5c545002e14d097603a95292ed368edc157f78e6"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.RaiseServitorStock.cs",
+      "sha256": "487952eb1ee056ed5e21c3e910c8a9230efe61b83eb3cec5ff22ecda9f1d69a4"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.SelectedMeleeCheck.cs",
+      "sha256": "47efdc1cee91474d15ed554ee0ea8904f58e5195eb6f2e87d35133e2fc374193"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Run-IsolatedAcceptance.ps1",
+      "sha256": "10842d242c294189a158aa6a52f1314c140064139fd1994961f073ff00964b9e"
+    }
+  ],
+  "countershot_source_capsule": ".artifacts/test-runs/armageddon-native-countershot/qualify07-source-capsule/manifest.json",
+  "countershot_source_capsule_sha256": "cb7d83fcf08764f0603239357055aff8f710a5e8f60a641ca58a9ad4be1f4e5b",
+  "source_capsule": ".artifacts/test-runs/armageddon-native-countershot/final-source-capsule/manifest.json",
+  "source_capsule_sha256": "62a29861203dc73c20acd06aca7c13229bb96c840b96ead197432595c760f120",
+  "binary_capsules": [
+    {
+      "path": ".artifacts/test-runs/armageddon-native-countershot/defended01-binary-capsule/manifest.json",
+      "sha256": "290d4cd10716e31a6cd17c60f0cc9d5f0e897867fa860d291991a2cb03875d3d",
+      "files": 604
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-native-countershot/defended02-binary-capsule/manifest.json",
+      "sha256": "844e8c09977cca8aa67bd340748a6980cf85603cf6718d992e645a6f9a73263e",
+      "files": 604
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-native-countershot/defended03-binary-capsule/manifest.json",
+      "sha256": "11666cd42357e87b395a735ecbe0c8d33283ae947bfa92419d835a28c3ce4f7e",
+      "files": 604
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-native-countershot/defended04-binary-capsule/manifest.json",
+      "sha256": "6927157991c73ee4278dabd84ef08c6b16813d8e0afdfb4566fdb451de1e355c",
+      "files": 604
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-native-countershot/defended05-binary-capsule/manifest.json",
+      "sha256": "d22ca1b05c838656dbaf04d7f7bb04328ed8c51b392b20c6d4889f4fdbca3d6a",
+      "files": 604
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-native-countershot/focused01-binary-capsule/manifest.json",
+      "sha256": "393506c964c5ec4ca0d72dadce2ca0d8c3ef826b57353dd18d337fd65bd4fad2",
+      "files": 604
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-native-countershot/full-core01-binary-capsule/manifest.json",
+      "sha256": "e5659e419e551edf2d61825653381af426afbccdf97524947de6223be813ad7e",
+      "files": 604
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-native-countershot/load-result-focused01-binary-capsule/manifest.json",
+      "sha256": "631831033b0b11b19ed84b33606d4f96c68c03a8692f7f01d16c425752444cf1",
+      "files": 604
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-native-countershot/load-result-reproduce01-binary-capsule/manifest.json",
+      "sha256": "53cb7b154b29ecb8b6c268b9a1f864bb7b05e1cbcae8a5ab1a9d2d7a47767ae0",
+      "files": 604
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-native-countershot/qualify01-binary-capsule/manifest.json",
+      "sha256": "8ec90ca201acdd141c8f9b9b709c386cc3fc0805f129ae6343f8b5301872644e",
+      "files": 604
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-native-countershot/qualify02-binary-capsule/manifest.json",
+      "sha256": "f29ce51767390e69da6f8437526a0c7eef784207fefd4b2703940cf2a7d9648e",
+      "files": 604
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-native-countershot/qualify03-binary-capsule/manifest.json",
+      "sha256": "2a31076e26e08c639f81a8afbc1ad5b7d71d5c1349589bb1c3c7d1f697af545e",
+      "files": 604
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-native-countershot/qualify04-binary-capsule/manifest.json",
+      "sha256": "9376aa22e037b9191823aa95fd852d2c0a79ef9456bba58bdc0936f100fa2dba",
+      "files": 604
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-native-countershot/qualify05-binary-capsule/manifest.json",
+      "sha256": "d2407da6b90ddb8224e649386a6bd7b338ea2d275539bdad1b6fb92d2f7ba175",
+      "files": 604
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-native-countershot/qualify06-binary-capsule/manifest.json",
+      "sha256": "b473b92e83103859cfdd9ebaebb3250b3fe681b87e15c2cf00cc2846793e0ad8",
+      "files": 604
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-native-countershot/qualify07-binary-capsule/manifest.json",
+      "sha256": "ada9bbfbd2956a5ff46313eebc43dae4463e3a28a497991be78b713e9c1543bd",
+      "files": 604
+    }
+  ],
+  "artifacts": ".artifacts/test-runs/armageddon-native-countershot/final-artifacts.json",
+  "artifacts_sha256": "44e88a39b4fe642306842d7d95c55cc9a81d2b6c48872310dae18a3136810460",
+  "historical_preservation": {
+    "status": "PASS",
+    "artifacts": 31061,
+    "task_files": 494,
+    "primary_head": "34eb234eb5a1e2784c595b4f848f6f785b426302",
+    "primary_clean": true
+  },
+  "managed_capture_alignment_note": "Focused/fullCore snapshots accurately record aligned=false because the unused native harness still held the previous Core DLL. Managed Core/test DLLs were current; final native snapshots record all13 aligned=true. No inputs changed during any execution. Defended05 uses a later harness binary/source after declaring the defender mode/posture; countershotqualify07 remains bound to its earlier frozen source/binaries. Core and unit files are unchanged between the full managed suites and both final native runs.",
+  "full_fast": {
+    "status": "NOT_RUN_THIS_CHECKPOINT",
+    "historical_checkpoint14_passed": 7503
+  },
+  "foundation_checklist": "Design Documents/Magic/Armageddon_Foundation_Completion_Checklist.md",
+  "next_smallest_gate": "Parent review, then representative container Get merge before Give/component Unload merge controls.",
+  "limits": [
+    "Actual charge command/ChooseMove/CombatAction and automatic FireNoCover StandAndFire response use production ResolveIndependent. Accepted contact before that response retains existing Charge behavior. No new contact ordering contract.",
+    "Actual firearm components, wounds, ordinary-round title/custody, costs and real canonical trait persistence. Shot/cover/recovery/defence outcomes, race/encumbrance, walking speed, kg/ml fixture units, hit weights and targeting bonus are controlled; no admin movement override.",
+    "Fresh firearm readers reconstruct native body inventory/wield, item/component slots/custody after exact raw SQL checks. Melee readers verify selected canonical trait/body stamina/wound SQL. Neither reconstructs full animated actor/AI/controller nor replays orders.",
+    "Second expired queued charge is removed by actual ChooseMove; a returned autonomous move is not executed or qualified. Direct-valid is an explicitly independent Charge control.",
+    "Failed wielded-load plan now refuses truthfully; it does not force a two-handed gun to acquire inaccessible ammunition or qualify all Load callbacks, stack/split/merge, casing, separate projectile or next-round configurations.",
+    "Full Fast/full-world/Telnet NOT_RUN. Whole82/12/154/25 plan remains incomplete. No stock integration, publication, merge, deployment or shared/production DB."
+  ],
+  "whole_plan_complete": false
+}

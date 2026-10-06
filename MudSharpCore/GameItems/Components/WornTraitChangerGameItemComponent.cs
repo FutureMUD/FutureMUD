@@ -11,6 +11,7 @@ public class WornTraitChangerGameItemComponent : GameItemComponent, IChangeTrait
     protected override void UpdateComponentNewPrototype(IGameItemComponentProto newProto)
     {
         _prototype = (WornTraitChangerGameItemComponentProto)newProto;
+		if (Parent.InInventoryOf?.Actor is { } actor) actor.Gameworld.MagicCasting?.NotifyCapacityChange(actor);
     }
 
     #region Constructors

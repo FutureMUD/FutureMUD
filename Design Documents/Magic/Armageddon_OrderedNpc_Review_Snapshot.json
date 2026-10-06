@@ -1,0 +1,805 @@
+{
+  "recorded_utc": "2026-10-05T13:09:49.907354+00:00",
+  "status": "LOCAL_REVIEW_SNAPSHOT_ONLY_COMPREHENSIVE_CLOSURE_NOT_COMPLETE",
+  "base_head": "02b8994ce4d6c6104e0187e9f0026fc575af58fa",
+  "authorization": "Coordinator superseded prior hold-all-changes requirement; local review snapshot now authorized; no integration or new feature work",
+  "code_and_native_binaries_match_checkpoint07": true,
+  "new_runtime_or_test_edits_after_checkpoint07": false,
+  "fast": {
+    "run_id": "20261005T124117Z-f903dfd278c8",
+    "executed": 7402,
+    "passed": 7402,
+    "failed": 0,
+    "skipped": 0,
+    "inconclusive": 0,
+    "other": 0,
+    "total": 7402,
+    "source_fingerprint": "557e7b43159994c023b341fe798812a7c19e1c1baa173b832e77ac4c8833e8ac",
+    "summary_sha256": "a61d0c695f04a87b4df223316d7253c3e58dab2addc5ef71dbe837e9c29f6d1e"
+  },
+  "focused": {
+    "run_id": "20261005T123910Z-21d297c20904",
+    "passed": 218,
+    "failed": 0,
+    "skipped": 0,
+    "source_fingerprint": "9bf7a02f812ed6d1e8ad3ff1585a0cfb8ed3eae2d079d0754ff0f9e6f7a03243",
+    "selection": "QueuedCommandAuthority, PreparedCurrencyTransfer, GameItemSpatialPlacement, ForeignCustodySave, SpellOwnedItem"
+  },
+  "native": {
+    "attempt": "nativecurrency11",
+    "status": "PASS",
+    "passed_cases": 34,
+    "currency_cases": 21,
+    "container_cases": 2,
+    "source_count": 4728,
+    "shared_dll_count": 19,
+    "strict_alignment": true,
+    "manifest_sha256": "7c71020c882a88fe434dc19e4d416cf031634ee1ffa1123881d953e1abbb6faa",
+    "owned_database_and_server_cleanup": "PASS",
+    "owned_processes_remaining": 0
+  },
+  "six_previous_native_lanes": [
+    {
+      "attempt": "checkpoint07-servitor02",
+      "status": "PASS",
+      "owned_cleanup": "PASS",
+      "fingerprints": "PASS"
+    },
+    {
+      "attempt": "checkpoint07-queue02",
+      "status": "PASS",
+      "owned_cleanup": "PASS",
+      "fingerprints": "PASS"
+    },
+    {
+      "attempt": "checkpoint07-callback02",
+      "status": "PASS",
+      "owned_cleanup": "PASS",
+      "fingerprints": "PASS"
+    },
+    {
+      "attempt": "checkpoint07-sand02",
+      "status": "PASS",
+      "owned_cleanup": "PASS",
+      "fingerprints": "PASS"
+    },
+    {
+      "attempt": "checkpoint07-flame02",
+      "status": "PASS",
+      "owned_cleanup": "PASS",
+      "fingerprints": "PASS"
+    },
+    {
+      "attempt": "checkpoint07-storm02",
+      "status": "PASS",
+      "owned_cleanup": "PASS",
+      "fingerprints": "PASS"
+    }
+  ],
+  "qualified_path_evidence": [
+    "Six direct prepared Body currency routes; ordered Get parser; coherent denomination/custody/notification completion",
+    "Exact extracted-source Container.Put and floor/held currency merge/persistence/cold reload",
+    "Bounded paid-stock wear, manual melee attack, expiry/retirement/foreign/autonomous/direct controls",
+    "The six previous native scenario lanes, under their original documented qualification limits"
+  ],
+  "runtime_files_with_incomplete_native_path_qualification": [
+    {
+      "path": "MudSharpCore/Body/CommunicationStrategies/HumanoidCommunicationStrategy.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Body/CommunicationStrategies/NonCommunicatorCommunicationStrategy.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Body/Implementations/BodyBehaviours.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Body/Implementations/BodyBiology.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Body/Implementations/BodyInventory.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Character/Character.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Character/CharacterCombat.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Character/CharacterMovement.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Character/CharacterPosition.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/AuxiliaryCombatAction.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/AuxiliaryEffects/AttackerAdvantage.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/AuxiliaryEffects/DefenderAdvantage.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/AuxiliaryEffects/Disarm.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/AuxiliaryEffects/FacingChange.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/AuxiliaryEffects/OpposedAuxiliaryEffectBase.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/AuxiliaryEffects/PositionChange.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/AuxiliaryEffects/TargetDelay.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/AuxiliaryEffects/TargetStamina.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/CombatBase.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/CombatMessageManager.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/ManualCombatCommand.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/ManualCombatCommandResolver.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/AdvanceAlongRouteMove.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/AimRangedWeaponMove.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/AmbushAttackMove.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/AquaticVehicleAttackMove.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/AuxiliaryMove.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/BlockMove.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/BoardVehicleCombatMove.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/BreakClinchMove.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/BreakoutMove.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/BreathSwoopAttackMove.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/BreathWeaponAttackMove.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/ChangePositionMove.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/ChargeToMeleeMove.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/ClinchAttackMove.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/ClinchNaturalAttackMove.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/CombatForcedMovementUtilities.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/CombatMoveBase.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/CombatMoveRoom.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/CombatPositioningUtilities.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/CommandDamageExtensions.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/CouchedLanceMove.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/CounterGrappleMove.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/CoupDeGrace.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/DodgeMove.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/DodgeRangeMove.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/DownedMeleeAttack.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/DrawAndWieldMove.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/DropGrappledTargetMove.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/EnvenomingAttackMove.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/EnvenomingClinchAttack.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/ExplosiveNaturalAttackMove.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/ExtendGrappleMove.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/FireAndAdvanceToMeleeMove.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/FleeMove.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/ForcedMovementMove.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/HelplessDefenseMove.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/InitiateGrappleMove.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/InterposeMove.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/InventoryPlanMove.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/LayerChangeMove.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/LoadRangedWeaponMove.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/MagicDefenseMove.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/MagicPowerAttackMove.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/MagicPowerSmashItemMove.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/MeleeWeaponAttack.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/MeleeWeaponSmashItemAttack.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/MountedChargeResponseMoves.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/MountedDisengageMove.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/MountedImpactNaturalAttackMove.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/MountedWeaponAttackMove.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/MoveToMeleeMove.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/MultiTargetCombatMove.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/NaturalAttackMove.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/NaturalRangedAttackMoveBase.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/OpposeRetrieveItemMove.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/OpposeWithdrawFromMeleeMove.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/ParryMove.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/PullToMeleeMove.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/PullToMeleeUnarmedMove.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/PushbackMove.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/PushbackUnarmedMove.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/RangedWeaponAttackBase.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/ReadyRangedWeaponMove.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/ReloadFirearmMove.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/RemoveAndWieldMove.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/RemoveItemMove.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/RepositionMove.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/RescueMove.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/RetrieveItemMove.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/RouteCombatMovementUtilities.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/ScreechAttackMove.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/SkirmishResponseMove.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/StaggeringBlowMove.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/StaggeringBlowUnarmedMove.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/StandMove.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/StartClinchMove.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/StrangleAttack.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/StruggleMove.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/TakeCover.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/TakedownMove.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/TooExhaustedMove.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/UnarmedDownedMeleeAttack.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/UnarmedSmashItemAttack.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/UnarmedSwoopAttack.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/UnbalancingBlowMove.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/UnbalancingBlowUnarmedMove.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/WakeMove.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/WardDefenseMove.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/WeaponAttackMove.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/WearItemMove.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/WieldMove.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/WithdrawFromMeleeMove.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/WrenchingAttack.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/WeaponAttack.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Combat/WeaponType.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Commands/CommandManager.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Commands/Modules/CombatModule.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Commands/Modules/MovementModule.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Construction/Cell.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Construction/Location.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Effects/Concrete/LoadingMusket.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Effects/Concrete/SelectedCombatAction.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Framework/PerceivedItem.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Framework/PerceiverItem.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/GameItems/ComponentItemTransfer.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/GameItems/ComponentUnloadCompletion.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Components/AmmunitionGameItemComponent.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Components/ArtilleryPieceGameItemComponent.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Components/BlowgunGameItemComponent.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Components/BoltActionGameItemComponent.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Components/BowGameItemComponent.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Components/CrossbowGameItemComponent.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Components/FirearmBaseGameItemComponent.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Components/FlareAmmunitionGameItemComponent.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Components/FlareGameItemComponent.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Components/GunGameItemComponent.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Components/InternalMagazineGunGameItemComponent.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Components/LaserGameItemComponent.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Components/MusketGameItemComponent.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Components/PileGameItemComponent.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Components/SlingGameItemComponent.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Components/ThrownWeaponGameItemComponent.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Components/WearableGameItemComponent.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/GameItems/GameItem.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/GameItems/GameItemHealth.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Inventory/Plans/InventoryPlan.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Inventory/Plans/InventoryPlanAction.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Inventory/Plans/InventoryPlanActionApply.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Inventory/Plans/InventoryPlanActionAttach.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Inventory/Plans/InventoryPlanActionConsume.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Inventory/Plans/InventoryPlanActionConsumeLiquid.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Inventory/Plans/InventoryPlanActionDrop.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Inventory/Plans/InventoryPlanActionHold.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Inventory/Plans/InventoryPlanActionPut.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Inventory/Plans/InventoryPlanActionSheath.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Inventory/Plans/InventoryPlanActionWear.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Inventory/Plans/InventoryPlanActionWield.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Inventory/Plans/InventoryPlanTemplate.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/GameItems/ItemManipulationGuard.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Health/Wounds/BoneFracture.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Health/Wounds/HealingSimpleWound.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Health/Wounds/RobotWound.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Health/Wounds/SimpleOrganicWound.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Health/Wounds/SimpleWound.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/NPC/AI/CommandExecutionAuthority.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/NPC/AI/CommandExecutionScope.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/NPC/AI/CommandableAI.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/NPC/AI/NativeDisplacementReceipt.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    },
+    {
+      "path": "MudSharpCore/Vehicles/Vehicle.cs",
+      "status": "FAST_PASSED_NATIVE_PATH_CLOSURE_NOT_COMPLETE"
+    }
+  ],
+  "files_with_bounded_native_method_evidence_not_whole_file_clearance": [
+    "MudSharpCore/Body/Implementations/BodyCurrencyTransfer.cs",
+    "MudSharpCore/GameItems/Components/ContainerGameItemComponent.cs",
+    "MudSharpCore/GameItems/Components/CurrencyGameItemComponent.cs",
+    "MudSharpCore/GameItems/Prototypes/CurrencyGameItemComponentProto.cs"
+  ],
+  "remaining": [
+    "native_displacement_membership_route_boarding_controls",
+    "remaining_component_load_chamber_ready_fire_unload_and_projectile_caller_detachment",
+    "noncurrency_prepared_inventory_merge_conservation_and_native_controls",
+    "actual_defender_countershot",
+    "final_complete_closure_suites_docs_receipt_one_local_commit_parent_review"
+  ],
+  "whole_plan_complete": false,
+  "shared_check_callback_scope": "Await coordinator decision described in Armageddon_OrderedNpc_Review_Scope.md; Check.cs unchanged",
+  "cleared_stock_tip_unmerged": "abcbb944ae8b532c1da57e50466878a14bd01ad3",
+  "historical_receipts": [
+    {
+      "path": "Design Documents/Magic/Armageddon_OrderedNpc_Checkpoint07_Verification.json",
+      "sha256": "705ed7fde1320dc2abb0012a77348fe7766d5f5368c19e378717abf989ee8f1b"
+    },
+    {
+      "path": "Design Documents/Magic/Armageddon_OrderedNpc_Checkpoint07_FinalState.json",
+      "sha256": "cf3d02f6b02f3ae551193ddf523b7cc06f6965d699a21fb67093bc5479919d57"
+    },
+    {
+      "path": "Design Documents/Magic/Armageddon_OrderedNpc_Checkpoint07_DocumentationAddendum.json",
+      "sha256": "de1b24f0cdb4b0541a90bc7f26cc69b78402497885de23a4695ab42dd28ad557"
+    }
+  ],
+  "original_executable_input_manifest": {
+    "path": ".artifacts/test-runs/armageddon-20261005-ordered-npc/nativecurrency11-inputs.json",
+    "sha256": "7c71020c882a88fe434dc19e4d416cf031634ee1ffa1123881d953e1abbb6faa"
+  }
+}

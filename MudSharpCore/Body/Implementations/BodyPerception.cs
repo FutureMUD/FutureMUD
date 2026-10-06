@@ -185,7 +185,7 @@ public partial class Body
             {
                 // Require at least 1 eye to see unless things are in your inventory or are cell exits
                 List<EyeProto> eyes = Bodyparts.OfType<EyeProto>().ToList();
-                if (AffectedBy<IBlindnessEffect>())
+                if (AffectedBy<IBlindnessEffect>() || Actor.AffectedBy<IBlindnessEffect>())
                 {
                     return false;
                 }

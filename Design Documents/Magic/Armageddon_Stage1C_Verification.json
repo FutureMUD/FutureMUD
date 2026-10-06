@@ -1,0 +1,802 @@
+{
+  "schema_version": 1,
+  "stage": "1C: attribute-led capacity, invalidation and provisional energy affordability",
+  "status": "implemented_and_verified_parent_independent_review_pending",
+  "base_commit": "43d7fa7ba75d5f9dc41ccadcf5d29a8d8d495e39",
+  "implementation_head": "2972922b7212934b4bfd46cea39c14fab6e46924",
+  "branch": "codex/armageddon-completion-phase1",
+  "changed_files": 41,
+  "implemented": [
+    "Optional explicitly configured native body attribute, named trait expression and raw/effective basis; versioned XML, builders and clone compatibility.",
+    "Pure strict attribute-only evaluation with finite nonnegative maxima; configured-invalid XML/expression fails closed without falling back to legacy cap Progs.",
+    "Canonical reserve owner current-body capacity, valid downward clamping, no refill on rises/enrolment/route/focus changes; invalid maxima/balances retain recoverable values and refuse accounting.",
+    "Read-only affordability bounded by both actual balance and current maximum; live casts reconcile before preparation/payment/progression.",
+    "Standard raw/effective invalidation for attributes, bonus/suppression effects, merits, inventory/implants, power/health/revisions, labour, racial bonuses and mapped expression edits.",
+    "Nested restoration scopes defer clamping during successful character/effect reconstruction and body transitions; incomplete restoration cannot spend or receive configured reserve energy.",
+    "Exact 82-spell source energy envelopes across 28 normal and six next-grade Overreach pairs, three native capacities and two explicitly provisional profiles."
+  ],
+  "review_and_failure_repairs": [
+    {
+      "finding": "Effective trait penalties did not invalidate a configured reserve.",
+      "repair": "Notify bonus/suppression changes and validate current capacity at accounting boundaries; clamp decreases without refilling after removal."
+    },
+    {
+      "finding": "Backup-body activation lacked capacity reconciliation.",
+      "repair": "Add reconciliation after successful activation, with restoration deferral across the transition."
+    },
+    {
+      "finding": "A configured negative balance could receive an ordinary credit.",
+      "repair": "Preserve invalid balances while refusing ordinary credits/debits/casts until repaired."
+    },
+    {
+      "finding": "Persisted balances could clamp before saved positive bonuses or a complete effect list restored.",
+      "repair": "Nested production restoration scopes and successful-completion reconciliation; automated regressions and live-service native independent reconstruction."
+    },
+    {
+      "finding": "Full-suite empty-body inventory regression exposed a missing world/actor guard in the new invalidation hook.",
+      "repair": "Guard absent world/actor; the existing inventory regression and final full suites pass."
+    }
+  ],
+  "independent_bounded_review": {
+    "status": "no_remaining_actionable_defects_after_repairs",
+    "scope": "Read-only review of stage1C accounting, capacity invalidation, restoration and compatibility.",
+    "limitations": "Code review is not gameplay verification; parent exact-commit review remains pending."
+  },
+  "historical_runs": [
+    {
+      "status": "FAIL",
+      "head": "43d7fa7ba75d5f9dc41ccadcf5d29a8d8d495e39",
+      "run_id": "20261002T110316Z-6c0abfd29874",
+      "started_utc": "2026-10-02T11:03:16.7839190+00:00",
+      "ended_utc": "2026-10-02T11:05:47.0992518+00:00",
+      "sdk": "10.0.401",
+      "runner": "VSTest/TRX (Microsoft.NET.Test.Sdk 17.9.0)",
+      "suite": "fast",
+      "configuration": "Debug",
+      "filter": "FullyQualifiedName~InvalidResourceCapacity_QuoteAndCastRefuseBeforePaymentOrProgress|FullyQualifiedName~ReducedMaximum_BalanceAboveCapCannotFundConfiguredCast|FullyQualifiedName~NativeReserve_ReconciliationClampsOnlyDown|FullyQualifiedName~NativeReserve_InvalidCapRejectsCreditAndDebit",
+      "build_switches": [
+        "-m:1",
+        "-p:RestoreBuildInParallel=false",
+        "-p:NuGetAudit=false",
+        "-p:NoWarn=NU1902%3BNU1510"
+      ],
+      "duration_seconds": 150.3153694,
+      "counts": {
+        "executed": 8,
+        "passed": 0,
+        "failed": 8,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 8
+      },
+      "source_start": "c734a94a9e2b0309b652d659d11260a91ffcb0cb027dcdc60910f336c07fb60a",
+      "source_end": "c734a94a9e2b0309b652d659d11260a91ffcb0cb027dcdc60910f336c07fb60a",
+      "source_stable": true,
+      "execution_complete": true,
+      "counts_complete": true,
+      "issues": [
+        {
+          "kind": "TEST_FAILED",
+          "project": null,
+          "detail": "8 failing test records"
+        }
+      ],
+      "receipt": ".artifacts/test-runs/20261002T110316Z-6c0abfd29874/summary.json",
+      "receipt_sha256": "ea4803d743e1899f9460a1f0af712481b4bb0de4c1469a9091490290887999b0",
+      "projects": [
+        {
+          "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+          "status": "FAIL",
+          "counts": {
+            "executed": 8,
+            "passed": 0,
+            "failed": 8,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 8
+          }
+        }
+      ],
+      "failing_tests": [
+        "InvalidResourceCapacity_QuoteAndCastRefuseBeforePaymentOrProgress (∞)",
+        "NativeReserve_InvalidCapRejectsCreditAndDebitWithoutCorruptingSpentBalance (NaN)",
+        "NativeReserve_ReconciliationClampsOnlyDown_NoRefillOnCapRiseOrRouteChanges",
+        "ReducedMaximum_BalanceAboveCapCannotFundConfiguredCast_QuoteRemainsReadOnly",
+        "NativeReserve_InvalidCapRejectsCreditAndDebitWithoutCorruptingSpentBalance (-1)",
+        "NativeReserve_InvalidCapRejectsCreditAndDebitWithoutCorruptingSpentBalance (∞)",
+        "InvalidResourceCapacity_QuoteAndCastRefuseBeforePaymentOrProgress (NaN)",
+        "InvalidResourceCapacity_QuoteAndCastRefuseBeforePaymentOrProgress (-1)"
+      ]
+    },
+    {
+      "status": "FAIL",
+      "head": "43d7fa7ba75d5f9dc41ccadcf5d29a8d8d495e39",
+      "run_id": "20261002T111536Z-f15fe95fd2d5",
+      "started_utc": "2026-10-02T11:15:36.5216092+00:00",
+      "ended_utc": "2026-10-02T11:16:00.5435039+00:00",
+      "sdk": "10.0.401",
+      "runner": "VSTest/TRX (Microsoft.NET.Test.Sdk 17.9.0)",
+      "suite": "fast",
+      "configuration": "Debug",
+      "filter": "FullyQualifiedName~MagicCasting",
+      "build_switches": [
+        "-m:1",
+        "-p:RestoreBuildInParallel=false",
+        "-p:NuGetAudit=false",
+        "-p:NoWarn=NU1902%3BNU1510"
+      ],
+      "duration_seconds": 24.0219174,
+      "counts": null,
+      "source_start": "da6ce6506e27ce89aaad24ccb2cbbc927d2f0c8e16f86aff54fbe58680a4b192",
+      "source_end": "da6ce6506e27ce89aaad24ccb2cbbc927d2f0c8e16f86aff54fbe58680a4b192",
+      "source_stable": true,
+      "execution_complete": false,
+      "counts_complete": false,
+      "issues": [
+        {
+          "kind": "BUILD_FAILED",
+          "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+          "detail": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\FutureMUD\\MudSharpCore\\Body\\Traits\\Trait.cs(139,21): error CS0246: The type or namespace name 'IAttributeDefinition' could not be found (are you missing a using directive or an assembly reference?) [C:\\U…"
+        }
+      ],
+      "receipt": ".artifacts/test-runs/20261002T111536Z-f15fe95fd2d5/summary.json",
+      "receipt_sha256": "43fd4a528d877242530c064e2bac47a6e5b7fa6b222442094f393ef8afe6e51e",
+      "projects": [
+        {
+          "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+          "status": "NOT_RUN",
+          "counts": null
+        }
+      ],
+      "failing_tests": []
+    },
+    {
+      "status": "FAIL",
+      "head": "43d7fa7ba75d5f9dc41ccadcf5d29a8d8d495e39",
+      "run_id": "20261002T112616Z-cd30135cdb65",
+      "started_utc": "2026-10-02T11:26:16.0392618+00:00",
+      "ended_utc": "2026-10-02T11:27:25.6291532+00:00",
+      "sdk": "10.0.401",
+      "runner": "VSTest/TRX (Microsoft.NET.Test.Sdk 17.9.0)",
+      "suite": "fast",
+      "configuration": "Debug",
+      "filter": "FullyQualifiedName~MagicCasting",
+      "build_switches": [
+        "-m:1",
+        "-p:RestoreBuildInParallel=false",
+        "-p:NuGetAudit=false",
+        "-p:NoWarn=NU1902%3BNU1510"
+      ],
+      "duration_seconds": 69.5899163,
+      "counts": {
+        "executed": 144,
+        "passed": 143,
+        "failed": 1,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 144
+      },
+      "source_start": "80ae4ba3f63929359e7bb413dc2a11f6b3b6b16f0291023d68281a4ea34876d4",
+      "source_end": "80ae4ba3f63929359e7bb413dc2a11f6b3b6b16f0291023d68281a4ea34876d4",
+      "source_stable": true,
+      "execution_complete": true,
+      "counts_complete": true,
+      "issues": [
+        {
+          "kind": "TEST_FAILED",
+          "project": null,
+          "detail": "1 failing test records"
+        }
+      ],
+      "receipt": ".artifacts/test-runs/20261002T112616Z-cd30135cdb65/summary.json",
+      "receipt_sha256": "2b5cb4a3224344e0866d80761ccce0cb666675e74c966016d71e1bff97af0532",
+      "projects": [
+        {
+          "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+          "status": "FAIL",
+          "counts": {
+            "executed": 144,
+            "passed": 143,
+            "failed": 1,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 144
+          }
+        }
+      ],
+      "failing_tests": [
+        "Efficiency_OverreachAndSecondarySameReserve_AggregateConfiguredPenaltyOnce"
+      ]
+    },
+    {
+      "status": "PASS",
+      "head": "43d7fa7ba75d5f9dc41ccadcf5d29a8d8d495e39",
+      "run_id": "20261002T114407Z-db10ee205444",
+      "started_utc": "2026-10-02T11:44:07.7926307+00:00",
+      "ended_utc": "2026-10-02T11:45:16.9171425+00:00",
+      "sdk": "10.0.401",
+      "runner": "VSTest/TRX (Microsoft.NET.Test.Sdk 17.9.0)",
+      "suite": "fast",
+      "configuration": "Debug",
+      "filter": "FullyQualifiedName~MagicCasting|FullyQualifiedName~Armageddon",
+      "build_switches": [
+        "-m:1",
+        "-p:RestoreBuildInParallel=false",
+        "-p:NuGetAudit=false",
+        "-p:NoWarn=NU1902%3BNU1510"
+      ],
+      "duration_seconds": 69.1245827,
+      "counts": {
+        "executed": 157,
+        "passed": 157,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 157
+      },
+      "source_start": "626a751266f24636c129797ae270850579656397014a40d14517e65e23d1f94d",
+      "source_end": "626a751266f24636c129797ae270850579656397014a40d14517e65e23d1f94d",
+      "source_stable": true,
+      "execution_complete": true,
+      "counts_complete": true,
+      "issues": [],
+      "receipt": ".artifacts/test-runs/20261002T114407Z-db10ee205444/summary.json",
+      "receipt_sha256": "7e3eaa949412ad27007614c0ecc47fc0baedc0d930402c86d1e004bea66927b5",
+      "projects": [
+        {
+          "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+          "status": "PASS",
+          "counts": {
+            "executed": 157,
+            "passed": 157,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 157
+          }
+        }
+      ],
+      "failing_tests": []
+    },
+    {
+      "status": "FAIL",
+      "head": "43d7fa7ba75d5f9dc41ccadcf5d29a8d8d495e39",
+      "run_id": "20261002T114738Z-01e01ca611ab",
+      "started_utc": "2026-10-02T11:47:38.3967772+00:00",
+      "ended_utc": "2026-10-02T11:48:55.4213641+00:00",
+      "sdk": "10.0.401",
+      "runner": "VSTest/TRX (Microsoft.NET.Test.Sdk 17.9.0)",
+      "suite": "fast",
+      "configuration": "Debug",
+      "filter": null,
+      "build_switches": [
+        "-m:1",
+        "-p:RestoreBuildInParallel=false",
+        "-p:NuGetAudit=false",
+        "-p:NoWarn=NU1902%3BNU1510"
+      ],
+      "duration_seconds": 77.0246131,
+      "counts": {
+        "executed": 4710,
+        "passed": 4709,
+        "failed": 1,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 4710
+      },
+      "source_start": "2489da336d7c59637722c615beb27aadfaf16ea077cf384c646cb94d865bd948",
+      "source_end": "2489da336d7c59637722c615beb27aadfaf16ea077cf384c646cb94d865bd948",
+      "source_stable": true,
+      "execution_complete": true,
+      "counts_complete": true,
+      "issues": [
+        {
+          "kind": "TEST_FAILED",
+          "project": null,
+          "detail": "1 failing test records"
+        }
+      ],
+      "receipt": ".artifacts/test-runs/20261002T114738Z-01e01ca611ab/summary.json",
+      "receipt_sha256": "d0ad90390bc4552225c57c9c9af679287afa895a307e2dad5e4084e3211ec8ac",
+      "projects": [
+        {
+          "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+          "status": "FAIL",
+          "counts": {
+            "executed": 4161,
+            "passed": 4160,
+            "failed": 1,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 4161
+          }
+        },
+        {
+          "project": "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+          "status": "PASS",
+          "counts": {
+            "executed": 549,
+            "passed": 549,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 549
+          }
+        }
+      ],
+      "failing_tests": [
+        "RecalculateItemHelpers_EmptyBodyWithoutLoadedInventory_InitialisesPublicInventoryViews"
+      ]
+    }
+  ],
+  "historical_run_explanations": {
+    "20261002T110316Z-6c0abfd29874": "Eight failing-before accounting/capacity regressions; passed in final suites.",
+    "20261002T111536Z-f15fe95fd2d5": "BUILD_FAILED: missing three subtype namespace imports. No executed-test counts; corrected before subsequent runs.",
+    "20261002T112616Z-cd30135cdb65": "143 passed, one old Overreach fixture failed after correct cap100 refusal. It now explicitly sets both cap and balance200 for 112.5+10 energy.",
+    "20261002T114407Z-db10ee205444": "157 passed before expanded load-order review repairs.",
+    "20261002T114738Z-01e01ca611ab": "4709 passed, one empty-body inventory regression failed; corrected before the final suites."
+  },
+  "focused_final": {
+    "status": "PASS",
+    "head": "43d7fa7ba75d5f9dc41ccadcf5d29a8d8d495e39",
+    "run_id": "20261002T115918Z-982ab9f13976",
+    "started_utc": "2026-10-02T11:59:18.5016649+00:00",
+    "ended_utc": "2026-10-02T12:00:20.9640351+00:00",
+    "sdk": "10.0.401",
+    "runner": "VSTest/TRX (Microsoft.NET.Test.Sdk 17.9.0)",
+    "suite": "fast",
+    "configuration": "Debug",
+    "filter": "FullyQualifiedName~MagicCasting|FullyQualifiedName~Armageddon|FullyQualifiedName~BodyInventoryInitialisation",
+    "build_switches": [
+      "-m:1",
+      "-p:RestoreBuildInParallel=false",
+      "-p:NuGetAudit=false",
+      "-p:NoWarn=NU1902%3BNU1510"
+    ],
+    "duration_seconds": 62.4623914,
+    "counts": {
+      "executed": 161,
+      "passed": 161,
+      "failed": 0,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 161
+    },
+    "source_start": "da91e1dfe5cb4d9f9a7a69ef47ee553eb2c68856cb29618d4e0ca82709683c59",
+    "source_end": "da91e1dfe5cb4d9f9a7a69ef47ee553eb2c68856cb29618d4e0ca82709683c59",
+    "source_stable": true,
+    "execution_complete": true,
+    "counts_complete": true,
+    "issues": [],
+    "receipt": ".artifacts/test-runs/20261002T115918Z-982ab9f13976/summary.json",
+    "receipt_sha256": "805520c4b4cf143470bbd6201d1bfd472474656f51c405186c6e8f107109ffc9",
+    "projects": [
+      {
+        "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+        "status": "PASS",
+        "counts": {
+          "executed": 161,
+          "passed": 161,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 161
+        }
+      }
+    ],
+    "failing_tests": []
+  },
+  "core_library_final": {
+    "status": "PASS",
+    "head": "43d7fa7ba75d5f9dc41ccadcf5d29a8d8d495e39",
+    "run_id": "20261002T120321Z-9ee0b38ac9dc",
+    "started_utc": "2026-10-02T12:03:21.4019190+00:00",
+    "ended_utc": "2026-10-02T12:04:28.2181796+00:00",
+    "sdk": "10.0.401",
+    "runner": "VSTest/TRX (Microsoft.NET.Test.Sdk 17.9.0)",
+    "suite": "fast",
+    "configuration": "Debug",
+    "filter": null,
+    "build_switches": [
+      "-m:1",
+      "-p:RestoreBuildInParallel=false",
+      "-p:NuGetAudit=false",
+      "-p:NoWarn=NU1902%3BNU1510"
+    ],
+    "duration_seconds": 66.8163042,
+    "counts": {
+      "executed": 4712,
+      "passed": 4712,
+      "failed": 0,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 4712
+    },
+    "source_start": "e59e12c9b9a25d00914efd7699d7e364f6f0e765e48836e4d9077f4b37d0aa1e",
+    "source_end": "e59e12c9b9a25d00914efd7699d7e364f6f0e765e48836e4d9077f4b37d0aa1e",
+    "source_stable": true,
+    "execution_complete": true,
+    "counts_complete": true,
+    "issues": [],
+    "receipt": ".artifacts/test-runs/20261002T120321Z-9ee0b38ac9dc/summary.json",
+    "receipt_sha256": "a9802279921964e69339a7c509c7994ffbbd8e10a58705f43c77d6b5ae1b8650",
+    "projects": [
+      {
+        "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+        "status": "PASS",
+        "counts": {
+          "executed": 4163,
+          "passed": 4163,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 4163
+        }
+      },
+      {
+        "project": "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+        "status": "PASS",
+        "counts": {
+          "executed": 549,
+          "passed": 549,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 549
+        }
+      }
+    ],
+    "failing_tests": []
+  },
+  "native_acceptance": {
+    "status": "PASS",
+    "exit_code": 0,
+    "command": "Temporary Scratch App/GatheringNativePersistenceHarness/Run-IsolatedAcceptance.ps1 -CastingOnly",
+    "build": {
+      "status": "PASS",
+      "warnings": 0,
+      "errors": 0,
+      "artifact": ".artifacts/test-runs/native-armageddon-20261002-stage1C/build-attempt2.log"
+    },
+    "log": ".artifacts/test-runs/native-armageddon-20261002-stage1C/native-attempt1.log",
+    "scope": "Baseline and stages1A/1B plus real native Attribute/Body/Character, production builders/evaluator/command adapter/accounting, owned MySQL persistence and independent reader processes.",
+    "scenarios": [
+      "Raw/effective selection, native attribute down/up and expression edits immediately clamp valid decreases and never fill rises.",
+      "Negative/nonfinite capacity refuses credits, debits, quotes and casts before payment/mastery; recoverable balance retained.",
+      "Focused second body uses canonical owner attributes; fixture owner-body replacement plus reconciliation uses new owner body.",
+      "Route disable/detach/reattach and repeated enrolment preserve the spent reserve.",
+      "Worst printed minimum50 fixture quotes all34 grade pairs without payment; non-admin grade7 normal pays25 and grade7 Overreach pays56.25.",
+      "Independent raw reload retains explicit mapping/max118/balance17; max rise121 keeps17 and a grade7 cast refuses insufficient spent balance.",
+      "Independent effective reload installs the live service before balance/inventory/effect restoration; raw10 plus saved bonuses3+7 preserves saved150/max200 until completion; bonus removal clamps100/max100."
+    ],
+    "cleanup": {
+      "status": "PASS",
+      "owned_databases_deleted": 4,
+      "temporary_mysql": "gracefully-shut-down-and-deleted-owned-instance"
+    },
+    "post_disconnect_process_verification": {
+      "status": "PASS",
+      "owned_harness_processes_remaining": 0,
+      "native_exit": 0,
+      "owned_databases_deleted": 4,
+      "temporary_mysql_cleanup": "gracefully-shut-down-and-deleted-owned-instance",
+      "verification": "Read-only escalated CIM query succeeded after initial sandbox denial; no duplicate run started",
+      "verified_utc": "2026-10-02T12:15:29.9891072Z"
+    },
+    "process_check_note": "Initial sandbox CIM query was denied and not counted as evidence. A bounded authorized read-only escalated CIM check succeeded; zero owned harness processes. No duplicate test or MySQL run was started.",
+    "artifacts": [
+      {
+        "path": ".artifacts/test-runs/native-armageddon-20261002-stage1C/affordability-summary.json",
+        "bytes": 811,
+        "sha256": "0b2f5f555742cdf803265e42b3d7678ca9a533838fa2ff1207bea53f925de6ea"
+      },
+      {
+        "path": ".artifacts/test-runs/native-armageddon-20261002-stage1C/affordability.csv",
+        "bytes": 1349030,
+        "sha256": "1a2044d0591e6484d5727c3557bc81443f0074ecfdb6d6ab1624558e7975b654"
+      },
+      {
+        "path": ".artifacts/test-runs/native-armageddon-20261002-stage1C/build-attempt1.log",
+        "bytes": 1012,
+        "sha256": "ca5b61829fe3b392aaf6da2872cf2aa8b4704eebf510375fe2640273cf830f29"
+      },
+      {
+        "path": ".artifacts/test-runs/native-armageddon-20261002-stage1C/build-attempt2.log",
+        "bytes": 1012,
+        "sha256": "ca5b61829fe3b392aaf6da2872cf2aa8b4704eebf510375fe2640273cf830f29"
+      },
+      {
+        "path": ".artifacts/test-runs/native-armageddon-20261002-stage1C/input-fingerprints-pre-load-order-repair.json",
+        "bytes": 6396,
+        "sha256": "64a6a8af56ce6f19ed1a584b5f5b17541e7262936ec41183592b40ff6b128389"
+      },
+      {
+        "path": ".artifacts/test-runs/native-armageddon-20261002-stage1C/input-fingerprints.json",
+        "bytes": 6864,
+        "sha256": "b1aea66a85e959f914c1697c43d434ccc8539bc9c856b7e461f44dc1e701cf10"
+      },
+      {
+        "path": ".artifacts/test-runs/native-armageddon-20261002-stage1C/native-attempt1.log",
+        "bytes": 25898,
+        "sha256": "b15c1d386cd275bc40450e7323c190777c62971051ae3e34604ec0735aeb2801"
+      },
+      {
+        "path": ".artifacts/test-runs/native-armageddon-20261002-stage1C/process-state-verification.json",
+        "bytes": 372,
+        "sha256": "63bca768f41b51f4b94852fe7108197627ef55bf55ea4f1eb7bc5e36ca03402a"
+      }
+    ],
+    "historical_artifacts": "build-attempt1.log and input-fingerprints-pre-load-order-repair.json are retained as superseded pre-repair evidence; only build-attempt2 and final input manifest qualify the final native run."
+  },
+  "affordability": {
+    "summary": {
+      "rows": 16728,
+      "spells": 82,
+      "unaffordable_rows": {
+        "source_reference/lower": 1129,
+        "source_reference/ordinary": 0,
+        "source_reference/advanced": 0,
+        "provisional_native/lower": 492,
+        "provisional_native/ordinary": 0,
+        "provisional_native/advanced": 0
+      },
+      "maximum_energy": {
+        "source_reference/lower": 75,
+        "source_reference/ordinary": 75,
+        "source_reference/advanced": 75,
+        "provisional_native/lower": 56.25,
+        "provisional_native/ordinary": 56.25,
+        "provisional_native/advanced": 56.25
+      },
+      "status": "Provisional engineering scenarios; production curve and native attribute caps; energy envelopes only",
+      "quiet": "NOT_IMPLEMENTED",
+      "area": "NOT_IMPLEMENTED",
+      "additional_candidates": "72 require authored minima/configuration"
+    },
+    "scenario_input": "Armageddon_Capacity_Affordability_Scenarios.json",
+    "guide": "Armageddon_Capacity_Affordability.md",
+    "matrix_csv": ".artifacts/test-runs/native-armageddon-20261002-stage1C/affordability.csv",
+    "matrix_sha256": "1a2044d0591e6484d5727c3557bc81443f0074ecfdb6d6ab1624558e7975b654",
+    "attribute_values": [
+      4,
+      11.5,
+      19
+    ],
+    "capacities": [
+      48,
+      95.5,
+      118
+    ],
+    "provisional_mapping": "ARM02 Agility is a disposable fixture only; no stock mental/spiritual attribute or coefficients approved.",
+    "coverage_limit": "Energy envelopes only; profiles explicitly have zero secondary cost. All authored secondary/material/method/quiet/area costs require later qualification. The remaining72 candidates lack authored minima. Effects, targets, permissions and stock are not qualified by the matrix."
+  },
+  "native_input_manifest": {
+    "base": "43d7fa7ba75d5f9dc41ccadcf5d29a8d8d495e39",
+    "files": [
+      {
+        "path": "Design Documents/Magic/Armageddon_Capacity_Affordability_Scenarios.json",
+        "sha256": "1fba4f6781f8af2252ef484ca70686b8f808d9cd6152d0e74d140fb2953ab307"
+      },
+      {
+        "path": "Design Documents/Magic/Armageddon_Sorcerer_Source_Tree.json",
+        "sha256": "ada4e574d1c2243b2bad30cb0d65b98a5413a20ad1d8917965335fb9e481d496"
+      },
+      {
+        "path": "FutureMUDLibrary Unit Tests/MagicResourceCapacityTests.cs",
+        "sha256": "5eba7122865c9e8caa6119d973a59441c2dfb4e995145ae4678f2eaa491f6359"
+      },
+      {
+        "path": "FutureMUDLibrary/Magic/IMagicCastingService.cs",
+        "sha256": "357f1c60560d879cd3e9ee78c887a4a0aee12c040c4348e6ff8f4ede4aaf5be8"
+      },
+      {
+        "path": "FutureMUDLibrary/Magic/IMagicResourceCapacity.cs",
+        "sha256": "1e4de3d77197bfb14a85b4a6306af9cbe368bf1d017abf902b093c8e42ac175f"
+      },
+      {
+        "path": "MudSharpCore Unit Tests/ArmageddonAffordabilityTests.cs",
+        "sha256": "b6614cf0cca731c9186f370a81fcb3c7753c6707a3e6050dc8c0e3e11a35ee08"
+      },
+      {
+        "path": "MudSharpCore Unit Tests/MagicCastingCapacityTests.cs",
+        "sha256": "0554c6dfea70d4b2e7066c8578c8499540b58f0cfddb1d2d693cae535b4fc1ae"
+      },
+      {
+        "path": "MudSharpCore Unit Tests/MagicCastingOwnershipTests.cs",
+        "sha256": "2eb923080c29c9fe1ef4c3cd9157ac7238aab7b8b43ff16034e31dcc955a2fad"
+      },
+      {
+        "path": "MudSharpCore Unit Tests/MagicCastingProgressionTests.cs",
+        "sha256": "819ab49e3f87e62fb69e54895bc0cc998b039bb8554e260ac9324fe73807c38f"
+      },
+      {
+        "path": "MudSharpCore/Body/Implementations/BodyCharacteristics.cs",
+        "sha256": "a74eed054416a31a36fe150515b4d7eacdb6437e772a3974a62afaf6be30e098"
+      },
+      {
+        "path": "MudSharpCore/Body/Implementations/BodyInventory.cs",
+        "sha256": "36caf6c3b06eb49e05bbc9c1f9357a630d50bd70ab13bd7b5c620c79ea2b4c59"
+      },
+      {
+        "path": "MudSharpCore/Body/Implementations/BodyTraits.cs",
+        "sha256": "76e9328cbfe16877e3c4367e46ad3ee897f92e10cc64e688db2d8ea49583e0b5"
+      },
+      {
+        "path": "MudSharpCore/Body/Traits/Trait.cs",
+        "sha256": "d68d8ce1fba47bacbb4f7a1638eed6a703b13fb4bb1b6b0e3831d4f0f910e3d8"
+      },
+      {
+        "path": "MudSharpCore/Body/Traits/TraitExpression.cs",
+        "sha256": "8169bbac624e5a5b4bec9462b8850bf9e74e1bb3231f7ccf3f5d11339866ef76"
+      },
+      {
+        "path": "MudSharpCore/Character/Character.cs",
+        "sha256": "138fbfc69b1ac49885603b5414752fcfe41736f32c806542284f515c742df941"
+      },
+      {
+        "path": "MudSharpCore/Character/CharacterBodyBackups.cs",
+        "sha256": "a0fa6bcb7024daf8298deeb3db07cf80903bd0bffe07c3bcbe5a4af9e9ec6aa8"
+      },
+      {
+        "path": "MudSharpCore/Character/CharacterCastingResources.cs",
+        "sha256": "bd112b2fa0e0f0ecf2d5f7122509e639b17e58d3b80e4e9188486945d40ec62d"
+      },
+      {
+        "path": "MudSharpCore/Character/CharacterForms.cs",
+        "sha256": "ec991fd011b1370b1a582144cf54d6382d50c0a97e63b82269c50e76592d2fa5"
+      },
+      {
+        "path": "MudSharpCore/Character/CharacterMagic.cs",
+        "sha256": "3cfdcda41ae9df1b455f58f877eaf7d55480d60f6a94fc8a5776a55152c8626d"
+      },
+      {
+        "path": "MudSharpCore/Character/CharacterTraits.cs",
+        "sha256": "78bfac27a976536ce7a634b8d8e4ffa437fbe0f4547266a16bbad04e1a74ffc0"
+      },
+      {
+        "path": "MudSharpCore/Character/CharacterWork.cs",
+        "sha256": "ac0e4382f4a1557c4d5200435a46397520a7e7c6331579f962d1308def645cfa"
+      },
+      {
+        "path": "MudSharpCore/Character/Heritage/RaceBuilding.cs",
+        "sha256": "fac3aeb841e39177bb95b8ba048a179b373284bfad549b609b811e12cf059485"
+      },
+      {
+        "path": "MudSharpCore/Effects/EffectHandler.cs",
+        "sha256": "1f1cf859eb0a86abcb20b008832320c865942ff5eafa18ae85203f5904aed8a8"
+      },
+      {
+        "path": "MudSharpCore/Framework/PerceivedItem.cs",
+        "sha256": "a68c23bdba91740e3c4c8b3abeed20be1fcfc7644a584102dcb59d6ebafe7985"
+      },
+      {
+        "path": "MudSharpCore/GameItems/Components/ImplantBaseGameItemComponent.cs",
+        "sha256": "71374e6636b822f1340fb735eb30a54153ba4418b232472ec64840a647fce31e"
+      },
+      {
+        "path": "MudSharpCore/GameItems/Components/ImplantTraitChangerGameItemComponent.cs",
+        "sha256": "6b1f1f150446734951061bb601a4816fd6ee7f8717e7e21f7ec73d39820637fd"
+      },
+      {
+        "path": "MudSharpCore/GameItems/Components/WornTraitChangerGameItemComponent.cs",
+        "sha256": "a124984244c1fb4dbbd5c21608a9a0496554e1c71206f1aa6db62410670d002f"
+      },
+      {
+        "path": "MudSharpCore/GameItems/GameItemHealth.cs",
+        "sha256": "08276ef07aa2b78102f203aa28690aae58f61afec1796319cef9d0ef51b58791"
+      },
+      {
+        "path": "MudSharpCore/Health/Wounds/HealingSimpleWound.cs",
+        "sha256": "f6948b3aa0df696fc1d60a5a6a0635d21bf5a2fc5e4ab4866834da7829a4cf9e"
+      },
+      {
+        "path": "MudSharpCore/Health/Wounds/RobotWound.cs",
+        "sha256": "dc4c03a2113c535ed6b224bb9a57a8958361a004223a78d18c3044c1a3eb85f0"
+      },
+      {
+        "path": "MudSharpCore/Health/Wounds/SimpleOrganicWound.cs",
+        "sha256": "a0c1c2f2b76537b9cda8f95772aae39a9e7dbbcfe9c9b364360ad1dd12b4de42"
+      },
+      {
+        "path": "MudSharpCore/Health/Wounds/SimpleWound.cs",
+        "sha256": "185acf80f8d84d529edc40956a9a8bf1a8ffb00644ff6e33dd3d630418f914fe"
+      },
+      {
+        "path": "MudSharpCore/Magic/Casting/MagicCastingService.cs",
+        "sha256": "6d72418506107a2bc5ecc9ec8e83520077906ac15045c84f9e222ae4f379a60c"
+      },
+      {
+        "path": "MudSharpCore/Magic/Casting/MagicCastingService.Execution.cs",
+        "sha256": "9a0c58f9f8396f05ea75ebddddeef3ae24984b86b5f3689615be28bc2e3b2c29"
+      },
+      {
+        "path": "MudSharpCore/Magic/Casting/MagicCastingService.Resources.cs",
+        "sha256": "7c758dfad9e78abe3d0d09f69c3bc44cf4ecafa7d507e963634c8253e7165a25"
+      },
+      {
+        "path": "MudSharpCore/Magic/Resources/SimpleMagicResource.Capacity.cs",
+        "sha256": "4565cde0c2e262fe507997fc0f9cfb87fd09c531a184d267a1f5c8dd13c906e1"
+      },
+      {
+        "path": "MudSharpCore/Magic/Resources/SimpleMagicResource.cs",
+        "sha256": "c22b1d0318f84a09f316872695140033adfe81e890d122ad4b915738dc436284"
+      },
+      {
+        "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.Casting.cs",
+        "sha256": "8e2da28116dbb23bdac51e260756d93fa7522ada7c0cb69c3b2d272654f83290"
+      },
+      {
+        "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.CastingCapacity.cs",
+        "sha256": "bd64065f3efe71ae58d7b3b3fcdaa2e02bd452ae45415097dccb80761835c3c0"
+      },
+      {
+        "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.cs",
+        "sha256": "3abf3064d62f5c76fd0533f8b6709c8977ed55656557d675a3e2eaab3ef20355"
+      }
+    ]
+  },
+  "native_input_manifest_sha256": "b1aea66a85e959f914c1697c43d434ccc8539bc9c856b7e461f44dc1e701cf10",
+  "binaries": {
+    "native_harness": {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/bin/Debug/net10.0/GatheringNativePersistenceHarness.dll",
+      "sha256": "33608aced35b6a67990afefd9270d2212b025551990751afa64072e4a15e4a4a"
+    },
+    "native_core": {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/bin/Debug/net10.0/MudSharp.dll",
+      "sha256": "a21a240914de043b48b187f9866641079eac5208a5689a614f9ce6c64d5b83de"
+    },
+    "native_library": {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/bin/Debug/net10.0/FutureMUDLibrary.dll",
+      "sha256": "4b9932f66568818859aec356faf0416552f5c2891d1fe3624c30582441835704"
+    },
+    "unit_core": {
+      "path": "MudSharpCore Unit Tests/bin/Debug/net10.0/MudSharp.dll",
+      "sha256": "a21a240914de043b48b187f9866641079eac5208a5689a614f9ce6c64d5b83de"
+    },
+    "unit_library": {
+      "path": "FutureMUDLibrary Unit Tests/bin/Debug/net10.0/FutureMUDLibrary.dll",
+      "sha256": "4b9932f66568818859aec356faf0416552f5c2891d1fe3624c30582441835704"
+    }
+  },
+  "input_integrity": "Forty frozen executable/test/harness/scenario/source-roster files match their final native manifest after native acceptance and implementation commit. Unit/native core and library assembly hashes match. Tests ran from base HEAD with these uncommitted changes; the later implementation commit records the same inputs.",
+  "post_verification_changes": "Builder/affordability prose, durable receipts/checklists and local commits only; no executable or scenario changes after final suites/native acceptance.",
+  "toolchain": {
+    "sdk": "10.0.401",
+    "mysql": "8.0.45 owned temporary loopback instance",
+    "local_build_options": [
+      "-m:1",
+      "-p:RestoreBuildInParallel=false",
+      "-p:NuGetAudit=false",
+      "-p:NoWarn=NU1902%3BNU1510"
+    ],
+    "dependency_audit": "NOT_RUN; permitted local switches do not provide vulnerability-audit evidence."
+  },
+  "not_run": [
+    "Full Character constructor/login reconstruction and actual form/backup commands; controlled production-scope native reconstruction and fixture body replacement were exercised.",
+    "Installed-world Telnet and complete N08 gathering restrictions/environmental accounting; N08 remains partial.",
+    "Stock mental/spiritual attribute mapping, fixed coefficients and complete whole-preset/per-effect balance qualification.",
+    "Stock crafting bindings/installer and stock PRACTICE N06.",
+    "Phase2 target-free practice, genuine speech/formula/quiet/area adapters and phases3-6."
+  ],
+  "next_checkpoint": "Parent reviews this exact implementation and durable handoff before phase2 invocation adapters; no later stage begun.",
+  "boundaries": {
+    "publication": false,
+    "merge": false,
+    "deployment": false,
+    "shared_or_production_database": false
+  }
+}

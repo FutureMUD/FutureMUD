@@ -1,4 +1,4 @@
-﻿using MudSharp.GameItems.Inventory;
+using MudSharp.GameItems.Inventory;
 using MudSharp.GameItems.Inventory.Plans;
 
 namespace MudSharp.Combat.Moves;
@@ -17,6 +17,8 @@ public class InventoryPlanMove : CombatMoveBase
 
     public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
     {
+		using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterMove(this);
+		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
         IEnumerable<InventoryPlanActionResult> results = Plan.ExecuteWholePlan();
         Plan.FinalisePlanNoRestore();
         foreach (InventoryPlanActionResult result in results)

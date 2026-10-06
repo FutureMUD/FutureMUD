@@ -1,4 +1,5 @@
-﻿using MudSharp.Body;
+using MudSharp.Combat.Moves;
+using MudSharp.Body;
 using MudSharp.Body.Traits;
 using MudSharp.Combat;
 using MudSharp.Combat.ScatterStrategies;
@@ -19,6 +20,8 @@ namespace MudSharp.GameItems.Components;
 public class AmmunitionGameItemComponent : GameItemComponent, IAmmo
 {
     private RangedFireContext _currentFireContext;
+    private ProjectileCustodyCompletion _projectileCompletion;
+	internal bool IsQuiescentForStackMerge => _currentFireContext is null && _projectileCompletion is null;
     protected AmmunitionGameItemComponentProto _prototype;
     public override IGameItemComponentProto Prototype => _prototype;
 
@@ -94,94 +97,75 @@ public class AmmunitionGameItemComponent : GameItemComponent, IAmmo
     private void HandleAmmunitionAftermath(ICharacter actor, IPerceiver target, IGameItem ammo, bool hit = false,
             IEmoteOutput emoteOnBreak = null, IEmoteOutput emoteOnFallToGround = null)
     {
-        if (target == null)
-        {
-            return;
-        }
-
-        ammo.RoomLayer = target.RoomLayer;
-
-        if (RandomUtilities.Roll(1.0, hit ? AmmoType.BreakChanceOnHit : AmmoType.BreakChanceOnMiss))
-        {
-            ammo.InsertAtSource(target, true);
-            if (emoteOnBreak != null)
-            {
-                target.OutputHandler.Handle(emoteOnBreak);
-            }
-
-            IGameItem result = ammo.Die();
-            if (result != null)
-            {
-                result.RoomLayer = target.RoomLayer;
-                result.InsertAtSource(target);
-                if (!result.Deleted)
-                {
-                    result.AddEffect(new CombatNoGetEffect(result, actor.Combat), TimeSpan.FromSeconds(20));
-                    result.PositionTarget = target;
-                }
-            }
-
-            return;
-        }
-
-        ammo.InsertAtSource(target);
-        ammo.PositionTarget = target;
-        if (emoteOnFallToGround != null)
-        {
-            target.OutputHandler.Handle(emoteOnFallToGround);
-        }
-
-
-        // The call to insert the item into the location can result in a stack merge, in which case the ammo item is deleted and we should not further alter it
-        if (actor.Combat != null && !ammo.Deleted)
-        {
-            ammo.AddEffect(new CombatNoGetEffect(ammo, actor.Combat), TimeSpan.FromSeconds(20));
-        }
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
+        if (target == null || _projectileCompletion is not { } completion ||
+            !ReferenceEquals(completion.Projectile, ammo)) return;
+        var impact = completion.CaptureImpact(target);
+        ResolveAftermath(actor, target, impact, ammo,
+            hit ? AmmoType.BreakChanceOnHit : AmmoType.BreakChanceOnMiss,
+            emoteOnBreak, emoteOnFallToGround,
+            output => target.OutputHandler.Handle(output));
     }
 
     private void HandleAmmunitionScatterToCell(ICharacter actor, SpatialLocation impactLocation, IGameItem ammo,
         IEmoteOutput emoteOnBreak = null, IEmoteOutput emoteOnFallToGround = null)
     {
-        ammo.RoomLayer = impactLocation.Layer;
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
+        ResolveAftermath(actor, null, impactLocation, ammo, AmmoType.BreakChanceOnMiss,
+            emoteOnBreak, emoteOnFallToGround, output => impactLocation.Cell.Handle(output));
+    }
 
-        if (RandomUtilities.Roll(1.0, AmmoType.BreakChanceOnMiss))
+    private void ResolveAftermath(ICharacter actor, IPerceiver positionTarget, SpatialLocation impact,
+        IGameItem ammo, double breakChance, IEmoteOutput emoteOnBreak, IEmoteOutput emoteOnFallToGround,
+        Action<IEmoteOutput> emit)
+    {
+        var completion = _projectileCompletion;
+        if (completion == null || !ReferenceEquals(completion.Projectile, ammo) || !completion.IsUnclaimed) return;
+
+        // The detached participant may finish placement after refusal. Breakage/effects/posture remain
+        // separate operations under the original principal. No independent scope is installed here.
+        var breakProjectile = MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor) &&
+                              RandomUtilities.Roll(1.0, breakChance);
+        completion.PlaceAt(impact, allowMerge: !breakProjectile);
+        if (!completion.IsAt(impact) || !MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return;
+
+        if (breakProjectile)
         {
-			ammo.InsertAtSpatialLocation(impactLocation, true);
-            if (emoteOnBreak != null)
-            {
-				impactLocation.Cell.Handle(emoteOnBreak);
-            }
+            if (emoteOnBreak != null) emit(emoteOnBreak);
+            if (!completion.IsAt(impact) || !MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return;
+            var result = ammo.Die();
+            if (result == null || result.Deleted || result.Destroyed || ReferenceEquals(result, ammo)) return;
 
-            IGameItem result = ammo.Die();
-            if (result != null)
-            {
-				result.RoomLayer = impactLocation.Layer;
-				result.InsertAtSpatialLocation(impactLocation);
-                if (!result.Deleted && actor.Combat != null)
-                {
-                    result.AddEffect(new CombatNoGetEffect(result, actor.Combat), TimeSpan.FromSeconds(20));
-                }
-            }
-
+            // Native Die normally places its replacement already. Never rehome a callback-claimed result.
+            var replacement = new ProjectileCustodyCompletion(actor, result, null, impact);
+            if (replacement.IsUnclaimed) replacement.PlaceAt(impact, allowMerge: true);
+            if (replacement.IsAt(impact)) AddAftermathState(actor, positionTarget, replacement, impact);
             return;
         }
 
-		ammo.InsertAtSpatialLocation(impactLocation);
-        ammo.PositionTarget = null;
-        if (emoteOnFallToGround != null)
-        {
-			impactLocation.Cell.Handle(emoteOnFallToGround);
-        }
+        if (emoteOnFallToGround != null) emit(emoteOnFallToGround);
+        AddAftermathState(actor, positionTarget, completion, impact);
+    }
 
-        if (actor.Combat != null && !ammo.Deleted)
+    private static void AddAftermathState(ICharacter actor, IPerceiver target,
+        ProjectileCustodyCompletion completion, SpatialLocation impact)
+    {
+        if (!completion.IsAt(impact) || !MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return;
+        if (actor.Combat != null)
         {
-            ammo.AddEffect(new CombatNoGetEffect(ammo, actor.Combat), TimeSpan.FromSeconds(20));
+            completion.Projectile.AddEffect(new CombatNoGetEffect(completion.Projectile, actor.Combat),
+                TimeSpan.FromSeconds(20));
         }
+        if (!completion.IsAt(impact) || !MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return;
+        completion.Projectile.PositionTarget =
+            target != null && ProjectileCustodyCompletion.SourceIsAt(target, impact) ? target : null;
     }
 
     private void BroadcastProjectileFlight(ICharacter actor, IPerceivable destination, IGameItem ammo,
         IReadOnlyList<ICellExit> precomputedPath = null)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
+
         if (actor?.Location == null || destination?.Location == null)
         {
             return;
@@ -214,8 +198,10 @@ public class AmmunitionGameItemComponent : GameItemComponent, IAmmo
                 break;
         }
 
-        foreach (ICell cell in actor.CellsUnderneathFlight(destination, 10))
+        foreach (ICell cell in actor.CellsUnderneathFlight(destination, 10).ToArray())
         {
+            if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor) ||
+                _projectileCompletion?.IsUnclaimed != true) return;
             cell.Handle(
                 new EmoteOutput(
                     new Emote($"@ {actionDescription} from the {oppDirDesc} towards the {dirDesc}", ammo),
@@ -223,6 +209,8 @@ public class AmmunitionGameItemComponent : GameItemComponent, IAmmo
                 { NoticeCheckDifficulty = Difficulty.VeryHard });
         }
 
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor) ||
+            _projectileCompletion?.IsUnclaimed != true) return;
         if (destination is not IPerceiver destinationPerceiver)
         {
             return;
@@ -270,12 +258,18 @@ public class AmmunitionGameItemComponent : GameItemComponent, IAmmo
     private bool TryResolveScatter(ICharacter actor, IPerceiver originalTarget, IRangedWeaponType weaponType,
         IGameItem ammo, IReadOnlyList<ICellExit> path, string context, RangedScatterType? scatterType = null)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
+
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor) ||
+            _projectileCompletion?.IsUnclaimed != true) { FinishRefusedProjectile(actor, originalTarget, ammo); return true; }
         scatterType ??= _currentFireContext?.ScatterType;
         RangedScatterResult scatterResult = (scatterType is null
                 ? RangedScatterStrategyFactory.GetStrategy(weaponType)
                 : RangedScatterStrategyFactory.GetStrategy(scatterType.Value))
             .GetScatterTarget(actor, originalTarget, path ?? Array.Empty<ICellExit>());
 
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor) ||
+            _projectileCompletion?.IsUnclaimed != true) { FinishRefusedProjectile(actor, originalTarget, ammo); return true; }
         if (scatterResult == null)
         {
             Gameworld.DebugMessage(
@@ -290,13 +284,21 @@ public class AmmunitionGameItemComponent : GameItemComponent, IAmmo
     private void ResolveScatterResult(ICharacter actor, IRangedWeaponType weaponType, IGameItem ammo,
         RangedScatterResult scatterResult, string context)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
+
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor) ||
+            _projectileCompletion?.IsUnclaimed != true) return;
         if (scatterResult.Target != null)
         {
-            if (scatterResult.Target is ICharacter collateral &&
-                !actor.IsLawfulEnforcementActionAgainst(collateral, CrimeTypes.AssaultWithADeadlyWeapon))
+            _projectileCompletion.CaptureImpact(scatterResult.Target);
+            if (scatterResult.Target is ICharacter collateral)
             {
-                CrimeExtensions.CheckPossibleCrimeAllAuthorities(actor, CrimeTypes.AssaultWithADeadlyWeapon,
-                    collateral, null, "collateral fire");
+                var lawful = actor.IsLawfulEnforcementActionAgainst(collateral, CrimeTypes.AssaultWithADeadlyWeapon);
+                if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor) ||
+                    _projectileCompletion?.IsUnclaimed != true) return;
+                if (!lawful)
+                    CrimeExtensions.CheckPossibleCrimeAllAuthorities(actor, CrimeTypes.AssaultWithADeadlyWeapon,
+                        collateral, null, "collateral fire");
             }
             else if (scatterResult.Target is IGameItem collateralItem)
             {
@@ -304,9 +306,13 @@ public class AmmunitionGameItemComponent : GameItemComponent, IAmmo
                     "collateral fire");
             }
 
+            if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor) ||
+                _projectileCompletion?.IsUnclaimed != true) return;
             List<ICellExit> scatterPath = actor.PathBetween(scatterResult.Target, 10, false, false, true)?.ToList() ??
                               new List<ICellExit>();
             BroadcastProjectileFlight(actor, scatterResult.Target, ammo, scatterPath);
+            if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor) ||
+                _projectileCompletion?.IsUnclaimed != true) return;
             IBodypart bodypart = (scatterResult.Target as IHaveABody)?.Body?.RandomBodyPartGeometry(Orientation.Centre,
                 Alignment.Front, Facing.Front);
             Hit(actor, scatterResult.Target, Outcome.Pass, Outcome.Pass,
@@ -323,6 +329,8 @@ public class AmmunitionGameItemComponent : GameItemComponent, IAmmo
         };
         List<ICellExit> scatterCellPath = actor.PathBetween(dummy, 10, false, false, true)?.ToList() ?? new List<ICellExit>();
         BroadcastProjectileFlight(actor, dummy, ammo, scatterCellPath);
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor) ||
+            _projectileCompletion?.IsUnclaimed != true) return;
         string directionText = ScatterStrategyUtilities.DescribeFromDirection(scatterResult.DirectionFromTarget);
         EmoteOutput breakOutput = new(
             new Emote($"$0 ricochets{directionText} and shatters!", dummy, ammo),
@@ -340,6 +348,8 @@ public class AmmunitionGameItemComponent : GameItemComponent, IAmmo
         Outcome coverOutcome, OpposedOutcome defenseOutcome, IBodypart bodypart, IGameItem ammo,
         IRangedWeaponType weaponType, IReadOnlyList<ICellExit> path)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
+
 		var effectiveCover = target is ICharacter targetCharacter
 			? VehicleCombatService.Instance.ResolveEffectiveRangedCover(actor, targetCharacter)
 			: null;
@@ -370,11 +380,15 @@ public class AmmunitionGameItemComponent : GameItemComponent, IAmmo
         actor.Send("You hit your target's cover instead.".Colour(Telnet.Yellow));
 
         Damage damage = BuildDamage(actor, target, bodypart, ammo, weaponType, defenseOutcome);
+        if (damage is null || !MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) { FinishRefusedProjectile(actor, target, ammo); return true; }
         List<IWound> wounds = new();
+        if (_projectileCompletion?.IsUnclaimed != true) return true;
+        _projectileCompletion.SetFallback(_projectileCompletion.CaptureImpact(target));
 		if (effectiveCover?.IsVehicleCover != true)
 		{
-			wounds.AddRange(coverItem?.PassiveSufferDamage(damage) ?? Enumerable.Empty<IWound>());
+			wounds.AddRange(coverItem?.CommandSufferDamage(damage) ?? Enumerable.Empty<IWound>());
 		}
+        _projectileCompletion?.PreserveWoundClaim(wounds);
         wounds.ProcessPassiveWounds();
 
         if (wounds.Any(x => x.Lodged == ammo))
@@ -399,6 +413,8 @@ public class AmmunitionGameItemComponent : GameItemComponent, IAmmo
         OpposedOutcome defenseOutcome, IGameItem ammo, IRangedWeaponType weaponType, IEmoteOutput defenseEmote,
         IReadOnlyList<ICellExit> path)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
+
         if (shotOutcome.IsPass() && defenseOutcome.Outcome != OpposedOutcomeDirection.Opponent)
         {
             return false;
@@ -446,14 +462,26 @@ public class AmmunitionGameItemComponent : GameItemComponent, IAmmo
     private bool TryResolveObstruction(ICharacter actor, IPerceiver target, IGameItem ammo,
         IRangedWeaponType weaponType, OpposedOutcome defenseOutcome, IBodypart bodypart, IReadOnlyList<ICellExit> path)
     {
-        IRangedObstructionEffect obstructionEffect = target.EffectsOfType<IRangedObstructionEffect>().Where(x => x.Applies(actor)).Shuffle(Constants.Random)
-                                         .FirstOrDefault();
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
+
+        var obstructions = new List<IRangedObstructionEffect>();
+        foreach (var candidate in target.EffectsOfType<IRangedObstructionEffect>().ToArray())
+        {
+            if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) { FinishRefusedProjectile(actor, target, ammo); return true; }
+            var applies = candidate.Applies(actor);
+            if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) { FinishRefusedProjectile(actor, target, ammo); return true; }
+            if (applies && target.EffectsOfType<IRangedObstructionEffect>().Contains(candidate)) obstructions.Add(candidate);
+        }
+        var obstructionEffect = obstructions.Shuffle(Constants.Random).FirstOrDefault();
         if (obstructionEffect == null)
         {
             return false;
         }
 
         IPerceivable obstruction = obstructionEffect.Obstruction;
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor) ||
+            _projectileCompletion?.IsUnclaimed != true) { FinishRefusedProjectile(actor, target, ammo); return true; }
+        if (obstruction is IPerceiver capturedObstruction) _projectileCompletion.CaptureImpact(capturedObstruction);
         IPerceiver obstructionPerceiver = obstruction as IPerceiver;
         string actorText = actor.HowSeen(actor);
         string targetText = target.HowSeen(actor);
@@ -478,6 +506,7 @@ public class AmmunitionGameItemComponent : GameItemComponent, IAmmo
         actor.Send($"You hit {obstruction.HowSeen(actor)} instead!");
 
         Damage damage = BuildDamage(actor, target, bodypart, ammo, weaponType, defenseOutcome);
+        if (damage is null || !MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) { FinishRefusedProjectile(actor, target, ammo); return true; }
         List<IWound> wounds = new();
 
         if (obstruction is IHaveWounds ihw)
@@ -492,10 +521,12 @@ public class AmmunitionGameItemComponent : GameItemComponent, IAmmo
                 };
             }
 
-            wounds.AddRange(ihw.PassiveSufferDamage(damage) ?? Enumerable.Empty<IWound>());
+            _projectileCompletion?.SetFallback(_projectileCompletion.CaptureImpact(obstructionPerceiver ?? target));
+            wounds.AddRange(ihw.CommandSufferDamage(damage) ?? Enumerable.Empty<IWound>());
+            _projectileCompletion?.PreserveWoundClaim(wounds);
             if (obstruction is IHaveABody && wounds.Any())
             {
-                WeaponPoisonDeliveryHelper.DeliverFromWeapon(actor, ammo, wounds, false);
+                if (MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) WeaponPoisonDeliveryHelper.DeliverFromWeapon(actor, ammo, wounds, false);
             }
             wounds.ProcessPassiveWounds();
         }
@@ -521,8 +552,15 @@ public class AmmunitionGameItemComponent : GameItemComponent, IAmmo
         IGameItem ammo, IRangedWeaponType weaponType, OpposedOutcome defenseOutcome,
         double damageMultiplier = 1.0)
     {
-        var payloadEffects = ammo.EffectsOfType<IMagicProjectilePayloadEffect>(x =>
-            x.AppliesToProjectileAttack(actor, target, ammo)).ToList();
+        if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return null;
+        var payloadEffects = new List<IMagicProjectilePayloadEffect>();
+        foreach (var effect in ammo.EffectsOfType<IMagicProjectilePayloadEffect>().ToArray())
+        {
+            if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return null;
+            var applies = effect.AppliesToProjectileAttack(actor, target, ammo);
+            if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return null;
+            if (applies && ammo.EffectsOfType<IMagicProjectilePayloadEffect>().Contains(effect)) payloadEffects.Add(effect);
+        }
         var effectiveQuality = (int)ammo.Quality + (int)Math.Round(payloadEffects.Sum(x => x.ProjectileQualityBonus));
         var profileValues = new (string Name, object Value)[]
         {
@@ -563,11 +601,20 @@ public class AmmunitionGameItemComponent : GameItemComponent, IAmmo
         };
     }
 
+    private void FinishRefusedProjectile(ICharacter actor, IPerceiver target, IGameItem ammo)
+    {
+        if (_projectileCompletion is { } completion && ReferenceEquals(completion.Projectile, ammo))
+            completion.Finish();
+    }
+
     protected virtual void Hit(ICharacter actor, IPerceiver target, Outcome shotOutcome,
         Outcome coverOutcome, OpposedOutcome defenseOutcome, IBodypart bodypart, IGameItem ammo,
         IRangedWeaponType weaponType, IEmoteOutput defenseEmote)
     {
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
+
         Damage damage = BuildDamage(actor, target, bodypart, ammo, weaponType, defenseOutcome);
+        if (damage is null || !MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) { FinishRefusedProjectile(actor, target, ammo); return; }
         List<IWound> wounds = new();
         string actorText = actor.HowSeen(actor);
         string targetText = target.HowSeen(actor);
@@ -588,7 +635,11 @@ public class AmmunitionGameItemComponent : GameItemComponent, IAmmo
         IHaveABody targetHB = target as IHaveABody;
         if (targetHB?.Body != null)
         {
-            wounds.AddRange(targetHB.Body.PassiveSufferDamage(damage));
+            if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor) ||
+                _projectileCompletion?.IsUnclaimed != true) { FinishRefusedProjectile(actor, target, ammo); return; }
+            _projectileCompletion.SetFallback(_projectileCompletion.CaptureImpact(target));
+            wounds.AddRange(targetHB.Body.CommandSufferDamage(damage));
+            _projectileCompletion.PreserveWoundClaim(wounds);
             if (!wounds.Any())
             {
                 HandleAmmunitionAftermath(actor, target, ammo, true,
@@ -600,7 +651,7 @@ public class AmmunitionGameItemComponent : GameItemComponent, IAmmo
                 return;
             }
 
-            WeaponPoisonDeliveryHelper.DeliverFromWeapon(actor, ammo, wounds, false);
+            if (MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) WeaponPoisonDeliveryHelper.DeliverFromWeapon(actor, ammo, wounds, false);
 
             if (wounds.Any(x => x.Lodged == ammo))
             {
@@ -633,7 +684,11 @@ public class AmmunitionGameItemComponent : GameItemComponent, IAmmo
 
         if (target is IGameItem targetItem)
         {
-            wounds.AddRange(targetItem.PassiveSufferDamage(damage));
+            if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor) ||
+                _projectileCompletion?.IsUnclaimed != true) { FinishRefusedProjectile(actor, target, ammo); return; }
+            _projectileCompletion.SetFallback(_projectileCompletion.CaptureImpact(target));
+            wounds.AddRange(targetItem.CommandSufferDamage(damage));
+            _projectileCompletion.PreserveWoundClaim(wounds);
             if (!wounds.Any())
             {
                 HandleAmmunitionAftermath(actor, target, ammo, true,
@@ -669,53 +724,174 @@ public class AmmunitionGameItemComponent : GameItemComponent, IAmmo
         OpposedOutcome defenseOutcome, IBodypart bodypart, IGameItem ammo, IRangedWeaponType weaponType,
         IEmoteOutput defenseEmote, RangedFireContext context = null)
     {
-        _currentFireContext = context ?? new RangedFireContext();
-        // Ammunition that is just created and lodges can cause a crash if we don't flush now
-        if (_currentFireContext.ProjectileIndex == 0)
-        {
-            Gameworld.SaveManager.Flush();
-        }
+        using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
+        var completion = new ProjectileCustodyCompletion(actor, ammo, target);
+        FirePrepared(actor, target, shotOutcome, coverOutcome, defenseOutcome, bodypart, ammo, weaponType,
+            defenseEmote, context, completion);
+    }
 
-        if (target == null)
+    private protected void FirePrepared(ICharacter actor, IPerceiver target, Outcome shotOutcome,
+        Outcome coverOutcome, OpposedOutcome defenseOutcome, IBodypart bodypart, IGameItem ammo,
+        IRangedWeaponType weaponType, IEmoteOutput defenseEmote, RangedFireContext context,
+        ProjectileCustodyCompletion completion)
+    {
+        var previousCompletion = _projectileCompletion;
+        var previousContext = _currentFireContext;
+        _projectileCompletion = completion;
+        try
         {
-            // Fired at sky
-            if (actor.Location.CurrentOverlay.OutdoorsType != CellOutdoorsType.Outdoors)
+            if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor) || !completion.IsUnclaimed) { FinishRefusedProjectile(actor, target, ammo); return; }
+
+            _currentFireContext = context ?? new RangedFireContext();
+            // Ammunition that is just created and lodges can cause a crash if we don't flush now
+            if (_currentFireContext.ProjectileIndex == 0)
             {
-                HandleAmmunitionAftermath(actor, actor, ammo, true,
-                    new EmoteOutput(new Emote("$1 $1|hit|hits the ceiling and shatters!", actor, actor, ammo)),
-                    new EmoteOutput(
-                        new Emote("$1 $1|hit|hits the ceiling and drops to the ground!", actor, actor, ammo))
-                );
+                Gameworld.SaveManager.Flush();
+                if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor) || !completion.IsUnclaimed) { FinishRefusedProjectile(actor, target, ammo); return; }
             }
 
-            return;
+            if (target == null)
+            {
+                // Fired at sky
+                if (actor.Location.CurrentOverlay.OutdoorsType != CellOutdoorsType.Outdoors)
+                {
+                    HandleAmmunitionAftermath(actor, actor, ammo, true,
+                        new EmoteOutput(new Emote("$1 $1|hit|hits the ceiling and shatters!", actor, actor, ammo)),
+                        new EmoteOutput(
+                            new Emote("$1 $1|hit|hits the ceiling and drops to the ground!", actor, actor, ammo))
+                    );
+                }
+
+                return;
+            }
+
+            List<ICellExit> pathToTarget = actor.PathBetween(target, 10, false, false, true)?.ToList() ?? new List<ICellExit>();
+
+            // Cover checks run first – they may absorb the shot or trigger a ricochet.
+            if (TryResolveCoverInterception(actor, target, shotOutcome, coverOutcome, defenseOutcome, bodypart, ammo,
+                    weaponType, pathToTarget))
+            {
+                return;
+            }
+
+            // Handle outright misses (bad shot or a successful defense), including scatter fall-through.
+            if (TryResolveMiss(actor, target, shotOutcome, coverOutcome, defenseOutcome, ammo, weaponType, defenseEmote,
+                    pathToTarget))
+            {
+                return;
+            }
+
+            // Interposing effects redirect successful shots before they land on the original target.
+            if (TryResolveObstruction(actor, target, ammo, weaponType, defenseOutcome, bodypart, pathToTarget))
+            {
+                return;
+            }
+
+            BroadcastProjectileFlight(actor, target, ammo, pathToTarget);
+            if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor) || !completion.IsUnclaimed) { FinishRefusedProjectile(actor, target, ammo); return; }
+            Hit(actor, target, shotOutcome, coverOutcome, defenseOutcome, bodypart, ammo, weaponType, defenseEmote);
         }
-
-        List<ICellExit> pathToTarget = actor.PathBetween(target, 10, false, false, true)?.ToList() ?? new List<ICellExit>();
-
-        // Cover checks run first – they may absorb the shot or trigger a ricochet.
-        if (TryResolveCoverInterception(actor, target, shotOutcome, coverOutcome, defenseOutcome, bodypart, ammo,
-                weaponType, pathToTarget))
+        finally
         {
-            return;
+            try { completion.Finish(); }
+            finally
+            {
+                _projectileCompletion = previousCompletion;
+                _currentFireContext = previousContext;
+            }
         }
-
-        // Handle outright misses (bad shot or a successful defense), including scatter fall-through.
-        if (TryResolveMiss(actor, target, shotOutcome, coverOutcome, defenseOutcome, ammo, weaponType, defenseEmote,
-                pathToTarget))
-        {
-            return;
-        }
-
-        // Interposing effects redirect successful shots before they land on the original target.
-        if (TryResolveObstruction(actor, target, ammo, weaponType, defenseOutcome, bodypart, pathToTarget))
-        {
-            return;
-        }
-
-        BroadcastProjectileFlight(actor, target, ammo, pathToTarget);
-        Hit(actor, target, shotOutcome, coverOutcome, defenseOutcome, bodypart, ammo, weaponType, defenseEmote);
     }
 
     #endregion
+}
+
+
+/// <summary>
+/// One exact, already-detached projectile may finish custody without granting authority to
+/// another operation or to callbacks. Wound claims and callback relocation/deletion win.
+/// </summary>
+internal sealed class ProjectileCustodyCompletion
+{
+    private readonly bool _ordered;
+    private readonly Dictionary<IPerceiver, SpatialLocation> _impacts =
+        new(ReferenceEqualityComparer.Instance);
+    private SpatialLocation _fallback;
+    private bool _used;
+    private bool _armed;
+
+    internal ProjectileCustodyCompletion(ICharacter actor, IGameItem projectile, IPerceiver target,
+        SpatialLocation? launch = null, bool awaitDetach = false)
+    {
+        _ordered = MudSharp.NPC.AI.CommandExecutionScope.IsOrdered(actor);
+        Projectile = projectile;
+        _armed = !awaitDetach && ComponentItemTransfer.IsDetached(projectile);
+        _fallback = launch ?? RouteSpatialService.Instance.GetEffectiveLocation(actor);
+        if (target != null) CaptureImpact(target);
+        if (launch is null) CaptureImpact(actor);
+    }
+
+    internal IGameItem Projectile { get; }
+    internal bool IsUnclaimed => _armed && !_used && ComponentItemTransfer.IsDetached(Projectile);
+
+    internal SpatialLocation CaptureImpact(IPerceiver target)
+    {
+        if (_impacts.TryGetValue(target, out var point)) return point;
+        point = RouteSpatialService.Instance.GetEffectiveLocation(target);
+        _impacts.Add(target, point);
+        return point;
+    }
+
+    internal void SetFallback(SpatialLocation point)
+    {
+        if (IsUnclaimed) _fallback = point;
+    }
+
+    internal void ArmAfterDetach()
+    {
+        if (!_used && ComponentItemTransfer.IsDetached(Projectile)) _armed = true;
+    }
+
+    internal void PreserveExternalClaim() => _used = true;
+    internal void PreserveWoundClaim(IEnumerable<IWound> wounds)
+    {
+        if (wounds.Any(x => ReferenceEquals(x.Lodged, Projectile))) _used = true;
+    }
+
+    internal void Finish() => PlaceAt(_fallback);
+
+    internal void PlaceAt(SpatialLocation point, bool allowMerge = false)
+    {
+        if (!IsUnclaimed || point.Cell == null) return;
+        if (!RouteSpatialService.Instance.TryValidateLocation(point, out var error))
+            throw new InvalidOperationException(error);
+
+        // Spend before callbacks; callbacks execute under the original scope and cannot reuse this receipt.
+        _used = true;
+        Projectile.RoomLayer = point.Layer;
+        if (!ComponentItemTransfer.IsDetached(Projectile)) return;
+        if (point.Cell.RouteDefinition != null)
+        {
+            Projectile.MoveTo(point);
+            if (!IsAt(point)) return;
+        }
+
+        // Ordered completion must never merge into a different stack after authority has expired.
+        // Normal direct/foreign fire retains the ordinary merge path where requested.
+        point.Cell.Insert(Projectile, _ordered || !allowMerge);
+    }
+
+    internal bool IsAt(SpatialLocation point) =>
+        !Projectile.Deleted && !Projectile.Destroyed &&
+        Projectile.InInventoryOf == null && Projectile.ContainedIn == null &&
+        Projectile.GetItemType<MudSharp.GameItems.Interfaces.IBeltable>()?.ConnectedTo == null &&
+        ReferenceEquals(ComponentItemTransfer.DirectLocationOf(Projectile), point.Cell) &&
+        Projectile.RoomLayer == point.Layer &&
+        (point.Cell.RouteDefinition == null || Projectile.RoutePositionMetres == point.RoutePositionMetres);
+
+    internal static bool SourceIsAt(IPerceiver target, SpatialLocation point)
+    {
+        var current = RouteSpatialService.Instance.GetEffectiveLocation(target);
+        return ReferenceEquals(current.Cell, point.Cell) && current.Layer == point.Layer &&
+               current.RoutePositionMetres == point.RoutePositionMetres;
+    }
 }

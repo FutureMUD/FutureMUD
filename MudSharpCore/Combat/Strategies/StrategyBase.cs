@@ -329,7 +329,7 @@ public abstract class StrategyBase : ICombatStrategy
             SelectedCombatAction manualAction = ch.EffectsOfType<SelectedCombatAction>().FirstOrDefault();
             if (manualAction != null)
             {
-                ch.RemoveEffect(manualAction);
+                ch.RemoveEffect(manualAction, true);
                 return manualAction.GetMove(ch);
             }
 

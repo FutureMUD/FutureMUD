@@ -56,7 +56,9 @@ public class SalvageableGameItemComponent : GameItemComponent, ISalvageable
 	public override string Decorate(IPerceiver voyeur, string name, string description, DescriptionType type,
 		bool colour, PerceiveIgnoreFlags flags)
 	{
-		return type == DescriptionType.Full ? $"{description}\n\nIt can be salvaged." : description;
+		return type == DescriptionType.Full && !SpellOwnedItemValuePolicy.ContainsTemporaryValue(Parent)
+			? $"{description}\n\nIt can be salvaged."
+			: description;
 	}
 
 	private double SourceBaseWeight => Parent.Prototype.Weight * Parent.Quantity;
@@ -65,6 +67,8 @@ public class SalvageableGameItemComponent : GameItemComponent, ISalvageable
 
 	public bool CanSalvage(out string reason)
 	{
+		if (SpellOwnedItemValuePolicy.ContainsTemporaryValue(Parent))
+		{ reason = SpellOwnedItemValuePolicy.Refusal; return false; }
 		if (!_prototype.ConfigurationIsComplete(out reason))
 		{
 			return false;
@@ -158,6 +162,7 @@ public class SalvageableGameItemComponent : GameItemComponent, ISalvageable
 
 	public IReadOnlyList<IGameItem> CreateProducts(ICharacter actor, bool success)
 	{
+		SpellOwnedItemValuePolicy.RequireOrdinaryValue(Parent, "salvaging");
 		var products = new List<IGameItem>();
 		try
 		{

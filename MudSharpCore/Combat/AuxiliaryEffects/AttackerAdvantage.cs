@@ -347,6 +347,7 @@ Use negative values for offense/defense bonus to indicate penalties.
         ICheck defenseCheck = Gameworld.GetCheck(CheckType.CombatMoveCheck);
         CheckOutcome defenderOutcome = defenseCheck.Check(tch, DefenseDifficulty, DefenseTrait, attacker);
         OpposedOutcome opposed = new(outcome, defenderOutcome);
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue()) return;
         switch (opposed.Outcome)
         {
             case OpposedOutcomeDirection.Proponent:
@@ -355,6 +356,7 @@ Use negative values for offense/defense bonus to indicate penalties.
                     return;
                 }
                 attacker.OffensiveAdvantage += OffenseBonusPerDegree * (int)opposed.Degree;
+				MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted();
                 attacker.DefensiveAdvantage += DefenseBonusPerDegree * (int)opposed.Degree;
                 break;
             case OpposedOutcomeDirection.Opponent:
@@ -363,6 +365,7 @@ Use negative values for offense/defense bonus to indicate penalties.
                     return;
                 }
                 attacker.OffensiveAdvantage += OffenseBonusPerDegree * -1.0 * (int)opposed.Degree;
+				MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted();
                 attacker.DefensiveAdvantage += DefenseBonusPerDegree * -1.0 * (int)opposed.Degree;
                 break;
             case OpposedOutcomeDirection.Stalemate:

@@ -21,12 +21,18 @@ public class NonCommunicatorCommunicationStrategy : IBodyCommunicationStrategy
     public void Emote(IBody body, string emote, bool permitSpeech = true,
         OutputFlags additionalConditions = OutputFlags.Normal)
     {
+		var executor = body.Actor;
+		using var execution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(executor);
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(executor)) return;
         PlayerEmote emoteData = new(emote, body.Actor, true, PermitLanguageOptions.IgnoreLanguage);
+		if (!ReferenceEquals(body.Actor, executor) || !MudSharp.NPC.AI.CommandExecutionScope.TryContinue(executor)) return;
         if (emoteData.Valid)
         {
+			MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted(executor);
             body.OutputHandler.Handle(new EmoteOutput(emoteData, flags: additionalConditions));
 			foreach (var token in emoteData.SignedLanguageTokens)
 			{
+				if (!ReferenceEquals(body.Actor, executor) || !MudSharp.NPC.AI.CommandExecutionScope.TryContinue(executor)) return;
 				SignedCommunicationService.HandleEvents(body, null, token.SignText, token.Language, token.Variety,
 					token.Outcome);
 			}

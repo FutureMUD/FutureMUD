@@ -14,6 +14,7 @@ public partial class Body : IHaveNeeds, IEat
 {
     private bool _needsChanged;
     private int _needsChangedCount;
+	private long _needsChangedRevision;
 
     public bool NeedsChanged
     {
@@ -22,6 +23,7 @@ public partial class Body : IHaveNeeds, IEat
         {
             if (!_noSave)
             {
+				_needsChangedRevision++;
                 if (_needsChangedCount < (int)(Constants.Random.NextDouble() * 5))
                 {
                     //We only save HeartBeat related needs change at random intervals of 1 to 5 minutes
@@ -50,6 +52,8 @@ public partial class Body : IHaveNeeds, IEat
         if (NeedsModel.NeedsSave)
         {
             NeedsChanged = true;
+			// Needs live on Character rows; queuing only the Body loses a meal on reload.
+			Actor.Changed = true;
             if (!Changed)
             //Unlike Heartbeat adjustments to needs, we always want to save when needs have changed
             //due to a FulfilNeeds call.
@@ -260,6 +264,7 @@ public partial class Body : IHaveNeeds, IEat
         }
 
         bites = Math.Min(bites, edible.BitesRemaining);
+		if (!ValidFoodPortion(edible, bites)) return false;
         FulfilNeeds(new NeedFulfiller
         {
             SatiationPoints = edible.SatiationPoints * bites / edible.TotalBites,
@@ -432,6 +437,8 @@ public partial class Body : IHaveNeeds, IEat
 
     public bool CanEat(IEdible edible, IContainer? container, ITable? table, double bites)
     {
+		if (bites == 0) bites = edible.BitesRemaining;
+		if (!ValidFoodPortion(edible, bites)) return false;
         var access = Actor.CanReachItem(edible.Parent);
         if (!access.Truth)
         {
@@ -473,6 +480,8 @@ public partial class Body : IHaveNeeds, IEat
 
     private string WhyCannotEat(IEdible edible, IContainer container, ITable table, double bites)
     {
+		if (bites == 0) bites = edible.BitesRemaining;
+		if (!ValidFoodPortion(edible, bites)) return "There is no valid edible portion remaining.";
         var access = Actor.CanReachItem(edible.Parent);
         if (!access.Truth)
         {
@@ -515,8 +524,17 @@ public partial class Body : IHaveNeeds, IEat
         return CanEat().ErrorMessage;
     }
 
+	private static bool ValidFoodPortion(IEdible edible, double bites) =>
+		double.IsFinite(bites) && bites > 0 && double.IsFinite(edible.BitesRemaining) && edible.BitesRemaining > 0 &&
+		double.IsFinite(edible.TotalBites) && edible.TotalBites > 0;
+
     public (bool Success, string ErrorMessage) CanEat(ICorpse corpse, double bites)
     {
+		if (corpse.Body is null)
+		{
+			return (false, "You cannot eat these remains because their original body can no longer be identified.");
+		}
+
         var access = Actor.CanReachItem(corpse.Parent);
         if (!access.Truth)
         {
@@ -540,6 +558,11 @@ public partial class Body : IHaveNeeds, IEat
 
     public (bool Success, string ErrorMessage) CanEat(ISeveredBodypart bodypart, double bites)
     {
+		if (bodypart.OriginalBody is null)
+		{
+			return (false, "You cannot eat these remains because their original body can no longer be identified.");
+		}
+
         var access = Actor.CanReachItem(bodypart.Parent);
         if (!access.Truth)
         {

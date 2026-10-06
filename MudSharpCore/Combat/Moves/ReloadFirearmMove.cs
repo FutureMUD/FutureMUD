@@ -1,4 +1,4 @@
-﻿using MudSharp.Effects.Concrete;
+using MudSharp.Effects.Concrete;
 using MudSharp.GameItems;
 using MudSharp.RPG.Checks;
 
@@ -21,6 +21,8 @@ public class ReloadFirearmMove : CombatMoveBase
 
     public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
     {
+		using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterMove(this);
+		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
         Assailant.RemoveAllEffects(x => x.GetSubtype<FirearmNeedsReloading>()?.Firearm == Weapon);
         if (!Weapon.CanUnload(Assailant))
         {

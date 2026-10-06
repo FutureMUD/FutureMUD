@@ -212,10 +212,12 @@ internal class AuxiliaryCombatAction : CombatAction, IAuxiliaryCombatAction
 
     public bool UsableMove(ICharacter attacker, IPerceiver target, bool ignorePosition)
     {
-        return Intentions.HasFlag(attacker.CombatSettings.RequiredIntentions) &&
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue()) return false;
+        var permitted = Intentions.HasFlag(attacker.CombatSettings.RequiredIntentions) &&
                (Intentions & attacker.CombatSettings.ForbiddenIntentions) == 0 &&
                (ignorePosition || RequiredPositionStates.Contains(attacker.PositionState)) &&
                (UsabilityProg?.ExecuteBool(attacker, null, target) ?? true);
+		return MudSharp.NPC.AI.CommandExecutionScope.TryContinue() && permitted;
     }
 
     public string ShowBuilder(ICharacter actor)

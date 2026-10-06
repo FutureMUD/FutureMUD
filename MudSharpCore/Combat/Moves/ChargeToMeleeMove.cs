@@ -1,4 +1,4 @@
-﻿using MudSharp.Body.Position;
+using MudSharp.Body.Position;
 using MudSharp.Body;
 using MudSharp.Construction.Boundary;
 using MudSharp.Character.Heritage;
@@ -45,6 +45,8 @@ public class ChargeToMeleeMove : CombatMoveBase
 
     public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
     {
+		using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterMove(this);
+		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
 		if (Assailant.CombatTarget is ICharacter boundaryTarget &&
 		    !VehicleCombatService.Instance.CanCrossVehicleBoundary(Assailant, boundaryTarget, false, false,
 			    out var boundaryReason))
@@ -88,7 +90,8 @@ public class ChargeToMeleeMove : CombatMoveBase
         if (response is SkirmishAndFire skirmishAndFire)
         {
 			CombatMoveResult outcome = HandleSkirmish(target, skirmishAndFire);
-            skirmishAndFire.ResolveMove(new HelplessDefenseMove { Assailant = Assailant });
+            MudSharp.NPC.AI.CommandExecutionScope.ResolveIndependent(skirmishAndFire,
+				() => new HelplessDefenseMove { Assailant = Assailant });
 			ResolveCaughtSkirmishImpact(target, mountedContext, behemothAttack, outcome);
             return outcome;
         }
@@ -121,7 +124,8 @@ public class ChargeToMeleeMove : CombatMoveBase
         if (response is StandAndFireMove standAndFire)
         {
 			SendChargeMessage(target, mountedContext, Outcome.NotTested);
-            standAndFire.ResolveMove(new HelplessDefenseMove { Assailant = Assailant });
+            MudSharp.NPC.AI.CommandExecutionScope.ResolveIndependent(standAndFire,
+				() => new HelplessDefenseMove { Assailant = Assailant });
 			mountedContext = MountedCombatService.Instance.ResolveContext(Assailant);
 			if (mountedContext is not null)
 			{
@@ -195,12 +199,13 @@ public class ChargeToMeleeMove : CombatMoveBase
 
 		if (attack.Value.Couched)
 		{
-			new CouchedLanceMove(Assailant, attack.Value.Weapon, attack.Value.Attack, target).ResolveMove(defense);
+			var child = new CouchedLanceMove(Assailant, attack.Value.Weapon, attack.Value.Attack, target);
+			MudSharp.NPC.AI.CommandExecutionScope.ResolveOwned(this, child, () => defense);
 			return;
 		}
 
-		new MountedWeaponAttackMove(Assailant, attack.Value.Weapon, attack.Value.Attack, target, true)
-			.ResolveMove(defense);
+		var mountedChild = new MountedWeaponAttackMove(Assailant, attack.Value.Weapon, attack.Value.Attack, target, true);
+		MudSharp.NPC.AI.CommandExecutionScope.ResolveOwned(this, mountedChild, () => defense);
 	}
 
 	private CombatMoveResult ResolveMountedEvasion(ICharacter target, MountedCombatContext context,
@@ -368,7 +373,7 @@ public class ChargeToMeleeMove : CombatMoveBase
 
 		var move = new MountedImpactNaturalAttackMove(Assailant, attack, target, true,
 			SizeContext.GrappleAttack, true);
-		move.ResolveMove(target.ResponseToMove(move, Assailant));
+		MudSharp.NPC.AI.CommandExecutionScope.ResolveOwned(this, move, () => target.ResponseToMove(move, Assailant));
 	}
 
 	private (CheckOutcome Attack, CheckOutcome Defense, OpposedOutcome Opposed) ResolveMountedContest(
@@ -438,7 +443,7 @@ public class ChargeToMeleeMove : CombatMoveBase
 		}
 
 		var move = new MountedImpactNaturalAttackMove(mount, attack, target, true);
-		move.ResolveMove(target.ResponseToMove(move, mount));
+		MudSharp.NPC.AI.CommandExecutionScope.ResolveOwned(this, move, () => target.ResponseToMove(move, mount));
 		return true;
 	}
 
@@ -507,8 +512,8 @@ public class ChargeToMeleeMove : CombatMoveBase
 
     private void HandleReceiveCharge(ReceiveChargeMove receiveCharge, ICharacter target)
     {
-        ICombatMove receiveChargeDefense = Assailant.ResponseToMove(receiveCharge, target);
-        receiveCharge.ResolveMove(receiveChargeDefense);
+		MudSharp.NPC.AI.CommandExecutionScope.ResolveIndependent(receiveCharge,
+			() => Assailant.ResponseToMove(receiveCharge, target));
     }
 
     private CombatMoveResult HandleSkirmish(ICharacter target, ICombatMove response)
@@ -521,8 +526,12 @@ public class ChargeToMeleeMove : CombatMoveBase
                         Gameworld.CombatMessageManager.GetMessageFor(Assailant, target, null, null,
                             BuiltInCombatMoveType.ChargeToMelee, Outcome.MajorPass, null), Assailant, Assailant,
                         target), style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
+            if (!CanContinueCommand()) return RefusedContinuationResult();
             Assailant.MeleeRange = true;
+            if (Assailant.MeleeRange) MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted();
+            if (!CanContinueCommand()) return RefusedContinuationResult();
             target.MeleeRange = true;
+            if (!CanContinueCommand()) return RefusedContinuationResult();
             Assailant.OffensiveAdvantage += Gameworld.GetStaticDouble("OffensiveAdvantageFromCharge");
             _delay = 0;
             return new CombatMoveResult
@@ -609,12 +618,16 @@ public class ChargeToMeleeMove : CombatMoveBase
                         Gameworld.CombatMessageManager.GetMessageFor(Assailant, target, null, null,
                             BuiltInCombatMoveType.ChargeToMelee, Outcome.MajorPass, null), Assailant, Assailant,
                         target), style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
+            if (!CanContinueCommand()) return RefusedContinuationResult();
             Assailant.MeleeRange = true;
+            if (Assailant.MeleeRange) MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted();
+            if (!CanContinueCommand()) return RefusedContinuationResult();
             if (target.CombatTarget == Assailant || target.CombatTarget == null)
             {
-                target.MeleeRange = true;
+                ApplyOwnedMutation(target, () => target.MeleeRange = true);
             }
 
+            if (!CanContinueCommand()) return RefusedContinuationResult();
             Assailant.OffensiveAdvantage += Gameworld.GetStaticDouble("OffensiveAdvantageFromCharge");
             _delay = 0;
             return new CombatMoveResult

@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.Construction.Boundary;
 using MudSharp.GameItems;
 using MudSharp.Health;
@@ -51,6 +51,8 @@ public class MeleeWeaponSmashItemAttack : WeaponAttackMove
 
     public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
     {
+		using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterMove(this);
+		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
         CrimeExtensions.CheckPossibleCrimeAllAuthorities(Assailant, CrimeTypes.Vandalism, null, Target, "");
         CheckOutcome check = Gameworld.GetCheck(CheckType.MeleeWeaponCheck)
                              .Check(Assailant, Difficulty.Easy, Weapon.WeaponType.AttackTrait, Target);
@@ -75,7 +77,7 @@ public class MeleeWeaponSmashItemAttack : WeaponAttackMove
             StunAmount = 0
         };
 
-        IEnumerable<IWound> wounds = Target.PassiveSufferDamage(finalDamage);
+        IEnumerable<IWound> wounds = Target.CommandSufferDamage(finalDamage);
 
         double selfDamageMultiplier = 1.0;
         switch (check.Outcome)
@@ -112,7 +114,7 @@ public class MeleeWeaponSmashItemAttack : WeaponAttackMove
             StunAmount = 0
         };
 
-        IEnumerable<IWound> selfwounds = Weapon.Parent.PassiveSufferDamage(selfDamage);
+        IEnumerable<IWound> selfwounds = Weapon.Parent.CommandSufferDamage(selfDamage);
         string emote = Gameworld.CombatMessageManager.GetMessageFor(Assailant, Target,
             Weapon.Parent, Attack, BuiltInCombatMoveType.MeleeWeaponSmashItem, check.Outcome, null);
         Assailant.OutputHandler.Handle(
@@ -133,7 +135,7 @@ public class MeleeWeaponSmashItemAttack : WeaponAttackMove
 
         wounds.ProcessPassiveWounds();
         selfwounds.ProcessPassiveWounds();
-        (Weapon as IConditionDegradingComponent)?.UseCondition(
+        if (CanContinueCommand()) (Weapon as IConditionDegradingComponent)?.UseCondition(
             new ItemConditionUseContext(ItemConditionUseKind.MeleeAttack, check));
         return new CombatMoveResult
         {

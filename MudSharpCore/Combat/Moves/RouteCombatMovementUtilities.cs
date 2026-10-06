@@ -38,12 +38,17 @@ public static class RouteCombatMovementUtilities
 
 	public static bool TryEnterMelee(ICharacter assailant, ICharacter target)
 	{
+		using var execution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(assailant);
 		if (!ArePhysicallyImmediate(assailant, target))
 		{
 			return false;
 		}
 
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue()) return false;
 		assailant.MeleeRange = true;
+		if (assailant.MeleeRange) MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted();
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue()) return false;
+		using var targetExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterOwnedOperation(target);
 		target.MeleeRange = true;
 		return true;
 	}

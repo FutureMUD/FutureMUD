@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.Database;
 using MudSharp.Framework.Save;
 using MudSharp.GameItems;
@@ -51,7 +51,7 @@ public class SimpleWound : PerceivedItem, IContinuousExposureWound
         DamageType = damageType;
         _bodypart = bodypart;
         _lodged = lodged;
-        _actorOriginId = actorOrigin?.Id ?? 0;
+        _actorOriginId = MudSharp.Character.CharacterInstanceIdentityComparer.IdentityId(actorOrigin);
         _toolOriginId = toolOrigin?.Id ?? 0;
         _vehicleId = vehicleId;
         _vehicleDamageZoneId = vehicleDamageZoneId;
@@ -332,7 +332,7 @@ public class SimpleWound : PerceivedItem, IContinuousExposureWound
         get => Gameworld.TryGetCharacter(_actorOriginId, true);
         set
         {
-            _actorOriginId = value?.Id ?? 0;
+            _actorOriginId = MudSharp.Character.CharacterInstanceIdentityComparer.IdentityId(value);
             Changed = true;
         }
     }
@@ -388,6 +388,7 @@ public class SimpleWound : PerceivedItem, IContinuousExposureWound
         {
             _currentDamage = Math.Max(0.0, value);
             Changed = true;
+			(Parent as MudSharp.GameItems.GameItem)?.NotifyImplantAttributeCapacityChange();
         }
     }
 

@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.Effects.Concrete;
 using MudSharp.RPG.Checks;
 
@@ -23,6 +23,8 @@ public class DropGrappledTargetMove : CombatMoveBase
 
 	public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
 	{
+		using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterMove(this);
+		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
 		var grapples = Assailant.EffectsOfType<IGrappling>()
 		                       .Where(x => x.Target == CharacterTarget)
 		                       .Select(x => x as Grappling)

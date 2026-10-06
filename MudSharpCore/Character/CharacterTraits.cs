@@ -142,6 +142,7 @@ public partial class Character
 
 		MeritsChanged = true;
 		if (merit is IMagicCapabilityMerit) CheckResources();
+		if (merit is ITraitBonusMerit) Gameworld.MagicCasting?.NotifyCapacityChange(this);
 		return true;
     }
 
@@ -161,6 +162,7 @@ public partial class Character
 
 		MeritsChanged = true;
 		if (merit is IMagicCapabilityMerit) CheckResources();
+		if (merit is ITraitBonusMerit) Gameworld.MagicCasting?.NotifyCapacityChange(this);
 		return true;
 	}
 

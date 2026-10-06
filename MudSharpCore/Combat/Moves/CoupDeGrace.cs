@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.Effects.Concrete;
 using MudSharp.Health;
 using MudSharp.RPG.Checks;
@@ -25,6 +25,8 @@ public class CoupDeGrace : WeaponAttackMove
 
     public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
     {
+		using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterMove(this);
+		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
         CheckOutcome attackRoll = Gameworld.GetCheck(Check)
                                   .Check(Assailant, CheckDifficulty, Weapon.WeaponType.AttackTrait, Target,
                                       Assailant.OffensiveAdvantage);
@@ -59,10 +61,10 @@ public class CoupDeGrace : WeaponAttackMove
             new MixedEmoteOutput(
                 new Emote(string.Format(attackEmote, TargetBodypart.FullDescription()), Assailant, Assailant, Target,
                     Weapon.Parent), style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap).Append(Emote));
-        List<IWound> wounds = Target.PassiveSufferDamage(finalDamage).ToList();
+        List<IWound> wounds = Target.CommandSufferDamage(finalDamage).ToList();
         wounds.ProcessPassiveWounds();
-        Assailant.Body?.SetExertionToMinimumLevel(AssociatedExertion);
-        (Weapon as IConditionDegradingComponent)?.UseCondition(
+        if (CanContinueCommand()) Assailant.Body?.SetExertionToMinimumLevel(AssociatedExertion);
+        if (CanContinueCommand()) (Weapon as IConditionDegradingComponent)?.UseCondition(
             new ItemConditionUseContext(ItemConditionUseKind.MeleeAttack, attackRoll, (int)result.Degree));
         return new CombatMoveResult
         {

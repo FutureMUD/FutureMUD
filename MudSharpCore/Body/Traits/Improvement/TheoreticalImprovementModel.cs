@@ -1,4 +1,4 @@
-﻿using ExpressionEngine;
+using ExpressionEngine;
 using MudSharp.Body.Traits.Subtypes;
 using MudSharp.Database;
 using MudSharp.Effects;
@@ -247,6 +247,7 @@ public class TheoreticalImprovementModel : ImprovementModel
             return 0.0;
         }
 
+        if (!CheckLearningScope.CanContinue(person)) return 0.0;
         TimeSpan noGainTimespan = TimeSpan.FromSeconds(Dice.Roll(NoGainSecondsDiceExpression));
         if (person is IHaveEffects phe && noGainTimespan.TotalSeconds > 0)
         {
@@ -254,6 +255,7 @@ public class TheoreticalImprovementModel : ImprovementModel
         }
 
         TheoreticalSkill tts = (trait as TheoreticalSkill);
+        if (!CheckLearningScope.CanContinue(person)) return 0.0;
         double gain = ImprovementProg is not null && person is ICharacter ch ?
             ImprovementProg.ExecuteDouble(ch, trait.Definition, (usetype == TraitUseType.Practical ? tts?.PracticalValue : tts?.TheoreticalValue) ?? trait.Value) :
             ImprovementExpression.EvaluateWith(person, trait.Definition, TraitBonusContext.None, ("value", (usetype == TraitUseType.Practical ? tts?.PracticalValue : tts?.TheoreticalValue) ?? trait.Value));

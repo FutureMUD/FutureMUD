@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.Body.PartProtos;
 using MudSharp.Health;
 using MudSharp.RPG.Checks;
@@ -24,6 +24,8 @@ public class ScreechAttackMove : NaturalAttackMove
 
     public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
     {
+		using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterMove(this);
+		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
         CheckOutcome attackRoll = Gameworld.GetCheck(Check)
                                   .Check(Assailant, CheckDifficulty, default(IPerceivable), null,
                                       Assailant.OffensiveAdvantage);
@@ -84,7 +86,7 @@ public class ScreechAttackMove : NaturalAttackMove
 		                           .Where(x => x.Shape == shape || x.Organs.Any(y => y.Shape == shape)).ToList())
         {
 			Damage damage = new(baseDamage) { Bodypart = bodypart };
-			wounds.AddRange(target.PassiveSufferDamage(damage));
+			wounds.AddRange(target.CommandSufferDamage(damage));
         }
 
         Assailant.OutputHandler.Handle(new EmoteOutput(new Emote(attackEmote, Assailant, Assailant)));

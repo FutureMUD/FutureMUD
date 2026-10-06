@@ -1,0 +1,442 @@
+{
+  "status": "PASS_BOUNDED_FLOOR_GET_STACK_CHECKPOINT_PARENT_REVIEW_PENDING",
+  "base": "cb687f704cb7918d9548941c6deb145120ec8883",
+  "utc": "2026-10-05T17:39:51.410070+00:00",
+  "scope": "Native ordinary floor Get quantity-pair commit; exact Stackable/Holdable absorbed-source cleanup; survivor return/events; callback and provider refusal preservation",
+  "managed": {
+    "final_full_core": {
+      "summary": ".artifacts/test-runs/armageddon-stack-merge/full-core01/20261005T173353Z-3e80f42f61d5/summary.json",
+      "sha256": "69a50bbde0d11e7e7500580229064f232e33590e9b8d682799e9320b06148987",
+      "run_id": "20261005T173353Z-3e80f42f61d5",
+      "counts": {
+        "executed": 5131,
+        "passed": 5131,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 5131
+      },
+      "source_start": "ad85bb530c97522d22a3deb8fc06e540a31aace35767e90cfe2036303bda2e10",
+      "source_end": "ad85bb530c97522d22a3deb8fc06e540a31aace35767e90cfe2036303bda2e10",
+      "source_stable": true
+    },
+    "earlier_focused": {
+      "passed": 271,
+      "failed": 0,
+      "skipped": 0,
+      "scope": "Before final persistence recheck and route-point capture; superseded by final full Core"
+    }
+  },
+  "native": {
+    "status": "PASS",
+    "cases": [
+      "ordered-valid",
+      "ordered-parser-valid",
+      "direct-valid",
+      "owner",
+      "delete-expire",
+      "delete-refill",
+      "delete-relocate",
+      "delete-title",
+      "description-expire",
+      "description-refill",
+      "delete-provider-refusal"
+    ],
+    "cold_readers": [
+      "ordered-valid",
+      "ordered-parser-valid",
+      "direct-valid",
+      "owner",
+      "delete-expire",
+      "delete-refill",
+      "delete-relocate",
+      "delete-title",
+      "description-expire",
+      "description-refill",
+      "delete-provider-refusal",
+      "delete-provider-retry"
+    ],
+    "log": ".artifacts/test-runs/armageddon-stack-merge/qualify05-native.log",
+    "log_sha256": "b86e7e040ddf52e7415cfbee09c3aef631f2afb098e84afba6d94c46cd5ad5c0",
+    "input_manifest_sha256": "4af35df9287e11b56a1f0864a0039a70f24eb4825f0ae3b8208f52b29038da54",
+    "source_count": 5772,
+    "assemblies": [
+      {
+        "path": "MudSharpCore/bin/Debug/net10.0/MudSharp.dll",
+        "sha256": "9bf5e528517ea4f06fc8d9bb68b630cc1bb13117e9430f0d3a00ed36abbe4c14"
+      },
+      {
+        "path": "MudSharpCore/bin/Debug/net10.0/FutureMUDLibrary.dll",
+        "sha256": "6e0984017bf9442c7e0aab0da24288b664d63f7b7c5f6d2bc9d4f544f1e416fc"
+      },
+      {
+        "path": "MudSharpCore/bin/Debug/net10.0/MudsharpDatabaseLibrary.dll",
+        "sha256": "c1e2f78748a8c9b7685956a961f1e3579814b952ea45f7127eeeac313f59a2c2"
+      },
+      {
+        "path": "MudSharpCore/bin/Debug/net10.0/ExpressionEngine.dll",
+        "sha256": "f7e7000e8c69949a7eafad412507dfdc13720abb28e33b75d42126ede56263be"
+      },
+      {
+        "path": "MudSharpCore Unit Tests/bin/Debug/net10.0/MudSharp.dll",
+        "sha256": "9bf5e528517ea4f06fc8d9bb68b630cc1bb13117e9430f0d3a00ed36abbe4c14"
+      },
+      {
+        "path": "MudSharpCore Unit Tests/bin/Debug/net10.0/FutureMUDLibrary.dll",
+        "sha256": "6e0984017bf9442c7e0aab0da24288b664d63f7b7c5f6d2bc9d4f544f1e416fc"
+      },
+      {
+        "path": "MudSharpCore Unit Tests/bin/Debug/net10.0/MudsharpDatabaseLibrary.dll",
+        "sha256": "c1e2f78748a8c9b7685956a961f1e3579814b952ea45f7127eeeac313f59a2c2"
+      },
+      {
+        "path": "MudSharpCore Unit Tests/bin/Debug/net10.0/ExpressionEngine.dll",
+        "sha256": "f7e7000e8c69949a7eafad412507dfdc13720abb28e33b75d42126ede56263be"
+      },
+      {
+        "path": "Temporary Scratch App/GatheringNativePersistenceHarness/bin/Debug/net10.0/MudSharp.dll",
+        "sha256": "9bf5e528517ea4f06fc8d9bb68b630cc1bb13117e9430f0d3a00ed36abbe4c14"
+      },
+      {
+        "path": "Temporary Scratch App/GatheringNativePersistenceHarness/bin/Debug/net10.0/FutureMUDLibrary.dll",
+        "sha256": "6e0984017bf9442c7e0aab0da24288b664d63f7b7c5f6d2bc9d4f544f1e416fc"
+      },
+      {
+        "path": "Temporary Scratch App/GatheringNativePersistenceHarness/bin/Debug/net10.0/MudsharpDatabaseLibrary.dll",
+        "sha256": "c1e2f78748a8c9b7685956a961f1e3579814b952ea45f7127eeeac313f59a2c2"
+      },
+      {
+        "path": "Temporary Scratch App/GatheringNativePersistenceHarness/bin/Debug/net10.0/ExpressionEngine.dll",
+        "sha256": "f7e7000e8c69949a7eafad412507dfdc13720abb28e33b75d42126ede56263be"
+      },
+      {
+        "path": "Temporary Scratch App/GatheringNativePersistenceHarness/bin/Debug/net10.0/GatheringNativePersistenceHarness.dll",
+        "sha256": "7d37bb04aa36ec10645b0100d19ca19deff5367be40b023cade1e604681196d2"
+      }
+    ],
+    "owned_cleanup": "verified UUID endpoint/database drop and graceful owned-server deletion; no shared database",
+    "normal_parser": "Actual stock-authorized order get stack, real native Get/merge and live-survivor inventory event",
+    "other_cases": "Actual stock CommandableAI dispatch via opt-in checkpointregression to real Body.Get; direct compatibility is ordinary Body.Get",
+    "process_cleanup": {
+      "path": ".artifacts/test-runs/armageddon-stack-merge/qualify05-process-cleanup.json",
+      "sha256": "211d4d16919119198a09db2a324990b3a515cea36e3b598fd200167cdd4ec1a5",
+      "checked_ids": [
+        3728,
+        7140,
+        14844,
+        16188,
+        16692,
+        19524,
+        23144,
+        34712,
+        43780,
+        46364,
+        47768,
+        48988,
+        50684,
+        51344
+      ],
+      "status": "PASS",
+      "remaining_owned_processes": []
+    }
+  },
+  "production_files": [
+    {
+      "path": "MudSharpCore/Body/Implementations/BodyInventory.cs",
+      "sha256": "efb2cdd9bdd02f48f874f00648f4f98f131687410a31c4fc8df45bd8486f3ba4"
+    },
+    {
+      "path": "MudSharpCore/GameItems/GameItem.cs",
+      "sha256": "2fbfbddc93c95ee9503d6133291b840115b84153f9c834a3344ec20c9a927388"
+    },
+    {
+      "path": "MudSharpCore/GameItems/GameItem.GetStackMerge.cs",
+      "sha256": "b4ad3fbcf8ef9e18275cb29b7ad6d90194a64589032cccdcca2d436b15605683"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Components/StackableGameItemComponent.cs",
+      "sha256": "96465e7ce2ba6c88961a06ff8b1c0e5ffb3a918f0f58b226fa8f36fb9d390b37"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/PreparedGetStackMergeTests.cs",
+      "sha256": "9cd0c87c2afeaed15c1b136dd3071770d679ebb12e57361ad7eaa14f95210d5d"
+    }
+  ],
+  "review": {
+    "reviewer": "fm_reviewer",
+    "status": "No remaining established P1/P2 in bounded floor Get; SOURCE_ONLY",
+    "helper_sha256": "b4ad3fbcf8ef9e18275cb29b7ad6d90194a64589032cccdcca2d436b15605683"
+  },
+  "retained_failures": [
+    "Baseline actual native duplicate: source3 alive plus survivor8",
+    "qualify01 build: ambiguous GameItem and missing component import; native NOT RUN",
+    "focused01 build: fixture setter/constructor/API/import errors; tests NOT RUN",
+    "qualify02 native: fixture deletion assertion also ran during owner-refusal teardown; earlier ordered/direct/owner cold controls passed, overall FAIL",
+    "qualify03 build: fixture enum namespace errors; native NOT RUN",
+    "qualify04 intermediate PASS10/11 readers omitted runtime DLL from binary manifest; superseded by qualify05 with all13 aligned assemblies"
+  ],
+  "limits": [
+    "Floor Get only; container Get, Give, component unload, other public Merge callers remain separate",
+    "Final absorbed deletion supports exact native Stackable/Holdable leaves; unknown/structural components preserve zero source at floor",
+    "Native fixtures are controlled native runtime hosts, not full-world Telnet sessions",
+    "Route-aware corpse restoration, wider component/boarding/countershot, selected-melee native Check fault and whole-plan acceptance NOT RUN",
+    "No installer/stock ancestry merge, repository publication, deployment or shared database",
+    "Sense-food cb687f independently cleared; installer owns repair-only integration plus combined acceptance and Sense expiry/fresh retirement retry"
+  ],
+  "historical_preservation": {
+    "artifact_files": 15509,
+    "task_files": 456,
+    "status": "PASS"
+  },
+  "next_smallest_mandatory_gate": "Actual selected-melee native Check scoring callback/stale-write fault with independent durable trait reader, after parent review/allocation",
+  "report_generation": "Initial report helper stopped on a Windows CP1252 decoding error; restored original documentation bytes and complete original JSON before appending UTF-8 checkpoint. Native/managed inputs unaffected.",
+  "artifacts": [
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-merge/baseline-build.log",
+      "sha256": "2ae53a7d14b46056e9221b6d9e6b8014ac8b2eb048dbd370263c5073967b92b1"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-merge/baseline.json",
+      "sha256": "86fea4ea71c0af9746c3c88fcd38482183395da7dc7ad8419aab159d16788975"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-merge/focused01/20261005T172252Z-81aac2ddc9a1/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-merge/focused01/20261005T172252Z-81aac2ddc9a1/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-merge/focused01/20261005T172252Z-81aac2ddc9a1/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stdout.log",
+      "sha256": "be6681d4a978d9faf9557903b4b6fe4b3c7d9a804015b66a97fb40daf5a1b27b"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-merge/focused01/20261005T172252Z-81aac2ddc9a1/run.json",
+      "sha256": "2f9ff7b0910bffbe04df0bb5068f80298ebe92f6a81bddee59d36083cc6d7cfa"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-merge/focused01/20261005T172252Z-81aac2ddc9a1/sdk/sdk.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-merge/focused01/20261005T172252Z-81aac2ddc9a1/sdk/sdk.stdout.log",
+      "sha256": "3db6bca4b50618b2e0d2d55d23b3d0541fe039ab6f731df0e9c47317b400ce52"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-merge/focused01/20261005T172252Z-81aac2ddc9a1/source-end.json",
+      "sha256": "bc5bf6e94fc00ba0a80ff639d6208543815878fc7099898bd45051dad696a1fc"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-merge/focused01/20261005T172252Z-81aac2ddc9a1/source-start.json",
+      "sha256": "0994700b47337306b0525668a1369c552304b313c50b1169bf96368ca4007330"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-merge/focused01/20261005T172252Z-81aac2ddc9a1/summary.json",
+      "sha256": "02a01a3d9f5d75a656a6d438fcb2a04611749ce16f2d3f2945c8a271cb640b6f"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-merge/focused01/20261005T172252Z-81aac2ddc9a1/summary.txt",
+      "sha256": "5b8b440490543ca822595942b7b863abac1f14d525fbbe400517f2da5f60a282"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-merge/focused01/20261005T172252Z-81aac2ddc9a1/test-results.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-merge/focused02/20261005T172546Z-a3acacab5a3d/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-merge/focused02/20261005T172546Z-a3acacab5a3d/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-merge/focused02/20261005T172546Z-a3acacab5a3d/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stdout.log",
+      "sha256": "6ebdda6cfd917da32fae23441af2583c2ade6c9a859b53306fd97dfe0af455d5"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-merge/focused02/20261005T172546Z-a3acacab5a3d/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/results.trx",
+      "sha256": "3e95db01ad7c52d092b8e57cb9d18f33cf41d282473659f507f2ded4a89cedf6"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-merge/focused02/20261005T172546Z-a3acacab5a3d/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-merge/focused02/20261005T172546Z-a3acacab5a3d/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stdout.log",
+      "sha256": "e5027f49de4920fc6cbb6f784939ead6c15add4e35c770ccb7ce7afba4ceaa8a"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-merge/focused02/20261005T172546Z-a3acacab5a3d/run.json",
+      "sha256": "b3cfe8412ec4f651b1a9642b8b91ec26cdfefbbe7587ccdce1ca121a51c5a29d"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-merge/focused02/20261005T172546Z-a3acacab5a3d/sdk/sdk.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-merge/focused02/20261005T172546Z-a3acacab5a3d/sdk/sdk.stdout.log",
+      "sha256": "3db6bca4b50618b2e0d2d55d23b3d0541fe039ab6f731df0e9c47317b400ce52"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-merge/focused02/20261005T172546Z-a3acacab5a3d/source-end.json",
+      "sha256": "b601e601df3d64044a92b9a0f4df0de40a7b1413a4f9b80e0ad2c1c8a6afbfc5"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-merge/focused02/20261005T172546Z-a3acacab5a3d/source-start.json",
+      "sha256": "14053bc20aeebc8ef7b8362b42bd160cb150115df8703117da9630de9f6433a3"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-merge/focused02/20261005T172546Z-a3acacab5a3d/summary.json",
+      "sha256": "b49b9864d0ddd7733089860ab56072ad76c4529c744e90d1c327e63fb235a92b"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-merge/focused02/20261005T172546Z-a3acacab5a3d/summary.txt",
+      "sha256": "492c26754184f713d5cb9655fc30af42312fb187d03f1928e3759006d02b7bf5"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-merge/focused02/20261005T172546Z-a3acacab5a3d/test-results.json",
+      "sha256": "c6bf4bb70e70ac4f02d13daee84c858df1cebb82f1b78a0ef6022ba5781f9a2a"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-merge/full-core01/20261005T173353Z-3e80f42f61d5/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-merge/full-core01/20261005T173353Z-3e80f42f61d5/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-merge/full-core01/20261005T173353Z-3e80f42f61d5/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stdout.log",
+      "sha256": "75111bfe80a25ea80dd7e4a7b5ac8ad9b8419d30cbc993071e26a7ebe50c9b35"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-merge/full-core01/20261005T173353Z-3e80f42f61d5/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/results.trx",
+      "sha256": "3ebdeaf8123db18e7253b20b15bc3f56c46d3d8954ced208fcdfbd3f487500a1"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-merge/full-core01/20261005T173353Z-3e80f42f61d5/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-merge/full-core01/20261005T173353Z-3e80f42f61d5/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stdout.log",
+      "sha256": "a03f5acc93d97a452bb4d1d8c0e0bb1efb9dec2e2e13350af614cdc30a9f3229"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-merge/full-core01/20261005T173353Z-3e80f42f61d5/run.json",
+      "sha256": "b5d136032b22a0509f2c3c7a1e059ef6995cb5fdffa466312bbbd273fc0d56fe"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-merge/full-core01/20261005T173353Z-3e80f42f61d5/sdk/sdk.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-merge/full-core01/20261005T173353Z-3e80f42f61d5/sdk/sdk.stdout.log",
+      "sha256": "3db6bca4b50618b2e0d2d55d23b3d0541fe039ab6f731df0e9c47317b400ce52"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-merge/full-core01/20261005T173353Z-3e80f42f61d5/source-end.json",
+      "sha256": "3bd8eca6b26d7a73f56d8c68b9bcffa1f80c4bf6a6a598e8828430cf62f2526b"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-merge/full-core01/20261005T173353Z-3e80f42f61d5/source-start.json",
+      "sha256": "37c544ef4495ccee61089921f3caa3b3babd9bc8861ed23c2e8a10c63a69394f"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-merge/full-core01/20261005T173353Z-3e80f42f61d5/summary.json",
+      "sha256": "69a50bbde0d11e7e7500580229064f232e33590e9b8d682799e9320b06148987"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-merge/full-core01/20261005T173353Z-3e80f42f61d5/summary.txt",
+      "sha256": "31fd5101a77b24d6564b67f3bfce962895ba6ee55a4e95d84aa92d2f47dab76b"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-merge/full-core01/20261005T173353Z-3e80f42f61d5/test-results.json",
+      "sha256": "03ecc8bbb5f5f5f5499e2d0b1c1e06f62891324f8aebc736c02446118dffe5fb"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-merge/qualify01-build.log",
+      "sha256": "9ce1a4d5fc96ba0488592504b8ba0b966bfb85741e84202c184410fdfa4af9c3"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-merge/qualify02-build.log",
+      "sha256": "4d4d87cc26eb312d29f113770eb205a885e93b0f90f18b4eda9959382a229d25"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-merge/qualify02-native.log",
+      "sha256": "f023c93fa1078992116fcde14b902f74eba05eb0fe1c1132c099c347e2d07b1f"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-merge/qualify03-build.log",
+      "sha256": "8845df12debe3a48b4fe078816145e8c0ddae827e6f73973359702ee453fd0d6"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-merge/qualify04-build.log",
+      "sha256": "5985398c285d6b0521c506964bf7bc66350614e588d88d371a667f2c590e46c4"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-merge/qualify04-fingerprints.json",
+      "sha256": "00a024b1d60aa23469ff1d1955d9435dafe938afdd76c32c4457f5d3dcfb43ae"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-merge/qualify04-inputs.json",
+      "sha256": "f9b2e29cccfe43b9f4f6d6e98f99875bed4e9350781246b9fa1b420c7a21ef39"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-merge/qualify04-native.log",
+      "sha256": "78b5c8401d27273dc07aa137ba7b47546851be44f1f4d25df8e5878665d7ea96"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-merge/qualify05-build.log",
+      "sha256": "0f7c2ef960f37c1628961b90c58e1f2e2c972f14496d0239c69cdb8b80fa4291"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-merge/qualify05-fingerprints.json",
+      "sha256": "70db248e4cf7e879bfb9630d634237c3739e51fd0cf801987e3658691ba1b50a"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-merge/qualify05-inputs.json",
+      "sha256": "4af35df9287e11b56a1f0864a0039a70f24eb4825f0ae3b8208f52b29038da54"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-merge/qualify05-native.log",
+      "sha256": "b86e7e040ddf52e7415cfbee09c3aef631f2afb098e84afba6d94c46cd5ad5c0"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-merge/qualify05-process-cleanup.json",
+      "sha256": "211d4d16919119198a09db2a324990b3a515cea36e3b598fd200167cdd4ec1a5"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-merge/reproduce-build.log",
+      "sha256": "b1284aaa283e3e03a7390a00a97767174eb9a1c62027dd4802f3a331a55770bf"
+    },
+    {
+      "path": ".artifacts/test-runs/armageddon-stack-merge/reproduce-native.log",
+      "sha256": "9ccf1aa339efad4954009167197a7024473f4baba455cf48f1ce02ab421a70b7"
+    }
+  ],
+  "helper_fingerprints": [
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\stack_merge_finish.py",
+      "sha256": "0a2ebf790e96a03cd735b0d95e146203758339edfb3cbdf7a85ebde47783c034"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\stack_merge_fixture.py",
+      "sha256": "86dc8932811e5472c8da0678205ad59d3c0d1b15ab3ca1a57a94062b84496bc3"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\stack_merge_receipts.py",
+      "sha256": "893c88d347118d42a02163b82af49eb1bb440c27e428fd11b350de5d3640de85"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\stack_merge_resume.py",
+      "sha256": "e8efd6251cfbb1b4eb1714687b589139d2e5f94878e134d7a1663b7a798fe8db"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\stack_merge_work.py",
+      "sha256": "fff2981c290e57e3f23ab917898f30303f68a1ce89ed4ba3d49a196bab4a5633"
+    }
+  ]
+}

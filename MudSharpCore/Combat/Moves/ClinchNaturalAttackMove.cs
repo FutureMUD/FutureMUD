@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.Health;
 using MudSharp.RPG.Checks;
 
@@ -59,6 +59,8 @@ public class ClinchNaturalAttackMove : WeaponAttackMove
 
     public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
     {
+		using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterMove(this);
+		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
 		defenderMove = MagicDefenseMove.Revalidate(defenderMove, this);
 		using var scope = new MagicDefenseDamageScope(this, defenderMove);
 		return scope.Finish(ResolveAttackWithDefense(defenderMove));
@@ -164,8 +166,8 @@ public class ClinchNaturalAttackMove : WeaponAttackMove
                 style: OutputStyle.CombatMessage,
                 flags: OutputFlags.InnerWrap));
 
-        List<IWound> wounds = CharacterTarget.PassiveSufferDamage(finalDamage).ToList();
-        IEnumerable<IWound> selfwounds = Assailant.PassiveSufferDamage(selfDamage);
+        List<IWound> wounds = CharacterTarget.CommandSufferDamage(finalDamage).ToList();
+        IEnumerable<IWound> selfwounds = Assailant.CommandSufferDamage(selfDamage);
         wounds.ProcessPassiveWounds();
         selfwounds.ProcessPassiveWounds();
 
@@ -205,8 +207,8 @@ public class ClinchNaturalAttackMove : WeaponAttackMove
                     Assailant, Assailant, CharacterTarget, null, null, null), style: OutputStyle.CombatMessage,
                 flags: OutputFlags.InnerWrap));
 
-        List<IWound> wounds = CharacterTarget.PassiveSufferDamage(finalDamage).ToList();
-        IEnumerable<IWound> selfwounds = Assailant.PassiveSufferDamage(selfDamage);
+        List<IWound> wounds = CharacterTarget.CommandSufferDamage(finalDamage).ToList();
+        IEnumerable<IWound> selfwounds = Assailant.CommandSufferDamage(selfDamage);
         wounds.ProcessPassiveWounds();
         selfwounds.ProcessPassiveWounds();
         Assailant.Body?.SetExertionToMinimumLevel(AssociatedExertion);

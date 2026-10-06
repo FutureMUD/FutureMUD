@@ -711,6 +711,7 @@ public class Vehicle : SaveableItem, IVehicle
 			return false;
 		}
 
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return false;
 		ICell boardingDestination = null;
 		if (Prototype.Scale == VehicleScale.RoomScale)
 		{
@@ -724,6 +725,15 @@ public class Vehicle : SaveableItem, IVehicle
 			actor.Teleport(boardingDestination, RoomLayer.GroundLevel, false, false);
 		}
 
+
+		// Arrival callbacks can retire/revoke, fill a slot, or establish another occupancy.
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor) ||
+		    MudSharp.NPC.AI.CommandExecutionScope.IsOrdered(actor) && !MudSharp.NPC.AI.CommandExecutionAuthority.IsCurrent(actor, false) ||
+		    !Prototype.OccupantSlots.Any(x => ReferenceEquals(x, slot)) ||
+		    _occupancies.Count(x => x.Slot.Id == slot.Id) >= slot.Capacity ||
+		    actor.Gameworld.Vehicles.Any(x => x.IsOccupant(actor)) ||
+		    !this.IsAtOccupantSlotLocation(actor, slot) ||
+		    boardingDestination is not null && (!ReferenceEquals(actor.Location, boardingDestination) || actor.RoomLayer != RoomLayer.GroundLevel)) return false;
 		var isController = slot.SlotType == VehicleOccupantSlotType.Driver &&
 		                   Prototype.ControlStations.Any(x => x.OccupantSlot.Id == slot.Id) &&
 		                   Controller is null &&
@@ -743,6 +753,7 @@ public class Vehicle : SaveableItem, IVehicle
 			_occupancies.Add(new VehicleOccupancy(this, dbitem));
 		}
 
+		MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted(actor);
 		return true;
 	}
 

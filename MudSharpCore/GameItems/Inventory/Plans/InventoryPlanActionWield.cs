@@ -1,4 +1,4 @@
-﻿using MudSharp.Combat;
+using MudSharp.Combat;
 
 using MudSharp.Construction;
 
@@ -53,7 +53,7 @@ public class InventoryPlanActionWield : InventoryPlanAction
 
     protected double GetItemFitness(ICharacter executor, IGameItem item)
     {
-        if (!item.IsA(DesiredTag) || !(PrimaryItemSelector?.Invoke(item) ?? true))
+        if (!item.IsA(DesiredTag) || !(MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(item) ?? true, false)))
         {
             return 0.0;
         }
@@ -88,11 +88,11 @@ public class InventoryPlanActionWield : InventoryPlanAction
             }
             else
             {
-                return (PrimaryItemFitnessScorer?.Invoke(item) ?? 1.0) * ItemsAlreadyInPlaceMultiplier;
+                return (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemFitnessScorer?.Invoke(item) ?? 1.0, 0.0)) * ItemsAlreadyInPlaceMultiplier;
             }
         }
 
-        return PrimaryItemFitnessScorer?.Invoke(item) ?? 1.0;
+        return MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemFitnessScorer?.Invoke(item) ?? 1.0, 0.0);
     }
 
     public override IGameItem ScoutSecondary(ICharacter executor, IGameItem item)
@@ -143,7 +143,7 @@ public class InventoryPlanActionWield : InventoryPlanAction
         // Already wielded items first
         IEnumerable<IGameItem> items =
             executor.Body.WieldedItems.Where(
-                x => x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true) && CanWield(executor, x));
+                x => x.IsA(DesiredTag) && (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(x) ?? true, false)) && CanWield(executor, x));
         foreach (IGameItem item in items)
         {
             double fitness = GetItemFitness(executor, item);
@@ -156,7 +156,7 @@ public class InventoryPlanActionWield : InventoryPlanAction
         // Already held items next
         items =
             executor.Body.HeldItems.Where(
-                x => x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true) && x.IsItemType<IWieldable>() &&
+                x => x.IsA(DesiredTag) && (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(x) ?? true, false)) && x.IsItemType<IWieldable>() &&
                      CanWield(executor, x));
         foreach (IGameItem item in items)
         {
@@ -172,7 +172,7 @@ public class InventoryPlanActionWield : InventoryPlanAction
             executor.Inventory.SelectNotNull(x => x.GetItemType<ISheath>())
                     .SelectNotNull(x => x.Content?.Parent)
                     .Where(x => x.IsA(DesiredTag) &&
-                                (PrimaryItemSelector?.Invoke(x) ?? true) &&
+                                (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(x) ?? true, false)) &&
                                 CanDraw(executor, x)
                     );
         foreach (IGameItem item in items)
@@ -189,7 +189,7 @@ public class InventoryPlanActionWield : InventoryPlanAction
             executor.Body.WornItems.Where(
                 x =>
                     x.IsA(DesiredTag) &&
-                    (PrimaryItemSelector?.Invoke(x) ?? true) &&
+                    (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(x) ?? true, false)) &&
                     x.IsItemType<IWieldable>() &&
                     executor.Body.CanRemoveItem(x, ItemCanGetIgnore.IgnoreFreeHands) &&
                     CanWield(executor, x));
@@ -209,7 +209,7 @@ public class InventoryPlanActionWield : InventoryPlanAction
                         x =>
                             x.ConnectedItems.Where(
                                 y =>
-                                    y.Parent.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(y.Parent) ?? true) &&
+                                    y.Parent.IsA(DesiredTag) && (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(y.Parent) ?? true, false)) &&
                                     y.Parent.IsItemType<IWieldable>() &&
                                     CanWield(executor, y.Parent)
                             ))
@@ -230,7 +230,7 @@ public class InventoryPlanActionWield : InventoryPlanAction
             items = container.Contents.Where(
                 x =>
                     x.IsA(DesiredTag) &&
-                    (PrimaryItemSelector?.Invoke(x) ?? true) &&
+                    (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(x) ?? true, false)) &&
                     executor.Body.CanGet(x, container.Parent, 0,
                         ItemCanGetIgnore.IgnoreInventoryPlans | ItemCanGetIgnore.IgnoreFreeHands) &&
                     CanWield(executor, x)
@@ -250,7 +250,7 @@ public class InventoryPlanActionWield : InventoryPlanAction
             executor.Location.GameItemsInImmediateVicinity(executor).Where(
                 x =>
                     x.IsA(DesiredTag) &&
-                    (PrimaryItemSelector?.Invoke(x) ?? true) &&
+                    (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(x) ?? true, false)) &&
                     x.IsItemType<IWieldable>() &&
                     CanWield(executor, x) &&
                     x.IsItemType<IHoldable>() &&
@@ -272,7 +272,7 @@ public class InventoryPlanActionWield : InventoryPlanAction
                         x =>
                             x.ConnectedItems.Where(
                                 y =>
-                                    y.Parent.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(y.Parent) ?? true) &&
+                                    y.Parent.IsA(DesiredTag) && (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(y.Parent) ?? true, false)) &&
                                     y.Parent.IsItemType<IWieldable>() &&
                                     CanWield(executor, y.Parent)
                             ))
@@ -293,7 +293,7 @@ public class InventoryPlanActionWield : InventoryPlanAction
                     .Where(x => executor.Location.CanGetAccess(x.Parent, executor))
                     .SelectNotNull(x => x.Content?.Parent)
                     .Where(x => x.IsA(DesiredTag) &&
-                                (PrimaryItemSelector?.Invoke(x) ?? true) &&
+                                (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(x) ?? true, false)) &&
                                 CanDraw(executor, x));
         foreach (IGameItem item in items)
         {
@@ -312,7 +312,7 @@ public class InventoryPlanActionWield : InventoryPlanAction
             items = container.Contents.Where(
                 x =>
                     x.IsA(DesiredTag) &&
-                    (PrimaryItemSelector?.Invoke(x) ?? true) &&
+                    (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(x) ?? true, false)) &&
                     executor.Body.CanGet(x, container.Parent, 0,
                         ItemCanGetIgnore.IgnoreInventoryPlans | ItemCanGetIgnore.IgnoreFreeHands) &&
                     CanWield(executor, x)

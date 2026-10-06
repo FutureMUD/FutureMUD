@@ -1,0 +1,2237 @@
+{
+  "schema_version": 1,
+  "stage": "Phase3B2C parent-reviewed native retirement P2 correction",
+  "status": "implemented_verified_parent_independent_review_pending",
+  "base_commit": "689630e8733cd0ed35500a86ae7b9838defd3749",
+  "implementation_commit": "9b05379d9194b308c2b941ae743562c1b6b9a112",
+  "branch": "codex/armageddon-completion-phase1",
+  "recorded_utc": "2026-10-03T18:24:40.422788+00:00",
+  "managed": {
+    "focused_core": {
+      "run_id": "20261003T174813Z-2ad82c48a78f",
+      "head": "689630e8733cd0ed35500a86ae7b9838defd3749",
+      "status": "PASS",
+      "counts": {
+        "executed": 450,
+        "passed": 450,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 450
+      },
+      "filter": "FullyQualifiedName~SpellOwnedNpc|FullyQualifiedName~OwnedDatabaseConnection|FullyQualifiedName~MagicCasting|FullyQualifiedName~NpcArchive|FullyQualifiedName~NPCTemplateLoadAddition|FullyQualifiedName~CrimeDescribeCrimeAtTrial_MissingVictim",
+      "configuration": "Debug",
+      "sdk": "10.0.401",
+      "started_utc": "2026-10-03T17:48:13.3994403+00:00",
+      "ended_utc": "2026-10-03T17:48:49.2568789+00:00",
+      "source_start": "ce62e59c227f7ae5229602bd52d5fa20b4eb43677adcc9c7e9d8488472a00a43",
+      "source_end": "ce62e59c227f7ae5229602bd52d5fa20b4eb43677adcc9c7e9d8488472a00a43",
+      "source_stable": true,
+      "execution_complete": true,
+      "counts_complete": true,
+      "projects": [
+        "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+      ],
+      "issues": [],
+      "summary_path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174813Z-2ad82c48a78f/summary.json",
+      "summary_sha256": "8cb8d005dbdbfa7f064a0d97c4f9655db54e74501fddd42e15a6e8aea61f87e8",
+      "failures_path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174813Z-2ad82c48a78f/failures.json",
+      "failures_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "project_counts": [
+        {
+          "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+          "counts": {
+            "executed": 450,
+            "passed": 450,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 450
+          }
+        }
+      ]
+    },
+    "focused_database": {
+      "run_id": "20261003T174911Z-9a218d400a2c",
+      "head": "689630e8733cd0ed35500a86ae7b9838defd3749",
+      "status": "PASS",
+      "counts": {
+        "executed": 3,
+        "passed": 3,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 3
+      },
+      "filter": "FullyQualifiedName~SpellLifecycle|FullyQualifiedName~NpcArchive",
+      "configuration": "Debug",
+      "sdk": "10.0.401",
+      "started_utc": "2026-10-03T17:49:11.3735875+00:00",
+      "ended_utc": "2026-10-03T17:49:18.1724810+00:00",
+      "source_start": "4acec21f87445ffd89ca0fcd2b6e95e78298eeea6059ce8dd15c6270e9f51186",
+      "source_end": "4acec21f87445ffd89ca0fcd2b6e95e78298eeea6059ce8dd15c6270e9f51186",
+      "source_stable": true,
+      "execution_complete": true,
+      "counts_complete": true,
+      "projects": [
+        "MudsharpDatabaseLibrary Unit Tests/MudsharpDatabaseLibrary Unit Tests.csproj"
+      ],
+      "issues": [],
+      "summary_path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174911Z-9a218d400a2c/summary.json",
+      "summary_sha256": "4b4707e12950f1f384eaf9a8d7646e67fee6b3d19f724e2dc4cfa31ff53155da",
+      "failures_path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174911Z-9a218d400a2c/failures.json",
+      "failures_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "project_counts": [
+        {
+          "project": "MudsharpDatabaseLibrary Unit Tests/MudsharpDatabaseLibrary Unit Tests.csproj",
+          "counts": {
+            "executed": 3,
+            "passed": 3,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 3
+          }
+        }
+      ]
+    },
+    "installer_snapshot_focused": {
+      "run_id": "20261003T180017Z-1bf17cfbf884",
+      "head": "689630e8733cd0ed35500a86ae7b9838defd3749",
+      "status": "PASS",
+      "counts": {
+        "executed": 9,
+        "passed": 9,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 9
+      },
+      "filter": "FullyQualifiedName~BlankDatabaseSnapshotTests",
+      "configuration": "Debug",
+      "sdk": "10.0.401",
+      "started_utc": "2026-10-03T18:00:17.9148304+00:00",
+      "ended_utc": "2026-10-03T18:00:21.2161082+00:00",
+      "source_start": "07b8cf69154ae1c77bcc7bae01547e3972fcc610ce6e62498e92eca44bd74fb4",
+      "source_end": "07b8cf69154ae1c77bcc7bae01547e3972fcc610ce6e62498e92eca44bd74fb4",
+      "source_stable": true,
+      "execution_complete": true,
+      "counts_complete": true,
+      "projects": [
+        "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj"
+      ],
+      "issues": [],
+      "summary_path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180017Z-1bf17cfbf884/summary.json",
+      "summary_sha256": "c79026dca6dea63c4284b3952a72564b3ed4a706fdc4a971b5d1fce9a8f61cc7",
+      "failures_path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180017Z-1bf17cfbf884/failures.json",
+      "failures_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "project_counts": [
+        {
+          "project": "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+          "counts": {
+            "executed": 9,
+            "passed": 9,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 9
+          }
+        }
+      ]
+    },
+    "fast_all_ten_projects": {
+      "run_id": "20261003T180045Z-2161a3d92fc3",
+      "head": "689630e8733cd0ed35500a86ae7b9838defd3749",
+      "status": "PASS",
+      "counts": {
+        "executed": 6834,
+        "passed": 6834,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 6834
+      },
+      "filter": null,
+      "configuration": "Debug",
+      "sdk": "10.0.401",
+      "started_utc": "2026-10-03T18:00:45.1437726+00:00",
+      "ended_utc": "2026-10-03T18:03:54.4631988+00:00",
+      "source_start": "3a649f4910ab270fde55d99e7edbf6c4bebcdb3a8af9b34c0c505d11a291d100",
+      "source_end": "3a649f4910ab270fde55d99e7edbf6c4bebcdb3a8af9b34c0c505d11a291d100",
+      "source_stable": true,
+      "execution_complete": true,
+      "counts_complete": true,
+      "projects": [
+        "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+        "ExpressionEngine Unit Tests/ExpressionEngine Unit Tests.csproj",
+        "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+        "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+        "MudsharpDatabaseLibrary Unit Tests/MudsharpDatabaseLibrary Unit Tests.csproj",
+        "DiscordBotCore Unit Tests/DiscordBotCore Unit Tests.csproj",
+        "RPI Engine Worldfile Converter Tests/RPI Engine Worldfile Converter Tests.csproj",
+        "FutureMUD.Web.Tests/FutureMUD.Web.Tests.csproj",
+        "TerrainPlanner/TerrainPlanner.Tests/TerrainPlanner.Tests.csproj",
+        "scripts/TestReporting.Tests/TestReporting.Tests.csproj"
+      ],
+      "issues": [],
+      "summary_path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180045Z-2161a3d92fc3/summary.json",
+      "summary_sha256": "a166335033705973cb47ef0fe52c425ef134fe23bb824de3e1272c0db2b5974f",
+      "failures_path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180045Z-2161a3d92fc3/failures.json",
+      "failures_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "project_counts": [
+        {
+          "project": "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+          "counts": {
+            "executed": 568,
+            "passed": 568,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 568
+          }
+        },
+        {
+          "project": "ExpressionEngine Unit Tests/ExpressionEngine Unit Tests.csproj",
+          "counts": {
+            "executed": 36,
+            "passed": 36,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 36
+          }
+        },
+        {
+          "project": "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+          "counts": {
+            "executed": 1441,
+            "passed": 1441,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 1441
+          }
+        },
+        {
+          "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+          "counts": {
+            "executed": 4531,
+            "passed": 4531,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 4531
+          }
+        },
+        {
+          "project": "MudsharpDatabaseLibrary Unit Tests/MudsharpDatabaseLibrary Unit Tests.csproj",
+          "counts": {
+            "executed": 67,
+            "passed": 67,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 67
+          }
+        },
+        {
+          "project": "DiscordBotCore Unit Tests/DiscordBotCore Unit Tests.csproj",
+          "counts": {
+            "executed": 22,
+            "passed": 22,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 22
+          }
+        },
+        {
+          "project": "RPI Engine Worldfile Converter Tests/RPI Engine Worldfile Converter Tests.csproj",
+          "counts": {
+            "executed": 43,
+            "passed": 43,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 43
+          }
+        },
+        {
+          "project": "FutureMUD.Web.Tests/FutureMUD.Web.Tests.csproj",
+          "counts": {
+            "executed": 54,
+            "passed": 54,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 54
+          }
+        },
+        {
+          "project": "TerrainPlanner/TerrainPlanner.Tests/TerrainPlanner.Tests.csproj",
+          "counts": {
+            "executed": 34,
+            "passed": 34,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 34
+          }
+        },
+        {
+          "project": "scripts/TestReporting.Tests/TestReporting.Tests.csproj",
+          "counts": {
+            "executed": 38,
+            "passed": 38,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 38
+          }
+        }
+      ]
+    }
+  },
+  "native": {
+    "name": "final",
+    "exit": {
+      "exit_code": 0,
+      "ended_utc": "2026-10-03T18:21:56.4178103Z",
+      "mode": "Combined",
+      "probe": ""
+    },
+    "log": ".artifacts/test-runs/native-armageddon-20261003-stage3B2C-retirement-p2/final.log",
+    "log_sha256": "0a357e3791e37712e9fb60163aa7f77ea5f3276d8e64d24b0a6cdff7e2e00ed4",
+    "passed_markers": [
+      "ARM03B2B-connection-refusals=passed unowned-host shared-default blank-database unregistered-owned-prefix all-refused-before-connect",
+      "ARM02-schema=passed blank-snapshot-import empty-casting-tables generated-migration-and-model-parity",
+      "ARM02-receipt=passed operation:bdc7efd5-1c5a-4e7c-b81e-476d9d7c5843 character:1 actor:1 body:1 capability:1 spell:1 trait:1 reserve:1 stage:Completed",
+      "ARM02-reader=passed grade:3 balance:77.5 unresolved:0 operation:none process:61408",
+      "ARM02-native-cast=passed non-admin-command real-Skill real-Body payment:22.5 grade:3 separate-process-reload",
+      "ARM02-sorcerer=passed second-non-admin distinct-reserve:77.5 agility:-3 armour:92 gathering-only",
+      "ARM02-reader=passed grade:3 balance:77.5 unresolved:0 operation:none process:79108",
+      "ARM02-second-body=passed focus detach restore single-passive-tick grade-one-cost:5 shared-opportunity native-gathering-canonical-credit-physical-costs",
+      "ARM02-reader=passed grade:3 balance:77.5 unresolved:0 operation:none process:43856",
+      "ARM02-second-body-restart=passed persisted-instance-effects shared-skill shared-deadlines shared-reserve",
+      "ARM02-reader=passed grade:3 balance:72.5 unresolved:0 operation:none process:79752",
+      "ARM02-reader=passed grade:2 balance:100 unresolved:0 operation:none process:24784",
+      "ARM02-fault=passed stage:BeforePayment status:Refused operation:none no-replay-no-refund-no-reroll",
+      "ARM02-quarantine-restart=passed alternate-route shared-trait shared-reserve untouched-route",
+      "ARM02-reader=passed grade:2 balance:77.5 unresolved:1 operation:3293a03d-ec3b-452b-9662-b8efea9bc98a process:36508",
+      "ARM02-fault=passed stage:PaymentMutated status:NeedsReview operation:3293a03d-ec3b-452b-9662-b8efea9bc98a no-replay-no-refund-no-reroll",
+      "ARM02-quarantine-restart=passed alternate-route shared-trait shared-reserve untouched-route",
+      "ARM02-reader=passed grade:2 balance:77.5 unresolved:1 operation:4de0164b-c0d9-4a12-b5e6-602d677bf818 process:71660",
+      "ARM02-fault=passed stage:EffectsExecuted status:NeedsReview operation:4de0164b-c0d9-4a12-b5e6-602d677bf818 no-replay-no-refund-no-reroll",
+      "ARM02-quarantine-restart=passed alternate-route shared-trait shared-reserve untouched-route",
+      "ARM02-reader=passed grade:2 balance:77.5 unresolved:1 operation:863edd1e-71b8-4c44-b110-aa9f8473808c process:9108",
+      "ARM02-fault=passed stage:MasterySampledBeforeWrite status:NeedsReview operation:863edd1e-71b8-4c44-b110-aa9f8473808c no-replay-no-refund-no-reroll",
+      "ARM02-quarantine-restart=passed alternate-route shared-trait shared-reserve untouched-route",
+      "ARM02-reader=passed grade:2 balance:77.5 unresolved:1 operation:35dcfce5-bad8-4479-9d1f-b66d0805d037 process:63636",
+      "ARM02-fault=passed stage:MasterySampleRecorded status:NeedsReview operation:35dcfce5-bad8-4479-9d1f-b66d0805d037 no-replay-no-refund-no-reroll",
+      "ARM02-provider=passed operation:25a38aca-c3cf-4969-8bca-b67f98ca1203 At SamplingMastery: An error occurred while saving the entity changes. See the inner exception for details. (ARM02 controlled provider sample failure)",
+      "ARM02-quarantine-restart=passed alternate-route shared-trait shared-reserve untouched-route",
+      "ARM02-reader=passed grade:2 balance:77.5 unresolved:1 operation:25a38aca-c3cf-4969-8bca-b67f98ca1203 process:46296",
+      "ARM02-auxiliary=passed Ember-Lance-native-wounds Wardcraft-native-tag-ward per-spell-trait shared-trait-edge native-school-preserved",
+      "ARM02-native=passed",
+      "ARM-COMP-opening-cap=passed native-Skill opening:30/60 cap:60 route-loss-history-preserved",
+      "ARM-COMP-efficiency=passed mastery:1 requested:1 cost:50 non-admin-command",
+      "ARM-COMP-efficiency=passed mastery:2 requested:1 cost:25 non-admin-command",
+      "ARM-COMP-cap-loss-reload=passed removed-admission cap:0 history:60 independent-process",
+      "ARM02-reader=passed grade:7 balance:18 unresolved:0 operation:none process:46220",
+      "ARM-COMP-native=passed cap:60 max-grade:7 efficiency:50/25/7 overreach-cost:75 balance:18 receipts:4 separate-process-reload practice:NOT_RUN",
+      "ARM-SUPPORT-cap-adoption=passed uncapped-original-grant same-policy-and-key cap:90 native-opening:30 separate-terminal-marker",
+      "ARM-SUPPORT-reload=passed native-Skill raw:90 cap:90 Identify-grade:1 balance:17 immutable-uncapped-grant cap-adoption-history removed:False",
+      "ARM02-reader=passed grade:1 balance:17 unresolved:0 operation:none process:28852",
+      "ARM-SUPPORT-reload=passed native-Skill raw:90 cap:0 Identify-grade:1 balance:17 immutable-uncapped-grant cap-adoption-history removed:True",
+      "ARM02-reader=passed grade:1 balance:17 unresolved:0 operation:none process:88816",
+      "ARM-SUPPORT-native=passed authored-enrolment parent-native-use:30-to-80 second-focused-body-support-native-use:30-to-80-to-90 Identify-grade:1 cap:90 no-dummy-spell no-refill terminal-immutable separate-process-reload craft-command:NOT_RUN",
+      "ARM-CAPACITY-matrix=passed rows:16728 spells:82 normal-pairs:28 overreach-pairs:6 profiles:2 scenarios:3 advanced-unaffordable:0 provisional-mapping-and-coefficients energy-envelope-only",
+      "ARM-CAPACITY-reload=passed persisted-explicit-raw-attribute-expression max:118 balance:17 enrolment-no-refill attribute-rise-max:121-balance:17 grade7-insufficient-spent-balance",
+      "ARM02-reader=passed grade:7 balance:17 unresolved:0 operation:none process:88676",
+      "ARM-CAPACITY-compound=passed both-child-orders normal-command-casts:4 prepared-targets:4 combined-target-caster:4 complete-removals:14 neutral-90-preserved final-application-decrease:70 final-removal-decrease:100 no-refill native-resource-delta:17-to-24 mixed-native-deltas:30 neutral-credit:97 final-decrease:70 final-increase-credit:140 negative-delta:83 large-debit:30 command-cost:25",
+      "ARM-CAPACITY-effective-reload=passed service-before-balance-inventory-effects-load persisted-bonuses:3+7 raw:10 max:200 saved-balance:150 preserved-until-complete bonus-removal-max:100-balance:100 production-restoration-scope full-character-login:NOT_RUN",
+      "ARM02-reader=passed grade:7 balance:150 unresolved:0 operation:none process:25252",
+      "ARM-CAPACITY-native=passed production-attribute-evaluator raw-and-effective immediate-clamp no-refill invalid-cap-payment-refusal canonical-focus owner-body-fixture-replacement grade7-normal:25 grade7-overreach:56.25 pairs:34 balance:17 max:118 separate-process-reload full-body-form-and-backup-command:NOT_RUN stock-mapping:PROVISIONAL",
+      "ARM-PRACTICE-grade=passed grade:1 raw:40 cap:60 balance:50 samples:0 duration:30 accelerated-clock",
+      "ARM-PRACTICE-grade=passed grade:2 raw:50 cap:60 balance:25 samples:1 duration:30 accelerated-clock",
+      "ARM-PRACTICE-grade=passed grade:3 raw:60 cap:60 balance:25 samples:2 duration:30 accelerated-clock",
+      "ARM-PRACTICE-grade=passed grade:4 raw:60 cap:60 balance:25 samples:3 duration:30 accelerated-clock",
+      "ARM-PRACTICE-grade=passed grade:5 raw:60 cap:60 balance:25 samples:4 duration:30 accelerated-clock",
+      "ARM-PRACTICE-grade=passed grade:6 raw:60 cap:60 balance:25 samples:5 duration:30 accelerated-clock",
+      "ARM-PRACTICE-grade=passed grade:7 raw:60 cap:60 balance:25 samples:6 duration:30 accelerated-clock",
+      "ARM-PRACTICE-restrictions=passed native-interval:1-blocks/20-improves maximum:6-refuses7 disabled:refuses",
+      "ARM-PRACTICE-interrupt=passed signal:stop balance:93 no-progress no-refund no-replay",
+      "ARM-PRACTICE-interrupt=passed signal:focus balance:93 no-progress no-refund no-replay",
+      "ARM-PRACTICE-interrupt=passed signal:speech balance:93 no-progress no-refund no-replay",
+      "ARM-PRACTICE-interrupt=passed signal:capability balance:93 no-progress no-refund no-replay",
+      "ARM-PRACTICE-interrupt=passed signal:quit balance:93 no-progress no-refund no-replay",
+      "ARM-PRACTICE-native-silence=passed speech-required:True owner:body removal:expiry between-heartbeats checks:0 balance:93 deadlines-preserved",
+      "ARM-PRACTICE-native-silence=passed speech-required:True owner:body removal:remove between-heartbeats checks:0 balance:93 deadlines-preserved",
+      "ARM-PRACTICE-native-silence=passed speech-required:True owner:actor removal:expiry between-heartbeats checks:0 balance:93 deadlines-preserved",
+      "ARM-PRACTICE-native-silence=passed speech-required:True owner:actor removal:remove between-heartbeats checks:0 balance:93 deadlines-preserved",
+      "ARM-PRACTICE-native-silence=passed speech-required:False owner:body removal:expiry between-heartbeats checks:1 balance:93 deadlines-preserved",
+      "ARM-PRACTICE-native-silence=passed speech-required:False owner:body removal:remove between-heartbeats checks:1 balance:93 deadlines-preserved",
+      "ARM-PRACTICE-native-silence=passed speech-required:False owner:actor removal:expiry between-heartbeats checks:1 balance:93 deadlines-preserved",
+      "ARM-PRACTICE-native-silence=passed speech-required:False owner:actor removal:remove between-heartbeats checks:1 balance:93 deadlines-preserved",
+      "ARM-PRACTICE-native-manipulation=passed hand-required:True between-heartbeats checks:0 balance:93 deadlines-preserved",
+      "ARM-PRACTICE-native-manipulation=passed hand-required:False between-heartbeats checks:1 balance:93 deadlines-preserved",
+      "ARM-PRACTICE-native-paralysis=passed owner:body before-health-refresh checks:0 balance:93 deadlines-preserved",
+      "ARM-PRACTICE-native-paralysis=passed owner:actor before-health-refresh checks:0 balance:93 deadlines-preserved",
+      "ARM-PRACTICE-reader=passed process:51316 operation:a2e565c9-f6b5-4fed-99bd-8095aaf2a8a4 raw:60 grade:7 balance:93 deadline:2026-10-02T04:59:00.0000000Z no-resume/refund/reroll",
+      "ARM-PRACTICE-native=passed raw:30-to-60 controlled:1-to-7 actual-ClassicImprovement shared-deadlines target/caster/resistance/ward-purity separate-process-recovery stale-action-terminal-preserved stock-installed-world:NOT_RUN material-plan:explicit-empty",
+      "ARM-SPEECH-named=passed kral:grade3 native-language-output one-utterance one-check one-operation balance:85 ward-bonus:-3",
+      "ARM-SPEECH-formula=passed unordered-five-category-command same-grade/payment/effect single-generated-utterance",
+      "ARM-SPEECH-native=passed loopback-TCP queue original-utterance empty-second-dispatch duplicate-origin-refused one-check one-operation",
+      "ARM-SPEECH-alias=passed native-dot-command concise-POWER/spell-token single-original-utterance",
+      "ARM-SPEECH-quiet=passed native-whisper energy:x2 difficulty:+1 balance:70 visible-gesture ward-bonus:-3",
+      "ARM-SPEECH-whisper=passed player-origin quiet parity no-second-utterance",
+      "ARM-SPEECH-configured-volume=passed native-Whisper energy:x1.25 difficulty:+2 actual-check:VeryHard balance:81.25 restored-fixture",
+      "ARM-SPEECH-invalid=passed ordinary-native-utterances unknown-vocabulary target-tail-refused no-payment/check/operation",
+      "ARM-SPEECH-scripted=passed native-character-out-of-context speech remains ordinary no-cast",
+      "ARM-SPEECH-silence=passed owner:actor quiet-refused no-utterance/payment/check",
+      "ARM-SPEECH-silence=passed owner:body quiet-refused no-utterance/payment/check",
+      "ARM-SPEECH-anatomy=passed actual-mouth/tongue/trachea native-part-ineffective both-volumes-refused restoration",
+      "ARM-SPEECH-manipulation=passed native-hand-restrictions ordinary-whisper remains audible no-cast/payment/check restoration",
+      "ARM-SPEECH-mute=passed concrete-MuteMerit both-volumes-refused no-utterance/payment/check",
+      "ARM-SPEECH-volume=passed actual-synthesizer cached-native-function:0.4 normal-refused whisper-eligible",
+      "ARM-SPEECH-listeners=passed two-eligible-observers no-observer-cast unknown-language-no-formula/knowledge own-repeat-separate-payment",
+      "ARM-SPEECH-hearing=passed native-deafness receiver-language-parser no-formula-words no-listener-cast",
+      "ARM-SPEECH-callbacks=passed adapter:named self-output-nested-command native-witness-effect-Body.Say no-recast one-payment/check/operation",
+      "ARM-SPEECH-callbacks=passed adapter:speech self-output-nested-command native-witness-effect-Body.Say no-recast one-payment/check/operation",
+      "ARM-SPEECH-relay=passed native-recitation-effect witness/output callback eligible-proxy no-recast/payment",
+      "ARM-SPEECH-deadspeak-forwarding=passed concrete-DeadSpeak-InitialEffect recite-installation no-proxy-cast/payment corpse-lifecycle-not-qualified",
+      "ARM-SPEECH-reader=passed process:51780 native-XML profile/language costs knowledge immutable-origin:93ba2866-1907-4910-ace9-b8fd0ffdc8b0 no-replay",
+      "ARM-SPEECH-acceptance=passed native-anatomy language communication commands quiet guarded-casting persistence-reader",
+      "ARM-AREA-earthquake=passed concrete-Cell native-wounds caster:4 ally:12 protected/flying/layer/staff/plane:0 ward:0 physical-dedup one-payment/check/mastery",
+      "ARM-AREA-chain=passed caster:3 ally:24 repeat-body-twice random-at-commit:3 journal-selected-order one-payment/check/mastery provisional-three-hit-count",
+      "ARM-AREA-fireball=passed room-variant caster:0 native-ally:12 staff/plane:0 independent-of-selected-character-trigger",
+      "ARM-AREA-second-body=passed shared-canonical-identity distinct-instance/body caster:0 sibling:12 duplicate-sibling-once canonical-payment:15",
+      "ARM-AREA-dynamic=passed paid-snapshot removed:0 new-arrival:0 explicit-ally-exclusion:0 concrete-cell-list-mutation-bounded",
+      "ARM-AREA-all-rejected=passed native-reflect-ward-becomes-fail depth:0 three-selected-hits cost:30 lockout-retained no-native-wound/mastery",
+      "ARM-AREA-empty=passed no-payment/check/operation for caster-excluding-empty-room",
+      "ARM-AREA-reader=passed process:61452 concrete-cell native-bodies:11 immutable-completed-origins:6 no-selection/replay",
+      "ARM-AREA-persistence=passed native-damage/pain/stun independently-read all-completed-application-journals immutable-paid-origin-restart",
+      "ARM03-schema=passed generated-EF9-migration-from-maintained-snapshot two-empty-tables model-parity",
+      "ARM03-borrowed=passed existing-body-refused no-ownership-or-entity-change",
+      "ARM03-rollback=passed callback-and-post-save-provider-fault atomic-entity-plus-ownership caller-context-restored",
+      "ARM03-primary=passed new-primary-instance-refused canonical-character-and-wound-preserved",
+      "ARM03-generated=passed exact-added-item-claim explicit-generated-possession-role live-row-blocks-completion",
+      "ARM03-canonical-pointer=passed stale-persisted-pointer-moved-to-current-body-before-retirement canonical-identity-survives-cascade-boundary",
+      "ARM03-permanent=passed no-expiry released-as-ordinary-durable-creation body-survives",
+      "ARM03-intent=passed immutable-creation-key absolute-deadline durable-retiring stale-version-and-live-completion-refused",
+      "ARM03-suppression=passed sandbox-create-update-and-body-retirement-refused readonly-nested-lookup-restores-suppressed-caller no-persistent-state-change",
+      "ARM03-possession=passed native-character-and-body unloaded-foreign-join-refuses-cleanup intact-item explicitly-rehomed-to-existing-cell",
+      "ARM03-references=passed unloaded-secondary-effect-and-serialized-remains retain-body-with-durable-hold",
+      "ARM03-death-journal=passed persisted-secondary-dead-state-correlated early-death-cancels-later-death-intent idempotent-observation canonical-identity-survives",
+      "ARM03-missing-death=passed absent-owned-rows-cannot-complete-unobserved-native-death recoverable-diagnostic",
+      "ARM03-steady-state=passed 16-native-body-create-retire-complete-cycles only-permanent-and-reference-held-physical-rows-retained lightweight-ownership-receipts",
+      "ARM03-reader=passed separate-process reconstructs-intent-ownership-permanent-policy-and-missing-death-hold no-recreation preserves-reference-until-release anatomy-collision-safe idempotent-completion",
+      "ARM03-row-counts=passed characters:1 bodies:2 instances:0 items:1 wounds:1 lifecycles:22 claims:24 pending:1",
+      "ARM03-ordinary-rollback=passed forced-provider-insert-refusal ordinary-provenance-form-source-canonical-body-and-remains-save-atomic retryable",
+      "ARM03-ordinary-save=passed native-backup-death-and-form-save canonical-body-moved ordinary-provenance-persisted retired-form-and-source-mappings-pruned no-spell-ownership",
+      "ARM03-ordinary-guards=passed separate-process-real-corpse-reload resolves-exact-retired-body-without-preload unloaded-foreign-item-and-other-reference-refuse intact-possession explicitly-rehomed",
+      "ARM03-ordinary-release=passed native-CorpseGameItemComponent.Delete reference-free-ordinary-body-retired canonical-current-body-history-and-foreign-goods-preserved no-spell-ownership",
+      "ARM03-legacy-seed=passed persisted-positive-body-IDs existing-missing-and-current-body cases no-old-body-form-source-retirement-or-spell-ownership",
+      "ARM03-runtime-corpse=passed exposure-refresh-registration eating:not-run physical-and-actor-targets:checked gift-and-implant-conservation:not-run morgue-recovery-refusal:not-run persisted-part-wound-inspection:not-applicable",
+      "ARM03-legacy-corpse=passed separate-process-reload description-weight-buoyancy-race-and-Delete-callback safe corpse-item-illumination-and-unresolved-damage exact-positive-ID-kept canonical-current-body-and-history-preserved no-cleanup-authority-inferred",
+      "ARM03-runtime-part=passed exposure-refresh-registration eating:not-run physical-and-actor-targets:not-applicable gift-and-implant-conservation:not-run morgue-recovery-refusal:not-run persisted-part-wound-inspection:checked",
+      "ARM03-legacy-part=passed separate-process-reload description-weight-buoyancy-race-and-Delete-callback safe corpse-item-illumination-and-unresolved-damage exact-positive-ID-kept canonical-current-body-and-history-preserved no-cleanup-authority-inferred",
+      "ARM03-runtime-missing-corpse=passed exposure-refresh-registration eating:refused physical-and-actor-targets:checked gift-and-implant-conservation:checked morgue-recovery-refusal:checked persisted-part-wound-inspection:not-applicable",
+      "ARM03-legacy-missing-corpse=passed separate-process-reload description-weight-buoyancy-race-and-Delete-callback safe corpse-item-illumination-and-unresolved-damage exact-positive-ID-kept canonical-current-body-and-history-preserved no-cleanup-authority-inferred",
+      "ARM03-runtime-missing-part=passed exposure-refresh-registration eating:refused physical-and-actor-targets:not-applicable gift-and-implant-conservation:not-run morgue-recovery-refusal:not-run persisted-part-wound-inspection:checked",
+      "ARM03-legacy-missing-part=passed separate-process-reload description-weight-buoyancy-race-and-Delete-callback safe corpse-item-illumination-and-unresolved-damage exact-positive-ID-kept canonical-current-body-and-history-preserved no-cleanup-authority-inferred",
+      "ARM03-runtime-current-corpse=passed exposure-refresh-registration eating:refused physical-and-actor-targets:checked gift-and-implant-conservation:checked morgue-recovery-refusal:checked persisted-part-wound-inspection:not-applicable",
+      "ARM03-legacy-current-corpse=passed separate-process-reload description-weight-buoyancy-race-and-Delete-callback safe corpse-item-illumination-and-unresolved-damage exact-positive-ID-kept canonical-current-body-and-history-preserved no-cleanup-authority-inferred",
+      "ARM03-runtime-current-part=passed exposure-refresh-registration eating:not-run physical-and-actor-targets:not-applicable gift-and-implant-conservation:not-run morgue-recovery-refusal:not-run persisted-part-wound-inspection:checked",
+      "ARM03-legacy-current-part=passed separate-process-reload description-weight-buoyancy-race-and-Delete-callback safe corpse-item-illumination-and-unresolved-damage exact-positive-ID-kept canonical-current-body-and-history-preserved no-cleanup-authority-inferred",
+      "ARM03-runtime-final-current-corpse=passed exposure-refresh-registration eating:not-run physical-and-actor-targets:checked gift-and-implant-conservation:not-run morgue-recovery-refusal:not-run persisted-part-wound-inspection:not-applicable",
+      "ARM03-legacy-final-current-corpse=passed separate-process-reload description-weight-buoyancy-race-and-Delete-callback safe corpse-item-illumination-and-unresolved-damage exact-positive-ID-kept canonical-current-body-and-history-preserved no-cleanup-authority-inferred",
+      "ARM03-runtime-missing-final-corpse=passed exposure-refresh-registration eating:refused physical-and-actor-targets:checked gift-and-implant-conservation:checked morgue-recovery-refusal:checked persisted-part-wound-inspection:not-applicable",
+      "ARM03-legacy-missing-final-corpse=passed separate-process-reload description-weight-buoyancy-race-and-Delete-callback safe corpse-item-illumination-and-unresolved-damage exact-positive-ID-kept canonical-current-body-and-history-preserved no-cleanup-authority-inferred",
+      "ARM03-runtime-missing-owner-corpse=passed exposure-refresh-registration eating:refused physical-and-actor-targets:checked gift-and-implant-conservation:checked morgue-recovery-refusal:checked persisted-part-wound-inspection:not-applicable",
+      "ARM03-legacy-missing-owner-corpse=passed separate-process-reload description-weight-buoyancy-race-and-Delete-callback safe corpse-item-illumination-and-unresolved-damage exact-positive-ID-kept canonical-current-body-and-history-preserved no-cleanup-authority-inferred",
+      "ARM03-runtime-missing-owner-part=passed exposure-refresh-registration eating:refused physical-and-actor-targets:not-applicable gift-and-implant-conservation:not-run morgue-recovery-refusal:not-run persisted-part-wound-inspection:checked",
+      "ARM03-legacy-missing-owner-part=passed separate-process-reload description-weight-buoyancy-race-and-Delete-callback safe corpse-item-illumination-and-unresolved-damage exact-positive-ID-kept canonical-current-body-and-history-preserved no-cleanup-authority-inferred",
+      "ARM03-runtime-final-inactive-corpse=passed exposure-refresh-registration eating:not-run physical-and-actor-targets:checked gift-and-implant-conservation:not-run morgue-recovery-refusal:checked persisted-part-wound-inspection:not-applicable",
+      "ARM03-legacy-final-inactive-corpse=passed separate-process-reload description-weight-buoyancy-race-and-Delete-callback safe corpse-item-illumination-and-unresolved-damage exact-positive-ID-kept canonical-current-body-and-history-preserved no-cleanup-authority-inferred",
+      "ARM03-legacy-acceptance=passed eleven-separate-process-readers exact-read-without-cleanup-authority safe-unresolved-body context-specific-current-body-validation runtime-consumer-boundaries",
+      "ARM03B-schema=passed maintained-snapshot-import empty-archive-down-to-prior-migration generated-upgrade model-parity existing-canonical-preserved restrictive-body-FK",
+      "ARM03B-native-death=passed loaded-production-NPC-Die pre-death-callback-refusal persisted-death-time primary-instance-death ownership-correlation no-remains-model",
+      "ARM03B-foreign-ownership=passed independently-unloaded-form-source-retirement-mismatch durable-hold foreign-rows-and-heavy-NPC-preserved",
+      "ARM03B-holds=passed foreign-custody serialized-remains-reference malformed-serialization writing-author-and-trueauthor drawing-history runtime-role-root durable-diagnostic no-graph-or-foreign-mutation",
+      "ARM03B-rollback=passed provider-insert-fault identity-body-NPC-instance-history-atomic runtime-release-after-commit-only",
+      "ARM03B-release-retry=passed post-commit-runtime-fault durable-archive-retained physical-graph-gone cached-actor-released-on-exact-retry",
+      "ARM03B-compaction=passed exact-archive canonical-ID-retained body-NPC-instance-released caller-restored stale-save-refused queued-saves-aborted real-cache-loader-no-materialization idempotent-retry",
+      "ARM03B-crime-history=passed stale-unfinished-witness-crime-durable-hold finalized-crime-weak-cache archived-criminal-victim-display-and-trial-name canonical-attribution-preserved",
+      "ARM03B-steady-state=passed four-repeated-native-deaths heavy-body-NPC-instance-rows-at-baseline bounded-archives weak-actor-graphs-collected foreign-wound-and-item-preserved",
+      "ARM03B-controller-release=passed monitored-native-death-and-persisted-dead-reload retained-controller-context-and-output-detached weak-actor-graphs-collected",
+      "ARM03B-reader=passed independent-process tombstone-and-archive history-attribution-preserved no-heavy-actor-materialization completed-idempotence no-pending-work",
+      "ARM03B-maintenance-retention=passed real-proposal-and-scheduled-maintenance ordinary-dead-NPC-body-and-history-retained held-spell-NPC-and-serialized-foreign-reference-retained durable-diagnostic no-FK-exception",
+      "ARM03B-maintenance-eligible=passed exactly-one-proven-native-NPC-archived protective-schema-unchanged no-new-lifecycle-or-death-proof",
+      "ARM03B-maintenance-cleanup=passed prior-corpse-delete-completed truthful-retention-and-archive-report temporary-offline-PC-quit statistics-restored",
+      "ARM03B-maintenance-registration-finally=passed partial-preload-actor-tracked-before-register temporary-PC-quit statistics-restored original-error-preserved",
+      "ARM03B-maintenance-preload-finally=passed real-preload-failure after-offline-PC-added temporary-PC-quit statistics-restored original-error-preserved",
+      "ARM03B-maintenance-orphans-finally=passed related-active-orphan-report-failure temporary-PC-quit statistics-restored disabled-destructive-item-cleanup-unchanged",
+      "ARM03B-maintenance-combined-false=passed real-partial-preload original-and-cleanup-causes-preserved temporary-PC-quit-attempt statistics-restored",
+      "ARM03B-maintenance-combined-throw=passed real-partial-preload original-and-cleanup-causes-preserved temporary-PC-quit-attempt statistics-restored",
+      "ARM03B2A-admission-direct=passed configured-native-casting real-loaded-merit-and-combo no-payment material-stack-unchanged exact-native-row-fingerprint progression-and-real-save-queues-conserved no-operation no-shared-quarantine",
+      "ARM03B2A-admission-role=passed configured-native-casting real-loaded-merit-and-combo no-payment material-stack-unchanged exact-native-row-fingerprint progression-and-real-save-queues-conserved no-operation no-shared-quarantine",
+      "ARM03B2A-admission-combo=passed configured-native-casting real-loaded-merit-and-combo no-payment material-stack-unchanged exact-native-row-fingerprint progression-and-real-save-queues-conserved no-operation no-shared-quarantine",
+      "ARM03B2A-admission-role-combo=passed configured-native-casting real-loaded-merit-and-combo no-payment material-stack-unchanged exact-native-row-fingerprint progression-and-real-save-queues-conserved no-operation no-shared-quarantine",
+      "ARM03B2A-admission-withdrawn=passed configured-native-refusal-before-payment no-operation exact-native-rows resource-material-progression-and-save-queues-conserved",
+      "ARM03B2A-admission-wrong-world=passed configured-native-refusal-before-payment no-operation exact-native-rows resource-material-progression-and-save-queues-conserved",
+      "ARM03B2A-admission-unavailable-service=passed configured-native-refusal-before-payment no-operation exact-native-rows resource-material-progression-and-save-queues-conserved",
+      "ARM03B2A-admission-control=passed same-trait-and-reserve actual-configured-payment-and-material-consumption one-completed-operation progression-available",
+      "ARM03B2A-creation=passed real-SimpleNPCTemplate native-new-NPC-Body-primary-instance production-DatabaseInsert atomic-claims activation-persisted-before-exposure unrelated-real-save-queue-conserved",
+      "ARM03B2A-starting-knowledge=passed actual-native-builder-and-CharacterKnowledge graph-inserted-before-identity-resumed no-precommit-child-save no-global-flush no-pending-private-knowledge",
+      "ARM03B2A-raw-skills=passed native-owned-and-legacy-template raw80-dynamic-cap50 persisted80 real-save-isolation retained-authored-history",
+      "ARM03B2A-replay=passed stable-creation-key-refusal write-suppressed-preparation-refusal no-recreated-native-graph",
+      "ARM03B2A-rollback=passed provider-refused-journal-write native-character-body-instance-NPC-and-starting-knowledge-insert-rolled-back exact-real-save-queues-conserved no-world-exposure",
+      "ARM03B2A-activation-hold=passed ordered-real-hook-install-then-predicate-failure real-heartbeat-raised-no-ghost-callback save-roots-released durable-character-and-primary-stasis replay-refused",
+      "ARM03B2A-role-admission=passed unadapted-trait-adjustment-refused-before-effect-application-and-native-constructor exact-persisted-census-and-real-save-queues-conserved legacy-role-semantics-retained",
+      "ARM03B2A-effect=passed actual-builder-createnpc CastingCopy-grade-binding production-effect-native-overload world-before-template-and-effect-onload callbacks-read-committed-provenance lifetime-independent stable-application-key",
+      "ARM03B2A-permanent=passed native-permanent-creation durable-completed-provenance no-deadline ordinary-live-NPC expiry-refused N15-full-mode-retirement-NOT-RUN",
+      "ARM03B2A-native-death=passed actual-NPC-Die actual-GameItemProto-CreateNew actual-corpse-factory-component-and-SaveManager predeath-not-proof persisted-dead-character-and-primary real-remains-XML foreign-unloaded-join-retained forced-correlation-failure-held",
+      "ARM03B2A-reconcile-holds=passed bounded-DB-only ambiguous-two-remains-refusal malformed-matching-XML-refusal native-corpse-and-foreign-item-join-conserved no-automatic-ownership-or-delete",
+      "ARM03B2A-reader=passed independent-process early-dead-active-before-expiry DB-only-correlation exact-body-remains no-heavy-dead-NPC-materialization held-stasis-TryGetCharacter-refusal no-recreation foreign-ID-and-join-conserved idempotent-bounded-retry actual-skill-reload-owned-and-legacy raw80-cap50-raised100-reveals80",
+      "ARM03B2A-encoded-remains=passed actual-native-corpse-XML-body-digits-encoded character-references-parsed separate-process-exact-corpse-correlation no-false-absence",
+      "ARM03B2A-death-replay=passed actual-already-dead-NPC-Die existing-remains-returned one-OnDeath no-second-corpse no-creation-or-delete-after-deadline",
+      "ARM03B2B-three-modes=passed actual-same-SimpleNPCTemplate permanent-durable-no-expiry default-no-corpse-dissipation death-on-expiry-native-corpse actual-GameItem-Delete actual-Character-Quit archival one-terminal-death-each no-replay",
+      "ARM03B2B-suppressed-retirement=passed persisted-Retiring-live-DeathOnExpiry read-only-refusal-before-native-Die-or-loading caller-scope-state-events-corpse-queues-roots-timers-and-subscriptions-unchanged writable-retry-one-death",
+      "ARM03B2B-fair-batches=passed limit-one stable-controller-hold-preserved later-eligible-native-expiry-completed-on-next-bounded-pass no-hold-starvation",
+      "ARM03B2B-controller-hold=passed expired-real-native-NPC foreign-controller-refused-before-Die-or-evacuation persisted-live-state-and-zero-corpse-conserved release-resumes-exactly-one-death-and-retirement",
+      "ARM03B2B-reader-decay=passed independent-owned-process actual-dead-NPC-body-nested-item-components-reload real-corpse-minute-heartbeat-positive-decay real-Scheduler-Morph-Delete guarded-foreign-transfer actual-Quit canonical-archive one-cell-join exact-lock-belt-and-item-identities",
+      "ARM03B2B-early-death=passed actual-native-NPC-Die configured-remains-kept-across-original-expiry native-Quit-old-host-cache-exit separate-process-native-body-and-items-reload positive-corpse-minute-decay actual-scheduled-morph-to-nothing-and-Delete nested-container-installed-lock-belt-attachment-conserved exact-IDs one-OnDeath",
+      "ARM03B2B-default-early-death=passed actual-native-Die suppressed-corpse foreign-item-conserved before-original-expiry later-deadline-no-redeath-or-recreation-or-removal",
+      "ARM03B2B-destination-hold=passed missing-safe-destination retains-live-owned-body-and-exact-persisted-foreign-custody before-Die-or-transfer explicit-location-recovery resumes-one-death-and-conserved-retirement",
+      "ARM03B2C-removal-provider-same-process=passed final-GameItems-DELETE-provider-refusal ordinary-save-flush exact-durable-removal-and-observer-journal native-reconciliation exact-foreign-conservation no-death-or-callback-replay",
+      "ARM03B2C-reader-removal=passed separate-owned-process pending-final-DELETE-durable-journal native-deletion-and-canonical-archive exact-foreign-conservation zero-native-death-and-observer-replay",
+      "ARM03B2C-removal-provider-restart=passed final-GameItems-DELETE-provider-refusal ordinary-save-flush exact-durable-removal-and-observer-journal native-reconciliation exact-foreign-conservation no-death-or-callback-replay",
+      "ARM03B2B-reader-topology=passed separate-owned-process original-A-to-B-to-child-loaded-after-ordinary-save-flush exact-native-edges-and-IDs-and-original-body-join no-death-or-retirement-in-inspection-reader",
+      "ARM03B2B-topology-callback=passed actual-Body-OnInventoryChange reparents-same-ID-child-between-native-containers explicit-component-Save-clears-flags typed-edges-refuse-before-custody-commit-or-Die runtime-native-fields-and-XML-restored ordinary-save-flush-before-separate-process-original-topology-reload no-manual-queue-dropping same-process-conserved-retry-one-death",
+      "ARM03B2C-reader-guard-custody=passed separate-owned-process exact-original-body-child-and-unacquired-room-item-reloaded-after-ordinary-flush",
+      "ARM03B2C-custody-outside-acquisition=passed actual-inventory-callback original-runtime-and-persisted-custody-conserved ordinary-flush separate-process-reload same-process-retry-one-death no-foreign-delete-or-callback-replay",
+      "ARM03B2C-reader-guard-custody=passed separate-owned-process exact-original-body-child-and-unacquired-room-item-reloaded-after-ordinary-flush",
+      "ARM03B2C-custody-child-delete=passed actual-inventory-callback original-runtime-and-persisted-custody-conserved ordinary-flush separate-process-reload same-process-retry-one-death no-foreign-delete-or-callback-replay",
+      "ARM03B2C-reader-guard-custody=passed separate-owned-process exact-original-body-child-and-unacquired-room-item-reloaded-after-ordinary-flush",
+      "ARM03B2C-custody-partial-stack=passed actual-inventory-callback original-runtime-and-persisted-custody-conserved ordinary-flush separate-process-reload same-process-retry-one-death no-foreign-delete-or-callback-replay",
+      "ARM03B2C-reader-guard-custody=passed separate-owned-process exact-original-body-child-and-unacquired-room-item-reloaded-after-ordinary-flush",
+      "ARM03B2C-custody-rollback-failure=passed actual-inventory-callback original-runtime-and-persisted-custody-conserved ordinary-flush separate-process-reload same-process-retry-one-death no-foreign-delete-or-callback-replay",
+      "ARM03B2B-removal-callback=passed actual-native-GameItem-Delete OnDeleted-injected-unloaded-foreign-join postcallback-refusal persisted-corpse-and-live-events-minute-decay-retained notification-not-replayed explicit-fixture-recovery native-Delete-and-Quit-complete foreign-item-conserved",
+      "ARM03B2B-replacement-morph-hold=passed actual-native-Scheduler-fired positive-target-Morph refused-before-new-item-output-transfer-or-activation exact-item-row-count-and-original-corpse-retained explicit-replacement-adapter-hold ordinary-removal-still-works",
+      "ARM03B2B-reader-retry=passed separate-owned-process actual-native-live-NPC-and-foreign-item-reload persisted-intent-resumed exact-one-Die no-corpse foreign-cell-join-once real-Quit canonical-archive committed-archive-with-completion-update-provider-refused-and-left-pending-for-crash-retry",
+      "ARM03B2B-crash-retry=passed actual-provider-refused-cell-join after-native-runtime-transfer transaction-rollback original-persisted-body-join-retained no-native-death-before-commit separate-process-reload-and-expiry conservation-before-death one-cell-join canonical-completion old-process-runtime-release",
+      "ARM03B2B-repeated=passed sixteen-native-create-kill-or-expire-quit-delete-archive-cycles exact-heavy-row-runtime-root-timer-heartbeat-steady-state permanent-retained-explained canonical-identity-history-growth-only"
+    ],
+    "passed_marker_count": 219,
+    "owned_databases_cleaned": 14,
+    "temporary_mysql_cleanup_verified": true,
+    "observations": [
+      "ARM03B2C-removal-observed=state:Completed remains-row:False deaths:1 callbacks:1 diagnostic:",
+      "ARM03B2C-removal-observed=state:Completed remains-row:False deaths:1 callbacks:1 diagnostic:",
+      "ARM03B2B-topology-observed=state:Retiring deaths:0 callbacks:1 callback-cleared-flags:True body-joins:1 cell-joins:0 original-XML:True",
+      "ARM03B2C-custody-flush-observed=body-joins:1 cell-joins:0 original-XML:True runtime-original-child:True",
+      "ARM03B2C-guard-observed=outside-acquisition callbacks:1 deaths:0 child-notifications:0 root-held:True child-contained:True external-held:False root-body-joins:1 root-cell-joins:0 external-cell-joins:1 XML-original:True item-rows:14 original-rows:14",
+      "ARM03B2C-guard-observed=child-delete callbacks:1 deaths:0 child-notifications:0 root-held:True child-contained:True external-held:False root-body-joins:1 root-cell-joins:0 external-cell-joins:1 XML-original:True item-rows:17 original-rows:17",
+      "ARM03B2C-guard-observed=partial-stack callbacks:1 deaths:0 child-notifications:0 root-held:True child-contained:True external-held:False root-body-joins:1 root-cell-joins:0 external-cell-joins:1 XML-original:True item-rows:20 original-rows:20",
+      "ARM03B2C-guard-observed=rollback-failure callbacks:1 deaths:0 child-notifications:0 root-held:True child-contained:True external-held:False root-body-joins:1 root-cell-joins:0 external-cell-joins:1 XML-original:True item-rows:23 original-rows:23"
+    ],
+    "failures": [],
+    "status": "PASS",
+    "base_commit": "689630e8733cd0ed35500a86ae7b9838defd3749",
+    "configuration": "Debug",
+    "mysql": "8.0.45",
+    "group_marker_counts": {
+      "ordinary": 4,
+      "legacy": 13,
+      "runtime": 11,
+      "maintenance": 8,
+      "npc_adapter": 22,
+      "retirement": 15,
+      "correction": 11,
+      "connection_guard": 1,
+      "archival": 11,
+      "lifecycle": 16,
+      "casting": 107
+    },
+    "qualification_limits": [
+      "Actual native SimpleNPCTemplate, NPC, Body, GameItem/components, Scheduler, HeartbeatManager, Die, Quit, Delete, EF/Pomelo and disposable MySQL; world catalogues, cell access/membership adapter and effect scheduler remain controlled.",
+      "N14/N15 have bounded controlled-native early death, configured remains, positive decay, nested foreign conservation and same-template three-mode coverage. Installed stock spell command sessions remain pending.",
+      "N16 remains partial: sixteen native steady-state heavy-row/runtime-root/timer/subscription cycles plus separate failure/decay readers; high-volume installed worlds and restart on every cycle not run.",
+      "Foreign custody rollback is bounded to verified native body, position, container/lock/belt and item/location adapters. Effects, wounds, targeted positions, firearm/severed-part structures, occupied/connected hosts, cross-body implants/prosthetics/lodged goods and replacement morphs remain conservative holds.",
+      "Incomplete durable deletion observer attempts retain their remains for review without replay. Corrective provider final-DELETE failures have completed observer proof and resume from exact typed removal intent.",
+      "Original topology and guarded callback fixtures use ordinary save flush before separate-process inspection and native retry; restart-removal/provider fixtures exit their exact old host normally. No manual foreign-item/component queue dropping is used.",
+      "Author/history adapters, generated-possession economy/salvage, count/control, automatic fallback destinations, other creation families, eight larger features and later stock/release phases remain pending.",
+      "Earlier admission combined MySQL failure cause and failure-instant endpoint remain unestablished; a same-input retry is not root-cause proof."
+    ],
+    "input_manifest": ".artifacts/test-runs/native-armageddon-20261003-stage3B2C-retirement-p2/final-inputs.json",
+    "input_manifest_sha256": "6cb5bf5a638a5c9f0c7ce2b06d8eab0bdf76237c0cc07ff61fb1e83ec979d12f",
+    "end_proof": ".artifacts/test-runs/native-armageddon-20261003-stage3B2C-retirement-p2/final-end-fingerprints.json",
+    "preservation": ".artifacts/test-runs/native-armageddon-20261003-stage3B2C-retirement-p2/final-preservation.json",
+    "source_fingerprints": 246,
+    "binary_fingerprints": 19,
+    "owned_processes_remaining": 0,
+    "installer_snapshot_native_import": {
+      "status": "PASS",
+      "marker": "ARM02-schema=passed blank-snapshot-import empty-casting-tables generated-migration-and-model-parity",
+      "latest_migration": "20261003170627_SpellOwnedRemainsRemovalIntent",
+      "snapshot_sha256": "7c7eea6f141aac08865beb6df67e75e62d676b649664244347aef8e4db77e320",
+      "manifest_sha256": "5d70f24aef0599552f4ab87cbf6e5ecd01d99365572876d9df6682da516b8054"
+    },
+    "connection_ownership": {
+      "validated_connection_boundaries": 56703,
+      "validated_native_process_ids": [
+        2044,
+        9108,
+        18096,
+        18772,
+        24784,
+        25252,
+        28852,
+        29932,
+        34584,
+        36508,
+        37480,
+        41932,
+        43856,
+        46220,
+        46296,
+        46392,
+        47828,
+        48472,
+        48900,
+        51316,
+        51780,
+        53784,
+        54104,
+        59688,
+        61040,
+        61408,
+        61452,
+        63636,
+        63852,
+        64656,
+        68236,
+        69176,
+        69652,
+        71660,
+        72652,
+        75056,
+        75296,
+        76072,
+        77224,
+        77932,
+        79108,
+        79752,
+        80168,
+        84508,
+        86924,
+        87664,
+        88676,
+        88816,
+        89692,
+        90880
+      ],
+      "server_checks": [
+        "ownedServer=verified boundary=runner-ready endpoint=127.0.0.1:52978 exact-instance=true",
+        "ownedServer=verified boundary=process---probe endpoint=127.0.0.1:52978 exact-instance=true",
+        "ownedServer=verified boundary=process---casting-run endpoint=127.0.0.1:52978 exact-instance=true",
+        "ownedServer=verified boundary=process---lifecycle-run endpoint=127.0.0.1:52978 exact-instance=true",
+        "ownedServer=verified boundary=process---body-retirement-run endpoint=127.0.0.1:52978 exact-instance=true",
+        "ownedServer=verified boundary=process---legacy-remains-run endpoint=127.0.0.1:52978 exact-instance=true",
+        "ownedServer=verified boundary=process---npc-archive-run endpoint=127.0.0.1:52978 exact-instance=true",
+        "ownedServer=verified boundary=process---npc-archive-maintenance-run endpoint=127.0.0.1:52978 exact-instance=true",
+        "ownedServer=verified boundary=process---spell-owned-npc-run endpoint=127.0.0.1:52978 exact-instance=true",
+        "ownedServer=verified boundary=process---spell-owned-retirement-run endpoint=127.0.0.1:52978 exact-instance=true",
+        "ownedServer=verified boundary=cleanup-before-shutdown endpoint=127.0.0.1:52978 exact-instance=true"
+      ],
+      "every_process_and_service_boundary_verified_before_use": true,
+      "actual_server_uuid_datadir_port_and_exact_registered_database_40hex_marker_required": true,
+      "shared_default_blank_and_unregistered_gameplay_targets_refused": true
+    }
+  },
+  "frozen_inputs": {
+    "manifest": ".artifacts/test-runs/native-armageddon-20261003-stage3B2C-retirement-p2/final-inputs.json",
+    "sha256": "6cb5bf5a638a5c9f0c7ce2b06d8eab0bdf76237c0cc07ff61fb1e83ec979d12f",
+    "sources": 246,
+    "assemblies": 19,
+    "end_proof": {
+      "status": "PASS",
+      "checked_utc": "2026-10-03T18:23:02.771627+00:00",
+      "manifest": ".artifacts/test-runs/native-armageddon-20261003-stage3B2C-retirement-p2/final-inputs.json",
+      "manifest_sha256": "6cb5bf5a638a5c9f0c7ce2b06d8eab0bdf76237c0cc07ff61fb1e83ec979d12f",
+      "sources": 246,
+      "assemblies": 19,
+      "all_source_and_assembly_fingerprints_match": true,
+      "prior_nine_receipts_unchanged": true,
+      "prior_528_artifacts_and_twelve_helpers_unchanged": true,
+      "source_tree_unchanged": true
+    },
+    "post_code_proof": {
+      "status": "PASS",
+      "checked_utc": "2026-10-03T18:24:39.077280+00:00",
+      "manifest": ".artifacts/test-runs/native-armageddon-20261003-stage3B2C-retirement-p2/final-inputs.json",
+      "manifest_sha256": "6cb5bf5a638a5c9f0c7ce2b06d8eab0bdf76237c0cc07ff61fb1e83ec979d12f",
+      "sources": 246,
+      "assemblies": 19,
+      "all_source_and_assembly_fingerprints_match": true,
+      "prior_nine_receipts_unchanged": true,
+      "prior_528_artifacts_and_twelve_helpers_unchanged": true,
+      "source_tree_unchanged": true
+    }
+  },
+  "source_review": {
+    "status": "no_remaining_actionable_findings",
+    "reviewer": "/root/fm_reviewer",
+    "scope": "Parent P2 custody and durable-removal correction plus native continuation seams",
+    "production_inputs": "retirement-after03-inputs.json",
+    "source_only": true,
+    "review_passes": [
+      {
+        "issues": [
+          "Rollback failure skipped restores and post-commit activation entered compensation",
+          "Callback acquisition outside captured graph lost custody",
+          "Captured child Delete destroyed runtime state"
+        ],
+        "repaired": true
+      },
+      {
+        "issues": [
+          "Actor raw position was not authoritative body position",
+          "Quantity/weight and plain Drop mutated before guards"
+        ],
+        "repaired": true
+      },
+      {
+        "issues": [],
+        "result": "Both remaining reported P2s resolved in source; no further actionable finding established in bounded review."
+      }
+    ],
+    "qualifications": [
+      "Controlled cell adapter remains explicit",
+      "Installed-world and broader adapters not accepted by source review"
+    ],
+    "execution_owned_by": "coordinator"
+  },
+  "native_attempts": [
+    {
+      "name": "custody-before",
+      "exit": {
+        "exit_code": 1,
+        "ended_utc": "2026-10-03T16:34:48.7217540Z",
+        "mode": "Retirement",
+        "probe": "Custody"
+      },
+      "log": ".artifacts/test-runs/native-armageddon-20261003-stage3B2C-retirement-p2/custody-before.log",
+      "log_sha256": "a27cc69ecc2f6b531167cf34873f167b91f6388a15312fe8b584466d9f133953",
+      "passed_markers": [
+        "ARM03B2B-connection-refusals=passed unowned-host shared-default blank-database unregistered-owned-prefix all-refused-before-connect",
+        "ARM03B2B-three-modes=passed actual-same-SimpleNPCTemplate permanent-durable-no-expiry default-no-corpse-dissipation death-on-expiry-native-corpse actual-GameItem-Delete actual-Character-Quit archival one-terminal-death-each no-replay",
+        "ARM03B2B-suppressed-retirement=passed persisted-Retiring-live-DeathOnExpiry read-only-refusal-before-native-Die-or-loading caller-scope-state-events-corpse-queues-roots-timers-and-subscriptions-unchanged writable-retry-one-death",
+        "ARM03B2B-fair-batches=passed limit-one stable-controller-hold-preserved later-eligible-native-expiry-completed-on-next-bounded-pass no-hold-starvation",
+        "ARM03B2B-controller-hold=passed expired-real-native-NPC foreign-controller-refused-before-Die-or-evacuation persisted-live-state-and-zero-corpse-conserved release-resumes-exactly-one-death-and-retirement",
+        "ARM03B2B-reader-decay=passed independent-owned-process actual-dead-NPC-body-nested-item-components-reload real-corpse-minute-heartbeat-positive-decay real-Scheduler-Morph-Delete guarded-foreign-transfer actual-Quit canonical-archive one-cell-join exact-lock-belt-and-item-identities",
+        "ARM03B2B-early-death=passed actual-native-NPC-Die configured-remains-kept-across-original-expiry native-Quit-old-host-cache-exit separate-process-native-body-and-items-reload positive-corpse-minute-decay actual-scheduled-morph-to-nothing-and-Delete nested-container-installed-lock-belt-attachment-conserved exact-IDs one-OnDeath",
+        "ARM03B2B-default-early-death=passed actual-native-Die suppressed-corpse foreign-item-conserved before-original-expiry later-deadline-no-redeath-or-recreation-or-removal",
+        "ARM03B2B-destination-hold=passed missing-safe-destination retains-live-owned-body-and-exact-persisted-foreign-custody before-Die-or-transfer explicit-location-recovery resumes-one-death-and-conserved-retirement"
+      ],
+      "passed_marker_count": 9,
+      "owned_databases_cleaned": 1,
+      "temporary_mysql_cleanup_verified": true,
+      "observations": [
+        "ARM03B2B-topology-observed=state:Retiring deaths:0 callbacks:1 callback-cleared-flags:True body-joins:1 cell-joins:0 original-XML:True",
+        "ARM03B2C-custody-flush-observed=body-joins:0 cell-joins:0 original-XML:False runtime-original-child:False"
+      ],
+      "failures": [
+        "Harness failed: System.InvalidOperationException: Ordinary save flush persisted rejected foreign topology or runtime custody was not restored."
+      ]
+    },
+    {
+      "name": "removal-before",
+      "exit": {
+        "exit_code": 1,
+        "ended_utc": "2026-10-03T16:36:38.2007048Z",
+        "mode": "Retirement",
+        "probe": "Removal"
+      },
+      "log": ".artifacts/test-runs/native-armageddon-20261003-stage3B2C-retirement-p2/removal-before.log",
+      "log_sha256": "988bc9d9cd327cc4c5c3ff970445101443873aba7b92e40cc2c0f0ac18e05e10",
+      "passed_markers": [
+        "ARM03B2B-connection-refusals=passed unowned-host shared-default blank-database unregistered-owned-prefix all-refused-before-connect",
+        "ARM03B2B-three-modes=passed actual-same-SimpleNPCTemplate permanent-durable-no-expiry default-no-corpse-dissipation death-on-expiry-native-corpse actual-GameItem-Delete actual-Character-Quit archival one-terminal-death-each no-replay",
+        "ARM03B2B-suppressed-retirement=passed persisted-Retiring-live-DeathOnExpiry read-only-refusal-before-native-Die-or-loading caller-scope-state-events-corpse-queues-roots-timers-and-subscriptions-unchanged writable-retry-one-death",
+        "ARM03B2B-fair-batches=passed limit-one stable-controller-hold-preserved later-eligible-native-expiry-completed-on-next-bounded-pass no-hold-starvation",
+        "ARM03B2B-controller-hold=passed expired-real-native-NPC foreign-controller-refused-before-Die-or-evacuation persisted-live-state-and-zero-corpse-conserved release-resumes-exactly-one-death-and-retirement",
+        "ARM03B2B-reader-decay=passed independent-owned-process actual-dead-NPC-body-nested-item-components-reload real-corpse-minute-heartbeat-positive-decay real-Scheduler-Morph-Delete guarded-foreign-transfer actual-Quit canonical-archive one-cell-join exact-lock-belt-and-item-identities",
+        "ARM03B2B-early-death=passed actual-native-NPC-Die configured-remains-kept-across-original-expiry native-Quit-old-host-cache-exit separate-process-native-body-and-items-reload positive-corpse-minute-decay actual-scheduled-morph-to-nothing-and-Delete nested-container-installed-lock-belt-attachment-conserved exact-IDs one-OnDeath",
+        "ARM03B2B-default-early-death=passed actual-native-Die suppressed-corpse foreign-item-conserved before-original-expiry later-deadline-no-redeath-or-recreation-or-removal",
+        "ARM03B2B-destination-hold=passed missing-safe-destination retains-live-owned-body-and-exact-persisted-foreign-custody before-Die-or-transfer explicit-location-recovery resumes-one-death-and-conserved-retirement"
+      ],
+      "passed_marker_count": 9,
+      "owned_databases_cleaned": 1,
+      "temporary_mysql_cleanup_verified": true,
+      "observations": [
+        "ARM03B2C-removal-observed=state:RemainsPending remains-row:True deaths:1 callbacks:1 diagnostic:Native retirement held: Native remains retain the exact body until ordinary decay or removal releases them."
+      ],
+      "failures": [
+        "Harness failed: System.InvalidOperationException: Native completion did not retire the exact heavy graph: Native retirement held: Native remains retain the exact body until ordinary decay or removal releases them."
+      ]
+    },
+    {
+      "name": "retirement-after01",
+      "exit": {
+        "exit_code": 1,
+        "ended_utc": "2026-10-03T17:35:52.7920269Z",
+        "mode": "Retirement",
+        "probe": ""
+      },
+      "log": ".artifacts/test-runs/native-armageddon-20261003-stage3B2C-retirement-p2/retirement-after01.log",
+      "log_sha256": "9358922eaeabbe6ea4a925176265782f94922e7488ccc6fa704d1b1960a7e521",
+      "passed_markers": [
+        "ARM03B2B-connection-refusals=passed unowned-host shared-default blank-database unregistered-owned-prefix all-refused-before-connect",
+        "ARM03B2B-three-modes=passed actual-same-SimpleNPCTemplate permanent-durable-no-expiry default-no-corpse-dissipation death-on-expiry-native-corpse actual-GameItem-Delete actual-Character-Quit archival one-terminal-death-each no-replay",
+        "ARM03B2B-suppressed-retirement=passed persisted-Retiring-live-DeathOnExpiry read-only-refusal-before-native-Die-or-loading caller-scope-state-events-corpse-queues-roots-timers-and-subscriptions-unchanged writable-retry-one-death",
+        "ARM03B2B-fair-batches=passed limit-one stable-controller-hold-preserved later-eligible-native-expiry-completed-on-next-bounded-pass no-hold-starvation",
+        "ARM03B2B-controller-hold=passed expired-real-native-NPC foreign-controller-refused-before-Die-or-evacuation persisted-live-state-and-zero-corpse-conserved release-resumes-exactly-one-death-and-retirement",
+        "ARM03B2B-reader-decay=passed independent-owned-process actual-dead-NPC-body-nested-item-components-reload real-corpse-minute-heartbeat-positive-decay real-Scheduler-Morph-Delete guarded-foreign-transfer actual-Quit canonical-archive one-cell-join exact-lock-belt-and-item-identities",
+        "ARM03B2B-early-death=passed actual-native-NPC-Die configured-remains-kept-across-original-expiry native-Quit-old-host-cache-exit separate-process-native-body-and-items-reload positive-corpse-minute-decay actual-scheduled-morph-to-nothing-and-Delete nested-container-installed-lock-belt-attachment-conserved exact-IDs one-OnDeath",
+        "ARM03B2B-default-early-death=passed actual-native-Die suppressed-corpse foreign-item-conserved before-original-expiry later-deadline-no-redeath-or-recreation-or-removal",
+        "ARM03B2B-destination-hold=passed missing-safe-destination retains-live-owned-body-and-exact-persisted-foreign-custody before-Die-or-transfer explicit-location-recovery resumes-one-death-and-conserved-retirement",
+        "ARM03B2C-removal-provider-same-process=passed final-GameItems-DELETE-provider-refusal ordinary-save-flush exact-durable-removal-and-observer-journal native-reconciliation exact-foreign-conservation no-death-or-callback-replay",
+        "ARM03B2C-reader-removal=passed separate-owned-process pending-final-DELETE-durable-journal native-deletion-and-canonical-archive exact-foreign-conservation zero-native-death-and-observer-replay"
+      ],
+      "passed_marker_count": 11,
+      "owned_databases_cleaned": 1,
+      "temporary_mysql_cleanup_verified": true,
+      "observations": [
+        "ARM03B2C-removal-observed=state:Completed remains-row:False deaths:1 callbacks:1 diagnostic:",
+        "ARM03B2C-removal-observed=state:Completed remains-row:False deaths:1 callbacks:1 diagnostic:"
+      ],
+      "failures": [
+        "Harness failed: System.InvalidOperationException: Native completion did not retire the exact heavy graph: "
+      ]
+    },
+    {
+      "name": "retirement-after02",
+      "exit": {
+        "exit_code": 1,
+        "ended_utc": "2026-10-03T17:39:46.7603755Z",
+        "mode": "Retirement",
+        "probe": ""
+      },
+      "log": ".artifacts/test-runs/native-armageddon-20261003-stage3B2C-retirement-p2/retirement-after02.log",
+      "log_sha256": "1833bc5ccd419da65fa781dac3d57972da0580ed4feae9a576c50a7e505c529d",
+      "passed_markers": [
+        "ARM03B2B-connection-refusals=passed unowned-host shared-default blank-database unregistered-owned-prefix all-refused-before-connect",
+        "ARM03B2B-three-modes=passed actual-same-SimpleNPCTemplate permanent-durable-no-expiry default-no-corpse-dissipation death-on-expiry-native-corpse actual-GameItem-Delete actual-Character-Quit archival one-terminal-death-each no-replay",
+        "ARM03B2B-suppressed-retirement=passed persisted-Retiring-live-DeathOnExpiry read-only-refusal-before-native-Die-or-loading caller-scope-state-events-corpse-queues-roots-timers-and-subscriptions-unchanged writable-retry-one-death",
+        "ARM03B2B-fair-batches=passed limit-one stable-controller-hold-preserved later-eligible-native-expiry-completed-on-next-bounded-pass no-hold-starvation",
+        "ARM03B2B-controller-hold=passed expired-real-native-NPC foreign-controller-refused-before-Die-or-evacuation persisted-live-state-and-zero-corpse-conserved release-resumes-exactly-one-death-and-retirement",
+        "ARM03B2B-reader-decay=passed independent-owned-process actual-dead-NPC-body-nested-item-components-reload real-corpse-minute-heartbeat-positive-decay real-Scheduler-Morph-Delete guarded-foreign-transfer actual-Quit canonical-archive one-cell-join exact-lock-belt-and-item-identities",
+        "ARM03B2B-early-death=passed actual-native-NPC-Die configured-remains-kept-across-original-expiry native-Quit-old-host-cache-exit separate-process-native-body-and-items-reload positive-corpse-minute-decay actual-scheduled-morph-to-nothing-and-Delete nested-container-installed-lock-belt-attachment-conserved exact-IDs one-OnDeath",
+        "ARM03B2B-default-early-death=passed actual-native-Die suppressed-corpse foreign-item-conserved before-original-expiry later-deadline-no-redeath-or-recreation-or-removal",
+        "ARM03B2B-destination-hold=passed missing-safe-destination retains-live-owned-body-and-exact-persisted-foreign-custody before-Die-or-transfer explicit-location-recovery resumes-one-death-and-conserved-retirement",
+        "ARM03B2C-removal-provider-same-process=passed final-GameItems-DELETE-provider-refusal ordinary-save-flush exact-durable-removal-and-observer-journal native-reconciliation exact-foreign-conservation no-death-or-callback-replay",
+        "ARM03B2C-reader-removal=passed separate-owned-process pending-final-DELETE-durable-journal native-deletion-and-canonical-archive exact-foreign-conservation zero-native-death-and-observer-replay",
+        "ARM03B2C-removal-provider-restart=passed final-GameItems-DELETE-provider-refusal ordinary-save-flush exact-durable-removal-and-observer-journal native-reconciliation exact-foreign-conservation no-death-or-callback-replay",
+        "ARM03B2B-reader-topology=passed separate-owned-process original-A-to-B-to-child-loaded-after-ordinary-save-flush exact-native-edges-and-IDs-and-original-body-join no-death-or-retirement-in-inspection-reader",
+        "ARM03B2B-topology-callback=passed actual-Body-OnInventoryChange reparents-same-ID-child-between-native-containers explicit-component-Save-clears-flags typed-edges-refuse-before-custody-commit-or-Die runtime-native-fields-and-XML-restored ordinary-save-flush-before-separate-process-original-topology-reload no-manual-queue-dropping same-process-conserved-retry-one-death"
+      ],
+      "passed_marker_count": 14,
+      "owned_databases_cleaned": 1,
+      "temporary_mysql_cleanup_verified": true,
+      "observations": [
+        "ARM03B2C-removal-observed=state:Completed remains-row:False deaths:1 callbacks:1 diagnostic:",
+        "ARM03B2C-removal-observed=state:Completed remains-row:False deaths:1 callbacks:1 diagnostic:",
+        "ARM03B2B-topology-observed=state:Retiring deaths:0 callbacks:1 callback-cleared-flags:True body-joins:1 cell-joins:0 original-XML:True",
+        "ARM03B2C-custody-flush-observed=body-joins:1 cell-joins:0 original-XML:True runtime-original-child:True"
+      ],
+      "failures": [
+        "Harness failed: System.InvalidOperationException: Guarded callback or provider rollback failure lost usable native custody after ordinary flush: outside-acquisition: Native retirement held: A native transfer callback attempted unsupported destruction or foreign custody outside its captured graph."
+      ]
+    },
+    {
+      "name": "retirement-after03",
+      "exit": {
+        "exit_code": 0,
+        "ended_utc": "2026-10-03T17:44:50.5390280Z",
+        "mode": "Retirement",
+        "probe": ""
+      },
+      "log": ".artifacts/test-runs/native-armageddon-20261003-stage3B2C-retirement-p2/retirement-after03.log",
+      "log_sha256": "66585e401191f745d50a0bad69eb8cb981ac811fa42cb2575dada6404f9ef6d7",
+      "passed_markers": [
+        "ARM03B2B-connection-refusals=passed unowned-host shared-default blank-database unregistered-owned-prefix all-refused-before-connect",
+        "ARM03B2B-three-modes=passed actual-same-SimpleNPCTemplate permanent-durable-no-expiry default-no-corpse-dissipation death-on-expiry-native-corpse actual-GameItem-Delete actual-Character-Quit archival one-terminal-death-each no-replay",
+        "ARM03B2B-suppressed-retirement=passed persisted-Retiring-live-DeathOnExpiry read-only-refusal-before-native-Die-or-loading caller-scope-state-events-corpse-queues-roots-timers-and-subscriptions-unchanged writable-retry-one-death",
+        "ARM03B2B-fair-batches=passed limit-one stable-controller-hold-preserved later-eligible-native-expiry-completed-on-next-bounded-pass no-hold-starvation",
+        "ARM03B2B-controller-hold=passed expired-real-native-NPC foreign-controller-refused-before-Die-or-evacuation persisted-live-state-and-zero-corpse-conserved release-resumes-exactly-one-death-and-retirement",
+        "ARM03B2B-reader-decay=passed independent-owned-process actual-dead-NPC-body-nested-item-components-reload real-corpse-minute-heartbeat-positive-decay real-Scheduler-Morph-Delete guarded-foreign-transfer actual-Quit canonical-archive one-cell-join exact-lock-belt-and-item-identities",
+        "ARM03B2B-early-death=passed actual-native-NPC-Die configured-remains-kept-across-original-expiry native-Quit-old-host-cache-exit separate-process-native-body-and-items-reload positive-corpse-minute-decay actual-scheduled-morph-to-nothing-and-Delete nested-container-installed-lock-belt-attachment-conserved exact-IDs one-OnDeath",
+        "ARM03B2B-default-early-death=passed actual-native-Die suppressed-corpse foreign-item-conserved before-original-expiry later-deadline-no-redeath-or-recreation-or-removal",
+        "ARM03B2B-destination-hold=passed missing-safe-destination retains-live-owned-body-and-exact-persisted-foreign-custody before-Die-or-transfer explicit-location-recovery resumes-one-death-and-conserved-retirement",
+        "ARM03B2C-removal-provider-same-process=passed final-GameItems-DELETE-provider-refusal ordinary-save-flush exact-durable-removal-and-observer-journal native-reconciliation exact-foreign-conservation no-death-or-callback-replay",
+        "ARM03B2C-reader-removal=passed separate-owned-process pending-final-DELETE-durable-journal native-deletion-and-canonical-archive exact-foreign-conservation zero-native-death-and-observer-replay",
+        "ARM03B2C-removal-provider-restart=passed final-GameItems-DELETE-provider-refusal ordinary-save-flush exact-durable-removal-and-observer-journal native-reconciliation exact-foreign-conservation no-death-or-callback-replay",
+        "ARM03B2B-reader-topology=passed separate-owned-process original-A-to-B-to-child-loaded-after-ordinary-save-flush exact-native-edges-and-IDs-and-original-body-join no-death-or-retirement-in-inspection-reader",
+        "ARM03B2B-topology-callback=passed actual-Body-OnInventoryChange reparents-same-ID-child-between-native-containers explicit-component-Save-clears-flags typed-edges-refuse-before-custody-commit-or-Die runtime-native-fields-and-XML-restored ordinary-save-flush-before-separate-process-original-topology-reload no-manual-queue-dropping same-process-conserved-retry-one-death",
+        "ARM03B2C-reader-guard-custody=passed separate-owned-process exact-original-body-child-and-unacquired-room-item-reloaded-after-ordinary-flush",
+        "ARM03B2C-custody-outside-acquisition=passed actual-inventory-callback original-runtime-and-persisted-custody-conserved ordinary-flush separate-process-reload same-process-retry-one-death no-foreign-delete-or-callback-replay",
+        "ARM03B2C-reader-guard-custody=passed separate-owned-process exact-original-body-child-and-unacquired-room-item-reloaded-after-ordinary-flush",
+        "ARM03B2C-custody-child-delete=passed actual-inventory-callback original-runtime-and-persisted-custody-conserved ordinary-flush separate-process-reload same-process-retry-one-death no-foreign-delete-or-callback-replay",
+        "ARM03B2C-reader-guard-custody=passed separate-owned-process exact-original-body-child-and-unacquired-room-item-reloaded-after-ordinary-flush",
+        "ARM03B2C-custody-partial-stack=passed actual-inventory-callback original-runtime-and-persisted-custody-conserved ordinary-flush separate-process-reload same-process-retry-one-death no-foreign-delete-or-callback-replay",
+        "ARM03B2C-reader-guard-custody=passed separate-owned-process exact-original-body-child-and-unacquired-room-item-reloaded-after-ordinary-flush",
+        "ARM03B2C-custody-rollback-failure=passed actual-inventory-callback original-runtime-and-persisted-custody-conserved ordinary-flush separate-process-reload same-process-retry-one-death no-foreign-delete-or-callback-replay",
+        "ARM03B2B-removal-callback=passed actual-native-GameItem-Delete OnDeleted-injected-unloaded-foreign-join postcallback-refusal persisted-corpse-and-live-events-minute-decay-retained notification-not-replayed explicit-fixture-recovery native-Delete-and-Quit-complete foreign-item-conserved",
+        "ARM03B2B-replacement-morph-hold=passed actual-native-Scheduler-fired positive-target-Morph refused-before-new-item-output-transfer-or-activation exact-item-row-count-and-original-corpse-retained explicit-replacement-adapter-hold ordinary-removal-still-works",
+        "ARM03B2B-reader-retry=passed separate-owned-process actual-native-live-NPC-and-foreign-item-reload persisted-intent-resumed exact-one-Die no-corpse foreign-cell-join-once real-Quit canonical-archive committed-archive-with-completion-update-provider-refused-and-left-pending-for-crash-retry",
+        "ARM03B2B-crash-retry=passed actual-provider-refused-cell-join after-native-runtime-transfer transaction-rollback original-persisted-body-join-retained no-native-death-before-commit separate-process-reload-and-expiry conservation-before-death one-cell-join canonical-completion old-process-runtime-release",
+        "ARM03B2B-repeated=passed sixteen-native-create-kill-or-expire-quit-delete-archive-cycles exact-heavy-row-runtime-root-timer-heartbeat-steady-state permanent-retained-explained canonical-identity-history-growth-only"
+      ],
+      "passed_marker_count": 27,
+      "owned_databases_cleaned": 1,
+      "temporary_mysql_cleanup_verified": true,
+      "observations": [
+        "ARM03B2C-removal-observed=state:Completed remains-row:False deaths:1 callbacks:1 diagnostic:",
+        "ARM03B2C-removal-observed=state:Completed remains-row:False deaths:1 callbacks:1 diagnostic:",
+        "ARM03B2B-topology-observed=state:Retiring deaths:0 callbacks:1 callback-cleared-flags:True body-joins:1 cell-joins:0 original-XML:True",
+        "ARM03B2C-custody-flush-observed=body-joins:1 cell-joins:0 original-XML:True runtime-original-child:True",
+        "ARM03B2C-guard-observed=outside-acquisition callbacks:1 deaths:0 child-notifications:0 root-held:True child-contained:True external-held:False root-body-joins:1 root-cell-joins:0 external-cell-joins:1 XML-original:True item-rows:14 original-rows:14",
+        "ARM03B2C-guard-observed=child-delete callbacks:1 deaths:0 child-notifications:0 root-held:True child-contained:True external-held:False root-body-joins:1 root-cell-joins:0 external-cell-joins:1 XML-original:True item-rows:17 original-rows:17",
+        "ARM03B2C-guard-observed=partial-stack callbacks:1 deaths:0 child-notifications:0 root-held:True child-contained:True external-held:False root-body-joins:1 root-cell-joins:0 external-cell-joins:1 XML-original:True item-rows:20 original-rows:20",
+        "ARM03B2C-guard-observed=rollback-failure callbacks:1 deaths:0 child-notifications:0 root-held:True child-contained:True external-held:False root-body-joins:1 root-cell-joins:0 external-cell-joins:1 XML-original:True item-rows:23 original-rows:23"
+      ],
+      "failures": []
+    }
+  ],
+  "build_attempts": [
+    {
+      "log": ".artifacts/phase3b2c-build01.log",
+      "sha256": "4530c2d94dd9b1588e1c956585f3600a5034cbadebc1799f4e61a1798278821b",
+      "status": "PASS",
+      "warning_count": 125,
+      "error_count": 0
+    },
+    {
+      "log": ".artifacts/phase3b2c-build02.log",
+      "sha256": "cd17594490ba39b5dbabbf4eaba88150f111d0816d7e1b4d67da8cfdefcb97f7",
+      "status": "PASS",
+      "warning_count": 126,
+      "error_count": 0
+    },
+    {
+      "log": ".artifacts/phase3b2c-build03.log",
+      "sha256": "d884d7180c35380e22cc0c034b5f5dff8fc3716e559d395af21337cab5121308",
+      "status": "PASS",
+      "warning_count": 124,
+      "error_count": 0
+    },
+    {
+      "log": ".artifacts/phase3b2c-build04.log",
+      "sha256": "8c12eb69c05a63e3711236c5402d845fbaaa48a0b7d7c36bb9a345c6133bae07",
+      "status": "PASS",
+      "warning_count": 124,
+      "error_count": 0
+    },
+    {
+      "log": ".artifacts/phase3b2c-build05.log",
+      "sha256": "6a390219dd88382eb7c753e09bba6574685332f37c67894d469b54f59e26e07d",
+      "status": "PASS",
+      "warning_count": 0,
+      "error_count": 0
+    },
+    {
+      "log": ".artifacts/phase3b2c-build06.log",
+      "sha256": "fc8c5a6cdc84a067075b541339dae3a2be4b4e6b20a5ce37c52d02b08b7bec38",
+      "status": "PASS",
+      "warning_count": 0,
+      "error_count": 0
+    },
+    {
+      "log": ".artifacts/phase3b2c-build07.log",
+      "sha256": "ee732e079896bb438ed3eef57419ef67939490cd158c662229010986feb5594a",
+      "status": "PASS",
+      "warning_count": 0,
+      "error_count": 0
+    }
+  ],
+  "earlier_managed_attempts": [
+    {
+      "run_id": "20261003T174937Z-dae4a72800ed",
+      "head": "689630e8733cd0ed35500a86ae7b9838defd3749",
+      "status": "FAIL",
+      "counts": {
+        "executed": 6834,
+        "passed": 6832,
+        "failed": 2,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 6834
+      },
+      "filter": null,
+      "configuration": "Debug",
+      "sdk": "10.0.401",
+      "started_utc": "2026-10-03T17:49:37.8482968+00:00",
+      "ended_utc": "2026-10-03T17:52:54.5067994+00:00",
+      "source_start": "19dd7642753d99a6811b54bf059a44be83c89510aa3bf061f51f38b777c7fd4a",
+      "source_end": "19dd7642753d99a6811b54bf059a44be83c89510aa3bf061f51f38b777c7fd4a",
+      "source_stable": true,
+      "execution_complete": true,
+      "counts_complete": true,
+      "projects": [
+        "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+        "ExpressionEngine Unit Tests/ExpressionEngine Unit Tests.csproj",
+        "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+        "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+        "MudsharpDatabaseLibrary Unit Tests/MudsharpDatabaseLibrary Unit Tests.csproj",
+        "DiscordBotCore Unit Tests/DiscordBotCore Unit Tests.csproj",
+        "RPI Engine Worldfile Converter Tests/RPI Engine Worldfile Converter Tests.csproj",
+        "FutureMUD.Web.Tests/FutureMUD.Web.Tests.csproj",
+        "TerrainPlanner/TerrainPlanner.Tests/TerrainPlanner.Tests.csproj",
+        "scripts/TestReporting.Tests/TestReporting.Tests.csproj"
+      ],
+      "issues": [
+        {
+          "kind": "TEST_FAILED",
+          "project": null,
+          "detail": "2 failing test records"
+        }
+      ],
+      "summary_path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174937Z-dae4a72800ed/summary.json",
+      "summary_sha256": "c7db58462a6894ba2703c631324e0395548ca09f68eb978f514a26fef3d5ba0e",
+      "failures_path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174937Z-dae4a72800ed/failures.json",
+      "failures_sha256": "e6bd2db2d0c67e3e9dc4bf048d8394a92cb00bf30e77bcc87e16a3a497eab903",
+      "project_counts": [
+        {
+          "project": "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+          "counts": {
+            "executed": 568,
+            "passed": 568,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 568
+          }
+        },
+        {
+          "project": "ExpressionEngine Unit Tests/ExpressionEngine Unit Tests.csproj",
+          "counts": {
+            "executed": 36,
+            "passed": 36,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 36
+          }
+        },
+        {
+          "project": "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+          "counts": {
+            "executed": 1441,
+            "passed": 1439,
+            "failed": 2,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 1441
+          }
+        },
+        {
+          "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+          "counts": {
+            "executed": 4531,
+            "passed": 4531,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 4531
+          }
+        },
+        {
+          "project": "MudsharpDatabaseLibrary Unit Tests/MudsharpDatabaseLibrary Unit Tests.csproj",
+          "counts": {
+            "executed": 67,
+            "passed": 67,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 67
+          }
+        },
+        {
+          "project": "DiscordBotCore Unit Tests/DiscordBotCore Unit Tests.csproj",
+          "counts": {
+            "executed": 22,
+            "passed": 22,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 22
+          }
+        },
+        {
+          "project": "RPI Engine Worldfile Converter Tests/RPI Engine Worldfile Converter Tests.csproj",
+          "counts": {
+            "executed": 43,
+            "passed": 43,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 43
+          }
+        },
+        {
+          "project": "FutureMUD.Web.Tests/FutureMUD.Web.Tests.csproj",
+          "counts": {
+            "executed": 54,
+            "passed": 54,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 54
+          }
+        },
+        {
+          "project": "TerrainPlanner/TerrainPlanner.Tests/TerrainPlanner.Tests.csproj",
+          "counts": {
+            "executed": 34,
+            "passed": 34,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 34
+          }
+        },
+        {
+          "project": "scripts/TestReporting.Tests/TestReporting.Tests.csproj",
+          "counts": {
+            "executed": 38,
+            "passed": 38,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 38
+          }
+        }
+      ]
+    }
+  ],
+  "installer_snapshot_maintenance": {
+    "status": "generated_offline_native_import_pending",
+    "tool": "pinned local dotnet-ef 9.0.11",
+    "from_migration": "20261003023907_SpellNpcArchival",
+    "to_migration": "20261003170627_SpellOwnedRemainsRemovalIntent",
+    "route": "EF-generated idempotent delta appended to maintained blank dump; only exact dump table identifiers normalized",
+    "database_connections_or_mutations": [],
+    "before_sha256": {
+      "snapshot": "bc444d699537456a154e6b8cdec5b7e61f9c671b1a285b1db4dd2ba01942a439",
+      "manifest": "9f19bc8720380bdaf9f1f965265d7118c4e12b7e2a469eb99abf954f957ab5bb",
+      "generated_delta": "7c28c9d7237c57cca834ff27cae6dbecd4149faad2ba42b504efaadb50ab6b50"
+    },
+    "after_sha256": {
+      "snapshot": "7c7eea6f141aac08865beb6df67e75e62d676b649664244347aef8e4db77e320",
+      "manifest": "5d70f24aef0599552f4ab87cbf6e5ecd01d99365572876d9df6682da516b8054"
+    },
+    "columns": [
+      "RemainsNotificationAttemptedUtc",
+      "RemainsNotificationCompletedUtc",
+      "RemainsRemovalRequestedUtc"
+    ]
+  },
+  "installer_snapshot_native_import": {
+    "status": "PASS",
+    "marker": "ARM02-schema=passed blank-snapshot-import empty-casting-tables generated-migration-and-model-parity",
+    "latest_migration": "20261003170627_SpellOwnedRemainsRemovalIntent",
+    "snapshot_sha256": "7c7eea6f141aac08865beb6df67e75e62d676b649664244347aef8e4db77e320",
+    "manifest_sha256": "5d70f24aef0599552f4ab87cbf6e5ecd01d99365572876d9df6682da516b8054"
+  },
+  "known_managed_repair": "Initial Fast had two latest-migration/snapshot-history failures; generated EF9 idempotent installer delta and manifest update, then affected and full reruns.",
+  "captured_not_run": [
+    {
+      "manifest": "custody-after-build03-inputs.json",
+      "status": "NOT_RUN_superseded_before_execution"
+    }
+  ],
+  "known_fixture_repairs": [
+    "retirement-after01 retained the old host alongside a completed restart reader; exact normal host exit added",
+    "retirement-after02 lacked the controlled room fixture persisted join; exact precondition join added before callback"
+  ],
+  "whole_plan": {
+    "phases": 7,
+    "approved_decisions": 16,
+    "candidates": 154,
+    "selected_sorcerer_spells": 82,
+    "support_source_rows": 12,
+    "source_tree_rows": 94,
+    "native_acceptance_scenarios": 25,
+    "source_tree_sha256": "ada4e574d1c2243b2bad30cb0d65b98a5413a20ad1d8917965335fb9e481d496",
+    "all_candidate_decision_phase_and_scenario_requirements_preserved": true
+  },
+  "durable_check": {
+    "id": "phase3B2C_retirement_P2",
+    "status": "implemented_verified_parent_independent_review_pending",
+    "implementation": "9b05379d9194b308c2b941ae743562c1b6b9a112",
+    "base": "689630e8733cd0ed35500a86ae7b9838defd3749",
+    "receipt": "Armageddon_Stage3B_NpcRetirement_P2_Verification.json",
+    "focused_core": "20261003T174813Z-2ad82c48a78f",
+    "focused_database": "20261003T174911Z-9a218d400a2c",
+    "installer_snapshot_focused": "20261003T180017Z-1bf17cfbf884",
+    "fast_all_ten_projects": "20261003T180045Z-2161a3d92fc3",
+    "counts": {
+      "focused_core": {
+        "executed": 450,
+        "passed": 450,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 450
+      },
+      "focused_database": {
+        "executed": 3,
+        "passed": 3,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 3
+      },
+      "installer_snapshot_focused": {
+        "executed": 9,
+        "passed": 9,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 9
+      },
+      "fast_all_ten_projects": {
+        "executed": 6834,
+        "passed": 6834,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 6834
+      }
+    },
+    "new_core_cases": 9,
+    "native_markers": 219,
+    "correction_markers": 11,
+    "owned_databases_cleaned": 14,
+    "owned_processes_remaining": 0,
+    "frozen_inputs_matching": 246,
+    "binary_fingerprints": 19,
+    "parent_P2s": [
+      "Ordinary flush persisted rejected runtime custody",
+      "Successful corpse removal lacked durable exact intent"
+    ],
+    "failing_before_native_receipts_retained": true,
+    "native_ordinary_flush_recovery_and_same_process_restart_no_replay_verified": true,
+    "prior_nine_receipts_528_artifacts_twelve_helpers_unchanged": true,
+    "installed_world_high_volume_every_cycle_restart_not_qualified": true
+  },
+  "preservation": {
+    "checked_utc": "2026-10-03T18:23:11.3695752Z",
+    "primary_head": "aca21bfc39298199291933375226d8982352420d",
+    "primary_branch": "codex/monster-ai-v1",
+    "primary_status": [
+      "?? .artifacts/"
+    ],
+    "primary_head_branch_status_unchanged": true,
+    "owned_processes_remaining": 0,
+    "process_query_succeeded": true,
+    "process_query_scope": "Read-only native harness paths and isolated MySQL prefix; no termination or database access.",
+    "publication_merge_deployment_actions": [],
+    "production_or_shared_database_mutations": [],
+    "primary_mutations": []
+  },
+  "qualification_limits": [
+    "Actual native SimpleNPCTemplate, NPC, Body, GameItem/components, Scheduler, HeartbeatManager, Die, Quit, Delete, EF/Pomelo and disposable MySQL; world catalogues, cell access/membership adapter and effect scheduler remain controlled.",
+    "N14/N15 have bounded controlled-native early death, configured remains, positive decay, nested foreign conservation and same-template three-mode coverage. Installed stock spell command sessions remain pending.",
+    "N16 remains partial: sixteen native steady-state heavy-row/runtime-root/timer/subscription cycles plus separate failure/decay readers; high-volume installed worlds and restart on every cycle not run.",
+    "Foreign custody rollback is bounded to verified native body, position, container/lock/belt and item/location adapters. Effects, wounds, targeted positions, firearm/severed-part structures, occupied/connected hosts, cross-body implants/prosthetics/lodged goods and replacement morphs remain conservative holds.",
+    "Incomplete durable deletion observer attempts retain their remains for review without replay. Corrective provider final-DELETE failures have completed observer proof and resume from exact typed removal intent.",
+    "Original topology and guarded callback fixtures use ordinary save flush before separate-process inspection and native retry; restart-removal/provider fixtures exit their exact old host normally. No manual foreign-item/component queue dropping is used.",
+    "Author/history adapters, generated-possession economy/salvage, count/control, automatic fallback destinations, other creation families, eight larger features and later stock/release phases remain pending.",
+    "Earlier admission combined MySQL failure cause and failure-instant endpoint remain unestablished; a same-input retry is not root-cause proof."
+  ],
+  "prior_immutable_receipts": [
+    {
+      "path": "Armageddon_Stage3A_Verification.json",
+      "sha256": "06d591e0476e07539e4da37cd008d796f0df36d49d0d9fc7c58cd85e96694246",
+      "unchanged": true
+    },
+    {
+      "path": "Armageddon_Stage3A_OrdinaryRetirement_Verification.json",
+      "sha256": "d913428f07ecca840d7be633c6a9fded3ff12ec62e273e38a844352e373392c3",
+      "unchanged": true
+    },
+    {
+      "path": "Armageddon_Stage3A_LegacyRemains_Verification.json",
+      "sha256": "1581e08e8db6670511d1c24f85be7c6961aa71454ec7261aae25bde5a8f1716a",
+      "unchanged": true
+    },
+    {
+      "path": "Armageddon_Stage3A_RuntimeRemains_Verification.json",
+      "sha256": "3c1c464c50d8f662862e1e0d8990ded630a13b76a12d0b50d6b5b4719e96e384",
+      "unchanged": true
+    },
+    {
+      "path": "Armageddon_Stage3B_Archival_Verification.json",
+      "sha256": "f80b3ddb1d02b201a2c15da874007ca143a36e06ef101e18d12e6ef726682190",
+      "unchanged": true
+    },
+    {
+      "path": "Armageddon_Stage3B_NativeNpc_Verification.json",
+      "sha256": "02ee665e21bd8b0af361a26f7daedb3f0d51716158e8464b98ae97e1d2772281",
+      "unchanged": true
+    },
+    {
+      "path": "Armageddon_Stage3B_Maintenance_Verification.json",
+      "sha256": "af660c635e9641151b618b6eabebd84fa85148071adb385be257b11844447430",
+      "unchanged": true
+    },
+    {
+      "path": "Armageddon_Stage3B_NpcAdmission_Verification.json",
+      "sha256": "a78217cde264083abe34b61e30a41373a02b9fbd8158267c6abe63d379820585",
+      "unchanged": true
+    },
+    {
+      "path": "Armageddon_Stage3B_NpcRetirement_Verification.json",
+      "sha256": "8def1dc929143e270da15ba6d40ed73bae00b41bb9dc0fe216a67310052d51a5",
+      "unchanged": true
+    }
+  ],
+  "prior_artifacts_verified": 528,
+  "prior_helpers_verified": 12,
+  "prior_stage_connection_failure": {
+    "root_cause_established": false,
+    "failure_instant_endpoint_established": false,
+    "same_input_retry_is_not_root_cause_proof": true
+  },
+  "artifact_fingerprints": [
+    {
+      "path": ".artifacts/phase3b2c-build01.log",
+      "sha256": "4530c2d94dd9b1588e1c956585f3600a5034cbadebc1799f4e61a1798278821b"
+    },
+    {
+      "path": ".artifacts/phase3b2c-build02.log",
+      "sha256": "cd17594490ba39b5dbabbf4eaba88150f111d0816d7e1b4d67da8cfdefcb97f7"
+    },
+    {
+      "path": ".artifacts/phase3b2c-build03.log",
+      "sha256": "d884d7180c35380e22cc0c034b5f5dff8fc3716e559d395af21337cab5121308"
+    },
+    {
+      "path": ".artifacts/phase3b2c-build04.log",
+      "sha256": "8c12eb69c05a63e3711236c5402d845fbaaa48a0b7d7c36bb9a345c6133bae07"
+    },
+    {
+      "path": ".artifacts/phase3b2c-build05.log",
+      "sha256": "6a390219dd88382eb7c753e09bba6574685332f37c67894d469b54f59e26e07d"
+    },
+    {
+      "path": ".artifacts/phase3b2c-build06.log",
+      "sha256": "fc8c5a6cdc84a067075b541339dae3a2be4b4e6b20a5ce37c52d02b08b7bec38"
+    },
+    {
+      "path": ".artifacts/phase3b2c-build07.log",
+      "sha256": "ee732e079896bb438ed3eef57419ef67939490cd158c662229010986feb5594a"
+    },
+    {
+      "path": ".artifacts/phase3b2c-migration-generation01.log",
+      "sha256": "3b37e330a054a7d31a4068f3d0d6964b1ad48330e40c1f21aeb243ac3f6bec3b"
+    },
+    {
+      "path": ".artifacts/phase3b2c-snapshot-delta01.sql",
+      "sha256": "7c28c9d7237c57cca834ff27cae6dbecd4149faad2ba42b504efaadb50ab6b50"
+    },
+    {
+      "path": ".artifacts/phase3b2c-snapshot-generation01.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/phase3b2c-snapshot-maintenance01.json",
+      "sha256": "2f32dc41b441979a9aed01bf1b907254abe1395b44a911ec77e53e4f1e456132"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174813Z-2ad82c48a78f/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174813Z-2ad82c48a78f/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174813Z-2ad82c48a78f/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stdout.log",
+      "sha256": "2da35e7b61be21ec11a7c466ecdfe38f988c9441d4d61a7317c160ad2155a47f"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174813Z-2ad82c48a78f/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/results.trx",
+      "sha256": "ec1f18dde4817f3d189f812b696fcbc18a9c3d5f5607a53224d5a49aa55cc5a7"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174813Z-2ad82c48a78f/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174813Z-2ad82c48a78f/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stdout.log",
+      "sha256": "766cd3f106340a9cd7081a0a74666f03e43fd416c52cad6470ab687f18ba688d"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174813Z-2ad82c48a78f/run.json",
+      "sha256": "1514751e7c72332befe5e74e46c61d296b59c91661317e3e7c713747471c0b00"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174813Z-2ad82c48a78f/sdk/sdk.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174813Z-2ad82c48a78f/sdk/sdk.stdout.log",
+      "sha256": "3db6bca4b50618b2e0d2d55d23b3d0541fe039ab6f731df0e9c47317b400ce52"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174813Z-2ad82c48a78f/source-end.json",
+      "sha256": "4afeb1f3c61cf77bdb3424fb6d03b65f004fe0e88067c3655ac0001ef3d5bb63"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174813Z-2ad82c48a78f/source-start.json",
+      "sha256": "4798f866a5aa7f81bd0170bf17e44b05f3eb1cc717b41a2ead827a2ac8706496"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174813Z-2ad82c48a78f/summary.json",
+      "sha256": "8cb8d005dbdbfa7f064a0d97c4f9655db54e74501fddd42e15a6e8aea61f87e8"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174813Z-2ad82c48a78f/summary.txt",
+      "sha256": "228dedbf954ff198da405271fdebfb599553dd363dd1bc08f49b4ab1b6ec3809"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174813Z-2ad82c48a78f/test-results.json",
+      "sha256": "396fa15b9a88a1bf5cf01c19414b84aa76ea1962883057a85a7e4dd07f69e717"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174911Z-9a218d400a2c/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174911Z-9a218d400a2c/invocations/MudsharpDatabaseLibrary_Unit_Tests-6ef1914c/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174911Z-9a218d400a2c/invocations/MudsharpDatabaseLibrary_Unit_Tests-6ef1914c/build/build.stdout.log",
+      "sha256": "d71166fe7a4a5881af04fbef03f53362673ee8e7a30976b423dfcc4a9673ef0a"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174911Z-9a218d400a2c/invocations/MudsharpDatabaseLibrary_Unit_Tests-6ef1914c/net10-41544e89/1/results.trx",
+      "sha256": "0b8a53f3b3b9d855834f48183caee1c08eb57004c701e064628f2f1e2130d712"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174911Z-9a218d400a2c/invocations/MudsharpDatabaseLibrary_Unit_Tests-6ef1914c/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174911Z-9a218d400a2c/invocations/MudsharpDatabaseLibrary_Unit_Tests-6ef1914c/net10-41544e89/1/test.stdout.log",
+      "sha256": "b492ce6489f5f634b6f597b061c9da8408a4f5258f223d4245ca054368b12c3e"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174911Z-9a218d400a2c/run.json",
+      "sha256": "fefd6866d77f415622ae81bc3c7ce788e28f510234af83a64dd43ad7ec9fbb57"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174911Z-9a218d400a2c/sdk/sdk.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174911Z-9a218d400a2c/sdk/sdk.stdout.log",
+      "sha256": "3db6bca4b50618b2e0d2d55d23b3d0541fe039ab6f731df0e9c47317b400ce52"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174911Z-9a218d400a2c/source-end.json",
+      "sha256": "fdb8ed4f1625e80067e56b00c8d70a9b3c5e7c474a5f994809782ec4acca7da4"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174911Z-9a218d400a2c/source-start.json",
+      "sha256": "2291e9b2f5d36e94a52fb9e40ae49a631c0b032d8f5bf3ef7e6636fdbdab3f74"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174911Z-9a218d400a2c/summary.json",
+      "sha256": "4b4707e12950f1f384eaf9a8d7646e67fee6b3d19f724e2dc4cfa31ff53155da"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174911Z-9a218d400a2c/summary.txt",
+      "sha256": "cbf4b8241a41c1fbf3bec67c355a1a56d1e8489e13b5e116cfa0edaa6a59d8c8"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174911Z-9a218d400a2c/test-results.json",
+      "sha256": "b74e04af9e75ad65af2a1edc67d82417503c43a8445044b8655b2bde705dacfd"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174937Z-dae4a72800ed/failures.json",
+      "sha256": "e6bd2db2d0c67e3e9dc4bf048d8394a92cb00bf30e77bcc87e16a3a497eab903"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174937Z-dae4a72800ed/invocations/DatabaseSeeder_Unit_Tests-e14dcedb/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174937Z-dae4a72800ed/invocations/DatabaseSeeder_Unit_Tests-e14dcedb/build/build.stdout.log",
+      "sha256": "8727342664942e1454dc28aac516a5df2e4efccbbff3d3593d4c8a7de1ec02d8"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174937Z-dae4a72800ed/invocations/DatabaseSeeder_Unit_Tests-e14dcedb/net10-41544e89/1/results.trx",
+      "sha256": "5b6959d7227d9effc9c02bb3120ab4669805838e06eadbeb84e16c0c66f07143"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174937Z-dae4a72800ed/invocations/DatabaseSeeder_Unit_Tests-e14dcedb/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174937Z-dae4a72800ed/invocations/DatabaseSeeder_Unit_Tests-e14dcedb/net10-41544e89/1/test.stdout.log",
+      "sha256": "8a88d2f8dc8e47a8073f06d42415e78ac786f0928e9da27c3893f63a84b7f2b3"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174937Z-dae4a72800ed/invocations/DiscordBotCore_Unit_Tests-4ffa2b0e/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174937Z-dae4a72800ed/invocations/DiscordBotCore_Unit_Tests-4ffa2b0e/build/build.stdout.log",
+      "sha256": "6c52724aa35429ca0e7fbff8c058f45a10c396222a5dfc146ac6970eae43e5eb"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174937Z-dae4a72800ed/invocations/DiscordBotCore_Unit_Tests-4ffa2b0e/net10-41544e89/1/results.trx",
+      "sha256": "98f0774361d444177a40f5a32a02c01f72e16f25848aa32cb368f4abbebf6186"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174937Z-dae4a72800ed/invocations/DiscordBotCore_Unit_Tests-4ffa2b0e/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174937Z-dae4a72800ed/invocations/DiscordBotCore_Unit_Tests-4ffa2b0e/net10-41544e89/1/test.stdout.log",
+      "sha256": "cb309aac4a8b8736408f6ed86634ad613f8515c26e3884d71fafce95fd8ab321"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174937Z-dae4a72800ed/invocations/ExpressionEngine_Unit_Tests-8cdb3e65/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174937Z-dae4a72800ed/invocations/ExpressionEngine_Unit_Tests-8cdb3e65/build/build.stdout.log",
+      "sha256": "e7dbc21e13e50a453c574ca775cb7d797da9a721d5191442457fbb1b789ea500"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174937Z-dae4a72800ed/invocations/ExpressionEngine_Unit_Tests-8cdb3e65/net10-41544e89/1/results.trx",
+      "sha256": "05cc2a7a8c0e8f58197eb20a9bbf1ed4863629844d824aee308416b38bc74cd7"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174937Z-dae4a72800ed/invocations/ExpressionEngine_Unit_Tests-8cdb3e65/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174937Z-dae4a72800ed/invocations/ExpressionEngine_Unit_Tests-8cdb3e65/net10-41544e89/1/test.stdout.log",
+      "sha256": "320bca85930405eb5dd1d4c458c76fb6e943b176fb1da48fbe03c82685f61a81"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174937Z-dae4a72800ed/invocations/FutureMUD.Web.Tests-ac492d08/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174937Z-dae4a72800ed/invocations/FutureMUD.Web.Tests-ac492d08/build/build.stdout.log",
+      "sha256": "e87c1f658a369f34070d4351e7c63624875243ff64ae13c4b1e42bfeb4a3e4d0"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174937Z-dae4a72800ed/invocations/FutureMUD.Web.Tests-ac492d08/net10-41544e89/1/results.trx",
+      "sha256": "2d1f93a4559658c0b68cff79c7bc5db7548e056cdd1053d8f5f5962edee6eef1"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174937Z-dae4a72800ed/invocations/FutureMUD.Web.Tests-ac492d08/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174937Z-dae4a72800ed/invocations/FutureMUD.Web.Tests-ac492d08/net10-41544e89/1/test.stdout.log",
+      "sha256": "5fa97522cc9a1f33af5f9401dfc3f8ae6f97b7097da01f05508cf9e4243fc912"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174937Z-dae4a72800ed/invocations/FutureMUDLibrary_Unit_Tests-45c02d6c/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174937Z-dae4a72800ed/invocations/FutureMUDLibrary_Unit_Tests-45c02d6c/build/build.stdout.log",
+      "sha256": "124b469454e86d866f9039f5b3fcb4319ce138e6274775db5ab56150cfce5b9c"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174937Z-dae4a72800ed/invocations/FutureMUDLibrary_Unit_Tests-45c02d6c/net10-41544e89/1/results.trx",
+      "sha256": "3fa929880656bb27146f71123b37ddd8301fcbe352f9126f2aa9513957b65340"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174937Z-dae4a72800ed/invocations/FutureMUDLibrary_Unit_Tests-45c02d6c/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174937Z-dae4a72800ed/invocations/FutureMUDLibrary_Unit_Tests-45c02d6c/net10-41544e89/1/test.stdout.log",
+      "sha256": "d351f78d16f39ad3074a7d97006ab285994287fbc874f338ec03280e93af4d1a"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174937Z-dae4a72800ed/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174937Z-dae4a72800ed/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stdout.log",
+      "sha256": "5f511eefd5740a5b1f7978b1152c3e8f8eb9ccadca8bc70c23ab1066ec802337"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174937Z-dae4a72800ed/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/results.trx",
+      "sha256": "102c1e92fb11848a3e75699690ca41adcd6c8e29df8ea4468d721ad48215e020"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174937Z-dae4a72800ed/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174937Z-dae4a72800ed/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stdout.log",
+      "sha256": "007f3881e629056aff7685f4629ca60032ab0bc71ae44026c0c2fb5dedd3dc3b"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174937Z-dae4a72800ed/invocations/MudsharpDatabaseLibrary_Unit_Tests-6ef1914c/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174937Z-dae4a72800ed/invocations/MudsharpDatabaseLibrary_Unit_Tests-6ef1914c/build/build.stdout.log",
+      "sha256": "c93b7589f64009ffb89706c8d4ef3c33942b6dbb3d929601ef45926c30fca61b"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174937Z-dae4a72800ed/invocations/MudsharpDatabaseLibrary_Unit_Tests-6ef1914c/net10-41544e89/1/results.trx",
+      "sha256": "a714ba1d06980b08cff6f51d6e72b8ecfe26b4e62ffb54c9ba61c463998263f6"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174937Z-dae4a72800ed/invocations/MudsharpDatabaseLibrary_Unit_Tests-6ef1914c/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174937Z-dae4a72800ed/invocations/MudsharpDatabaseLibrary_Unit_Tests-6ef1914c/net10-41544e89/1/test.stdout.log",
+      "sha256": "bf8c3dab56094d8574d2d8772e872aad51b0805963250fdc93be5e87dd0716cc"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174937Z-dae4a72800ed/invocations/RPI_Engine_Worldfile_Converter_Tests-14d87d34/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174937Z-dae4a72800ed/invocations/RPI_Engine_Worldfile_Converter_Tests-14d87d34/build/build.stdout.log",
+      "sha256": "0d4570b49796c9a1835e9cc40328a290e95b596ff1a44f220407cee75387c209"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174937Z-dae4a72800ed/invocations/RPI_Engine_Worldfile_Converter_Tests-14d87d34/net10-41544e89/1/results.trx",
+      "sha256": "b2bb0713260bc0353315aa814b27a788e6b6bced10505ea65f3b57c98120b3e7"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174937Z-dae4a72800ed/invocations/RPI_Engine_Worldfile_Converter_Tests-14d87d34/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174937Z-dae4a72800ed/invocations/RPI_Engine_Worldfile_Converter_Tests-14d87d34/net10-41544e89/1/test.stdout.log",
+      "sha256": "cf1fdb4dfa6e16c46d614f411a2e7f65101c988ed66cf7b016246df29b3d03fd"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174937Z-dae4a72800ed/invocations/TerrainPlanner.Tests-1085b5fa/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174937Z-dae4a72800ed/invocations/TerrainPlanner.Tests-1085b5fa/build/build.stdout.log",
+      "sha256": "c59a6e9236bcf0c4270839aee17d3abe2ec3a632917e5c2c716416ff949c3aaf"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174937Z-dae4a72800ed/invocations/TerrainPlanner.Tests-1085b5fa/net10-41544e89/1/results.trx",
+      "sha256": "1c3f09911c0aa7baf3b274f8447aba3df5427b219438e6b4fbb6beadcb2c2b08"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174937Z-dae4a72800ed/invocations/TerrainPlanner.Tests-1085b5fa/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174937Z-dae4a72800ed/invocations/TerrainPlanner.Tests-1085b5fa/net10-41544e89/1/test.stdout.log",
+      "sha256": "a441cd2aeee409c831e81df4f9270833f4d2345588b334e9b50dd7db43cb28f1"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174937Z-dae4a72800ed/invocations/TestReporting.Tests-25b07e44/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174937Z-dae4a72800ed/invocations/TestReporting.Tests-25b07e44/build/build.stdout.log",
+      "sha256": "b6c0e235c040a77263a46766a1678ddb3c6d14b856ef5d452656c376b2863ef3"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174937Z-dae4a72800ed/invocations/TestReporting.Tests-25b07e44/net10-41544e89/1/results.trx",
+      "sha256": "b64cafd05249fdc5214177fa6ab9c641175fb3861a08e057ffb9842226c94f33"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174937Z-dae4a72800ed/invocations/TestReporting.Tests-25b07e44/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174937Z-dae4a72800ed/invocations/TestReporting.Tests-25b07e44/net10-41544e89/1/test.stdout.log",
+      "sha256": "1967419e326213ad6c6167192f5ef46619c05bde420464d249d887b09fbf58d2"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174937Z-dae4a72800ed/run.json",
+      "sha256": "0b8d06057ce0ab77f67180801f07ba531c26eaf1142958889b64e39af110ef4a"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174937Z-dae4a72800ed/sdk/sdk.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174937Z-dae4a72800ed/sdk/sdk.stdout.log",
+      "sha256": "3db6bca4b50618b2e0d2d55d23b3d0541fe039ab6f731df0e9c47317b400ce52"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174937Z-dae4a72800ed/source-end.json",
+      "sha256": "8972f15c2bd14372d58ee97f99b94a9d913b2c444a81646e276c1769ac42ccd4"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174937Z-dae4a72800ed/source-start.json",
+      "sha256": "8b729a0ae76c2b12aed366a178b851798419e95dee909338d352ab515eb89054"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174937Z-dae4a72800ed/summary.json",
+      "sha256": "c7db58462a6894ba2703c631324e0395548ca09f68eb978f514a26fef3d5ba0e"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174937Z-dae4a72800ed/summary.txt",
+      "sha256": "4f58c46840b0aee23bca34851b734b50d06df87b4587b013ab5848c93f630378"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T174937Z-dae4a72800ed/test-results.json",
+      "sha256": "6090203df930a921050249b179297fd371f8182c083e392af02eb2aaab5ff0c7"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180017Z-1bf17cfbf884/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180017Z-1bf17cfbf884/invocations/DatabaseSeeder_Unit_Tests-e14dcedb/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180017Z-1bf17cfbf884/invocations/DatabaseSeeder_Unit_Tests-e14dcedb/build/build.stdout.log",
+      "sha256": "c5d862b7e3aefb923852f8c720b2e36fd072f3121030c2bf95c54f79634f06c5"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180017Z-1bf17cfbf884/invocations/DatabaseSeeder_Unit_Tests-e14dcedb/net10-41544e89/1/results.trx",
+      "sha256": "ce6cae101426622b585a1ee7059607ffb0b9cba3014fff8ba094e6780a24e451"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180017Z-1bf17cfbf884/invocations/DatabaseSeeder_Unit_Tests-e14dcedb/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180017Z-1bf17cfbf884/invocations/DatabaseSeeder_Unit_Tests-e14dcedb/net10-41544e89/1/test.stdout.log",
+      "sha256": "a0a824d57381ac56d9f58e46cc561f16a5cff96c9f496ebefb1481f5569861a3"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180017Z-1bf17cfbf884/run.json",
+      "sha256": "213758478603cbe2996cf0937b6e9dee97392cd41fba6a05d8a4e43fe234c217"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180017Z-1bf17cfbf884/sdk/sdk.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180017Z-1bf17cfbf884/sdk/sdk.stdout.log",
+      "sha256": "3db6bca4b50618b2e0d2d55d23b3d0541fe039ab6f731df0e9c47317b400ce52"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180017Z-1bf17cfbf884/source-end.json",
+      "sha256": "06814185f8440f577b8d0536fd345cfb174fd1e78873a629abbd83091f45df81"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180017Z-1bf17cfbf884/source-start.json",
+      "sha256": "ccbfb850fe89f53def374f9f409cf97636d62d36705e255e8c415b7bbe604f73"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180017Z-1bf17cfbf884/summary.json",
+      "sha256": "c79026dca6dea63c4284b3952a72564b3ed4a706fdc4a971b5d1fce9a8f61cc7"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180017Z-1bf17cfbf884/summary.txt",
+      "sha256": "187110138c7ae315d9eca2bf2b3fdba637e1da60bde006c221c848f98a06225a"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180017Z-1bf17cfbf884/test-results.json",
+      "sha256": "296583d158b25e34cb87ab7f30b160dc0b52cf34e0e4a0359cb46f19242abefc"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180045Z-2161a3d92fc3/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180045Z-2161a3d92fc3/invocations/DatabaseSeeder_Unit_Tests-e14dcedb/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180045Z-2161a3d92fc3/invocations/DatabaseSeeder_Unit_Tests-e14dcedb/build/build.stdout.log",
+      "sha256": "5bd3fff3f834281c2fba6ad4dbfae5f28a6dab889d6caf2a17c0b7903aed0122"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180045Z-2161a3d92fc3/invocations/DatabaseSeeder_Unit_Tests-e14dcedb/net10-41544e89/1/results.trx",
+      "sha256": "e0420bf3d183beebed1dc77cc2f580ce2afaa73a080c0acfe0d9a401b5168043"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180045Z-2161a3d92fc3/invocations/DatabaseSeeder_Unit_Tests-e14dcedb/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180045Z-2161a3d92fc3/invocations/DatabaseSeeder_Unit_Tests-e14dcedb/net10-41544e89/1/test.stdout.log",
+      "sha256": "bc94c16473ce5ae701cb9949b26e3bd9725b0aad22e2ac76da1d084dbc40efe2"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180045Z-2161a3d92fc3/invocations/DiscordBotCore_Unit_Tests-4ffa2b0e/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180045Z-2161a3d92fc3/invocations/DiscordBotCore_Unit_Tests-4ffa2b0e/build/build.stdout.log",
+      "sha256": "21e02459bca47e8c9ab672c0799d2bc52058995956ae62ec739a4aae0924c83e"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180045Z-2161a3d92fc3/invocations/DiscordBotCore_Unit_Tests-4ffa2b0e/net10-41544e89/1/results.trx",
+      "sha256": "4986bdd9f3a64eabba8a5e098abba86b02ccd0f31b5b7ed398ff34c697873c35"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180045Z-2161a3d92fc3/invocations/DiscordBotCore_Unit_Tests-4ffa2b0e/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180045Z-2161a3d92fc3/invocations/DiscordBotCore_Unit_Tests-4ffa2b0e/net10-41544e89/1/test.stdout.log",
+      "sha256": "2b01ad88cc767da3d29abe8bda7cd3b9be878e865a5bd81d04a8ce0aed21a754"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180045Z-2161a3d92fc3/invocations/ExpressionEngine_Unit_Tests-8cdb3e65/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180045Z-2161a3d92fc3/invocations/ExpressionEngine_Unit_Tests-8cdb3e65/build/build.stdout.log",
+      "sha256": "f607f78f87c3d2ab0a5947fe01f36195838c45374f723b88877d5c024bbf92b8"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180045Z-2161a3d92fc3/invocations/ExpressionEngine_Unit_Tests-8cdb3e65/net10-41544e89/1/results.trx",
+      "sha256": "36e3fc215739de38b265f0f08bedcc41af12dbb2f51ee739413c9720e06b9775"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180045Z-2161a3d92fc3/invocations/ExpressionEngine_Unit_Tests-8cdb3e65/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180045Z-2161a3d92fc3/invocations/ExpressionEngine_Unit_Tests-8cdb3e65/net10-41544e89/1/test.stdout.log",
+      "sha256": "74c69c904c40523123641e0e862cc9379f5aa97aef7957f8dbb9b694c4f50667"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180045Z-2161a3d92fc3/invocations/FutureMUD.Web.Tests-ac492d08/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180045Z-2161a3d92fc3/invocations/FutureMUD.Web.Tests-ac492d08/build/build.stdout.log",
+      "sha256": "023469573df4bdb51aad82174b56e6b06b3c1159f8faeb309caf90377a1da379"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180045Z-2161a3d92fc3/invocations/FutureMUD.Web.Tests-ac492d08/net10-41544e89/1/results.trx",
+      "sha256": "742030e0d28c625604b92d718b74290db3041e9e6b287d028b3f9200e1f44d29"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180045Z-2161a3d92fc3/invocations/FutureMUD.Web.Tests-ac492d08/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180045Z-2161a3d92fc3/invocations/FutureMUD.Web.Tests-ac492d08/net10-41544e89/1/test.stdout.log",
+      "sha256": "3e32e271492b2a0db279ffc0d17e63a4052ca0236de7443f182d0e8f9543bf19"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180045Z-2161a3d92fc3/invocations/FutureMUDLibrary_Unit_Tests-45c02d6c/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180045Z-2161a3d92fc3/invocations/FutureMUDLibrary_Unit_Tests-45c02d6c/build/build.stdout.log",
+      "sha256": "8bb937f6bdfac1b59b034c03181405ccbce90254d5519a6bf067f9769f423f83"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180045Z-2161a3d92fc3/invocations/FutureMUDLibrary_Unit_Tests-45c02d6c/net10-41544e89/1/results.trx",
+      "sha256": "c37922453faf57b84ea5d0057e730c7a3d579aa8021cd3fae4875ae9fba64ac4"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180045Z-2161a3d92fc3/invocations/FutureMUDLibrary_Unit_Tests-45c02d6c/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180045Z-2161a3d92fc3/invocations/FutureMUDLibrary_Unit_Tests-45c02d6c/net10-41544e89/1/test.stdout.log",
+      "sha256": "58034d9d95b5e736431ec0bfb336e3c83c89c0e2cc592ea5cdc318e7a0013232"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180045Z-2161a3d92fc3/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180045Z-2161a3d92fc3/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stdout.log",
+      "sha256": "cc054b1159fbdf5122ced35d41f3dea215c5b3fdabda97ef284dc31d62cd7d31"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180045Z-2161a3d92fc3/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/results.trx",
+      "sha256": "d3e4c627a9149be983301a0a7bf995526add932dec1f350bd8e2193e21c9ceed"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180045Z-2161a3d92fc3/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180045Z-2161a3d92fc3/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stdout.log",
+      "sha256": "6b257c91ab45ef792043e494ea10445ced7e20065324a33ca5ce4d10887d617c"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180045Z-2161a3d92fc3/invocations/MudsharpDatabaseLibrary_Unit_Tests-6ef1914c/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180045Z-2161a3d92fc3/invocations/MudsharpDatabaseLibrary_Unit_Tests-6ef1914c/build/build.stdout.log",
+      "sha256": "e117a1da7259117d35d294f44ab7f2f5ef82933949db8b37e08627a15b4e1756"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180045Z-2161a3d92fc3/invocations/MudsharpDatabaseLibrary_Unit_Tests-6ef1914c/net10-41544e89/1/results.trx",
+      "sha256": "a53c5762b4d13b63dda69e54ed5f471d97760e809e9949dbc5474f4b6c8c8f0c"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180045Z-2161a3d92fc3/invocations/MudsharpDatabaseLibrary_Unit_Tests-6ef1914c/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180045Z-2161a3d92fc3/invocations/MudsharpDatabaseLibrary_Unit_Tests-6ef1914c/net10-41544e89/1/test.stdout.log",
+      "sha256": "e965df4079080f3facfcdfbcc2a2ea5af0ef0927126feda636bffc1bdc88344e"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180045Z-2161a3d92fc3/invocations/RPI_Engine_Worldfile_Converter_Tests-14d87d34/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180045Z-2161a3d92fc3/invocations/RPI_Engine_Worldfile_Converter_Tests-14d87d34/build/build.stdout.log",
+      "sha256": "cc832083e252b2ccbcff62520367b90ad19b052d55db634b0f0e3aa673aa6081"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180045Z-2161a3d92fc3/invocations/RPI_Engine_Worldfile_Converter_Tests-14d87d34/net10-41544e89/1/results.trx",
+      "sha256": "7e6baefa726cdfaa180c9af4a94023bd623475961e099c43918631c6fdb20e7c"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180045Z-2161a3d92fc3/invocations/RPI_Engine_Worldfile_Converter_Tests-14d87d34/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180045Z-2161a3d92fc3/invocations/RPI_Engine_Worldfile_Converter_Tests-14d87d34/net10-41544e89/1/test.stdout.log",
+      "sha256": "c6689468183fbdaeb37efc207ed6a88b97a77eedbd6707b60ac504ee9d91dcef"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180045Z-2161a3d92fc3/invocations/TerrainPlanner.Tests-1085b5fa/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180045Z-2161a3d92fc3/invocations/TerrainPlanner.Tests-1085b5fa/build/build.stdout.log",
+      "sha256": "3d49ea6f895a3f15367d271c598eb81fdac52a96b3374febf0c04adb64d80818"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180045Z-2161a3d92fc3/invocations/TerrainPlanner.Tests-1085b5fa/net10-41544e89/1/results.trx",
+      "sha256": "2a67288b1d110af0bdfaee0cb1816053db289464abbbe2fdfe607ae53933804a"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180045Z-2161a3d92fc3/invocations/TerrainPlanner.Tests-1085b5fa/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180045Z-2161a3d92fc3/invocations/TerrainPlanner.Tests-1085b5fa/net10-41544e89/1/test.stdout.log",
+      "sha256": "a8927365e8f89d7901fd6c740e4674092c9335cb491e80344871fd8dbd9a4f24"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180045Z-2161a3d92fc3/invocations/TestReporting.Tests-25b07e44/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180045Z-2161a3d92fc3/invocations/TestReporting.Tests-25b07e44/build/build.stdout.log",
+      "sha256": "078a6bb5d2e1b7a3d419b8f097997c33e923e3ccf4f37de5abcb791f481d0da9"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180045Z-2161a3d92fc3/invocations/TestReporting.Tests-25b07e44/net10-41544e89/1/results.trx",
+      "sha256": "f28bd136c0f7c39a24d9fd7ea2554fe11fa1d35e2c5a64fb8b8ab594373a0bd4"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180045Z-2161a3d92fc3/invocations/TestReporting.Tests-25b07e44/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180045Z-2161a3d92fc3/invocations/TestReporting.Tests-25b07e44/net10-41544e89/1/test.stdout.log",
+      "sha256": "fc5f5761dded6d23c6e41e228dcde49b7f849c6c61a480a6c36cf9f9c2f2e7db"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180045Z-2161a3d92fc3/run.json",
+      "sha256": "cedaafc3e0b45d2fd80620c371a0c6f035b5a8c0a2fd8fd072b3a23dacd920a6"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180045Z-2161a3d92fc3/sdk/sdk.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180045Z-2161a3d92fc3/sdk/sdk.stdout.log",
+      "sha256": "3db6bca4b50618b2e0d2d55d23b3d0541fe039ab6f731df0e9c47317b400ce52"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180045Z-2161a3d92fc3/source-end.json",
+      "sha256": "47b3e307595133ecde96ad67fa5ac1994b4da5b6327c0fb56b504de5763e9a68"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180045Z-2161a3d92fc3/source-start.json",
+      "sha256": "893c05e708c93e037c6c597be04aa8c0ce2afd629fbad5ff5057a0ee65249a75"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180045Z-2161a3d92fc3/summary.json",
+      "sha256": "a166335033705973cb47ef0fe52c425ef134fe23bb824de3e1272c0db2b5974f"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180045Z-2161a3d92fc3/summary.txt",
+      "sha256": "1ddc7be0909ca079d317729832cc4e6f8588e5ed4b55e3064ea0008bd4665ae8"
+    },
+    {
+      "path": ".artifacts/test-runs/managed-armageddon-20261003-stage3B2C-retirement-p2/20261003T180045Z-2161a3d92fc3/test-results.json",
+      "sha256": "bc3e9b68bad0bad2077a815750ca39d02a00e00a4edfb227da15a3cd61e236ef"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261003-stage3B2C-retirement-p2/checkpoint-paths.json",
+      "sha256": "ef500fafd00433dc8dcc64eed0d80bd796f72a97b32007424a7a46e3037e9fd4"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261003-stage3B2C-retirement-p2/custody-after-build03-end-fingerprints.json",
+      "sha256": "826c22c58c9858bdc85598b941b6aa1b3b1c53657cfb58700bb0ab6cf0cf52ae"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261003-stage3B2C-retirement-p2/custody-after-build03-inputs.json",
+      "sha256": "7ab2d1a57688b39ac9a71b17574e426a39654fd357ef1ae121a2423e94a31078"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261003-stage3B2C-retirement-p2/custody-before-end-fingerprints.json",
+      "sha256": "393f61970cc454c58084afef14d88c07a9a0b47514f349bbf2c4c85f8d7aa657"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261003-stage3B2C-retirement-p2/custody-before-exit.json",
+      "sha256": "6364bb5caa443737b6c3982d138fd7580658d44dbbb0dc7e3010882a989ac620"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261003-stage3B2C-retirement-p2/custody-before-inputs.json",
+      "sha256": "720f701201ae7f583b0785e08d4b1aec87adbd952feb93a4c45a00e82061c9bf"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261003-stage3B2C-retirement-p2/custody-before.log",
+      "sha256": "a27cc69ecc2f6b531167cf34873f167b91f6388a15312fe8b584466d9f133953"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261003-stage3B2C-retirement-p2/db-final-managed-exit.json",
+      "sha256": "f5d538595ce71ff08ac7be07954202001e8ff6d1eedccd2b11049e5d8bf59779"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261003-stage3B2C-retirement-p2/db-final-managed.log",
+      "sha256": "9d4a7ff5b12775e9e3af525f14ef62d7765c966e9f68e43815c7417c990ed707"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261003-stage3B2C-retirement-p2/fast-final-managed-exit.json",
+      "sha256": "3eaf471c3e46261ebec0ffb3781444ef03884ea7dfdf608fc2ce77bbc6def1c0"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261003-stage3B2C-retirement-p2/fast-final-managed.log",
+      "sha256": "527a7a1aea60048cca43eedcc3fac9adecae2a53a271592fd0c5981c54bcdfc6"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261003-stage3B2C-retirement-p2/fast-rerun-managed-exit.json",
+      "sha256": "a56a091999b981179d9886b539d3bf309eb44949013b6c164981acbee495a46c"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261003-stage3B2C-retirement-p2/fast-rerun-managed.log",
+      "sha256": "8cd31779777fd38394bdf5a5f5a20e670380d255d826a4c4951bce0362b280e8"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261003-stage3B2C-retirement-p2/final-capacity/affordability-summary.json",
+      "sha256": "0b2f5f555742cdf803265e42b3d7678ca9a533838fa2ff1207bea53f925de6ea"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261003-stage3B2C-retirement-p2/final-capacity/affordability.csv",
+      "sha256": "1a2044d0591e6484d5727c3557bc81443f0074ecfdb6d6ab1624558e7975b654"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261003-stage3B2C-retirement-p2/final-end-fingerprints.json",
+      "sha256": "defabdc1b0b0b5bb94d0982cd800fadd794b619aeac1039038299db1dbc8476c"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261003-stage3B2C-retirement-p2/final-exit.json",
+      "sha256": "542dbde2c2989c83c1d9772224833991a8a3f39a4cb1db7ea5471561cacefccb"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261003-stage3B2C-retirement-p2/final-inputs.json",
+      "sha256": "6cb5bf5a638a5c9f0c7ce2b06d8eab0bdf76237c0cc07ff61fb1e83ec979d12f"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261003-stage3B2C-retirement-p2/final-native-summary.json",
+      "sha256": "a17814863d8bb0dafe83d360176dd712532b59bb999c948ef1f1f93949230714"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261003-stage3B2C-retirement-p2/final-preservation.json",
+      "sha256": "0171a2846d2ab337ca4848037eb09fd1ec2620989eebe7acfa521a38f85e979e"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261003-stage3B2C-retirement-p2/final.log",
+      "sha256": "0a357e3791e37712e9fb60163aa7f77ea5f3276d8e64d24b0a6cdff7e2e00ed4"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261003-stage3B2C-retirement-p2/focused-final-managed-exit.json",
+      "sha256": "cf0a1b76979b0b9a9e2741e5476feee4db3fa1aa82c0a1917ef1b1deba172c8a"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261003-stage3B2C-retirement-p2/focused-final-managed.log",
+      "sha256": "778ffaef1f68102b5b501c4204a6ffcd860ee70d8ebce28c8619fdf7b2ac021a"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261003-stage3B2C-retirement-p2/initial-plan.json",
+      "sha256": "75d83bed3b454cfe1327d47bc134b890eb76c58133e56490e9a573485629001d"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261003-stage3B2C-retirement-p2/post-code-fingerprints.json",
+      "sha256": "a191e06f252fce3f80811abe8bba9627cd5b37375b9a813676d2742b4d4e68b8"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261003-stage3B2C-retirement-p2/pre-final-preservation.json",
+      "sha256": "228397fcaea10d20ebef043050f8b3a6aaae2124085e4af75f69a3b92349a43f"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261003-stage3B2C-retirement-p2/removal-before-end-fingerprints.json",
+      "sha256": "b3a39bfa8e3e79237e63e7cdd6a82a754a40ced90bbe77ef16b8530af7fbe86b"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261003-stage3B2C-retirement-p2/removal-before-exit.json",
+      "sha256": "e0e51d2fd9dc9ac1f1d17d5784e8c33a8d11cf72d92f4dc143a0b257748b555d"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261003-stage3B2C-retirement-p2/removal-before-inputs.json",
+      "sha256": "e539cda0498254276455f50e156b6a520164edcbcceb29b81a1aa6b9f4ca0130"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261003-stage3B2C-retirement-p2/removal-before.log",
+      "sha256": "988bc9d9cd327cc4c5c3ff970445101443873aba7b92e40cc2c0f0ac18e05e10"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261003-stage3B2C-retirement-p2/retirement-after01-end-fingerprints.json",
+      "sha256": "4c14aa104993185d2890ab8e0de9e341cb00e087db9cd0a4dba2b905572a7970"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261003-stage3B2C-retirement-p2/retirement-after01-exit.json",
+      "sha256": "7d7d1d0c577883425a1caf6c502e25ef8b2014f3fda2175e1d52c69d1aaf8740"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261003-stage3B2C-retirement-p2/retirement-after01-inputs.json",
+      "sha256": "ea38a88de899fa101eb54df3f090f4493e1425721eb43a43861fbebfd50c7ebd"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261003-stage3B2C-retirement-p2/retirement-after01.log",
+      "sha256": "9358922eaeabbe6ea4a925176265782f94922e7488ccc6fa704d1b1960a7e521"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261003-stage3B2C-retirement-p2/retirement-after02-end-fingerprints.json",
+      "sha256": "2483cfddc1d7e0ba66a384d3f153a77fc434a73e0f6de4b6761bcdd67fac5ca2"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261003-stage3B2C-retirement-p2/retirement-after02-exit.json",
+      "sha256": "79719400b825e21495f1e698ec6a633278692a2b23a4297038c40dad3709a876"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261003-stage3B2C-retirement-p2/retirement-after02-inputs.json",
+      "sha256": "c0a97888941c638dfb45a86a66fce70b0cac1502fcfdd9dec06dbaff90e91dd2"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261003-stage3B2C-retirement-p2/retirement-after02.log",
+      "sha256": "1833bc5ccd419da65fa781dac3d57972da0580ed4feae9a576c50a7e505c529d"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261003-stage3B2C-retirement-p2/retirement-after03-end-fingerprints.json",
+      "sha256": "9cfa35f3bad45d6f16651aa53f57396002b8a6e500fcd6a560e71558c63e302f"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261003-stage3B2C-retirement-p2/retirement-after03-exit.json",
+      "sha256": "a96977067aeb710ef3763602de25f06a4aeb7d49d6d753930e19d833c2870056"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261003-stage3B2C-retirement-p2/retirement-after03-inputs.json",
+      "sha256": "9e0f17daece2046fe6a3a5469304c63a92e829d7844fac2ae982b78c585cb0ae"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261003-stage3B2C-retirement-p2/retirement-after03.log",
+      "sha256": "66585e401191f745d50a0bad69eb8cb981ac811fa42cb2575dada6404f9ef6d7"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261003-stage3B2C-retirement-p2/review-final.json",
+      "sha256": "3651ded1a7739dde7ec8f8e7b51a0cae29459c52797cc9049d5ec98318151c7d"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261003-stage3B2C-retirement-p2/snapshot-final-managed-exit.json",
+      "sha256": "eccf6ce9f7eb4a085419eef4fca7dada715a8016c1d19c4b6c190b2b4d835d76"
+    },
+    {
+      "path": ".artifacts/test-runs/native-armageddon-20261003-stage3B2C-retirement-p2/snapshot-final-managed.log",
+      "sha256": "4183ad21eada8d248d1abc8d2e45568f77522f04633faae1813bd86c06dc00eb"
+    }
+  ],
+  "artifact_fingerprint_count": 216,
+  "helper_fingerprints": [
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Run-Phase3B2CNative.ps1",
+      "sha256": "ef5d84f6faaf1e2d1531e76163d254cad02c4e650f65e8ea494abc6a50cd59b2"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Run-Phase3B2CTests.ps1",
+      "sha256": "2f0f0c29997e97c076caedc72951f4f31e33d483cf66981701ad001e2f6e667e"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Record-Phase3B2CPreservation.ps1",
+      "sha256": "06f081506580c1017001c3b18b1d9bdc7b86bdcb5c16195a196d6c3ec7c2929d"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Commit-Phase3B2CCheckpoint.ps1",
+      "sha256": "776dc70fbdfd9730515821447a3990a2258a3d4cb3ab2bd30d15e4d79f2bdb37"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\stage3b2c_evidence.py",
+      "sha256": "364ea02ed49eb64d5111c72c253c758bbf198904a6ac861ec058dbb19f9b3816"
+    },
+    {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Phase3B2C-Implementation-commit-message.txt",
+      "sha256": "90f53cf67559a5565dabd72696679dfcaa2802e3a6f927e5223bb93248c1e676"
+    }
+  ],
+  "publication_merge_deployment_actions": [],
+  "production_or_shared_database_access": [],
+  "next_feature_slice_started": false
+}

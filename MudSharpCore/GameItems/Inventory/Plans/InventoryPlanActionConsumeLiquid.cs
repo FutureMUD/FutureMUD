@@ -1,4 +1,4 @@
-﻿using MudSharp.Form.Material;
+using MudSharp.Form.Material;
 
 using MudSharp.Construction;
 
@@ -68,7 +68,7 @@ public class InventoryPlanActionConsumeLiquid : InventoryPlanAction
         item =
             executor.Body.HeldItems.FirstOrDefault(
                 x =>
-                    x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true) &&
+                    x.IsA(DesiredTag) && (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(x) ?? true, false)) &&
                     x.GetItemType<IOpenable>()?.IsOpen != false &&
                     LiquidSelector.Invoke(x.GetItemType<ILiquidContainer>()?.LiquidMixture));
         if (item != null)
@@ -80,7 +80,7 @@ public class InventoryPlanActionConsumeLiquid : InventoryPlanAction
         item =
             executor.Body.WieldedItems.FirstOrDefault(
                 x =>
-                    x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true) &&
+                    x.IsA(DesiredTag) && (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(x) ?? true, false)) &&
                     x.GetItemType<IOpenable>()?.IsOpen != false &&
                     LiquidSelector.Invoke(x.GetItemType<ILiquidContainer>()?.LiquidMixture));
         if (item != null)
@@ -92,7 +92,7 @@ public class InventoryPlanActionConsumeLiquid : InventoryPlanAction
         item =
             executor.Body.WornItems.FirstOrDefault(
                 x =>
-                    x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true) &&
+                    x.IsA(DesiredTag) && (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(x) ?? true, false)) &&
                     x.GetItemType<IOpenable>()?.IsOpen != false &&
                     LiquidSelector.Invoke(x.GetItemType<ILiquidContainer>()?.LiquidMixture));
         if (item != null)
@@ -107,7 +107,7 @@ public class InventoryPlanActionConsumeLiquid : InventoryPlanAction
                         x =>
                             x.ConnectedItems.FirstOrDefault(
                                  y =>
-                                     y.Parent.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(y.Parent) ?? true) &&
+                                     y.Parent.IsA(DesiredTag) && (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(y.Parent) ?? true, false)) &&
                                      y.Parent.GetItemType<IOpenable>()?.IsOpen != false &&
                                      LiquidSelector.Invoke(y.Parent.GetItemType<ILiquidContainer>()?.LiquidMixture))
                              ?.Parent)
@@ -123,7 +123,7 @@ public class InventoryPlanActionConsumeLiquid : InventoryPlanAction
                     .SelectNotNull(x => x.Content?.Parent)
                     .FirstOrDefault(
                         x =>
-                            x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true) &&
+                            x.IsA(DesiredTag) && (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(x) ?? true, false)) &&
                             x.GetItemType<IOpenable>()?.IsOpen != false &&
                             LiquidSelector.Invoke(x.GetItemType<ILiquidContainer>()?.LiquidMixture));
         if (item != null)
@@ -138,7 +138,7 @@ public class InventoryPlanActionConsumeLiquid : InventoryPlanAction
                     .SelectMany(x => x.Contents)
                     .FirstOrDefault(
                         x =>
-                            x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true) &&
+                            x.IsA(DesiredTag) && (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(x) ?? true, false)) &&
                             x.GetItemType<IOpenable>()?.IsOpen != false &&
                             LiquidSelector.Invoke(x.GetItemType<ILiquidContainer>()?.LiquidMixture));
         if (item != null)
@@ -150,7 +150,7 @@ public class InventoryPlanActionConsumeLiquid : InventoryPlanAction
         item =
             executor.Location.GameItemsInImmediateVicinity(executor).FirstOrDefault(
                 x =>
-                    x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true) &&
+                    x.IsA(DesiredTag) && (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(x) ?? true, false)) &&
                     x.GetItemType<IOpenable>()?.IsOpen != false &&
                     LiquidSelector.Invoke(x.GetItemType<ILiquidContainer>()?.LiquidMixture));
         if (item != null)
@@ -165,7 +165,7 @@ public class InventoryPlanActionConsumeLiquid : InventoryPlanAction
                         x =>
                             x.ConnectedItems.FirstOrDefault(
                                  y =>
-                                     y.Parent.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(y.Parent) ?? true) &&
+                                     y.Parent.IsA(DesiredTag) && (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(y.Parent) ?? true, false)) &&
                                      y.Parent.GetItemType<IOpenable>()?.IsOpen != false &&
                                      LiquidSelector.Invoke(y.Parent.GetItemType<ILiquidContainer>()?.LiquidMixture))
                              ?.Parent)
@@ -181,7 +181,7 @@ public class InventoryPlanActionConsumeLiquid : InventoryPlanAction
                     .SelectNotNull(x => x.Content?.Parent)
                     .FirstOrDefault(
                         x =>
-                            x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true) &&
+                            x.IsA(DesiredTag) && (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(x) ?? true, false)) &&
                             x.GetItemType<IOpenable>()?.IsOpen != false &&
                             LiquidSelector.Invoke(x.GetItemType<ILiquidContainer>()?.LiquidMixture));
         if (item != null)
@@ -196,7 +196,7 @@ public class InventoryPlanActionConsumeLiquid : InventoryPlanAction
                     .SelectMany(x => x.Contents)
                     .FirstOrDefault(
                         x =>
-                            x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true) &&
+                            x.IsA(DesiredTag) && (MudSharp.NPC.AI.CommandExecutionScope.EvaluateCallback(() => PrimaryItemSelector?.Invoke(x) ?? true, false)) &&
                             x.GetItemType<IOpenable>()?.IsOpen != false &&
                             LiquidSelector.Invoke(x.GetItemType<ILiquidContainer>()?.LiquidMixture));
         return item;

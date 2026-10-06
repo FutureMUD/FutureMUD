@@ -6,6 +6,7 @@ using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.GameItems;
 using MudSharp.Vehicles;
+using MudSharp.NPC.AI;
 
 namespace MudSharp.Effects.Concrete;
 
@@ -72,6 +73,7 @@ public class SelectedCombatAction : CombatEffectBase, ISelectedCombatAction
 
         public override ICombatMove GetCombatMove(ICharacter actor)
         {
+            if (!CommandExecutionScope.TryContinue(actor)) return null;
             actor.CombatTarget = Target;
             // TODO - override default melee strategy when charging manually
             return new ChargeToMeleeMove { Assailant = actor };
@@ -89,6 +91,7 @@ public class SelectedCombatAction : CombatEffectBase, ISelectedCombatAction
 
         public override ICombatMove GetCombatMove(ICharacter actor)
         {
+            if (!CommandExecutionScope.TryContinue(actor)) return null;
             actor.CombatTarget = Target;
             return new MoveToMeleeMove { Assailant = actor };
         }
@@ -262,7 +265,9 @@ public class SelectedCombatAction : CombatEffectBase, ISelectedCombatAction
         {
             if (Target == null)
             {
-                actor.Aim = new AimInformation(null, actor, Enumerable.Empty<ICellExit>(), Weapon);
+                var aim = new AimInformation(null, actor, Enumerable.Empty<ICellExit>(), Weapon);
+                if (!CommandExecutionScope.TryContinue(actor)) { aim.ReleaseEvents(); return null; }
+                actor.Aim = aim;
                 return new AimRangedWeaponMove(actor, null, Weapon);
             }
 
@@ -270,7 +275,9 @@ public class SelectedCombatAction : CombatEffectBase, ISelectedCombatAction
             {
                 if (actor.Location == Target.Location)
                 {
-                    actor.Aim = new AimInformation(Target, actor, Enumerable.Empty<ICellExit>(), Weapon);
+                    var aim = new AimInformation(Target, actor, Enumerable.Empty<ICellExit>(), Weapon);
+                    if (!CommandExecutionScope.TryContinue(actor)) { aim.ReleaseEvents(); return null; }
+                    actor.Aim = aim;
                 }
                 else
                 {
@@ -283,7 +290,9 @@ public class SelectedCombatAction : CombatEffectBase, ISelectedCombatAction
                         return null;
                     }
 
-                    actor.Aim = new AimInformation(Target, actor, path, Weapon);
+                    var aim = new AimInformation(Target, actor, path, Weapon);
+                    if (!CommandExecutionScope.TryContinue(actor)) { aim.ReleaseEvents(); return null; }
+                    actor.Aim = aim;
                 }
             }
 
@@ -430,6 +439,7 @@ public class SelectedCombatAction : CombatEffectBase, ISelectedCombatAction
 
         public override ICombatMove GetCombatMove(ICharacter actor)
         {
+            if (!CommandExecutionScope.TryContinue(actor)) return null;
             actor.CombatTarget = Target;
             if (Exit is not null)
             {
@@ -689,16 +699,23 @@ public class SelectedCombatAction : CombatEffectBase, ISelectedCombatAction
     }
 
     private readonly CombatActionType _action;
+    private readonly CommandExecutionAuthority _commandAuthority;
 
     private SelectedCombatAction(ICharacter owner, CombatActionType action, IFutureProg applicabilityProg = null) :
         base(owner, owner.Combat, applicabilityProg)
     {
         _action = action;
+        _commandAuthority = CommandExecutionAuthority.CaptureSelected(owner);
     }
 
     public ICombatMove GetMove(ICharacter actor)
     {
-        return _action.GetCombatMove(actor);
+        if (_commandAuthority is not null && !_commandAuthority.MayExecute(actor)) return null;
+        using var execution = CommandExecutionScope.EnterFactory(_commandAuthority, actor);
+        var move = _action.GetCombatMove(actor);
+        if (!CommandExecutionScope.TryContinue(actor)) return null;
+        _commandAuthority?.Bind(move);
+        return move;
     }
 
     public bool ShouldRemove(CharacterState state)

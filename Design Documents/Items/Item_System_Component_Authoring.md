@@ -333,6 +333,16 @@ Not every component needs these, but authors should deliberately consider them:
 - `ComponentBuoyancy(...)`
 - `WarnBeforePurge`
 
+Component `Delete` may recursively destroy children, so keep conservation checks at
+the parent orchestration boundary before it invokes components. Removal-authorized
+spell-owned corpses run that check both before and after deletion observers. A held
+attempt preserves live events/decay and never reaches component destruction. Observers
+are attempted once; a thrown observer latches a refusal rather than replaying partial
+side effects. Positive corpse replacement morphs require a verified transfer adapter
+and currently hold before replacement construction or activation. Container, lock and
+attachment reachability does not authorize deleting foreign objects. See
+[spell-owned lifecycle](../Magic/Spell_Owned_Lifecycle.md).
+
 ### Runtime state versus proto state
 Use this rule consistently:
 - if the value is authored once and reused by many items, it belongs on the proto
@@ -608,3 +618,20 @@ No restaurant-specific item component is required. Create dining furniture with 
 ## Psychometric integration
 
 Psychometric history is a saved item effect, not a mandatory component. Inventory component authors should complete transfers before invoking inventory-change notifications so effective carrier continuity is observed after detach/attach operations. Splitting components should preserve history through the item copy/owner-copy hooks.
+
+
+## Native spell-created consumable graphs
+
+For primary-hand temporary weapon placement use an approved plain Holdable + MeleeWeapon prototype within the existing native creation eligibility boundary. Author its actual native weapon type and attacks; Storm Spear stock requires electrical attacks and at least one normal one-hand-capable melee attack. Keep placement and lifetime policy on the spell. Component rank is an explicit native tag hierarchy, not inferred from item quality: five Creation ranks zero through four with each higher tag descending from the previous tag satisfy the stock `max(grade-3,0)` requirement. Use spell `plan carried` and `plan ranks` controls to edit those persisted constraints.
+
+For bounded lifecycle food author a loadable approved prototype with exactly Holdable + Food, finite positive bites, finite nonnegative nutrition, a bites decorator and no OnEatProg. For a worn light use exactly Holdable + Wearable + ProgLight, a native default wear profile without wear scripts and finite positive lux. Both prototypes must be unscripted and have no ordinary morphing/default item hooks. Add count/placement/lifetime policy on the spell, not on a duplicate component timer. Unsupported stacks, recipe payloads and component graphs require their own ownership adapters.
+
+Liquid creation targets existing open LiquidContainer components; it creates no new container. Author unscripted stock containers for the qualified slice, native fluid capacity and the spell's litres/allowed-mixture/optional-plane recipe. Additional callback-bearing containers retain ordinary MergeLiquid callbacks and require separate failure qualification.
+
+Create Item lifecycle output pools are editable using output <grade 1-7> <prototype> ...|none. Each grade pool contains 1-32 distinct approved plain-item prototypes, all validated before payment. A casting copy retains one sampled prototype through its preparation/application. The permanent <grade> switch controls lifetime independently from the selected pool. Pools cannot bypass worn-light or count-grade admission. eligibility <boolean(character) prog>|none and lifetimemultiplier <number(character) prog>|none configure environment admission and a finite positive lifetime multiplier; malformed persisted policy retains its original editable XML and refuses casting.
+
+Consumed material plan grade <number> <grade 1-7>|all is persisted, displayed and bound on an invocation copy. Other grades omit that requirement without deleting materials; runtime selectors are preserved. Missing grade-dependent tags keep their original ID and refuse before payment and consumption, preventing null-tag wildcard consumption. The existing legacy/custom plan path remains unchanged when no grade selection exists. Temporary weapons refuse salvage; permanent staff remains ordinary salvage-eligible material. Exact expiry/restart conserves foreign bag, permanent staff and sibling goods; source/native qualification limits are recorded in Armageddon_FlameKnife_Stock_Verification.json.
+
+## Sand Knife weapon profiles
+
+Bounded Sand Knife stock selects six distinct temporary grade prototypes and eight distinct permanent staff prototypes. All require approved unscripted plain-item graphs, a usable one-hand native melee attack and physical Slashing/Chopping/Crushing/Piercing profiles. Historical statistics and charged staff payloads are unavailable; choose and document native profiles explicitly. The controlled acceptance authors piercing6 damage4 pain2 stun and exercises real native wield/combat; it does not establish historical profile parity. Configure lifetime, grade output pool, permanent-grade switch and eligibility on the spell, not duplicate component timers.

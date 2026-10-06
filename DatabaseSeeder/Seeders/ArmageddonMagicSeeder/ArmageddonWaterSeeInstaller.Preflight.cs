@@ -68,6 +68,9 @@ public static partial class ArmageddonWaterSeeInstaller
 					errors.Add($"{contribution.Key}: owned row missing/retired/invalid; restore or explicitly rebind, no resurrection.");
 				if (db.SeederManagedRecords.Any(x => x.Id != record.Id && x.EntityType == record.EntityType && x.LogicalId == record.LogicalId))
 					errors.Add($"{contribution.Key}: competing retained ownership claim.");
+				if (contribution.Type == typeof(MagicSpell) && Find(db, contribution, record) is MagicSpell spell &&
+					StockIdentity(spell.Definition) != contribution.Key)
+					errors.Add($"{contribution.Key}: owned spell has no matching reviewed stock identity; preserved without repair or adoption.");
 			}
 			else if (db.SeederManagedRecords.Any(x => x.Seeder == Package && x.StableKey == contribution.Key))
 				errors.Add($"{contribution.Key}: cross-module ownership key; no adoption.");

@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<OutputType>Exe</OutputType><TargetFramework>net10.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable>
+		<StartupObject>FutureMUD.GatheringNativePersistenceHarness.WaterSeeInstallerEntryPoint</StartupObject>
+		<AssemblyName>GatheringNativePersistenceHarness</AssemblyName>
+	</PropertyGroup>
+	<ItemGroup>
+		<Compile Include="../../Temporary Scratch App/GatheringNativePersistenceHarness/*.cs" Link="Shared/%(Filename)%(Extension)" />
+		<Compile Include="../../Temporary Scratch App/FiveStockNativeHarness/Program.*.cs" Link="FiveStock/%(Filename)%(Extension)" />
+		<Compile Include="../../Temporary Scratch App/ProvisionStockNativeHarness/Program.*.cs" Link="ProvisionStock/%(Filename)%(Extension)" />
+		<Compile Include="../../Temporary Scratch App/PierceStockNativeHarness/Program.*.cs" Link="PierceStock/%(Filename)%(Extension)" />
+		<Compile Include="../../Temporary Scratch App/WaterBreathingAdapterNativeHarness/Program.WaterBreathingAdapter.cs" Link="WaterAdapter/Program.WaterBreathingAdapter.cs" />
+		<Compile Include="../../Temporary Scratch App/EtherealAdapterNativeHarness/Program.EtherealAdapter.cs" Link="EtherealAdapter/Program.EtherealAdapter.cs" />
+		<Compile Include="../../Temporary Scratch App/WaterBreathingStockNativeHarness/Program.WaterBreathingStock.cs" Link="WaterStock/Program.WaterBreathingStock.cs" />
+		<Compile Include="../../Temporary Scratch App/EtherealComponentAdapterNativeHarness/Program.EtherealComponentAdapter.cs" Link="ComponentAdapter/Program.EtherealComponentAdapter.cs" />
+		<Compile Include="../../Temporary Scratch App/SeeTheUnbodiedStockNativeHarness/Program.SeeTheUnbodiedStock.cs" Link="SeeStock/Program.SeeTheUnbodiedStock.cs" />
+		<Compile Include="../ArmageddonInstallerNativeHarness/Program.Installer.cs" Link="Installer/Program.Installer.cs" />
+		<Compile Include="../ArmageddonTraditionNativeHarness/*.cs" Link="Traditions/%(Filename)%(Extension)" />
+		<Compile Include="../ArmageddonPreparedSeederNativeHarness/*.cs" Link="Prepared/%(Filename)%(Extension)" />
+		<ProjectReference Include="../../DatabaseSeeder/DatabaseSeeder.csproj" />
+		<ProjectReference Include="../../FutureMUDLibrary/FutureMUDLibrary.csproj" />
+		<ProjectReference Include="../../MudsharpDatabaseLibrary/MudsharpDatabaseLibrary.csproj" />
+		<ProjectReference Include="../../MudSharpCore/MudSharpCore.csproj" />
+		<PackageReference Include="Moq" Version="4.20.70" />
+	</ItemGroup>
+</Project>

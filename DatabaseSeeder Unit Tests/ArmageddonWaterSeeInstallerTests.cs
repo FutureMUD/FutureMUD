@@ -8,6 +8,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MudSharp.Database;
 using MudSharp.Magic;
 using MudSharp.Models;
+using MagicSpell = MudSharp.Models.MagicSpell;
 
 namespace MudSharp_Unit_Tests;
 
@@ -151,5 +152,26 @@ public partial class ArmageddonPreparedWorldSeederTests
 		var plan = WaterSeePlan(db, bindings); db.MagicSpells.First();
 		Assert.AreEqual(ArmageddonInstallStatus.Blocked, ArmageddonWaterSeeInstaller.Install(db, plan).Status);
 		db.Dispose(); Assert.AreEqual(ArmageddonInstallStatus.Declined, ArmageddonWaterSeeInstaller.Install(db, plan with { Install = false }).Status);
+	}
+
+	[DataTestMethod]
+	[DataRow("missing")][DataRow("changed")]
+	public void WaterSeeStandaloneRefusesRetainedStockIdentityDamageWithoutRepair(string damage)
+	{
+		var (db, bindings) = WaterSeeFixture(); using (db)
+		{
+			Completed(ArmageddonPreparedWorldInstaller.Install(Factory(db), bindings));
+			var plan = WaterSeePlan(db, bindings);
+			var row = db.MagicSpells.Single(x => db.SeederManagedRecords.Any(r => r.StableKey == ArmageddonWaterSeeInstaller.WaterBreathingKey && r.LogicalId == x.Id));
+			var xml = XElement.Parse(row.Definition);
+			if (damage == "missing") xml.Element("StockIdentity")!.Remove();
+			else xml.Element("StockIdentity")!.Value = "builder.changed.identity";
+			row.Definition = xml.ToString(); db.SaveChanges();
+			var policy = WaterSeePolicy(db); var caps = CapabilityMeritPolicy(db);
+			var result = RunWaterSee(db, plan);
+			Assert.AreEqual(ArmageddonInstallStatus.Blocked, result.Status);
+			StringAssert.Contains(string.Join(Environment.NewLine, result.Messages), "stock identity");
+			Assert.AreEqual(policy, WaterSeePolicy(db)); Assert.AreEqual(caps, CapabilityMeritPolicy(db));
+		}
 	}
 }

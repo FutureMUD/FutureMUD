@@ -24,6 +24,7 @@ public sealed partial class MagicCastingService
 			{
 				NotifyCapacityChange(actor);
 				var prepared = Prepare(intent);
+				var selectionAdmission = CaptureSelectionAdmission(intent, prepared);
 				var resolved = prepared.Quote.Invocation!;
 				var profile = prepared.Spell.GradeProfile!;
 				var acquired = Acquisition(actor, intent.SpellId)!;
@@ -64,11 +65,11 @@ public sealed partial class MagicCastingService
 				var invocation = new SpellInvocationContext(SpellInvocationSource.ConfiguredCasting, Outcome.NotTested, pay =>
 				{
 					// The quote is advisory. Re-resolve body, permission, target, inventory and prices under the owner guard.
-					var live = Prepare(intent);
+					var live = Prepare(intent, prepared.Spell);
 					if (!Equivalent(prepared, live)) throw new InvalidOperationException("The route, prices, body, target or component inputs changed before commitment; request a fresh cast.");
 					EmitIncantation(actor, resolved.Id, resolved.Delivery);
 					_checkpoint?.Invoke("BeforePayment");
-					var committed = Prepare(intent);
+					var committed = Prepare(intent, prepared.Spell);
 					if (!Equivalent(prepared, committed)) throw new InvalidOperationException("The native incantation changed casting eligibility or inputs before payment.");
 					if (committed.Area is { } areaPlan)
 					{
@@ -78,13 +79,16 @@ public sealed partial class MagicCastingService
 						execution.AreaApplications = Array.AsReadOnly(applications.Select(x => new ConfiguredAreaApplication(
 							x.Target, x.Receipt.DamageMultiplier, () => AreaStillEligible(actor, x, areaPlan, prepared.Spell))).ToArray());
 					}
+					var devicePaymentAdmission = AdmitDeviceFocusPayment(intent, committed);
+					var paymentAdmission = selectionAdmission is null ? devicePaymentAdmission :
+						AdmitSelectionPayment(intent, committed, selectionAdmission, devicePaymentAdmission);
 					operation = new(resolved.Id, owner.Id, actor.InstanceId, actor.Body.Id, resolved.CapabilityId, resolved.SpellId,
 						resolved.TraitId, resolved.ReserveId, "Paying", payload.ToString(SaveOptions.DisableFormatting), now, now);
 					_store.Write(operation,
 						masteryEligible ? acquired with { NextMasteryUtc = now + profile.MasteryInterval } : null,
 						skillEligible ? new(owner.Id, resolved.TraitId, now + profile.SkillInterval, opportunity?.Version ?? 0) : null);
 					_checkpoint?.Invoke("Paying");
-					pay();
+					using (paymentAdmission?.OpenScope()) pay();
 					return true;
 				}) { Configured = execution };
 				prepared.Spell.CastVancian(actor, prepared.Target.Target, resolved.Power, invocation, prepared.Target.Parameters);

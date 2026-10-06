@@ -117,13 +117,14 @@ public sealed partial class MagicCastingService : IMagicCastingService
 		try { return Prepare(intent).Quote; }
 		catch (Exception ex) { return new(null, $"Casting preflight refused: {ex.Message}"); }
 	}
-	private Prepared Prepare(MagicCastingIntent intent)
+	private Prepared Prepare(MagicCastingIntent intent, MagicSpell? preparedSelectionSource = null)
 	{
 		var actor = intent.Actor;
 		if (ResolveRoute(actor, intent.CapabilityId, intent.SpellId, intent.Grade, intent.Overreach,
 			out var capability, out var admission, out var spell, out var trait, out var difficulty, intent.Mode, method: intent.Method) is { } refusal)
 			throw new InvalidOperationException(refusal);
 		var policy = capability.CastingPolicy!;
+		if (spell.LifetimeConfigurationError is { } lifetimeError) throw new InvalidOperationException(lifetimeError);
 		if (intent.OriginId == Guid.Empty) throw new InvalidOperationException("An invocation origin must be a nonempty correlation ID.");
 		var delivery = ResolveDelivery(intent, spell, capability);
 		if (intent.Targets.Length > 4096) throw new InvalidOperationException("The target specification exceeds 4096 characters.");
@@ -135,6 +136,7 @@ public sealed partial class MagicCastingService : IMagicCastingService
 			intent.Mode == MagicCastingMode.Practice ? new SpellTargetResolution(null, []) :
 			SpellTargetCapture.Resolve(actor, spell, power, new StringStack(intent.Targets), spell.GradeProfile.Incantation is not null);
 		if (target is null) throw new InvalidOperationException("No valid target was resolved.");
+		preparedSelectionSource?.ConfirmPendingLifetimeAdmissions();
 		var targets = target.Target is PerceivableGroup group ? group.Members : target.Target is { } single ? new[] { single } : [];
 		foreach (var individual in targets)
 			if (!actor.CanInteractPlanar(individual, PlanarInteractionKind.Magic)) throw new InvalidOperationException("Your current plane cannot reach a target with magic.");
@@ -144,17 +146,21 @@ public sealed partial class MagicCastingService : IMagicCastingService
 		if (intent.Mode != MagicCastingMode.Practice) copy.InvocationOriginId = intent.OriginId;
 		if (intent.Mode != MagicCastingMode.Practice)
 		{
+			if (preparedSelectionSource is not null) ReusePreparedSelections(copy, preparedSelectionSource, actor, targets);
 			foreach (var (effect, recipients) in copy.SpellEffects.Select(x => (x, targets))
 				.Concat(copy.CasterSpellEffects.Select(x => (x, (IEnumerable<IPerceivable>)new[] { actor }))))
 				foreach (var recipient in recipients)
 				{
+					copy.ValidateLifetimeInvocation(actor, recipient);
 					if (effect is MudSharp.Magic.SpellEffects.CreateItemEffect item && !item.ValidateRecipientInvocation(actor, recipient, out var itemError))
 						throw new InvalidOperationException(itemError);
 					if (effect is MudSharp.Magic.SpellEffects.CreateLiquidEffect liquid && !liquid.ValidateInvocation(actor, recipient, out var liquidError))
 						throw new InvalidOperationException(liquidError);
 					if (effect is MudSharp.Magic.SpellEffects.AnimateCorpseSpellEffect animation && !animation.ValidateInvocation(actor, recipient, out var animationError))
 						throw new InvalidOperationException(animationError);
+					if (effect is IMagicSpellEffectPreparedSelection selection) selection.CapturePreparedSelection(actor, recipient);
 				}
+			if (target.Target is ICharacter && !targets.Contains(actor)) copy.ValidateLifetimeInvocation(actor, actor);
 		}
 		List<CastingPayment> payments = [];
 		foreach (var (resource, expression) in copy.CastingCosts)
@@ -187,7 +193,7 @@ public sealed partial class MagicCastingService : IMagicCastingService
 		}
 		var plan = (intent.Mode == MagicCastingMode.Practice ? spell.PracticeInventoryPlanTemplate! : copy.InventoryPlanTemplate).CreatePlan(actor);
 		if (plan.PlanIsFeasible() != InventoryPlanFeasibility.Feasible) throw new InvalidOperationException("The actual component plan is infeasible; check materials and free manipulators.");
-		var items = PlanItems(plan);
+		var items = ValidateDeviceFocus(intent, plan, PlanItems(plan), target);
 		if (items.Length > 512) throw new InvalidOperationException("This component plan exceeds the 512 input receipt bound.");
 		if (QuarantineReason(actor, itemIds: items) is { } inputError) throw new InvalidOperationException(inputError);
 		var invocation = new ResolvedMagicCastingInvocation(intent.OriginId ?? Guid.NewGuid(), actor.InstanceId, actor.Body.Id, Owner(actor).Id,

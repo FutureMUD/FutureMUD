@@ -1,0 +1,58 @@
+{
+  "schema": 1,
+  "lane": "five-stock",
+  "checkpoint": "dispel-expiry-correction",
+  "parent": "48132987b481c8c1ee18adebbe8f3675f87773d1",
+  "tests": {
+    "passed": 430,
+    "failed": 0,
+    "skipped": 0,
+    "filter": "DispelNativeOperationReportingTests|MagicStockOperationReportingTests|MagicCasting|SpellOwnedItem|SpellCreatedConsumable|Dispel",
+    "trx": ".artifacts/test-runs/five-stock-expiry-02/expiry.trx"
+  },
+  "source": [
+    {
+      "path": "FutureMUDLibrary/Effects/IEffectExpiryObserver.cs",
+      "sha256": "887659519e083d11872e8564c94ad834a14a09f8c93885f46a92eb58673f45fd"
+    },
+    {
+      "path": "MudSharpCore/Effects/EffectScheduler.cs",
+      "sha256": "013c874d0fd6c5c9557d9455b95a2b687a1fa7e5b577073c4be0c15bd59d2cdb"
+    },
+    {
+      "path": "MudSharpCore/Effects/EffectScheduler.SpellExpiry.cs",
+      "sha256": "a0760b76d8da1c7c06945fd9940d0525ffa10d2502516081f7694a137d54b7bf"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/DispelMagicEffect.Operation.cs",
+      "sha256": "c28eb5df5ad7555f261577fec7dc8d10c1636e70104e0aa35e899c875ec06ca6"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/MagicStockOperationReportingTests.cs",
+      "sha256": "c18e2f652c8242065612b1a25a426b305e45066026c3130aca512d81becacea2"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/DispelNativeOperationReportingTests.cs",
+      "sha256": "c42d5063c3b5156e926366cee81abc4594db8303445dc2bd5914a757c8e5bd6e"
+    }
+  ],
+  "assemblies": [
+    {
+      "path": "MudSharpCore/bin/Debug/net10.0/MudSharp.dll",
+      "sha256": "7d278a7efbc12fb8136b7483eee56bca5ed81dbc20623b684bf42b329889e73a"
+    },
+    {
+      "path": "FutureMUDLibrary/bin/Debug/net10.0/FutureMUDLibrary.dll",
+      "sha256": "5046fd21a431b91ec76415c89849196c1233e752b1ff97d090680643f06fd435"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/bin/Debug/net10.0/MudSharpCore Unit Tests.dll",
+      "sha256": "0193cb0c5d0fc931d3809837e6a9db831555ce0aa892254773962e7fc5d31ced"
+    }
+  ],
+  "limits": [
+    "Stock drafts and builder hook were excluded from this compilation; native stock tests are separate.",
+    "Unknown means no proven application; an unobservable scheduler can still mutate its timer. Test explicitly proves the actual changed expiry, paid receipt applied=false and no mastery sample.",
+    "This corrects the prior reviewer-held original-duration comparison; prior evidence is retained unchanged."
+  ]
+}

@@ -29,7 +29,7 @@ using MudSharp.RPG.Checks;
 namespace MudSharp_Unit_Tests;
 
 [TestClass]
-public class MagicCastingAreaTests
+public partial class MagicCastingAreaTests
 {
 	private sealed class AreaFixture
 	{
@@ -174,6 +174,9 @@ public class MagicCastingAreaTests
 		var a = new AreaFixture(); var rejected = a.Target(); var accepted = a.Target(102);
 		var native = new Mock<IFutureProg>(); native.SetupGet(x => x.Id).Returns(8); native.SetupGet(x => x.ReturnType).Returns(ProgVariableTypes.Boolean);
 		native.Setup(x => x.MatchesParameters(It.IsAny<IEnumerable<ProgVariableTypes>>())).Returns(true);
+		native.Setup(x => x.Compile()).Returns(true);
+		native.Setup(x => x.ExecuteWithStatus(out It.Ref<object>.IsAny,It.IsAny<object[]>()))
+			.Returns(new TargetPolicyExecutor((out object result,object[] args)=>{result=!ReferenceEquals(args[0],rejected.Object);return true;}));
 		native.Setup(x => x.Execute<bool?>(It.IsAny<object[]>())).Returns<object[]>(args => !ReferenceEquals(args[0], rejected.Object));
 		var area = new Mock<IFutureProg>(); area.SetupGet(x => x.Id).Returns(9); area.SetupGet(x => x.ReturnType).Returns(ProgVariableTypes.Boolean);
 		area.Setup(x => x.MatchesParameters(It.IsAny<IEnumerable<ProgVariableTypes>>())).Returns(true);

@@ -20,7 +20,7 @@ public enum DispelCasterPolicy
 	OthersOnly = 2
 }
 
-public class DispelMagicEffect : IMagicSpellEffectTemplate
+public partial class DispelMagicEffect : IMagicSpellEffectTemplate, IMagicSpellEffectOperation
 {
 	private static readonly Dictionary<string, Func<IMagicSpellEffect, bool>> EffectKeyMatchers =
 		new(StringComparer.InvariantCultureIgnoreCase)

@@ -4,7 +4,7 @@ using MudSharp.Framework.Scheduling;
 
 namespace MudSharp.Effects;
 
-public class EffectScheduler : IScheduler, IHaveFuturemud, IEffectScheduler
+public partial class EffectScheduler : IScheduler, IHaveFuturemud, IEffectScheduler
 {
 	protected readonly Dictionary<IEffect, IEffectSchedule> _scheduleMap = new();
 	private readonly StableScheduleHeap<IEffectSchedule> _schedules = new();

@@ -20,6 +20,7 @@ public static class MagicResourceCapacity
 		error = null;
 		try
 		{
+			if (MagicResourceCapacityAdmission.TryTakeCapacity(resource, holder, out cap)) return true;
 			if (resource is IMagicResourceCapacity configured)
 			{
 				if (!configured.TryGetResourceCap(holder, out cap, out error)) return false;

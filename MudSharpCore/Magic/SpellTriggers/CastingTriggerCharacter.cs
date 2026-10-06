@@ -1,7 +1,7 @@
 ﻿
 namespace MudSharp.Magic.SpellTriggers;
 
-public class CastingTriggerCharacter : CastingTriggerBase
+public partial class CastingTriggerCharacter : CastingTriggerBase
 {
     public static void RegisterFactory()
     {
@@ -25,12 +25,12 @@ public class CastingTriggerCharacter : CastingTriggerBase
                     new XElement("CanTargetSelf", true), new XElement("TargetFilterProg", 0L)), spell), string.Empty);
     }
 
-    public IFutureProg TargetFilterProg { get; private set; }
+    public IFutureProg TargetFilterProg => TargetFilterProgId == 0 ? null : Spell.Gameworld.FutureProgs.Get(TargetFilterProgId);
     public bool CanTargetSelf { get; private set; }
 
     protected CastingTriggerCharacter(XElement root, IMagicSpell spell) : base(root, spell)
     {
-        TargetFilterProg = spell.Gameworld.FutureProgs.Get(long.Parse(root.Element("TargetFilterProg").Value));
+        TargetFilterProgId = long.Parse(root.Element("TargetFilterProg").Value);
         CanTargetSelf = bool.Parse(root.Element("CanTargetSelf").Value);
     }
 
@@ -46,7 +46,7 @@ public class CastingTriggerCharacter : CastingTriggerBase
             new XAttribute("type", "character"),
             new XElement("MinimumPower", (int)MinimumPower),
             new XElement("MaximumPower", (int)MaximumPower),
-            new XElement("TargetFilterProg", TargetFilterProg?.Id ?? 0L),
+            new XElement("TargetFilterProg", TargetFilterProgId),
             new XElement("CanTargetSelf", CanTargetSelf)
         );
     }
@@ -98,7 +98,7 @@ public class CastingTriggerCharacter : CastingTriggerBase
         string text = command.SafeRemainingArgument;
         if (text.EqualToAny("none", "clear", "delete"))
         {
-            TargetFilterProg = null;
+            TargetFilterProgId = 0;
             Spell.Changed = true;
             actor.OutputHandler.Send(
                 $"This spell will no longer use a prog to filter which characters can be targeted by it.");
@@ -128,7 +128,12 @@ public class CastingTriggerCharacter : CastingTriggerBase
             return false;
         }
 
-        TargetFilterProg = prog;
+        if (!prog.Compile())
+        {
+            actor.OutputHandler.Send("That target filter prog does not compile: " + prog.CompileError);
+            return false;
+        }
+        TargetFilterProgId = prog.Id;
         Spell.Changed = true;
         actor.OutputHandler.Send(
             $"This spell will now use the {prog.MXPClickableFunctionNameWithId()} prog to filter valid character targets.");
@@ -161,7 +166,7 @@ public class CastingTriggerCharacter : CastingTriggerBase
             return;
         }
 
-        if (TargetFilterProg?.Execute<bool?>(target, actor) == false)
+        if (!AllowsTarget(target, actor))
         {
             actor.OutputHandler.Send(
                 $"{target.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreSelf)} is not a valid target for that spell.");
@@ -179,7 +184,7 @@ public class CastingTriggerCharacter : CastingTriggerBase
     public override string Show(ICharacter actor)
     {
         return
-            $"{"Cast@Character".ColourName()}{(CanTargetSelf ? "" : " [noself]".ColourName())} - {base.Show(actor)}{(TargetFilterProg != null ? $" Filter: {TargetFilterProg.MXPClickableFunctionName()}" : "")}";
+            $"{"Cast@Character".ColourName()}{(CanTargetSelf ? "" : " [noself]".ColourName())} - {base.Show(actor)}{TargetFilterDescription}";
     }
 
     public override string ShowPlayer(ICharacter actor)

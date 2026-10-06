@@ -32,6 +32,8 @@
   </ItemGroup>
 
   <ItemGroup>
+	<EmbeddedResource Include="Assets\Manifests\Armageddon_Reviewed_Content.json" LogicalName="ArmageddonReviewedContentManifest" />
+	<EmbeddedResource Include="..\Design Documents\Magic\Armageddon_Sorcerer_Source_Tree.json" Link="Assets\Manifests\Armageddon_Sorcerer_Source_Tree.json" LogicalName="ArmageddonSorcererSourceTree" />
 	<Content Include="Assets\Manifests\Monster_AI_Recommendations.json">
 		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>

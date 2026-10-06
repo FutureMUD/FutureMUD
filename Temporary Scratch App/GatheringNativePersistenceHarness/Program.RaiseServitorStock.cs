@@ -64,7 +64,7 @@ internal static partial class GNHProgram
 		Console.WriteLine("ARM03D1Stock-reader=passed fresh-process durable-control-query persisted-stock-identity-formula-and-animation-deadline no-actor-materialization-or-replay");
 		return 0;
 	}
-	private static int RunRaiseServitorStockChecks(bool queuedAuthorityOnly = false, bool queuedCallbackOnly = false, bool orderedCallbacks = false, bool checkLearningOnly = false, bool regressionP2Only = false, bool stackMergeOnly = false, bool selectedMeleeCheckOnly = false, bool firearmAuthorityOnly = false, bool countershotAuthorityOnly = false, bool defendedMeleeOnly = false, bool custodyMergeOnly = false, bool loadOutputOnly = false, bool ammoConservationOnly = false, bool ammoDetachRecoveryOnly = false)
+	private static int RunRaiseServitorStockChecks(bool queuedAuthorityOnly = false, bool queuedCallbackOnly = false, bool orderedCallbacks = false, bool checkLearningOnly = false, bool regressionP2Only = false, bool stackMergeOnly = false, bool selectedMeleeCheckOnly = false, bool firearmAuthorityOnly = false, bool countershotAuthorityOnly = false, bool defendedMeleeOnly = false, bool custodyMergeOnly = false, bool loadOutputOnly = false, bool ammoConservationOnly = false, bool ammoDetachRecoveryOnly = false, bool nativeBoardingOnly = false)
 	{
 		using var database = TestDatabase.CreateFresh("futuremud_land_"); ConfigureNativeDatabase(database.ConnectionString);
 		var fixture = FixtureSeed.Create(database, "arm03d1_stock", true);
@@ -86,6 +86,7 @@ internal static partial class GNHProgram
 		if (firearmAuthorityOnly || countershotAuthorityOnly || loadOutputOnly || ammoConservationOnly) SeedFirearmAuthorityFixture(database);
 		if (loadOutputOnly) SeedLoadOutputFixture(database);
 		if (ammoConservationOnly) SeedAmmoConservationFixture(database);
+		if (nativeBoardingOnly) SeedNativeBoardingFixture(database);
 		if (custodyMergeOnly)
 		{
 			using var db = NewIndependentContext(database.ConnectionString);
@@ -222,6 +223,8 @@ internal static partial class GNHProgram
 		void Order(ScriptedAiCharacterInstance animation, ICharacter issuer, string command) =>
 			Require(animation.HandleEvent(EventType.CommandIssuedToCharacter, animation, issuer, command), "Stock command event was not handled.");
 		var animated = Cast();
+		if (nativeBoardingOnly)
+			return RunNativeBoarding(database, host, clock, animated, caster, foe, Cast, Restored, Order, fixture);
 		if (ammoDetachRecoveryOnly)
 			return RunAmmoDetachRecovery(database, host, clock, animated, caster, foe, Cast, Restored, Order, fixture);
 		if (ammoConservationOnly)

@@ -5201,5 +5201,42 @@
     ],
     "whole_plan_complete": false,
     "package_enabled": false
+  },
+  "native_vehicle_embark": {
+    "checkpoint": 21,
+    "base_head": "f1ad4fe9ede322f6c76ad56d2013ec6ad06439aa",
+    "status": "PASS_BOUNDED_NATIVE_EMBARK_PENDING_PARENT_REVIEW",
+    "completed": [
+      "Actual ordered embark/ChooseMove/CombatAction/Vehicle.Board",
+      "Queued and final Board policy revocation cost zero",
+      "Independent expiry combat and canonical zero-cost controls",
+      "Exact secondary in-process native Vehicle loading and five fresh persistence readers"
+    ],
+    "focused": {
+      "executed": 351,
+      "passed": 351,
+      "failed": 0,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 351
+    },
+    "native_cases": 5,
+    "fresh_readers": 5,
+    "receipt": "Design Documents/Magic/Armageddon_NativeEmbark_Verification.json",
+    "next_smallest_gate": "Actual production-loader Raise Servitor collapse/restoration; targeted eligible Musket/artillery probes.",
+    "limits": [
+      "One factory-valid ItemScale cart with driver/control-station/CellExit movement configuration and one passenger slot; room-scale docking, vehicle travel and a vehicle-family matrix remain unqualified.",
+      "The test explicitly extends the actual CommandableAI included whitelist with embark. Default Raise Servitor excludes embark; board is the separate noticeboard command. No stock whitelist or production code was changed.",
+      "Four animated-secondary cases cold-load the actual Vehicle in the producer against the existing exact live identity/instance. Their four fresh readers qualify independent SQL occupancy/stamina/component XML, not materialisation of a reboot-surviving animated wrapper. The canonical control additionally fresh-loads the actual Vehicle/exterior against the native actor in the bounded mocked-catalogue host. None substitutes for the actual production-loader restart gate.",
+      "Focused351 passed before the fixture-only canonical CommandTree setup correction. All runtime/managed-test source and the twelve non-harness assembly roles remain identical. Final native02 uses the corrected harness and a separate frozen source/binary capsule.",
+      "Retained build01 failed before gameplay (Scheduling import, explicit-interface command dispatch and effect-removal overload). Retained native01 passed four animated cases/readers, then its canonical fixture lacked a CommandTree and failed. Exact owned database/server/process cleanup and eleven native environment-restoration checks passed; no production defect is claimed from that setup failure.",
+      "Checkpoint20 remains pending independent parent rereview. Its two secondary recovery-observer failures require labelled independent membership retries; historical limitations and sealed evidence remain unchanged.",
+      "Actual production-loader Raise Servitor restart collapse/restoration, corpse/foreign goods, controller teardown and no queued replay remain OPEN. Musket/artillery are source-mapped conditional native dependencies; one legitimately eligible load/shot callback probe per family is needed before declaring disposition. No native defect or exemption is claimed in those families here.",
+      "Armageddon package remains DISABLED, whole82/12/154/25 and Fury/Calm runtime hooks incomplete. Full-world/Telnet and combined release checks NOT_RUN here. Parent now reports Luke-approved historical release rehearsal running in the separate installer lane; this checkpoint does not perform it.",
+      "Local only: no publication, merge, deployment, version choice, stock-lane integration or shared/production database."
+    ],
+    "whole_plan_complete": false,
+    "package_enabled": false
   }
 }

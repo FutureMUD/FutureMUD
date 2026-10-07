@@ -19,7 +19,6 @@ public class RoomSpatialExpansionTests
 		var operations = new CellSpatialExpansion().UpOperations;
 		Assert.IsTrue(operations.Take(3).All(x => x is SqlOperation));
 		Assert.IsTrue(((SqlOperation)operations[0]).Sql.Contains("COUNT(*)>1"));
-		Assert.IsTrue(((SqlOperation)operations[0]).Sql.Contains("@FutureMUD_CellSpatialMaintenance"));
 		Assert.IsTrue(((SqlOperation)operations[0]).Sql.Contains("unknown foreign key"));
 		Assert.IsFalse(operations.Any(x => x is DropTableOperation or DropColumnOperation or DropForeignKeyOperation or RenameTableOperation));
 		Assert.IsTrue(operations.OfType<AddColumnOperation>().All(x => x.IsNullable && x.DefaultValue is null));

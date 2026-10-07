@@ -462,13 +462,13 @@ Administrators have the following additional syntax options:
 		var action = ss.PopSpeech().CollapseString().ToLowerInvariant();
 		if (action is not ("add" or "remove" or "rem"))
 		{
-			actor.OutputHandler.Send("Use RESTAURANT CELL ADD|REMOVE <service|internal|kitchen> [here|<room id>].");
+			actor.OutputHandler.Send("Use RESTAURANT ROOM ADD|REMOVE <service|internal|kitchen> [here|<room id>].");
 			return;
 		}
 
 		if (!TryParseRestaurantRoomRole(ss.PopSpeech(), out var role))
 		{
-			actor.OutputHandler.Send("Which restaurant room role do you want to use? Valid roles are SERVICE, INTERNAL and KITCHEN.\n\n\tRESTAURANT CELL ADD|REMOVE <service|internal|kitchen> [here|<room id>]");
+			actor.OutputHandler.Send("Which restaurant room role do you want to use? Valid roles are SERVICE, INTERNAL and KITCHEN.\n\n\tRESTAURANT ROOM ADD|REMOVE <service|internal|kitchen> [here|<room id>]");
 			return;
 		}
 

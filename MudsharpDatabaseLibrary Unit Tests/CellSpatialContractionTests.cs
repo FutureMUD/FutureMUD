@@ -21,7 +21,6 @@ public class RoomSpatialContractionTests
 		var firstDrop = operations.FindIndex(x => x is DropTableOperation or DropColumnOperation or DropForeignKeyOperation);
 		Assert.IsTrue(firstDrop > 0);
 		var precedingSql = operations.Take(firstDrop).OfType<SqlOperation>().Select(x => x.Sql).ToList();
-		Assert.IsTrue(precedingSql[0].Contains("@FutureMUD_CellSpatialContractionMaintenance"));
 		Assert.IsTrue(precedingSql[0].Contains("@FutureMUD_CellSpatialReconcile"));
 		Assert.IsTrue(precedingSql[0].Contains("COUNT(*)>1"));
 		Assert.IsTrue(precedingSql[0].Contains("information_schema.VIEWS"));

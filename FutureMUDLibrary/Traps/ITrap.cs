@@ -26,7 +26,7 @@ public interface ITrap : IEffect
 	string? BoundTransientExitKey { get; }
 	IReadOnlyList<ITrapComponentBinding> Components { get; }
 	bool IsKnownBy(ICharacter character);
-	bool MatchesExit(ICellExit exit);
+	bool MatchesExit(IRoomExit exit);
 }
 
 public interface ITrapComponentBinding

@@ -37,9 +37,12 @@ public class DefaultHook : IDefaultHook
     public bool Applies(IProgVariable item, string type)
     {
         // Note: The main reason for splitting off this parameter is for creating a character from a Character Template, where the character itself is not loaded at that point and so you want to be able to check against the Character Template in your progs, but hook the Character that is generated.
-        return item != null && type.Equals(PerceivableType, StringComparison.InvariantCultureIgnoreCase) &&
+        return item != null && CanonicalCategory(type).Equals(CanonicalCategory(PerceivableType), StringComparison.InvariantCultureIgnoreCase) &&
                (EligibilityProg.ExecuteBool(item));
     }
+
+	public static string CanonicalCategory(string type) =>
+		type.Equals("Cell", StringComparison.InvariantCultureIgnoreCase) ? "Room" : type;
 
     public IHook Hook { get; protected set; }
 
@@ -65,8 +68,9 @@ public class DefaultHook : IDefaultHook
                         FMDB.Context.HooksPerceivables.Where(x => x.HookId == Hook.Id && x.CharacterId.HasValue));
                     break;
                 case "Cell":
+                case "Room":
                     FMDB.Context.HooksPerceivables.RemoveRange(
-                        FMDB.Context.HooksPerceivables.Where(x => x.HookId == Hook.Id && x.CellId.HasValue));
+                        FMDB.Context.HooksPerceivables.Where(x => x.HookId == Hook.Id && x.RoomId.HasValue));
                     break;
             }
 

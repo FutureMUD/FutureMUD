@@ -262,13 +262,13 @@ public partial class Property
 		Changed = true;
 	}
 
-	public IHotelRoom AddHotelRoom(ICell cell, string name, decimal pricePerDay, decimal securityDeposit,
+	public IHotelRoom AddHotelRoom(IRoom room, string name, decimal pricePerDay, decimal securityDeposit,
 		TimeSpan minimumDuration, TimeSpan maximumDuration)
 	{
-		var room = new HotelRoom(this, cell, name, pricePerDay, securityDeposit, minimumDuration, maximumDuration);
-		_hotelRooms.Add(room);
+		var hotelRoom = new HotelRoom(this, room, name, pricePerDay, securityDeposit, minimumDuration, maximumDuration);
+		_hotelRooms.Add(hotelRoom);
 		Changed = true;
-		return room;
+		return hotelRoom;
 	}
 
 	public void RemoveHotelRoom(IHotelRoom room)
@@ -282,9 +282,9 @@ public partial class Property
 		Changed = true;
 	}
 
-	public IHotelRoom HotelRoomForCell(ICell cell)
+	public IHotelRoom HotelRoomForRoom(IRoom room)
 	{
-		return cell is null ? null : _hotelRooms.FirstOrDefault(x => x.Cell == cell);
+		return room is null ? null : _hotelRooms.FirstOrDefault(x => x.Room == room);
 	}
 
 	public bool CanRentHotelRoom(ICharacter patron, IHotelRoom room, TimeSpan duration, out string reason)
@@ -462,7 +462,7 @@ public partial class Property
 			return false;
 		}
 
-		var items = room.Cell.GameItems
+		var items = room.Room.GameItems
 			.SelectMany(x => x.DeepItems)
 			.Distinct()
 			.Where(x => !furnishingIds.Contains(x.Id))

@@ -38,7 +38,7 @@ internal static partial class GNHProgram
 			Console.WriteLine("ARMSand-removal-diagnostic=" + JsonSerializer.Serialize(new {
 				stage, item = item.Id, item.Deleted, item.Destroyed, lifecycle.State, lifecycle.Diagnostic,
 				ownedRowExists = observer.GameItems.Any(x => x.Id == item.Id),
-				directCell = item.DirectLocation?.Id, inheritedCell = item.Location?.Id,
+				directRoom = item.DirectLocation?.Id, inheritedRoom = item.Location?.Id,
 				container = item.ContainedIn?.Id, heldBy = item.GetItemType<IHoldable>()?.HeldBy?.Id,
 				siblingExists = sibling is not null, siblingContainer = sibling?.ContainerId,
 				bagExists = observer.GameItems.Any(x => x.Id == input.Bag),

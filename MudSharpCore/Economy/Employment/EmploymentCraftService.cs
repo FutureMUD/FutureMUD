@@ -175,14 +175,14 @@ internal static class EmploymentCraftService
 
 		if (long.TryParse(stationSelector, out var cellId))
 		{
-			var cell = actor.Gameworld.Cells.Get(cellId);
-			if (cell is null)
+			var room = actor.Gameworld.Rooms.Get(cellId);
+			if (room is null)
 			{
 				reason = $"There is no cell with id {cellId:N0}.";
 				return false;
 			}
 
-			if (!context.CanPath(actor, cell))
+			if (!context.CanPath(actor, room))
 			{
 				reason = "The assigned employee cannot path to the selected craft station location.";
 				return false;
@@ -225,7 +225,7 @@ internal static class EmploymentCraftService
 			ReservationReference: station.ExpiresAt > DateTimeOffset.MinValue
 				? $"craft-station capacity={stationCapacity:N0};expires={station.ExpiresAt:O}"
 				: null,
-			RouteResult: station.CellId is not null ? $"cell={station.CellId.Value:F0}" : null,
+			RouteResult: station.RoomId is not null ? $"cell={station.RoomId.Value:F0}" : null,
 			CraftJobReference: SerializeStationState(station));
 		context.RecordRegister(EmploymentRegisterEntryType.AuditActionRecorded, actor,
 			$"Validated craft station {station.Description}.", context.CurrentTask?.CorrelationId);
@@ -510,7 +510,7 @@ internal static class EmploymentCraftService
 		return true;
 	}
 
-	private static IReadOnlyCollection<long> PriorItemIds(EmploymentTaskContext context, ICell? location)
+	private static IReadOnlyCollection<long> PriorItemIds(EmploymentTaskContext context, IRoom? location)
 	{
 		return location is null
 			? []
@@ -565,13 +565,13 @@ internal static class EmploymentCraftService
 
 		if (long.TryParse(stationSelector, out var cellId))
 		{
-			var cell = actor.Gameworld.Cells.Get(cellId);
+			var room = actor.Gameworld.Rooms.Get(cellId);
 			return new CraftStationReservation(
 				CraftStationPayloadVersion,
 				stationSelector,
 				cellId,
 				null,
-				cell?.GetFriendlyReference(actor) ?? $"cell #{cellId:N0}",
+				room?.GetFriendlyReference(actor) ?? $"cell #{cellId:N0}",
 				now,
 				expires);
 		}
@@ -919,7 +919,7 @@ internal static class EmploymentCraftService
 	private sealed record CraftStationReservation(
 		string Version,
 		string Selector,
-		long? CellId,
+		long? RoomId,
 		long? ItemId,
 		string Description,
 		DateTimeOffset ReservedAt,

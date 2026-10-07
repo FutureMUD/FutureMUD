@@ -39,7 +39,7 @@ namespace MudSharp.RPG.Law
         bool BailPosted { get; set; }
         bool HasBeenConvicted { get; set; }
         bool HasBeenFinalised { get; set; }
-        ICell? CrimeLocation { get; }
+        IRoom? CrimeLocation { get; }
         string? CriminalShortDescription { get; }
         string? CriminalDescription { get; }
         decimal CalculatedBail { get; set; }

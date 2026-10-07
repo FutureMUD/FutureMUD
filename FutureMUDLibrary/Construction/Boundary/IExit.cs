@@ -17,16 +17,16 @@ namespace MudSharp.Construction.Boundary
 
         SizeCategory MaximumSizeToEnter { get; set; }
 
-        IEnumerable<ICell> Cells { get; }
+        IEnumerable<IRoom> Rooms { get; }
 
-        ICellExit CellExitFor(ICell cell);
-        ICell Opposite(ICell cell);
-        bool IsExit(ICell cell, string verb);
-        bool IsExitKeyword(ICell cell, string keyword);
+        IRoomExit RoomExitFor(IRoom room);
+        IRoom Opposite(IRoom room);
+        bool IsExit(IRoom room, string verb);
+        bool IsExitKeyword(IRoom room, string keyword);
 
         IExit Clone();
         void PostLoadTasks(MudSharp.Models.Exit exit);
-        ICell FallCell { get; set; }
+        IRoom FallRoom { get; set; }
         bool IsClimbExit { get; set; }
         Difficulty ClimbDifficulty { get; set; }
         IEnumerable<RoomLayer> BlockedLayers { get; }

@@ -26,7 +26,7 @@ public class Track : LateInitialisingItem, ITrack
         _id = track.Id;
         IdInitialised = true;
         _bodyProtoTypeId = track.BodyPrototypeId;
-        _cellId = track.CellId;
+        _cellId = track.RoomId;
         RoomLayer = (RoomLayer)track.RoomLayer;
         _fromExitId = track.FromDirectionExitId;
         _toExitId = track.ToDirectionExitId;
@@ -42,22 +42,22 @@ public class Track : LateInitialisingItem, ITrack
         _mudDateTimeText = track.MudDateTime;
 		RoutePositionMetres = track.RoutePosition.HasValue ? (double)track.RoutePosition.Value : null;
 		RouteDirection = track.RouteDirection.HasValue
-			? (RouteCellDirection)track.RouteDirection.Value
+			? (RouteRoomDirection)track.RouteDirection.Value
 			: null;
 		ValidateLoadedSpatialState(track);
     }
 
 	private void ValidateLoadedSpatialState(Models.Track track)
 	{
-		var cell = Gameworld.Cells.Get(track.CellId) ??
-			throw new InvalidDataException($"Track #{track.Id:N0} references missing Cell #{track.CellId:N0}.");
-		var route = cell.RouteDefinition;
+		var room = Gameworld.Rooms.Get(track.RoomId) ??
+			throw new InvalidDataException($"Track #{track.Id:N0} references missing Cell #{track.RoomId:N0}.");
+		var route = room.RouteDefinition;
 		if (route is null)
 		{
 			if (RoutePositionMetres.HasValue || RouteDirection.HasValue)
 			{
 				throw new InvalidDataException(
-					$"Track #{track.Id:N0} has RouteCell position or direction data but Cell #{track.CellId:N0} is ordinary.");
+					$"Track #{track.Id:N0} has RouteCell position or direction data but Cell #{track.RoomId:N0} is ordinary.");
 			}
 
 			return;
@@ -67,17 +67,17 @@ public class Track : LateInitialisingItem, ITrack
 			RoutePositionMetres.Value < 0.0 || RoutePositionMetres.Value > route.LengthMetres)
 		{
 			throw new InvalidDataException(
-				$"Track #{track.Id:N0} has an invalid or missing coordinate in RouteCell #{track.CellId:N0}; valid coordinates are 0-{route.LengthMetres:N3}m.");
+				$"Track #{track.Id:N0} has an invalid or missing coordinate in RouteCell #{track.RoomId:N0}; valid coordinates are 0-{route.LengthMetres:N3}m.");
 		}
 
-		if (RouteDirection is not (RouteCellDirection.Negative or RouteCellDirection.Positive))
+		if (RouteDirection is not (RouteRoomDirection.Negative or RouteRoomDirection.Positive))
 		{
 			throw new InvalidDataException(
-				$"Track #{track.Id:N0} has an invalid or missing longitudinal direction in RouteCell #{track.CellId:N0}.");
+				$"Track #{track.Id:N0} has an invalid or missing longitudinal direction in RouteCell #{track.RoomId:N0}.");
 		}
 	}
 
-    public Track(IFuturemud gameworld, ICharacter who, ICellExit exit, TrackCircumstances circumstances, bool isLeaving, double visual, double olfactory)
+    public Track(IFuturemud gameworld, ICharacter who, IRoomExit exit, TrackCircumstances circumstances, bool isLeaving, double visual, double olfactory)
     {
         Gameworld = gameworld;
         _character = who;
@@ -109,7 +109,7 @@ public class Track : LateInitialisingItem, ITrack
 		IFuturemud gameworld,
 		ICharacter who,
 		double routePositionMetres,
-		RouteCellDirection routeDirection,
+		RouteRoomDirection routeDirection,
 		TrackCircumstances circumstances,
 		double visual,
 		double olfactory)
@@ -137,7 +137,7 @@ public class Track : LateInitialisingItem, ITrack
 		IFuturemud gameworld,
 		IVehicle vehicle,
 		double routePositionMetres,
-		RouteCellDirection routeDirection,
+		RouteRoomDirection routeDirection,
 		double visual,
 		double olfactory)
 	{
@@ -176,7 +176,7 @@ public class Track : LateInitialisingItem, ITrack
         dbitem.TrackIntensityOlfactory = TrackIntensityOlfactory;
         dbitem.RoomLayer = (int)RoomLayer;
         dbitem.TrackCircumstances = (int)TrackCircumstances;
-        dbitem.CellId = Cell.Id;
+        dbitem.RoomId = Room.Id;
         dbitem.CharacterId = _characterId;
 		dbitem.VehicleId = _vehicleId;
         dbitem.MudDateTime = MudDateTime.GetDateTimeString();
@@ -202,7 +202,7 @@ public class Track : LateInitialisingItem, ITrack
             TurnedAround = TurnedAround,
             RoomLayer = (int)RoomLayer,
             TrackCircumstances = (int)TrackCircumstances,
-            CellId = Cell.Id,
+            RoomId = Room.Id,
             CharacterId = _characterId,
 			VehicleId = _vehicleId,
             MudDateTime = MudDateTime.GetDateTimeString(),
@@ -251,7 +251,7 @@ public class Track : LateInitialisingItem, ITrack
                 foreach (ITrack? track in toDeleteTracks)
                 {
                     track.Deleted = true;
-                    track.Cell.RemoveTrack(track);
+                    track.Room.RemoveTrack(track);
                     gameworld.Destroy(track);
                     gameworld.SaveManager.Abort(track);
                 }
@@ -286,10 +286,10 @@ public class Track : LateInitialisingItem, ITrack
 		: null;
 
     private long _cellId;
-    private ICell? _cell;
+    private IRoom? _cell;
 
     /// <inheritdoc />
-    public ICell Cell => (_cell ??= Gameworld.Cells.Get(_cellId))!;
+    public IRoom Room => (_cell ??= Gameworld.Rooms.Get(_cellId))!;
 
     /// <inheritdoc />
     public RoomLayer RoomLayer { get; set; }
@@ -316,7 +316,7 @@ public class Track : LateInitialisingItem, ITrack
         }
     }
 
-    public ICellExit? FromCellExit => FromExit?.CellExitFor(Cell);
+    public IRoomExit? FromRoomExit => FromExit?.RoomExitFor(Room);
 
     private long? _toExitId;
     private IExit? _toExit;
@@ -340,7 +340,7 @@ public class Track : LateInitialisingItem, ITrack
         }
     }
 
-    public ICellExit? ToCellExit => ToExit?.CellExitFor(Cell);
+    public IRoomExit? ToRoomExit => ToExit?.RoomExitFor(Room);
 
     private long? _fromSpeedId;
     private IMoveSpeed? _fromSpeed;
@@ -371,7 +371,7 @@ public class Track : LateInitialisingItem, ITrack
     public double TrackIntensityOlfactory { get; set; }
     public bool TurnedAround { get; set; }
 	public double? RoutePositionMetres { get; private set; }
-	public RouteCellDirection? RouteDirection { get; private set; }
+	public RouteRoomDirection? RouteDirection { get; private set; }
 
     public Difficulty VisualTrackDifficulty(ICharacter actor)
     {
@@ -455,8 +455,8 @@ public class Track : LateInitialisingItem, ITrack
 
 		if (RoutePositionMetres.HasValue && RouteDirection.HasValue)
 		{
-			var route = Cell.RouteDefinition;
-			var directionName = RouteDirection == RouteCellDirection.Positive
+			var route = Room.RouteDefinition;
+			var directionName = RouteDirection == RouteRoomDirection.Positive
 				? route?.PositiveDirectionName ?? "forward"
 				: route?.NegativeDirectionName ?? "backward";
 			var distance = actor.Gameworld.UnitManager.DescribeMostSignificantExact(
@@ -467,13 +467,13 @@ public class Track : LateInitialisingItem, ITrack
 		}
 		else
 		{
-			sb.Append(FromCellExit?.InboundMovementSuffix ?? ToCellExit?.OutboundMovementSuffix);
+			sb.Append(FromRoomExit?.InboundMovementSuffix ?? ToRoomExit?.OutboundMovementSuffix);
 		}
         if (TurnedAround)
         {
             sb.Append(" and looped back");
         }
-        TimeSpan since = Cell.DateTime() - MudDateTime;
+        TimeSpan since = Room.DateTime() - MudDateTime;
         sb.Append(" ");
         sb.Append(Telnet.Green.Colour);
         sb.Append(since.Describe(actor));

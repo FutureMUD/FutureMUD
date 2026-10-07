@@ -101,7 +101,7 @@ public partial class ImplementorModule
 		    !lifecycle.Entities.Any(x => x.Kind == SpellOwnedEntityKind.AutonomousCharacter && x.Id == characterId) ||
 		    lifecycle.Entities.Count(x => x.Kind == SpellOwnedEntityKind.Body) != 1 ||
 		    !lifecycle.Entities.Any(x => x.Kind == SpellOwnedEntityKind.Body && x.Id == bodyId) ||
-		    lifecycle.Entities.Any(x => x.Kind is SpellOwnedEntityKind.CharacterInstance or SpellOwnedEntityKind.Cell or SpellOwnedEntityKind.Exit))
+		    lifecycle.Entities.Any(x => x.Kind is SpellOwnedEntityKind.CharacterInstance or SpellOwnedEntityKind.Room or SpellOwnedEntityKind.Exit))
 		{
 			diagnostic = "The lifecycle does not prove eligible retiring NPC ownership and correlated death; retain the physical graph.";
 			return false;

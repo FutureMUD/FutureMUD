@@ -1332,12 +1332,12 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
         if (restore is null || !CommandExecutionScope.TryContinue(actor)) return RefusedItem(item, originalReference);
 		var targetHolder = target.InInventoryOf;
 		var targetContainer = target.ContainedIn;
-		var targetCell = ComponentItemTransfer.DirectLocationOf(target);
+		var targetRoom = ComponentItemTransfer.DirectLocationOf(target);
 		actor.Body.Take(item);
 		if (!ComponentItemTransfer.IsDetached(item)) return RefusedItem(item, originalReference);
 		if (!CommandExecutionScope.TryContinue(actor) || target.Deleted || target.Destroyed ||
 			!ReferenceEquals(target.InInventoryOf, targetHolder) || !ReferenceEquals(target.ContainedIn, targetContainer) ||
-			!ReferenceEquals(ComponentItemTransfer.DirectLocationOf(target), targetCell) ||
+			!ReferenceEquals(ComponentItemTransfer.DirectLocationOf(target), targetRoom) ||
 			(!actor.Location.GameItemsInImmediateVicinity(actor).Contains(target) && !actor.Inventory.Contains(target)))
 		{ restore(); return RefusedItem(item, originalReference); }
         belt.AddConnectedItem(beltable);

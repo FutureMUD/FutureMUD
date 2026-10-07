@@ -107,7 +107,7 @@ public sealed class ArenaStagingEffect : Effect
         character.OnLocationChanged -= Character_OnLocationChanged;
     }
 
-    private void Character_OnLocationChanged(ILocateable locatable, ICellExit exit)
+    private void Character_OnLocationChanged(ILocateable locatable, IRoomExit exit)
     {
         EvaluateStatus();
     }
@@ -137,7 +137,7 @@ public sealed class ArenaStagingEffect : Effect
             return;
         }
 
-        if (arenaEvent.Arena.WaitingCells.Contains(character.Location))
+        if (arenaEvent.Arena.WaitingRooms.Contains(character.Location))
         {
             return;
         }

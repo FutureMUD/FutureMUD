@@ -12,9 +12,9 @@ public class LandmarkEffectTests
 	[TestMethod]
 	public void Constructor_MeetingPlaceFlagTrue_SetsMeetingPlace()
 	{
-		var cell = GetCell();
+		var room = GetRoom();
 
-		var effect = new LandmarkEffect(cell.Object, true, "public");
+		var effect = new LandmarkEffect(room.Object, true, "public");
 
 		Assert.IsTrue(effect.IsMeetingPlace);
 		Assert.AreEqual("public", effect.Sphere);
@@ -23,19 +23,19 @@ public class LandmarkEffectTests
 	[TestMethod]
 	public void Constructor_MeetingPlaceFlagFalse_LeavesLandmarkOnly()
 	{
-		var cell = GetCell();
+		var room = GetRoom();
 
-		var effect = new LandmarkEffect(cell.Object, false, "private");
+		var effect = new LandmarkEffect(room.Object, false, "private");
 
 		Assert.IsFalse(effect.IsMeetingPlace);
 		Assert.AreEqual("private", effect.Sphere);
 	}
 
-	private static Mock<ICell> GetCell()
+	private static Mock<IRoom> GetRoom()
 	{
 		var gameworld = new Mock<IFuturemud>();
-		var cell = new Mock<ICell>();
-		cell.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
-		return cell;
+		var room = new Mock<IRoom>();
+		room.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		return room;
 	}
 }

@@ -205,7 +205,7 @@ public class MultiTargetCombatMoveTests
 	public void SelectTargets_RangedNaturalAttack_AddsVisibleHostilesDespiteMeleeSpacing()
 	{
 		Mock<ICombat> combat = new();
-		Mock<ICell> location = new();
+		Mock<IRoom> location = new();
 		Mock<ICharacter> assailant = new();
 		Mock<ICharacter> primary = new();
 		Mock<ICharacter> spacedEnemy = new();

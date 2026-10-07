@@ -21,13 +21,13 @@ public class VehicleRouteStop
 	public int VehicleRouteRevision { get; set; }
 	public string Name { get; set; } = null!;
 	public int Sequence { get; set; }
-	public long CellId { get; set; }
+	public long RoomId { get; set; }
 	public int RoomLayer { get; set; }
 	public decimal? RoutePositionMetres { get; set; }
 	public long DwellDurationMilliseconds { get; set; }
 
 	public virtual VehicleRoute VehicleRoute { get; set; } = null!;
-	public virtual Cell Cell { get; set; } = null!;
+	public virtual Room Room { get; set; } = null!;
 	public virtual ICollection<VehicleRoutePlatformBinding> PlatformBindings { get; set; }
 	public virtual ICollection<VehicleRouteLeg> OriginLegs { get; set; }
 	public virtual ICollection<VehicleRouteLeg> DestinationLegs { get; set; }

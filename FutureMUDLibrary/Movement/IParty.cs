@@ -22,7 +22,7 @@ namespace MudSharp.Movement
         IEnumerable<ICharacter> ActiveCharacterMembers { get; }
         bool LeaveNoneBehind { get; set; }
 
-        IMoveSpeed SlowestSpeed(ICellExit exit);
+        IMoveSpeed SlowestSpeed(IRoomExit exit);
 
         void Join(IMove body);
         bool Leave(IMove body);

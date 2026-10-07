@@ -53,7 +53,7 @@ internal sealed class RouteSpatialFunction : BuiltInFunction
 			["location"],
 			["The cell to inspect."],
 			"Returns true when the location has linear RouteCell geometry.",
-			parameters => new BooleanVariable(CellFrom(parameters[0])?.RouteDefinition is not null));
+			parameters => new BooleanVariable(RoomFrom(parameters[0])?.RouteDefinition is not null));
 		Register(
 			"routecelllength",
 			[ProgVariableTypes.Location],
@@ -61,7 +61,7 @@ internal sealed class RouteSpatialFunction : BuiltInFunction
 			["location"],
 			["The RouteCell to inspect."],
 			"Returns the RouteCell length in metres, or null for an ordinary cell.",
-			parameters => NumberOrNull(CellFrom(parameters[0])?.RouteDefinition?.LengthMetres));
+			parameters => NumberOrNull(RoomFrom(parameters[0])?.RouteDefinition?.LengthMetres));
 		Register(
 			"routecelltopologyversion",
 			[ProgVariableTypes.Location],
@@ -69,7 +69,7 @@ internal sealed class RouteSpatialFunction : BuiltInFunction
 			["location"],
 			["The RouteCell to inspect."],
 			"Returns the RouteCell topology version, or null for an ordinary cell.",
-			parameters => CellFrom(parameters[0])?.RouteDefinition is { } route
+			parameters => RoomFrom(parameters[0])?.RouteDefinition is { } route
 				? new NumberVariable(route.TopologyVersion)
 				: null);
 		Register(
@@ -171,9 +171,9 @@ internal sealed class RouteSpatialFunction : BuiltInFunction
 			returnType));
 	}
 
-	private static ICell? CellFrom(IFunction function)
+	private static IRoom? RoomFrom(IFunction function)
 	{
-		return function.Result as ICell ?? function.Result?.GetObject as ICell;
+		return function.Result as IRoom ?? function.Result?.GetObject as IRoom;
 	}
 
 	private static IPerceivable? LocateableFrom(IFunction function)
@@ -181,9 +181,9 @@ internal sealed class RouteSpatialFunction : BuiltInFunction
 		return function.Result as IPerceivable ?? function.Result?.GetObject as IPerceivable;
 	}
 
-	private static ICellExit? ExitFrom(IFunction function)
+	private static IRoomExit? ExitFrom(IFunction function)
 	{
-		return function.Result as ICellExit ?? function.Result?.GetObject as ICellExit;
+		return function.Result as IRoomExit ?? function.Result?.GetObject as IRoomExit;
 	}
 
 	private static SpatialLocation? EffectiveLocation(IFunction function)
@@ -202,8 +202,8 @@ internal sealed class RouteSpatialFunction : BuiltInFunction
 	{
 		var origin = EffectiveLocation(originFunction);
 		var target = EffectiveLocation(targetFunction);
-		if (!origin.HasValue || !target.HasValue || !ReferenceEquals(origin.Value.Cell, target.Value.Cell) ||
-			origin.Value.Cell.RouteDefinition is not { } route ||
+		if (!origin.HasValue || !target.HasValue || !ReferenceEquals(origin.Value.Room, target.Value.Room) ||
+			origin.Value.Room.RouteDefinition is not { } route ||
 			!origin.Value.RoutePositionMetres.HasValue || !target.Value.RoutePositionMetres.HasValue)
 		{
 			return new TextVariable(string.Empty);
@@ -221,7 +221,7 @@ internal sealed class RouteSpatialFunction : BuiltInFunction
 	private static IProgVariable NearestLandmark(IFunction function)
 	{
 		var location = EffectiveLocation(function);
-		if (!location.HasValue || location.Value.Cell.RouteDefinition is not { } route ||
+		if (!location.HasValue || location.Value.Room.RouteDefinition is not { } route ||
 			!location.Value.RoutePositionMetres.HasValue)
 		{
 			return new TextVariable(string.Empty);

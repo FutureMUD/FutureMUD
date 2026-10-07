@@ -154,7 +154,7 @@ internal static partial class GNHProgram
 					x.DirectLocation?.Id, x.ContainedIn?.Id, defenderBody.WieldedItems.Any(y => ReferenceEquals(x, y)))).ToArray();
 				using (var db = NewIndependentContext(database.ConnectionString))
 					foreach (var item in items)
-						Console.WriteLine($"ARMCountershot-custody={scenario}-{stage} item:{item.Id} container:{db.GameItems.Single(x => x.Id == item.Id).ContainerId}/{item.Container} body:{string.Join(',',db.BodiesGameItems.Where(x => x.GameItemId == item.Id).Select(x => x.BodyId))}/{item.HeldBody} cell:{string.Join(',',db.CellsGameItems.Where(x => x.GameItemId == item.Id).Select(x => x.CellId))}/{item.Cell} wield:{item.Wielded}");
+						Console.WriteLine($"ARMCountershot-custody={scenario}-{stage} item:{item.Id} container:{db.GameItems.Single(x => x.Id == item.Id).ContainerId}/{item.Container} body:{string.Join(',',db.BodiesGameItems.Where(x => x.GameItemId == item.Id).Select(x => x.BodyId))}/{item.HeldBody} cell:{string.Join(',',db.RoomsGameItems.Where(x => x.GameItemId == item.Id).Select(x => x.RoomId))}/{item.Room} wield:{item.Wielded}");
 				RunItemReaderProcess(new FirearmAuthorityReader(database.Name, fixture, RuntimeClock.UtcNow, defenderCanonical, defenderBody.Id,
 					defender.CurrentStamina, trait.Id, defender.TraitRawValue(trait), body.Id, body.Wounds.Sum(x => x.CurrentDamage + x.CurrentPain + x.CurrentStun),
 					gunItem.Id, gunItem.Condition, gun.ChamberedRound?.Parent.Id, gun.MagazineContents.Select(x => x.Id).ToArray(), items, "countershot-" + scenario + "-" + stage,

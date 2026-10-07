@@ -21,8 +21,8 @@ public class Track
     public virtual BodyProto BodyPrototype { get; set; }
     public long? VehicleId { get; set; }
     public virtual Vehicle Vehicle { get; set; }
-    public long CellId { get; set; }
-    public virtual Cell Cell { get; set; }
+    public long RoomId { get; set; }
+    public virtual Room Room { get; set; }
     public int RoomLayer { get; set; }
     public decimal? RoutePosition { get; set; }
     public int? RouteDirection { get; set; }

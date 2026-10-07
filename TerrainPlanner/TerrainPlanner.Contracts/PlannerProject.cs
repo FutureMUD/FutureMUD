@@ -11,14 +11,14 @@ public sealed class PlannerProject
 	public int Width { get; set; } = 5;
 	public int Height { get; set; } = 5;
 	public string? CatalogueRevision { get; set; }
-	public List<PlannerProjectCell> Cells { get; set; } = [];
+	public List<PlannerProjectRoom> Rooms { get; set; } = [];
 	public Dictionary<long, string> TagColours { get; set; } = [];
 
 	[JsonIgnore]
-	public int CellCount => checked(Width * Height);
+	public int RoomCount => checked(Width * Height);
 }
 
-public sealed class PlannerProjectCell
+public sealed class PlannerProjectRoom
 {
 	public int X { get; set; }
 	public int Y { get; set; }

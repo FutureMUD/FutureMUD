@@ -221,7 +221,7 @@ public class VancianReviewRegressionTests
 		foreach (var item in new[] { first, second }) item.Setup(x => x.IsA(It.IsAny<ITag>())).Returns(true);
 		f.Actor.SetupGet(x => x.Body.HeldItems).Returns([first.Object, second.Object]);
 		var tool = new InventoryPlanActionDrop(f.World.Object, 0, 0, item => item.Id == first.Object.Id, null!);
-		f.Actor.SetupGet(x => x.Location).Returns(new Mock<MudSharp.Construction.ICell> { DefaultValue = DefaultValue.Mock }.Object);
+		f.Actor.SetupGet(x => x.Location).Returns(new Mock<MudSharp.Construction.IRoom> { DefaultValue = DefaultValue.Mock }.Object);
 		var consume = new InventoryPlanActionConsume(f.World.Object, 1, 0, 0, _ => true, null!);
 		using var plan = new VancianProductionPlan(f.Actor.Object, new InventoryPlanTemplate(f.World.Object, consume), new InventoryPlanTemplate(f.World.Object, tool));
 		Assert.IsNull(plan.Validate()); plan.Execute();

@@ -41,7 +41,7 @@ internal sealed class PsychicQueryFunction : BuiltInFunction
 				break;
 			default:
 				var owner = ParameterFunctions[0].Result?.GetObject as IPerceivable;
-				var texts = owner is MudSharp.GameItems.IGameItem or MudSharp.Construction.ICell
+				var texts = owner is MudSharp.GameItems.IGameItem or MudSharp.Construction.IRoom
 					? PsychometricRecorder.Read(owner)?.Impressions.Select(x => new TextVariable(x.Text)).ToList() ?? [] : [];
 				Result = new CollectionVariable(texts, ProgVariableTypes.Text);
 				break;

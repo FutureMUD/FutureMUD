@@ -14,16 +14,16 @@ public class VehicleRouteRecoveryRulesTests
 	[TestMethod]
 	public void TryResolveStepIndex_MidLinearCheckpoint_ResumesContainingStep()
 	{
-		var routeCell = new Mock<ICell>().Object;
-		var platformCell = new Mock<ICell>().Object;
-		var linear = LinearStep(routeCell, 100.0, 700.0);
+		var routeRoom = new Mock<IRoom>().Object;
+		var platformRoom = new Mock<IRoom>().Object;
+		var linear = LinearStep(routeRoom, 100.0, 700.0);
 		var exit = ExitStep(
-			new SpatialLocation(routeCell, RoomLayer.GroundLevel, 700.0),
-			new SpatialLocation(platformCell, RoomLayer.GroundLevel));
+			new SpatialLocation(routeRoom, RoomLayer.GroundLevel, 700.0),
+			new SpatialLocation(platformRoom, RoomLayer.GroundLevel));
 
 		var result = VehicleRouteRecoveryRules.TryResolveStepIndex(
 			[linear.Object, exit.Object],
-			new SpatialLocation(routeCell, RoomLayer.GroundLevel, 425.0),
+			new SpatialLocation(routeRoom, RoomLayer.GroundLevel, 425.0),
 			out var index,
 			out var reason);
 
@@ -34,16 +34,16 @@ public class VehicleRouteRecoveryRulesTests
 	[TestMethod]
 	public void TryResolveStepIndex_ExactStepBoundary_ContinuesWithFollowingStep()
 	{
-		var routeCell = new Mock<ICell>().Object;
-		var platformCell = new Mock<ICell>().Object;
-		var linear = LinearStep(routeCell, 100.0, 700.0);
+		var routeRoom = new Mock<IRoom>().Object;
+		var platformRoom = new Mock<IRoom>().Object;
+		var linear = LinearStep(routeRoom, 100.0, 700.0);
 		var exit = ExitStep(
-			new SpatialLocation(routeCell, RoomLayer.GroundLevel, 700.0),
-			new SpatialLocation(platformCell, RoomLayer.GroundLevel));
+			new SpatialLocation(routeRoom, RoomLayer.GroundLevel, 700.0),
+			new SpatialLocation(platformRoom, RoomLayer.GroundLevel));
 
 		var result = VehicleRouteRecoveryRules.TryResolveStepIndex(
 			[linear.Object, exit.Object],
-			new SpatialLocation(routeCell, RoomLayer.GroundLevel, 700.0),
+			new SpatialLocation(routeRoom, RoomLayer.GroundLevel, 700.0),
 			out var index,
 			out var reason);
 
@@ -54,17 +54,17 @@ public class VehicleRouteRecoveryRulesTests
 	[TestMethod]
 	public void TryResolveStepIndex_AtLegDestination_ReportsEveryStepComplete()
 	{
-		var routeCell = new Mock<ICell>().Object;
-		var platformCell = new Mock<ICell>().Object;
-		var linear = LinearStep(routeCell, 100.0, 700.0);
+		var routeRoom = new Mock<IRoom>().Object;
+		var platformRoom = new Mock<IRoom>().Object;
+		var linear = LinearStep(routeRoom, 100.0, 700.0);
 		var exit = ExitStep(
-			new SpatialLocation(routeCell, RoomLayer.GroundLevel, 700.0),
-			new SpatialLocation(platformCell, RoomLayer.GroundLevel));
+			new SpatialLocation(routeRoom, RoomLayer.GroundLevel, 700.0),
+			new SpatialLocation(platformRoom, RoomLayer.GroundLevel));
 
 		var steps = new IVehicleRouteStep[] { linear.Object, exit.Object };
 		var result = VehicleRouteRecoveryRules.TryResolveStepIndex(
 			steps,
-			new SpatialLocation(platformCell, RoomLayer.GroundLevel),
+			new SpatialLocation(platformRoom, RoomLayer.GroundLevel),
 			out var index,
 			out var reason);
 
@@ -75,18 +75,18 @@ public class VehicleRouteRecoveryRulesTests
 	[TestMethod]
 	public void TryResolveStepIndex_RevisitedCoordinate_FailsClosedAsAmbiguous()
 	{
-		var firstCell = new Mock<ICell>().Object;
-		var secondCell = new Mock<ICell>().Object;
+		var firstRoom = new Mock<IRoom>().Object;
+		var secondRoom = new Mock<IRoom>().Object;
 		var outbound = ExitStep(
-			new SpatialLocation(firstCell, RoomLayer.GroundLevel),
-			new SpatialLocation(secondCell, RoomLayer.GroundLevel));
+			new SpatialLocation(firstRoom, RoomLayer.GroundLevel),
+			new SpatialLocation(secondRoom, RoomLayer.GroundLevel));
 		var returnStep = ExitStep(
-			new SpatialLocation(secondCell, RoomLayer.GroundLevel),
-			new SpatialLocation(firstCell, RoomLayer.GroundLevel));
+			new SpatialLocation(secondRoom, RoomLayer.GroundLevel),
+			new SpatialLocation(firstRoom, RoomLayer.GroundLevel));
 
 		var result = VehicleRouteRecoveryRules.TryResolveStepIndex(
 			[outbound.Object, returnStep.Object],
-			new SpatialLocation(firstCell, RoomLayer.GroundLevel),
+			new SpatialLocation(firstRoom, RoomLayer.GroundLevel),
 			out _,
 			out var reason);
 
@@ -94,13 +94,13 @@ public class VehicleRouteRecoveryRulesTests
 		StringAssert.Contains(reason, "more than once");
 	}
 
-	private static Mock<IVehicleRouteLinearStep> LinearStep(ICell cell, double origin, double destination)
+	private static Mock<IVehicleRouteLinearStep> LinearStep(IRoom room, double origin, double destination)
 	{
 		var step = new Mock<IVehicleRouteLinearStep>();
 		step.SetupGet(x => x.Origin)
-			.Returns(new SpatialLocation(cell, RoomLayer.GroundLevel, origin));
+			.Returns(new SpatialLocation(room, RoomLayer.GroundLevel, origin));
 		step.SetupGet(x => x.Destination)
-			.Returns(new SpatialLocation(cell, RoomLayer.GroundLevel, destination));
+			.Returns(new SpatialLocation(room, RoomLayer.GroundLevel, destination));
 		return step;
 	}
 

@@ -11,7 +11,7 @@ public sealed partial class EnvironmentalMagicCoordinator
 		double now, double? ceiling)
 	{
 		public ILandRejuvenationEffect? Effect = effect;
-		public Cell Cell = (Cell)effect.TreatmentCell;
+		public Room Room = (Room)effect.TreatmentRoom;
 		public LandRejuvenationProgress Progress = progress;
 		public double At = now;
 		public double DueAt = now + Math.Min(60.0, progress.RemainingSeconds);
@@ -21,12 +21,12 @@ public sealed partial class EnvironmentalMagicCoordinator
 
 	private readonly Dictionary<long, TreatmentRegistration> _treatments = [];
 	private readonly Dictionary<Guid, LandRejuvenationProgress> _treatmentRecords = [];
-	private readonly Dictionary<long, Dictionary<Guid, LandRejuvenationProgress>> _treatmentRecordsByCell = [];
-	private readonly HashSet<long> _treatmentCellsLoaded = [];
+	private readonly Dictionary<long, Dictionary<Guid, LandRejuvenationProgress>> _treatmentRecordsByRoom = [];
+	private readonly HashSet<long> _treatmentRoomsLoaded = [];
 	private readonly Queue<ILandRejuvenationEffect> _loadedTreatments = [];
 	private readonly HashSet<ILandRejuvenationEffect> _queuedTreatments = [];
 	private readonly SortedSet<TreatmentRegistration> _treatmentDue = new(Comparer<TreatmentRegistration>.Create((a, b) =>
-		a.DueAt.CompareTo(b.DueAt) is var result && result != 0 ? result : a.Cell.Id.CompareTo(b.Cell.Id)));
+		a.DueAt.CompareTo(b.DueAt) is var result && result != 0 ? result : a.Room.Id.CompareTo(b.Room.Id)));
 	public long TreatmentVisits { get; private set; }
 	public int ActiveTreatmentCount => _treatmentDue.Count;
 
@@ -52,15 +52,15 @@ public sealed partial class EnvironmentalMagicCoordinator
 	{
 		foreach (var r in _treatments.Values.Where(x => x.Progress.ProfileId == profile.Id).ToArray())
 		{
-			var policy = InspectRepairPolicy(r.Cell);
-			if (!policy.IsValid) CancelTreatment(r.Cell, r.Progress.Id, policy.Error ?? "Repair policy disabled.");
+			var policy = InspectRepairPolicy(r.Room);
+			if (!policy.IsValid) CancelTreatment(r.Room, r.Progress.Id, policy.Error ?? "Repair policy disabled.");
 			else { r.Ceiling = policy.Ceiling; r.At = Now; }
 		}
 	}
 
-	public LandRejuvenationPolicy InspectRepairPolicy(ICell cell)
+	public LandRejuvenationPolicy InspectRepairPolicy(IRoom room)
 	{
-		if (_disposed || cell is not Cell concrete || !ReferenceEquals(cell.Gameworld, _world) || cell.Id <= 0)
+		if (_disposed || room is not Room concrete || !ReferenceEquals(room.Gameworld, _world) || room.Id <= 0)
 			return new(null, null, "A physical cell in this gameworld is required.");
 		var id = EffectiveProfileId(concrete);
 		if (id is null || Profile(id.Value) is not { } profile)
@@ -78,77 +78,77 @@ public sealed partial class EnvironmentalMagicCoordinator
 
 	private void LoadTreatmentRecords(long cellId)
 	{
-		if (_treatmentCellsLoaded.Contains(cellId)) return;
+		if (_treatmentRoomsLoaded.Contains(cellId)) return;
 		foreach (var row in _operations.TreatmentsFor(cellId)) CacheTreatment(row);
-		_treatmentCellsLoaded.Add(cellId);
+		_treatmentRoomsLoaded.Add(cellId);
 	}
 
 	private void CacheTreatment(LandRejuvenationProgress progress)
 	{
 		_treatmentRecords[progress.Id] = progress;
-		if (!_treatmentRecordsByCell.TryGetValue(progress.CellId, out var records))
-			_treatmentRecordsByCell[progress.CellId] = records = [];
+		if (!_treatmentRecordsByRoom.TryGetValue(progress.RoomId, out var records))
+			_treatmentRecordsByRoom[progress.RoomId] = records = [];
 		records[progress.Id] = progress;
 	}
 
-	private IEnumerable<LandRejuvenationProgress> CellTreatmentRecords(long cellId) =>
-		_treatmentRecordsByCell.TryGetValue(cellId, out var records) ? records.Values : [];
+	private IEnumerable<LandRejuvenationProgress> RoomTreatmentRecords(long cellId) =>
+		_treatmentRecordsByRoom.TryGetValue(cellId, out var records) ? records.Values : [];
 
-	public LandRejuvenationProgress? InspectTreatment(ICell cell, Guid treatmentId)
+	public LandRejuvenationProgress? InspectTreatment(IRoom room, Guid treatmentId)
 	{
-		if (_disposed || !ReferenceEquals(cell.Gameworld, _world)) return null;
-		LoadTreatmentRecords(cell.Id);
-		return _treatmentRecords.GetValueOrDefault(treatmentId) is { } p && p.CellId == cell.Id ? p : null;
+		if (_disposed || !ReferenceEquals(room.Gameworld, _world)) return null;
+		LoadTreatmentRecords(room.Id);
+		return _treatmentRecords.GetValueOrDefault(treatmentId) is { } p && p.RoomId == room.Id ? p : null;
 	}
 
-	public IReadOnlyList<LandRejuvenationProgress> InspectTreatments(ICell cell)
+	public IReadOnlyList<LandRejuvenationProgress> InspectTreatments(IRoom room)
 	{
-		if (_disposed || !ReferenceEquals(cell.Gameworld, _world)) return [];
-		LoadTreatmentRecords(cell.Id);
-		return CellTreatmentRecords(cell.Id).ToArray();
+		if (_disposed || !ReferenceEquals(room.Gameworld, _world)) return [];
+		LoadTreatmentRecords(room.Id);
+		return RoomTreatmentRecords(room.Id).ToArray();
 	}
 
-	public bool CanInstallTreatment(ICell cell, out string? error)
+	public bool CanInstallTreatment(IRoom room, out string? error)
 	{
-		var policy = InspectRepairPolicy(cell);
+		var policy = InspectRepairPolicy(room);
 		error = policy.Error;
 		if (!policy.IsValid) return false;
-		if (_evaluating.Contains(cell.Id) || _ecologicalMutations.Contains(cell.Id))
+		if (_evaluating.Contains(room.Id) || _ecologicalMutations.Contains(room.Id))
 		{
 			error = "Treatment admission is unavailable during an ecological policy or mutation.";
 			return false;
 		}
-		if (((Cell)cell).PendingEnvironmentalOperationId is { } pending)
+		if (((Room)room).PendingEnvironmentalOperationId is { } pending)
 		{
 			error = $"Ecological operation {pending} remains unresolved.";
 			return false;
 		}
 		try
 		{
-			LoadTreatmentRecords(cell.Id);
-			if (_treatments.ContainsKey(cell.Id) || CellTreatmentRecords(cell.Id).Any(x => !x.IsTerminal || x.PendingRequest is not null))
+			LoadTreatmentRecords(room.Id);
+			if (_treatments.ContainsKey(room.Id) || RoomTreatmentRecords(room.Id).Any(x => !x.IsTerminal || x.PendingRequest is not null))
 				error = "This cell already has an active or unresolved rejuvenation treatment.";
-			else if (((Cell)cell).EnvironmentState.ScarDamage <= 0.0) error = "There are no existing scars to treat.";
+			else if (((Room)room).EnvironmentState.ScarDamage <= 0.0) error = "There are no existing scars to treat.";
 		}
 		catch (Exception ex) { error = $"Treatment admission cannot read authoritative progress: {ex.Message}"; }
 		return error is null;
 	}
 
-	public bool EvaluateRepairPolicy(ICell cell, ICharacter caster, IFutureProg prog, out string? error)
+	public bool EvaluateRepairPolicy(IRoom room, ICharacter caster, IFutureProg prog, out string? error)
 	{
 		error = null;
-		if (!_evaluating.Add(cell.Id)) { error = "Recursive repair policy evaluation is forbidden."; return false; }
+		if (!_evaluating.Add(room.Id)) { error = "Recursive repair policy evaluation is forbidden."; return false; }
 		try
 		{
 			if (prog.StaticType != FutureProgStaticType.NotStatic || prog.ReturnType != ProgVariableTypes.Boolean ||
 				prog.AcceptsAnyParameters || !prog.Parameters.SequenceEqual([ProgVariableTypes.Character, ProgVariableTypes.Location]) ||
 				!string.IsNullOrEmpty(prog.CompileError))
 				error = "Repair policies must be compiled NotStatic boolean (character, location) progs.";
-			else if (prog.ExecuteBool(caster, cell) != true) error = "The repair policy declined this treatment.";
-			if (_recursive.Remove(cell.Id)) error = "Repair policy attempted an environmental mutation or recursive read.";
+			else if (prog.ExecuteBool(caster, room) != true) error = "The repair policy declined this treatment.";
+			if (_recursive.Remove(room.Id)) error = "Repair policy attempted an environmental mutation or recursive read.";
 		}
 		catch (Exception ex) { error = $"Repair policy failed: {ex.Message}"; }
-		finally { _evaluating.Remove(cell.Id); }
+		finally { _evaluating.Remove(room.Id); }
 		return error is null;
 	}
 
@@ -156,7 +156,7 @@ public sealed partial class EnvironmentalMagicCoordinator
 		FormattableString.Invariant($"Land rejuvenation {p.Id}, spell #{p.SpellId}, step {sequence}");
 
 	private static string? ValidateProgress(LandRejuvenationProgress p) =>
-		p.Version != 1 || p.Id == Guid.Empty || p.ParentId == Guid.Empty || p.CellId <= 0 || p.SpellId <= 0 ||
+		p.Version != 1 || p.Id == Guid.Empty || p.ParentId == Guid.Empty || p.RoomId <= 0 || p.SpellId <= 0 ||
 		!Enum.IsDefined(p.Status) || p.Revision < 0 || p.Sequence < p.AcknowledgedSequence || p.AcknowledgedSequence < 0 ||
 		!double.IsFinite(p.Rate) || p.Rate <= 0.0 || !double.IsFinite(p.InitialBudget) || p.InitialBudget <= 0.0 ||
 		!double.IsFinite(p.RemainingBudget) || p.RemainingBudget < 0.0 || p.RemainingBudget > p.InitialBudget ||
@@ -180,9 +180,9 @@ public sealed partial class EnvironmentalMagicCoordinator
 	public bool ActivateTreatment(ILandRejuvenationEffect effect, LandRejuvenationProgress? initial, out string? error)
 	{
 		error = null;
-		if (_disposed || effect.TreatmentCell is not Cell cell || !ReferenceEquals(cell.Gameworld, _world))
+		if (_disposed || effect.TreatmentRoom is not Room room || !ReferenceEquals(room.Gameworld, _world))
 		{ error = "Treatment requires an attached spell parent on a physical cell."; return false; }
-		if (_treatments.TryGetValue(cell.Id, out var existing))
+		if (_treatments.TryGetValue(room.Id, out var existing))
 		{
 			if (ReferenceEquals(existing.Effect, effect)) return true;
 			error = existing.Progress.Id == effect.TreatmentId ? "Duplicate saved treatment identity ignored." : "Conflicting saved treatment disabled.";
@@ -190,23 +190,23 @@ public sealed partial class EnvironmentalMagicCoordinator
 		}
 		try
 		{
-			LoadTreatmentRecords(cell.Id);
+			LoadTreatmentRecords(room.Id);
 			var progress = initial ?? _operations.FindTreatment(effect.TreatmentId);
 			if (progress is null || (error = ValidateProgress(progress)) is not null ||
-				progress.Id != effect.TreatmentId || progress.CellId != cell.Id || progress.ParentId != effect.ParentIdentity)
+				progress.Id != effect.TreatmentId || progress.RoomId != room.Id || progress.ParentId != effect.ParentIdentity)
 			{ error ??= "Missing or mismatched authoritative treatment identity."; return false; }
 			CacheTreatment(progress);
 			if (!effect.IsAttached)
 			{
 				error = "The loaded treatment has no valid attached source spell; it has been cancelled.";
-				if (initial is null) CancelTreatment(cell, progress.Id, error);
+				if (initial is null) CancelTreatment(room, progress.Id, error);
 				return false;
 			}
 			if (progress.IsTerminal || progress.CancellationRequested)
 			{ error = "The saved treatment has ended; its XML cannot restore its budget."; return false; }
-			if (CellTreatmentRecords(cell.Id).Any(x => x.Id != progress.Id && (!x.IsTerminal || x.PendingRequest is not null)))
+			if (RoomTreatmentRecords(room.Id).Any(x => x.Id != progress.Id && (!x.IsTerminal || x.PendingRequest is not null)))
 			{ error = "Conflicting saved treatment checkpoints require staff review; no work was registered."; return false; }
-			var policy = InspectRepairPolicy(cell);
+			var policy = InspectRepairPolicy(room);
 			if (!policy.IsValid || policy.ProfileId != progress.ProfileId || !effect.CheckMaintenance(out error))
 			{
 				error ??= policy.Error ?? "The effective profile changed.";
@@ -219,9 +219,9 @@ public sealed partial class EnvironmentalMagicCoordinator
 				_operations.SaveTreatment(progress, null);
 			}
 			var registration = new TreatmentRegistration(effect, progress, Now, policy.Ceiling);
-			_treatments.Add(cell.Id, registration);
+			_treatments.Add(room.Id, registration);
 			_treatmentDue.Add(registration);
-			if (cell.EnvironmentState.ScarDamage == 0.0) CancelTreatment(cell, progress.Id, "No scars remain.");
+			if (room.EnvironmentState.ScarDamage == 0.0) CancelTreatment(room, progress.Id, "No scars remain.");
 			return true;
 		}
 		catch (Exception ex) { error = $"Treatment activation failed: {ex.Message}"; return false; }
@@ -264,15 +264,15 @@ public sealed partial class EnvironmentalMagicCoordinator
 	private void FinishTreatment(TreatmentRegistration r)
 	{
 		_treatmentDue.Remove(r);
-		_treatments.Remove(r.Cell.Id);
+		_treatments.Remove(r.Room.Id);
 		var effect = r.Effect;
 		r.Effect = null;
 		effect?.TreatmentEnded(r.Progress.Diagnostic);
 	}
 
-	public void CheckpointTreatment(ICell cell, Guid treatmentId)
+	public void CheckpointTreatment(IRoom room, Guid treatmentId)
 	{
-		if (_treatments.TryGetValue(cell.Id, out var r) && r.Progress.Id == treatmentId)
+		if (_treatments.TryGetValue(room.Id, out var r) && r.Progress.Id == treatmentId)
 			AdvanceTreatment(r, Now, true);
 	}
 
@@ -290,23 +290,23 @@ public sealed partial class EnvironmentalMagicCoordinator
 				// Unknown steps earn nothing. A save may close their lifetime, but never confirms or retries them.
 				if (checkpointOnly)
 					r.Progress = SaveProgress(p with { RemainingSeconds = Math.Max(0.0, p.RemainingSeconds - Math.Max(0.0, now - r.At)) });
-				else ReconcileTreatment(r.Cell, p.Id, true, out _);
+				else ReconcileTreatment(r.Room, p.Id, true, out _);
 				return;
 			}
 			if (r.Effect is null || !r.Effect.IsAttached || !r.Effect.CheckMaintenance(out var maintenance))
-			{ CancelTreatment(r.Cell, p.Id, "Treatment attachment or maintenance failed."); return; }
-			var policy = InspectRepairPolicy(r.Cell);
+			{ CancelTreatment(r.Room, p.Id, "Treatment attachment or maintenance failed."); return; }
+			var policy = InspectRepairPolicy(r.Room);
 			if (!policy.IsValid || policy.ProfileId != p.ProfileId)
-			{ CancelTreatment(r.Cell, p.Id, policy.Error ?? "The effective profile changed."); return; }
-			if (r.Cell.PendingEnvironmentalOperationId is { } foreign)
+			{ CancelTreatment(r.Room, p.Id, policy.Error ?? "The effective profile changed."); return; }
+			if (r.Room.PendingEnvironmentalOperationId is { } foreign)
 			{
 				r.Progress = SaveProgress(p with { RemainingSeconds = Math.Max(0.0, p.RemainingSeconds - Math.Max(0.0, now - r.At)),
 					EarnedWork = 0.0, Diagnostic = $"Waiting for foreign ecological operation {foreign}; no elapsed credit." });
 				r.At = now;
 				return;
 			}
-			if (r.Cell.EnvironmentState.ScarDamage == 0.0)
-			{ CancelTreatment(r.Cell, p.Id, "No scars remain."); return; }
+			if (r.Room.EnvironmentState.ScarDamage == 0.0)
+			{ CancelTreatment(r.Room, p.Id, "No scars remain."); return; }
 			var seconds = Math.Min(p.RemainingSeconds, Math.Max(0.0, now - r.At));
 			// A custom policy edit discovered late closes the unknown segment without inventing eligibility.
 			var rate = policy.Ceiling != r.Ceiling ? 0.0 : Math.Min(p.Rate, r.Ceiling ?? p.Rate);
@@ -321,7 +321,7 @@ public sealed partial class EnvironmentalMagicCoordinator
 			}
 			// Close natural recovery before preparing a magical step when it alone finishes the land.
 			// There must be no zero-repair magical receipt or acknowledgement for this boundary.
-			if (_registered.TryGetValue(r.Cell.Id, out var natural) && Inspect(r.Cell).IsValid &&
+			if (_registered.TryGetValue(r.Room.Id, out var natural) && Inspect(r.Room).IsValid &&
 				ProjectSettlement(natural, now).State.ScarDamage == 0.0)
 			{
 				Settle(natural, now);
@@ -329,11 +329,11 @@ public sealed partial class EnvironmentalMagicCoordinator
 					Diagnostic = "Natural recovery removed the final scars; no magical step was applied." });
 				return;
 			}
-			var applied = ConservativeScarRepair.Calculate(r.Cell.EnvironmentState.ScarDamage, earned).Applied;
+			var applied = ConservativeScarRepair.Calculate(r.Room.EnvironmentState.ScarDamage, earned).Applied;
 			if (applied == 0.0)
 			{
 				var possible = Math.Min(p.RemainingBudget, earned + Math.Min(p.RemainingBudget, Math.Min(p.Rate, r.Ceiling ?? p.Rate) * (next.RemainingSeconds / 60.0)));
-				if (next.RemainingSeconds == 0.0 || ConservativeScarRepair.Calculate(r.Cell.EnvironmentState.ScarDamage, possible).Applied == 0.0)
+				if (next.RemainingSeconds == 0.0 || ConservativeScarRepair.Calculate(r.Room.EnvironmentState.ScarDamage, possible).Applied == 0.0)
 					next = next with { Status = LandRejuvenationStatus.Completed, Diagnostic = "Remaining work cannot fund a representable decrement before expiry." };
 				r.Progress = SaveProgress(next);
 				return;
@@ -358,7 +358,7 @@ public sealed partial class EnvironmentalMagicCoordinator
 	{
 		// A prepared request may outlive natural recovery while it awaits confirmation. End it
 		// without a magical receipt; only the timed lane reaches this path after proving rollback.
-		if (_registered.TryGetValue(r.Cell.Id, out var natural) && Inspect(r.Cell).IsValid &&
+		if (_registered.TryGetValue(r.Room.Id, out var natural) && Inspect(r.Room).IsValid &&
 			ProjectSettlement(natural, Now).State.ScarDamage == 0.0)
 		{
 			Settle(natural, Now);
@@ -366,7 +366,7 @@ public sealed partial class EnvironmentalMagicCoordinator
 				Status = LandRejuvenationStatus.Completed, Diagnostic = "Natural recovery removed the final scars; the prepared magical step was not applied." });
 			return true;
 		}
-		var result = ApplyOperationCore(r.Cell, r.Progress.PendingRequest!, r.Progress);
+		var result = ApplyOperationCore(r.Room, r.Progress.PendingRequest!, r.Progress);
 		if (!result.Success)
 		{
 			r.Progress = r.Progress with { Diagnostic = result.Error ?? "Repair step remains unresolved." };
@@ -378,28 +378,28 @@ public sealed partial class EnvironmentalMagicCoordinator
 		return true;
 	}
 
-	public bool ConfirmTreatment(ICell cell, Guid treatmentId, out string? error) => ReconcileTreatment(cell, treatmentId, false, out error);
+	public bool ConfirmTreatment(IRoom room, Guid treatmentId, out string? error) => ReconcileTreatment(room, treatmentId, false, out error);
 
-	private bool ReconcileTreatment(ICell cell, Guid treatmentId, bool allowRetry, out string? error)
+	private bool ReconcileTreatment(IRoom room, Guid treatmentId, bool allowRetry, out string? error)
 	{
 		error = null;
-		if (cell is not Cell concrete || !ReferenceEquals(cell.Gameworld, _world) || _evaluating.Contains(cell.Id) || _ecologicalMutations.Contains(cell.Id))
+		if (room is not Room concrete || !ReferenceEquals(room.Gameworld, _world) || _evaluating.Contains(room.Id) || _ecologicalMutations.Contains(room.Id))
 		{ error = "Confirmation requires a physical cell outside policy evaluation or ecological mutation."; return false; }
-		_treatments.TryGetValue(cell.Id, out var r);
+		_treatments.TryGetValue(room.Id, out var r);
 		if (r?.Progress.Id != treatmentId) r = null;
 		var closeInterval = false;
 		try
 		{
 			var stored = _operations.FindTreatment(treatmentId) ?? throw new InvalidOperationException("Authoritative treatment is missing.");
-			if (stored.CellId != cell.Id || ValidateProgress(stored) is { }) throw new InvalidOperationException("Invalid or foreign treatment checkpoint.");
+			if (stored.RoomId != room.Id || ValidateProgress(stored) is { }) throw new InvalidOperationException("Invalid or foreign treatment checkpoint.");
 			var before = r?.Progress ?? _treatmentRecords.GetValueOrDefault(treatmentId) ?? stored;
 			closeInterval = before.PendingRequest is not null || stored.PendingRequest is not null;
-			if (r is null && !cell.Effects.OfType<ILandRejuvenationEffect>().Any(x => x.TreatmentId == treatmentId) && !stored.IsTerminal)
+			if (r is null && !room.Effects.OfType<ILandRejuvenationEffect>().Any(x => x.TreatmentId == treatmentId) && !stored.IsTerminal)
 				before = before with { CancellationRequested = true, Diagnostic = "No attached treatment remains; staff confirmation closed its checkpoint." };
 			if (before.PendingRequest is { } request)
 			{
 				var receipt = _operations.Find(request.OperationId);
-				if (receipt is not null && (receipt.CellId != cell.Id || receipt.Request != request ||
+				if (receipt is not null && (receipt.RoomId != room.Id || receipt.Request != request ||
 					stored.AcknowledgedSequence < before.Sequence || stored.PendingRequest is not null))
 					throw new InvalidOperationException("Receipt and authoritative checkpoint disagree; staff review required.");
 				if (receipt is not null && concrete.PendingEnvironmentalOperationId == request.OperationId)
@@ -414,7 +414,7 @@ public sealed partial class EnvironmentalMagicCoordinator
 			{
 				// Removal can already have adopted the committed budget while the cell still awaits acknowledgement.
 				var receipt = _operations.Find(last);
-				if (receipt is null || receipt.CellId != cell.Id || stored.PendingRequest is not null)
+				if (receipt is null || receipt.RoomId != room.Id || stored.PendingRequest is not null)
 					throw new InvalidOperationException("The last acknowledged repair receipt is unavailable.");
 				concrete.AdoptDurableEnvironment(last, _operations.Load(concrete));
 				ResetRecoveredEnvironment(concrete, false);
@@ -433,9 +433,9 @@ public sealed partial class EnvironmentalMagicCoordinator
 			{
 				// Only the timed lane may retry an exact prepared request. Inspection/confirmation never repairs.
 				if (r.Effect is null || !r.Effect.IsAttached || !r.Effect.CheckMaintenance(out error) ||
-					!InspectRepairPolicy(cell).IsValid || InspectRepairPolicy(cell).ProfileId != stored.ProfileId)
+					!InspectRepairPolicy(room).IsValid || InspectRepairPolicy(room).ProfileId != stored.ProfileId)
 				{
-					CancelTreatment(cell, stored.Id, error ?? "Treatment maintenance or repair policy ended during confirmation.");
+					CancelTreatment(room, stored.Id, error ?? "Treatment maintenance or repair policy ended during confirmation.");
 					return false;
 				}
 				if (!CommitTreatmentStep(r)) { error = r.Progress.Diagnostic; return false; }
@@ -446,15 +446,15 @@ public sealed partial class EnvironmentalMagicCoordinator
 		finally { if (r is not null && closeInterval) { r.At = Now; if (!r.Working) QueueTreatment(r); } }
 	}
 
-	public void CancelTreatment(ICell cell, Guid treatmentId, string reason)
+	public void CancelTreatment(IRoom room, Guid treatmentId, string reason)
 	{
-		if (cell is not Cell || !ReferenceEquals(cell.Gameworld, _world) || treatmentId == Guid.Empty) return;
-		if (!_treatments.TryGetValue(cell.Id, out var r) || r.Progress.Id != treatmentId)
+		if (room is not Room || !ReferenceEquals(room.Gameworld, _world) || treatmentId == Guid.Empty) return;
+		if (!_treatments.TryGetValue(room.Id, out var r) || r.Progress.Id != treatmentId)
 		{
 			try
 			{
 				var orphan = _operations.FindTreatment(treatmentId);
-				if (orphan is not null && orphan.CellId == cell.Id && !orphan.IsTerminal)
+				if (orphan is not null && orphan.RoomId == room.Id && !orphan.IsTerminal)
 					SaveProgress(orphan with { CancellationRequested = true, EarnedWork = 0.0,
 						Status = orphan.PendingRequest is null ? LandRejuvenationStatus.Cancelled : LandRejuvenationStatus.Pending,
 						Diagnostic = reason });
@@ -471,7 +471,7 @@ public sealed partial class EnvironmentalMagicCoordinator
 			r.Progress = SaveProgress(current with { CancellationRequested = true,
 				Status = current.PendingRequest is null ? LandRejuvenationStatus.Cancelled : LandRejuvenationStatus.Pending,
 				Diagnostic = reason });
-			if (r.Progress.PendingRequest is null) _treatments.Remove(cell.Id);
+			if (r.Progress.PendingRequest is null) _treatments.Remove(room.Id);
 		}
 		catch (Exception ex)
 		{
@@ -481,29 +481,29 @@ public sealed partial class EnvironmentalMagicCoordinator
 		effect?.TreatmentEnded(reason);
 	}
 
-	public void ExpireTreatment(ICell cell, Guid treatmentId)
+	public void ExpireTreatment(IRoom room, Guid treatmentId)
 	{
-		if (!_treatments.TryGetValue(cell.Id, out var r) || r.Progress.Id != treatmentId) return;
+		if (!_treatments.TryGetValue(room.Id, out var r) || r.Progress.Id != treatmentId) return;
 		AdvanceTreatment(r, Now);
-		if (_treatments.ContainsKey(cell.Id)) CancelTreatment(cell, treatmentId, "Spell lifetime expired.");
+		if (_treatments.ContainsKey(room.Id)) CancelTreatment(room, treatmentId, "Spell lifetime expired.");
 	}
 
-	public void ScarStateChanged(ICell cell)
+	public void ScarStateChanged(IRoom room)
 	{
-		if (cell is Cell { EnvironmentState.ScarDamage: 0.0 } && _treatments.TryGetValue(cell.Id, out var r) && !r.Working)
-			CancelTreatment(cell, r.Progress.Id, "No scars remain; this treatment has ended.");
+		if (room is Room { EnvironmentState.ScarDamage: 0.0 } && _treatments.TryGetValue(room.Id, out var r) && !r.Working)
+			CancelTreatment(room, r.Progress.Id, "No scars remain; this treatment has ended.");
 	}
 
-	private bool TryEndTreatmentsAtZeroBoundary(Cell cell, out string? error)
+	private bool TryEndTreatmentsAtZeroBoundary(Room room, out string? error)
 	{
 		error = null;
-		if (!_treatments.ContainsKey(cell.Id) && !cell.Effects.OfType<ILandRejuvenationEffect>().Any()) return true;
+		if (!_treatments.ContainsKey(room.Id) && !room.Effects.OfType<ILandRejuvenationEffect>().Any()) return true;
 		try
 		{
-			LoadTreatmentRecords(cell.Id);
-			foreach (var progress in CellTreatmentRecords(cell.Id).Where(x => !x.IsTerminal || x.PendingRequest is not null).ToArray())
+			LoadTreatmentRecords(room.Id);
+			foreach (var progress in RoomTreatmentRecords(room.Id).Where(x => !x.IsTerminal || x.PendingRequest is not null).ToArray())
 			{
-				CancelTreatment(cell, progress.Id, "Natural recovery reached zero scars; this treatment has ended.");
+				CancelTreatment(room, progress.Id, "Natural recovery reached zero scars; this treatment has ended.");
 				var stored = _operations.FindTreatment(progress.Id);
 				if (stored is { CancellationRequested: true } || stored is { IsTerminal: true, PendingRequest: null }) continue;
 				error = $"Treatment {progress.Id} must have its termination durably confirmed before another ecological operation.";

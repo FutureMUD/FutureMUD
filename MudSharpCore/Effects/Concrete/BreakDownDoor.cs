@@ -7,7 +7,7 @@ namespace MudSharp.Effects.Concrete;
 public class BreakDownDoor : Effect, IEffectSubtype
 {
     public ICharacter CharacterOwner { get; set; }
-    public ICellExit Exit { get; set; }
+    public IRoomExit Exit { get; set; }
 
     /// <summary>
     /// The transient pathing episode that created this focus, if any. This is deliberately not persisted.
@@ -16,7 +16,7 @@ public class BreakDownDoor : Effect, IEffectSubtype
 
     public DateTime? NextSmashAttemptUtc { get; set; }
 
-    public BreakDownDoor(ICharacter owner, ICellExit exit) : base(owner)
+    public BreakDownDoor(ICharacter owner, IRoomExit exit) : base(owner)
     {
         CharacterOwner = owner;
         Exit = exit;

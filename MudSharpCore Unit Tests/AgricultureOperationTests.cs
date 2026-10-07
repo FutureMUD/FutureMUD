@@ -43,10 +43,10 @@ public class AgricultureOperationTests
 		environment.VerifyNoOtherCalls();
 
 		field.SetScore(AgricultureScoreType.Pasture, 60);
-		environment.Verify(x => x.MarkDirty(field.Cell, EnvironmentalMagicDirtyReason.Agriculture), Times.Once);
+		environment.Verify(x => x.MarkDirty(field.Room, EnvironmentalMagicDirtyReason.Agriculture), Times.Once);
 		field.Condition = 0;
 		field.Condition = 0;
-		environment.Verify(x => x.MarkDirty(field.Cell, EnvironmentalMagicDirtyReason.Agriculture), Times.Exactly(2));
+		environment.Verify(x => x.MarkDirty(field.Room, EnvironmentalMagicDirtyReason.Agriculture), Times.Exactly(2));
 	}
 
 	[TestMethod]
@@ -60,7 +60,7 @@ public class AgricultureOperationTests
 		field.DailyTick();
 
 		Assert.AreEqual(51, field.CropHealth);
-		environment.Verify(x => x.MarkDirty(field.Cell, EnvironmentalMagicDirtyReason.Agriculture), Times.Once);
+		environment.Verify(x => x.MarkDirty(field.Room, EnvironmentalMagicDirtyReason.Agriculture), Times.Once);
 	}
 
 	[TestMethod]
@@ -79,9 +79,9 @@ public class AgricultureOperationTests
 		Assert.IsTrue(field.ApplyOperation(change, null, null!, false, out _));
 		Assert.AreEqual(53, field.Pasture);
 		Assert.AreEqual(48, field.Condition);
-		environment.Verify(x => x.MarkDirty(field.Cell, EnvironmentalMagicDirtyReason.Agriculture), Times.Once);
+		environment.Verify(x => x.MarkDirty(field.Room, EnvironmentalMagicDirtyReason.Agriculture), Times.Once);
 		Assert.IsTrue(field.ApplyOperation(noChange, null, null!, false, out _));
-		environment.Verify(x => x.MarkDirty(field.Cell, EnvironmentalMagicDirtyReason.Agriculture), Times.Once);
+		environment.Verify(x => x.MarkDirty(field.Room, EnvironmentalMagicDirtyReason.Agriculture), Times.Once);
 	}
 
 	[DataTestMethod]
@@ -101,7 +101,7 @@ public class AgricultureOperationTests
 			? new AgricultureField(new MudSharp.Models.AgricultureField
 			{
 				Id = 1,
-				CellId = 1,
+				RoomId = 1,
 				ProfileId = 1,
 				CurrentUse = (int)AgricultureFieldUse.Woodland,
 				Definition = "<Field />",
@@ -120,7 +120,7 @@ public class AgricultureOperationTests
 		environment.VerifyNoOtherCalls();
 		Assert.IsTrue(woodland ? field.ConsumeWoodlandYield(1, out _) : field.ConsumeCropYield(1, out _));
 		Assert.AreEqual(49, woodland ? field.WoodlandYieldPotential : field.CropYieldPotential);
-		environment.Verify(x => x.MarkDirty(field.Cell, EnvironmentalMagicDirtyReason.Agriculture), Times.Once);
+		environment.Verify(x => x.MarkDirty(field.Room, EnvironmentalMagicDirtyReason.Agriculture), Times.Once);
 	}
 
 	[TestMethod]
@@ -377,7 +377,7 @@ public class AgricultureOperationTests
 			cropPollination: AgriculturePollinationDependency.Strong,
 			pollinationHealthBonus: 1,
 			pollinationYieldBonus: 2,
-			includeNeighbourCell: true,
+			includeNeighbourRoom: true,
 			connectNeighbour: true);
 		var cropField = BuildFieldWithCustomScore(gameworld.Object, 50, AgricultureFieldUse.Crop, withCrop: true);
 		var apiaryField = BuildFieldWithCustomScore(gameworld.Object, 50, AgricultureFieldUse.Fallow,
@@ -400,7 +400,7 @@ public class AgricultureOperationTests
 			cropPollination: AgriculturePollinationDependency.Strong,
 			pollinationHealthBonus: 1,
 			pollinationYieldBonus: 2,
-			includeNeighbourCell: true,
+			includeNeighbourRoom: true,
 			connectNeighbour: false);
 		var cropField = BuildFieldWithCustomScore(gameworld.Object, 50, AgricultureFieldUse.Crop, withCrop: true);
 		var apiaryField = BuildFieldWithCustomScore(gameworld.Object, 50, AgricultureFieldUse.Fallow,
@@ -538,26 +538,26 @@ public class AgricultureOperationTests
 	public void AgricultureFieldInput_ScoutInput_RejectsOwnedFieldWithoutAuthorisation()
 	{
 		var gameworld = BuildGameworldWithCustomScore(enabled: false);
-		var cell = new Mock<ICell>();
-		cell.SetupGet(x => x.Id).Returns(1L);
-		cell.SetupGet(x => x.Name).Returns("Owned Crop Field");
-		cell.SetupGet(x => x.FrameworkItemType).Returns("Cell");
-		cell.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
-		var cells = new All<ICell>();
-		cells.Add(cell.Object);
-		gameworld.SetupGet(x => x.Cells).Returns(cells);
+		var room = new Mock<IRoom>();
+		room.SetupGet(x => x.Id).Returns(1L);
+		room.SetupGet(x => x.Name).Returns("Owned Crop Field");
+		room.SetupGet(x => x.FrameworkItemType).Returns("Cell");
+		room.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		var rooms = new All<IRoom>();
+		rooms.Add(room.Object);
+		gameworld.SetupGet(x => x.Rooms).Returns(rooms);
 		var field = BuildFieldWithCustomScore(gameworld.Object, 50, AgricultureFieldUse.Fallow);
-		cell.SetupGet(x => x.AgricultureField).Returns(field);
+		room.SetupGet(x => x.AgricultureField).Returns(field);
 		var property = new Mock<IProperty>();
 		property.SetupGet(x => x.Id).Returns(1L);
 		property.SetupGet(x => x.Name).Returns("Owned Farm");
 		property.SetupGet(x => x.FrameworkItemType).Returns("Property");
-		property.SetupGet(x => x.PropertyLocations).Returns([cell.Object]);
+		property.SetupGet(x => x.PropertyLocations).Returns([room.Object]);
 		var properties = new All<IProperty>();
 		properties.Add(property.Object);
 		gameworld.SetupGet(x => x.Properties).Returns(properties);
 		var actor = new Mock<ICharacter>();
-		actor.SetupGet(x => x.Location).Returns(cell.Object);
+		actor.SetupGet(x => x.Location).Returns(room.Object);
 		actor.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
 		actor.Setup(x => x.IsAdministrator(It.IsAny<PermissionLevel>())).Returns(false);
 		var input = AgricultureFieldInputFromDefinition(gameworld.Object,
@@ -587,7 +587,7 @@ public class AgricultureOperationTests
 		race.SetupGet(x => x.BaseBody).Returns(baseBody.Object);
 		var npc = new Mock<ICharacter>();
 		npc.SetupGet(x => x.IsPlayerCharacter).Returns(false);
-		npc.SetupGet(x => x.Location).Returns(source.Cell);
+		npc.SetupGet(x => x.Location).Returns(source.Room);
 		npc.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
 		npc.SetupGet(x => x.Race).Returns(race.Object);
 		var actor = new Mock<ICharacter>();
@@ -837,7 +837,7 @@ public class AgricultureOperationTests
 		AgriculturePollinationDependency cropPollination = AgriculturePollinationDependency.None,
 		int pollinationHealthBonus = 0,
 		int pollinationYieldBonus = 0,
-		bool includeNeighbourCell = false,
+		bool includeNeighbourRoom = false,
 		bool connectNeighbour = false)
 	{
 		var gameworld = BuildGameworldWithCustomScore(enabled, higherIsGood);
@@ -846,20 +846,20 @@ public class AgricultureOperationTests
 		gameworld
 			.Setup(x => x.GetStaticConfiguration(AgriculturePlantingWindowExtensions.SeasonGroupWindowsStaticConfiguration))
 			.Returns(AgriculturePlantingWindowExtensions.DefaultSeasonGroupWindowsConfigurationText);
-		var cells = new All<ICell>();
-		var cell = new Mock<ICell>();
-		cell.SetupGet(x => x.Id).Returns(1);
-		cell.SetupGet(x => x.Name).Returns("Test Cell");
-		cell.SetupGet(x => x.FrameworkItemType).Returns("Cell");
-		cell.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
-		cell.Setup(x => x.CurrentTemperature(It.IsAny<IPerceiver>())).Returns(20.0);
-		cell.Setup(x => x.CurrentWeather(It.IsAny<IPerceiver>())).Returns(default(IWeatherEvent)!);
-		cell.Setup(x => x.CurrentSeason(It.IsAny<IPerceiver>())).Returns(season!);
-		cell.Setup(x => x.ExitsFor(It.IsAny<IPerceiver>(), It.IsAny<bool>())).Returns(Array.Empty<ICellExit>());
-		cells.Add(cell.Object);
-		if (includeNeighbourCell)
+		var rooms = new All<IRoom>();
+		var room = new Mock<IRoom>();
+		room.SetupGet(x => x.Id).Returns(1);
+		room.SetupGet(x => x.Name).Returns("Test Cell");
+		room.SetupGet(x => x.FrameworkItemType).Returns("Cell");
+		room.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		room.Setup(x => x.CurrentTemperature(It.IsAny<IPerceiver>())).Returns(20.0);
+		room.Setup(x => x.CurrentWeather(It.IsAny<IPerceiver>())).Returns(default(IWeatherEvent)!);
+		room.Setup(x => x.CurrentSeason(It.IsAny<IPerceiver>())).Returns(season!);
+		room.Setup(x => x.ExitsFor(It.IsAny<IPerceiver>(), It.IsAny<bool>())).Returns(Array.Empty<IRoomExit>());
+		rooms.Add(room.Object);
+		if (includeNeighbourRoom)
 		{
-			var neighbour = new Mock<ICell>();
+			var neighbour = new Mock<IRoom>();
 			neighbour.SetupGet(x => x.Id).Returns(2);
 			neighbour.SetupGet(x => x.Name).Returns("Neighbour Cell");
 			neighbour.SetupGet(x => x.FrameworkItemType).Returns("Cell");
@@ -867,23 +867,23 @@ public class AgricultureOperationTests
 			neighbour.Setup(x => x.CurrentTemperature(It.IsAny<IPerceiver>())).Returns(20.0);
 			neighbour.Setup(x => x.CurrentWeather(It.IsAny<IPerceiver>())).Returns(default(IWeatherEvent)!);
 			neighbour.Setup(x => x.CurrentSeason(It.IsAny<IPerceiver>())).Returns(season!);
-			neighbour.Setup(x => x.ExitsFor(It.IsAny<IPerceiver>(), It.IsAny<bool>())).Returns(Array.Empty<ICellExit>());
+			neighbour.Setup(x => x.ExitsFor(It.IsAny<IPerceiver>(), It.IsAny<bool>())).Returns(Array.Empty<IRoomExit>());
 			if (connectNeighbour)
 			{
-				var outbound = new Mock<ICellExit>();
+				var outbound = new Mock<IRoomExit>();
 				outbound.SetupGet(x => x.Destination).Returns(neighbour.Object);
-				var inbound = new Mock<ICellExit>();
-				inbound.SetupGet(x => x.Destination).Returns(cell.Object);
-				cell.Setup(x => x.ExitsFor(It.IsAny<IPerceiver>(), It.IsAny<bool>()))
+				var inbound = new Mock<IRoomExit>();
+				inbound.SetupGet(x => x.Destination).Returns(room.Object);
+				room.Setup(x => x.ExitsFor(It.IsAny<IPerceiver>(), It.IsAny<bool>()))
 				    .Returns([outbound.Object]);
 				neighbour.Setup(x => x.ExitsFor(It.IsAny<IPerceiver>(), It.IsAny<bool>()))
 				         .Returns([inbound.Object]);
 			}
 
-			cells.Add(neighbour.Object);
+			rooms.Add(neighbour.Object);
 		}
 
-		gameworld.SetupGet(x => x.Cells).Returns(cells);
+		gameworld.SetupGet(x => x.Rooms).Returns(rooms);
 		var celestials = new All<ICelestialObject>();
 		if (celestialDay.HasValue)
 		{
@@ -946,12 +946,12 @@ public class AgricultureOperationTests
 		var saveManager = new Mock<ISaveManager>();
 		gameworld.SetupGet(x => x.SaveManager).Returns(saveManager.Object);
 
-		var cells = new All<ICell>();
-		var sourceCell = BuildCell(gameworld.Object, 1, "Source Field");
-		var destinationCell = BuildCell(gameworld.Object, 2, "Destination Field");
-		cells.Add(sourceCell);
-		cells.Add(destinationCell);
-		gameworld.SetupGet(x => x.Cells).Returns(cells);
+		var rooms = new All<IRoom>();
+		var sourceRoom = BuildRoom(gameworld.Object, 1, "Source Field");
+		var destinationRoom = BuildRoom(gameworld.Object, 2, "Destination Field");
+		rooms.Add(sourceRoom);
+		rooms.Add(destinationRoom);
+		gameworld.SetupGet(x => x.Rooms).Returns(rooms);
 
 		var profiles = new All<IAgricultureFieldProfile>();
 		var profile = new Mock<IAgricultureFieldProfile>();
@@ -984,7 +984,7 @@ public class AgricultureOperationTests
 			property.SetupGet(x => x.Id).Returns(1);
 			property.SetupGet(x => x.Name).Returns("Owned Destination");
 			property.SetupGet(x => x.FrameworkItemType).Returns("Property");
-			property.SetupGet(x => x.PropertyLocations).Returns(new[] { destinationCell });
+			property.SetupGet(x => x.PropertyLocations).Returns(new[] { destinationRoom });
 			properties.Add(property.Object);
 		}
 
@@ -992,14 +992,14 @@ public class AgricultureOperationTests
 		return (gameworld, herd.Object);
 	}
 
-	private static ICell BuildCell(IFuturemud gameworld, long id, string name)
+	private static IRoom BuildRoom(IFuturemud gameworld, long id, string name)
 	{
-		var cell = new Mock<ICell>();
-		cell.SetupGet(x => x.Id).Returns(id);
-		cell.SetupGet(x => x.Name).Returns(name);
-		cell.SetupGet(x => x.FrameworkItemType).Returns("Cell");
-		cell.SetupGet(x => x.Gameworld).Returns(gameworld);
-		return cell.Object;
+		var room = new Mock<IRoom>();
+		room.SetupGet(x => x.Id).Returns(id);
+		room.SetupGet(x => x.Name).Returns(name);
+		room.SetupGet(x => x.FrameworkItemType).Returns("Cell");
+		room.SetupGet(x => x.Gameworld).Returns(gameworld);
+		return room.Object;
 	}
 
 	private static AgricultureField BuildFieldWithHerd(IFuturemud gameworld, long id, long cellId,
@@ -1009,7 +1009,7 @@ public class AgricultureOperationTests
 		var model = new MudSharp.Models.AgricultureField
 		{
 			Id = id,
-			CellId = cellId,
+			RoomId = cellId,
 			ProfileId = 1,
 			CurrentUse = (int)use,
 			Moisture = 50,
@@ -1050,7 +1050,7 @@ public class AgricultureOperationTests
 		var model = new MudSharp.Models.AgricultureField
 		{
 			Id = fieldId,
-			CellId = cellId,
+			RoomId = cellId,
 			ProfileId = 1,
 			CurrentUse = (int)use,
 			Moisture = 50,

@@ -248,7 +248,7 @@ namespace MudSharp.Character.Heritage
     public enum SizeContext
     {
         None,
-        CellExit,
+        RoomExit,
         RangedTarget,
         ExplosiveDamage,
         Scan,

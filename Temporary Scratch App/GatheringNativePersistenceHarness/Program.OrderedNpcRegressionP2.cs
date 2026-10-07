@@ -112,31 +112,31 @@ internal static partial class GNHProgram
 			host.Prototypes.Add(row.Id, new GameItemProto(row, world));
 	}
 
-	private static Cell RegressionP2SecondCell(NativeRuntime native, TestDatabase database, Cell source, long id, bool create)
+	private static Room RegressionP2SecondRoom(NativeRuntime native, TestDatabase database, Room source, long id, bool create)
 	{
 		using var db = NewIndependentContext(database.ConnectionString);
 		if (create)
 		{
-			db.Cells.Add(new Db.Cell { Id = id, ZoneId = source.OwningZone.Id, X = source.StoredCoordinates.X, Y = source.StoredCoordinates.Y, Z = source.StoredCoordinates.Z, EffectData = "<Effects/>" }); db.SaveChanges();
-			var overlay = new Db.CellOverlay { Id = id, CellId = id, CellName = "A second disposable regression cell", CellDescription = "Native movement acceptance.",
-				Name = "ARMRegression overlay", CellOverlayPackageId = source.CurrentOverlay.Package.Id, CellOverlayPackageRevisionNumber = source.CurrentOverlay.Package.RevisionNumber,
+			db.Rooms.Add(new Db.Room { Id = id, ZoneId = source.OwningZone.Id, X = source.StoredCoordinates.X, Y = source.StoredCoordinates.Y, Z = source.StoredCoordinates.Z, EffectData = "<Effects/>" }); db.SaveChanges();
+			var overlay = new Db.RoomOverlay { Id = id, RoomId = id, RoomName = "A second disposable regression cell", RoomDescription = "Native movement acceptance.",
+				Name = "ARMRegression overlay", RoomOverlayPackageId = source.CurrentOverlay.Package.Id, RoomOverlayPackageRevisionNumber = source.CurrentOverlay.Package.RevisionNumber,
 				TerrainId = source.CurrentOverlay.Terrain.Id, AmbientLightFactor = 1, SafeQuit = true };
-			db.CellOverlays.Add(overlay); db.SaveChanges(); db.Cells.Find(id)!.CurrentOverlayId = overlay.Id; db.SaveChanges();
+			db.RoomOverlays.Add(overlay); db.SaveChanges(); db.Rooms.Find(id)!.CurrentOverlayId = overlay.Id; db.SaveChanges();
 			foreach (var (cellId, length, position) in new[] { (source.Id, 100m, 25m), (id, 200m, 125m) })
-				db.RouteCells.Add(new Db.RouteCell { CellId = cellId, LengthMetres = length, DefaultPositionMetres = position,
+				db.RouteRooms.Add(new Db.RouteRoom { RoomId = cellId, LengthMetres = length, DefaultPositionMetres = position,
 					MetresPerRoomEquivalent = 100, PositiveDirectionName = "ahead", NegativeDirectionName = "behind", TopologyVersion = 1 });
 			db.SaveChanges();
 		}
-		var model = db.Cells.Include(x => x.CellOverlays).Include(x => x.CellsMagicResources).AsNoTracking().Single(x => x.Id == id);
-		var destination = new Cell(model, source.OwningZone); destination.PostLoadTasks(model);
-		source.ReloadRouteDefinition(db.RouteCells.AsNoTracking().Single(x => x.CellId == source.Id));
-		destination.ReloadRouteDefinition(db.RouteCells.AsNoTracking().Single(x => x.CellId == id));
-		var cells = new All<ICell>(); cells.Add(source); cells.Add(destination); native.WorldMock.SetupGet(x => x.Cells).Returns(cells);
+		var model = db.Rooms.Include(x => x.RoomOverlays).Include(x => x.RoomsMagicResources).AsNoTracking().Single(x => x.Id == id);
+		var destination = new Room(model, source.OwningZone); destination.PostLoadTasks(model);
+		source.ReloadRouteDefinition(db.RouteRooms.AsNoTracking().Single(x => x.RoomId == source.Id));
+		destination.ReloadRouteDefinition(db.RouteRooms.AsNoTracking().Single(x => x.RoomId == id));
+		var rooms = new All<IRoom>(); rooms.Add(source); rooms.Add(destination); native.WorldMock.SetupGet(x => x.Rooms).Returns(rooms);
 		return destination;
 	}
 
-	private sealed record RegressionP2SavedStack(long Id, int Quantity, ItemOwnershipReference? Owner, long? Body, long? Character, long? Cell, bool Deleted = false, long? Container = null, long? CharacterCell = null);
-	private sealed record RegressionP2Reader(string Database, FixtureIds Fixture, DateTime Now, long Destination, RegressionP2SavedStack[] Stacks, string Scenario, int ExpectedTotal = 8, long? CallerItem = null, double? CallerCondition = null, long? ContainerItem = null, long? OtherContainerItem = null, long? ContainerCell = null, long? AncestorItem = null);
+	private sealed record RegressionP2SavedStack(long Id, int Quantity, ItemOwnershipReference? Owner, long? Body, long? Character, long? Room, bool Deleted = false, long? Container = null, long? CharacterRoom = null);
+	private sealed record RegressionP2Reader(string Database, FixtureIds Fixture, DateTime Now, long Destination, RegressionP2SavedStack[] Stacks, string Scenario, int ExpectedTotal = 8, long? CallerItem = null, double? CallerCondition = null, long? ContainerItem = null, long? OtherContainerItem = null, long? ContainerRoom = null, long? AncestorItem = null);
 	private static int RunRegressionP2Reader(string[] args)
 	{
 		var input = JsonSerializer.Deserialize<RegressionP2Reader>(Encoding.UTF8.GetString(Convert.FromBase64String(args.Single())))!;
@@ -144,19 +144,19 @@ internal static partial class GNHProgram
 		var clock = new HarnessClock(); clock.Advance(input.Now - clock.GetUtcNow().UtcDateTime); using var time = RuntimeClock.Push(clock);
 		var host = PrepareRetirementHost(database, input.Fixture, clock, wielding: true, corpseAnimationAnatomy: true);
 		ConfigureRegressionP2Fixture(host, database);
-		var world = host.Native.World; var source = CreateAreaCell(host.Native, database.ConnectionString, input.Fixture.CellId, create: false);
-		var destination = RegressionP2SecondCell(host.Native, database, source, input.Destination, create: false);
+		var world = host.Native.World; var source = CreateAreaRoom(host.Native, database.ConnectionString, input.Fixture.RoomId, create: false);
+		var destination = RegressionP2SecondRoom(host.Native, database, source, input.Destination, create: false);
 		// Inventory scenarios are saved after travel teardown, with ordinary-cell positions.
 		source.ReloadRouteDefinition(null!); destination.ReloadRouteDefinition(null!);
 		SetPrivateMember(host.Native.Actor, "Location", source);
 		foreach (var bagId in new[] { input.AncestorItem, input.ContainerItem, input.OtherContainerItem }.Where(x => x.HasValue).Select(x => x!.Value))
 		{
 			using var stored = NewIndependentContext(database.ConnectionString);
-			var bagCell = bagId == input.ContainerItem ? input.ContainerCell ?? source.Id : source.Id;
+			var bagRoom = bagId == input.ContainerItem ? input.ContainerRoom ?? source.Id : source.Id;
 			var bagParent = bagId == input.ContainerItem ? input.AncestorItem : null;
 			Require(stored.GameItems.Single(x => x.Id == bagId).ContainerId == bagParent &&
-				stored.CellsGameItems.Count(x => x.GameItemId == bagId) == (bagParent.HasValue ? 0 : 1) &&
-				(bagParent.HasValue || stored.CellsGameItems.Any(x => x.GameItemId == bagId && x.CellId == bagCell)) &&
+				stored.RoomsGameItems.Count(x => x.GameItemId == bagId) == (bagParent.HasValue ? 0 : 1) &&
+				(bagParent.HasValue || stored.RoomsGameItems.Any(x => x.GameItemId == bagId && x.RoomId == bagRoom)) &&
 				!stored.BodiesGameItems.Any(x => x.GameItemId == bagId), "Cold bag lost its exact floor membership.");
 			var expected = input.Stacks.Where(x => !x.Deleted && x.Container == bagId).Select(x => x.Id)
 				.Concat(bagId == input.AncestorItem ? new[] { input.ContainerItem!.Value } : Array.Empty<long>()).Order().ToArray();
@@ -164,7 +164,7 @@ internal static partial class GNHProgram
 				.SelectMany(x => XElement.Parse(x.Definition).Elements("Contained")).Select(x => (long)x).Order().ToArray();
 			Require(actual.SequenceEqual(expected), "Cold bag XML retained or lost a source child.");
 			var bag = (GameItem)world.TryGetItem(bagId, true)!; bag.FinaliseLoadTimeTasks();
-			if (!bagParent.HasValue) (bagCell == source.Id ? source : destination).Insert(bag, true);
+			if (!bagParent.HasValue) (bagRoom == source.Id ? source : destination).Insert(bag, true);
 			Require(bag.ContainedIn?.Id == bagParent && (bagId != input.AncestorItem || !bag.GetItemType<IOpenable>()!.IsOpen), "Cold nested reach state or exact parent changed.");
 			Require(bag.GetItemType<IContainer>()!.Contents.Select(x => x.Id).Order().SequenceEqual(expected), "Cold native container lost its exact children.");
 		}
@@ -172,8 +172,8 @@ internal static partial class GNHProgram
 		{
 			var actor = world.TryGetCharacter(saved.Character!.Value, true)!;
 			using (var stored = NewIndependentContext(database.ConnectionString))
-				Require(saved.CharacterCell is null || stored.Characters.Single(x => x.Id == saved.Character).Location == saved.CharacterCell, "Cold canonical participant lost its captured cell.");
-			SetPrivateMember(actor, "Location", saved.CharacterCell == destination.Id ? destination : source);
+				Require(saved.CharacterRoom is null || stored.Characters.Single(x => x.Id == saved.Character).Location == saved.CharacterRoom, "Cold canonical participant lost its captured cell.");
+			SetPrivateMember(actor, "Location", saved.CharacterRoom == destination.Id ? destination : source);
 			using var db = NewIndependentContext(database.ConnectionString);
 			((Body)actor.Body).LoadInventory(db.Bodies.Include(x => x.BodiesGameItems).Single(x => x.Id == saved.Body));
 		}
@@ -185,28 +185,28 @@ internal static partial class GNHProgram
 				Require(saved.Quantity == 0 && !absent.GameItems.Any(x => x.Id == saved.Id) &&
 					!absent.GameItemComponents.Any(x => x.GameItemId == saved.Id) &&
 					!absent.BodiesGameItems.Any(x => x.GameItemId == saved.Id) &&
-					!absent.CellsGameItems.Any(x => x.GameItemId == saved.Id) && world.TryGetItem(saved.Id, true) is null,
+					!absent.RoomsGameItems.Any(x => x.GameItemId == saved.Id) && world.TryGetItem(saved.Id, true) is null,
 					"Absorbed native stack or its persistence joins survived cold reload.");
 				continue;
 			}
 			using (var stored = NewIndependentContext(database.ConnectionString))
 			{
 				Require(stored.GameItems.AsNoTracking().Any(x => x.Id == saved.Id && x.ContainerId == saved.Container), "Cold live stack item row must survive the caller's later flush.");
-				var cells = stored.CellsGameItems.AsNoTracking().Where(x => x.GameItemId == saved.Id).Select(x => x.CellId).ToArray();
+				var rooms = stored.RoomsGameItems.AsNoTracking().Where(x => x.GameItemId == saved.Id).Select(x => x.RoomId).ToArray();
 				var bodies = stored.BodiesGameItems.AsNoTracking().Where(x => x.GameItemId == saved.Id).Select(x => x.BodyId).ToArray();
-				Require(cells.SequenceEqual(saved.Cell.HasValue ? new[] { saved.Cell.Value } : Array.Empty<long>()) &&
+				Require(rooms.SequenceEqual(saved.Room.HasValue ? new[] { saved.Room.Value } : Array.Empty<long>()) &&
 					bodies.SequenceEqual(saved.Body.HasValue ? new[] { saved.Body.Value } : Array.Empty<long>()),
 					"Cold stored custody joins must name the exact expected cell and body before runtime placement.");
 			}
 			var item = (GameItem)world.TryGetItem(saved.Id, true)!; item.FinaliseLoadTimeTasks();
-			if (saved.Cell.HasValue) (saved.Cell == source.Id ? source : destination).Insert(item, true);
+			if (saved.Room.HasValue) (saved.Room == source.Id ? source : destination).Insert(item, true);
 			Require(item.Quantity == saved.Quantity && item.OwnershipReference == saved.Owner &&
-				item.GetItemType<IHoldable>()!.HeldBy?.Id == saved.Body && item.DirectLocation?.Id == saved.Cell && item.ContainedIn?.Id == saved.Container,
+				item.GetItemType<IHoldable>()!.HeldBy?.Id == saved.Body && item.DirectLocation?.Id == saved.Room && item.ContainedIn?.Id == saved.Container,
 				"Cold native stack lost quantity, title or exact custody.");
 			Require(saved.Body is null || item.GetItemType<IHoldable>()!.HeldBy!.HeldItems.Any(x => ReferenceEquals(x, item)), "Cold native body lost exact stack membership.");
 			using var db = NewIndependentContext(database.ConnectionString);
 			Require(db.BodiesGameItems.Count(x => x.GameItemId == item.Id) == (saved.Body.HasValue ? 1 : 0) &&
-				db.CellsGameItems.Count(x => x.GameItemId == item.Id) == (saved.Cell.HasValue ? 1 : 0), "Cold loading lost saved custody joins.");
+				db.RoomsGameItems.Count(x => x.GameItemId == item.Id) == (saved.Room.HasValue ? 1 : 0), "Cold loading lost saved custody joins.");
 		}
 		if (input.CallerItem.HasValue)
 		{
@@ -225,7 +225,7 @@ internal static partial class GNHProgram
 	{
 		var native = host.Native; var world = native.World; var service = world.SpellOwnedCorpseAnimations!;
 		ConfigureRegressionP2Fixture(host, database);
-		var source = (Cell)caster.Location; var destination = RegressionP2SecondCell(native, database, source, source.Id + 100, create: true);
+		var source = (Room)caster.Location; var destination = RegressionP2SecondRoom(native, database, source, source.Id + 100, create: true);
 		foreach (var actor in source.Characters) actor.SetRoutePosition(25);
 		void Expire(ScriptedAiCharacterInstance actor)
 		{
@@ -260,15 +260,15 @@ internal static partial class GNHProgram
 			var actor = scenario == "ordered" ? animated : cast();
 			using (var db = NewIndependentContext(database.ConnectionString))
 			{
-				source.ReloadRouteDefinition(db.RouteCells.AsNoTracking().Single(x => x.CellId == source.Id));
-				destination.ReloadRouteDefinition(db.RouteCells.AsNoTracking().Single(x => x.CellId == destination.Id));
+				source.ReloadRouteDefinition(db.RouteRooms.AsNoTracking().Single(x => x.RoomId == source.Id));
+				destination.ReloadRouteDefinition(db.RouteRooms.AsNoTracking().Single(x => x.RoomId == destination.Id));
 			}
 			foreach (var present in source.Characters) present.SetRoutePosition(25);
 			var mover = scenario == "direct" ? foe : actor;
 			var riders = (System.Collections.Generic.List<ICharacter>)typeof(MudSharp.Character.Character).GetField("_riders", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(mover)!;
 			if (scenario == "companion") riders.Add(foe);
 			var gaps = 0;
-			void Gap(ICharacter moving, ILocation cell)
+			void Gap(ICharacter moving, ILocation room)
 			{
 				if (!ReferenceEquals(moving, mover)) return;
 				++gaps;
@@ -358,8 +358,8 @@ internal static partial class GNHProgram
 			Db.GameItem? unrelatedCallerRow = null;
 			if (callerContext is not null)
 			{
-				var tracked = callerContext.GameItems.Include(x => x.GameItemComponents).Include(x => x.CellsGameItems).Single(x => x.Id == item.Id);
-				Require(tracked.GameItemComponents.Count == 2 && tracked.CellsGameItems.Single().CellId == source.Id, "Pretrack the live source's native component and exact floor graph.");
+				var tracked = callerContext.GameItems.Include(x => x.GameItemComponents).Include(x => x.RoomsGameItems).Single(x => x.Id == item.Id);
+				Require(tracked.GameItemComponents.Count == 2 && tracked.RoomsGameItems.Single().RoomId == source.Id, "Pretrack the live source's native component and exact floor graph.");
 				unrelatedCallerRow = callerContext.GameItems.Find(callerUnrelatedItem!.Id)!;
 				dirtyUnrelatedCaller = () =>
 				{
@@ -439,7 +439,7 @@ internal static partial class GNHProgram
 						!callerContext.ChangeTracker.Entries<Db.GameItemComponent>().Any(x => x.Entity.GameItemId == item.Id),
 						"Successful deletion must evict only the source's cached item/component graph.");
 					using (var absent = NewIndependentContext(database.ConnectionString)) Require(!absent.GameItems.Any(x => x.Id == item.Id) &&
-						!absent.GameItemComponents.Any(x => x.GameItemId == item.Id) && !absent.CellsGameItems.Any(x => x.GameItemId == item.Id) &&
+						!absent.GameItemComponents.Any(x => x.GameItemId == item.Id) && !absent.RoomsGameItems.Any(x => x.GameItemId == item.Id) &&
 						!absent.BodiesGameItems.Any(x => x.GameItemId == item.Id), "Successful independent deletion must remove the exact durable source graph.");
 					var loader = ArchiveRoots();
 					SetPrivateField(loader, "_items", host.Items);
@@ -458,7 +458,7 @@ internal static partial class GNHProgram
 			{
 				using (CommandExecutionScope.EnterIndependent()) item.Delete();
 				Require(item.Deleted && deletionCallbacks == 1 && survivor.Quantity == 8, "Failed native deletion must retry without replaying observers or crediting units twice.");
-				var retry = new[] { saved[0], saved[1] with { Deleted = true, Cell = null, Body = null, Character = null } };
+				var retry = new[] { saved[0], saved[1] with { Deleted = true, Room = null, Body = null, Character = null } };
 				RunItemReaderProcess(new RegressionP2Reader(database.Name, fixture, RuntimeClock.UtcNow, destination.Id, retry, "delete-provider-retry"), "--regression-p2-reader");
 			}
 			// The outer stack-call fixture ends before unrelated corpse retirement.

@@ -88,7 +88,7 @@ internal sealed class CommandExecutionScope : IDisposable
 
 
 	// The receipt is an explicit capability, never an ambient membership exemption.
-	internal static NativeDisplacementReceipt? BeginDisplacement(ICharacter actor, ICell destination, RoomLayer layer, double? routePosition = null)
+	internal static NativeDisplacementReceipt? BeginDisplacement(ICharacter actor, IRoom destination, RoomLayer layer, double? routePosition = null)
 	{
 		var scope = Current.Value;
 		if (scope?._authority is null || !ReferenceEquals(actor, scope._executor)) return null;

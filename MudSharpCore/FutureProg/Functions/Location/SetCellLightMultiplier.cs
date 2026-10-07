@@ -4,7 +4,7 @@ using MudSharp.FutureProg.Variables;
 
 namespace MudSharp.FutureProg.Functions.Location;
 
-internal class SetCellLightMultiplier : BuiltInFunction
+internal class SetRoomLightMultiplier : BuiltInFunction
 {
     public IFuturemud Gameworld { get; set; }
 
@@ -20,7 +20,7 @@ internal class SetCellLightMultiplier : BuiltInFunction
                     ProgVariableTypes.Location, ProgVariableTypes.OverlayPackage,
                     ProgVariableTypes.Number
                 },
-                (pars, gameworld) => new SetCellLightMultiplier(pars, gameworld),
+                (pars, gameworld) => new SetRoomLightMultiplier(pars, gameworld),
                 new List<string>
                 {
                     "room",
@@ -44,7 +44,7 @@ internal class SetCellLightMultiplier : BuiltInFunction
 
     #region Constructors
 
-    protected SetCellLightMultiplier(IList<IFunction> parameterFunctions, IFuturemud gameworld) : base(
+    protected SetRoomLightMultiplier(IList<IFunction> parameterFunctions, IFuturemud gameworld) : base(
         parameterFunctions)
     {
         Gameworld = gameworld;
@@ -65,14 +65,14 @@ internal class SetCellLightMultiplier : BuiltInFunction
             return StatementResult.Error;
         }
 
-        ICell cell = (ICell)ParameterFunctions[0].Result?.GetObject;
-        if (cell == null)
+        IRoom room = (IRoom)ParameterFunctions[0].Result?.GetObject;
+        if (room == null)
         {
             Result = new BooleanVariable(false);
             return StatementResult.Normal;
         }
 
-        ICellOverlayPackage package = (ICellOverlayPackage)ParameterFunctions[1].Result?.GetObject;
+        IRoomOverlayPackage package = (IRoomOverlayPackage)ParameterFunctions[1].Result?.GetObject;
         if (package == null)
         {
             Result = new BooleanVariable(false);
@@ -87,7 +87,7 @@ internal class SetCellLightMultiplier : BuiltInFunction
             return StatementResult.Normal;
         }
 
-        IEditableCellOverlay overlay = cell.GetOrCreateOverlay(package);
+        IEditableRoomOverlay overlay = room.GetOrCreateOverlay(package);
         overlay.AmbientLightFactor = multiplier;
         Result = new BooleanVariable(true);
         return StatementResult.Normal;

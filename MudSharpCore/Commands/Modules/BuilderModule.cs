@@ -58,8 +58,8 @@ This command controls the admin gravity override on a cell. #3on#0 forces zero g
             return;
         }
 
-        var cell = ss.IsFinished ? actor.Location : RoomBuilderModule.LookupCell(actor, ss.SafeRemainingArgument);
-        if (cell is null)
+        var room = ss.IsFinished ? actor.Location : RoomBuilderModule.LookupRoom(actor, ss.SafeRemainingArgument);
+        if (room is null)
         {
             actor.OutputHandler.Send("There is no such cell.");
             return;
@@ -68,28 +68,28 @@ This command controls the admin gravity override on a cell. #3on#0 forces zero g
         switch (subcommand)
         {
             case "show":
-                var adminOverride = cell.EffectsOfType<OverrideGravity>().FirstOrDefault(x => x.Applies());
+                var adminOverride = room.EffectsOfType<OverrideGravity>().FirstOrDefault(x => x.Applies());
                 actor.OutputHandler.Send(
-                    $"Gravity for {cell.GetFriendlyReference(actor).ColourName()}: {ZeroGravityMovementHelper.GravityFor(cell, actor).DescribeColour()}.\n" +
-                    $"Terrain default: {cell.Terrain(actor).GravityModel.DescribeColour()}.\n" +
+                    $"Gravity for {room.GetFriendlyReference(actor).ColourName()}: {ZeroGravityMovementHelper.GravityFor(room, actor).DescribeColour()}.\n" +
+                    $"Terrain default: {room.Terrain(actor).GravityModel.DescribeColour()}.\n" +
                     $"Admin override: {(adminOverride?.GravityModel.DescribeColour() ?? "none".Colour(Telnet.Red))}.");
                 return;
             case "on":
-                cell.RemoveAllEffects<OverrideGravity>(fireRemovalAction: true);
-                cell.AddEffect(new OverrideGravity(cell, GravityModel.ZeroGravity));
-                cell.CheckFallExitStatus();
-                actor.OutputHandler.Send($"You force {cell.GetFriendlyReference(actor).ColourName()} into zero gravity.");
+                room.RemoveAllEffects<OverrideGravity>(fireRemovalAction: true);
+                room.AddEffect(new OverrideGravity(room, GravityModel.ZeroGravity));
+                room.CheckFallExitStatus();
+                actor.OutputHandler.Send($"You force {room.GetFriendlyReference(actor).ColourName()} into zero gravity.");
                 return;
             case "off":
-                cell.RemoveAllEffects<OverrideGravity>(fireRemovalAction: true);
-                cell.AddEffect(new OverrideGravity(cell, GravityModel.Normal));
-                cell.CheckFallExitStatus();
-                actor.OutputHandler.Send($"You force {cell.GetFriendlyReference(actor).ColourName()} into normal gravity.");
+                room.RemoveAllEffects<OverrideGravity>(fireRemovalAction: true);
+                room.AddEffect(new OverrideGravity(room, GravityModel.Normal));
+                room.CheckFallExitStatus();
+                actor.OutputHandler.Send($"You force {room.GetFriendlyReference(actor).ColourName()} into normal gravity.");
                 return;
             case "reset":
-                cell.RemoveAllEffects<OverrideGravity>(fireRemovalAction: true);
-                cell.CheckFallExitStatus();
-                actor.OutputHandler.Send($"You reset the gravity override for {cell.GetFriendlyReference(actor).ColourName()}.");
+                room.RemoveAllEffects<OverrideGravity>(fireRemovalAction: true);
+                room.CheckFallExitStatus();
+                actor.OutputHandler.Send($"You reset the gravity override for {room.GetFriendlyReference(actor).ColourName()}.");
                 return;
         }
 

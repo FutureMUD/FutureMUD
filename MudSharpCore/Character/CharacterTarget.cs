@@ -121,7 +121,7 @@ public partial class Character : ITarget
             return this;
         }
 
-        ICellExit targetExit = Location.GetExitKeyword(keyword, this);
+        IRoomExit targetExit = Location.GetExitKeyword(keyword, this);
         if (targetExit?.Exit.Door != null)
         {
             return targetExit.Exit.Door.Parent;
@@ -250,7 +250,7 @@ public partial class Character : ITarget
                    TargetItemWithinContainer(split[1], split[0]);
         }
 
-        ICellExit targetExit = Location.GetExitKeyword(keyword, this);
+        IRoomExit targetExit = Location.GetExitKeyword(keyword, this);
         if (targetExit?.Exit.Door != null)
         {
             return targetExit.Exit.Door.Parent;
@@ -264,7 +264,7 @@ public partial class Character : ITarget
 
     public IGameItem? TargetLocalItem(string keyword)
     {
-        ICellExit targetExit = Location.GetExitKeyword(keyword, this);
+        IRoomExit targetExit = Location.GetExitKeyword(keyword, this);
         if (targetExit?.Exit.Door != null)
         {
             return targetExit.Exit.Door.Parent;
@@ -276,14 +276,14 @@ public partial class Character : ITarget
     }
 
 
-    public (ICharacter? Target, IEnumerable<ICellExit> Path) TargetDistantActor(string keyword, ICellExit? initialExit,
+    public (ICharacter? Target, IEnumerable<IRoomExit> Path) TargetDistantActor(string keyword, IRoomExit? initialExit,
         uint maximumRange,
         bool respectDoors, bool respectCorners)
     {
         IEnumerable<CardinalDirection> permittedDirections = initialExit == null
             ? Constants.CardinalDirections
             : Constants.CardinalDirections.Where(x => !x.IsOpposingDirection(initialExit.OutboundDirection));
-        ICharacter target = this.CellsInVicinity(maximumRange, respectDoors, respectCorners, permittedDirections,
+        ICharacter target = this.RoomsInVicinity(maximumRange, respectDoors, respectCorners, permittedDirections,
                              initialExit?.OutboundDirection ?? CardinalDirection.Unknown)
                          .SelectMany(x => x.Characters)
                          .Where(x => x.RoomLayer.CanBeSeenFromLayer(RoomLayer))
@@ -291,14 +291,14 @@ public partial class Character : ITarget
         return (target, this.PathBetween(target, maximumRange, false, false, respectDoors));
     }
 
-    public (IGameItem? Target, IEnumerable<ICellExit> Path) TargetDistantItem(string keyword, ICellExit? initialExit,
+    public (IGameItem? Target, IEnumerable<IRoomExit> Path) TargetDistantItem(string keyword, IRoomExit? initialExit,
         uint maximumRange,
         bool respectDoors, bool respectCorners)
     {
         IEnumerable<CardinalDirection> permittedDirections = initialExit == null
             ? Constants.CardinalDirections
             : Constants.CardinalDirections.Where(x => !x.IsOpposingDirection(initialExit.OutboundDirection));
-        IGameItem target = this.CellsInVicinity(maximumRange, respectDoors, respectCorners, permittedDirections,
+        IGameItem target = this.RoomsInVicinity(maximumRange, respectDoors, respectCorners, permittedDirections,
                              initialExit?.OutboundDirection ?? CardinalDirection.Unknown)
                          .SelectMany(x => x.GameItems)
                          .Where(x => x.RoomLayer.CanBeSeenFromLayer(RoomLayer))

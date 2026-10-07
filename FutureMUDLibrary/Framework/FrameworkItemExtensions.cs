@@ -11,6 +11,6 @@ public static class FrameworkItemExtensions
             return (id ?? 0) == 0;
         }
 
-        return (item.Id == id) && item.FrameworkItemType.Equals(type, StringComparison.InvariantCulture);
+        return (item.Id == id) && item.MatchesPersistedReferenceType(type);
     }
 }

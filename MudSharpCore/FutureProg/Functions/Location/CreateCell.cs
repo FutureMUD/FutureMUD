@@ -4,7 +4,7 @@ using MudSharp.FutureProg.Variables;
 
 namespace MudSharp.FutureProg.Functions.Location;
 
-internal class CreateCell : BuiltInFunction
+internal class CreateRoom : BuiltInFunction
 {
     public IFuturemud Gameworld { get; set; }
 
@@ -16,7 +16,7 @@ internal class CreateCell : BuiltInFunction
             new FunctionCompilerInformation(
                 "CreateCell".ToLowerInvariant(),
                 new[] { ProgVariableTypes.OverlayPackage, ProgVariableTypes.Zone },
-                (pars, gameworld) => new CreateCell(pars, gameworld),
+                (pars, gameworld) => new CreateRoom(pars, gameworld),
                 new List<string>
                 {
                     "package",
@@ -41,7 +41,7 @@ internal class CreateCell : BuiltInFunction
                     ProgVariableTypes.OverlayPackage, ProgVariableTypes.Zone,
                     ProgVariableTypes.Location
                 },
-                (pars, gameworld) => new CreateCell(pars, gameworld),
+                (pars, gameworld) => new CreateRoom(pars, gameworld),
                 new List<string>
                 {
                     "package",
@@ -64,7 +64,7 @@ internal class CreateCell : BuiltInFunction
             new FunctionCompilerInformation(
                 "CreateRoom".ToLowerInvariant(),
                 new[] { ProgVariableTypes.OverlayPackage, ProgVariableTypes.Zone },
-                (pars, gameworld) => new CreateCell(pars, gameworld),
+                (pars, gameworld) => new CreateRoom(pars, gameworld),
                 new List<string>
                 {
                     "package",
@@ -89,7 +89,7 @@ internal class CreateCell : BuiltInFunction
                     ProgVariableTypes.OverlayPackage, ProgVariableTypes.Zone,
                     ProgVariableTypes.Location
                 },
-                (pars, gameworld) => new CreateCell(pars, gameworld),
+                (pars, gameworld) => new CreateRoom(pars, gameworld),
                 new List<string>
                 {
                     "package",
@@ -113,7 +113,7 @@ internal class CreateCell : BuiltInFunction
 
     #region Constructors
 
-    protected CreateCell(IList<IFunction> parameterFunctions, IFuturemud gameworld) : base(parameterFunctions)
+    protected CreateRoom(IList<IFunction> parameterFunctions, IFuturemud gameworld) : base(parameterFunctions)
     {
         Gameworld = gameworld;
     }
@@ -133,7 +133,7 @@ internal class CreateCell : BuiltInFunction
             return StatementResult.Error;
         }
 
-        ICellOverlayPackage package = (ICellOverlayPackage)ParameterFunctions[0].Result?.GetObject;
+        IRoomOverlayPackage package = (IRoomOverlayPackage)ParameterFunctions[0].Result?.GetObject;
         if (package == null)
         {
             Result = null;
@@ -153,8 +153,8 @@ internal class CreateCell : BuiltInFunction
             return StatementResult.Normal;
         }
 
-        ICell cell = ParameterFunctions.Count == 3 ? (ICell)ParameterFunctions[2].Result?.GetObject : default;
-        Result = cell is null ? new Cell(package, zone) : new Cell(package, zone, cell, false);
+        IRoom room = ParameterFunctions.Count == 3 ? (IRoom)ParameterFunctions[2].Result?.GetObject : default;
+        Result = room is null ? new Room(package, zone) : new Room(package, zone, room, false);
         return StatementResult.Normal;
     }
 }

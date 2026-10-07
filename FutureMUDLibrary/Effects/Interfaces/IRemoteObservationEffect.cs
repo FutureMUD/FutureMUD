@@ -18,7 +18,7 @@ namespace MudSharp.Effects.Interfaces
 		/// </summary>
 		bool Observes(SpatialLocation source)
 		{
-			return source.Cell.RouteDefinition is null;
+			return source.Room.RouteDefinition is null;
 		}
 
         void HandleOutput(IOutput output, ILocation location);

@@ -73,7 +73,7 @@ namespace MudSharp.Movement
         IMove Following { get; }
 
         CanMoveResponse CanMove(CanMoveFlags flags);
-        CanMoveResponse CanMove(ICellExit exit, CanMoveFlags flags = CanMoveFlags.None);
+        CanMoveResponse CanMove(IRoomExit exit, CanMoveFlags flags = CanMoveFlags.None);
 
         /// <summary>
         /// Examines whether an individual is capable of moving, even if they have to change their movement speed and/or position to do so.
@@ -81,9 +81,9 @@ namespace MudSharp.Movement
         /// <param name="ignoreBlockingEffects">Whether to ignore blocking effects such as ongoing delayed actions</param>
         /// <returns>A ValueTuple containing a boolean representing whether they can move, a PositionState that is the highest position state they can adopt, and a MoveSpeed that is the fastest speed that they could go</returns>
         (bool Success, IPositionState MovingState, IMoveSpeed Speed) CouldMove(bool ignoreBlockingEffects, IPositionState fixedPosition);
-        (bool Success, IEmoteOutput FailureOutput) CanCross(ICellExit exit);
+        (bool Success, IEmoteOutput FailureOutput) CanCross(IRoomExit exit);
         bool Move(string rawInput);
-        bool Move(ICellExit exit, IEmote? emote = null, bool ignoreSafeMovement = false);
+        bool Move(IRoomExit exit, IEmote? emote = null, bool ignoreSafeMovement = false);
         bool Move(CardinalDirection direction, IEmote? emote = null, bool ignoreSafeMovement = false);
         bool Move(string cmd, string target, IEmote? emote = null, bool ignoreSafeMovement = false);
         void JoinParty(IParty party);
@@ -92,11 +92,11 @@ namespace MudSharp.Movement
         void ExecuteMove(IMovement movement, IMoveSpeed overrideSpeed = null);
 
         string DisplayInGroup(IPerceiver voyeur, int indent = 0);
-        double MoveSpeed(ICellExit exit);
+        double MoveSpeed(IRoomExit exit);
         string WhyCannotMove();
         void Follow(IMove thing);
         void CeaseFollowing();
-        bool CanSee(ICell thing, ICellExit exit, PerceiveIgnoreFlags flags = PerceiveIgnoreFlags.None);
+        bool CanSee(IRoom thing, IRoomExit exit, PerceiveIgnoreFlags flags = PerceiveIgnoreFlags.None);
 
         event EventHandler<MoveEventArgs> OnStartMove;
         event EventHandler<MoveEventArgs> OnStopMove;

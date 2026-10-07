@@ -163,7 +163,7 @@ internal static partial class GNHProgram
 		{
 			Require(db.Bodies.Any(x => x.Id == body.Id) && db.BodiesGameItems.Any(x => x.GameItemId == foreignItem) && db.GameItems.Any(x => x.Id == foreignItem), "Rejected inventory cleanup deleted or orphaned possessions.");
 			db.BodiesGameItems.RemoveRange(db.BodiesGameItems.Where(x => x.BodyId == body.Id));
-			db.CellsGameItems.Add(new() { CellId = fixture.CellId, GameItemId = foreignItem }); db.SaveChanges();
+			db.RoomsGameItems.Add(new() { RoomId = fixture.RoomId, GameItemId = foreignItem }); db.SaveChanges();
 		}
 		Console.WriteLine("ARM03-possession=passed native-character-and-body unloaded-foreign-join-refuses-cleanup intact-item explicitly-rehomed-to-existing-cell");
 
@@ -245,7 +245,7 @@ internal static partial class GNHProgram
 				"Canonical identity or native wound attribution changed.");
 			Console.WriteLine($"ARM03-row-counts=passed characters:{read.Characters.Count()} bodies:{read.Bodies.Count()} instances:{read.CharacterInstances.Count()} items:{read.GameItems.Count()} wounds:{read.Wounds.Count()} lifecycles:{read.MagicSpellLifecycles.Count()} claims:{read.MagicSpellOwnedEntities.Count()} pending:{store.Pending(now.AddDays(1)).Count}");
 			Require(read.Bodies.Count() == initialBodies + 1 && read.GameItems.Any(x => x.Id == foreignItem) &&
-				read.CellsGameItems.Any(x => x.GameItemId == foreignItem && x.CellId == fixture.CellId), "Restart cleanup lost foreign possessions or accumulated eligible bodies.");
+				read.RoomsGameItems.Any(x => x.GameItemId == foreignItem && x.RoomId == fixture.RoomId), "Restart cleanup lost foreign possessions or accumulated eligible bodies.");
 		}
 		Console.WriteLine("ARM03-limits=recorded foundation-protocol-and-retired-body-boundary only; native-NPC-death-corpse-decay-control-projection-adapters-and-world-timer-steady-state-remain-unqualified");
 		return 0;
@@ -279,7 +279,7 @@ internal static partial class GNHProgram
 	private static Db.CharacterInstance NewLifecycleInstance(FixtureIds fixture, long bodyId) => new()
 	{
 		CharacterId = fixture.CharacterId, BodyId = bodyId, InstanceName = "ARM03 isolated secondary", InstanceKind = (int)CharacterInstanceKind.Other,
-		PersistencePolicy = (int)CharacterInstancePersistencePolicy.TemporaryEffectBound, LocationId = fixture.CellId,
+		PersistencePolicy = (int)CharacterInstancePersistencePolicy.TemporaryEffectBound, LocationId = fixture.RoomId,
 		State = (int)CharacterState.Awake, PositionId = 1, PositionTargetType = "", PositionEmote = "",
 		CreatedDateTime = DateTime.UtcNow, CreatedBySourceKey = "ARM03 fixture", EffectData = "<Effects/>"
 	};

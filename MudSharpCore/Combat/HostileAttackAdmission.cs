@@ -50,13 +50,13 @@ internal sealed class HostileAttackAdmission : IDisposable
 		var state = actor.State;
 		var combat = actor.Combat;
 		var target = actor.CombatTarget;
-		var cell = actor.Location;
+		var room = actor.Location;
 		var layer = actor.RoomLayer;
 		var version = (actor as PerceiverItem)?.CombatMutationVersion;
 		return () => ReferenceEquals(actor.Body, body) && ReferenceEquals(body?.Actor, focus) &&
 			actor.InstanceId == instance && actor.IsEmbodied == embodied && actor.State == state &&
 			ReferenceEquals(actor.Combat, combat) && ReferenceEquals(actor.CombatTarget, target) &&
-			ReferenceEquals(actor.Location, cell) && actor.RoomLayer == layer &&
+			ReferenceEquals(actor.Location, room) && actor.RoomLayer == layer &&
 			(actor as PerceiverItem)?.CombatMutationVersion == version;
 	}
 
@@ -77,8 +77,8 @@ internal sealed class HostileAttackAdmission : IDisposable
 		var recipientInstance = recipient.InstanceId;
 		var attackerCombat = attacker.Combat;
 		var recipientCombat = recipient.Combat;
-		var attackerCell = attacker.Location;
-		var recipientCell = recipient.Location;
+		var attackerRoom = attacker.Location;
+		var recipientRoom = recipient.Location;
 		var attackerVersion = (attacker as PerceiverItem)?.CombatMutationVersion;
 		var recipientVersion = (recipient as PerceiverItem)?.CombatMutationVersion;
 		bool CurrentIdentity() => ReferenceEquals(attacker.Body, attackerBody) && ReferenceEquals(recipient.Body, recipientBody) &&
@@ -86,7 +86,7 @@ internal sealed class HostileAttackAdmission : IDisposable
 			attacker.State == attackerState && recipient.State == recipientState &&
 			attacker.InstanceId == attackerInstance && recipient.InstanceId == recipientInstance &&
 			ReferenceEquals(attacker.Combat, attackerCombat) && ReferenceEquals(recipient.Combat, recipientCombat) &&
-			ReferenceEquals(attacker.Location, attackerCell) && ReferenceEquals(recipient.Location, recipientCell) &&
+			ReferenceEquals(attacker.Location, attackerRoom) && ReferenceEquals(recipient.Location, recipientRoom) &&
 			(attacker as PerceiverItem)?.CombatMutationVersion == attackerVersion &&
 			(recipient as PerceiverItem)?.CombatMutationVersion == recipientVersion;
 		bool CanContinue() => current._initialIdentity() && CurrentIdentity() && CommandExecutionScope.TryContinue(attacker) &&

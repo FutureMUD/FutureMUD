@@ -16,7 +16,7 @@ internal class SetIndoors : BuiltInFunction
             new FunctionCompilerInformation(
                 "SetIndoors".ToLowerInvariant(),
                 new[] { ProgVariableTypes.Location, ProgVariableTypes.OverlayPackage },
-                (pars, gameworld) => new SetIndoors(pars, gameworld, CellOutdoorsType.Indoors),
+                (pars, gameworld) => new SetIndoors(pars, gameworld, RoomOutdoorsType.Indoors),
                 new List<string>
                 {
                     "room",
@@ -37,7 +37,7 @@ internal class SetIndoors : BuiltInFunction
             new FunctionCompilerInformation(
                 "SetIndoorsWithWindows".ToLowerInvariant(),
                 new[] { ProgVariableTypes.Location, ProgVariableTypes.OverlayPackage },
-                (pars, gameworld) => new SetIndoors(pars, gameworld, CellOutdoorsType.IndoorsWithWindows),
+                (pars, gameworld) => new SetIndoors(pars, gameworld, RoomOutdoorsType.IndoorsWithWindows),
                 new List<string>
                 {
                     "room",
@@ -58,7 +58,7 @@ internal class SetIndoors : BuiltInFunction
             new FunctionCompilerInformation(
                 "SetIndoorsNoLight".ToLowerInvariant(),
                 new[] { ProgVariableTypes.Location, ProgVariableTypes.OverlayPackage },
-                (pars, gameworld) => new SetIndoors(pars, gameworld, CellOutdoorsType.IndoorsNoLight),
+                (pars, gameworld) => new SetIndoors(pars, gameworld, RoomOutdoorsType.IndoorsNoLight),
                 new List<string>
                 {
                     "room",
@@ -79,7 +79,7 @@ internal class SetIndoors : BuiltInFunction
             new FunctionCompilerInformation(
                 "SetIndoorsClimateExposed".ToLowerInvariant(),
                 new[] { ProgVariableTypes.Location, ProgVariableTypes.OverlayPackage },
-                (pars, gameworld) => new SetIndoors(pars, gameworld, CellOutdoorsType.IndoorsClimateExposed),
+                (pars, gameworld) => new SetIndoors(pars, gameworld, RoomOutdoorsType.IndoorsClimateExposed),
                 new List<string>
                 {
                     "room",
@@ -100,7 +100,7 @@ internal class SetIndoors : BuiltInFunction
             new FunctionCompilerInformation(
                 "SetOutdoors".ToLowerInvariant(),
                 new[] { ProgVariableTypes.Location, ProgVariableTypes.OverlayPackage },
-                (pars, gameworld) => new SetIndoors(pars, gameworld, CellOutdoorsType.Outdoors),
+                (pars, gameworld) => new SetIndoors(pars, gameworld, RoomOutdoorsType.Outdoors),
                 new List<string>
                 {
                     "room",
@@ -122,7 +122,7 @@ internal class SetIndoors : BuiltInFunction
 
     #region Constructors
 
-    protected SetIndoors(IList<IFunction> parameterFunctions, IFuturemud gameworld, CellOutdoorsType outdoorsType) :
+    protected SetIndoors(IList<IFunction> parameterFunctions, IFuturemud gameworld, RoomOutdoorsType outdoorsType) :
         base(parameterFunctions)
     {
         Gameworld = gameworld;
@@ -131,7 +131,7 @@ internal class SetIndoors : BuiltInFunction
 
     #endregion
 
-    public CellOutdoorsType OutdoorsType { get; set; }
+    public RoomOutdoorsType OutdoorsType { get; set; }
 
     public override ProgVariableTypes ReturnType
     {
@@ -146,14 +146,14 @@ internal class SetIndoors : BuiltInFunction
             return StatementResult.Error;
         }
 
-        ICell cell = (ICell)ParameterFunctions[0].Result?.GetObject;
-        if (cell == null)
+        IRoom room = (IRoom)ParameterFunctions[0].Result?.GetObject;
+        if (room == null)
         {
             Result = new BooleanVariable(false);
             return StatementResult.Normal;
         }
 
-        ICellOverlayPackage package = (ICellOverlayPackage)ParameterFunctions[1].Result?.GetObject;
+        IRoomOverlayPackage package = (IRoomOverlayPackage)ParameterFunctions[1].Result?.GetObject;
         if (package == null)
         {
             Result = new BooleanVariable(false);
@@ -166,7 +166,7 @@ internal class SetIndoors : BuiltInFunction
             return StatementResult.Normal;
         }
 
-        IEditableCellOverlay overlay = cell.GetOrCreateOverlay(package);
+        IEditableRoomOverlay overlay = room.GetOrCreateOverlay(package);
         overlay.OutdoorsType = OutdoorsType;
         Result = new BooleanVariable(true);
         return StatementResult.Normal;

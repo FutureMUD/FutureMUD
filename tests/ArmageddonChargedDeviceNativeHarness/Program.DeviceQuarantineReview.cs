@@ -77,12 +77,12 @@ internal static partial class GNHProgram
 	{
 		var native = host.Native; var actor = native.Actor; var world = native.World;
 		var recipientFixture = FixtureSeed.Create(database, "armdev_quarantine_recipient", false) with
-			{ ResourceId = native.Resource.Id, CapabilityId = capability.Id, CellId = original.CellId, HealthStrategyId = original.HealthStrategyId, BodypartId = original.BodypartId };
+			{ ResourceId = native.Resource.Id, CapabilityId = capability.Id, RoomId = original.RoomId, HealthStrategyId = original.HealthStrategyId, BodypartId = original.BodypartId };
 		using (var db = NewIndependentContext(database.ConnectionString))
 		{
 			var body = db.Bodies.Find(recipientFixture.BodyId)!; body.BodyPrototypeId = native.Body.Prototype.Id; body.RaceId = native.Body.Race.Id;
 			body.EthnicityId = native.Body.Ethnicity.Id; body.HealthStrategyId = original.HealthStrategyId;
-			var character = db.Characters.Find(recipientFixture.CharacterId)!; character.Location = original.CellId; character.CultureId = actor.Culture.Id;
+			var character = db.Characters.Find(recipientFixture.CharacterId)!; character.Location = original.RoomId; character.CultureId = actor.Culture.Id;
 			db.CharactersMagicResources.RemoveRange(db.CharactersMagicResources.Where(x => x.CharacterId == character.Id));
 			db.CharactersMagicResources.Add(new() { CharacterId = character.Id, MagicResourceId = native.Resource.Id, Amount = 75 }); db.SaveChanges();
 		}

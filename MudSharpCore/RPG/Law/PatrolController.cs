@@ -130,7 +130,7 @@ public class PatrolController : IPatrolController
                LegalAuthority.EnforcerStowingLocation is not null &&
                LegalAuthority.PreparingLocation is not null &&
                LegalAuthority.CourtLocation is not null &&
-               LegalAuthority.CellLocations.Any();
+               LegalAuthority.RoomLocations.Any();
     }
 
     private bool TryLaunchCorpseRecoveryPatrol(List<ICharacter> freeEnforcers,

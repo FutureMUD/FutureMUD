@@ -170,7 +170,7 @@ internal static partial class GNHProgram
 			Require(input.ActorEffects.Length == 0 && !native.Actor.Effects.Any() &&
 				host.Store.Find(input.Origin)!.State == SpellLifecycleState.Completed && !db.GameItems.Any(x => x.Id == input.Item) &&
 				!db.GameItemComponents.Any(x => x.GameItemId == input.Item) && !db.BodiesGameItems.Any(x => x.GameItemId == input.Item) &&
-				!db.CellsGameItems.Any(x => x.GameItemId == input.Item) && !native.Body.AllItems.Any(x => x.Id == input.Item) &&
+				!db.RoomsGameItems.Any(x => x.GameItemId == input.Item) && !native.Body.AllItems.Any(x => x.Id == input.Item) &&
 				native.Actor.NeedsModel.FoodSatiatedHours == input.Food && native.Actor.MagicResourceAmounts[native.Resource] == input.Balance,
 				"Second cold reader must preserve scheduled Sense expiry, terminal exact-origin removal and conserved needs/reserve.");
 			Console.WriteLine("ARMSENSE-expiry-reader=passed fresh-native-process no-Sense-parent-or-child terminal-origin no-item-custody needs-reserve-conserved");
@@ -190,7 +190,7 @@ internal static partial class GNHProgram
 		{
 			Require(life.State == SpellLifecycleState.Completed && !db.GameItems.Any(x => x.Id == input.Item) &&
 				!db.GameItemComponents.Any(x => x.GameItemId == input.Item) && !db.BodiesGameItems.Any(x => x.GameItemId == input.Item) &&
-				!db.CellsGameItems.Any(x => x.GameItemId == input.Item) && !native.Body.AllItems.Any(x => x.Id == input.Item),
+				!db.RoomsGameItems.Any(x => x.GameItemId == input.Item) && !native.Body.AllItems.Any(x => x.Id == input.Item),
 				"Committed removal must persist terminal lifecycle and clear only its exact item/components/custody.");
 		}
 		else

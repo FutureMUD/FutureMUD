@@ -7,7 +7,7 @@ namespace MudSharp.Models
     {
         public HearingProfile()
         {
-            CellOverlays = new HashSet<CellOverlay>();
+            RoomOverlays = new HashSet<RoomOverlay>();
         }
 
         public long Id { get; set; }
@@ -16,6 +16,6 @@ namespace MudSharp.Models
         public string Type { get; set; }
         public string SurveyDescription { get; set; }
 
-        public virtual ICollection<CellOverlay> CellOverlays { get; set; }
+        public virtual ICollection<RoomOverlay> RoomOverlays { get; set; }
     }
 }

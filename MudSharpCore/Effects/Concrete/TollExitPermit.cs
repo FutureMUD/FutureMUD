@@ -9,11 +9,11 @@ public class TollExitPermit : Effect
 {
 	private readonly Dictionary<long, string> _permittedCharacterDescriptions = new();
 
-	public TollExitPermit(ICharacter owner, ICellExit exit, bool moveAside, string resetEmote) : base(owner)
+	public TollExitPermit(ICharacter owner, IRoomExit exit, bool moveAside, string resetEmote) : base(owner)
 	{
 		CharacterOwner = owner;
 		ExitId = exit.Exit.Id;
-		GuardCellId = exit.Origin.Id;
+		GuardRoomId = exit.Origin.Id;
 		MoveAside = moveAside;
 		ResetEmote = resetEmote;
 	}
@@ -23,7 +23,7 @@ public class TollExitPermit : Effect
 		CharacterOwner = (ICharacter)owner;
 		var root = effect.Element("Element");
 		ExitId = long.Parse(root.Element("ExitId")?.Value ?? "0");
-		GuardCellId = long.Parse(root.Element("GuardCellId")?.Value ?? "0");
+		GuardRoomId = long.Parse(root.Element("GuardCellId")?.Value ?? "0");
 		MoveAside = bool.Parse(root.Element("MoveAside")?.Value ?? "false");
 		ResetEmote = root.Element("ResetEmote")?.Value ?? string.Empty;
 
@@ -35,7 +35,7 @@ public class TollExitPermit : Effect
 
 	public ICharacter CharacterOwner { get; }
 	public long ExitId { get; }
-	public long GuardCellId { get; }
+	public long GuardRoomId { get; }
 	public bool MoveAside { get; }
 	public string ResetEmote { get; }
 	public IEnumerable<long> PermittedCharacterIds => _permittedCharacterDescriptions.Keys;
@@ -55,19 +55,19 @@ public class TollExitPermit : Effect
 		}
 	}
 
-	private ICell? GuardCell => Gameworld.Cells.Get(GuardCellId);
+	private IRoom? GuardRoom => Gameworld.Rooms.Get(GuardRoomId);
 
-	private ICellExit? GuardExit
+	private IRoomExit? GuardExit
 	{
 		get
 		{
-			var cell = GuardCell;
-			if (cell is null)
+			var room = GuardRoom;
+			if (room is null)
 			{
 				return null;
 			}
 
-			return Gameworld.ExitManager.GetExitByID(ExitId)?.CellExitFor(cell);
+			return Gameworld.ExitManager.GetExitByID(ExitId)?.RoomExitFor(room);
 		}
 	}
 
@@ -75,7 +75,7 @@ public class TollExitPermit : Effect
 	{
 		return new XElement("Element",
 			new XElement("ExitId", ExitId),
-			new XElement("GuardCellId", GuardCellId),
+			new XElement("GuardCellId", GuardRoomId),
 			new XElement("MoveAside", MoveAside),
 			new XElement("ResetEmote", new XCData(ResetEmote ?? string.Empty)),
 			new XElement("Permitted",
@@ -109,7 +109,7 @@ public class TollExitPermit : Effect
 	public override void ExpireEffect()
 	{
 		var exit = GuardExit;
-		if (exit is not null && CharacterOwner.Location == GuardCell)
+		if (exit is not null && CharacterOwner.Location == GuardRoom)
 		{
 			if (MoveAside)
 			{

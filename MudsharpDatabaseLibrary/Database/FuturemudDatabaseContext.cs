@@ -62,7 +62,7 @@ namespace MudSharp.Database
         public virtual DbSet<Areas> Areas { get; set; }
         public virtual DbSet<Arena> Arenas { get; set; }
         public virtual DbSet<ArenaManager> ArenaManagers { get; set; }
-        public virtual DbSet<ArenaCell> ArenaCells { get; set; }
+        public virtual DbSet<ArenaRoom> ArenaRooms { get; set; }
         public virtual DbSet<ArenaCombatantClass> ArenaCombatantClasses { get; set; }
         public virtual DbSet<ArenaEventType> ArenaEventTypes { get; set; }
         public virtual DbSet<ArenaEventTypeSide> ArenaEventTypeSides { get; set; }
@@ -127,16 +127,16 @@ namespace MudSharp.Database
         public virtual DbSet<ButcheryProductsBodypartProtos> ButcheryProductsBodypartProtos { get; set; }
         public virtual DbSet<Calendar> Calendars { get; set; }
         public virtual DbSet<Models.Celestial> Celestials { get; set; }
-        public virtual DbSet<CellOverlayPackage> CellOverlayPackages { get; set; }
-        public virtual DbSet<CellOverlay> CellOverlays { get; set; }
-        public virtual DbSet<CellOverlayExit> CellOverlaysExits { get; set; }
-        public virtual DbSet<Cell> Cells { get; set; }
-        public virtual DbSet<CellEnvironmentalState> CellEnvironmentalStates { get; set; }
-        public virtual DbSet<CellsForagableYield> CellsForagableYields { get; set; }
-        public virtual DbSet<CellsGameItems> CellsGameItems { get; set; }
-        public virtual DbSet<CellMagicResource> CellsMagicResources { get; set; }
-        public virtual DbSet<CellsRangedCovers> CellsRangedCovers { get; set; }
-        public virtual DbSet<CellsTags> CellsTags { get; set; }
+        public virtual DbSet<RoomOverlayPackage> RoomOverlayPackages { get; set; }
+        public virtual DbSet<RoomOverlay> RoomOverlays { get; set; }
+        public virtual DbSet<RoomOverlayExit> RoomOverlaysExits { get; set; }
+        public virtual DbSet<Room> Rooms { get; set; }
+        public virtual DbSet<RoomEnvironmentalState> RoomEnvironmentalStates { get; set; }
+        public virtual DbSet<RoomsForagableYield> RoomsForagableYields { get; set; }
+        public virtual DbSet<RoomsGameItems> RoomsGameItems { get; set; }
+        public virtual DbSet<RoomMagicResource> RoomsMagicResources { get; set; }
+        public virtual DbSet<RoomsRangedCovers> RoomsRangedCovers { get; set; }
+        public virtual DbSet<RoomsTags> RoomsTags { get; set; }
         public virtual DbSet<EnvironmentalMagicOperation> EnvironmentalMagicOperations { get; set; }
 
         public virtual DbSet<LandRejuvenationTreatment> LandRejuvenationTreatments { get; set; }
@@ -192,9 +192,9 @@ namespace MudSharp.Database
         public virtual DbSet<ClanBudgetTransaction> ClanBudgetTransactions { get; set; }
         public virtual DbSet<ClanPayrollHistory> ClanPayrollHistories { get; set; }
         public virtual DbSet<Clan> Clans { get; set; }
-        public virtual DbSet<ClanAdministrationCell> ClansAdministrationCells { get; set; }
-        public virtual DbSet<ClanHallCell> ClansHallCells { get; set; }
-        public virtual DbSet<ClanTreasuryCell> ClansTreasuryCells { get; set; }
+        public virtual DbSet<ClanAdministrationRoom> ClansAdministrationRooms { get; set; }
+        public virtual DbSet<ClanHallRoom> ClansHallRooms { get; set; }
+        public virtual DbSet<ClanTreasuryRoom> ClansTreasuryRooms { get; set; }
         public virtual DbSet<ClimateModel> ClimateModels { get; set; }
         public virtual DbSet<ClimateModelSeason> ClimateModelSeason { get; set; }
         public virtual DbSet<ClimateModelSeasonEvent> ClimateModelSeasonEvent { get; set; }
@@ -326,8 +326,8 @@ namespace MudSharp.Database
         public virtual DbSet<LawsOffenderClasses> LawsOffenderClasses { get; set; }
         public virtual DbSet<LawsVictimClasses> LawsVictimClasses { get; set; }
         public virtual DbSet<LegalAuthority> LegalAuthorities { get; set; }
-        public virtual DbSet<LegalAuthorityCells> LegalAuthoritiyCells { get; set; }
-        public virtual DbSet<LegalAuthorityJailCell> LegalAuthorityJailCells { get; set; }
+        public virtual DbSet<LegalAuthorityRooms> LegalAuthoritiyRooms { get; set; }
+        public virtual DbSet<LegalAuthorityJailRoom> LegalAuthorityJailRooms { get; set; }
         public virtual DbSet<LegalAuthorityFine> LegalAuthorityFines { get; set; }
         public virtual DbSet<CorpseRecoveryReport> CorpseRecoveryReports { get; set; }
         public virtual DbSet<LegalAuthoritiesZones> LegalAuthoritiesZones { get; set; }
@@ -367,7 +367,7 @@ namespace MudSharp.Database
         public virtual DbSet<Npc> Npcs { get; set; }
         public virtual DbSet<NpcsArtificialIntelligences> NpcsArtificialIntelligences { get; set; }
         public virtual DbSet<NPCSpawner> NpcSpawners { get; set; }
-        public virtual DbSet<NPCSpawnerCell> NpcSpawnerCells { get; set; }
+        public virtual DbSet<NPCSpawnerRoom> NpcSpawnerRooms { get; set; }
         public virtual DbSet<NPCSpawnerZone> NpcSpawnerZones { get; set; }
         public virtual DbSet<NpcTemplate> NpcTemplates { get; set; }
 		public virtual DbSet<NpcSkillPackage> NpcSkillPackages { get; set; }
@@ -449,7 +449,7 @@ namespace MudSharp.Database
         public virtual DbSet<Shop> Shops { get; set; }
         public virtual DbSet<Shopper> Shoppers { get; set; }
         public virtual DbSet<ShopperLog> ShopperLogs { get; set; }
-        public virtual DbSet<ShopsStoreroomCell> ShopsStoreroomCells { get; set; }
+        public virtual DbSet<ShopsStoreroomRoom> ShopsStoreroomRooms { get; set; }
         public virtual DbSet<ShopsTill> ShopsTills { get; set; }
         public virtual DbSet<Hospital> Hospitals { get; set; }
         public virtual DbSet<HospitalLocation> HospitalLocations { get; set; }
@@ -458,7 +458,7 @@ namespace MudSharp.Database
         public virtual DbSet<HospitalPatientDebtAccount> HospitalPatientDebtAccounts { get; set; }
         public virtual DbSet<HospitalBloodStockPolicy> HospitalBloodStockPolicies { get; set; }
         public virtual DbSet<Restaurant> Restaurants { get; set; }
-        public virtual DbSet<RestaurantCell> RestaurantCells { get; set; }
+        public virtual DbSet<RestaurantRoom> RestaurantRooms { get; set; }
         public virtual DbSet<RestaurantTable> RestaurantTables { get; set; }
         public virtual DbSet<RestaurantMenuItem> RestaurantMenuItems { get; set; }
         public virtual DbSet<RestaurantTableSession> RestaurantTableSessions { get; set; }

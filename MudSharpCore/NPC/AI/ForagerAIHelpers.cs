@@ -26,16 +26,16 @@ internal static class ForagerAIHelpers
 		       character.Effects.Any(x => x.IsBlockingEffect("general") || x.IsBlockingEffect("movement"));
 	}
 
-	public static bool HasDirectEdibleYield(ICharacter character, ICell cell)
+	public static bool HasDirectEdibleYield(ICharacter character, IRoom room)
 	{
 		return character.Race.EdibleForagableYields
-		                .Any(x => cell.GetForagableYield(x.YieldType) > 0.0 &&
+		                .Any(x => room.GetForagableYield(x.YieldType) > 0.0 &&
 		                          character.Race.CanEatForagableYield(x.YieldType));
 	}
 
-	public static bool HasEligibleForageableFood(ICharacter character, ICell cell)
+	public static bool HasEligibleForageableFood(ICharacter character, IRoom room)
 	{
-		IForagableProfile? profile = cell.ForagableProfile;
+		IForagableProfile? profile = room.ForagableProfile;
 		if (profile is null)
 		{
 			return false;
@@ -46,12 +46,12 @@ internal static class ForagerAIHelpers
 		              .Where(x => x.CanForage(character, RPG.Checks.Outcome.MajorPass))
 		              .SelectMany(x => x.ForagableTypes)
 		              .Where(x => !string.IsNullOrWhiteSpace(x))
-		              .Any(x => cell.CanConsumeYield(x, 1.0));
+		              .Any(x => room.CanConsumeYield(x, 1.0));
 	}
 
-	public static bool HasFoodOpportunity(ICharacter character, ICell cell)
+	public static bool HasFoodOpportunity(ICharacter character, IRoom room)
 	{
-		return HasDirectEdibleYield(character, cell) || HasEligibleForageableFood(character, cell);
+		return HasDirectEdibleYield(character, room) || HasEligibleForageableFood(character, room);
 	}
 
 	public static bool TryEatExistingFood(ICharacter character)

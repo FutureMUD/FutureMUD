@@ -20,7 +20,7 @@ namespace MudSharp_Unit_Tests;
 public class VehicleProjectionRecoveryTests
 {
 	[TestMethod]
-	public void LocalItemTargets_IncludeVehicleProjectionItemsWithoutCellPlacement()
+	public void LocalItemTargets_IncludeVehicleProjectionItemsWithoutRoomPlacement()
 	{
 		var projection = new Mock<IGameItem>();
 		var provider = new Mock<IProvideItemTargetProjections>();
@@ -38,13 +38,13 @@ public class VehicleProjectionRecoveryTests
 	[TestMethod]
 	public void SpatiallyHostedProjection_InheritsExteriorSpatialLocation()
 	{
-		var cell = new Mock<MudSharp.Construction.ICell>();
+		var room = new Mock<MudSharp.Construction.IRoom>();
 		var exterior = new Mock<IGameItem>();
-		exterior.SetupGet(x => x.Location).Returns(cell.Object);
+		exterior.SetupGet(x => x.Location).Returns(room.Object);
 		exterior.SetupGet(x => x.RoomLayer).Returns(MudSharp.Construction.RoomLayer.InTrees);
 		exterior.SetupGet(x => x.RoutePositionMetres).Returns(7_150.0);
 		exterior.SetupGet(x => x.LocationLevelPerceivable).Returns(exterior.Object);
-		exterior.Setup(x => x.TrueLocationsExcept(It.IsAny<List<IGameItem>>())).Returns([cell.Object]);
+		exterior.Setup(x => x.TrueLocationsExcept(It.IsAny<List<IGameItem>>())).Returns([room.Object]);
 		var component = new Mock<IGameItemComponent>();
 		component.As<IProvideItemSpatialHost>()
 		         .SetupGet(x => x.SpatialHost)
@@ -54,11 +54,11 @@ public class VehicleProjectionRecoveryTests
 			.GetField("_components", BindingFlags.Instance | BindingFlags.NonPublic)!
 			.SetValue(projection, new List<IGameItemComponent> { component.Object });
 
-		Assert.AreSame(cell.Object, projection.Location);
+		Assert.AreSame(room.Object, projection.Location);
 		Assert.AreEqual(MudSharp.Construction.RoomLayer.InTrees, projection.RoomLayer);
 		Assert.AreEqual(7_150.0, projection.RoutePositionMetres);
 		Assert.AreSame(exterior.Object, projection.LocationLevelPerceivable);
-		CollectionAssert.AreEqual(new List<MudSharp.Construction.ICell> { cell.Object }, projection.TrueLocations.ToList());
+		CollectionAssert.AreEqual(new List<MudSharp.Construction.IRoom> { room.Object }, projection.TrueLocations.ToList());
 	}
 
 	[TestMethod]

@@ -27,7 +27,7 @@ public class RouteSpatialAudioAndMagicTests
 		100.0);
 
 	[TestMethod]
-	public void RouteAudio_KilometreSeparatedListener_DoesNotReceiveWholeCellEcho()
+	public void RouteAudio_KilometreSeparatedListener_DoesNotReceiveWholeRoomEcho()
 	{
 		var fixture = CreateRouteFixture(10_000.0, 100.0);
 		var sourceHandler = new Mock<IOutputHandler>();
@@ -38,10 +38,10 @@ public class RouteSpatialAudioAndMagicTests
 		AddCharacter(fixture, 3L, 1_100.0, kilometreHandler.Object);
 		var spatial = new RouteSpatialService(Configuration);
 		var reachability = new SpatialPerceivableReachability(spatial, new SpatialPathfinder());
-		var audio = new RouteCellAudioPropagation(spatial, reachability);
+		var audio = new RouteRoomAudioPropagation(spatial, reachability);
 
 		var propagated = audio.Propagate(
-			fixture.Cell.Object,
+			fixture.Room.Object,
 			"You hear a test sound {0} at {1} volume.",
 			AudioVolume.DangerouslyLoud,
 			source.Object,
@@ -114,7 +114,7 @@ public class RouteSpatialAudioAndMagicTests
 		AddCharacter(fixture, 52L, 7_000.0, outsideBandHandler.Object);
 		var spatial = new RouteSpatialService(Configuration);
 		var reachability = new SpatialPerceivableReachability(spatial, new SpatialPathfinder());
-		var audio = new RouteCellAudioPropagation(spatial, reachability);
+		var audio = new RouteRoomAudioPropagation(spatial, reachability);
 
 		Assert.IsTrue(audio.RequiresSpatialPropagation(portal.Platform.Object, AudioVolume.Faint));
 		Assert.IsTrue(audio.Propagate(
@@ -125,7 +125,7 @@ public class RouteSpatialAudioAndMagicTests
 			RoomLayer.GroundLevel,
 			false));
 		Assert.IsTrue(audio.Propagate(
-			fixture.Cell.Object,
+			fixture.Room.Object,
 			"You hear a route sound {0} at {1} volume.",
 			AudioVolume.Faint,
 			inBandSource.Object,
@@ -230,12 +230,12 @@ public class RouteSpatialAudioAndMagicTests
 		var gameworld = new Mock<IFuturemud>();
 		gameworld.Setup(x => x.GetStaticDouble("RouteCellImmediateDistanceMetres"))
 			.Returns(Configuration.ImmediateDistanceMetres);
-		var cell = new Mock<ICell>();
+		var room = new Mock<IRoom>();
 		var occupants = new List<IPerceivable>();
-		var exits = new List<ICellExit>();
+		var exits = new List<IRoomExit>();
 		var anchors = new List<IRouteExitAnchor>();
-		var definition = new Mock<IRouteCellDefinition>();
-		definition.SetupGet(x => x.Cell).Returns(cell.Object);
+		var definition = new Mock<IRouteRoomDefinition>();
+		definition.SetupGet(x => x.Room).Returns(room.Object);
 		definition.SetupGet(x => x.LengthMetres).Returns(lengthMetres);
 		definition.SetupGet(x => x.DefaultPositionMetres).Returns(0.0);
 		definition.SetupGet(x => x.PositiveDirectionName).Returns("forward");
@@ -244,12 +244,12 @@ public class RouteSpatialAudioAndMagicTests
 		definition.SetupGet(x => x.TopologyVersion).Returns(1L);
 		definition.SetupGet(x => x.Landmarks).Returns([]);
 		definition.SetupGet(x => x.ExitAnchors).Returns(anchors);
-		cell.SetupGet(x => x.RouteDefinition).Returns(definition.Object);
-		cell.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
-		cell.SetupGet(x => x.Perceivables).Returns(occupants);
-		cell.Setup(x => x.ExitsFor(It.IsAny<IPerceiver?>(), It.IsAny<bool>()))
+		room.SetupGet(x => x.RouteDefinition).Returns(definition.Object);
+		room.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		room.SetupGet(x => x.Perceivables).Returns(occupants);
+		room.Setup(x => x.ExitsFor(It.IsAny<IPerceiver?>(), It.IsAny<bool>()))
 			.Returns(exits);
-		return new RouteFixture(gameworld, cell, occupants, exits, anchors);
+		return new RouteFixture(gameworld, room, occupants, exits, anchors);
 	}
 
 	private static Mock<ICharacter> AddCharacter(
@@ -259,7 +259,7 @@ public class RouteSpatialAudioAndMagicTests
 		IOutputHandler? handler)
 	{
 		var character = CreateCharacter(
-			fixture.Cell.Object,
+			fixture.Room.Object,
 			fixture.Gameworld.Object,
 			id,
 			handler,
@@ -269,7 +269,7 @@ public class RouteSpatialAudioAndMagicTests
 	}
 
 	private static Mock<ICharacter> CreateCharacter(
-		ICell cell,
+		IRoom room,
 		IFuturemud gameworld,
 		long id,
 		IOutputHandler? handler,
@@ -278,15 +278,15 @@ public class RouteSpatialAudioAndMagicTests
 	{
 		var character = new Mock<ICharacter>();
 		character.SetupGet(x => x.Id).Returns(id);
-		character.SetupGet(x => x.Location).Returns(cell);
+		character.SetupGet(x => x.Location).Returns(room);
 		character.SetupGet(x => x.RoomLayer).Returns(layer);
 		character.SetupGet(x => x.RoutePositionMetres)
-			.Returns(cell.RouteDefinition is null ? null : position);
+			.Returns(room.RouteDefinition is null ? null : position);
 		character.SetupGet(x => x.SpatialLocation)
 			.Returns(new SpatialLocation(
-				cell,
+				room,
 				layer,
-				cell.RouteDefinition is null ? null : position));
+				room.RouteDefinition is null ? null : position));
 		character.SetupGet(x => x.Gameworld).Returns(gameworld);
 		character.SetupGet(x => x.OutputHandler).Returns(handler!);
 		return character;
@@ -300,10 +300,10 @@ public class RouteSpatialAudioAndMagicTests
 		RoomLayer routeLayer = RoomLayer.GroundLevel,
 		RoomLayer platformLayer = RoomLayer.GroundLevel)
 	{
-		var platform = new Mock<ICell>();
+		var platform = new Mock<IRoom>();
 		var platformOccupants = new List<IPerceivable>();
-		var platformExits = new List<ICellExit>();
-		platform.SetupGet(x => x.RouteDefinition).Returns((IRouteCellDefinition?)null);
+		var platformExits = new List<IRoomExit>();
+		platform.SetupGet(x => x.RouteDefinition).Returns((IRouteRoomDefinition?)null);
 		platform.SetupGet(x => x.Perceivables).Returns(platformOccupants);
 		platform.Setup(x => x.ExitsFor(It.IsAny<IPerceiver?>(), It.IsAny<bool>()))
 			.Returns(platformExits);
@@ -311,10 +311,10 @@ public class RouteSpatialAudioAndMagicTests
 		var underlyingExit = new Mock<IExit>();
 		underlyingExit.SetupGet(x => x.Id).Returns(9001L);
 		underlyingExit.SetupProperty(x => x.TimeMultiplier, 1.0);
-		var routeSide = new Mock<ICellExit>();
-		var platformSide = new Mock<ICellExit>();
+		var routeSide = new Mock<IRoomExit>();
+		var platformSide = new Mock<IRoomExit>();
 		routeSide.SetupGet(x => x.Exit).Returns(underlyingExit.Object);
-		routeSide.SetupGet(x => x.Origin).Returns(fixture.Cell.Object);
+		routeSide.SetupGet(x => x.Origin).Returns(fixture.Room.Object);
 		routeSide.SetupGet(x => x.Destination).Returns(platform.Object);
 		routeSide.SetupGet(x => x.Opposite).Returns(platformSide.Object);
 		routeSide.Setup(x => x.WhichLayersExitAppears()).Returns([routeLayer]);
@@ -322,7 +322,7 @@ public class RouteSpatialAudioAndMagicTests
 			.Returns((TransitionType(routeLayer, platformLayer), platformLayer));
 		platformSide.SetupGet(x => x.Exit).Returns(underlyingExit.Object);
 		platformSide.SetupGet(x => x.Origin).Returns(platform.Object);
-		platformSide.SetupGet(x => x.Destination).Returns(fixture.Cell.Object);
+		platformSide.SetupGet(x => x.Destination).Returns(fixture.Room.Object);
 		platformSide.SetupGet(x => x.Opposite).Returns(routeSide.Object);
 		platformSide.Setup(x => x.WhichLayersExitAppears()).Returns([platformLayer]);
 		platformSide.Setup(x => x.MovementTransition(It.IsAny<IPerceiver>()))
@@ -330,7 +330,7 @@ public class RouteSpatialAudioAndMagicTests
 		fixture.Exits.Add(routeSide.Object);
 		platformExits.Add(platformSide.Object);
 		fixture.Anchors.Add(CreateAnchor(
-			fixture.Cell.Object,
+			fixture.Room.Object,
 			routeSide.Object,
 			minimum,
 			maximum,
@@ -338,22 +338,22 @@ public class RouteSpatialAudioAndMagicTests
 		return new PlatformPortal(platform, platformOccupants);
 	}
 
-	private static CellMovementTransition TransitionType(RoomLayer origin, RoomLayer destination)
+	private static RoomMovementTransition TransitionType(RoomLayer origin, RoomLayer destination)
 	{
 		return origin == RoomLayer.GroundLevel && destination == RoomLayer.GroundLevel
-			? CellMovementTransition.GroundToGround
-			: CellMovementTransition.TreesToTrees;
+			? RoomMovementTransition.GroundToGround
+			: RoomMovementTransition.TreesToTrees;
 	}
 
 	private static IRouteExitAnchor CreateAnchor(
-		ICell cell,
-		ICellExit exit,
+		IRoom room,
+		IRoomExit exit,
 		double minimum,
 		double maximum,
 		double arrival)
 	{
 		var anchor = new Mock<IRouteExitAnchor>();
-		anchor.SetupGet(x => x.Cell).Returns(cell);
+		anchor.SetupGet(x => x.Room).Returns(room);
 		anchor.SetupGet(x => x.Exit).Returns(exit);
 		anchor.SetupGet(x => x.MinimumPositionMetres).Returns(minimum);
 		anchor.SetupGet(x => x.MaximumPositionMetres).Returns(maximum);
@@ -365,12 +365,12 @@ public class RouteSpatialAudioAndMagicTests
 
 	private sealed record RouteFixture(
 		Mock<IFuturemud> Gameworld,
-		Mock<ICell> Cell,
+		Mock<IRoom> Room,
 		List<IPerceivable> Occupants,
-		List<ICellExit> Exits,
+		List<IRoomExit> Exits,
 		List<IRouteExitAnchor> Anchors);
 
 	private sealed record PlatformPortal(
-		Mock<ICell> Platform,
+		Mock<IRoom> Platform,
 		List<IPerceivable> Occupants);
 }

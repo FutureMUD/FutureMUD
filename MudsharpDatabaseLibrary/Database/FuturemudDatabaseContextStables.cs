@@ -13,7 +13,7 @@ public partial class FuturemudDatabaseContext
 			entity.HasKey(e => e.Id).HasName("PRIMARY");
 
 			entity.HasIndex(e => e.EconomicZoneId).HasDatabaseName("FK_Stables_EconomicZones_idx");
-			entity.HasIndex(e => e.CellId).HasDatabaseName("FK_Stables_Cells_idx");
+			entity.HasIndex(e => e.RoomId).HasDatabaseName("FK_Stables_Rooms_idx");
 			entity.HasIndex(e => e.BankAccountId).HasDatabaseName("FK_Stables_BankAccounts_idx");
 			entity.HasIndex(e => e.LodgeFeeProgId).HasDatabaseName("FK_Stables_FutureProgs_Lodge_idx");
 			entity.HasIndex(e => e.DailyFeeProgId).HasDatabaseName("FK_Stables_FutureProgs_Daily_idx");
@@ -27,7 +27,7 @@ public partial class FuturemudDatabaseContext
 			      .HasCharSet("utf8")
 			      .UseCollation("utf8_general_ci");
 			entity.Property(e => e.EconomicZoneId).HasColumnType("bigint(20)");
-			entity.Property(e => e.CellId).HasColumnType("bigint(20)");
+			entity.Property(e => e.RoomId).HasColumnType("bigint(20)");
 			entity.Property(e => e.BankAccountId).HasColumnType("bigint(20)");
 			entity.Property(e => e.IsTrading).HasColumnType("bit(1)").HasDefaultValue(true);
 			entity.Property(e => e.LodgeFee).HasColumnType("decimal(58,29)");
@@ -47,10 +47,10 @@ public partial class FuturemudDatabaseContext
 			      .HasForeignKey(d => d.EconomicZoneId)
 			      .HasConstraintName("FK_Stables_EconomicZones");
 
-			entity.HasOne(d => d.Cell)
+			entity.HasOne(d => d.Room)
 			      .WithMany()
-			      .HasForeignKey(d => d.CellId)
-			      .HasConstraintName("FK_Stables_Cells");
+			      .HasForeignKey(d => d.RoomId)
+			      .HasConstraintName("FK_Stables_Rooms");
 
 			entity.HasOne(d => d.BankAccount)
 			      .WithMany()

@@ -65,9 +65,9 @@ public class ProvisionProfileTests
 	{
 		var f = Recipe();
 		if (duringCallback) {
-			object value = true; f.Policy.Setup(x => x.ExecuteWithStatus(out value, It.IsAny<object[]>())).Callback(() => f.Actor.SetupGet(x => x.Location).Returns(Mock.Of<ICell>())).Returns(true);
+			object value = true; f.Policy.Setup(x => x.ExecuteWithStatus(out value, It.IsAny<object[]>())).Callback(() => f.Actor.SetupGet(x => x.Location).Returns(Mock.Of<IRoom>())).Returns(true);
 		} else {
-			Assert.IsTrue(f.Effect.TryPrepareRecipe(f.Actor.Object, out _)); f.Actor.SetupGet(x => x.Location).Returns(Mock.Of<ICell>());
+			Assert.IsTrue(f.Effect.TryPrepareRecipe(f.Actor.Object, out _)); f.Actor.SetupGet(x => x.Location).Returns(Mock.Of<IRoom>());
 		}
 		Assert.IsFalse(f.Effect.TryPrepareRecipe(f.Actor.Object, out var error)); StringAssert.Contains(error!, duringCallback ? "callback" : "context");
 	}

@@ -34,8 +34,8 @@ public sealed partial class SpellOwnedCreation
 			existing.IsControllable = false;
 			CaptureBorrowedChange(existing);
 		}
-		var link = Context.CellsGameItems.Single(x => x.GameItemId == corpseId && x.CellId == cellId);
-		Context.CellsGameItems.Remove(link);
+		var link = Context.RoomsGameItems.Single(x => x.GameItemId == corpseId && x.RoomId == cellId);
+		Context.RoomsGameItems.Remove(link);
 		CaptureBorrowedChange(link);
 		_borrowedCorpseInstance = instance;
 		Claim(SpellOwnedEntityKind.CharacterInstance, instance);
@@ -52,8 +52,8 @@ public sealed partial class SpellOwnedCreation
 		var corpse = context.GameItems.AsNoTracking().SingleOrDefault(x => x.Id == corpseId);
 		if (corpse is null || corpse.ContainerId is not null || corpse.RoutePosition is not null ||
 			context.BodiesGameItems.Any(x => x.GameItemId == corpseId) ||
-			context.CellsGameItems.Count(x => x.GameItemId == corpseId) != 1 ||
-			!context.CellsGameItems.Any(x => x.GameItemId == corpseId && x.CellId == cellId))
+			context.RoomsGameItems.Count(x => x.GameItemId == corpseId) != 1 ||
+			!context.RoomsGameItems.Any(x => x.GameItemId == corpseId && x.RoomId == cellId))
 			return "The saved corpse must be directly in its current cell, outside a route or inventory.";
 		if (!context.Characters.Any(x => x.Id == ownerId && !x.IsArchived) || !context.Bodies.Any(x => x.Id == bodyId) ||
 			!context.GameItemComponents.AsNoTracking().Where(x => x.GameItemId == corpseId).Select(x => x.Definition)

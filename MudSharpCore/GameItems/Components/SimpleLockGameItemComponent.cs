@@ -50,7 +50,7 @@ public class SimpleLockGameItemComponent : GameItemComponent, ILock
         }
     }
 
-    public override bool HandleDieOrMorph(IGameItem newItem, ICell location)
+    public override bool HandleDieOrMorph(IGameItem newItem, IRoom location)
     {
         SimpleLockGameItemComponent newItemLock = newItem?.GetItemType<SimpleLockGameItemComponent>();
         if (newItemLock != null)
@@ -130,7 +130,7 @@ public class SimpleLockGameItemComponent : GameItemComponent, ILock
 
     public bool CanBeInstalled => true;
 
-    public void InstallLock(ILockable lockable, IExit exit, ICell installLocation)
+    public void InstallLock(ILockable lockable, IExit exit, IRoom installLocation)
     {
         InstalledExit = exit;
         Changed = true;
@@ -197,7 +197,7 @@ public class SimpleLockGameItemComponent : GameItemComponent, ILock
                 new Emote(_prototype.UnlockEmote, actor, actor, Parent, key?.Parent,
                     containingPerceivable),
                 flags: OutputFlags.SuppressObscured).Append(playerEmote));
-            InstalledExit?.Cells.Except(actor.Location)
+            InstalledExit?.Rooms.Except(actor.Location)
                          .Single()
                          .Handle(
                              new EmoteOutput(new Emote(_prototype.UnlockEmoteOtherSide, actor, actor, Parent,
@@ -205,9 +205,9 @@ public class SimpleLockGameItemComponent : GameItemComponent, ILock
         }
         else
         {
-            foreach (ICell cell in Parent.TrueLocations)
+            foreach (IRoom room in Parent.TrueLocations)
             {
-                cell.Handle(
+                room.Handle(
                     new EmoteOutput(new Emote(_prototype.UnlockEmoteNoActor, Parent, Parent, containingPerceivable)));
             }
         }
@@ -250,7 +250,7 @@ public class SimpleLockGameItemComponent : GameItemComponent, ILock
                 new Emote(_prototype.LockEmote, actor, actor, Parent, key.Parent,
                     containingPerceivable),
                 flags: OutputFlags.SuppressObscured).Append(playerEmote));
-            InstalledExit?.Cells.Except(actor.Location)
+            InstalledExit?.Rooms.Except(actor.Location)
                          .Single()
                          .Handle(
                              new EmoteOutput(new Emote(_prototype.LockEmoteOtherSide, actor, actor, Parent,
@@ -258,9 +258,9 @@ public class SimpleLockGameItemComponent : GameItemComponent, ILock
         }
         else
         {
-            foreach (ICell cell in Parent.TrueLocations)
+            foreach (IRoom room in Parent.TrueLocations)
             {
-                cell.Handle(
+                room.Handle(
                     new EmoteOutput(new Emote(_prototype.LockEmoteNoActor, Parent, Parent, containingPerceivable)));
             }
         }

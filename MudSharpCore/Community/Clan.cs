@@ -54,48 +54,48 @@ public partial class Clan : SaveableItem, IClan
         _nextPay = new MudDateTime(
             PayInterval.GetNextDate(Calendar, payDate), payTime,
             payTime.Timezone);
-        foreach (ClanTreasuryCell cell in clan.ClansTreasuryCells)
+        foreach (ClanTreasuryRoom room in clan.ClansTreasuryRooms)
         {
-            ICell gameCell = gameworld.Cells.Get(cell.CellId);
-            gameCell.CellRequestsDeletion -= TreasuryCellRequestsDeletion;
-            gameCell.CellRequestsDeletion += TreasuryCellRequestsDeletion;
-            _treasuryCells.Add(gameCell);
+            IRoom gameRoom = gameworld.Rooms.Get(room.RoomId);
+            gameRoom.RoomRequestsDeletion -= TreasuryRoomRequestsDeletion;
+            gameRoom.RoomRequestsDeletion += TreasuryRoomRequestsDeletion;
+            _treasuryRooms.Add(gameRoom);
         }
 
-        foreach (ClanAdministrationCell cell in clan.ClansAdministrationCells)
+        foreach (ClanAdministrationRoom room in clan.ClansAdministrationRooms)
         {
-            ICell gameCell = gameworld.Cells.Get(cell.CellId);
-            gameCell.CellRequestsDeletion -= AdminCellRequestsDeletion;
-            gameCell.CellRequestsDeletion += AdminCellRequestsDeletion;
-            _administrationCells.Add(gameCell);
+            IRoom gameRoom = gameworld.Rooms.Get(room.RoomId);
+            gameRoom.RoomRequestsDeletion -= AdminRoomRequestsDeletion;
+            gameRoom.RoomRequestsDeletion += AdminRoomRequestsDeletion;
+            _administrationRooms.Add(gameRoom);
         }
 
-        foreach (ClanHallCell cell in clan.ClansHallCells)
+        foreach (ClanHallRoom room in clan.ClansHallRooms)
         {
-            ICell gameCell = gameworld.Cells.Get(cell.CellId);
-            gameCell.CellRequestsDeletion -= ClanHallCellRequestsDeletion;
-            gameCell.CellRequestsDeletion += ClanHallCellRequestsDeletion;
-            _clanHallCells.Add(gameCell);
+            IRoom gameRoom = gameworld.Rooms.Get(room.RoomId);
+            gameRoom.RoomRequestsDeletion -= ClanHallRoomRequestsDeletion;
+            gameRoom.RoomRequestsDeletion += ClanHallRoomRequestsDeletion;
+            _clanHallRooms.Add(gameRoom);
         }
 
         DiscordChannelId = clan.DiscordChannelId;
     }
 
-    private void ClanHallCellRequestsDeletion(object sender, EventArgs e)
+    private void ClanHallRoomRequestsDeletion(object sender, EventArgs e)
     {
-        _clanHallCells.Remove((ICell)sender);
+        _clanHallRooms.Remove((IRoom)sender);
         Changed = true;
     }
 
-    private void AdminCellRequestsDeletion(object sender, EventArgs e)
+    private void AdminRoomRequestsDeletion(object sender, EventArgs e)
     {
-        _administrationCells.Remove((ICell)sender);
+        _administrationRooms.Remove((IRoom)sender);
         Changed = true;
     }
 
-    private void TreasuryCellRequestsDeletion(object sender, EventArgs e)
+    private void TreasuryRoomRequestsDeletion(object sender, EventArgs e)
     {
-        _treasuryCells.Remove((ICell)sender);
+        _treasuryRooms.Remove((IRoom)sender);
         Changed = true;
     }
 
@@ -126,22 +126,22 @@ public partial class Clan : SaveableItem, IClan
             clan.MaximumPeriodsOfUncollectedBackPay = MaximumPeriodsOfUncollectedBackPay;
             clan.OnPayProgId = OnPayProg?.Id;
             clan.DiscordChannelId = DiscordChannelId;
-            FMDB.Context.ClansAdministrationCells.RemoveRange(clan.ClansAdministrationCells);
-            foreach (ICell cell in AdministrationCells)
+            FMDB.Context.ClansAdministrationRooms.RemoveRange(clan.ClansAdministrationRooms);
+            foreach (IRoom room in AdministrationRooms)
             {
-                clan.ClansAdministrationCells.Add(new Models.ClanAdministrationCell { Clan = clan, CellId = cell.Id });
+                clan.ClansAdministrationRooms.Add(new Models.ClanAdministrationRoom { Clan = clan, RoomId = room.Id });
             }
 
-            FMDB.Context.ClansHallCells.RemoveRange(clan.ClansHallCells);
-            foreach (ICell cell in ClanHallCells)
+            FMDB.Context.ClansHallRooms.RemoveRange(clan.ClansHallRooms);
+            foreach (IRoom room in ClanHallRooms)
             {
-                clan.ClansHallCells.Add(new Models.ClanHallCell { Clan = clan, CellId = cell.Id });
+                clan.ClansHallRooms.Add(new Models.ClanHallRoom { Clan = clan, RoomId = room.Id });
             }
 
-            FMDB.Context.ClansTreasuryCells.RemoveRange(clan.ClansTreasuryCells);
-            foreach (ICell cell in TreasuryCells)
+            FMDB.Context.ClansTreasuryRooms.RemoveRange(clan.ClansTreasuryRooms);
+            foreach (IRoom room in TreasuryRooms)
             {
-                clan.ClansTreasuryCells.Add(new Models.ClanTreasuryCell { Clan = clan, CellId = cell.Id });
+                clan.ClansTreasuryRooms.Add(new Models.ClanTreasuryRoom { Clan = clan, RoomId = room.Id });
             }
 
             FMDB.Context.SaveChanges();
@@ -284,52 +284,52 @@ public partial class Clan : SaveableItem, IClan
 
     public string Description { get; set; }
 
-    private readonly List<ICell> _treasuryCells = new();
-    public IEnumerable<ICell> TreasuryCells => _treasuryCells;
+    private readonly List<IRoom> _treasuryRooms = new();
+    public IEnumerable<IRoom> TreasuryRooms => _treasuryRooms;
 
-    private readonly List<ICell> _administrationCells = new();
-    public IEnumerable<ICell> AdministrationCells => _administrationCells;
+    private readonly List<IRoom> _administrationRooms = new();
+    public IEnumerable<IRoom> AdministrationRooms => _administrationRooms;
 
-    private readonly List<ICell> _clanHallCells = new();
-    public IEnumerable<ICell> ClanHallCells => _clanHallCells;
+    private readonly List<IRoom> _clanHallRooms = new();
+    public IEnumerable<IRoom> ClanHallRooms => _clanHallRooms;
 
-    public void AddTreasuryCell(ICell cell)
+    public void AddTreasuryRoom(IRoom room)
     {
-        _treasuryCells.Add(cell);
+        _treasuryRooms.Add(room);
         Changed = true;
     }
-    public void RemoveTreasuryCell(ICell cell)
+    public void RemoveTreasuryRoom(IRoom room)
     {
-        _treasuryCells.Remove(cell);
+        _treasuryRooms.Remove(room);
         Changed = true;
     }
-    public void AddAdministrationCell(ICell cell)
+    public void AddAdministrationRoom(IRoom room)
     {
-        _administrationCells.Add(cell);
+        _administrationRooms.Add(room);
         Changed = true;
     }
-    public void RemoveAdministrationCell(ICell cell)
+    public void RemoveAdministrationRoom(IRoom room)
     {
-        _administrationCells.Remove(cell);
+        _administrationRooms.Remove(room);
         Changed = true;
     }
-    public void AddClanHallCell(ICell cell)
+    public void AddClanHallRoom(IRoom room)
     {
-        if (_clanHallCells.Contains(cell))
+        if (_clanHallRooms.Contains(room))
         {
             return;
         }
 
-        cell.CellRequestsDeletion -= ClanHallCellRequestsDeletion;
-        cell.CellRequestsDeletion += ClanHallCellRequestsDeletion;
-        _clanHallCells.Add(cell);
+        room.RoomRequestsDeletion -= ClanHallRoomRequestsDeletion;
+        room.RoomRequestsDeletion += ClanHallRoomRequestsDeletion;
+        _clanHallRooms.Add(room);
         Changed = true;
     }
-    public void RemoveClanHallCell(ICell cell)
+    public void RemoveClanHallRoom(IRoom room)
     {
-        if (_clanHallCells.Remove(cell))
+        if (_clanHallRooms.Remove(room))
         {
-            cell.CellRequestsDeletion -= ClanHallCellRequestsDeletion;
+            room.RoomRequestsDeletion -= ClanHallRoomRequestsDeletion;
             Changed = true;
         }
     }

@@ -17,7 +17,7 @@ public sealed record MagicGatheringReceipt(
 	Guid MethodKey,
 	int MethodVersion,
 	MagicGatheringMethodKind Kind,
-	long? CellId,
+	long? RoomId,
 	long? SourceProfileId,
 	long? SourceProfileRevision,
 	long? SourceResourceId,
@@ -76,14 +76,14 @@ public sealed class MagicGatheringReceiptStore : IMagicGatheringReceiptStore
 			try
 			{
 				WriteCurrent(receipt);
-				if (receipt.CellId is { } cellId)
+				if (receipt.RoomId is { } cellId)
 				{
 					foreach (string key in receipt.ParticipantKeys.Distinct(StringComparer.Ordinal))
 					{
 						FMDB.Context.MagicGatheringParticipants.Add(new Models.MagicGatheringParticipant
 						{
 							OperationId = receipt.Id,
-							CellId = cellId,
+							RoomId = cellId,
 							SourceKey = key
 						});
 					}
@@ -146,7 +146,7 @@ public sealed class MagicGatheringReceiptStore : IMagicGatheringReceiptStore
 		using (new FMDB())
 		{
 			return FMDB.Context.MagicGatheringOperations.AsNoTracking()
-				.Any(x => x.CellId == cellId && x.SourceResourceId == sourceResourceId &&
+				.Any(x => x.RoomId == cellId && x.SourceResourceId == sourceResourceId &&
 					UnresolvedStatuses.Contains(x.Status));
 		}
 	}
@@ -158,7 +158,7 @@ public sealed class MagicGatheringReceiptStore : IMagicGatheringReceiptStore
 			return (from participant in FMDB.Context.MagicGatheringParticipants.AsNoTracking()
 				join operation in FMDB.Context.MagicGatheringOperations.AsNoTracking()
 					on participant.OperationId equals operation.Id
-				where participant.CellId == cellId && participant.SourceKey == sourceKey &&
+				where participant.RoomId == cellId && participant.SourceKey == sourceKey &&
 					UnresolvedStatuses.Contains(operation.Status)
 				select participant.OperationId).Any();
 		}
@@ -179,7 +179,7 @@ public sealed class MagicGatheringReceiptStore : IMagicGatheringReceiptStore
 		row.MagicCapabilityId = receipt.CapabilityId;
 		row.MethodKey = receipt.MethodKey;
 		row.MethodVersion = receipt.MethodVersion;
-		row.CellId = receipt.CellId;
+		row.RoomId = receipt.RoomId;
 		row.SourceProfileId = receipt.SourceProfileId;
 		row.SourceProfileRevision = receipt.SourceProfileRevision;
 		row.SourceResourceId = receipt.SourceResourceId;
@@ -215,7 +215,7 @@ public sealed class MagicGatheringReceiptStore : IMagicGatheringReceiptStore
 		row.MethodVersion,
 		Enum.TryParse(row.Kind, true, out MagicGatheringMethodKind kind) && Enum.IsDefined(kind)
 			? kind : (MagicGatheringMethodKind)(-1),
-		row.CellId,
+		row.RoomId,
 		row.SourceProfileId,
 		row.SourceProfileRevision,
 		row.SourceResourceId,

@@ -57,7 +57,7 @@ public class ReactivePatrolStrategy : CrimeTargetedPatrolStrategyBase
 		       IsEligibleResponseCrime(patrol.TargetCrime, DispatchWindow + MaximumDuration);
 	}
 
-	protected override void HandleArrivedAtTargetNode(IPatrol patrol, ICell node)
+	protected override void HandleArrivedAtTargetNode(IPatrol patrol, IRoom node)
 	{
 		base.HandleArrivedAtTargetNode(patrol, node);
 

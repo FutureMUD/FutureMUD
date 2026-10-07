@@ -72,8 +72,8 @@ public class Patrol : SaveableItem, IPatrol
         PatrolPhase = (PatrolPhase)patrol.PatrolPhase;
         PatrolStartTime = RuntimeClock.UtcNow;
         LastArrivedTime = RuntimeClock.UtcNow;
-        LastMajorNode = Gameworld.Cells.Get(patrol.LastMajorNodeId ?? 0);
-        NextMajorNode = Gameworld.Cells.Get(patrol.NextMajorNodeId ?? 0);
+        LastMajorNode = Gameworld.Rooms.Get(patrol.LastMajorNodeId ?? 0);
+        NextMajorNode = Gameworld.Rooms.Get(patrol.NextMajorNodeId ?? 0);
         _members.AddRange(patrol.PatrolMembers
                                 .SelectNotNull(x => CharacterInstanceIdentityComparer.ResolvePhysicalInstance(
                                     Gameworld,
@@ -113,15 +113,15 @@ public class Patrol : SaveableItem, IPatrol
     public IEnumerable<ICharacter> PatrolMembers => _members;
     public ICharacter PatrolLeader { get; set; }
     public PatrolPhase PatrolPhase { get; set; }
-    public ICell LastMajorNode { get; set; }
-    public ICell NextMajorNode { get; set; }
+    public IRoom LastMajorNode { get; set; }
+    public IRoom NextMajorNode { get; set; }
     public DateTime PatrolStartTime { get; }
     public DateTime LastArrivedTime { get; set; }
     public ICharacter ActiveEnforcementTarget { get; set; }
     public ICrime ActiveEnforcementCrime { get; set; }
     public ICrime TargetCrime { get; set; }
     public ICorpseRecoveryReport ActiveCorpseRecoveryReport { get; set; }
-    public ICell OriginLocation => LegalAuthority.MarshallingLocation;
+    public IRoom OriginLocation => LegalAuthority.MarshallingLocation;
 
     public void Delete()
     {

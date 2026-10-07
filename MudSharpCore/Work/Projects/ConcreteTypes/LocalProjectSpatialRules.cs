@@ -9,37 +9,37 @@ namespace MudSharp.Work.Projects.ConcreteTypes;
 internal static class LocalProjectSpatialRules
 {
 	internal static SpatialLocation ValidateLoadedSite(
-		ICell cell,
+		IRoom room,
 		RoomLayer layer,
 		double? routePositionMetres,
 		long projectId)
 	{
-		ArgumentNullException.ThrowIfNull(cell);
+		ArgumentNullException.ThrowIfNull(room);
 		if (!Enum.IsDefined(layer))
 		{
 			throw new InvalidDataException(
-				$"Active local project #{projectId} has invalid room layer {(int)layer} in cell #{cell.Id}.");
+				$"Active local project #{projectId} has invalid room layer {(int)layer} in cell #{room.Id}.");
 		}
 
-		var site = new SpatialLocation(cell, layer, routePositionMetres);
+		var site = new SpatialLocation(room, layer, routePositionMetres);
 		if (RouteSpatialService.Instance.TryValidateLocation(site, out var error))
 		{
 			return site;
 		}
 
 		throw new InvalidDataException(
-			$"Active local project #{projectId} has invalid spatial data in cell #{cell.Id}: {error}");
+			$"Active local project #{projectId} has invalid spatial data in cell #{room.Id}: {error}");
 	}
 
 	internal static bool IsAtSite(SpatialLocation site, ICharacter character)
 	{
 		ArgumentNullException.ThrowIfNull(character);
-		if (!ReferenceEquals(site.Cell, character.Location))
+		if (!ReferenceEquals(site.Room, character.Location))
 		{
 			return false;
 		}
 
-		if (site.Cell.RouteDefinition is null)
+		if (site.Room.RouteDefinition is null)
 		{
 			return true;
 		}
@@ -54,12 +54,12 @@ internal static class LocalProjectSpatialRules
 
 	internal static IReadOnlyCollection<ICharacter> CharactersAtSite(SpatialLocation site)
 	{
-		if (site.Cell.RouteDefinition is null)
+		if (site.Room.RouteDefinition is null)
 		{
-			return site.Cell.Characters.ToArray();
+			return site.Room.Characters.ToArray();
 		}
 
-		var maximumDistance = RouteSpatialConfiguration.FromGameworld(site.Cell.Gameworld)
+		var maximumDistance = RouteSpatialConfiguration.FromGameworld(site.Room.Gameworld)
 			.ImmediateDistanceMetres;
 		return RouteSpatialService.Instance
 			.GetPerceivablesWithin(site, maximumDistance)
@@ -69,12 +69,12 @@ internal static class LocalProjectSpatialRules
 
 	internal static IReadOnlyCollection<IGameItem> GameItemsAtSite(SpatialLocation site)
 	{
-		if (site.Cell.RouteDefinition is null)
+		if (site.Room.RouteDefinition is null)
 		{
-			return site.Cell.GameItems.ToArray();
+			return site.Room.GameItems.ToArray();
 		}
 
-		var maximumDistance = RouteSpatialConfiguration.FromGameworld(site.Cell.Gameworld)
+		var maximumDistance = RouteSpatialConfiguration.FromGameworld(site.Room.Gameworld)
 			.ImmediateDistanceMetres;
 		return RouteSpatialService.Instance
 			.GetPerceivablesWithin(site, maximumDistance)
@@ -84,9 +84,9 @@ internal static class LocalProjectSpatialRules
 
 	internal static void HandleAtSite(SpatialLocation site, string text)
 	{
-		if (site.Cell.RouteDefinition is null)
+		if (site.Room.RouteDefinition is null)
 		{
-			site.Cell.Handle(text);
+			site.Room.Handle(text);
 			return;
 		}
 

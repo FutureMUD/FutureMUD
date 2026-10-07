@@ -16,12 +16,12 @@ public class Shard : Location, IEditableShard
 
     protected List<IClock> _clocks = new();
 
-    protected All<ICell> _cells = new();
+    protected All<IRoom> _cells = new();
 
     protected All<IZone> _zones = new();
 
     public IEnumerable<IZone> Zones => _zones;
-    public override IEnumerable<ICell> Cells => _cells;
+    public override IEnumerable<IRoom> Rooms => _cells;
 
     public Shard(IFuturemud game, ISkyDescriptionTemplate skyTemplate, string name) : base(game)
     {
@@ -47,12 +47,12 @@ public class Shard : Location, IEditableShard
 
     public override string FrameworkItemType => "Shard";
 
-    public void Register(ICell room)
+    public void Register(IRoom room)
     {
         _cells.Add(room);
     }
 
-    public void Unregister(ICell zone)
+    public void Unregister(IRoom zone)
     {
         _cells.Remove(zone);
     }
@@ -67,18 +67,18 @@ public class Shard : Location, IEditableShard
         _zones.Remove(zone);
     }
 
-    public ICell DetermineCellByCoordinates(int x, int y, int z)
+    public IRoom DetermineRoomByCoordinates(int x, int y, int z)
     {
-        return (from room in Cells
+        return (from room in Rooms
                 where room.StoredCoordinates.X == x && room.StoredCoordinates.Y == y && room.StoredCoordinates.Z == z
                 select room).Take(2).ToList() is { Count: 1 } matches ? matches[0] : null;
     }
 
-    public ICell DetermineCellByDirection(ICell fromCell, CardinalDirection direction)
+    public IRoom DetermineRoomByDirection(IRoom fromRoom, CardinalDirection direction)
     {
-        int x = fromCell.StoredCoordinates.X;
-        int y = fromCell.StoredCoordinates.Y;
-        int z = fromCell.StoredCoordinates.Z;
+        int x = fromRoom.StoredCoordinates.X;
+        int y = fromRoom.StoredCoordinates.Y;
+        int z = fromRoom.StoredCoordinates.Z;
 
         switch (direction)
         {
@@ -118,7 +118,7 @@ public class Shard : Location, IEditableShard
                 break;
         }
 
-        return (from room in Cells
+        return (from room in Rooms
                 where room.StoredCoordinates.X == x && room.StoredCoordinates.Y == y && room.StoredCoordinates.Z == z
                 select room).Take(2).ToList() is { Count: 1 } matches ? matches[0] : null;
     }

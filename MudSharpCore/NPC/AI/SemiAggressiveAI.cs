@@ -303,8 +303,8 @@ public class SemiAggressiveAI : PathingAIWithProgTargetsBase
         ICharacter ch = null;
         switch (type)
         {
-            case EventType.CharacterEnterCellWitness:
-            case EventType.CharacterLeaveCellWitness:
+            case EventType.CharacterEnterRoomWitness:
+            case EventType.CharacterLeaveRoomWitness:
             case EventType.CharacterGotItemContainerWitness:
                 ch = (ICharacter)arguments[3];
                 break;
@@ -327,11 +327,11 @@ public class SemiAggressiveAI : PathingAIWithProgTargetsBase
 
         switch (type)
         {
-            case EventType.CharacterEnterCellWitness:
-                return CharacterEnterCellWitness((ICharacter)arguments[0], (ICell)arguments[1], (ICellExit)arguments[2],
+            case EventType.CharacterEnterRoomWitness:
+                return CharacterEnterRoomWitness((ICharacter)arguments[0], (IRoom)arguments[1], (IRoomExit)arguments[2],
                     (ICharacter)arguments[3]);
-            case EventType.CharacterLeaveCellWitness:
-                return CharacterLeaveCellWitness((ICharacter)arguments[0], (ICell)arguments[1], (ICellExit)arguments[2],
+            case EventType.CharacterLeaveRoomWitness:
+                return CharacterLeaveRoomWitness((ICharacter)arguments[0], (IRoom)arguments[1], (IRoomExit)arguments[2],
                     (ICharacter)arguments[3]);
             case EventType.EngagedInCombat:
                 return EngagedInCombat((ICharacter)arguments[0], (ICharacter)arguments[1]);
@@ -354,8 +354,8 @@ public class SemiAggressiveAI : PathingAIWithProgTargetsBase
         {
             switch (type)
             {
-                case EventType.CharacterEnterCellWitness:
-                case EventType.CharacterLeaveCellWitness:
+                case EventType.CharacterEnterRoomWitness:
+                case EventType.CharacterLeaveRoomWitness:
                 case EventType.EngagedInCombat:
                 case EventType.LeaveCombat:
                 case EventType.TargetIncapacitated:
@@ -389,38 +389,38 @@ public class SemiAggressiveAI : PathingAIWithProgTargetsBase
         return character.EffectsOfType<AIPosturingEffect>().FirstOrDefault()?.ThreatLevel ?? 0.0;
     }
 
-    protected virtual bool WillPosture(ICharacter character, ICell cell, ICharacter specific,
+    protected virtual bool WillPosture(ICharacter character, IRoom room, ICharacter specific,
         params ICharacter[] targets)
     {
-        return WillPostureProg.ExecuteBool(character, cell, specific, targets, ExistingThreatLevel(character));
+        return WillPostureProg.ExecuteBool(character, room, specific, targets, ExistingThreatLevel(character));
     }
 
-    protected virtual bool WillAttack(ICharacter character, ICell cell, ICharacter specific,
+    protected virtual bool WillAttack(ICharacter character, IRoom room, ICharacter specific,
         params ICharacter[] targets)
     {
 		if (specific is not null && PsychicDispositionQuery.ForDecision(character, specific) > 0 && specific.CombatTarget != character) return false;
-        return WillAttackProg.ExecuteBool(character, cell, specific, targets, ExistingThreatLevel(character));
+        return WillAttackProg.ExecuteBool(character, room, specific, targets, ExistingThreatLevel(character));
     }
 
-    protected virtual bool WillFlee(ICharacter character, ICell cell, params ICharacter[] targets)
+    protected virtual bool WillFlee(ICharacter character, IRoom room, params ICharacter[] targets)
     {
-        return WillFleeProg.ExecuteBool(character, cell, targets, ExistingThreatLevel(character));
+        return WillFleeProg.ExecuteBool(character, room, targets, ExistingThreatLevel(character));
     }
 
-    protected virtual (ICell? Target, IEnumerable<ICellExit>) FleeRouteForCharacter(ICharacter character)
+    protected virtual (IRoom? Target, IEnumerable<IRoomExit>) FleeRouteForCharacter(ICharacter character)
     {
-        IEnumerable<ICell> locations = ((IList)((CollectionVariable)FleeLocationsProg.Execute(character)).GetObject).OfType<ICell>();
+        IEnumerable<IRoom> locations = ((IList)((CollectionVariable)FleeLocationsProg.Execute(character)).GetObject).OfType<IRoom>();
 
-        foreach (ICell loc in locations)
+        foreach (IRoom loc in locations)
         {
-            List<ICellExit> path = character.PathBetween(loc, 12, OpenDoors).ToList();
+            List<IRoomExit> path = character.PathBetween(loc, 12, OpenDoors).ToList();
             if (path.Any() == true)
             {
                 return (loc, path);
             }
         }
 
-        return (null, Enumerable.Empty<ICellExit>());
+        return (null, Enumerable.Empty<IRoomExit>());
     }
 
     private void BeginAttack(ICharacter attacker, ICharacter target)
@@ -468,7 +468,7 @@ public class SemiAggressiveAI : PathingAIWithProgTargetsBase
         AIRecentlyFledPosturing fleeEffect = new(character, effect.ThreatLevel);
         character.AddEffect(fleeEffect, TimeSpan.FromSeconds(60));
         character.RemoveEffect(effect);
-        (ICell target, IEnumerable<ICellExit> route) = FleeRouteForCharacter(character);
+        (IRoom target, IEnumerable<IRoomExit> route) = FleeRouteForCharacter(character);
         if (route.Any())
         {
             FollowingPath pathEffect = new(character, route);
@@ -574,10 +574,10 @@ public class SemiAggressiveAI : PathingAIWithProgTargetsBase
         return targets.ToArray();
     }
 
-    private bool CharacterEnterCellWitness(ICharacter mover, ICell cell, ICellExit cellExit, ICharacter witness)
+    private bool CharacterEnterRoomWitness(ICharacter mover, IRoom room, IRoomExit cellExit, ICharacter witness)
     {
         ICharacter[] targets = GetCharacterTargets(witness, mover);
-        if (WillHandleFlee(witness) && WillFlee(witness, cell, targets))
+        if (WillHandleFlee(witness) && WillFlee(witness, room, targets))
         {
             BeginFlee(witness);
             return true;
@@ -585,13 +585,13 @@ public class SemiAggressiveAI : PathingAIWithProgTargetsBase
 
         if (WillHandleAttackOrPosture(witness))
         {
-            if (WillAttack(witness, cell, mover, targets))
+            if (WillAttack(witness, room, mover, targets))
             {
                 BeginAttack(witness, mover);
                 return true;
             }
 
-            if (WillPosture(witness, cell, mover, targets))
+            if (WillPosture(witness, room, mover, targets))
             {
                 BeginPosturing(witness, mover);
                 return true;
@@ -601,7 +601,7 @@ public class SemiAggressiveAI : PathingAIWithProgTargetsBase
         return false;
     }
 
-    private bool CharacterLeaveCellWitness(ICharacter mover, ICell cell, ICellExit cellExit, ICharacter witness)
+    private bool CharacterLeaveRoomWitness(ICharacter mover, IRoom room, IRoomExit cellExit, ICharacter witness)
     {
         AIPosturingEffect posturing = witness.EffectsOfType<AIPosturingEffect>().FirstOrDefault();
         if (posturing != null && posturing.PosturingTargets.Contains(mover))
@@ -690,11 +690,11 @@ public class SemiAggressiveAI : PathingAIWithProgTargetsBase
         return false;
     }
 
-    protected override (ICell? Target, IEnumerable<ICellExit>) GetPath(ICharacter ch)
+    protected override (IRoom? Target, IEnumerable<IRoomExit>) GetPath(ICharacter ch)
     {
         if (!ch.AffectedBy<AIFleeing>())
         {
-            return (null, Enumerable.Empty<ICellExit>());
+            return (null, Enumerable.Empty<IRoomExit>());
         }
 
         return FleeRouteForCharacter(ch);

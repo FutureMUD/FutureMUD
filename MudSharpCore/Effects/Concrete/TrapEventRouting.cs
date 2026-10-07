@@ -11,9 +11,9 @@ namespace MudSharp.Effects.Concrete;
 /// </summary>
 internal static class TrapEventRouting
 {
-	internal static bool IsCellArrivalWitness(EventType eventType)
+	internal static bool IsRoomArrivalWitness(EventType eventType)
 	{
-		return eventType == EventType.CharacterEnterCellWitness;
+		return eventType == EventType.CharacterEnterRoomWitness;
 	}
 
 }

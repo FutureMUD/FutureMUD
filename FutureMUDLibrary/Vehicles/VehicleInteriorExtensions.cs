@@ -36,8 +36,8 @@ public static class VehicleInteriorExtensions
 		}
 
 		var source = vehicle.Compartments.FirstOrDefault(x => x.Prototype.Id == sourcePrototype.Id);
-		if (source?.InteriorCell is null ||
-			vehicle.Compartments.FirstOrDefault(x => x.Prototype.Id == destinationPrototype.Id)?.InteriorCell is null)
+		if (source?.InteriorRoom is null ||
+			vehicle.Compartments.FirstOrDefault(x => x.Prototype.Id == destinationPrototype.Id)?.InteriorRoom is null)
 		{
 			return false;
 		}
@@ -54,7 +54,7 @@ public static class VehicleInteriorExtensions
 					: link.DestinationCompartment.Prototype.Id == current.Prototype.Id
 						? link.SourceCompartment
 						: null;
-				if (next?.InteriorCell is null || !visited.Add(next.Prototype.Id))
+				if (next?.InteriorRoom is null || !visited.Add(next.Prototype.Id))
 				{
 					continue;
 				}
@@ -89,6 +89,6 @@ public static class VehicleInteriorExtensions
 		}
 
 		var compartment = vehicle.Compartments.FirstOrDefault(x => x.Prototype.Id == slot.Compartment?.Id);
-		return compartment?.InteriorCell is not null && compartment.InteriorCell.Id == actor.Location?.Id;
+		return compartment?.InteriorRoom is not null && compartment.InteriorRoom.Id == actor.Location?.Id;
 	}
 }

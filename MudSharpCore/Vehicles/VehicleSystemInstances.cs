@@ -952,7 +952,7 @@ public class VehicleHitchLink : FrameworkItem, IVehicleHitchLink
 		}
 	}
 
-	private ICell? SourceLocation()
+	private IRoom? SourceLocation()
 	{
 		return SourceType switch
 		{
@@ -962,7 +962,7 @@ public class VehicleHitchLink : FrameworkItem, IVehicleHitchLink
 		};
 	}
 
-	private ICell? TargetLocation()
+	private IRoom? TargetLocation()
 	{
 		return TargetType switch
 		{
@@ -992,7 +992,7 @@ public class VehicleHitchLink : FrameworkItem, IVehicleHitchLink
 		};
 	}
 
-	private bool HitchItemIsWithChain(IGameItem item, ICell sourceLocation, RoomLayer sourceLayer)
+	private bool HitchItemIsWithChain(IGameItem item, IRoom sourceLocation, RoomLayer sourceLayer)
 	{
 		if (item.Location == sourceLocation && item.RoomLayer == sourceLayer && item.ContainedIn is null &&
 		    item.InInventoryOf is null)

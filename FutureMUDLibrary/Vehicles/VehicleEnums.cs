@@ -10,8 +10,8 @@ public enum VehicleScale
 public enum VehicleLocationType
 {
 	Nowhere = 0,
-	Cell = 1,
-	CellExitTransit = 2,
+	Room = 1,
+	RoomExitTransit = 2,
 	Route = 3,
 	Coordinate2D = 4,
 	Coordinate3D = 5
@@ -26,7 +26,7 @@ public enum VehicleOccupantSlotType
 
 public enum VehicleMovementProfileType
 {
-	CellExit = 0,
+	RoomExit = 0,
 	Route = 1,
 	Coordinate2D = 2,
 	Coordinate3D = 3
@@ -123,7 +123,7 @@ public enum RouteVehiclePropulsionMode
 public enum VehicleRouteStepType
 {
 	LinearRoute = 0,
-	CellExit = 1
+	RoomExit = 1
 }
 
 public enum VehicleServiceOperatorMode

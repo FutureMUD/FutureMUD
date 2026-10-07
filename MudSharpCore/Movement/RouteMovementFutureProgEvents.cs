@@ -20,7 +20,7 @@ internal static class RouteMovementFutureProgEvents
 		Dispatch(movers, EventType.RouteMovementBegin, mover =>
 		[
 			mover,
-			context.RouteCell,
+			context.RouteRoom,
 			context.OriginMetres,
 			context.DestinationMetres,
 			context.Direction.DescribeEnum(),
@@ -46,14 +46,14 @@ internal static class RouteMovementFutureProgEvents
 			mover.HandleEvent(
 				EventType.RoutePositionChanged,
 				mover,
-				context.RouteCell,
+				context.RouteRoom,
 				previousMetres,
 				currentMetres,
 				context.OperationId.ToString("D"));
 			mover.HandleEvent(
 				EventType.RouteMovementProgress,
 				mover,
-				context.RouteCell,
+				context.RouteRoom,
 				previousMetres,
 				currentMetres,
 				context.DestinationMetres,
@@ -68,7 +68,7 @@ internal static class RouteMovementFutureProgEvents
 		Dispatch(movers, EventType.RouteMovementComplete, mover =>
 		[
 			mover,
-			context.RouteCell,
+			context.RouteRoom,
 			context.OriginMetres,
 			context.DestinationMetres,
 			context.Direction.DescribeEnum(),
@@ -85,7 +85,7 @@ internal static class RouteMovementFutureProgEvents
 		Dispatch(movers, EventType.RouteMovementCancelled, mover =>
 		[
 			mover,
-			context.RouteCell,
+			context.RouteRoom,
 			context.OriginMetres,
 			currentMetres,
 			context.DestinationMetres,
@@ -117,8 +117,8 @@ internal static class RouteMovementFutureProgEvents
 
 internal readonly record struct RouteMovementHookContext(
 	Guid OperationId,
-	ICell RouteCell,
+	IRoom RouteRoom,
 	double OriginMetres,
 	double DestinationMetres,
-	RouteCellDirection Direction,
+	RouteRoomDirection Direction,
 	double SpeedMetresPerSecond);

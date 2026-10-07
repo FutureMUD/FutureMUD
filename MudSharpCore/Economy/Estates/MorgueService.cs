@@ -54,7 +54,7 @@ public static class MorgueService
         corpseItem.InInventoryOf?.Take(corpseItem);
         corpseItem.Location?.Extract(corpseItem);
         corpseItem.RoomLayer = RoomLayer.GroundLevel;
-        zone.MorgueStorageCell.Insert(corpseItem, true);
+        zone.MorgueStorageRoom.Insert(corpseItem, true);
 
         if (!corpseItem.AffectedBy<MorgueStoredCorpse>())
         {
@@ -76,7 +76,7 @@ public static class MorgueService
         if (strippedItems.Any())
         {
 			var estateId = estate?.Id ?? 0;
-            IGameItem bundle = zone.MorgueStorageCell.GameItems.FirstOrDefault(x =>
+            IGameItem bundle = zone.MorgueStorageRoom.GameItems.FirstOrDefault(x =>
                 x.EffectsOfType<MorgueBelongings>().Any(y =>
                     y.CharacterOwnerId == CharacterInstanceIdentityComparer.IdentityId(corpse.OriginalCharacter) &&
                     y.EstateId == estateId &&
@@ -86,7 +86,7 @@ public static class MorgueService
                 bundle = PileGameItemComponentProto.CreateNewBundle(strippedItems);
                 zone.Gameworld.Add(bundle);
                 bundle.AddEffect(new MorgueBelongings(bundle, corpse.OriginalCharacter, estate, zone));
-                zone.MorgueStorageCell.Insert(bundle, true);
+                zone.MorgueStorageRoom.Insert(bundle, true);
             }
             else
             {

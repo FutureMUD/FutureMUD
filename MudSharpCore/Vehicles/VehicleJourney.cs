@@ -394,10 +394,10 @@ public sealed class VehicleJourney : SaveableItem, IVehicleJourney
 		"service" => Service, "route" => Route, "vehicleid" => new NumberVariable(Vehicle.Id),
 		"state" => new TextVariable(State.DescribeEnum()),
 		"currentstop" => CurrentStop is { } currentStop
-			? currentStop.Location.Cell
+			? currentStop.Location.Room
 			: new NullVariable(ProgVariableTypes.Location),
 		"nextstop" => NextStop is { } nextStop
-			? nextStop.Location.Cell
+			? nextStop.Location.Room
 			: new NullVariable(ProgVariableTypes.Location),
 		"delay" => new TimeSpanVariable(Delay), "scheduleddeparture" => ScheduledDeparture,
 		"expecteddeparture" => ExpectedDeparture, "boardingopen" => new BooleanVariable(BoardingOpen),

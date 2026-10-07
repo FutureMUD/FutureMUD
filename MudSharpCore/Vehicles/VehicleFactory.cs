@@ -16,7 +16,7 @@ public sealed class VehicleFactoryPartialCreationException : InvalidOperationExc
 
 public static class VehicleFactory
 {
-	public static IVehicle CreateVehicle(IVehiclePrototype prototype, ICell location, RoomLayer roomLayer, ICharacter loader = null)
+	public static IVehicle CreateVehicle(IVehiclePrototype prototype, IRoom location, RoomLayer roomLayer, ICharacter loader = null)
 	{
 		if (!prototype.CanCreateVehicle(out var reason))
 		{
@@ -25,7 +25,7 @@ public static class VehicleFactory
 
 		var exterior = prototype.ExteriorItemPrototype.CreateNew(loader);
 		var movementProfile = prototype.MovementProfiles
-			.Where(x => x.MovementType == VehicleMovementProfileType.CellExit)
+			.Where(x => x.MovementType == VehicleMovementProfileType.RoomExit)
 			.OrderByDescending(x => x.IsDefault)
 			.FirstOrDefault() ?? prototype.MovementProfiles
 			.Where(x => x.MovementType == VehicleMovementProfileType.Route)
@@ -56,9 +56,9 @@ public static class VehicleFactory
 				Name = prototype.Name,
 				ExteriorItemId = exterior.Id,
 				LocationType = (int)(location.RouteDefinition is null
-					? VehicleLocationType.Cell
+					? VehicleLocationType.Room
 					: VehicleLocationType.Route),
-				CurrentCellId = location.Id,
+				CurrentRoomId = location.Id,
 				CurrentRoomLayer = (int)exterior.RoomLayer,
 				CurrentRoutePosition = exterior.RoutePositionMetres is null
 					? null

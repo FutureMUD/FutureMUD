@@ -54,17 +54,17 @@ public class UniformFeatureGroup : TerrainFeatureGroup
 
     public IEnumerable<ITerrain> Terrains => Features.SelectMany(x => x.Terrains).Distinct();
 
-	protected bool AppliesToCell(ICell cell)
+	protected bool AppliesToRoom(IRoom room)
 	{
 		return
-			cell != null &&
+			room != null &&
 			Features.Any() &&
-			(!Terrains.Any() || Terrains.Contains(cell.CurrentOverlay?.Terrain));
+			(!Terrains.Any() || Terrains.Contains(room.CurrentOverlay?.Terrain));
 	}
 
     public override List<Feature> Features { get; } = new();
 
-    public override void ApplyTerrainFeatures(ICell[,] cellMap, List<string>[,] featureMap)
+    public override void ApplyTerrainFeatures(IRoom[,] cellMap, List<string>[,] featureMap)
     {
         int width = cellMap.GetLength(0);
         int height = cellMap.GetLength(1);
@@ -74,7 +74,7 @@ public class UniformFeatureGroup : TerrainFeatureGroup
             {
                 for (int j = 0; j < height; j++)
                 {
-                    if (!AppliesToCell(cellMap[i, j]))
+                    if (!AppliesToRoom(cellMap[i, j]))
                     {
                         continue;
                     }
@@ -92,7 +92,7 @@ public class UniformFeatureGroup : TerrainFeatureGroup
             {
                 for (int j = 0; j < height; j++)
                 {
-                    if (!AppliesToCell(cellMap[i, j]))
+                    if (!AppliesToRoom(cellMap[i, j]))
                     {
                         continue;
                     }

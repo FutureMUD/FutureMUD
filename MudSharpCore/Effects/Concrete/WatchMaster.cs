@@ -5,7 +5,7 @@ namespace MudSharp.Effects.Concrete;
 
 public class WatchMaster : Effect, IEffectSubtype, ICheckBonusEffect
 {
-    public List<ICell> SpiedCells { get; } = new();
+    public List<IRoom> SpiedRooms { get; } = new();
     public List<Watch> WatchEffects { get; } = new();
     public ICharacter CharacterOwner { get; }
 
@@ -16,26 +16,26 @@ public class WatchMaster : Effect, IEffectSubtype, ICheckBonusEffect
 
     protected override string SpecificEffectType => "WatchMaster";
 
-    public void RemoveSpiedCell(ICell cell)
+    public void RemoveSpiedRoom(IRoom room)
     {
-        SpiedCells.Remove(cell);
-        cell.RemoveEffect(WatchEffects.First(x => x.Owner == cell), true);
-        if (!SpiedCells.Any())
+        SpiedRooms.Remove(room);
+        room.RemoveEffect(WatchEffects.First(x => x.Owner == room), true);
+        if (!SpiedRooms.Any())
         {
             CharacterOwner.RemoveEffect(this);
         }
     }
 
-    public void AddSpiedCell(ICell cell)
+    public void AddSpiedRoom(IRoom room)
     {
-        if (SpiedCells.Contains(cell))
+        if (SpiedRooms.Contains(room))
         {
             return;
         }
 
-        SpiedCells.Add(cell);
-        Watch effect = new(cell, CharacterOwner);
-        cell.AddEffect(effect);
+        SpiedRooms.Add(room);
+        Watch effect = new(room, CharacterOwner);
+        room.AddEffect(effect);
         WatchEffects.Add(effect);
     }
 

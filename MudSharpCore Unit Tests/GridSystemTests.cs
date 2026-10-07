@@ -114,7 +114,7 @@ public class GridSystemTests
     public void LiquidGrid_CurrentMixtureWeightsSuppliersByVolume()
     {
         Mock<IFuturemud> gameworld = CreateGameworld();
-        LiquidGrid grid = new(gameworld.Object, CreateCell().Object);
+        LiquidGrid grid = new(gameworld.Object, CreateRoom().Object);
         ILiquid water = CreateLiquid(1, "water").Object;
         ILiquid toxin = CreateLiquid(2, "toxin", Telnet.Red).Object;
         SupplierDouble supplierOne = CreateSupplier(CreateMixture(gameworld.Object, (water, 3.0)));
@@ -133,7 +133,7 @@ public class GridSystemTests
     public void LiquidGrid_RemoveLiquidAmount_DepletesSuppliersProRata()
     {
         Mock<IFuturemud> gameworld = CreateGameworld();
-        LiquidGrid grid = new(gameworld.Object, CreateCell().Object);
+        LiquidGrid grid = new(gameworld.Object, CreateRoom().Object);
         ILiquid water = CreateLiquid(1, "water").Object;
         ILiquid toxin = CreateLiquid(2, "toxin", Telnet.Red).Object;
         SupplierDouble supplierOne = CreateSupplier(CreateMixture(gameworld.Object, (water, 3.0)));
@@ -155,7 +155,7 @@ public class GridSystemTests
     public void LiquidGrid_CurrentMixtureReflectsSupplierRefill()
     {
         Mock<IFuturemud> gameworld = CreateGameworld();
-        LiquidGrid grid = new(gameworld.Object, CreateCell().Object);
+        LiquidGrid grid = new(gameworld.Object, CreateRoom().Object);
         ILiquid water = CreateLiquid(1, "water").Object;
         SupplierDouble supplier = CreateSupplier(CreateMixture(gameworld.Object, (water, 2.0)));
         grid.JoinGrid(supplier.Object);
@@ -176,12 +176,12 @@ public class GridSystemTests
         Mock<IGameItem> item = new();
         item.SetupGet(x => x.Id).Returns(10L);
         item.Setup(x => x.GetItemType<ILiquidGridSupplier>()).Returns(supplier.Object);
-        Mock<ICell> cell = CreateCell();
-        cell.SetupGet(x => x.GameItems).Returns([item.Object]);
+        Mock<IRoom> room = CreateRoom();
+        room.SetupGet(x => x.GameItems).Returns([item.Object]);
 
         Mock<ILiquidGrid> original = new();
         original.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
-        original.SetupGet(x => x.Locations).Returns([cell.Object]);
+        original.SetupGet(x => x.Locations).Returns([room.Object]);
 
         LiquidGrid clone = new(original.Object);
 
@@ -193,7 +193,7 @@ public class GridSystemTests
     public void TelecommunicationsGrid_AssignsNumbersAndHonoursPreferredNumber()
     {
         Mock<IFuturemud> gameworld = CreateGameworld();
-        TelecommunicationsGrid grid = new(gameworld.Object, CreateCell().Object, "555", 4);
+        TelecommunicationsGrid grid = new(gameworld.Object, CreateRoom().Object, "555", 4);
         TelephoneDouble phoneOne = new(gameworld.Object, 1);
         TelephoneDouble phoneTwo = new(gameworld.Object, 2) { PreferredNumber = "5559999" };
 
@@ -213,7 +213,7 @@ public class GridSystemTests
     public void TelecommunicationsGrid_StartCallAnswerAndHangUp_TransitionsState()
     {
         Mock<IFuturemud> gameworld = CreateGameworld();
-        TelecommunicationsGrid grid = new(gameworld.Object, CreateCell().Object, "555", 4);
+        TelecommunicationsGrid grid = new(gameworld.Object, CreateRoom().Object, "555", 4);
         TelephoneDouble caller = new(gameworld.Object, 1);
         TelephoneDouble receiver = new(gameworld.Object, 2);
 
@@ -241,7 +241,7 @@ public class GridSystemTests
     public void TelecommunicationsGrid_RejectsBusyInvalidAndUnavailableTargets()
     {
         Mock<IFuturemud> gameworld = CreateGameworld();
-        TelecommunicationsGrid grid = new(gameworld.Object, CreateCell().Object, "555", 4);
+        TelecommunicationsGrid grid = new(gameworld.Object, CreateRoom().Object, "555", 4);
         TelephoneDouble caller = new(gameworld.Object, 1);
         TelephoneDouble receiver = new(gameworld.Object, 2);
         TelephoneDouble busy = new(gameworld.Object, 3);
@@ -274,7 +274,7 @@ public class GridSystemTests
     public void TelecommunicationsGrid_OffHookLineIsBusy_AndSharedExtensionsCanJoinActiveCall()
     {
         Mock<IFuturemud> gameworld = CreateGameworld();
-        TelecommunicationsGrid grid = new(gameworld.Object, CreateCell().Object, "555", 4);
+        TelecommunicationsGrid grid = new(gameworld.Object, CreateRoom().Object, "555", 4);
         TelephoneDouble caller = new(gameworld.Object, 1);
         TelephoneDouble primary = new(gameworld.Object, 2)
         {
@@ -318,7 +318,7 @@ public class GridSystemTests
     public void TelecommunicationsGrid_RingsOutAfterConfiguredMaximumRings()
     {
         Mock<IFuturemud> gameworld = CreateGameworld();
-        TelecommunicationsGrid grid = new(gameworld.Object, CreateCell().Object, "555", 4);
+        TelecommunicationsGrid grid = new(gameworld.Object, CreateRoom().Object, "555", 4);
         grid.SetMaximumRings(2);
         TelephoneDouble caller = new(gameworld.Object, 1);
         TelephoneDouble receiver = new(gameworld.Object, 2);
@@ -347,7 +347,7 @@ public class GridSystemTests
     public void TelecommunicationsGrid_ReportsConnectionProgressToCaller()
     {
         Mock<IFuturemud> gameworld = CreateGameworld();
-        TelecommunicationsGrid grid = new(gameworld.Object, CreateCell().Object, "555", 4);
+        TelecommunicationsGrid grid = new(gameworld.Object, CreateRoom().Object, "555", 4);
         TelephoneDouble caller = new(gameworld.Object, 1);
         TelephoneDouble receiver = new(gameworld.Object, 2);
 
@@ -366,7 +366,7 @@ public class GridSystemTests
     public void TelecommunicationsGrid_PhoneDiallingFaxLine_PlaysModemNoiseAndDisconnects()
     {
         Mock<IFuturemud> gameworld = CreateGameworld();
-        TelecommunicationsGrid grid = new(gameworld.Object, CreateCell().Object, "555", 4);
+        TelecommunicationsGrid grid = new(gameworld.Object, CreateRoom().Object, "555", 4);
         TelephoneDouble caller = new(gameworld.Object, 1);
         FaxMachineDouble fax = new(gameworld.Object, 2);
 
@@ -385,7 +385,7 @@ public class GridSystemTests
     public void TelecommunicationsGrid_FaxToFax_DeliversDocument()
     {
         Mock<IFuturemud> gameworld = CreateGameworld();
-        TelecommunicationsGrid grid = new(gameworld.Object, CreateCell().Object, "555", 4);
+        TelecommunicationsGrid grid = new(gameworld.Object, CreateRoom().Object, "555", 4);
         FaxMachineDouble sender = new(gameworld.Object, 1);
         FaxMachineDouble receiver = new(gameworld.Object, 2);
         ICanBeRead document = CreateReadableDocument(120);
@@ -404,7 +404,7 @@ public class GridSystemTests
     public void TelecommunicationsGrid_FaxToVoiceLine_NotifiesRecipientAndFails()
     {
         Mock<IFuturemud> gameworld = CreateGameworld();
-        TelecommunicationsGrid grid = new(gameworld.Object, CreateCell().Object, "555", 4);
+        TelecommunicationsGrid grid = new(gameworld.Object, CreateRoom().Object, "555", 4);
         FaxMachineDouble sender = new(gameworld.Object, 1);
         TelephoneDouble receiver = new(gameworld.Object, 2);
         ICanBeRead document = CreateReadableDocument(120);
@@ -424,7 +424,7 @@ public class GridSystemTests
     public void TelecommunicationsGrid_FaxQueuesUntilPaperOrInkBecomeAvailable()
     {
         Mock<IFuturemud> gameworld = CreateGameworld();
-        TelecommunicationsGrid grid = new(gameworld.Object, CreateCell().Object, "555", 4);
+        TelecommunicationsGrid grid = new(gameworld.Object, CreateRoom().Object, "555", 4);
         FaxMachineDouble sender = new(gameworld.Object, 1);
         FaxMachineDouble receiver = new(gameworld.Object, 2)
         {
@@ -452,7 +452,7 @@ public class GridSystemTests
     public void TelecommunicationsGrid_UnansweredCallRoutesToHostedVoicemailAndStoresMessage()
     {
         Mock<IFuturemud> gameworld = CreateGameworld();
-        TelecommunicationsGrid grid = new(gameworld.Object, CreateCell().Object, "555", 4, true, "9999");
+        TelecommunicationsGrid grid = new(gameworld.Object, CreateRoom().Object, "555", 4, true, "9999");
         grid.SetMaximumRings(2);
         TelephoneDouble caller = new(gameworld.Object, 1);
         TelephoneDouble receiver = new(gameworld.Object, 2)
@@ -492,9 +492,9 @@ public class GridSystemTests
     public void TelecommunicationsGrid_LocalAnsweringMachineTakesPriorityOverHostedVoicemail()
     {
         Mock<IFuturemud> gameworld = CreateGameworld();
-        TelecommunicationsGrid grid = new(gameworld.Object, CreateCell().Object, "555", 4, true, "9999");
+        TelecommunicationsGrid grid = new(gameworld.Object, CreateRoom().Object, "555", 4, true, "9999");
         grid.SetMaximumRings(2);
-        Mock<IGameItem> machineParent = CreateBasicItem(gameworld.Object, 230L, CreateCell().Object);
+        Mock<IGameItem> machineParent = CreateBasicItem(gameworld.Object, 230L, CreateRoom().Object);
         (Mock<IGameItem> Item, MediaStorageMediumGameItemComponent Component) tape = CreateAudioMedium(gameworld.Object, 231L);
         AnsweringMachineGameItemComponent machine = new(CreateAnsweringMachineProto(gameworld.Object, 2),
             machineParent.Object, true);
@@ -521,7 +521,7 @@ public class GridSystemTests
     public void TelecommunicationsGrid_HostedVoicemailAccessPlaysAndDeletesMessages()
     {
         Mock<IFuturemud> gameworld = CreateGameworld();
-        TelecommunicationsGrid grid = new(gameworld.Object, CreateCell().Object, "555", 4, true, "9999");
+        TelecommunicationsGrid grid = new(gameworld.Object, CreateRoom().Object, "555", 4, true, "9999");
         grid.SetMaximumRings(2);
         TelephoneDouble caller = new(gameworld.Object, 1);
         TelephoneDouble receiver = new(gameworld.Object, 2)
@@ -608,7 +608,7 @@ public class GridSystemTests
     public void TelecommunicationsGrid_DialDuringConnectedCall_RelaysKeypadDigitsToRecipient()
     {
         Mock<IFuturemud> gameworld = CreateGameworld();
-        TelecommunicationsGrid grid = new(gameworld.Object, CreateCell().Object, "555", 4);
+        TelecommunicationsGrid grid = new(gameworld.Object, CreateRoom().Object, "555", 4);
         TelephoneDouble caller = new(gameworld.Object, 1);
         TelephoneDouble receiver = new(gameworld.Object, 2);
 
@@ -628,7 +628,7 @@ public class GridSystemTests
     public void TelephoneGameItemComponent_ReceiveDigits_FiresTelephoneDigitsReceivedEvent()
     {
         Mock<IFuturemud> gameworld = CreateGameworld();
-        Mock<IGameItem> parent = CreateBasicItem(gameworld.Object, 88L, CreateCell().Object);
+        Mock<IGameItem> parent = CreateBasicItem(gameworld.Object, 88L, CreateRoom().Object);
         TelephoneGameItemComponentProto proto = CreateTelephoneProto(gameworld.Object, 0.0);
         TelephoneGameItemComponent component = new(proto, parent.Object, true);
         TelephoneDouble source = new(gameworld.Object, 89);
@@ -651,8 +651,8 @@ public class GridSystemTests
         Mock<ILanguage> language = CreateLanguage(101);
         Mock<IAccent> accent = CreateAccent(201, language.Object);
         Mock<IFuturemud> gameworld = CreateGameworld(languageList: [language.Object], accentList: [accent.Object]);
-        TelecommunicationsGrid grid = new(gameworld.Object, CreateCell().Object, "555", 4);
-        Mock<IGameItem> machineParent = CreateBasicItem(gameworld.Object, 200L, CreateCell().Object);
+        TelecommunicationsGrid grid = new(gameworld.Object, CreateRoom().Object, "555", 4);
+        Mock<IGameItem> machineParent = CreateBasicItem(gameworld.Object, 200L, CreateRoom().Object);
         (Mock<IGameItem> Item, MediaStorageMediumGameItemComponent Component) tape = CreateAudioMedium(gameworld.Object, 201L);
         AnsweringMachineGameItemComponent machine = new(CreateAnsweringMachineProto(gameworld.Object, 2), machineParent.Object, true);
         TelephoneDouble caller = new(gameworld.Object, 202);
@@ -708,8 +708,8 @@ public class GridSystemTests
     public void TelecommunicationsGrid_AnsweringMachineDisconnectsWhenExtensionAnswers()
     {
         Mock<IFuturemud> gameworld = CreateGameworld();
-        TelecommunicationsGrid grid = new(gameworld.Object, CreateCell().Object, "555", 4);
-        Mock<IGameItem> machineParent = CreateBasicItem(gameworld.Object, 210L, CreateCell().Object);
+        TelecommunicationsGrid grid = new(gameworld.Object, CreateRoom().Object, "555", 4);
+        Mock<IGameItem> machineParent = CreateBasicItem(gameworld.Object, 210L, CreateRoom().Object);
         (Mock<IGameItem> Item, MediaStorageMediumGameItemComponent Component) tape = CreateAudioMedium(gameworld.Object, 211L);
         AnsweringMachineGameItemComponent machine = new(CreateAnsweringMachineProto(gameworld.Object, 2), machineParent.Object, true);
         TelephoneDouble caller = new(gameworld.Object, 212);
@@ -740,8 +740,8 @@ public class GridSystemTests
     public void TelecommunicationsGrid_AnsweringMachineWithWriteProtectedMediumStillAnswers()
     {
         Mock<IFuturemud> gameworld = CreateGameworld();
-        TelecommunicationsGrid grid = new(gameworld.Object, CreateCell().Object, "555", 4);
-        Mock<IGameItem> machineParent = CreateBasicItem(gameworld.Object, 220L, CreateCell().Object);
+        TelecommunicationsGrid grid = new(gameworld.Object, CreateRoom().Object, "555", 4);
+        Mock<IGameItem> machineParent = CreateBasicItem(gameworld.Object, 220L, CreateRoom().Object);
         (Mock<IGameItem> Item, MediaStorageMediumGameItemComponent Component) tape = CreateAudioMedium(gameworld.Object, 221L);
         AnsweringMachineGameItemComponent machine = new(CreateAnsweringMachineProto(gameworld.Object, 2), machineParent.Object, true);
         TelephoneDouble caller = new(gameworld.Object, 222);
@@ -771,11 +771,11 @@ public class GridSystemTests
     public void AnsweringMachine_SelectGreetingRecordStop_SavesGreetingToMedium()
     {
         Mock<IFuturemud> gameworld = CreateGameworld();
-        ICell cell = CreateCell().Object;
-        Mock<IGameItem> machineParent = CreateBasicItem(gameworld.Object, 230L, cell);
+        IRoom room = CreateRoom().Object;
+        Mock<IGameItem> machineParent = CreateBasicItem(gameworld.Object, 230L, room);
         (Mock<IGameItem> Item, MediaStorageMediumGameItemComponent Component) tape = CreateAudioMedium(gameworld.Object, 231L);
         AnsweringMachineGameItemComponent machine = new(CreateAnsweringMachineProto(gameworld.Object, 2), machineParent.Object, true);
-        Mock<ICharacter> actor = CreateCharacter(gameworld.Object, 232L, cell);
+        Mock<ICharacter> actor = CreateCharacter(gameworld.Object, 232L, room);
         Mock<ILanguage> language = CreateLanguage(301);
         Mock<IAccent> accent = CreateAccent(302, language.Object);
 
@@ -801,7 +801,7 @@ public class GridSystemTests
         Mock<IFuturemud> gameworld = CreateGameworld(itemList: [tape.Item.Object]);
         gameworld.Setup(x => x.TryGetItem(tape.Item.Object.Id, true)).Returns(tape.Item.Object);
 
-        Mock<IGameItem> parent = CreateBasicItem(gameworld.Object, 240L, CreateCell().Object);
+        Mock<IGameItem> parent = CreateBasicItem(gameworld.Object, 240L, CreateRoom().Object);
         AnsweringMachineGameItemComponentProto proto = CreateAnsweringMachineProto(gameworld.Object, 4);
         AnsweringMachineGameItemComponent component = new(new MudSharp.Models.GameItemComponent
         {
@@ -847,8 +847,8 @@ public class GridSystemTests
     public void TelecommunicationsGrid_RoutesLongDistanceCallsAcrossLinkedExchanges()
     {
         Mock<IFuturemud> gameworld = CreateGameworld();
-        TelecommunicationsGrid localGrid = new(gameworld.Object, CreateCell(1).Object, "555", 4);
-        TelecommunicationsGrid remoteGrid = new(gameworld.Object, CreateCell(2).Object, "777", 4);
+        TelecommunicationsGrid localGrid = new(gameworld.Object, CreateRoom(1).Object, "555", 4);
+        TelecommunicationsGrid remoteGrid = new(gameworld.Object, CreateRoom(2).Object, "777", 4);
         localGrid.LinkGrid(remoteGrid);
 
         TelephoneDouble caller = new(gameworld.Object, 1);
@@ -871,8 +871,8 @@ public class GridSystemTests
     public void TelecommunicationsGrid_DoesNotForwardWhenDialledPrefixMatchesLocalExchange()
     {
         Mock<IFuturemud> gameworld = CreateGameworld();
-        TelecommunicationsGrid localGrid = new(gameworld.Object, CreateCell(1).Object, "555", 4);
-        TelecommunicationsGrid conflictingRemoteGrid = new(gameworld.Object, CreateCell(2).Object, "555", 4);
+        TelecommunicationsGrid localGrid = new(gameworld.Object, CreateRoom(1).Object, "555", 4);
+        TelecommunicationsGrid conflictingRemoteGrid = new(gameworld.Object, CreateRoom(2).Object, "555", 4);
         localGrid.LinkGrid(conflictingRemoteGrid);
 
         TelephoneDouble caller = new(gameworld.Object, 1);
@@ -895,9 +895,9 @@ public class GridSystemTests
     public void TelecommunicationsGrid_RejectsAmbiguousLinkedExchangePrefixes()
     {
         Mock<IFuturemud> gameworld = CreateGameworld();
-        TelecommunicationsGrid localGrid = new(gameworld.Object, CreateCell(1).Object, "555", 4);
-        TelecommunicationsGrid remoteOne = new(gameworld.Object, CreateCell(2).Object, "777", 4);
-        TelecommunicationsGrid remoteTwo = new(gameworld.Object, CreateCell(3).Object, "777", 4);
+        TelecommunicationsGrid localGrid = new(gameworld.Object, CreateRoom(1).Object, "555", 4);
+        TelecommunicationsGrid remoteOne = new(gameworld.Object, CreateRoom(2).Object, "777", 4);
+        TelecommunicationsGrid remoteTwo = new(gameworld.Object, CreateRoom(3).Object, "777", 4);
         localGrid.LinkGrid(remoteOne);
         localGrid.LinkGrid(remoteTwo);
 
@@ -913,7 +913,7 @@ public class GridSystemTests
     public void TelephoneNumber_FollowsAssignedEndpointRatherThanHandset()
     {
         Mock<IFuturemud> gameworld = CreateGameworld();
-        TelecommunicationsGrid grid = new(gameworld.Object, CreateCell().Object, "555", 4);
+        TelecommunicationsGrid grid = new(gameworld.Object, CreateRoom().Object, "555", 4);
         TelephoneDouble phone = new(gameworld.Object, 10);
         Mock<ITelephoneNumberOwner> lineA = CreateLineOwner(gameworld.Object, 11, 101, phone);
         Mock<ITelephoneNumberOwner> lineB = CreateLineOwner(gameworld.Object, 12, 102, phone);
@@ -937,7 +937,7 @@ public class GridSystemTests
     public void TelecommunicationsGrid_LoadTimeInitialiseRestoresAssignmentsByComponentId()
     {
         Mock<IFuturemud> runtimeGameworld = CreateGameworld();
-        TelecommunicationsGrid runtimeGrid = new(runtimeGameworld.Object, CreateCell().Object, "555", 4);
+        TelecommunicationsGrid runtimeGrid = new(runtimeGameworld.Object, CreateRoom().Object, "555", 4);
         Mock<ITelephoneNumberOwner> lineA = CreateLineOwner(runtimeGameworld.Object, 11, 101);
         Mock<ITelephoneNumberOwner> lineB = CreateLineOwner(runtimeGameworld.Object, 11, 102);
         runtimeGrid.JoinGrid(lineA.Object);
@@ -1065,7 +1065,7 @@ public class GridSystemTests
         parent.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
         parent.SetupGet(x => x.Id).Returns(3L);
         parent.SetupGet(x => x.ContainedIn).Returns(wornContainer.Object);
-        parent.SetupGet(x => x.TrueLocations).Returns(Array.Empty<ICell>());
+        parent.SetupGet(x => x.TrueLocations).Returns(Array.Empty<IRoom>());
         CellularPhoneGameItemComponentProto proto = CreateCellularPhoneProto(gameworld.Object, 2.0);
         CellularPhoneGameItemComponent component = new(proto, parent.Object, true);
 
@@ -1131,7 +1131,7 @@ public class GridSystemTests
     public void TelecommunicationsGridCreatorComponent_RecreatesMissingGridOnLoad()
     {
         Mock<IFuturemud> gameworld = CreateGameworld();
-        Mock<IGameItem> parent = CreateBasicItem(gameworld.Object, 50L, CreateCell().Object);
+        Mock<IGameItem> parent = CreateBasicItem(gameworld.Object, 50L, CreateRoom().Object);
         TelecommunicationsGridCreatorGameItemComponentProto proto = CreateTelecommunicationsGridCreatorProto(gameworld.Object, "555", 4);
 
         TelecommunicationsGridCreatorGameItemComponent component = new(new MudSharp.Models.GameItemComponent
@@ -1149,7 +1149,7 @@ public class GridSystemTests
     public void ElectricGridCreatorComponent_RecreatesMissingGridOnLoad()
     {
         Mock<IFuturemud> gameworld = CreateGameworld();
-        Mock<IGameItem> parent = CreateBasicItem(gameworld.Object, 51L, CreateCell().Object);
+        Mock<IGameItem> parent = CreateBasicItem(gameworld.Object, 51L, CreateRoom().Object);
         ElectricGridCreatorGameItemComponentProto proto = CreateElectricGridCreatorProto(gameworld.Object);
 
         ElectricGridCreatorGameItemComponent component = new(new MudSharp.Models.GameItemComponent
@@ -1167,7 +1167,7 @@ public class GridSystemTests
     public void LiquidGridCreatorComponent_RecreatesMissingGridOnLoad()
     {
         Mock<IFuturemud> gameworld = CreateGameworld();
-        Mock<IGameItem> parent = CreateBasicItem(gameworld.Object, 52L, CreateCell().Object);
+        Mock<IGameItem> parent = CreateBasicItem(gameworld.Object, 52L, CreateRoom().Object);
         LiquidGridCreatorGameItemComponentProto proto = CreateLiquidGridCreatorProto(gameworld.Object);
 
         LiquidGridCreatorGameItemComponent component = new(new MudSharp.Models.GameItemComponent
@@ -1440,14 +1440,14 @@ public class GridSystemTests
         return collection;
     }
 
-    private static Mock<ICell> CreateCell(long id = 1)
+    private static Mock<IRoom> CreateRoom(long id = 1)
     {
-        Mock<ICell> cell = new();
-        cell.SetupGet(x => x.Id).Returns(id);
-        return cell;
+        Mock<IRoom> room = new();
+        room.SetupGet(x => x.Id).Returns(id);
+        return room;
     }
 
-    private static Mock<IGameItem> CreateBasicItem(IFuturemud gameworld, long id, params ICell[] trueLocations)
+    private static Mock<IGameItem> CreateBasicItem(IFuturemud gameworld, long id, params IRoom[] trueLocations)
     {
         Mock<IGameItem> item = new();
         Mock<IOutputHandler> outputHandler = new();
@@ -1847,7 +1847,7 @@ public class GridSystemTests
         return accent;
     }
 
-    private static Mock<ICharacter> CreateCharacter(IFuturemud gameworld, long id, ICell location)
+    private static Mock<ICharacter> CreateCharacter(IFuturemud gameworld, long id, IRoom location)
     {
         Mock<ICharacter> character = new();
 		PhysicalManipulationTestHelper.SetUpUsableHands(character);
@@ -2334,7 +2334,7 @@ public class GridSystemTests
         {
         }
 
-        public bool HandleDieOrMorph(IGameItem newItem, ICell location)
+        public bool HandleDieOrMorph(IGameItem newItem, IRoom location)
         {
             return false;
         }

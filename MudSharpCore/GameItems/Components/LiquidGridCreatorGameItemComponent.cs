@@ -103,7 +103,7 @@ public class LiquidGridCreatorGameItemComponent : GameItemComponent
         );
     }
 
-    private ILiquidGrid CreateGrid(ICell? initialLocation, bool temporary = false)
+    private ILiquidGrid CreateGrid(IRoom? initialLocation, bool temporary = false)
     {
         LiquidGrid grid = new(Gameworld, initialLocation);
         if (temporary)

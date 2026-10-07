@@ -63,8 +63,8 @@ public class FiveUtilityStockTests
 	public void StockTerrainProgs_CompileAndEvaluateNativeVariables(string name,bool sense,bool water)
 	{
 		var world=new Mock<IFuturemud>();var terrain=new Mock<ITerrain>();terrain.SetupGet(x=>x.Type).Returns(ProgVariableTypes.Terrain);terrain.SetupGet(x=>x.GetObject).Returns(terrain.Object);terrain.Setup(x=>x.GetProperty("name")).Returns(new TextVariable(name));
-		var cell=new Mock<ICell>();cell.SetupGet(x=>x.Type).Returns(ProgVariableTypes.Location);cell.SetupGet(x=>x.GetObject).Returns(cell.Object);cell.Setup(x=>x.GetProperty("terrain")).Returns(terrain.Object);
-		var actor=new Mock<ICharacter>();actor.SetupGet(x=>x.Type).Returns(ProgVariableTypes.Character);actor.SetupGet(x=>x.GetObject).Returns(actor.Object);actor.Setup(x=>x.GetProperty("location")).Returns(cell.Object);
+		var room=new Mock<IRoom>();room.SetupGet(x=>x.Type).Returns(ProgVariableTypes.Location);room.SetupGet(x=>x.GetObject).Returns(room.Object);room.Setup(x=>x.GetProperty("terrain")).Returns(terrain.Object);
+		var actor=new Mock<ICharacter>();actor.SetupGet(x=>x.Type).Returns(ProgVariableTypes.Character);actor.SetupGet(x=>x.GetObject).Returns(actor.Object);actor.Setup(x=>x.GetProperty("location")).Returns(room.Object);
 		bool Evaluate(string source,ProgVariableTypes targetType){var prog=new MudSharp.FutureProg.FutureProg(world.Object,"fiveStockTerrainTest",ProgVariableTypes.Boolean,[Tuple.Create(targetType,"target"),Tuple.Create(ProgVariableTypes.Character,"caster")],source);Assert.IsTrue(prog.Compile(),prog.CompileError);return prog.ExecuteBool(null!,actor.Object);}
 		Assert.AreEqual(sense,Evaluate(ArmageddonSenseEnchantmentStock.EligibilitySource,ProgVariableTypes.Character));Assert.AreEqual(water,Evaluate(ArmageddonDrawWaterStock.EligibilitySource,ProgVariableTypes.Item));
 	}

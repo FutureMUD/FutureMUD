@@ -1062,9 +1062,9 @@ The syntax is:
         fs.Close();
     }
 
-    private static void AppendCraftExportRow(StringBuilder sb, IEnumerable<string> cells)
+    private static void AppendCraftExportRow(StringBuilder sb, IEnumerable<string> rooms)
     {
-        sb.AppendLine(string.Join(",", cells.Select(SpreadsheetSafeCsv.EncodeCell)));
+        sb.AppendLine(string.Join(",", rooms.Select(SpreadsheetSafeCsv.EncodeRoom)));
     }
 
     private static void DebugTestCover(ICharacter actor, StringStack ss)
@@ -1367,7 +1367,7 @@ The syntax is:
 
     private static void Debug_SeedRooms(ICharacter actor)
     {
-        RoomBuilderModule.BuiltCells.AddRange(actor.Gameworld.Cells.OrderByDescending(x => x.Id).Take(10).Reverse());
+        RoomBuilderModule.BuiltRooms.AddRange(actor.Gameworld.Rooms.OrderByDescending(x => x.Id).Take(10).Reverse());
         actor.OutputHandler.Send(
             $"You add the 10 rooms with the highest ID to the 'new room' queue for GOTO/Room building.");
     }
@@ -1523,12 +1523,12 @@ The syntax is:
     {
         StringBuilder sb = new();
         sb.AppendLine("The following characters had weird death states:");
-        foreach (ICell cell in actor.Gameworld.Cells)
+        foreach (IRoom room in actor.Gameworld.Rooms)
         {
-            foreach (ICharacter ch in cell.Characters.Where(x => x.State == CharacterState.Dead))
+            foreach (ICharacter ch in room.Characters.Where(x => x.State == CharacterState.Dead))
             {
                 sb.AppendLine(
-                    $"Cell {cell.Id:N0} ({cell.CurrentOverlay.CellName}) had dead character {ch.Id} ({ch.HowSeen(actor)})");
+                    $"Cell {room.Id:N0} ({room.CurrentOverlay.RoomName}) had dead character {ch.Id} ({ch.HowSeen(actor)})");
             }
         }
 
@@ -2485,7 +2485,7 @@ div.function-generalhelp {
             return;
         }
 
-        if (GuestCharacter.GuestLoungeCell == null)
+        if (GuestCharacter.GuestLoungeRoom == null)
         {
             actor.Send("There is no guest lounge cell set. You cannot initialise guests.");
             return;
@@ -2493,7 +2493,7 @@ div.function-generalhelp {
 
         for (int i = 0; i < number; i++)
         {
-            CharacterCreation.ICharacterTemplate newTemplate = template.GetCharacterTemplate(GuestCharacter.GuestLoungeCell);
+            CharacterCreation.ICharacterTemplate newTemplate = template.GetCharacterTemplate(GuestCharacter.GuestLoungeRoom);
             GuestCharacter character = new(newTemplate, actor.Gameworld);
             template.OnLoadProg?.Execute(character);
             actor.Gameworld.AddGuest(character);

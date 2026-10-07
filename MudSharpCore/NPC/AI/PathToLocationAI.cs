@@ -54,16 +54,16 @@ public class PathToLocationAI : PathingAIWithProgTargetsBase
         RegisterAIBuilderInformation("pathtolocation", (gameworld, name) => new PathToLocationAI(gameworld, name), new PathToLocationAI().HelpText);
     }
 
-    protected override (ICell? Target, IEnumerable<ICellExit>) GetPath(ICharacter ch)
+    protected override (IRoom? Target, IEnumerable<IRoomExit>) GetPath(ICharacter ch)
     {
-        ICell location = TargetLocationProg?.Execute<ICell>(ch);
+        IRoom location = TargetLocationProg?.Execute<IRoom>(ch);
         if (location == null || Equals(location, ch.Location))
         {
-            return (null, Enumerable.Empty<ICellExit>());
+            return (null, Enumerable.Empty<IRoomExit>());
         }
 
         // First try to find a path to the primary target
-        IEnumerable<ICellExit> path = ch.PathBetween(location, 12, GetSuitabilityFunction(ch));
+        IEnumerable<IRoomExit> path = ch.PathBetween(location, 12, GetSuitabilityFunction(ch));
         if (path.Any())
         {
             return (location, path);
@@ -79,10 +79,10 @@ public class PathToLocationAI : PathingAIWithProgTargetsBase
         }
 
         // If we can't find a path to the primary target, check if there is a fallback target
-        FallbackLocationProg?.Execute<ICell>(ch);
+        FallbackLocationProg?.Execute<IRoom>(ch);
         if (location == null || location == ch.Location)
         {
-            return (null, Enumerable.Empty<ICellExit>());
+            return (null, Enumerable.Empty<IRoomExit>());
         }
 
         path = ch.PathBetween(location, 12, GetSuitabilityFunction(ch));
@@ -103,7 +103,7 @@ public class PathToLocationAI : PathingAIWithProgTargetsBase
         // If the fallback target can't  be reached, see if we can reach of any of the way points
         if (WayPointsProg is not null)
         {
-            path = ch.PathBetween((WayPointsProg.ExecuteCollection<ICell>(ch)).ToList(), 12,
+            path = ch.PathBetween((WayPointsProg.ExecuteCollection<IRoom>(ch)).ToList(), 12,
                 GetSuitabilityFunction(ch));
             if (path.Any())
             {
@@ -111,18 +111,18 @@ public class PathToLocationAI : PathingAIWithProgTargetsBase
             }
         }
 
-        return (null, Enumerable.Empty<ICellExit>());
+        return (null, Enumerable.Empty<IRoomExit>());
     }
 
-	protected override (ICell? Target, ISpatialPath? Path) GetSpatialPath(ICharacter ch)
+	protected override (IRoom? Target, ISpatialPath? Path) GetSpatialPath(ICharacter ch)
 	{
-		var primary = TargetLocationProg?.Execute<ICell>(ch);
+		var primary = TargetLocationProg?.Execute<IRoom>(ch);
 		if (TryFindHybridCandidate(ch, primary, out var primaryPath))
 		{
 			return (primary, primaryPath);
 		}
 
-		var fallback = FallbackLocationProg?.Execute<ICell>(ch);
+		var fallback = FallbackLocationProg?.Execute<IRoom>(ch);
 		if (TryFindHybridCandidate(ch, fallback, out var fallbackPath))
 		{
 			return (fallback, fallbackPath);
@@ -133,7 +133,7 @@ public class PathToLocationAI : PathingAIWithProgTargetsBase
 			return (null, null);
 		}
 
-		var waypointPaths = WayPointsProg.ExecuteCollection<ICell>(ch)
+		var waypointPaths = WayPointsProg.ExecuteCollection<IRoom>(ch)
 			.Where(x => x is not null)
 			.Select(x => (Target: x, Found: TryFindHybridCandidate(ch, x, out var path), Path: path))
 			.Where(x => x.Found && x.Path is not null)
@@ -144,7 +144,7 @@ public class PathToLocationAI : PathingAIWithProgTargetsBase
 			: (waypointPaths[0].Target, waypointPaths[0].Path);
 	}
 
-	private bool TryFindHybridCandidate(ICharacter ch, ICell? target, out ISpatialPath? path)
+	private bool TryFindHybridCandidate(ICharacter ch, IRoom? target, out ISpatialPath? path)
 	{
 		path = null;
 		if (target is null)

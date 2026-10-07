@@ -21,11 +21,11 @@ public class ActiveLocalProject : ActiveProject, ILocalProject
     public ActiveLocalProject(MudSharp.Models.ActiveProject project, IFuturemud gameworld) : base(project, gameworld)
     {
         _characterOwnerId = project.CharacterId ?? 0L;
-        Location = Gameworld.Cells.Get(project.CellId ?? 0);
+        Location = Gameworld.Rooms.Get(project.RoomId ?? 0);
 		if (Location is null)
 		{
 			throw new InvalidDataException(
-				$"Active local project #{project.Id} refers to missing cell #{project.CellId?.ToString() ?? "null"}.");
+				$"Active local project #{project.Id} refers to missing cell #{project.RoomId?.ToString() ?? "null"}.");
 		}
 
 		RoomLayer = (RoomLayer)project.RoomLayer;
@@ -229,7 +229,7 @@ public class ActiveLocalProject : ActiveProject, ILocalProject
     protected override void DatabaseInsert(MudSharp.Models.ActiveProject project)
     {
         project.CharacterId = _characterOwnerId;
-        project.CellId = Location?.Id;
+        project.RoomId = Location?.Id;
 		project.RoomLayer = (int)RoomLayer;
 		project.RoutePosition = RoutePositionMetres.HasValue
 			? Math.Round((decimal)RoutePositionMetres.Value, 3, MidpointRounding.AwayFromZero)

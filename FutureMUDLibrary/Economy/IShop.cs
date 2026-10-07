@@ -35,7 +35,7 @@ public interface IShop : IFrameworkItem, ISaveable, IProgVariable, IEmploymentHo
     IEnumerable<IShopDeal> Deals { get; }
     [CanBeNull] IBankAccount BankAccount { get; set; }
     void CheckFloat();
-    IEnumerable<ICell> CurrentLocations { get; }
+    IEnumerable<IRoom> CurrentLocations { get; }
     IEnumerable<ILineOfCreditAccount> LineOfCreditAccounts { get; }
     void AddLineOfCredit(ILineOfCreditAccount account);
     void RemoveLineOfCredit(ILineOfCreditAccount account);

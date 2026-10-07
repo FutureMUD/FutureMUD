@@ -11,8 +11,8 @@ namespace MudSharp.Construction
     public interface IZone : ILocation, IProgVariable
     {
         IShard Shard { get; }
-        ICell DefaultCell { get; }
-        new IEnumerable<ICell> Cells { get; }
+        IRoom DefaultRoom { get; }
+        new IEnumerable<IRoom> Rooms { get; }
 
         GeographicCoordinate Geography { get; }
         double AmbientLightPollution { get; }
@@ -23,8 +23,8 @@ namespace MudSharp.Construction
 
         IEditableZone GetEditableZone { get; }
         IForagableProfile ForagableProfile { get; }
-        void Register(ICell room);
-        void Unregister(ICell room);
+        void Register(IRoom room);
+        void Unregister(IRoom room);
         void CalculateCoordinates();
         TimeOfDay CurrentTimeOfDay { get; }
         string ShowToBuilder(ICharacter builder);

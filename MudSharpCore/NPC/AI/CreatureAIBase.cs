@@ -32,19 +32,19 @@ public abstract partial class CreatureAIBase : PathingAIBase
 	public bool WaterEnabled => WaterStrategy != AnimalWaterStrategyType.Off;
 
 	public IFutureProg MovementEnabledProg { get; protected set; } = null!;
-	public IFutureProg MovementCellProg { get; protected set; } = null!;
+	public IFutureProg MovementRoomProg { get; protected set; } = null!;
 	public IFutureProg PreferredHabitatProg { get; protected set; } = null!;
 	public IFutureProg ToleratedHabitatProg { get; protected set; } = null!;
-	public IFutureProg AmphibiousLandCellProg { get; protected set; } = null!;
-	public IFutureProg AmphibiousWaterCellProg { get; protected set; } = null!;
+	public IFutureProg AmphibiousLandRoomProg { get; protected set; } = null!;
+	public IFutureProg AmphibiousWaterRoomProg { get; protected set; } = null!;
 	public IFutureProg AllowDescentProg { get; protected set; } = null!;
 	public IFutureProg SuitableTerritoryProg { get; protected set; } = null!;
 	public IFutureProg DesiredTerritorySizeProg { get; protected set; } = null!;
 	public IFutureProg BurrowSiteProg { get; protected set; } = null!;
 	public IFutureProg BuildEnabledProg { get; protected set; } = null!;
 	public IFutureProg AwarenessThreatProg { get; protected set; } = null!;
-	public IFutureProg AwarenessAvoidCellProg { get; protected set; } = null!;
-	public IFutureProg RefugeCellProg { get; protected set; } = null!;
+	public IFutureProg AwarenessAvoidRoomProg { get; protected set; } = null!;
+	public IFutureProg RefugeRoomProg { get; protected set; } = null!;
 	public IFutureProg? HomeLocationProg { get; protected set; }
 	public IFutureProg? AnchorItemProg { get; protected set; }
 	protected long _burrowCraftId;
@@ -76,8 +76,8 @@ public abstract partial class CreatureAIBase : PathingAIBase
 
 	protected virtual bool SurvivalNeedsSatisfied(ICharacter actor) => true;
 	protected abstract bool IsSociallyTrusted(ICharacter actor, ICharacter target);
-	protected virtual bool IsWithinPreferredHabitat(ICharacter actor, ICell cell) =>
-		PreferredHabitatProg.ExecuteBool(false, actor, cell, actor.Location);
+	protected virtual bool IsWithinPreferredHabitat(ICharacter actor, IRoom room) =>
+		PreferredHabitatProg.ExecuteBool(false, actor, room, actor.Location);
 	internal virtual bool CanHuntTarget(ICharacter actor, ICharacter target) =>
 		PreyRejection(actor, target) is null && AssessPrey(actor, target).Score >= HuntThreshold(actor, false);
 	protected virtual bool TryGuardingAttack(ICharacter actor, ICharacter target) =>
@@ -141,7 +141,7 @@ public abstract partial class CreatureAIBase : PathingAIBase
 	{
 		return type switch
 		{
-			EventType.CharacterEnterCellWitness => arguments[3] as ICharacter,
+			EventType.CharacterEnterRoomWitness => arguments[3] as ICharacter,
 			EventType.CharacterDiesWitness => arguments[1] as ICharacter,
 			EventType.EngagedInCombat => arguments[1] as ICharacter,
 			EventType.TrapCaughtPrey => arguments[0] as ICharacter,
@@ -232,33 +232,33 @@ public abstract partial class CreatureAIBase : PathingAIBase
 		       policy.ControlScope.HasFlag(scope);
 	}
 
-	protected bool IsWithinToleratedHabitat(ICharacter character, ICell cell)
+	protected bool IsWithinToleratedHabitat(ICharacter character, IRoom room)
 	{
-		return ToleratedHabitatProg.ExecuteBool(false, character, cell, character.Location);
+		return ToleratedHabitatProg.ExecuteBool(false, character, room, character.Location);
 	}
 
-	protected bool IsSuitableTerritory(ICharacter character, ICell cell)
+	protected bool IsSuitableTerritory(ICharacter character, IRoom room)
 	{
 		if (SuitableTerritoryProg.MatchesParameters(
 			    new[] { ProgVariableTypes.Character, ProgVariableTypes.Location }))
 		{
-			return SuitableTerritoryProg.ExecuteBool(false, character, cell);
+			return SuitableTerritoryProg.ExecuteBool(false, character, room);
 		}
 
-		return SuitableTerritoryProg.ExecuteBool(false, cell, character);
+		return SuitableTerritoryProg.ExecuteBool(false, room, character);
 	}
 
-	protected Func<ICellExit, bool> GetAnimalSuitabilityFunction(ICharacter character, bool ignoreSafeMovement = false)
+	protected Func<IRoomExit, bool> GetAnimalSuitabilityFunction(ICharacter character, bool ignoreSafeMovement = false)
 	{
-		Func<ICellExit, bool> baseSuitability = base.GetSuitabilityFunction(character, ignoreSafeMovement);
+		Func<IRoomExit, bool> baseSuitability = base.GetSuitabilityFunction(character, ignoreSafeMovement);
 		return exit => baseSuitability(exit) &&
-		               PermitsPursuitCell(character, exit.Destination) &&
-		               MovementStrategyHandler.CellMatches(this, character, exit.Destination) &&
+		               PermitsPursuitRoom(character, exit.Destination) &&
+		               MovementStrategyHandler.RoomMatches(this, character, exit.Destination) &&
 		               IsWithinToleratedHabitat(character, exit.Destination) &&
-		               !ShouldAvoidCell(character, exit.Destination);
+		               !ShouldAvoidRoom(character, exit.Destination);
 	}
 
-	protected virtual bool PermitsPursuitCell(ICharacter character, ICell cell) => true;
+	protected virtual bool PermitsPursuitRoom(ICharacter character, IRoom room) => true;
 
 	protected IEnumerable<ICharacter> VisibleAwarenessThreats(ICharacter character, ICharacter? witnessedTarget)
 	{
@@ -318,37 +318,37 @@ public abstract partial class CreatureAIBase : PathingAIBase
 			: ScanTargetAcquisition.IsCurrentVisibleRangedTarget(character, target, EffectiveScanRange(character));
 	}
 
-	protected bool ShouldAvoidCell(ICharacter character, ICell cell)
+	protected bool ShouldAvoidRoom(ICharacter character, IRoom room)
 	{
 		if (AwarenessStrategy == AnimalAwarenessStrategyType.None)
 		{
 			return false;
 		}
 
-		if (AwarenessAvoidCellProg.ExecuteBool(false, character, cell, character.Location))
+		if (AwarenessAvoidRoomProg.ExecuteBool(false, character, room, character.Location))
 		{
 			return true;
 		}
 
-		return NpcKnownThreatLocationsEffect.Get(character)?.Knows(cell, AwarenessMemory) == true;
+		return NpcKnownThreatLocationsEffect.Get(character)?.Knows(room, AwarenessMemory) == true;
 	}
 
 	protected void RememberThreats(ICharacter character, IEnumerable<ICharacter> threats)
 	{
-		List<ICell> cells = threats
+		List<IRoom> rooms = threats
 		                    .Select(x => x.Location)
 		                    .WhereNotNull(x => x)
 		                    .Distinct()
 		                    .ToList();
-		if (!cells.Any())
+		if (!rooms.Any())
 		{
 			return;
 		}
 
 		NpcKnownThreatLocationsEffect memory = NpcKnownThreatLocationsEffect.GetOrCreate(character);
-		foreach (ICell cell in cells)
+		foreach (IRoom room in rooms)
 		{
-			memory.Remember(cell);
+			memory.Remember(room);
 		}
 	}
 
@@ -381,10 +381,10 @@ public abstract partial class CreatureAIBase : PathingAIBase
 
 	protected bool TryMoveAwayFromAwarenessThreats(ICharacter character, IEnumerable<ICharacter> threats)
 	{
-		List<ICell> threatCells = threats.Select(x => x.Location).Distinct().ToList();
-		ICellExit? exit = character.Location.ExitsFor(character)
+		List<IRoom> threatRooms = threats.Select(x => x.Location).Distinct().ToList();
+		IRoomExit? exit = character.Location.ExitsFor(character)
 		                           .Where(GetAnimalSuitabilityFunction(character))
-			.Where(x => !threatCells.Contains(x.Destination))
+			.Where(x => !threatRooms.Contains(x.Destination))
 			.Where(x => !x.Destination.Characters.Any(y =>
 			                           !IsSociallyTrusted(character, y) &&
 			                           AwarenessThreatProg.ExecuteBool(false, character, y)))
@@ -399,8 +399,8 @@ public abstract partial class CreatureAIBase : PathingAIBase
 			return true;
 		}
 
-		(ICell? target, IEnumerable<ICellExit> path) = RefugeStrategyHandler.GetPath(this, character);
-		List<ICellExit> exits = path.ToList();
+		(IRoom? target, IEnumerable<IRoomExit> path) = RefugeStrategyHandler.GetPath(this, character);
+		List<IRoomExit> exits = path.ToList();
 		if (target is null || !exits.Any())
 		{
 			return false;
@@ -421,12 +421,12 @@ public abstract partial class CreatureAIBase : PathingAIBase
 		}
 
 		if (RefugeStrategy == AnimalRefugeStrategyType.Trees &&
-		    !ArborealWandererAI.CellSupportsTreeLayers(character, character.Location))
+		    !ArborealWandererAI.RoomSupportsTreeLayers(character, character.Location))
 		{
 			return false;
 		}
 
-		FollowingMultiLayerPath effect = new(character, Enumerable.Empty<ICellExit>(), RefugeLayer, RefugeLayer);
+		FollowingMultiLayerPath effect = new(character, Enumerable.Empty<IRoomExit>(), RefugeLayer, RefugeLayer);
 		character.AddEffect(effect);
 		FollowPathAction(character, effect);
 		return true;
@@ -437,27 +437,27 @@ public abstract partial class CreatureAIBase : PathingAIBase
 		return RefugeStrategy switch
 		{
 			AnimalRefugeStrategyType.None => true,
-			AnimalRefugeStrategyType.Home => ResolveHomeBase(character).HomeCell is ICell home &&
+			AnimalRefugeStrategyType.Home => ResolveHomeBase(character).HomeRoom is IRoom home &&
 			                                  ReferenceEquals(home, character.Location),
-			AnimalRefugeStrategyType.Den => ResolveHomeBase(character).HomeCell is ICell home &&
+			AnimalRefugeStrategyType.Den => ResolveHomeBase(character).HomeRoom is IRoom home &&
 			                                 ReferenceEquals(home, character.Location),
-			AnimalRefugeStrategyType.Trees => ArborealWandererAI.CellSupportsTreeLayers(character, character.Location) &&
+			AnimalRefugeStrategyType.Trees => ArborealWandererAI.RoomSupportsTreeLayers(character, character.Location) &&
 			                                  character.RoomLayer.In(RoomLayer.InTrees, RoomLayer.HighInTrees),
 			AnimalRefugeStrategyType.Sky => character.RoomLayer == RefugeLayer,
 			AnimalRefugeStrategyType.Water => WaterStrategy == AnimalWaterStrategyType.Drink
 				? NpcSurvivalAIHelpers.HasLocalWaterSource(character)
 				: NpcSurvivalAIHelpers.HasAquaticWaterSource(character, character.Location,
 					WaterStrategy == AnimalWaterStrategyType.Surface),
-			AnimalRefugeStrategyType.Prog => RefugeCellProg.ExecuteBool(false, character, character.Location),
+			AnimalRefugeStrategyType.Prog => RefugeRoomProg.ExecuteBool(false, character, character.Location),
 			_ => true
 		};
 	}
 
-	protected (ICell? Target, IEnumerable<ICellExit> Path) GetRefugePath(ICharacter character)
+	protected (IRoom? Target, IEnumerable<IRoomExit> Path) GetRefugePath(ICharacter character)
 	{
 		if (IsAtRefuge(character))
 		{
-			return (null, Enumerable.Empty<ICellExit>());
+			return (null, Enumerable.Empty<IRoomExit>());
 		}
 
 		return RefugeStrategyHandler.GetPath(this, character);
@@ -470,17 +470,17 @@ public abstract partial class CreatureAIBase : PathingAIBase
 		       !IsAtRefuge(character);
 	}
 
-	protected (ICell? Target, IEnumerable<ICellExit> Path) GetAvoidancePath(ICharacter character)
+	protected (IRoom? Target, IEnumerable<IRoomExit> Path) GetAvoidancePath(ICharacter character)
 	{
-		Tuple<IPerceivable, IEnumerable<ICellExit>> targetPath = character.AcquireTargetAndPath(
-			x => x is ICell cell &&
-			     !ShouldAvoidCell(character, cell) &&
-			     !cell.Characters.Any(y => AwarenessThreatProg.ExecuteBool(false, character, y)),
+		Tuple<IPerceivable, IEnumerable<IRoomExit>> targetPath = character.AcquireTargetAndPath(
+			x => x is IRoom room &&
+			     !ShouldAvoidRoom(character, room) &&
+			     !room.Characters.Any(y => AwarenessThreatProg.ExecuteBool(false, character, y)),
 			(uint)Math.Max(1, AwarenessRange),
 			GetAnimalSuitabilityFunction(character));
-		return targetPath.Item1 is ICell target && targetPath.Item2.Any()
+		return targetPath.Item1 is IRoom target && targetPath.Item2.Any()
 			? (target, targetPath.Item2)
-			: (null, Enumerable.Empty<ICellExit>());
+			: (null, Enumerable.Empty<IRoomExit>());
 	}
 
 	protected void EmitPosture(ICharacter character, ICharacter target)
@@ -506,14 +506,14 @@ public abstract partial class CreatureAIBase : PathingAIBase
 	protected NpcHomeBaseEffect ResolveHomeBase(ICharacter character)
 	{
 		NpcHomeBaseEffect home = NpcHomeBaseEffect.GetOrCreate(character);
-		if (home.HomeCell is not null)
+		if (home.HomeRoom is not null)
 		{
 			return home;
 		}
 
-		if (HomeLocationProg?.Execute<ICell?>(character) is ICell location)
+		if (HomeLocationProg?.Execute<IRoom?>(character) is IRoom location)
 		{
-			home.SetHomeCell(location);
+			home.SetHomeRoom(location);
 		}
 
 		return home;
@@ -530,11 +530,11 @@ public abstract partial class CreatureAIBase : PathingAIBase
 		}
 
 		NpcHomeBaseEffect home = ResolveHomeBase(character);
-		if (home.HomeCell is null)
+		if (home.HomeRoom is null)
 		{
 			if (BurrowSiteProg.ExecuteBool(false, character, character.Location))
 			{
-				home.SetHomeCell(character.Location);
+				home.SetHomeRoom(character.Location);
 			}
 			else
 			{
@@ -543,7 +543,7 @@ public abstract partial class CreatureAIBase : PathingAIBase
 			}
 		}
 
-		if (!ReferenceEquals(home.HomeCell, character.Location))
+		if (!ReferenceEquals(home.HomeRoom, character.Location))
 		{
 			CheckPathingEffect(character, true);
 			return;
@@ -578,7 +578,7 @@ public abstract partial class CreatureAIBase : PathingAIBase
 
 	protected void RefreshAnchorItem(ICharacter character, NpcHomeBaseEffect home)
 	{
-		if (home.AnchorItem is not null && ReferenceEquals(home.AnchorItem.Location, home.HomeCell))
+		if (home.AnchorItem is not null && ReferenceEquals(home.AnchorItem.Location, home.HomeRoom))
 		{
 			if (AnchorItemProg is null)
 			{
@@ -612,56 +612,56 @@ public abstract partial class CreatureAIBase : PathingAIBase
 			character.AddEffect(territoryEffect);
 		}
 
-		List<ICell> cells = territoryEffect.Cells.ToList();
-		if (cells.Count >= DesiredTerritorySizeProg.ExecuteInt(0, character))
+		List<IRoom> rooms = territoryEffect.Rooms.ToList();
+		if (rooms.Count >= DesiredTerritorySizeProg.ExecuteInt(0, character))
 		{
 			return;
 		}
 
-		ICollection<ICell> claimedTerritory = GetClaimedTerritory(character);
-		if (cells.Count == 0)
+		ICollection<IRoom> claimedTerritory = GetClaimedTerritory(character);
+		if (rooms.Count == 0)
 		{
 			if (IsSuitableTerritory(character, character.Location) &&
 			    !claimedTerritory.Contains(character.Location))
 			{
-				territoryEffect.AddCell(character.Location);
+				territoryEffect.AddRoom(character.Location);
 				return;
 			}
 
-			(IPerceivable target, IEnumerable<ICellExit> _) = character.AcquireTargetAndPath(
-				loc => loc is ICell candidate && IsSuitableTerritory(character, candidate) &&
+			(IPerceivable target, IEnumerable<IRoomExit> _) = character.AcquireTargetAndPath(
+				loc => loc is IRoom candidate && IsSuitableTerritory(character, candidate) &&
 				       !claimedTerritory.Contains(loc),
 				20,
 				GetAnimalSuitabilityFunction(character));
-			if (target is ICell cell)
+			if (target is IRoom room)
 			{
-				territoryEffect.AddCell(cell);
+				territoryEffect.AddRoom(room);
 			}
 
 			return;
 		}
 
-		foreach (ICell cell in territoryEffect.Cells)
+		foreach (IRoom room in territoryEffect.Rooms)
 		{
-			ICell expand = cell
+			IRoom expand = room
 			               .ExitsFor(character, true)
 				               .Where(x => IsSuitableTerritory(character, x.Destination) &&
 			                           !claimedTerritory.Contains(x.Destination))
 			               .Select(x => x.Destination)
 			               .GetRandomElement();
-			if (expand is not null && !territoryEffect.Cells.Contains(expand))
+			if (expand is not null && !territoryEffect.Rooms.Contains(expand))
 			{
-				territoryEffect.AddCell(expand);
+				territoryEffect.AddRoom(expand);
 				return;
 			}
 		}
 	}
 
-	protected ICollection<ICell> GetClaimedTerritory(ICharacter character)
+	protected ICollection<IRoom> GetClaimedTerritory(ICharacter character)
 	{
 		if (WillShareTerritory)
 		{
-			return new List<ICell>();
+			return new List<IRoom>();
 		}
 
 		IEnumerable<ICharacter> npcs = character.Gameworld.NPCs;
@@ -672,37 +672,37 @@ public abstract partial class CreatureAIBase : PathingAIBase
 
 		return npcs
 		       .SelectNotNull(x => x!.CombinedEffectsOfType<Territory>().FirstOrDefault())
-		       .SelectMany(x => x.Cells)
+		       .SelectMany(x => x.Rooms)
 		       .Distinct()
 		       .ToList();
 	}
 
-	protected (ICell? Target, IEnumerable<ICellExit> Path) GetBurrowHomePath(ICharacter ch)
+	protected (IRoom? Target, IEnumerable<IRoomExit> Path) GetBurrowHomePath(ICharacter ch)
 	{
 		NpcHomeBaseEffect home = ResolveHomeBase(ch);
-		if (home.HomeCell is not null && !ReferenceEquals(home.HomeCell, ch.Location))
+		if (home.HomeRoom is not null && !ReferenceEquals(home.HomeRoom, ch.Location))
 		{
-			List<ICellExit> homePath = ch.PathBetween(home.HomeCell, DefaultNeedRange, GetAnimalSuitabilityFunction(ch)).ToList();
+			List<IRoomExit> homePath = ch.PathBetween(home.HomeRoom, DefaultNeedRange, GetAnimalSuitabilityFunction(ch)).ToList();
 			return homePath.Any()
-				? (home.HomeCell, homePath)
-				: (null, Enumerable.Empty<ICellExit>());
+				? (home.HomeRoom, homePath)
+				: (null, Enumerable.Empty<IRoomExit>());
 		}
 
-		if (home.HomeCell is not null)
+		if (home.HomeRoom is not null)
 		{
-			return (null, Enumerable.Empty<ICellExit>());
+			return (null, Enumerable.Empty<IRoomExit>());
 		}
 
-		Tuple<IPerceivable, IEnumerable<ICellExit>> targetPath = ch.AcquireTargetAndPath(
-			x => x is ICell cell && BurrowSiteProg.ExecuteBool(false, ch, cell),
+		Tuple<IPerceivable, IEnumerable<IRoomExit>> targetPath = ch.AcquireTargetAndPath(
+			x => x is IRoom room && BurrowSiteProg.ExecuteBool(false, ch, room),
 			DefaultNeedRange,
 			GetAnimalSuitabilityFunction(ch));
-		return targetPath.Item1 is ICell burrowCell && targetPath.Item2.Any()
-			? (burrowCell, targetPath.Item2)
-			: (null, Enumerable.Empty<ICellExit>());
+		return targetPath.Item1 is IRoom burrowRoom && targetPath.Item2.Any()
+			? (burrowRoom, targetPath.Item2)
+			: (null, Enumerable.Empty<IRoomExit>());
 	}
 
-	protected (ICell? Target, IEnumerable<ICellExit> Path) GetTerritoryPath(ICharacter ch)
+	protected (IRoom? Target, IEnumerable<IRoomExit> Path) GetTerritoryPath(ICharacter ch)
 	{
 		Territory? territory = ch.CombinedEffectsOfType<Territory>().FirstOrDefault();
 		if (territory is null)
@@ -711,37 +711,37 @@ public abstract partial class CreatureAIBase : PathingAIBase
 			ch.AddEffect(territory);
 		}
 
-		if (!territory.Cells.Any())
+		if (!territory.Rooms.Any())
 		{
-			return (null, Enumerable.Empty<ICellExit>());
+			return (null, Enumerable.Empty<IRoomExit>());
 		}
 
-		if (!territory.Cells.Contains(ch.Location))
+		if (!territory.Rooms.Contains(ch.Location))
 		{
-			List<ICellExit> path = ch.PathBetween(territory.Cells.Cast<IPerceivable>(), DefaultNeedRange,
+			List<IRoomExit> path = ch.PathBetween(territory.Rooms.Cast<IPerceivable>(), DefaultNeedRange,
 				GetAnimalSuitabilityFunction(ch, true)).ToList();
 			return path.Any()
 				? (path.Last().Destination, path)
-				: (null, Enumerable.Empty<ICellExit>());
+				: (null, Enumerable.Empty<IRoomExit>());
 		}
 
-		List<ICell> targets = territory.Cells
+		List<IRoom> targets = territory.Rooms
 		                               .Where(x => !ReferenceEquals(x, ch.Location))
-		                               .Where(x => MovementStrategyHandler.CellMatches(this, ch, x))
+		                               .Where(x => MovementStrategyHandler.RoomMatches(this, ch, x))
 		                               .ToList();
 		if (!targets.Any())
 		{
-			return (null, Enumerable.Empty<ICellExit>());
+			return (null, Enumerable.Empty<IRoomExit>());
 		}
 
-		List<ICellExit> targetPath = ch.PathBetween(targets.Cast<IPerceivable>(), (uint)MovementRange,
+		List<IRoomExit> targetPath = ch.PathBetween(targets.Cast<IPerceivable>(), (uint)MovementRange,
 			GetAnimalSuitabilityFunction(ch, true)).ToList();
 		return targetPath.Any()
 			? (targetPath.Last().Destination, targetPath)
-			: (null, Enumerable.Empty<ICellExit>());
+			: (null, Enumerable.Empty<IRoomExit>());
 	}
 
-	protected override FollowingPath CreatePathingEffect(ICharacter ch, IEnumerable<ICellExit> path)
+	protected override FollowingPath CreatePathingEffect(ICharacter ch, IEnumerable<IRoomExit> path)
 	{
 		return MovementStrategyHandler.CreatePathingEffect(this, ch, path);
 	}

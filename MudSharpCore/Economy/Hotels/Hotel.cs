@@ -32,15 +32,15 @@ public sealed class Hotel : FrameworkItem, IHotel
 	public IBankAccount? BankAccount => Property.HotelBankAccount;
 	public decimal CashBalance => Property.HotelCashBalance;
 	public decimal AvailableFunds => Property.HotelAvailableFunds;
-	public IEnumerable<ICell> Locations => Property.PropertyLocations;
+	public IEnumerable<IRoom> Locations => Property.PropertyLocations;
 	public IEnumerable<IHotelRoom> Rooms => Property.HotelRooms;
 	public bool IsApprovedHotel => Property.IsApprovedHotel;
 	public IEmploymentHostState Employment => _employment ??= EmploymentPersistenceStore.LoadOrCreate(this);
 	public EmploymentHostType EmploymentHostType => MudSharp.Economy.Employment.EmploymentHostType.Hotel;
 	public IMarket? Market => null;
 
-	public bool CanAccessHotelLocation(ICell cell)
+	public bool CanAccessHotelLocation(IRoom room)
 	{
-		return cell is not null && Property.PropertyLocations.Contains(cell);
+		return room is not null && Property.PropertyLocations.Contains(room);
 	}
 }

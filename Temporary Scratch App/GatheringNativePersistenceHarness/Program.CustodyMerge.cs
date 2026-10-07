@@ -53,8 +53,8 @@ internal static partial class GNHProgram
 	{
 		var world = host.Native.World;
 		ConfigureRegressionP2Fixture(host, database);
-		var floor = (Cell)caster.Location;
-		var destination = RegressionP2SecondCell(host.Native, database, floor, floor.Id + 100, true);
+		var floor = (Room)caster.Location;
+		var destination = RegressionP2SecondRoom(host.Native, database, floor, floor.Id + 100, true);
 		floor.ReloadRouteDefinition(null!); destination.ReloadRouteDefinition(null!);
 		foreach (var present in floor.Perceivables.Concat(destination.Perceivables).ToArray()) present.SetRoutePosition(null);
 		var service = world.SpellOwnedCorpseAnimations!;
@@ -210,7 +210,7 @@ internal static partial class GNHProgram
 			var saved = new[] { survivor, item }.Select(x => new RegressionP2SavedStack(x.Id, x.Quantity, x.OwnershipReference,
 				x.GetItemType<IHoldable>()!.HeldBy?.Id, x.GetItemType<IHoldable>()!.HeldBy?.Actor.Identity.Id, x.DirectLocation?.Id, x.Deleted, x.ContainedIn?.Id, x.GetItemType<IHoldable>()!.HeldBy?.Actor.Location?.Id)).ToArray();
 			RunItemReaderProcess(new RegressionP2Reader(database.Name, fixture, RuntimeClock.UtcNow, destination.Id, saved,
-				$"custody-{kind}-{scenario}", scenario == "delete-refill" ? 10 : scenario == "partial-preflight-refill" ? 9 : 8, ContainerItem: bag?.Id, OtherContainerItem: alternate?.Id, ContainerCell: bag?.Location?.Id, AncestorItem: ancestor?.Id), "--regression-p2-reader");
+				$"custody-{kind}-{scenario}", scenario == "delete-refill" ? 10 : scenario == "partial-preflight-refill" ? 9 : 8, ContainerItem: bag?.Id, OtherContainerItem: alternate?.Id, ContainerRoom: bag?.Location?.Id, AncestorItem: ancestor?.Id), "--regression-p2-reader");
 			using (CommandExecutionScope.EnterIndependent())
 			{
 				foreach (var stack in new[] { survivor, item }.Where(x => !x.Deleted)) { stack.GetItemType<IHoldable>()!.HeldBy?.Take(stack); stack.Delete(); }

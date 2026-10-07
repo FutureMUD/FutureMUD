@@ -6,22 +6,22 @@ using MudSharp.Framework;
 
 namespace MudSharp.Combat.ScatterStrategies;
 
-internal readonly record struct CellScatterInfo(ICell Cell, int Distance, CardinalDirection DirectionFromOrigin);
+internal readonly record struct RoomScatterInfo(IRoom Room, int Distance, CardinalDirection DirectionFromOrigin);
 
 internal static class ScatterStrategyUtilities
 {
 	public static RangedScatterResult? CreateResult(
-		CellScatterInfo info,
+		RoomScatterInfo info,
 		IPerceiver originalTarget,
 		IPerceiver? struckTarget)
 	{
-		if (!TryResolveImpactLocation(info.Cell, originalTarget, struckTarget, out var impact))
+		if (!TryResolveImpactLocation(info.Room, originalTarget, struckTarget, out var impact))
 		{
 			return null;
 		}
 
 		return new RangedScatterResult(
-			info.Cell,
+			info.Room,
 			impact.Layer,
 			info.DirectionFromOrigin,
 			info.Distance,
@@ -30,18 +30,18 @@ internal static class ScatterStrategyUtilities
 	}
 
 	public static IReadOnlyCollection<IPerceiver> GetCandidatesAtImpact(
-		CellScatterInfo info,
+		RoomScatterInfo info,
 		IPerceiver originalTarget,
 		bool sameLayerOnly)
 	{
-		if (!TryResolveImpactLocation(info.Cell, originalTarget, null, out var impact))
+		if (!TryResolveImpactLocation(info.Room, originalTarget, null, out var impact))
 		{
 			return Array.Empty<IPerceiver>();
 		}
 
-		if (info.Cell.RouteDefinition is null)
+		if (info.Room.RouteDefinition is null)
 		{
-			return info.Cell.Perceivables
+			return info.Room.Perceivables
 				.Where(x => !sameLayerOnly || x.RoomLayer == impact.Layer)
 				.OfType<IPerceiver>()
 				.ToArray();
@@ -64,9 +64,9 @@ internal static class ScatterStrategyUtilities
 		Proximity maximumProximity,
 		bool sameLayerOnly)
 	{
-		if (scatter.Cell.RouteDefinition is null)
+		if (scatter.Room.RouteDefinition is null)
 		{
-			return scatter.Cell.Perceivables
+			return scatter.Room.Perceivables
 				.Where(x => !sameLayerOnly || x.RoomLayer == scatter.RoomLayer)
 				.ToArray();
 		}
@@ -90,7 +90,7 @@ internal static class ScatterStrategyUtilities
 		IPerceivable candidate,
 		IFuturemud? gameworld)
 	{
-		if (!ReferenceEquals(scatter.Cell, candidate.Location))
+		if (!ReferenceEquals(scatter.Room, candidate.Location))
 		{
 			return Proximity.Unapproximable;
 		}
@@ -100,7 +100,7 @@ internal static class ScatterStrategyUtilities
 			return Proximity.Intimate;
 		}
 
-		if (scatter.Cell.RouteDefinition is null)
+		if (scatter.Room.RouteDefinition is null)
 		{
 			return candidate.RoomLayer == scatter.RoomLayer
 				? Proximity.Distant
@@ -110,7 +110,7 @@ internal static class ScatterStrategyUtilities
 		var candidateLocation = RouteSpatialService.Instance.GetEffectiveLocation(candidate);
 		if (!RouteSpatialService.Instance.TryValidateLocation(scatter.ImpactLocation, out _) ||
 			!RouteSpatialService.Instance.TryValidateLocation(candidateLocation, out _) ||
-			!ReferenceEquals(scatter.Cell, candidateLocation.Cell))
+			!ReferenceEquals(scatter.Room, candidateLocation.Room))
 		{
 			return Proximity.Unapproximable;
 		}
@@ -141,35 +141,35 @@ internal static class ScatterStrategyUtilities
 	}
 
 	private static bool TryResolveImpactLocation(
-		ICell cell,
+		IRoom room,
 		IPerceiver originalTarget,
 		IPerceiver? struckTarget,
 		out SpatialLocation impact)
 	{
-		if (cell.RouteDefinition is null)
+		if (room.RouteDefinition is null)
 		{
 			impact = new SpatialLocation(
-				cell,
+				room,
 				struckTarget?.RoomLayer ?? originalTarget.RoomLayer);
 			return true;
 		}
 
 		if (struckTarget is not null &&
-			TryGetEffectiveRouteLocation(struckTarget, cell, out impact))
+			TryGetEffectiveRouteLocation(struckTarget, room, out impact))
 		{
 			return true;
 		}
 
-		return TryGetEffectiveRouteLocation(originalTarget, cell, out impact);
+		return TryGetEffectiveRouteLocation(originalTarget, room, out impact);
 	}
 
 	private static bool TryGetEffectiveRouteLocation(
 		IPerceiver perceiver,
-		ICell expectedCell,
+		IRoom expectedRoom,
 		out SpatialLocation location)
 	{
 		location = RouteSpatialService.Instance.GetEffectiveLocation(perceiver);
-		if (!ReferenceEquals(location.Cell, expectedCell))
+		if (!ReferenceEquals(location.Room, expectedRoom))
 		{
 			location = new SpatialLocation(
 				perceiver.Location,
@@ -177,7 +177,7 @@ internal static class ScatterStrategyUtilities
 				perceiver.RoutePositionMetres);
 		}
 
-		return ReferenceEquals(location.Cell, expectedCell) &&
+		return ReferenceEquals(location.Room, expectedRoom) &&
 		       RouteSpatialService.Instance.TryValidateLocation(location, out _);
 	}
 
@@ -227,39 +227,39 @@ internal static class ScatterStrategyUtilities
     /// <param name="range">The maximum range to search.</param>
     /// <param name="respectDoors">Whether closed doors block traversal.</param>
     /// <returns>A list of unique reachable cells with distance and direction.</returns>
-    public static IReadOnlyList<CellScatterInfo> GetCellInfos(IPerceiver originalTarget, uint range, bool respectDoors)
+    public static IReadOnlyList<RoomScatterInfo> GetRoomInfos(IPerceiver originalTarget, uint range, bool respectDoors)
     {
         if (originalTarget.Location is null)
         {
-            return Array.Empty<CellScatterInfo>();
+            return Array.Empty<RoomScatterInfo>();
         }
 
-        List<(ICell Cell, int Distance)> cells = originalTarget.CellsAndDistancesInVicinity(range, respectDoors, false).ToList();
-        if (cells.Count == 0)
+        List<(IRoom Room, int Distance)> rooms = originalTarget.RoomsAndDistancesInVicinity(range, respectDoors, false).ToList();
+        if (rooms.Count == 0)
         {
-            return Array.Empty<CellScatterInfo>();
+            return Array.Empty<RoomScatterInfo>();
         }
 
-        List<CellScatterInfo> result = new(cells.Count);
-        foreach ((ICell cell, int distance) in cells)
+        List<RoomScatterInfo> result = new(rooms.Count);
+        foreach ((IRoom room, int distance) in rooms)
         {
             CardinalDirection direction = CardinalDirection.Unknown;
             if (distance > 0)
             {
-                DummyPerceiver dummy = new(location: cell)
+                DummyPerceiver dummy = new(location: room)
                 {
                     RoomLayer = originalTarget.RoomLayer
                 };
-                List<ICellExit> pathToCell = originalTarget
+                List<IRoomExit> pathToRoom = originalTarget
                         .PathBetween(dummy, (uint)(distance + 1), false, false, true)
                         .ToList();
-                if (pathToCell.Count > 0)
+                if (pathToRoom.Count > 0)
                 {
-                    direction = pathToCell[0].OutboundDirection;
+                    direction = pathToRoom[0].OutboundDirection;
                 }
             }
 
-            result.Add(new CellScatterInfo(cell, distance, direction));
+            result.Add(new RoomScatterInfo(room, distance, direction));
         }
 
         return result;

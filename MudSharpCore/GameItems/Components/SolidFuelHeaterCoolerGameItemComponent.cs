@@ -190,7 +190,7 @@ public class SolidFuelHeaterCoolerGameItemComponent : SwitchableThermalSourceGam
         return false;
     }
 
-    public override bool HandleDieOrMorph(IGameItem newItem, ICell location)
+    public override bool HandleDieOrMorph(IGameItem newItem, IRoom location)
     {
         IContainer? newContainer = newItem?.GetItemType<IContainer>();
         if (newContainer is not null)

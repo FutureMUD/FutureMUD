@@ -28,25 +28,25 @@ public class BreathSwoopAttackMove : BreathWeaponAttackMove
     {
 		using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterMove(this);
 		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
-        ICell startingCell = Assailant.Location;
+        IRoom startingRoom = Assailant.Location;
         RoomLayer startingLayer = Assailant.RoomLayer;
 
 		if (Assailant.Location != Target.Location)
 		{
-			List<ICellExit> path = Assailant.PathBetween(Target, 1, false, false, true)?.ToList() ?? [];
+			List<IRoomExit> path = Assailant.PathBetween(Target, 1, false, false, true)?.ToList() ?? [];
 			if (path.Count != 1)
 			{
 				return CombatMoveResult.Irrelevant;
 			}
 
-			ICellExit exit = path[0];
+			IRoomExit exit = path[0];
 			Assailant.OutputHandler.Handle(new EmoteOutput(
 				new Emote("@ swoop|swoops in on $0 with a deep breath.", Assailant, Assailant, Target),
 				flags: OutputFlags.SuppressObscured));
 			Assailant.MoveTo(exit.Destination, Target.RoomLayer, exit);
 			if (Assailant.Location != Target.Location)
 			{
-				Assailant.MoveTo(startingCell, startingLayer);
+				Assailant.MoveTo(startingRoom, startingLayer);
 				return CombatMoveResult.Irrelevant;
 			}
 		}
@@ -67,9 +67,9 @@ public class BreathSwoopAttackMove : BreathWeaponAttackMove
 		}
 		finally
 		{
-			if (startingCell != Assailant.Location || startingLayer != Assailant.RoomLayer)
+			if (startingRoom != Assailant.Location || startingLayer != Assailant.RoomLayer)
 			{
-				Assailant.MoveTo(startingCell, startingLayer);
+				Assailant.MoveTo(startingRoom, startingLayer);
 			}
 		}
 	}

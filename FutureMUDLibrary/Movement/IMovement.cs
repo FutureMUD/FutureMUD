@@ -40,7 +40,7 @@ namespace MudSharp.Movement
         /// The boundary crossed by an ordinary cell movement. Longitudinal RouteCell movement
         /// deliberately has no exit because it remains inside one cell.
         /// </summary>
-        ICellExit? Exit { get; }
+        IRoomExit? Exit { get; }
         MovementPhase Phase { get; }
         IEnumerable<ICharacter> CharacterMovers { get; }
         public IParty Party { get; }
@@ -92,7 +92,7 @@ namespace MudSharp.Movement
     {
         SpatialLocation Origin { get; }
         SpatialLocation Destination { get; }
-        RouteCellDirection Direction { get; }
+        RouteRoomDirection Direction { get; }
         double SpeedMetresPerSecond { get; }
         Guid OperationId { get; }
     }

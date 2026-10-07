@@ -100,7 +100,7 @@ internal class ReadyBodyBackupFunction : BuiltInFunction
 
 		var character = CharacterFormMutationFunctionHelper.ResolveConcreteCharacter(ParameterFunctions[0].Result);
 		var form = CharacterFormFunctionHelper.ResolveForm(character, ParameterFunctions[1].Result);
-		var location = ParameterFunctions[2].Result?.GetObject as ICell;
+		var location = ParameterFunctions[2].Result?.GetObject as IRoom;
 		if (character is null || form is null || location is null || form.Body == character.CurrentBody)
 		{
 			Result = new BooleanVariable(false);

@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 
 using System.Collections;
 using System.Linq;
@@ -19,23 +19,23 @@ public class SetRegisterCommandTests
 {
 	private Mock<ICharacter> _actor = null!;
 	private Mock<IVariableRegister> _register = null!;
-	private Mock<ICell> _cell = null!;
+	private Mock<IRoom> _cell = null!;
 
 	[TestInitialize]
 	public void Initialise()
 	{
 		_actor = new Mock<ICharacter>();
 		_register = new Mock<IVariableRegister>();
-		_cell = new Mock<ICell> { DefaultValue = DefaultValue.Mock };
+		_cell = new Mock<IRoom> { DefaultValue = DefaultValue.Mock };
 		var world = new Mock<IFuturemud>();
 		world.SetupGet(x => x.VariableRegister).Returns(_register.Object);
-		world.SetupGet(x => x.Cells).Returns(new Mock<IUneditableAll<ICell>>().Object);
+		world.SetupGet(x => x.Rooms).Returns(new Mock<IUneditableAll<IRoom>>().Object);
 		_actor.SetupGet(x => x.Gameworld).Returns(world.Object);
 		_actor.SetupGet(x => x.Location).Returns(_cell.Object);
 		_actor.SetupGet(x => x.OutputHandler).Returns(new Mock<IOutputHandler>().Object);
 		_cell.SetupGet(x => x.Type).Returns(ProgVariableTypes.Location);
 		_cell.SetupGet(x => x.GetObject).Returns(_cell.Object);
-		_cell.SetupGet(x => x.CurrentOverlay.CellName).Returns("Test Room");
+		_cell.SetupGet(x => x.CurrentOverlay.RoomName).Returns("Test Room");
 		_cell.Setup(x => x.GetFriendlyReference(It.IsAny<IPerceiver>())).Returns("Test Room (#1)");
 		_register.Setup(x => x.SetValue(_cell.Object, It.IsAny<string>(), It.IsAny<IProgVariable>())).Returns(true);
 	}
@@ -80,7 +80,7 @@ public class SetRegisterCommandTests
 
 	[DataTestMethod]
 	[DataRow("RegisterDefault")]
-	[DataRow("CellSetRegister")]
+	[DataRow("RoomSetRegister")]
 	public void RegisterCommands_Collections_PreserveQuotedElements(string method)
 	{
 		Declare(ProgVariableTypes.Text | ProgVariableTypes.Collection);

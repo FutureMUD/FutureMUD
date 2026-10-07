@@ -12,9 +12,9 @@ namespace MudSharp.Construction.Grids
 {
     public interface IGrid : IFrameworkItem, ISaveable, IProgVariable
     {
-        IEnumerable<ICell> Locations { get; }
-        void ExtendTo(ICell cell);
-        void WithdrawFrom(ICell cell);
+        IEnumerable<IRoom> Locations { get; }
+        void ExtendTo(IRoom room);
+        void WithdrawFrom(IRoom room);
 
         void Delete();
         void LoadTimeInitialise();

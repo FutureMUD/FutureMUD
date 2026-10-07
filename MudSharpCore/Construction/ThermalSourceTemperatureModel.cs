@@ -5,27 +5,27 @@ namespace MudSharp.Construction;
 
 internal static class ThermalSourceTemperatureModel
 {
-    internal static double AmbientMultiplier(CellOutdoorsType outdoorsType)
+    internal static double AmbientMultiplier(RoomOutdoorsType outdoorsType)
     {
         return outdoorsType switch
         {
-            CellOutdoorsType.Indoors => 1.0,
-            CellOutdoorsType.IndoorsWithWindows => 1.0,
-            CellOutdoorsType.IndoorsNoLight => 1.0,
-            CellOutdoorsType.IndoorsClimateExposed => 0.5,
+            RoomOutdoorsType.Indoors => 1.0,
+            RoomOutdoorsType.IndoorsWithWindows => 1.0,
+            RoomOutdoorsType.IndoorsNoLight => 1.0,
+            RoomOutdoorsType.IndoorsClimateExposed => 0.5,
             _ => 0.0
         };
     }
 
-    internal static IEnumerable<IGameItem> EnumerateThermalSourceItems(ICell cell, IPerceiver? voyeur = null)
+    internal static IEnumerable<IGameItem> EnumerateThermalSourceItems(IRoom room, IPerceiver? voyeur = null)
     {
-        if (cell.RouteDefinition is null)
+        if (room.RouteDefinition is null)
         {
             // Preserve the ordinary-cell contract instead of requiring the newer aggregate
             // Perceivables projection from every ICell implementation.
-            return (cell.GameItems ?? [])
+            return (room.GameItems ?? [])
                    .SelectMany(x => x.DeepItems)
-                   .Concat((cell.Characters ?? [])
+                   .Concat((room.Characters ?? [])
                                .Where(x => x.Body is not null)
                                .SelectMany(x => x.Body.ExternalItems.SelectMany(y => y.DeepItems)))
                    .GroupBy(x => x.Id)
@@ -34,7 +34,7 @@ internal static class ThermalSourceTemperatureModel
 
         // A RouteCell thermal query without a valid observer coordinate cannot be scoped
         // safely. Fail closed instead of leaking heat across the whole linear cell.
-        if (voyeur?.Location != cell || !voyeur.RoutePositionMetres.HasValue)
+        if (voyeur?.Location != room || !voyeur.RoutePositionMetres.HasValue)
         {
             return [];
         }
@@ -61,21 +61,21 @@ internal static class ThermalSourceTemperatureModel
                    .Select(x => x.First());
     }
 
-    internal static double AmbientHeatForCell(ICell cell, CellOutdoorsType outdoorsType, IPerceiver? voyeur = null)
+    internal static double AmbientHeatForRoom(IRoom room, RoomOutdoorsType outdoorsType, IPerceiver? voyeur = null)
     {
-        return EnumerateThermalSourceItems(cell, voyeur)
+        return EnumerateThermalSourceItems(room, voyeur)
             .SelectMany(x => x.GetItemTypes<IProduceHeat>())
             .Sum(x => x.CurrentAmbientHeat) * AmbientMultiplier(outdoorsType);
     }
 
-    internal static double ProximityHeatForTarget(ICell cell, IPerceiver? voyeur)
+    internal static double ProximityHeatForTarget(IRoom room, IPerceiver? voyeur)
     {
         if (voyeur is null)
         {
             return 0.0;
         }
 
-        return EnumerateThermalSourceItems(cell, voyeur)
+        return EnumerateThermalSourceItems(room, voyeur)
             .SelectMany(item => item.GetItemTypes<IProduceHeat>()
                                     .Select(component => component.CurrentHeat(voyeur.GetProximity(item))))
             .Sum();

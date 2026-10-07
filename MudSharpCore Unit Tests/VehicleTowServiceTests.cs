@@ -55,7 +55,7 @@ public class VehicleTowServiceTests
 	public void CanHitch_WhenTargetAlreadyTowed_Fails()
 	{
 		var service = new VehicleTowService();
-		var location = new Mock<ICell>().Object;
+		var location = new Mock<IRoom>().Object;
 		var actor = CreateActor();
 		var source = CreateVehicle(1, "tractor", location);
 		var existingSource = CreateVehicle(2, "ute", location);
@@ -76,7 +76,7 @@ public class VehicleTowServiceTests
 	public void CanHitch_WhenCycleWouldBeCreated_Fails()
 	{
 		var service = new VehicleTowService();
-		var location = new Mock<ICell>().Object;
+		var location = new Mock<IRoom>().Object;
 		var actor = CreateActor();
 		var source = CreateVehicle(1, "tractor", location);
 		var target = CreateVehicle(2, "trailer", location);
@@ -95,7 +95,7 @@ public class VehicleTowServiceTests
 	public void CanHitch_WhenSourceTowPointAlreadyUsed_Fails()
 	{
 		var service = new VehicleTowService();
-		var location = new Mock<ICell>().Object;
+		var location = new Mock<IRoom>().Object;
 		var actor = CreateActor();
 		var source = CreateVehicle(1, "tractor", location);
 		var existingTarget = CreateVehicle(2, "trailer one", location);
@@ -115,7 +115,7 @@ public class VehicleTowServiceTests
 	public void CanHitch_WhenRequiredTowAccessUnavailable_Fails()
 	{
 		var service = new VehicleTowService();
-		var location = new Mock<ICell>().Object;
+		var location = new Mock<IRoom>().Object;
 		var actor = CreateActor();
 		var source = CreateVehicle(1, "tractor", location);
 		var target = CreateVehicle(2, "trailer", location);
@@ -145,7 +145,7 @@ public class VehicleTowServiceTests
 	public void CanHitch_UsesRecursiveTargetTrainWeight()
 	{
 		var service = new VehicleTowService();
-		var location = new Mock<ICell>().Object;
+		var location = new Mock<IRoom>().Object;
 		var actor = CreateActor();
 		var source = CreateVehicle(1, "tractor", location, weight: 20.0);
 		var target = CreateVehicle(2, "trailer", location, weight: 30.0);
@@ -167,7 +167,7 @@ public class VehicleTowServiceTests
 	public void CanHitch_NonDirectTowPointsWithoutHitchGear_Fails()
 	{
 		var service = new VehicleTowService();
-		var location = new Mock<ICell>().Object;
+		var location = new Mock<IRoom>().Object;
 		var actor = CreateActor();
 		var source = CreateVehicle(1, "tractor", location);
 		var target = CreateVehicle(2, "trailer", location);
@@ -185,7 +185,7 @@ public class VehicleTowServiceTests
 	public void CanHitch_DirectTowPointsWithoutHitchGear_Succeeds()
 	{
 		var service = new VehicleTowService();
-		var location = new Mock<ICell>().Object;
+		var location = new Mock<IRoom>().Object;
 		var actor = CreateActor();
 		var source = CreateVehicle(1, "tractor", location);
 		var target = CreateVehicle(2, "trailer", location);
@@ -203,7 +203,7 @@ public class VehicleTowServiceTests
 	public void CanHitch_CompatibleHitchGear_Succeeds()
 	{
 		var service = new VehicleTowService();
-		var location = new Mock<ICell>().Object;
+		var location = new Mock<IRoom>().Object;
 		var actor = CreateActor();
 		var source = CreateVehicle(1, "tractor", location);
 		var target = CreateVehicle(2, "trailer", location);
@@ -222,7 +222,7 @@ public class VehicleTowServiceTests
 	public void CanHitch_IncompatibleHitchGear_Fails()
 	{
 		var service = new VehicleTowService();
-		var location = new Mock<ICell>().Object;
+		var location = new Mock<IRoom>().Object;
 		var actor = CreateActor();
 		var source = CreateVehicle(1, "tractor", location);
 		var target = CreateVehicle(2, "trailer", location);
@@ -241,7 +241,7 @@ public class VehicleTowServiceTests
 	public void TowTrainFrom_ReturnsRecursiveTrain()
 	{
 		var service = new VehicleTowService();
-		var location = new Mock<ICell>().Object;
+		var location = new Mock<IRoom>().Object;
 		var root = CreateVehicle(1, "tractor", location);
 		var middle = CreateVehicle(2, "trailer", location);
 		var rear = CreateVehicle(3, "cart", location);
@@ -260,7 +260,7 @@ public class VehicleTowServiceTests
 	public void ValidateLink_WhenNonDirectTowPointHasNoHitchItem_FailsSafely()
 	{
 		var service = new VehicleTowService();
-		var location = new Mock<ICell>().Object;
+		var location = new Mock<IRoom>().Object;
 		var source = CreateVehicle(1, "tractor", location);
 		var target = CreateVehicle(2, "trailer", location);
 		var sourcePoint = CreateTowPoint(11, "hitch", canTow: true, canBeTowed: false);
@@ -277,7 +277,7 @@ public class VehicleTowServiceTests
 	public void ValidateLink_WhenTowPointDisabledByDamage_FailsSafely()
 	{
 		var service = new VehicleTowService();
-		var location = new Mock<ICell>().Object;
+		var location = new Mock<IRoom>().Object;
 		var source = CreateVehicle(1, "tractor", location);
 		var target = CreateVehicle(2, "trailer", location);
 		var sourcePoint = CreateTowPoint(11, "hitch", canTow: true, canBeTowed: false);
@@ -297,7 +297,7 @@ public class VehicleTowServiceTests
 	public void ValidateLink_WhenHitchItemMissing_FailsSafely()
 	{
 		var service = new VehicleTowService();
-		var location = new Mock<ICell>().Object;
+		var location = new Mock<IRoom>().Object;
 		var source = CreateVehicle(1, "tractor", location);
 		var target = CreateVehicle(2, "trailer", location);
 		var sourcePoint = CreateTowPoint(11, "hitch", canTow: true, canBeTowed: false);
@@ -314,7 +314,7 @@ public class VehicleTowServiceTests
 	public void ValidateLink_WhenHitchItemDeletionDisabledLink_FailsSafely()
 	{
 		var service = new VehicleTowService();
-		var location = new Mock<ICell>().Object;
+		var location = new Mock<IRoom>().Object;
 		var source = CreateVehicle(1, "tractor", location);
 		var target = CreateVehicle(2, "trailer", location);
 		var sourcePoint = CreateTowPoint(11, "hitch", canTow: true, canBeTowed: false);
@@ -331,7 +331,7 @@ public class VehicleTowServiceTests
 	public void ValidateLink_WithCompatibleHitchItem_Succeeds()
 	{
 		var service = new VehicleTowService();
-		var location = new Mock<ICell>().Object;
+		var location = new Mock<IRoom>().Object;
 		var source = CreateVehicle(1, "tractor", location);
 		var target = CreateVehicle(2, "trailer", location);
 		var sourcePoint = CreateTowPoint(11, "hitch", canTow: true, canBeTowed: false);
@@ -402,7 +402,7 @@ public class VehicleTowServiceTests
 	[TestMethod]
 	public void VehicleHitchLink_WithHitchItemWornByEndpoint_IsValid()
 	{
-		var location = new Mock<ICell>().Object;
+		var location = new Mock<IRoom>().Object;
 		var hitchItem = new Mock<IGameItem>();
 		hitchItem.SetupGet(x => x.Id).Returns(50);
 		var sourceBody = new Mock<IBody>();
@@ -443,7 +443,7 @@ public class VehicleTowServiceTests
 	[TestMethod]
 	public void VehicleHitchLink_WithHitchItemHeldByNonEndpoint_IsInvalid()
 	{
-		var location = new Mock<ICell>().Object;
+		var location = new Mock<IRoom>().Object;
 		var bystanderBody = new Mock<IBody>().Object;
 		var hitchItem = new Mock<IGameItem>();
 		hitchItem.SetupGet(x => x.Id).Returns(50);
@@ -504,14 +504,14 @@ public class VehicleTowServiceTests
 	public void Move_WithThreeVehicleTrain_MovesAllVehicles()
 	{
 		var service = new VehicleTowService();
-		var strategy = new CellExitVehicleMovementStrategy(service);
-		var location = new Mock<ICell>().Object;
-		var destination = new Mock<ICell>().Object;
+		var strategy = new RoomExitVehicleMovementStrategy(service);
+		var location = new Mock<IRoom>().Object;
+		var destination = new Mock<IRoom>().Object;
 		var controller = CreateActor().Object;
 		var root = CreateVehicle(1, "tractor", location);
 		var middle = CreateVehicle(2, "trailer", location);
 		var rear = CreateVehicle(3, "cart", location);
-		SetupCellExitProfile(root, controller);
+		SetupRoomExitProfile(root, controller);
 		var sourcePoint = CreateTowPoint(11, "hitch", canTow: true, canBeTowed: false);
 		var middleSourcePoint = CreateTowPoint(12, "rear", canTow: true, canBeTowed: false);
 		var targetPoint = CreateTowPoint(13, "ring", canTow: false, canBeTowed: true);
@@ -524,21 +524,21 @@ public class VehicleTowServiceTests
 		var result = strategy.Move(root.Vehicle.Object, controller, exit.Object);
 
 		Assert.IsTrue(result);
-		root.Vehicle.Verify(x => x.MoveToCell(destination, RoomLayer.GroundLevel, exit.Object), Times.Once);
-		middle.Vehicle.Verify(x => x.MoveToCell(destination, RoomLayer.GroundLevel, exit.Object), Times.Once);
-		rear.Vehicle.Verify(x => x.MoveToCell(destination, RoomLayer.GroundLevel, exit.Object), Times.Once);
+		root.Vehicle.Verify(x => x.MoveToRoom(destination, RoomLayer.GroundLevel, exit.Object), Times.Once);
+		middle.Vehicle.Verify(x => x.MoveToRoom(destination, RoomLayer.GroundLevel, exit.Object), Times.Once);
+		rear.Vehicle.Verify(x => x.MoveToRoom(destination, RoomLayer.GroundLevel, exit.Object), Times.Once);
 	}
 
 	[TestMethod]
 	public void Move_WithInvalidTowTrain_BlocksBeforePowerConsumption()
 	{
-		var strategy = new CellExitVehicleMovementStrategy(new VehicleTowService());
-		var location = new Mock<ICell>().Object;
-		var destination = new Mock<ICell>().Object;
+		var strategy = new RoomExitVehicleMovementStrategy(new VehicleTowService());
+		var location = new Mock<IRoom>().Object;
+		var destination = new Mock<IRoom>().Object;
 		var controller = CreateActor().Object;
 		var root = CreateVehicle(1, "tractor", location);
 		var target = CreateVehicle(2, "trailer", location);
-		SetupCellExitProfile(root, controller, requiredPower: 100.0);
+		SetupRoomExitProfile(root, controller, requiredPower: 100.0);
 		var power = new Mock<IProducePower>();
 		power.Setup(x => x.CanDrawdownSpike(100.0)).Returns(true);
 		var installedItem = new Mock<IGameItem>();
@@ -562,8 +562,8 @@ public class VehicleTowServiceTests
 	public void CanMoveTowTrain_WhenLinkedTargetHasUnexpectedIncomingLink_Fails()
 	{
 		var service = new VehicleTowService();
-		var location = new Mock<ICell>().Object;
-		var destination = new Mock<ICell>().Object;
+		var location = new Mock<IRoom>().Object;
+		var destination = new Mock<IRoom>().Object;
 		var root = CreateVehicle(1, "tractor", location);
 		var otherSource = CreateVehicle(2, "ute", location);
 		var target = CreateVehicle(3, "trailer", location);
@@ -587,7 +587,7 @@ public class VehicleTowServiceTests
 	public void CanAddCharacterVehicleHitch_WithVehicleTowTrain_UsesRecursiveTrainAndSucceeds()
 	{
 		var graph = new VehicleHitchGraphService();
-		var location = new Mock<ICell>().Object;
+		var location = new Mock<IRoom>().Object;
 		var actor = CreateActor();
 		actor.SetupGet(x => x.Id).Returns(100);
 		actor.SetupGet(x => x.Location).Returns(location);
@@ -616,7 +616,7 @@ public class VehicleTowServiceTests
 	public void CanAddCharacterVehicleHitch_WithVehicleTowTrain_UsesTrainWeightForTowPointLimit()
 	{
 		var graph = new VehicleHitchGraphService();
-		var location = new Mock<ICell>().Object;
+		var location = new Mock<IRoom>().Object;
 		var actor = CreateActor();
 		actor.SetupGet(x => x.Id).Returns(100);
 		actor.SetupGet(x => x.Location).Returns(location);
@@ -645,8 +645,8 @@ public class VehicleTowServiceTests
 	public void CanDragVehicleTrain_WithIncomingCharacterHitch_MovesDownstreamVehiclesAndHitchItems()
 	{
 		var graph = new VehicleHitchGraphService();
-		var location = new Mock<ICell>().Object;
-		var destination = new Mock<ICell>();
+		var location = new Mock<IRoom>().Object;
+		var destination = new Mock<IRoom>();
 		var gameworld = new Mock<IFuturemud>();
 		var cart = CreateVehicle(1, "cart", location, weight: 30.0, gameworld: gameworld.Object);
 		var trailer = CreateVehicle(2, "trailer", location, weight: 25.0, gameworld: gameworld.Object);
@@ -693,9 +693,9 @@ public class VehicleTowServiceTests
 		graph.CompleteVehicleTrainMove(plan, destination.Object, RoomLayer.GroundLevel, exit.Object, null,
 			cart.Vehicle.Object);
 
-		cart.Vehicle.Verify(x => x.MoveToCell(It.IsAny<ICell>(), It.IsAny<RoomLayer>(), It.IsAny<ICellExit>(),
+		cart.Vehicle.Verify(x => x.MoveToRoom(It.IsAny<IRoom>(), It.IsAny<RoomLayer>(), It.IsAny<IRoomExit>(),
 			It.IsAny<IMovement>()), Times.Never);
-		trailer.Vehicle.Verify(x => x.MoveToCell(destination.Object, RoomLayer.GroundLevel, exit.Object, null),
+		trailer.Vehicle.Verify(x => x.MoveToRoom(destination.Object, RoomLayer.GroundLevel, exit.Object, null),
 			Times.Once);
 		destination.Verify(x => x.Insert(incomingHitchItem.Object, true), Times.Once);
 		destination.Verify(x => x.Insert(legacyHitchItem.Object, true), Times.Once);
@@ -705,13 +705,13 @@ public class VehicleTowServiceTests
 	public void CanDragVehicleTrain_SurfaceWaterVehicleTowardLand_Fails()
 	{
 		var graph = new VehicleHitchGraphService();
-		var location = new Mock<ICell>();
+		var location = new Mock<IRoom>();
 		location.Setup(x => x.IsSwimmingLayer(RoomLayer.GroundLevel)).Returns(true);
-		var destination = new Mock<ICell>();
+		var destination = new Mock<IRoom>();
 		var gameworld = new Mock<IFuturemud>();
 		var craft = CreateVehicle(1, "surfboard", location.Object, gameworld: gameworld.Object);
 		var profile = new Mock<IVehicleMovementProfilePrototype>();
-		profile.SetupGet(x => x.MovementType).Returns(VehicleMovementProfileType.CellExit);
+		profile.SetupGet(x => x.MovementType).Returns(VehicleMovementProfileType.RoomExit);
 		profile.SetupGet(x => x.MovementEnvironment).Returns(VehicleMovementEnvironment.SurfaceWater);
 		craft.Vehicle.SetupGet(x => x.MovementProfile).Returns(profile.Object);
 		var puller = CreateActor();
@@ -738,14 +738,14 @@ public class VehicleTowServiceTests
 	public void CanMoveVehicleTrain_SurfaceWaterTowedMemberTowardLand_Fails()
 	{
 		var graph = new VehicleHitchGraphService();
-		var location = new Mock<ICell>();
+		var location = new Mock<IRoom>();
 		location.Setup(x => x.IsSwimmingLayer(RoomLayer.GroundLevel)).Returns(true);
-		var destination = new Mock<ICell>();
+		var destination = new Mock<IRoom>();
 		var gameworld = new Mock<IFuturemud>();
 		var tug = CreateVehicle(1, "tug", location.Object, gameworld: gameworld.Object);
 		var boat = CreateVehicle(2, "boat", location.Object, gameworld: gameworld.Object);
 		var profile = new Mock<IVehicleMovementProfilePrototype>();
-		profile.SetupGet(x => x.MovementType).Returns(VehicleMovementProfileType.CellExit);
+		profile.SetupGet(x => x.MovementType).Returns(VehicleMovementProfileType.RoomExit);
 		profile.SetupGet(x => x.MovementEnvironment).Returns(VehicleMovementEnvironment.SurfaceWater);
 		boat.Vehicle.SetupGet(x => x.MovementProfile).Returns(profile.Object);
 		var tugPoint = CreateTowPoint(11, "stern hitch", canTow: true, canBeTowed: false);
@@ -766,8 +766,8 @@ public class VehicleTowServiceTests
 	public void ApplyCharacterHitch_TransientActorHeldGear_DropsGearBeforeGraphValidation()
 	{
 		var graph = new VehicleHitchGraphService();
-		var location = new Mock<ICell>().Object;
-		var destination = new Mock<ICell>().Object;
+		var location = new Mock<IRoom>().Object;
+		var destination = new Mock<IRoom>().Object;
 		var gameworld = new Mock<IFuturemud>();
 		var output = new Mock<IOutputHandler>();
 		var actor = CreateActor();
@@ -858,7 +858,7 @@ public class VehicleTowServiceTests
 		return actor;
 	}
 
-	private static VehicleHarness CreateVehicle(long id, string name, ICell location, double weight = 10.0,
+	private static VehicleHarness CreateVehicle(long id, string name, IRoom location, double weight = 10.0,
 		SizeCategory size = SizeCategory.Normal, IFuturemud? gameworld = null)
 	{
 		var links = new List<IVehicleTowLink>();
@@ -939,7 +939,7 @@ public class VehicleTowServiceTests
 		return link;
 	}
 
-	private static Mock<IGameItem> CreateHitchItem(long id, ICell location, HitchGearRole roles,
+	private static Mock<IGameItem> CreateHitchItem(long id, IRoom location, HitchGearRole roles,
 		IBody? carriedBy = null, string name = "a hitch item", double maximumTowedWeight = 1000.0)
 	{
 		var gear = new Mock<IHitchGear>();
@@ -962,11 +962,11 @@ public class VehicleTowServiceTests
 		return item;
 	}
 
-	private static void SetupCellExitProfile(VehicleHarness vehicle, ICharacter controller, double requiredPower = 0.0)
+	private static void SetupRoomExitProfile(VehicleHarness vehicle, ICharacter controller, double requiredPower = 0.0)
 	{
 		var profile = new Mock<IVehicleMovementProfilePrototype>();
 		profile.SetupGet(x => x.Id).Returns(100);
-		profile.SetupGet(x => x.MovementType).Returns(VehicleMovementProfileType.CellExit);
+		profile.SetupGet(x => x.MovementType).Returns(VehicleMovementProfileType.RoomExit);
 		profile.SetupGet(x => x.RequiredPowerSpikeInWatts).Returns(requiredPower);
 		vehicle.Prototype.SetupGet(x => x.MovementProfiles).Returns([profile.Object]);
 		vehicle.Vehicle.SetupGet(x => x.MovementProfile).Returns(profile.Object);
@@ -975,18 +975,18 @@ public class VehicleTowServiceTests
 		Mock.Get(controller).SetupGet(x => x.RoomLayer).Returns(vehicle.Vehicle.Object.RoomLayer);
 	}
 
-	private static Mock<ICellExit> CreateExit(ICell origin, ICell destination, SizeCategory maximumSize)
+	private static Mock<IRoomExit> CreateExit(IRoom origin, IRoom destination, SizeCategory maximumSize)
 	{
 		var exit = new Mock<IExit>();
 		exit.SetupGet(x => x.MaximumSizeToEnter).Returns(maximumSize);
-		var cellExit = new Mock<ICellExit>();
+		var cellExit = new Mock<IRoomExit>();
 		cellExit.SetupGet(x => x.Origin).Returns(origin);
 		cellExit.SetupGet(x => x.Destination).Returns(destination);
 		cellExit.SetupGet(x => x.Exit).Returns(exit.Object);
 		cellExit.SetupGet(x => x.OutboundMovementSuffix).Returns("north");
 		cellExit.SetupGet(x => x.InboundMovementSuffix).Returns("from the south");
 		cellExit.Setup(x => x.MovementTransition(It.IsAny<ICharacter>()))
-		        .Returns((CellMovementTransition.GroundToGround, RoomLayer.GroundLevel));
+		        .Returns((RoomMovementTransition.GroundToGround, RoomLayer.GroundLevel));
 		return cellExit;
 	}
 

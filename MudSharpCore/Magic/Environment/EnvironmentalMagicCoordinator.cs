@@ -14,9 +14,9 @@ namespace MudSharp.Magic.Environment;
 /// </summary>
 public sealed partial class EnvironmentalMagicCoordinator : IEnvironmentalMagicService
 {
-	private sealed class Registration(Cell cell, long profileId)
+	private sealed class Registration(Room room, long profileId)
 	{
-		public Cell Cell { get; } = cell;
+		public Room Room { get; } = room;
 		public long ProfileId { get; } = profileId;
 		public double DueAt;
 		public double AuditAt;
@@ -41,22 +41,22 @@ public sealed partial class EnvironmentalMagicCoordinator : IEnvironmentalMagicS
 	private readonly long _epoch;
 	private readonly IEnvironmentalMagicOperationStore _operations;
 	private readonly Dictionary<long, Registration> _registered = new();
-	private readonly Dictionary<long, LinkedListNode<Cell>> _cells = new();
-	private readonly LinkedList<Cell> _cellOrder = new();
+	private readonly Dictionary<long, LinkedListNode<Room>> _cells = new();
+	private readonly LinkedList<Room> _cellOrder = new();
 	private readonly Dictionary<long, IAgricultureField> _fields = new();
 	private readonly Dictionary<long, IAgricultureField> _apiaryFields = new();
 	private readonly Dictionary<long, long> _referenceGenerations = new();
 	private readonly SortedSet<Registration> _due = new(Comparer<Registration>.Create((a, b) =>
-		a.DueAt.CompareTo(b.DueAt) is var result && result != 0 ? result : a.Cell.Id.CompareTo(b.Cell.Id)));
+		a.DueAt.CompareTo(b.DueAt) is var result && result != 0 ? result : a.Room.Id.CompareTo(b.Room.Id)));
 	private readonly SortedSet<Registration> _audit = new(Comparer<Registration>.Create((a, b) =>
-		a.AuditAt.CompareTo(b.AuditAt) is var result && result != 0 ? result : a.Cell.Id.CompareTo(b.Cell.Id)));
+		a.AuditAt.CompareTo(b.AuditAt) is var result && result != 0 ? result : a.Room.Id.CompareTo(b.Room.Id)));
 	private readonly LinkedList<Registration> _dirty = new();
 	private readonly LinkedList<Registration> _auditAge = new();
 	private readonly HashSet<long> _evaluating = new();
 	private readonly HashSet<long> _recursive = new();
 	private readonly Dictionary<long, double> _lastLoggedFault = new();
 	private readonly Dictionary<long, double> _lastLoggedSlow = new();
-	private LinkedListNode<Cell>? _discoveryCursor;
+	private LinkedListNode<Room>? _discoveryCursor;
 	private int _discoveryRemaining;
 	private long _sourceGeneration;
 	private bool _started;
@@ -102,10 +102,10 @@ public sealed partial class EnvironmentalMagicCoordinator : IEnvironmentalMagicS
 		if (_started || _disposed) return;
 		foreach (var field in _world.AgricultureFields)
 		{
-			_fields[field.Cell.Id] = field;
+			_fields[field.Room.Id] = field;
 			RefreshPollinationCandidate(field);
 		}
-		foreach (var cell in _world.Cells) Register(cell);
+		foreach (var room in _world.Rooms) Register(room);
 		_world.HeartbeatManager.SecondHeartbeat += Pump;
 		_started = true;
 	}
@@ -117,11 +117,11 @@ public sealed partial class EnvironmentalMagicCoordinator : IEnvironmentalMagicS
 		BeginDiscovery();
 	}
 
-	private long? EffectiveProfileId(Cell cell) => cell.Id <= 0 || !ReferenceEquals(cell.Gameworld, _world)
-		? null : cell.EnvironmentBindingMode switch
+	private long? EffectiveProfileId(Room room) => room.Id <= 0 || !ReferenceEquals(room.Gameworld, _world)
+		? null : room.EnvironmentBindingMode switch
 	{
-		EnvironmentalMagicBindingMode.Inherit => cell.CurrentOverlay?.Terrain?.EnvironmentalMagicProfileId,
-		EnvironmentalMagicBindingMode.Explicit => cell.EnvironmentalMagicProfileId,
+		EnvironmentalMagicBindingMode.Inherit => room.CurrentOverlay?.Terrain?.EnvironmentalMagicProfileId,
+		EnvironmentalMagicBindingMode.Explicit => room.EnvironmentalMagicProfileId,
 		_ => null
 	};
 
@@ -136,14 +136,14 @@ public sealed partial class EnvironmentalMagicCoordinator : IEnvironmentalMagicS
 		return profile;
 	}
 
-	public void Register(ICell cell)
+	public void Register(IRoom room)
 	{
-		if (_disposed || cell is not Cell concrete || cell.Id <= 0 || !ReferenceEquals(cell.Gameworld, _world)) return;
-		if (_cells.TryGetValue(cell.Id, out var previous) && !ReferenceEquals(previous.Value, concrete))
+		if (_disposed || room is not Room concrete || room.Id <= 0 || !ReferenceEquals(room.Gameworld, _world)) return;
+		if (_cells.TryGetValue(room.Id, out var previous) && !ReferenceEquals(previous.Value, concrete))
 			Unregister(previous.Value);
-		if (!_cells.ContainsKey(cell.Id)) _cells[cell.Id] = _cellOrder.AddLast(concrete);
+		if (!_cells.ContainsKey(room.Id)) _cells[room.Id] = _cellOrder.AddLast(concrete);
 		var id = EffectiveProfileId(concrete);
-		if (_registered.TryGetValue(cell.Id, out var existing))
+		if (_registered.TryGetValue(room.Id, out var existing))
 		{
 			if (id == existing.ProfileId) return;
 			Settle(existing, Now);
@@ -156,11 +156,11 @@ public sealed partial class EnvironmentalMagicCoordinator : IEnvironmentalMagicS
 		{
 			SampleAt = now,
 			LastAudit = now,
-			DueAt = now + Stagger(cell.Id, Options.ActiveCadenceSeconds),
-			AuditAt = now + Stagger(cell.Id, Options.ReconciliationSeconds)
+			DueAt = now + Stagger(room.Id, Options.ActiveCadenceSeconds),
+			AuditAt = now + Stagger(room.Id, Options.ReconciliationSeconds)
 		};
 		registration.AgeNode = _auditAge.AddLast(registration);
-		_registered.Add(cell.Id, registration);
+		_registered.Add(room.Id, registration);
 		_due.Add(registration);
 		_audit.Add(registration);
 	}
@@ -168,22 +168,22 @@ public sealed partial class EnvironmentalMagicCoordinator : IEnvironmentalMagicS
 	private static double Stagger(long id, double interval) =>
 		1.0 + (unchecked((ulong)id * 11400714819323198485UL) % 1000000UL) / 1000000.0 * Math.Max(0.0, interval - 1.0);
 
-	public void Unregister(ICell cell)
+	public void Unregister(IRoom room)
 	{
-		if (!_cells.TryGetValue(cell.Id, out var indexed) || !ReferenceEquals(indexed.Value, cell)) return;
-		if (_treatments.TryGetValue(cell.Id, out var treatment))
+		if (!_cells.TryGetValue(room.Id, out var indexed) || !ReferenceEquals(indexed.Value, room)) return;
+		if (_treatments.TryGetValue(room.Id, out var treatment))
 		{
 			_treatmentDue.Remove(treatment);
-			_treatments.Remove(cell.Id);
+			_treatments.Remove(room.Id);
 		}
-		if (_registered.Remove(cell.Id, out var registration)) RemoveRegistration(registration);
-		if (_cells.Remove(cell.Id, out var node))
+		if (_registered.Remove(room.Id, out var registration)) RemoveRegistration(registration);
+		if (_cells.Remove(room.Id, out var node))
 		{
 			if (_discoveryCursor == node) _discoveryCursor = node.Next ?? _cellOrder.First;
 			_cellOrder.Remove(node);
 			if (_cellOrder.Count == 0) _discoveryCursor = null;
 		}
-		_fields.Remove(cell.Id);
+		_fields.Remove(room.Id);
 	}
 
 	private void RemoveRegistration(Registration registration)
@@ -196,42 +196,42 @@ public sealed partial class EnvironmentalMagicCoordinator : IEnvironmentalMagicS
 		if (registration.Maintenance) _maintenanceCount--;
 		if (registration.Faulted) _faultCount--;
 		if (registration.Production || registration.Maintenance) _workingCount--;
-		_registered.Remove(registration.Cell.Id);
+		_registered.Remove(registration.Room.Id);
 	}
 
-	public void SetBinding(ICell cell, EnvironmentalMagicBindingMode mode, long? profileId)
+	public void SetBinding(IRoom room, EnvironmentalMagicBindingMode mode, long? profileId)
 	{
-		if (cell is not Cell concrete || cell.Id <= 0 || !ReferenceEquals(cell.Gameworld, _world) || !Enum.IsDefined(mode) ||
+		if (room is not Room concrete || room.Id <= 0 || !ReferenceEquals(room.Gameworld, _world) || !Enum.IsDefined(mode) ||
 			mode == EnvironmentalMagicBindingMode.Explicit && !profileId.HasValue)
 			throw new ArgumentException("A physical cell and a valid environmental binding are required.");
-		if (_evaluating.Contains(cell.Id)) throw new InvalidOperationException("Environmental input progs must be read-only.");
+		if (_evaluating.Contains(room.Id)) throw new InvalidOperationException("Environmental input progs must be read-only.");
 		if (concrete.PendingEnvironmentalOperationId is { } pending)
 			throw new InvalidOperationException($"Environmental operation {pending} must be confirmed before changing its binding.");
 		if (mode != EnvironmentalMagicBindingMode.Explicit) profileId = null;
 		if (concrete.EnvironmentBindingMode == mode && concrete.EnvironmentalMagicProfileId == profileId) return;
-		if (_registered.TryGetValue(cell.Id, out var old)) Settle(old, Now);
+		if (_registered.TryGetValue(room.Id, out var old)) Settle(old, Now);
 		SettlePressure(concrete, null);
 		concrete.SetEnvironmentBinding(mode, profileId);
-		if (_treatments.TryGetValue(cell.Id, out var treatment) && EffectiveProfileId(concrete) != treatment.Progress.ProfileId)
-			CancelTreatment(cell, treatment.Progress.Id, "The effective environmental profile changed.");
+		if (_treatments.TryGetValue(room.Id, out var treatment) && EffectiveProfileId(concrete) != treatment.Progress.ProfileId)
+			CancelTreatment(room, treatment.Progress.Id, "The effective environmental profile changed.");
 		Register(concrete);
-		if (_registered.TryGetValue(cell.Id, out var next)) Recheck(next, Now);
+		if (_registered.TryGetValue(room.Id, out var next)) Recheck(next, Now);
 	}
 
-	public void CellTerrainChanged(ICell cell)
+	public void RoomTerrainChanged(IRoom room)
 	{
 		if (_disposed) return;
-		if (cell is Cell concrete && _treatments.TryGetValue(cell.Id, out var treatment) && EffectiveProfileId(concrete) != treatment.Progress.ProfileId)
-			CancelTreatment(cell, treatment.Progress.Id, "The effective environmental profile changed.");
-		if (_registered.TryGetValue(cell.Id, out var old)) Settle(old, Now);
-		Register(cell);
-		if (_registered.TryGetValue(cell.Id, out var next)) Recheck(next, Now);
+		if (room is Room concrete && _treatments.TryGetValue(room.Id, out var treatment) && EffectiveProfileId(concrete) != treatment.Progress.ProfileId)
+			CancelTreatment(room, treatment.Progress.Id, "The effective environmental profile changed.");
+		if (_registered.TryGetValue(room.Id, out var old)) Settle(old, Now);
+		Register(room);
+		if (_registered.TryGetValue(room.Id, out var next)) Recheck(next, Now);
 	}
 
 	public void TerrainDefaultChanged(ITerrain terrain)
 	{
-		foreach (var r in _treatments.Values.Where(x => EffectiveProfileId(x.Cell) != x.Progress.ProfileId).ToArray())
-			CancelTreatment(r.Cell, r.Progress.Id, "The terrain's effective environmental profile changed.");
+		foreach (var r in _treatments.Values.Where(x => EffectiveProfileId(x.Room) != x.Progress.ProfileId).ToArray())
+			CancelTreatment(r.Room, r.Progress.Id, "The terrain's effective environmental profile changed.");
 		BeginDiscovery();
 	}
 	public void BeforeProfileChange(IEnvironmentalMagicProfile profile)
@@ -255,38 +255,38 @@ public sealed partial class EnvironmentalMagicCoordinator : IEnvironmentalMagicS
 		_discoveryRemaining = _cellOrder.Count;
 	}
 
-	public IAgricultureField? FieldFor(ICell cell) => ReferenceEquals(cell.Gameworld, _world)
-		? _fields.GetValueOrDefault(cell.Id) : null;
+	public IAgricultureField? FieldFor(IRoom room) => ReferenceEquals(room.Gameworld, _world)
+		? _fields.GetValueOrDefault(room.Id) : null;
 
 	public IEnumerable<IAgricultureField> PollinationCandidates() => _apiaryFields.Values;
 
 	public void RefreshPollinationCandidate(IAgricultureField field)
 	{
-		if (!ReferenceEquals(field.Cell.Gameworld, _world)) return;
-		if (field.HasActiveApiary) _apiaryFields[field.Cell.Id] = field;
-		else if (_apiaryFields.GetValueOrDefault(field.Cell.Id) == field) _apiaryFields.Remove(field.Cell.Id);
+		if (!ReferenceEquals(field.Room.Gameworld, _world)) return;
+		if (field.HasActiveApiary) _apiaryFields[field.Room.Id] = field;
+		else if (_apiaryFields.GetValueOrDefault(field.Room.Id) == field) _apiaryFields.Remove(field.Room.Id);
 	}
 
 	public void FieldChanged(IAgricultureField field, bool removed = false)
 	{
-		if (_disposed || !ReferenceEquals(field.Cell.Gameworld, _world)) return;
+		if (_disposed || !ReferenceEquals(field.Room.Gameworld, _world)) return;
 		if (removed)
 		{
-			if (_fields.GetValueOrDefault(field.Cell.Id) == field) _fields.Remove(field.Cell.Id);
-			if (_apiaryFields.GetValueOrDefault(field.Cell.Id) == field) _apiaryFields.Remove(field.Cell.Id);
+			if (_fields.GetValueOrDefault(field.Room.Id) == field) _fields.Remove(field.Room.Id);
+			if (_apiaryFields.GetValueOrDefault(field.Room.Id) == field) _apiaryFields.Remove(field.Room.Id);
 		}
 		else
 		{
-			_fields[field.Cell.Id] = field;
+			_fields[field.Room.Id] = field;
 			RefreshPollinationCandidate(field);
 		}
-		MarkDirty(field.Cell, EnvironmentalMagicDirtyReason.Agriculture);
+		MarkDirty(field.Room, EnvironmentalMagicDirtyReason.Agriculture);
 	}
 
-	public void MarkDirty(ICell cell, EnvironmentalMagicDirtyReason reason)
+	public void MarkDirty(IRoom room, EnvironmentalMagicDirtyReason reason)
 	{
-		if (_evaluating.Contains(cell.Id)) { _recursive.Add(cell.Id); return; }
-		if (_disposed || !_registered.TryGetValue(cell.Id, out var registration) || !ReferenceEquals(registration.Cell, cell)) return;
+		if (_evaluating.Contains(room.Id)) { _recursive.Add(room.Id); return; }
+		if (_disposed || !_registered.TryGetValue(room.Id, out var registration) || !ReferenceEquals(registration.Room, room)) return;
 		if (reason is EnvironmentalMagicDirtyReason.Forage or EnvironmentalMagicDirtyReason.Agriculture)
 		{
 			var profile = _world.MagicResourceRegenerators.Get(registration.ProfileId) as IEnvironmentalMagicProfile;
@@ -320,7 +320,7 @@ public sealed partial class EnvironmentalMagicCoordinator : IEnvironmentalMagicS
 		try
 		{
 			var emptyLanes = 0;
-			while (_lastVisits < Options.MaximumCellVisits && outputWork + 8 <= Options.MaximumOutputWork)
+			while (_lastVisits < Options.MaximumRoomVisits && outputWork + 8 <= Options.MaximumOutputWork)
 			{
 				var now = Now;
 				Registration? work = null;
@@ -339,11 +339,11 @@ public sealed partial class EnvironmentalMagicCoordinator : IEnvironmentalMagicS
 						work = audit;
 						break;
 						case 3 when _discoveryRemaining > 0 && _discoveryCursor is not null:
-						var cell = _discoveryCursor.Value;
+						var room = _discoveryCursor.Value;
 						_discoveryCursor = _discoveryCursor.Next ?? _cellOrder.First;
 						_discoveryRemaining--;
-						Register(cell);
-						_registered.TryGetValue(cell.Id, out work);
+						Register(room);
+						_registered.TryGetValue(room.Id, out work);
 						discovered = true;
 							break;
 						case 4:
@@ -391,8 +391,8 @@ public sealed partial class EnvironmentalMagicCoordinator : IEnvironmentalMagicS
 		_treatments.Clear();
 		_treatmentDue.Clear();
 		_treatmentRecords.Clear();
-		_treatmentRecordsByCell.Clear();
-		_treatmentCellsLoaded.Clear();
+		_treatmentRecordsByRoom.Clear();
+		_treatmentRoomsLoaded.Clear();
 		_loadedTreatments.Clear();
 		_queuedTreatments.Clear();
 		_registered.Clear();

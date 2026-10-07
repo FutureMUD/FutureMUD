@@ -39,7 +39,7 @@ public class ExitSizeMerit : CharacterMeritBase, IContextualSizeMerit
 
     public SizeCategory ContextualSize(SizeCategory original, SizeContext context)
     {
-        if (context != SizeContext.CellExit)
+        if (context != SizeContext.RoomExit)
         {
             return original;
         }

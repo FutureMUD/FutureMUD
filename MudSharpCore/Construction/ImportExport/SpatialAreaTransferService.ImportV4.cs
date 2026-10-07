@@ -20,7 +20,7 @@ public sealed partial class SpatialAreaTransferService
 		var gameworld = actor.Gameworld;
 		var dbZones = new Dictionary<string, Models.Zone>(StringComparer.Ordinal);
 		var dbAreas = new Dictionary<string, Models.Areas>(StringComparer.Ordinal);
-		var dbCells = new Dictionary<string, Models.Cell>(StringComparer.Ordinal);
+		var dbRooms = new Dictionary<string, Models.Room>(StringComparer.Ordinal);
 		var databaseCommitted = false;
 		try
 		{
@@ -68,20 +68,20 @@ public sealed partial class SpatialAreaTransferService
 					FMDB.Context.Zones.Add(dbZone);
 				}
 
-				foreach (var cell in package.Cells)
+				foreach (var room in package.Rooms)
 				{
-					var dbCell = new Models.Cell
+					var dbRoom = new Models.Room
 					{
-						Zone = dbZones[cell.ZoneKey],
-						X = cell.X, Y = cell.Y, Z = cell.Z,
+						Zone = dbZones[room.ZoneKey],
+						X = room.X, Y = room.Y, Z = room.Z,
 						Temporary = false,
 						EffectData = "<Effects/>",
-						ForagableProfileId = cell.ForagableProfile is null
+						ForagableProfileId = room.ForagableProfile is null
 							? null
-							: preflight.ForagableProfiles[cell.ForagableProfile.Name].Id
+							: preflight.ForagableProfiles[room.ForagableProfile.Name].Id
 					};
-					dbCells.Add(cell.Key, dbCell);
-					FMDB.Context.Cells.Add(dbCell);
+					dbRooms.Add(room.Key, dbRoom);
+					FMDB.Context.Rooms.Add(dbRoom);
 				}
 
 				FMDB.Context.SaveChanges();
@@ -93,12 +93,12 @@ public sealed partial class SpatialAreaTransferService
 						Name = area.Name,
 						WeatherControllerId = preflight.AreaWeatherControllers[area.Key]?.Id
 					};
-					foreach (var cellKey in area.CellKeys)
+					foreach (var cellKey in area.RoomKeys)
 					{
-						dbArea.AreasCells.Add(new AreasCells
+						dbArea.AreasRooms.Add(new AreasRooms
 						{
 							Area = dbArea,
-							Cell = dbCells[cellKey]
+							Room = dbRooms[cellKey]
 						});
 					}
 
@@ -108,18 +108,18 @@ public sealed partial class SpatialAreaTransferService
 
 				FMDB.Context.SaveChanges();
 
-				var dbOverlays = new Dictionary<string, Models.CellOverlay>(StringComparer.Ordinal);
-				foreach (var cell in package.Cells)
+				var dbOverlays = new Dictionary<string, Models.RoomOverlay>(StringComparer.Ordinal);
+				foreach (var room in package.Rooms)
 				{
-					var overlay = cell.Overlay;
-					var dbOverlay = new Models.CellOverlay
+					var overlay = room.Overlay;
+					var dbOverlay = new Models.RoomOverlay
 					{
-						Cell = dbCells[cell.Key],
+						Room = dbRooms[room.Key],
 						Name = preflight.OverlayPackage.Name,
-						CellName = overlay.CellName,
-						CellDescription = overlay.CellDescription,
-						CellOverlayPackageId = preflight.OverlayPackage.Id,
-						CellOverlayPackageRevisionNumber = preflight.OverlayPackage.RevisionNumber,
+						RoomName = overlay.RoomName,
+						RoomDescription = overlay.RoomDescription,
+						RoomOverlayPackageId = preflight.OverlayPackage.Id,
+						RoomOverlayPackageRevisionNumber = preflight.OverlayPackage.RevisionNumber,
 						TerrainId = preflight.Terrains[overlay.Terrain.Name].Id,
 						HearingProfileId = overlay.HearingProfile is null
 							? null
@@ -133,56 +133,56 @@ public sealed partial class SpatialAreaTransferService
 						AtmosphereType = overlay.Atmosphere?.Kind,
 						SafeQuit = overlay.SafeQuit
 					};
-					dbCells[cell.Key].CellOverlays.Add(dbOverlay);
-					dbOverlays.Add(cell.Key, dbOverlay);
-					FMDB.Context.CellOverlays.Add(dbOverlay);
+					dbRooms[room.Key].RoomOverlays.Add(dbOverlay);
+					dbOverlays.Add(room.Key, dbOverlay);
+					FMDB.Context.RoomOverlays.Add(dbOverlay);
 				}
 
 				FMDB.Context.SaveChanges();
 
-				var dbRouteCells = new Dictionary<string, Models.RouteCell>(StringComparer.Ordinal);
-				foreach (var cell in package.Cells)
+				var dbRouteRooms = new Dictionary<string, Models.RouteRoom>(StringComparer.Ordinal);
+				foreach (var room in package.Rooms)
 				{
-					var dbCell = dbCells[cell.Key];
-					dbCell.CurrentOverlay = dbOverlays[cell.Key];
-					foreach (var tag in cell.Tags)
+					var dbRoom = dbRooms[room.Key];
+					dbRoom.CurrentOverlay = dbOverlays[room.Key];
+					foreach (var tag in room.Tags)
 					{
-						dbCell.CellsTags.Add(new CellsTags
+						dbRoom.RoomsTags.Add(new RoomsTags
 						{
-							Cell = dbCell,
+							Room = dbRoom,
 							TagId = preflight.Tags[tag.Name].Id
 						});
 					}
 
-					foreach (var cover in cell.RangedCovers)
+					foreach (var cover in room.RangedCovers)
 					{
-						dbCell.CellsRangedCovers.Add(new CellsRangedCovers
+						dbRoom.RoomsRangedCovers.Add(new RoomsRangedCovers
 						{
-							Cell = dbCell,
+							Room = dbRoom,
 							RangedCoverId = preflight.RangedCovers[cover.Name].Id
 						});
 					}
 
-					foreach (var resource in cell.MagicResources)
+					foreach (var resource in room.MagicResources)
 					{
-						dbCell.CellsMagicResources.Add(new CellMagicResource
+						dbRoom.RoomsMagicResources.Add(new RoomMagicResource
 						{
-							Cell = dbCell,
+							Room = dbRoom,
 							MagicResourceId = preflight.MagicResources[resource.Resource.Name].Id,
 							Amount = resource.Amount
 						});
 					}
 
-					if (cell.RouteCell is null)
+					if (room.RouteRoom is null)
 					{
 						continue;
 					}
 
-					var route = cell.RouteCell;
-					var dbRoute = new Models.RouteCell
+					var route = room.RouteRoom;
+					var dbRoute = new Models.RouteRoom
 					{
-						Cell = dbCell,
-						CellId = dbCell.Id,
+						Room = dbRoom,
+						RoomId = dbRoom.Id,
 						LengthMetres = (decimal)route.LengthMetres,
 						DefaultPositionMetres = (decimal)route.DefaultPositionMetres,
 						PositiveDirectionName = route.PositiveDirectionName,
@@ -192,9 +192,9 @@ public sealed partial class SpatialAreaTransferService
 					};
 					foreach (var landmark in route.Landmarks)
 					{
-						dbRoute.Landmarks.Add(new Models.RouteCellLandmark
+						dbRoute.Landmarks.Add(new Models.RouteRoomLandmark
 						{
-							RouteCell = dbRoute,
+							RouteRoom = dbRoute,
 							Name = landmark.Name,
 							Keywords = landmark.Keywords,
 							Description = landmark.Description,
@@ -203,9 +203,9 @@ public sealed partial class SpatialAreaTransferService
 						});
 					}
 
-					dbCell.RouteCell = dbRoute;
-					dbRouteCells.Add(cell.Key, dbRoute);
-					FMDB.Context.RouteCells.Add(dbRoute);
+					dbRoom.RouteRoom = dbRoute;
+					dbRouteRooms.Add(room.Key, dbRoute);
+					FMDB.Context.RouteRooms.Add(dbRoute);
 				}
 
 				var dbExits = new Dictionary<string, Models.Exit>(StringComparer.Ordinal);
@@ -213,8 +213,8 @@ public sealed partial class SpatialAreaTransferService
 				{
 					var dbExit = new Models.Exit
 					{
-						CellId1 = dbCells[exit.Cell1Key].Id,
-						CellId2 = dbCells[exit.Cell2Key].Id,
+						RoomId1 = dbRooms[exit.Room1Key].Id,
+						RoomId2 = dbRooms[exit.Room2Key].Id,
 						Direction1 = exit.Side1.Direction,
 						Direction2 = exit.Side2.Direction,
 						TimeMultiplier = exit.TimeMultiplier,
@@ -222,7 +222,7 @@ public sealed partial class SpatialAreaTransferService
 						DoorSize = exit.AcceptsDoor ? exit.DoorSize : null,
 						MaximumSizeToEnter = exit.MaximumSizeToEnter,
 						MaximumSizeToEnterUpright = exit.MaximumSizeToEnterUpright,
-						FallCell = exit.FallCellKey is null ? null : dbCells[exit.FallCellKey].Id,
+						FallRoom = exit.FallRoomKey is null ? null : dbRooms[exit.FallRoomKey].Id,
 						IsClimbExit = exit.IsClimbExit,
 						ClimbDifficulty = exit.ClimbDifficulty,
 						BlockedLayers = string.Join(",", exit.BlockedLayers),
@@ -247,31 +247,31 @@ public sealed partial class SpatialAreaTransferService
 
 				FMDB.Context.SaveChanges();
 
-				foreach (var cell in package.Cells)
+				foreach (var room in package.Rooms)
 				{
-					foreach (var exitKey in cell.Overlay.ExitKeys)
+					foreach (var exitKey in room.Overlay.ExitKeys)
 					{
-						dbOverlays[cell.Key].CellOverlaysExits.Add(new CellOverlayExit
+						dbOverlays[room.Key].RoomOverlaysExits.Add(new RoomOverlayExit
 						{
-							CellOverlay = dbOverlays[cell.Key],
+							RoomOverlay = dbOverlays[room.Key],
 							Exit = dbExits[exitKey]
 						});
 					}
 
-					if (cell.RouteCell is null)
+					if (room.RouteRoom is null)
 					{
 						continue;
 					}
 
-					var dbRoute = dbRouteCells[cell.Key];
-					foreach (var anchor in cell.RouteCell.ExitAnchors)
+					var dbRoute = dbRouteRooms[room.Key];
+					foreach (var anchor in room.RouteRoom.ExitAnchors)
 					{
 						dbRoute.ExitAnchors.Add(new Models.RouteExitAnchor
 						{
-							RouteCell = dbRoute,
+							RouteRoom = dbRoute,
 							Exit = dbExits[anchor.ExitKey],
 							ExitId = dbExits[anchor.ExitKey].Id,
-							RouteCellId = dbRoute.CellId,
+							RouteRoomId = dbRoute.RoomId,
 							MinimumPositionMetres = (decimal)anchor.MinimumPositionMetres,
 							MaximumPositionMetres = (decimal)anchor.MaximumPositionMetres,
 							ArrivalPositionMetres = (decimal)anchor.ArrivalPositionMetres
@@ -282,7 +282,7 @@ public sealed partial class SpatialAreaTransferService
 				foreach (var (zone, index) in preflight.Zones.Select((value, index) => (value, index)))
 				{
 					var zoneKey = SpatialAreaPackageSerializer.ZoneKey(package, zone, index);
-					dbZones[zoneKey].DefaultCell = dbCells[zone.DefaultCellKey];
+					dbZones[zoneKey].DefaultRoom = dbRooms[zone.DefaultRoomKey];
 				}
 
 				FMDB.Context.SaveChanges();
@@ -303,9 +303,9 @@ public sealed partial class SpatialAreaTransferService
 			{
 				var zoneKey = SpatialAreaPackageSerializer.ZoneKey(package, zone, index);
 				var runtimeZone = runtimeZones[zoneKey];
-				foreach (var definition in package.Cells.Where(x => x.ZoneKey == zoneKey)
-					         .OrderByDescending(x => x.Key == zone.DefaultCellKey).ThenBy(x => x.Key))
-					gameworld.Add(new Cell(dbCells[definition.Key], runtimeZone));
+				foreach (var definition in package.Rooms.Where(x => x.ZoneKey == zoneKey)
+					         .OrderByDescending(x => x.Key == zone.DefaultRoomKey).ThenBy(x => x.Key))
+					gameworld.Add(new Room(dbRooms[definition.Key], runtimeZone));
 			}
 
 			foreach (var area in package.Areas)
@@ -331,7 +331,7 @@ public sealed partial class SpatialAreaTransferService
 				ImportedZoneIds = importedZoneIds,
 				ZoneCount = runtimeZones.Count,
 				Diagnostics = preflight.Diagnostics,
-				CellCount = package.Cells.Count,
+				RoomCount = package.Rooms.Count,
 				ExitCount = package.Exits.Count,
 				OmittedItems = PackageOmissions(preflight)
 			};
@@ -354,7 +354,7 @@ public sealed partial class SpatialAreaTransferService
 					ImportedZoneIds = zoneIds,
 					ZoneCount = zoneIds.Count,
 					Diagnostics = committedDiagnostics,
-					CellCount = package.Cells.Count,
+					RoomCount = package.Rooms.Count,
 					ExitCount = package.Exits.Count,
 					OmittedItems = PackageOmissions(preflight)
 				};

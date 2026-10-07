@@ -122,8 +122,8 @@ public class ImplantAVRecorderGameItemComponent : DigitalMediaRecorderGameItemCo
 
 	public bool TryCapture(ILocation location, IOutput output, out MediaPacket packet)
 	{
-		packet = null!; var actor = InstalledBody?.Actor; if (!MediaAvailable || actor is null || !ReferenceEquals(actor.Location, location) || location is not ICell cell) return false;
-		var sensor = new MediaSensorPerceiver(actor, cell, _implantPrototype.SensorSensitivity); if (!output.ShouldSee(sensor)) return false;
+		packet = null!; var actor = InstalledBody?.Actor; if (!MediaAvailable || actor is null || !ReferenceEquals(actor.Location, location) || location is not IRoom room) return false;
+		var sensor = new MediaSensorPerceiver(actor, room, _implantPrototype.SensorSensitivity); if (!output.ShouldSee(sensor)) return false;
 		if (output is IMediaPacketOutput mediaOutput)
 		{
 			var sourcePacket = mediaOutput.MediaPacket;
@@ -151,7 +151,7 @@ public class ImplantAVRecorderGameItemComponent : DigitalMediaRecorderGameItemCo
 		}
 		var source = output is IEmoteOutput emote ? emote.DefaultSource : null;
 		if (MediaComponentUtilities.IsAudible(output) && source is not null &&
-		    (!sensor.CanHear(source) || cell.LocalAudioDifficulty(sensor,
+		    (!sensor.CanHear(source) || room.LocalAudioDifficulty(sensor,
 			    MediaComponentUtilities.GetAudioVolume(output) ?? AudioVolume.Decent,
 			    actor.GetProximity(source)) == Difficulty.Impossible)) return false;
 		if (output is IRecordableLanguageOutput language) { var signed = language.LanguageInfo.Form == LanguageForm.Signed; var caps = signed ? MediaCapabilities.Video : MediaCapabilities.Audio; if ((caps & MediaCapabilities) == MediaCapabilities.None) return false; packet = CreateCaptured(caps, signed ? MediaEventKind.Video : MediaEventKind.Audio, MediaComponentUtilities.CreateLanguagePayload(language)); return true; }

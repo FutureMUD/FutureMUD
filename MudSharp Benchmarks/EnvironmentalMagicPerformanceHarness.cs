@@ -24,7 +24,7 @@ internal static class EnvironmentalMagicPerformanceHarness
 		var visits = int.Parse(ReadOption(args, "--cell-visits") ?? "1024", CultureInfo.InvariantCulture);
 		if (sampleSeconds < 1 || warmupSeconds < 0 || sizes.Any(size => size < 1))
 			throw new ArgumentException("Positive sizes and sample seconds, and non-negative warm-up seconds, are required.");
-		var options = new EnvironmentalMagicOptions { SoftBudgetMilliseconds = budget, MaximumCellVisits = visits };
+		var options = new EnvironmentalMagicOptions { SoftBudgetMilliseconds = budget, MaximumRoomVisits = visits };
 		options.Validate();
 		var report = new HarnessReport(DateTimeOffset.UtcNow, RuntimeInformation.FrameworkDescription,
 			RuntimeInformation.OSDescription, RuntimeInformation.ProcessArchitecture.ToString(), System.Environment.ProcessorCount,
@@ -74,7 +74,7 @@ internal static class EnvironmentalMagicPerformanceHarness
 			var changeWatch = Stopwatch.StartNew();
 			if (policy == "native-yield")
 			{
-				foreach (var cell in burst.Cells.Cast<Cell>()) cell.ConsumeYield("herbs", 50.0);
+				foreach (var room in burst.Rooms.Cast<Room>()) room.ConsumeYield("herbs", 50.0);
 			}
 			else if (policy == "compiled-prog")
 			{
@@ -120,8 +120,8 @@ internal static class EnvironmentalMagicPerformanceHarness
 			allocated += GC.GetAllocatedBytesForCurrentThread() - allocationStart;
 			var diagnostics = world.Coordinator.Diagnostics;
 			times[second] = diagnostics.LastPumpMilliseconds;
-			visits += diagnostics.LastCellVisits;
-			maximumVisits = Math.Max(maximumVisits, diagnostics.LastCellVisits);
+			visits += diagnostics.LastRoomVisits;
+			maximumVisits = Math.Max(maximumVisits, diagnostics.LastRoomVisits);
 			maximumReadyAge = Math.Max(maximumReadyAge, diagnostics.OldestReadySeconds);
 			maximumAuditAge = Math.Max(maximumAuditAge, diagnostics.OldestAuditSeconds);
 			if (diagnostics.ActiveProduction + diagnostics.ActiveMaintenance > 0)
@@ -164,15 +164,15 @@ internal static class EnvironmentalMagicPerformanceHarness
 		string Architecture, int LogicalProcessors, long AvailableMemoryBytes, string ProcessorIdentifier,
 		EnvironmentalMagicOptions Options, int WarmupSeconds, int SteadySampleSeconds, string Method,
 		List<HarnessMeasurement> Results);
-	private sealed record HarnessMeasurement(string Scenario, int Cells, int Outputs, double RequestedActivePercent,
+	private sealed record HarnessMeasurement(string Scenario, int Rooms, int Outputs, double RequestedActivePercent,
 		string Policy, int SimulatedSeconds, int ActiveAtStart, int ActiveAtEnd, int DormantAtEnd, int FaultedAtEnd,
 		int SecondHeartbeatSubscribers, int GlobalSchedulerEntries, int EnvironmentalPerHolderDelegates,
-		long CentralCallbacks, long CellVisits, int MaximumVisitsPerPump, long InputSnapshots, long FormulaEvaluations,
+		long CentralCallbacks, long RoomVisits, int MaximumVisitsPerPump, long InputSnapshots, long FormulaEvaluations,
 		long InputProgExecutions, long BusinessWrites, long DirtySaveRequests, long AllocatedBytes,
 		double AverageCallbackMilliseconds, double P95CallbackMilliseconds, double MaximumCallbackMilliseconds,
-		double WallSeconds, double CellVisitsPerWallSecond, double MaximumReadyWorkAgeSeconds,
+		double WallSeconds, double RoomVisitsPerWallSecond, double MaximumReadyWorkAgeSeconds,
 		double MaximumAuditAgeSeconds, double FinalReadyWorkAgeSeconds, double FinalAuditAgeSeconds,
-		long BudgetLimitedPumps, int RemainingDiscoveryCells, int RemainingDirtyCells,
+		long BudgetLimitedPumps, int RemainingDiscoveryRooms, int RemainingDirtyRooms,
 		int ExplicitOperationReads, int ExplicitOperationCommits, long SynchronousSaveFlushes,
 		double SourceChangeMilliseconds, double AverageHeartbeatAndFixtureMilliseconds,
 		double MaximumActiveUpdateAgeBoundSeconds);

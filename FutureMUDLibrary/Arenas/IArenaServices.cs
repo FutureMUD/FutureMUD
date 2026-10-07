@@ -32,7 +32,7 @@ public interface IArenaLifecycleService
 public interface IArenaObservationService
 {
     (bool Truth, string Reason) CanObserve(ICharacter observer, IArenaEvent arenaEvent);
-    void StartObserving(ICharacter observer, IArenaEvent arenaEvent, ICell observationCell);
+    void StartObserving(ICharacter observer, IArenaEvent arenaEvent, IRoom observationRoom);
     void StopObserving(ICharacter observer, IArenaEvent arenaEvent);
 }
 

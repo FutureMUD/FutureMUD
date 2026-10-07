@@ -96,9 +96,9 @@ public class PredatorHuntingTests
 		var service = new ProximityEventService();
 		f.World.SetupGet(x => x.ProximityEventService).Returns(service);
 		var item = new Mock<IGameItem>();
-		ICell? itemLocation = null;
-		var outside = new Mock<ICell>();
-		ICell preyLocation = outside.Object;
+		IRoom? itemLocation = null;
+		var outside = new Mock<IRoom>();
+		IRoom preyLocation = outside.Object;
 		item.SetupGet(x => x.Gameworld).Returns(f.World.Object);
 		item.SetupGet(x => x.LocationLevelPerceivable).Returns(item.Object);
 		item.SetupGet(x => x.Location).Returns(() => itemLocation!);
@@ -115,12 +115,12 @@ public class PredatorHuntingTests
 		f.World.SetupGet(x => x.TrapTemplates).Returns(templates);
 		var trap = new TrapEffect(item.Object, template.Object);
 		trap.InitialEffect();
-		itemLocation = f.Cell.Object;
+		itemLocation = f.Room.Object;
 		trap.Login();
 		trap.Login();
 		using (var change = service.BeginChange(ProximityChangeCause.Movement, f.Target.Object))
 		{
-			preyLocation = f.Cell.Object;
+			preyLocation = f.Room.Object;
 			change.Complete();
 		}
 		item.Verify(x => x.HandleEvent(EventType.PerceivableProximityChanged, It.IsAny<object[]>()), Times.Once);
@@ -138,7 +138,7 @@ public class PredatorHuntingTests
 		var loaded = (TrapRestraintEffect)Effect.LoadEffect(restraint.SaveToXml([]), f.Target.Object);
 		f.Target.Setup(x => x.EffectsOfType<TrapRestraintEffect>()).Returns([loaded]);
 		Assert.AreEqual(10, loaded.CreatorId);
-		Assert.AreEqual(7, loaded.OriginCellId);
+		Assert.AreEqual(7, loaded.OriginRoomId);
 		Assert.IsNull(f.Ai.PreyRejection(f.Actor.Object, f.Target.Object), "The spent trap is absent but its applied restraint is authoritative.");
 		f.Target.Setup(x => x.EffectsOfType<TrapRestraintEffect>()).Returns([new TrapRestraintEffect(f.Target.Object, restraint.TrapInstanceId, "webbed", 999, 7)]);
 		Assert.IsNotNull(f.Ai.PreyRejection(f.Actor.Object, f.Target.Object));
@@ -191,14 +191,14 @@ public class PredatorHuntingTests
 		f.Target.SetupProperty(x => x.PositionState, PositionSprawled.Instance);
 		f.Actor.SetupProperty(x => x.RoomLayer, RoomLayer.GroundLevel);
 		f.Target.SetupProperty(x => x.RoomLayer, RoomLayer.GroundLevel);
-		f.Actor.Setup(x => x.Teleport(f.Cell.Object, RoomLayer.InTrees, false, false, It.IsAny<double?>()))
+		f.Actor.Setup(x => x.Teleport(f.Room.Object, RoomLayer.InTrees, false, false, It.IsAny<double?>()))
 			.Callback(() => f.Actor.Object.RoomLayer = RoomLayer.InTrees);
-		f.Target.Setup(x => x.Teleport(f.Cell.Object, RoomLayer.InTrees, false, false, It.IsAny<double?>()))
+		f.Target.Setup(x => x.Teleport(f.Room.Object, RoomLayer.InTrees, false, false, It.IsAny<double?>()))
 			.Callback(() => f.Target.Object.RoomLayer = RoomLayer.InTrees);
 		f.Actor.SetupGet(x => x.MaximumDragWeight).Returns(30);
 		f.Target.SetupGet(x => x.Weight).Returns(20);
 		f.Actor.Setup(x => x.CouldTransitionToLayer(RoomLayer.InTrees)).Returns(true);
-		f.Cell.Setup(x => x.Terrain(f.Target.Object).TerrainLayers).Returns([RoomLayer.GroundLevel, RoomLayer.InTrees]);
+		f.Room.Setup(x => x.Terrain(f.Target.Object).TerrainLayers).Returns([RoomLayer.GroundLevel, RoomLayer.InTrees]);
 		Assert.IsTrue(CombatForcedMovementUtilities.TryForceLayerMovement(f.Actor.Object, f.Target.Object,
 			RoomLayer.InTrees, ForcedMovementVerbs.Pull, 1, out var why), why);
 		Assert.AreSame(PositionClimbing.Instance, f.Actor.Object.PositionState);
@@ -258,20 +258,20 @@ public class PredatorHuntingTests
 		var f = new Fixture("<Home type='Denning' />");
 		f.Ai.Hunting.Opening = AnimalHuntOpening.TrapWait;
 		f.Actor.SetupGet(x => x.Corpse).Returns((ICorpse)null!);
-		var destination = new Mock<ICell>();
+		var destination = new Mock<IRoom>();
 		destination.SetupGet(x => x.Id).Returns(99);
 		destination.SetupGet(x => x.Location).Returns(destination.Object);
-		var cells = new All<ICell>(); cells.Add(f.Cell.Object); cells.Add(destination.Object);
-		f.World.SetupGet(x => x.Cells).Returns(cells);
-		var exit = new Mock<MudSharp.Construction.Boundary.ICellExit>();
-		exit.SetupGet(x => x.Origin).Returns(f.Cell.Object);
+		var rooms = new All<IRoom>(); rooms.Add(f.Room.Object); rooms.Add(destination.Object);
+		f.World.SetupGet(x => x.Rooms).Returns(rooms);
+		var exit = new Mock<MudSharp.Construction.Boundary.IRoomExit>();
+		exit.SetupGet(x => x.Origin).Returns(f.Room.Object);
 		exit.SetupGet(x => x.Destination).Returns(destination.Object);
-		f.Cell.Setup(x => x.ExitsFor(null, true)).Returns([exit.Object]);
+		f.Room.Setup(x => x.ExitsFor(null, true)).Returns([exit.Object]);
 		f.Actor.Setup(x => x.CanCross(exit.Object)).Returns((true, null!));
 		f.Actor.Setup(x => x.CanMove(exit.Object, It.IsAny<CanMoveFlags>())).Returns(CanMoveResponse.True);
 		f.Actor.Setup(x => x.CanMoveForPathPlanning(exit.Object, It.IsAny<CanMoveFlags>())).Returns(CanMoveResponse.True);
 		var home = new NpcHomeBaseEffect(f.Actor.Object);
-		home.SetHomeCell(destination.Object);
+		home.SetHomeRoom(destination.Object);
 		f.Actor.Setup(x => x.CombinedEffectsOfType<NpcHomeBaseEffect>()).Returns([home]);
 		FollowingPath? created = null;
 		f.Actor.Setup(x => x.AddEffect(It.IsAny<IEffect>())).Callback<IEffect>(effect =>
@@ -456,7 +456,7 @@ public class PredatorHuntingTests
 		Assert.IsNotNull(f.Ai.PreyRejection(f.Actor.Object, f.Target.Object));
 		var id = Guid.NewGuid(); var trap = new Mock<ITrap>();
 		trap.SetupGet(x => x.CreatorId).Returns(f.Actor.Object.Id); trap.SetupGet(x => x.InstanceId).Returns(id);
-		f.Cell.Setup(x => x.EffectsOfType<ITrap>()).Returns([trap.Object]);
+		f.Room.Setup(x => x.EffectsOfType<ITrap>()).Returns([trap.Object]);
 		Assert.IsNotNull(f.Ai.PreyRejection(f.Actor.Object, f.Target.Object), "Deployment alone is not capture.");
 		f.Target.Setup(x => x.EffectsOfType<TrapRestraintEffect>()).Returns([new TrapRestraintEffect(f.Target.Object, id, "webbed")]);
 		Assert.IsNull(f.Ai.PreyRejection(f.Actor.Object, f.Target.Object));
@@ -534,7 +534,7 @@ public class PredatorHuntingTests
 		attack.SetupGet(x => x.SourceLayers).Returns([RoomLayer.InTrees]);
 		attack.SetupGet(x => x.DestinationLayers).Returns([RoomLayer.GroundLevel]);
 		f.Actor.SetupGet(x => x.RoomLayer).Returns(RoomLayer.InTrees);
-		f.Cell.Setup(x => x.Terrain(f.Actor.Object).TerrainLayers).Returns([RoomLayer.GroundLevel, RoomLayer.InTrees]);
+		f.Room.Setup(x => x.Terrain(f.Actor.Object).TerrainLayers).Returns([RoomLayer.GroundLevel, RoomLayer.InTrees]);
 		f.Actor.Setup(x => x.CanClimbDown()).Returns((true, ""));
 		Assert.IsTrue(AmbushAttackMove.CanAmbush(f.Actor.Object, f.Target.Object, attack.Object));
 		f.Actor.Setup(x => x.CanClimbDown()).Returns((false, "restrained"));
@@ -559,11 +559,11 @@ public class PredatorHuntingTests
 		f.Actor.SetupGet(x => x.PositionState).Returns(PositionSwimming.Instance);
 		f.Actor.SetupGet(x => x.Race.CanSwim).Returns(canSwim);
 		f.Actor.As<ISwim>().Setup(x => x.CanAscend()).Returns((canAscend, "ascent blocked"));
-		f.Cell.Setup(x => x.Terrain(f.Actor.Object).TerrainLayers).Returns([RoomLayer.GroundLevel, RoomLayer.Underwater]);
+		f.Room.Setup(x => x.Terrain(f.Actor.Object).TerrainLayers).Returns([RoomLayer.GroundLevel, RoomLayer.Underwater]);
 
 		Assert.AreEqual(expected, AmbushAttackMove.CanAmbush(f.Actor.Object, f.Target.Object, attack.Object));
 		f.Actor.Verify(x => x.CanClimbUp(), Times.Never);
-		f.Actor.Verify(x => x.Teleport(It.IsAny<ICell>(), It.IsAny<RoomLayer>(), It.IsAny<bool>(), It.IsAny<bool>(),
+		f.Actor.Verify(x => x.Teleport(It.IsAny<IRoom>(), It.IsAny<RoomLayer>(), It.IsAny<bool>(), It.IsAny<bool>(),
 			It.IsAny<double?>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
 	}
 
@@ -571,14 +571,14 @@ public class PredatorHuntingTests
 	public void Trap_CaptureReceiptFollowsAppliedRestraint_NotDeploymentOrInvalidPayload()
 	{
 		var f = new Fixture();
-		f.Cell.SetupGet(x => x.Gameworld).Returns(f.World.Object);
+		f.Room.SetupGet(x => x.Gameworld).Returns(f.World.Object);
 		var template = new Mock<ITrapTemplate>();
 		template.SetupGet(x => x.Id).Returns(91);
 		template.SetupGet(x => x.SourceKind).Returns(TrapSourceKind.Natural);
 		var templates = new RevisableAll<ITrapTemplate>(); templates.Add(template.Object);
 		f.World.SetupGet(x => x.TrapTemplates).Returns(templates);
 		f.World.Setup(x => x.TryGetCharacter(10, true)).Returns(f.Actor.Object);
-		var trap = new TrapEffect(f.Cell.Object, template.Object, f.Actor.Object);
+		var trap = new TrapEffect(f.Room.Object, template.Object, f.Actor.Object);
 		var payload = new Mock<ITrapPayload>();
 		payload.SetupGet(x => x.Parameters).Returns(new Dictionary<string, string> { ["duration"] = "invalid" });
 		var execute = typeof(TrapEffect).GetMethod("ExecuteRestraintPayload", BindingFlags.NonPublic | BindingFlags.Instance)!;
@@ -587,7 +587,7 @@ public class PredatorHuntingTests
 		var applied = false;
 		f.Target.Setup(x => x.AddEffect(It.IsAny<IEffect>(), It.IsAny<TimeSpan>()))
 			.Callback<IEffect, TimeSpan>((effect, _) => applied = effect is TrapRestraintEffect restraint &&
-				restraint.TrapInstanceId == trap.InstanceId && restraint.CreatorId == 10 && restraint.OriginCellId == 7);
+				restraint.TrapInstanceId == trap.InstanceId && restraint.CreatorId == 10 && restraint.OriginRoomId == 7);
 		f.Actor.Setup(x => x.HandleEvent(EventType.TrapCaughtPrey, It.IsAny<object[]>()))
 			.Callback<EventType, object[]>((_, arguments) =>
 			{
@@ -627,7 +627,7 @@ public class PredatorHuntingTests
 	public void ContextualAttack_AtHome_PreservesHuntVersusDefencePurpose(string response, AnimalEngagementPurpose purpose, bool allowed)
 	{
 		var f = new Fixture($"<Home type='Territorial' /><Threat><TerritoryResponse>{response}</TerritoryResponse><HungryPreyResponse>Attack</HungryPreyResponse></Threat>");
-		var territory = new Territory(f.Actor.Object); territory.AddCell(f.Cell.Object);
+		var territory = new Territory(f.Actor.Object); territory.AddRoom(f.Room.Object);
 		f.Actor.Setup(x => x.CombinedEffectsOfType<Territory>()).Returns([territory]);
 		f.Ai.Hunting.People = AnimalPeoplePreyPolicy.Never;
 		var decision = f.Ai.ResolveThreatDecision(f.Actor.Object, f.Target.Object);
@@ -680,7 +680,7 @@ public class PredatorHuntingTests
 		public Mock<ICharacter> Actor { get; } = new() { DefaultValue = DefaultValue.Mock };
 		public Mock<ICharacter> Target { get; } = new() { DefaultValue = DefaultValue.Mock };
 		public Mock<IRace> TargetRace { get; } = new() { DefaultValue = DefaultValue.Mock };
-		public Mock<ICell> Cell { get; } = new() { DefaultValue = DefaultValue.Mock };
+		public Mock<IRoom> Room { get; } = new() { DefaultValue = DefaultValue.Mock };
 		public AnimalAI Ai { get; }
 		public Fixture(string configuration = "")
 		{
@@ -690,10 +690,10 @@ public class PredatorHuntingTests
 			World.SetupGet(x => x.AlwaysTrueProg).Returns(always.Object); World.SetupGet(x => x.AlwaysFalseProg).Returns(always.Object);
 			World.SetupGet(x => x.AlwaysOneProg).Returns(always.Object);
 			var progs = new All<IFutureProg>(); progs.Add(always.Object); World.SetupGet(x => x.FutureProgs).Returns(progs);
-			Cell.SetupGet(x => x.Id).Returns(7); Cell.SetupGet(x => x.RouteDefinition).Returns((IRouteCellDefinition)null!);
-			Cell.SetupGet(x => x.Location).Returns(Cell.Object); Cell.SetupGet(x => x.GameItems).Returns([]);
-			Cell.SetupGet(x => x.Characters).Returns([Actor.Object, Target.Object]);
-			Actor.SetupGet(x => x.Location).Returns(Cell.Object); Target.SetupGet(x => x.Location).Returns(Cell.Object);
+			Room.SetupGet(x => x.Id).Returns(7); Room.SetupGet(x => x.RouteDefinition).Returns((IRouteRoomDefinition)null!);
+			Room.SetupGet(x => x.Location).Returns(Room.Object); Room.SetupGet(x => x.GameItems).Returns([]);
+			Room.SetupGet(x => x.Characters).Returns([Actor.Object, Target.Object]);
+			Actor.SetupGet(x => x.Location).Returns(Room.Object); Target.SetupGet(x => x.Location).Returns(Room.Object);
 			Actor.SetupGet(x => x.Id).Returns(10); Target.SetupGet(x => x.Id).Returns(20);
 			Actor.SetupGet(x => x.Gameworld).Returns(World.Object); Target.SetupGet(x => x.Gameworld).Returns(World.Object);
 			Actor.SetupGet(x => x.State).Returns(CharacterState.Awake); Target.SetupGet(x => x.State).Returns(CharacterState.Awake);
@@ -712,7 +712,7 @@ public class PredatorHuntingTests
 			Actor.SetupGet(x => x.PositionState).Returns(PositionStanding.Instance); Target.SetupGet(x => x.PositionState).Returns(PositionStanding.Instance);
 			Actor.SetupGet(x => x.MaximumStamina).Returns(100); Actor.SetupGet(x => x.CurrentStamina).Returns(100);
 			Actor.Setup(x => x.HealthStrategy.CurrentHealthPercentage(Actor.Object)).Returns(1);
-			var cells = new All<ICell>(); cells.Add(Cell.Object); World.SetupGet(x => x.Cells).Returns(cells);
+			var rooms = new All<IRoom>(); rooms.Add(Room.Object); World.SetupGet(x => x.Rooms).Returns(rooms);
 			var model = new MudSharp.Models.ArtificialIntelligence { Id = 1, Name = "Hunter", Type = "Animal", Definition = $"<Definition><Feeding type='Predator' /><Hunting enabled='true'><ClassificationProg>1</ClassificationProg></Hunting>{configuration}</Definition>" };
 			Ai = (AnimalAI)typeof(AnimalAI).GetConstructor(BindingFlags.NonPublic | BindingFlags.Instance, null,
 				[typeof(MudSharp.Models.ArtificialIntelligence), typeof(IFuturemud)], null)!.Invoke([model, World.Object]);

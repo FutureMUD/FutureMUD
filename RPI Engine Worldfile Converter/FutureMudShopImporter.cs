@@ -364,7 +364,7 @@ public sealed class FutureMudShopBaselineCatalog
 		RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
 	public required FutureMudEconomicZoneReference? DefaultEconomicZone { get; init; }
-	public required IReadOnlySet<long> CellIds { get; init; }
+	public required IReadOnlySet<long> RoomIds { get; init; }
 	public required IReadOnlyDictionary<int, IReadOnlyList<FutureMudShopItemProtoReference>> ItemProtosByLegacyVnum { get; init; }
 	public required IReadOnlySet<string> ExistingShopKeys { get; init; }
 	public required IReadOnlySet<string> ExistingShopNames { get; init; }
@@ -375,16 +375,16 @@ public sealed class FutureMudShopBaselineCatalog
 			.OrderBy(x => x.Id)
 			.Select(x => new FutureMudEconomicZoneReference(x.Id, x.Name, x.CurrencyId))
 			.FirstOrDefault();
-		var cellIds = context.Cells
+		var cellIds = context.Rooms
 			.Select(x => x.Id)
 			.ToHashSet();
 		var itemProtos = LoadImportedItemPrototypes(context);
 		var shops = context.Shops
-			.Include(x => x.ShopsStoreroomCells)
+			.Include(x => x.ShopsStoreroomRooms)
 			.ToList();
 		var existingShopKeys = shops
-			.SelectMany(shop => shop.ShopsStoreroomCells
-				.Select(cell => BuildShopKey(cell.CellId, shop.StockroomCellId ?? 0L)))
+			.SelectMany(shop => shop.ShopsStoreroomRooms
+				.Select(room => BuildShopKey(room.RoomId, shop.StockroomId ?? 0L)))
 			.ToHashSet(StringComparer.OrdinalIgnoreCase);
 		var existingShopNames = shops
 			.Select(x => x.Name)
@@ -394,7 +394,7 @@ public sealed class FutureMudShopBaselineCatalog
 		return new FutureMudShopBaselineCatalog
 		{
 			DefaultEconomicZone = economicZone,
-			CellIds = cellIds,
+			RoomIds = cellIds,
 			ItemProtosByLegacyVnum = itemProtos
 				.GroupBy(x => x.LegacyVnum)
 				.ToDictionary(
@@ -519,7 +519,7 @@ public static class FutureMudShopValidation
 					"error",
 					"Shop has no positive RPI shop_vnum for the FutureMUD shopfront."));
 			}
-			else if (!catalog.CellIds.Contains(definition.ShopVnum))
+			else if (!catalog.RoomIds.Contains(definition.ShopVnum))
 			{
 				issues.Add(new FutureMudShopValidationIssue(
 					definition.SourceKey,
@@ -534,7 +534,7 @@ public static class FutureMudShopValidation
 					"warning",
 					"Shop has no positive RPI store_vnum; no stockroom cell will be assigned."));
 			}
-			else if (!catalog.CellIds.Contains(definition.StoreVnum))
+			else if (!catalog.RoomIds.Contains(definition.StoreVnum))
 			{
 				issues.Add(new FutureMudShopValidationIssue(
 					definition.SourceKey,
@@ -706,13 +706,13 @@ public sealed class FutureMudShopImporter
 			ShopType = "Permanent",
 			MinimumFloatToBuyItems = 0.0M,
 			AutopayTaxes = true,
-			StockroomCellId = definition.StoreVnum > 0 ? (long)definition.StoreVnum : null,
+			StockroomId = definition.StoreVnum > 0 ? (long)definition.StoreVnum : null,
 		};
 
-		shop.ShopsStoreroomCells.Add(new ShopsStoreroomCell
+		shop.ShopsStoreroomRooms.Add(new ShopsStoreroomRoom
 		{
 			Shop = shop,
-			CellId = definition.ShopVnum,
+			RoomId = definition.ShopVnum,
 		});
 
 		foreach (var (definitionMerchandise, proto) in merchandise)

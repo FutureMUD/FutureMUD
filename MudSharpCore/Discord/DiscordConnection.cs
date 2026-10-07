@@ -757,18 +757,18 @@ public sealed class DiscordConnection : IDiscordConnection
             return;
         }
 
-        ICell cell = Gameworld.Cells.Get(cellId);
-        if (cell == null)
+        IRoom room = Gameworld.Rooms.Get(cellId);
+        if (room == null)
         {
             SendClientMessage($"request {request} nosuchcell {cellId}");
             return;
         }
 
-        string mapText = GenerateMap(cell, account).RawText();
+        string mapText = GenerateMap(room, account).RawText();
         SendClientMessage($"request {request} map {mapText}");
     }
 
-    private string GenerateMap(ICell startCell, IAccount account)
+    private string GenerateMap(IRoom startRoom, IAccount account)
     {
         int width = (account.LineFormatLength - 11) / 10;
         if (width % 2 == 0)
@@ -778,7 +778,7 @@ public sealed class DiscordConnection : IDiscordConnection
 
         int centre = width / 2;
 
-        ICell[,] cells = new ICell[width, width];
+        IRoom[,] rooms = new IRoom[width, width];
         bool[,] hasNonCompass = new bool[width, width];
         bool[,] hasCartesianClashes = new bool[width, width];
         bool[,] hasBank = new bool[width, width];
@@ -787,16 +787,16 @@ public sealed class DiscordConnection : IDiscordConnection
         bool[,] hasPlayers = new bool[width, width];
         bool[,] hasHostiles = new bool[width, width];
 
-        cells[centre, centre] = startCell;
-        List<ICellExit> exits = startCell.ExitsFor(null, true).ToList();
-        Queue<(ICellExit, int, int)> queue = new();
+        rooms[centre, centre] = startRoom;
+        List<IRoomExit> exits = startRoom.ExitsFor(null, true).ToList();
+        Queue<(IRoomExit, int, int)> queue = new();
 
-        foreach (ICellExit exit in exits)
+        foreach (IRoomExit exit in exits)
         {
             queue.Enqueue((exit, centre, centre));
         }
 
-        void AddExitCell(ICellExit exitToAdd, int originX, int originY)
+        void AddExitRoom(IRoomExit exitToAdd, int originX, int originY)
         {
             switch (exitToAdd.OutboundDirection)
             {
@@ -840,9 +840,9 @@ public sealed class DiscordConnection : IDiscordConnection
                 return;
             }
 
-            if (cells[originX, originY] is not null)
+            if (rooms[originX, originY] is not null)
             {
-                if (cells[originX, originY] != exitToAdd.Destination)
+                if (rooms[originX, originY] != exitToAdd.Destination)
                 {
                     hasCartesianClashes[originX, originY] = true;
                 }
@@ -850,9 +850,9 @@ public sealed class DiscordConnection : IDiscordConnection
                 return;
             }
 
-            ICell destinationCell = exitToAdd.Destination;
-            cells[originX, originY] = destinationCell;
-            foreach (ICellExit newExit in destinationCell.ExitsFor(null, true).Except(exitToAdd))
+            IRoom destinationRoom = exitToAdd.Destination;
+            rooms[originX, originY] = destinationRoom;
+            foreach (IRoomExit newExit in destinationRoom.ExitsFor(null, true).Except(exitToAdd))
             {
                 switch (newExit.OutboundDirection)
                 {
@@ -866,27 +866,27 @@ public sealed class DiscordConnection : IDiscordConnection
                 queue.Enqueue((newExit, originX, originY));
             }
 
-            if (destinationCell.Shop is not null)
+            if (destinationRoom.Shop is not null)
             {
                 hasShop[originX, originY] = true;
             }
 
-            if (startCell.Gameworld.Banks.Any(x => x.BranchLocations.Contains(destinationCell)))
+            if (startRoom.Gameworld.Banks.Any(x => x.BranchLocations.Contains(destinationRoom)))
             {
                 hasBank[originX, originY] = true;
             }
 
-            if (startCell.Gameworld.AuctionHouses.Any(x => x.AuctionHouseCell == destinationCell))
+            if (startRoom.Gameworld.AuctionHouses.Any(x => x.AuctionHouseRoom == destinationRoom))
             {
                 hasAuctionHouse[originX, originY] = true;
             }
 
-            if (destinationCell.Characters.Any(x => x.IsPlayerCharacter))
+            if (destinationRoom.Characters.Any(x => x.IsPlayerCharacter))
             {
                 hasPlayers[originX, originY] = true;
             }
 
-            if (destinationCell.Characters.Any(x =>
+            if (destinationRoom.Characters.Any(x =>
                         x is INPC npc && !npc.AffectedBy<IPauseAIEffect>() && npc.AIs.Any(y => y.CountsAsAggressive)))
             {
                 hasHostiles[originX, originY] = true;
@@ -895,14 +895,14 @@ public sealed class DiscordConnection : IDiscordConnection
 
         while (queue.Count > 0)
         {
-            (ICellExit exit, int x, int y) = queue.Dequeue();
-            AddExitCell(exit, x, y);
+            (IRoomExit exit, int x, int y) = queue.Dequeue();
+            AddExitRoom(exit, x, y);
         }
 
         hasPlayers[centre, centre] = true;
 
-        DummyPerceiver viewer = new(location: startCell) { Account = account };
-        return StringUtilities.DrawMap(viewer, width, width, cells, hasNonCompass, hasCartesianClashes, hasBank, hasShop,
+        DummyPerceiver viewer = new(location: startRoom) { Account = account };
+        return StringUtilities.DrawMap(viewer, width, width, rooms, hasNonCompass, hasCartesianClashes, hasBank, hasShop,
                 hasAuctionHouse, hasPlayers, hasHostiles);
     }
 
@@ -1202,7 +1202,7 @@ public sealed class DiscordConnection : IDiscordConnection
         }
 
         sb.AppendLine(
-            $"There are a total of {Gameworld.Cells.Count():N0} rooms, {Gameworld.ItemProtos.Select(x => x.Id).Distinct().Count():N0} items and {Gameworld.NpcTemplates.Select(x => x.Id).Distinct().Count():N0} NPCs built.");
+            $"There are a total of {Gameworld.Rooms.Count():N0} rooms, {Gameworld.ItemProtos.Select(x => x.Id).Distinct().Count():N0} items and {Gameworld.NpcTemplates.Select(x => x.Id).Distinct().Count():N0} NPCs built.");
         sb.AppendLine(
             $"There are {Gameworld.Items.Count():N0} items and {Gameworld.NPCs.Count():N0} NPCs in the game world."
         );

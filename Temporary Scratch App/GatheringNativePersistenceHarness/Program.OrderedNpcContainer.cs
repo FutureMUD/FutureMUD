@@ -19,11 +19,11 @@ internal static partial class GNHProgram
 		ICharacter caster, OrderedCurrencyFixture money, FixtureIds fixture)
 	{
 		var world = host.Native.World;
-		var cell = (Cell)caster.Location;
+		var room = (Room)caster.Location;
 		foreach (var held in new[] { false, true })
 		{
 			var bag = (GameItem)host.Prototypes.Values.Single(x => x.Name == "ARM03B2B bag").CreateNew(caster);
-			world.Add(bag); cell.Insert(bag, true);
+			world.Add(bag); room.Insert(bag, true);
 			if (held)
 			{
 				((MudSharp.Body.Implementations.Body)caster.Body).GetWithoutMerge(bag);
@@ -31,22 +31,22 @@ internal static partial class GNHProgram
 					"Container control requires an actually held native bag.");
 			}
 			var container = bag.GetItemType<IContainer>()!;
-			var survivor = (GameItem)NewOrderedCurrencyPile(host, database, money, 2, 1, cell);
+			var survivor = (GameItem)NewOrderedCurrencyPile(host, database, money, 2, 1, room);
 			var beforeQuery = SavedOrderedCurrencyState(database, money.Currency.Id);
 			Require(container.CanPut(survivor), "Ordinary container CanPut refused compatible native currency.");
 			world.SaveManager.Flush();
 			Require(beforeQuery == SavedOrderedCurrencyState(database, money.Currency.Id) &&
-				ReferenceEquals(survivor.DirectLocation, cell) && cell.GameItems.Contains(survivor), "Container CanPut changed native custody or persistence.");
-			cell.Extract(survivor);
-			Require(ReferenceEquals(survivor.DirectLocation, cell) && !cell.GameItems.Contains(survivor),
+				ReferenceEquals(survivor.DirectLocation, room) && room.GameItems.Contains(survivor), "Container CanPut changed native custody or persistence.");
+			room.Extract(survivor);
+			Require(ReferenceEquals(survivor.DirectLocation, room) && !room.GameItems.Contains(survivor),
 				"Native Cell.Extract did not retain the expected removal-listener pointer.");
 			container.Put(null, survivor, false);
 			Require(container.Contents.Single() == survivor && ReferenceEquals(survivor.ContainedIn, bag) &&
 				survivor.DirectLocation is null && survivor.GetItemType<IHoldable>()!.HeldBy is null &&
 				ReferenceEquals(survivor.InInventoryOf, held ? caster.Body : null), "Extracted native source was not adopted by the exact floor/held container.");
-			var absorbed = (GameItem)NewOrderedCurrencyPile(host, database, money, 3, 1, cell);
+			var absorbed = (GameItem)NewOrderedCurrencyPile(host, database, money, 3, 1, room);
 			var absorbedId = absorbed.Id;
-			cell.Extract(absorbed);
+			room.Extract(absorbed);
 			container.Put(null, absorbed, true);
 			var pile = survivor.GetItemType<ICurrencyPile>()!;
 			Require(absorbed.Deleted && container.Contents.Single() == survivor && pile.TotalValue == 15m &&
@@ -56,16 +56,16 @@ internal static partial class GNHProgram
 			using (var db = NewIndependentContext(database.ConnectionString))
 			{
 				Require(db.GameItems.AsNoTracking().Single(x => x.Id == survivor.Id).ContainerId == bag.Id &&
-					!db.BodiesGameItems.Any(x => x.GameItemId == survivor.Id) && !db.CellsGameItems.Any(x => x.GameItemId == survivor.Id),
+					!db.BodiesGameItems.Any(x => x.GameItemId == survivor.Id) && !db.RoomsGameItems.Any(x => x.GameItemId == survivor.Id),
 					"Container child save retained a direct body/floor join or lost ContainerId.");
 				var definitions = db.GameItemComponents.AsNoTracking().Where(x => x.GameItemId == bag.Id).ToArray();
 				Require(definitions.SelectMany(x => XElement.Parse(x.Definition).Elements("Contained")).Select(x => (long)x)
 					.SequenceEqual(new[] { survivor.Id }), "Native container XML lost its exact merged child.");
 				Require(!db.GameItems.Any(x => x.Id == absorbedId) && !db.GameItemComponents.Any(x => x.GameItemId == absorbedId) &&
-					!db.BodiesGameItems.Any(x => x.GameItemId == absorbedId) && !db.CellsGameItems.Any(x => x.GameItemId == absorbedId),
+					!db.BodiesGameItems.Any(x => x.GameItemId == absorbedId) && !db.RoomsGameItems.Any(x => x.GameItemId == absorbedId),
 					"Absorbed native source retained saved rows or custody joins.");
 				Require(held ? db.BodiesGameItems.Count(x => x.GameItemId == bag.Id && x.BodyId == caster.Body.Id) == 1 :
-					db.CellsGameItems.Count(x => x.GameItemId == bag.Id && x.CellId == cell.Id) == 1, "Native bag lost its actual held/floor save membership.");
+					db.RoomsGameItems.Count(x => x.GameItemId == bag.Id && x.RoomId == room.Id) == 1, "Native bag lost its actual held/floor save membership.");
 			}
 			var savedState = SavedOrderedCurrencyState(database, money.Currency.Id);
 			var saved = new OrderedCurrencySavedItem(survivor.Id, pile.Coins.Select(x => new OrderedCurrencySavedCoin(x.Item1.Id, x.Item2)).ToArray(),

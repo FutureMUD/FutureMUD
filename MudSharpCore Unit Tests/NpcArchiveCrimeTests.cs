@@ -20,10 +20,10 @@ public class NpcArchiveCrimeTests
 	[TestMethod]
 	public void CrimeHistory_ArchivedVictim_UsesWorldAttributionWithoutMaterializingActor()
 	{
-		var world = new Mock<IFuturemud>(); var cell = new Mock<ICell>(); var overlay = new Mock<ICellOverlay>();
-		cell.SetupGet(x => x.Id).Returns(1); overlay.SetupGet(x => x.CellName).Returns("Fixture Court");
-		cell.SetupGet(x => x.CurrentOverlay).Returns(overlay.Object);
-		var cells = new All<ICell>(); cells.Add(cell.Object); world.SetupGet(x => x.Cells).Returns(cells);
+		var world = new Mock<IFuturemud>(); var room = new Mock<IRoom>(); var overlay = new Mock<IRoomOverlay>();
+		room.SetupGet(x => x.Id).Returns(1); overlay.SetupGet(x => x.RoomName).Returns("Fixture Court");
+		room.SetupGet(x => x.CurrentOverlay).Returns(overlay.Object);
+		var rooms = new All<IRoom>(); rooms.Add(room.Object); world.SetupGet(x => x.Rooms).Returns(rooms);
 		world.SetupGet(x => x.SaveManager).Returns(Mock.Of<ISaveManager>());
 		var archives = new Mock<ICharacterArchiveService>();
 		archives.Setup(x => x.Find(40)).Returns(new ArchivedCharacterIdentity(40, 209, Guid.Empty,

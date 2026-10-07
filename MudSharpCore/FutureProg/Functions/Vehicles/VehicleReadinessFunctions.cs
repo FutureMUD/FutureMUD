@@ -34,7 +34,7 @@ internal static class VehicleFutureProgHelpers
 	public static IVehicleMovementProfilePrototype? MovementProfile(IVehicle vehicle)
 	{
 		return vehicle.Prototype.MovementProfiles
-		              .Where(x => x.MovementType == VehicleMovementProfileType.CellExit)
+		              .Where(x => x.MovementType == VehicleMovementProfileType.RoomExit)
 		              .OrderByDescending(x => x.IsDefault)
 		              .FirstOrDefault();
 	}

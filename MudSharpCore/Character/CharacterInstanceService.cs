@@ -46,10 +46,10 @@ internal readonly record struct CharacterInstancePersistedSpatialLocation(
 	int RoomLayerValue,
 	decimal? RoutePosition)
 {
-	public SpatialLocation ToSpatialLocation(ICell cell)
+	public SpatialLocation ToSpatialLocation(IRoom room)
 	{
 		return new SpatialLocation(
-			cell,
+			room,
 			(RoomLayer)RoomLayerValue,
 			RoutePosition.HasValue ? (double)RoutePosition.Value : null);
 	}
@@ -78,7 +78,7 @@ public sealed record SecondaryCharacterInstanceSpawnOptions
 
 public static class CharacterInstanceService
 {
-	public static SpatialLocation CreateDefaultSpawnLocation(ICell location, RoomLayer roomLayer)
+	public static SpatialLocation CreateDefaultSpawnLocation(IRoom location, RoomLayer roomLayer)
 	{
 		ArgumentNullException.ThrowIfNull(location);
 		return new SpatialLocation(location, roomLayer, location.RouteDefinition?.DefaultPositionMetres);
@@ -137,7 +137,7 @@ public static class CharacterInstanceService
 		}
 
 		persisted = new CharacterInstancePersistedSpatialLocation(
-			location.Cell.Id,
+			location.Room.Id,
 			(int)location.Layer,
 			routePosition);
 		return true;
@@ -145,10 +145,10 @@ public static class CharacterInstanceService
 
 	internal static SpatialLocation ResolvePersistedSpatialLocation(
 		MudSharp.Models.CharacterInstance instance,
-		ICell? cell)
+		IRoom? room)
 	{
 		var location = new SpatialLocation(
-			cell!,
+			room!,
 			(RoomLayer)instance.RoomLayer,
 			instance.RoutePosition.HasValue ? (double)instance.RoutePosition.Value : null);
 		if (!RouteSpatialService.Instance.TryValidateLocation(location, out var error))
@@ -194,7 +194,7 @@ public static class CharacterInstanceService
 	public static SecondaryCharacterInstanceSpawnOptions CreateSpawnOptionsForMode(
 		ICharacter owner,
 		ICharacterForm form,
-		ICell location,
+		IRoom location,
 		RoomLayer roomLayer,
 		CharacterInstancePersistencePolicy persistencePolicy,
 		SecondaryCharacterInstanceSpawnMode mode)
@@ -243,7 +243,7 @@ public static class CharacterInstanceService
 	public static SecondaryCharacterInstanceSpawnOptions CreateScriptedAiSpawnOptions(
 		ICharacter owner,
 		ICharacterForm form,
-		ICell location,
+		IRoom location,
 		RoomLayer roomLayer,
 		IEnumerable<IArtificialIntelligence>? artificialIntelligences = null,
 		bool cloneInventory = false,
@@ -292,7 +292,7 @@ public static class CharacterInstanceService
 	public static SecondaryCharacterInstanceSpawnOptions CreateAstralProjectionSpawnOptions(
 		ICharacter owner,
 		ICharacterForm form,
-		ICell location,
+		IRoom location,
 		RoomLayer roomLayer,
 		long planeId,
 		AstralProjectionAnchorPolicy anchorPolicy,
@@ -351,7 +351,7 @@ public static class CharacterInstanceService
 	public static SecondaryCharacterInstanceSpawnOptions CreateMagicalCopySpawnOptions(
 		ICharacter owner,
 		ICharacterForm form,
-		ICell location,
+		IRoom location,
 		RoomLayer roomLayer,
 		long planeId,
 		long sourceSpellId,
@@ -408,7 +408,7 @@ public static class CharacterInstanceService
 	public static SecondaryCharacterInstanceSpawnOptions CreatePhysicalCloneSpawnOptions(
 		ICharacter owner,
 		ICharacterForm form,
-		ICell location,
+		IRoom location,
 		RoomLayer roomLayer,
 		long sourceSpellId,
 		string formKey,
@@ -461,7 +461,7 @@ public static class CharacterInstanceService
 	public static SecondaryCharacterInstanceSpawnOptions CreatePossessedBodySpawnOptions(
 		ICharacter owner,
 		ICharacterForm form,
-		ICell location,
+		IRoom location,
 		RoomLayer roomLayer,
 		long sourceTargetCharacterId,
 		long sourceTargetInstanceId,
@@ -589,7 +589,7 @@ public static class CharacterInstanceService
 	public static CharacterInstanceOperationResult SpawnPossessedCorpseInstance(
 		ICharacter owner,
 		IBody body,
-		ICell location,
+		IRoom location,
 		RoomLayer roomLayer,
 		long anchorCharacterId,
 		long anchorInstanceId,
@@ -720,7 +720,7 @@ public static class CharacterInstanceService
 	public static CharacterInstanceOperationResult SpawnAnimatedCorpseInstance(
 		ICharacter owner,
 		IBody body,
-		ICell location,
+		IRoom location,
 		RoomLayer roomLayer,
 		long anchorCharacterId,
 		long anchorInstanceId,
@@ -825,7 +825,7 @@ public static class CharacterInstanceService
 	public static CharacterInstanceOperationResult SpawnPassiveInstance(
 		ICharacter owner,
 		ICharacterForm form,
-		ICell location,
+		IRoom location,
 		RoomLayer roomLayer,
 		CharacterInstancePersistencePolicy persistencePolicy,
 		bool playerFocusable = false)
@@ -852,7 +852,7 @@ public static class CharacterInstanceService
 	public static CharacterInstanceOperationResult SpawnSecondaryInstance(
 		ICharacter owner,
 		ICharacterForm form,
-		ICell location,
+		IRoom location,
 		RoomLayer roomLayer,
 		CharacterInstancePersistencePolicy persistencePolicy,
 		SecondaryCharacterInstanceSpawnMode mode)
@@ -891,7 +891,7 @@ public static class CharacterInstanceService
 	public static CharacterInstanceOperationResult SpawnBodyInstance(
 		ICharacter owner,
 		ICharacterForm form,
-		ICell location,
+		IRoom location,
 		RoomLayer roomLayer,
 		SecondaryCharacterInstanceSpawnMode mode,
 		CharacterInstancePersistencePolicy persistencePolicy = CharacterInstancePersistencePolicy.DespawnOnReboot,
@@ -1177,7 +1177,7 @@ public static class CharacterInstanceService
 		secondary.CombatTarget = null;
 		secondary.Location?.Leave(secondary);
 		secondary.MoveTo(destination, noSave: true);
-		destination.Cell.Enter(secondary, noSave: true, roomLayer: destination.Layer);
+		destination.Room.Enter(secondary, noSave: true, roomLayer: destination.Layer);
 		secondary.SetPosition(PositionStanding.Instance, PositionModifier.None, null, null);
 		secondary.Changed = true;
 		secondary.Save();
@@ -1186,7 +1186,7 @@ public static class CharacterInstanceService
 
 	public static CharacterInstanceOperationResult Move(
 		ICharacterInstance instance,
-		ICell location,
+		IRoom location,
 		RoomLayer roomLayer)
 	{
 		return Move(instance, CreateDefaultSpawnLocation(location, roomLayer));
@@ -1223,7 +1223,7 @@ public static class CharacterInstanceService
 			{
 				loadedCharacter.Location?.Leave(loadedCharacter);
 				loadedCharacter.MoveTo(destination, noSave: true);
-				destination.Cell.Enter(loadedCharacter, noSave: true, roomLayer: destination.Layer);
+				destination.Room.Enter(loadedCharacter, noSave: true, roomLayer: destination.Layer);
 				loadedCharacter.SetInstanceEmbodied(true);
 				loadedCharacter.SetInstanceControllable(loadedCharacter.ControlPolicy != CharacterInstanceControlPolicy.NotControllable);
 				loadedCharacter.SetInstanceStateAndStatus(loadedCharacter.State & ~CharacterState.Stasis, loadedCharacter.Status);
@@ -1280,7 +1280,7 @@ public static class CharacterInstanceService
 	public static CharacterInstanceOperationResult RestorePersistentSecondaryInstance(
 		ICharacter owner,
 		long instanceId,
-		ICell location,
+		IRoom location,
 		RoomLayer roomLayer)
 	{
 		return RestorePersistentSecondaryInstance(

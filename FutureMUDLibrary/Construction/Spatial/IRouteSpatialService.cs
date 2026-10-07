@@ -20,7 +20,7 @@ public interface IRouteSpatialService
 
 	bool TryValidateLocation(SpatialLocation location, out string error);
 
-	double ClampPosition(IRouteCellDefinition routeCell, double positionMetres);
+	double ClampPosition(IRouteRoomDefinition routeRoom, double positionMetres);
 
 	/// <summary>
 	/// Returns exact longitudinal separation when both locations occupy the same route cell
@@ -49,7 +49,7 @@ public interface IRouteSpatialService
 		return GetPerceivablesWithin(origin, maximumDistanceMetres, predicate);
 	}
 
-	bool TryGetExitAnchor(ICellExit exit, ICell routeCell, out IRouteExitAnchor? anchor);
+	bool TryGetExitAnchor(IRoomExit exit, IRoom routeRoom, out IRouteExitAnchor? anchor);
 
 	/// <summary>
 	/// Returns whether an exit is perceptually visible from the locateable's effective position.
@@ -59,18 +59,18 @@ public interface IRouteSpatialService
 	/// </summary>
 	bool IsExitVisible(
 		IPerceiver voyeur,
-		ICellExit exit,
+		IRoomExit exit,
 		double maximumDistanceMetres,
 		PerceptionTypes type = PerceptionTypes.DirectVisual,
 		PerceiveIgnoreFlags flags = PerceiveIgnoreFlags.None);
 
-	bool IsExitAccessible(ILocateable locateable, ICellExit exit);
+	bool IsExitAccessible(ILocateable locateable, IRoomExit exit);
 
 	/// <summary>
 	/// Resolves the closest coordinate in an exit's accessible band. Returns null when the
 	/// exit has no anchor for the supplied route cell.
 	/// </summary>
-	double? GetNearestAccessiblePosition(SpatialLocation origin, ICellExit exit);
+	double? GetNearestAccessiblePosition(SpatialLocation origin, IRoomExit exit);
 
 	/// <summary>
 	/// Resolves the effective coordinate inherited from an owning, carrying or containing

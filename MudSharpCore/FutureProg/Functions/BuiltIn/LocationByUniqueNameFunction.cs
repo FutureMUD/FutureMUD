@@ -10,7 +10,7 @@ internal class LocationByUniqueNameFunction(IList<IFunction> parameters, IFuture
 	public override StatementResult Execute(IVariableSpace variables)
 	{
 		if (base.Execute(variables) == StatementResult.Error) return StatementResult.Error;
-		Result = gameworld.Cells.FindByUniqueName(ParameterFunctions[0].Result?.GetObject?.ToString());
+		Result = gameworld.Rooms.FindByUniqueName(ParameterFunctions[0].Result?.GetObject?.ToString());
 		return StatementResult.Normal;
 	}
 
@@ -19,7 +19,7 @@ internal class LocationByUniqueNameFunction(IList<IFunction> parameters, IFuture
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"locationbyuniquename", [ProgVariableTypes.Text],
 			(pars, world) => new LocationByUniqueNameFunction(pars, world),
-			["uniquename"], ["The exact global cell unique name (case-insensitive)"],
+			["uniquename"], ["The exact global room unique name (case-insensitive)"],
 			"Returns the room with that exact unique name, or null. Does not fall back to IDs, display names, here or @N. Renames retain no aliases.",
 			"Lookup", ProgVariableTypes.Location));
 	}

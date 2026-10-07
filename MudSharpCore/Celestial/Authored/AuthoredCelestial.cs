@@ -213,7 +213,7 @@ public abstract class AuthoredCelestial : PerceivedItem, ICelestialObject, IAuth
 	{
 		return character.Location?.Celestials.Contains(this) == true && character.CanSee(this) &&
 			character.Location.CurrentWeather(character)?.ObscuresViewOfSky != true &&
-			character.Location.OutdoorsType(character) is CellOutdoorsType.Outdoors or CellOutdoorsType.IndoorsWithWindows &&
+			character.Location.OutdoorsType(character) is RoomOutdoorsType.Outdoors or RoomOutdoorsType.IndoorsWithWindows &&
 			(audience == CelestialEchoAudience.SkyVisible || _live.Elevation >= 0);
 	}
 	protected virtual void DeliverEcho(AuthoredEcho echo, ILocation location)
@@ -222,7 +222,7 @@ public abstract class AuthoredCelestial : PerceivedItem, ICelestialObject, IAuth
 		foreach (var character in location.Characters)
 		{
 			if (!CanReceiveEcho(character, echo.Audience)) continue;
-			character.OutputHandler.Send(character.Location.OutdoorsType(character) == CellOutdoorsType.Outdoors
+			character.OutputHandler.Send(character.Location.OutdoorsType(character) == RoomOutdoorsType.Outdoors
 				? text : $"{"[Outside]".ColourValue()} {text}");
 		}
 	}

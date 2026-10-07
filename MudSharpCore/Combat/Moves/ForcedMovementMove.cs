@@ -13,7 +13,7 @@ public class ForcedMovementMove : CombatMoveBase
 		ICharacter target,
 		IForcedMovementAttack attack,
 		ForcedMovementVerbs verb,
-		ICellExit exit)
+		IRoomExit exit)
 	{
 		Assailant = assailant;
 		CharacterTarget = target;
@@ -44,7 +44,7 @@ public class ForcedMovementMove : CombatMoveBase
 	public IForcedMovementAttack Attack { get; }
 	public ForcedMovementVerbs Verb { get; }
 	public ForcedMovementTypes MovementType { get; }
-	public ICellExit Exit { get; }
+	public IRoomExit Exit { get; }
 	public RoomLayer? Layer { get; }
 	public IMeleeWeapon Weapon { get; init; }
 	public INaturalAttack NaturalAttack { get; init; }

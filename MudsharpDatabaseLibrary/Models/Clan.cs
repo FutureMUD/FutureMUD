@@ -12,9 +12,9 @@ namespace MudSharp.Models
             ClanMemberships = new HashSet<ClanMembership>();
             ClanBudgets = new HashSet<ClanBudget>();
             ClanPayrollHistories = new HashSet<ClanPayrollHistory>();
-            ClansAdministrationCells = new HashSet<ClanAdministrationCell>();
-            ClansHallCells = new HashSet<ClanHallCell>();
-            ClansTreasuryCells = new HashSet<ClanTreasuryCell>();
+            ClansAdministrationRooms = new HashSet<ClanAdministrationRoom>();
+            ClansHallRooms = new HashSet<ClanHallRoom>();
+            ClansTreasuryRooms = new HashSet<ClanTreasuryRoom>();
             ExternalClanControlsLiegeClan = new HashSet<ExternalClanControl>();
             ExternalClanControlsVassalClan = new HashSet<ExternalClanControl>();
             InverseParentClan = new HashSet<Clan>();
@@ -56,9 +56,9 @@ namespace MudSharp.Models
         public virtual ICollection<ClanPayrollHistory> ClanPayrollHistories { get; set; }
         public virtual ICollection<ChargenRolesClanMemberships> ChargenRolesClanMemberships { get; set; }
         public virtual ICollection<ClanMembership> ClanMemberships { get; set; }
-        public virtual ICollection<ClanAdministrationCell> ClansAdministrationCells { get; set; }
-        public virtual ICollection<ClanHallCell> ClansHallCells { get; set; }
-        public virtual ICollection<ClanTreasuryCell> ClansTreasuryCells { get; set; }
+        public virtual ICollection<ClanAdministrationRoom> ClansAdministrationRooms { get; set; }
+        public virtual ICollection<ClanHallRoom> ClansHallRooms { get; set; }
+        public virtual ICollection<ClanTreasuryRoom> ClansTreasuryRooms { get; set; }
         public virtual ICollection<ExternalClanControl> ExternalClanControlsLiegeClan { get; set; }
         public virtual ICollection<ExternalClanControl> ExternalClanControlsVassalClan { get; set; }
         public virtual ICollection<Clan> InverseParentClan { get; set; }

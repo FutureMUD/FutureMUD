@@ -21,9 +21,9 @@ public class AdjacentToExit : Effect, IEffectSubtype, IRemoveOnMovementEffect, I
         }
     }
 
-    public ICellExit Exit { get; set; }
+    public IRoomExit Exit { get; set; }
 
-    public AdjacentToExit(IPerceivable owner, ICellExit exit, IFutureProg applicabilityProg = null) : base(owner,
+    public AdjacentToExit(IPerceivable owner, IRoomExit exit, IFutureProg applicabilityProg = null) : base(owner,
         applicabilityProg)
     {
         Exit = exit;
@@ -53,7 +53,7 @@ public class AdjacentToExit : Effect, IEffectSubtype, IRemoveOnMovementEffect, I
     /// <inheritdoc />
     public override bool Applies(object target)
     {
-        if (target is ICellExit exit)
+        if (target is IRoomExit exit)
         {
             return Exit == exit;
         }

@@ -740,7 +740,7 @@ public class CellularPhoneGameItemComponent : GameItemComponent, ITelephone, ITe
             OutputRange.Local
         );
 
-        foreach (ICell? location in Parent.TrueLocations.Distinct())
+        foreach (IRoom? location in Parent.TrueLocations.Distinct())
         {
             location.HandleAudioEcho("You hear a telephone ringing {0}.", RingVolume, Parent, Parent.RoomLayer,
                 true, "telephone");

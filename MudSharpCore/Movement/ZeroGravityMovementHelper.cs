@@ -11,19 +11,19 @@ namespace MudSharp.Movement;
 
 public static class ZeroGravityMovementHelper
 {
-	public static GravityModel GravityFor(ICell cell, IPerceiver? voyeur = null)
+	public static GravityModel GravityFor(IRoom room, IPerceiver? voyeur = null)
 	{
-		var effect = cell.EffectsOfType<IGravityOverrideEffect>()
+		var effect = room.EffectsOfType<IGravityOverrideEffect>()
 		                 .Where(x => x.Applies())
 		                 .OrderByDescending(x => x.Priority)
 		                 .FirstOrDefault();
-		return effect?.GravityModel ?? cell.Terrain(voyeur).GravityModel;
+		return effect?.GravityModel ?? room.Terrain(voyeur).GravityModel;
 	}
 
-	public static bool IsZeroGravity(ICell cell, RoomLayer layer, IPerceiver? voyeur = null)
+	public static bool IsZeroGravity(IRoom room, RoomLayer layer, IPerceiver? voyeur = null)
 	{
-		return GravityFor(cell, voyeur) == GravityModel.ZeroGravity &&
-		       !cell.IsSwimmingLayer(layer);
+		return GravityFor(room, voyeur) == GravityModel.ZeroGravity &&
+		       !room.IsSwimmingLayer(layer);
 	}
 
 	public static bool HasIndependentPropulsion(ICharacter character)
@@ -47,7 +47,7 @@ public static class ZeroGravityMovementHelper
 			return true;
 		}
 
-		if (character.Location.OutdoorsType(character) != CellOutdoorsType.Outdoors)
+		if (character.Location.OutdoorsType(character) != RoomOutdoorsType.Outdoors)
 		{
 			return true;
 		}
@@ -68,7 +68,7 @@ public static class ZeroGravityMovementHelper
 		return HasIndependentPropulsion(character) || HasPushOffPoint(character);
 	}
 
-	public static CanMoveResponse CanMoveInZeroGravity(ICharacter character, ICellExit exit)
+	public static CanMoveResponse CanMoveInZeroGravity(ICharacter character, IRoomExit exit)
 	{
 		if (!IsZeroGravity(character.Location, character.RoomLayer, character))
 		{
@@ -129,7 +129,7 @@ public static class ZeroGravityMovementHelper
 
 	public static void EnsureFloating(IGameItem item)
 	{
-		if (item.Location is not ICell cell || !IsZeroGravity(cell, item.RoomLayer))
+		if (item.Location is not IRoom room || !IsZeroGravity(room, item.RoomLayer))
 		{
 			return;
 		}
@@ -144,7 +144,7 @@ public static class ZeroGravityMovementHelper
 		item.SetPosition(PositionFloatingInZeroGravity.Instance, PositionModifier.None, null, null);
 	}
 
-	public static void StartDriftAfterMovement(ICharacter character, ICellExit exit)
+	public static void StartDriftAfterMovement(ICharacter character, IRoomExit exit)
 	{
 		if (character.Location is null ||
 		    exit is null ||

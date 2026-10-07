@@ -15,15 +15,15 @@ namespace MudSharp.Construction
     /// </summary>
     public interface IArea : ILocation, IProgVariable
     {
-        new IEnumerable<ICell> Cells { get; }
+        new IEnumerable<IRoom> Rooms { get; }
         IEnumerable<IZone> Zones { get; }
         TimeOfDay CurrentTimeOfDay { get; }
     }
 
     public interface IEditableArea : IArea
     {
-        void Add(ICell room);
-        void Remove(ICell room);
+        void Add(IRoom room);
+        void Remove(IRoom room);
         new IWeatherController WeatherController { get; set; }
         void SetName(string name);
     }

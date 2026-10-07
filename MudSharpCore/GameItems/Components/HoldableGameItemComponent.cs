@@ -38,7 +38,7 @@ public class HoldableGameItemComponent : GameItemComponent, IHoldable
 
     public override int ComponentDieOrder => 100;
 
-    public override bool HandleDieOrMorph(IGameItem newItem, ICell location)
+    public override bool HandleDieOrMorph(IGameItem newItem, IRoom location)
     {
         if (HeldBy == null)
         {

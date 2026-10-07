@@ -99,9 +99,9 @@ public sealed class ArtilleryPieceGameItemComponent : GameItemComponent, IArtill
 			_firingSolution is null ? null : new XElement("FiringSolution",
 				new XAttribute("bearing", _firingSolution.Bearing), new XAttribute("distance", _firingSolution.Distance),
 				new XAttribute("elevation", _firingSolution.Elevation), new XAttribute("traverse", _firingSolution.Traverse),
-				_firingSolution.RouteCellPositionId is long routePosition ? new XAttribute("routePosition", routePosition) : null,
+				_firingSolution.RouteRoomPositionId is long routePosition ? new XAttribute("routePosition", routePosition) : null,
 				_firingSolution.Fuse is TimeSpan fuse ? new XAttribute("fuseSeconds", fuse.TotalSeconds) : null,
-				_firingSolution.CellPath.Select(x => new XElement("Cell", x)))).ToString();
+				_firingSolution.RoomPath.Select(x => new XElement("Cell", x)))).ToString();
 	}
 
 	public string FireVerbForEchoes => "fire|fires";
@@ -265,7 +265,7 @@ public sealed class ArtilleryPieceGameItemComponent : GameItemComponent, IArtill
 			reason = "That firing solution is outside this artillery piece's configured range or arcs.";
 			return false;
 		}
-		if (!ValidateCellPath(actor, solution.CellPath, out reason))
+		if (!ValidateRoomPath(actor, solution.RoomPath, out reason))
 		{
 			return false;
 		}
@@ -1146,7 +1146,7 @@ public sealed class ArtilleryPieceGameItemComponent : GameItemComponent, IArtill
 		}
 	}
 
-	private bool ValidateCellPath(ICharacter actor, IReadOnlyList<long> cellPath, out string reason)
+	private bool ValidateRoomPath(ICharacter actor, IReadOnlyList<long> cellPath, out string reason)
 	{
 		using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
 		reason = string.Empty;
@@ -1167,7 +1167,7 @@ public sealed class ArtilleryPieceGameItemComponent : GameItemComponent, IArtill
 		}
 		foreach (var cellId in cellPath)
 		{
-			var next = Gameworld.Cells.Get(cellId);
+			var next = Gameworld.Rooms.Get(cellId);
 			if (next is null || !current.ExitsFor(actor).Any(x => x.Destination == next))
 			{
 				reason = "An indirect firing path must be an explicit, reachable chain of cells.";
@@ -1182,16 +1182,16 @@ public sealed class ArtilleryPieceGameItemComponent : GameItemComponent, IArtill
 
 	private IPerceiver? ResolveIndirectTarget()
 	{
-		if (_firingSolution?.CellPath.LastOrDefault() is not long targetCellId || targetCellId <= 0)
+		if (_firingSolution?.RoomPath.LastOrDefault() is not long targetRoomId || targetRoomId <= 0)
 		{
 			return null;
 		}
-		var cell = Gameworld.Cells.Get(targetCellId);
-		if (cell is null)
+		var room = Gameworld.Rooms.Get(targetRoomId);
+		if (room is null)
 		{
 			return null;
 		}
-		return (IPerceiver?)cell.Characters.FirstOrDefault() ?? new DummyPerceiver(location: cell);
+		return (IPerceiver?)room.Characters.FirstOrDefault() ?? new DummyPerceiver(location: room);
 	}
 
 	/// <summary>

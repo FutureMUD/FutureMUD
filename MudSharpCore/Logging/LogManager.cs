@@ -37,7 +37,7 @@ public class LogManager : ILogManager
         {
             AccountId = character.Account?.Id == 0 ? default : character.Account?.Id,
             CharacterId = CharacterInstanceIdentityComparer.IdentityId(character),
-            CellId = character.Location?.Id ?? 0,
+            RoomId = character.Location?.Id ?? 0,
             Command = command,
             Time = DateTime.UtcNow,
             IsPlayerCharacter = character.IsPlayerCharacter
@@ -71,7 +71,7 @@ public class LogManager : ILogManager
             while (_commandQueue.Any())
             {
                 CharacterCommand command = _commandQueue.Dequeue();
-                if (command == null || command.CellId == 0)
+                if (command == null || command.RoomId == 0)
                 {
                     continue;
                 }
@@ -80,7 +80,7 @@ public class LogManager : ILogManager
                 FMDB.Context.CharacterLogs.Add(dbitem);
                 dbitem.AccountId = command.AccountId;
                 dbitem.CharacterId = command.CharacterId;
-                dbitem.CellId = command.CellId;
+                dbitem.RoomId = command.RoomId;
                 dbitem.Command = command.Command;
                 dbitem.IsPlayerCharacter = command.IsPlayerCharacter;
                 dbitem.Time = command.Time;
@@ -98,7 +98,7 @@ public class LogManager : ILogManager
     internal class CharacterCommand
     {
         public long CharacterId { get; init; }
-        public long CellId { get; init; }
+        public long RoomId { get; init; }
         public long? AccountId { get; init; }
         public string Command { get; init; }
         public DateTime Time { get; init; }

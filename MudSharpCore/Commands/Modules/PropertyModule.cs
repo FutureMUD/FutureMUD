@@ -290,7 +290,7 @@ The following commands are specific to those who own a property (or who are mana
 
     private static void PropertyRevenue(ICharacter actor, StringStack ss)
     {
-        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingCells.Contains(actor.Location));
+        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingRooms.Contains(actor.Location));
         if (ez == null)
         {
             actor.OutputHandler.Send("Your current location is not a conveyancing location for any economic zones.");
@@ -390,7 +390,7 @@ The following commands are specific to those who own a property (or who are mana
 
     private static void PropertyClaimShops(ICharacter actor, StringStack ss)
     {
-        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingCells.Contains(actor.Location));
+        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingRooms.Contains(actor.Location));
         if (ez == null)
         {
             actor.OutputHandler.Send("Your current location is not a conveyancing location for any economic zones.");
@@ -443,7 +443,7 @@ The following commands are specific to those who own a property (or who are mana
 
     private static void PropertyDivestOwnership(ICharacter actor, StringStack ss)
     {
-        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingCells.Contains(actor.Location));
+        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingRooms.Contains(actor.Location));
         if (ez == null)
         {
             actor.OutputHandler.Send(
@@ -591,7 +591,7 @@ The following commands are specific to those who own a property (or who are mana
 
     private static void PropertyClaimKeys(ICharacter actor, StringStack ss)
     {
-        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingCells.Contains(actor.Location));
+        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingRooms.Contains(actor.Location));
         if (ez == null)
         {
             actor.OutputHandler.Send("Your current location is not a conveyancing location for any economic zones.");
@@ -669,7 +669,7 @@ The following commands are specific to those who own a property (or who are mana
 
     private static void PropertyClaimBond(ICharacter actor, StringStack ss)
     {
-        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingCells.Contains(actor.Location));
+        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingRooms.Contains(actor.Location));
         if (ez == null)
         {
             actor.OutputHandler.Send("Your current location is not a conveyancing location for any economic zones.");
@@ -729,7 +729,7 @@ The following commands are specific to those who own a property (or who are mana
 
     private static void PropertyReturnBond(ICharacter actor, StringStack ss)
     {
-        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingCells.Contains(actor.Location));
+        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingRooms.Contains(actor.Location));
         if (ez == null)
         {
             actor.OutputHandler.Send("Your current location is not a conveyancing location for any economic zones.");
@@ -836,7 +836,7 @@ The following commands are specific to those who own a property (or who are mana
             return;
         }
 
-        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingCells.Contains(actor.Location));
+        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingRooms.Contains(actor.Location));
         if (ez == null && !property.PropertyLocations.Contains(actor.Location))
         {
             actor.OutputHandler.Send("You can only pay rent from the property or at a conveyancing location.");
@@ -952,7 +952,7 @@ The following commands are specific to those who own a property (or who are mana
                 throw new ArgumentOutOfRangeException(nameof(subcommand));
         }
 
-        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingCells.Contains(actor.Location));
+        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingRooms.Contains(actor.Location));
         if (ez == null)
         {
             actor.OutputHandler.Send("Your current location is not a conveyancing location for any economic zones.");
@@ -1520,7 +1520,7 @@ The following commands are specific to those who own a property (or who are mana
 
     private static void PropertyAddKey(ICharacter actor, StringStack ss)
     {
-        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingCells.Contains(actor.Location));
+        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingRooms.Contains(actor.Location));
         if (ez == null)
         {
             actor.OutputHandler.Send("Your current location is not a conveyancing location for any economic zones.");
@@ -1598,7 +1598,7 @@ The following commands are specific to those who own a property (or who are mana
 
     private static void PropertyReturnKey(ICharacter actor, StringStack ss)
     {
-        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingCells.Contains(actor.Location));
+        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingRooms.Contains(actor.Location));
         if (ez == null)
         {
             actor.OutputHandler.Send("Your current location is not a conveyancing location for any economic zones.");
@@ -1635,7 +1635,7 @@ The following commands are specific to those who own a property (or who are mana
 
     private static void PropertyRemoveKey(ICharacter actor, StringStack ss)
     {
-        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingCells.Contains(actor.Location));
+        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingRooms.Contains(actor.Location));
         if (ez == null)
         {
             actor.OutputHandler.Send("Your current location is not a conveyancing location for any economic zones.");
@@ -1694,7 +1694,7 @@ The following commands are specific to those who own a property (or who are mana
 
     private static void PropertySetBank(ICharacter actor, StringStack ss)
     {
-        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingCells.Contains(actor.Location));
+        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingRooms.Contains(actor.Location));
         if (ez == null)
         {
             actor.OutputHandler.Send("Your current location is not a conveyancing location for any economic zones.");
@@ -1769,7 +1769,7 @@ The following commands are specific to those who own a property (or who are mana
 
     private static void PropertyLease(ICharacter actor, StringStack ss)
     {
-        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingCells.Contains(actor.Location));
+        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingRooms.Contains(actor.Location));
         if (ez == null)
         {
             actor.OutputHandler.Send("Your current location is not a conveyancing location for any economic zones.");
@@ -1913,7 +1913,7 @@ The following commands are specific to those who own a property (or who are mana
 
     private static void PropertyTerminateLease(ICharacter actor, StringStack ss)
     {
-        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingCells.Contains(actor.Location));
+        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingRooms.Contains(actor.Location));
         if (ez == null)
         {
             actor.OutputHandler.Send("Your current location is not a conveyancing location for any economic zones.");
@@ -1984,7 +1984,7 @@ The following commands are specific to those who own a property (or who are mana
             return;
         }
 
-        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingCells.Contains(actor.Location));
+        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingRooms.Contains(actor.Location));
         List<IProperty> properties = actor.Gameworld.Properties.Where(x =>
             x.EconomicZone == ez ||
             x.PropertyOwners.Any(y => y.Owner.Equals(actor)) ||
@@ -2003,7 +2003,7 @@ The following commands are specific to those who own a property (or who are mana
 
     private static void PropertyBuy(ICharacter actor, StringStack ss)
     {
-        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingCells.Contains(actor.Location));
+        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingRooms.Contains(actor.Location));
         if (ez == null)
         {
             actor.OutputHandler.Send("Your current location is not a conveyancing location for any economic zones.");
@@ -2116,7 +2116,7 @@ The following commands are specific to those who own a property (or who are mana
 
     private static void PropertySell(ICharacter actor, StringStack ss)
     {
-        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingCells.Contains(actor.Location));
+        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingRooms.Contains(actor.Location));
         if (ez == null)
         {
             actor.OutputHandler.Send("Your current location is not a conveyancing location for any economic zones.");
@@ -2174,7 +2174,7 @@ The following commands are specific to those who own a property (or who are mana
 
     private static void PropertyDelaySell(ICharacter actor, StringStack ss)
     {
-        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingCells.Contains(actor.Location));
+        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingRooms.Contains(actor.Location));
         if (ez == null)
         {
             actor.OutputHandler.Send("Your current location is not a conveyancing location for any economic zones.");
@@ -2249,7 +2249,7 @@ The following commands are specific to those who own a property (or who are mana
 
     private static void PropertyMakeLease(ICharacter actor, StringStack ss)
     {
-        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingCells.Contains(actor.Location));
+        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingRooms.Contains(actor.Location));
         if (ez == null)
         {
             actor.OutputHandler.Send("Your current location is not a conveyancing location for any economic zones.");
@@ -2320,7 +2320,7 @@ The following commands are specific to those who own a property (or who are mana
 
     private static void PropertyApproveSale(ICharacter actor, StringStack ss)
     {
-        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingCells.Contains(actor.Location));
+        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingRooms.Contains(actor.Location));
         if (ez == null)
         {
             actor.OutputHandler.Send("Your current location is not a conveyancing location for any economic zones.");
@@ -2430,7 +2430,7 @@ The syntax is:
     protected static void Properties(ICharacter actor, string command)
     {
         StringBuilder sb = new();
-        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingCells.Contains(actor.Location));
+        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingRooms.Contains(actor.Location));
         List<IProperty> properties = actor.Gameworld.Properties.Where(x => x.EconomicZone == ez).ToList();
         if (ez != null)
         {

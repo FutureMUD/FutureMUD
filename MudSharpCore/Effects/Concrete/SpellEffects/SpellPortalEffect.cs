@@ -15,14 +15,14 @@ public class SpellPortalEffect : MagicSpellEffectBase
 		RegisterFactory("SpellPortal", (effect, owner) => new SpellPortalEffect(effect, owner));
 	}
 
-	public SpellPortalEffect(IPerceivable owner, IMagicSpellEffectParent parent, ICell source, ICell destination,
+	public SpellPortalEffect(IPerceivable owner, IMagicSpellEffectParent parent, IRoom source, IRoom destination,
 		string verb, string outboundKeyword, string inboundKeyword, string outboundTarget, string inboundTarget,
 		string outboundDescription, string inboundDescription, double timeMultiplier, IFutureProg? prog = null)
 		: base(owner, parent, prog)
 	{
 		PortalInstanceId = Guid.NewGuid();
-		SourceCellId = source.Id;
-		DestinationCellId = destination.Id;
+		SourceRoomId = source.Id;
+		DestinationRoomId = destination.Id;
 		Verb = verb;
 		OutboundKeyword = outboundKeyword;
 		InboundKeyword = inboundKeyword;
@@ -45,8 +45,8 @@ public class SpellPortalEffect : MagicSpellEffectBase
 			PortalInstanceId = Guid.NewGuid();
 			Changed = true;
 		}
-		SourceCellId = long.Parse(trueRoot?.Element("SourceCell")?.Value ?? "0");
-		DestinationCellId = long.Parse(trueRoot?.Element("DestinationCell")?.Value ?? "0");
+		SourceRoomId = long.Parse(trueRoot?.Element("SourceCell")?.Value ?? "0");
+		DestinationRoomId = long.Parse(trueRoot?.Element("DestinationCell")?.Value ?? "0");
 		Verb = trueRoot?.Element("Verb")?.Value ?? "enter";
 		OutboundKeyword = trueRoot?.Element("OutboundKeyword")?.Value ?? "portal";
 		InboundKeyword = trueRoot?.Element("InboundKeyword")?.Value ?? "portal";
@@ -57,9 +57,9 @@ public class SpellPortalEffect : MagicSpellEffectBase
 		TimeMultiplier = double.Parse(trueRoot?.Element("TimeMultiplier")?.Value ?? "1.0");
 	}
 
-	public long SourceCellId { get; }
+	public long SourceRoomId { get; }
 	public Guid PortalInstanceId { get; }
-	public long DestinationCellId { get; }
+	public long DestinationRoomId { get; }
 	public string Verb { get; }
 	public string OutboundKeyword { get; }
 	public string InboundKeyword { get; }
@@ -69,8 +69,8 @@ public class SpellPortalEffect : MagicSpellEffectBase
 	public string InboundDescription { get; }
 	public double TimeMultiplier { get; }
 
-	private ICell? SourceCell => Gameworld.Cells.Get(SourceCellId);
-	private ICell? DestinationCell => Gameworld.Cells.Get(DestinationCellId);
+	private IRoom? SourceRoom => Gameworld.Rooms.Get(SourceRoomId);
+	private IRoom? DestinationRoom => Gameworld.Rooms.Get(DestinationRoomId);
 
 	public override void InitialEffect()
 	{
@@ -91,8 +91,8 @@ public class SpellPortalEffect : MagicSpellEffectBase
 			return;
 		}
 
-		var source = SourceCell;
-		var destination = DestinationCell;
+		var source = SourceRoom;
+		var destination = DestinationRoom;
 		if (source is null || destination is null)
 		{
 			return;
@@ -120,8 +120,8 @@ public class SpellPortalEffect : MagicSpellEffectBase
 		return new XElement("Effect",
 			new XElement("ApplicabilityProg", ApplicabilityProg?.Id ?? 0),
 			new XElement("PortalInstanceId", PortalInstanceId),
-			new XElement("SourceCell", SourceCellId),
-			new XElement("DestinationCell", DestinationCellId),
+			new XElement("SourceCell", SourceRoomId),
+			new XElement("DestinationCell", DestinationRoomId),
 			new XElement("Verb", new XCData(Verb)),
 			new XElement("OutboundKeyword", new XCData(OutboundKeyword)),
 			new XElement("InboundKeyword", new XCData(InboundKeyword)),
@@ -135,7 +135,7 @@ public class SpellPortalEffect : MagicSpellEffectBase
 
 	public override string Describe(IPerceiver voyeur)
 	{
-		return $"Maintaining a magical portal from room #{SourceCellId:N0} to room #{DestinationCellId:N0}.";
+		return $"Maintaining a magical portal from room #{SourceRoomId:N0} to room #{DestinationRoomId:N0}.";
 	}
 
 	protected override string SpecificEffectType => "SpellPortal";

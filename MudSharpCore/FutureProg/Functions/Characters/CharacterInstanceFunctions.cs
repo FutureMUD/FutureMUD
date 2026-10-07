@@ -295,7 +295,7 @@ internal sealed class SpawnBodyInstanceFunction : BuiltInFunction
 			return StatementResult.Error;
 		}
 
-		if (ParameterFunctions[2].Result?.GetObject is not ICell location)
+		if (ParameterFunctions[2].Result?.GetObject is not IRoom location)
 		{
 			ErrorMessage = "Location was null in SpawnBodyInstance function.";
 			return StatementResult.Error;
@@ -336,7 +336,7 @@ internal sealed class SpawnBodyInstanceFunction : BuiltInFunction
 		}
 
 		var ownerLocation = RouteSpatialService.Instance.GetEffectiveLocation(owner);
-		var spawnLocation = ReferenceEquals(ownerLocation.Cell, location)
+		var spawnLocation = ReferenceEquals(ownerLocation.Room, location)
 			? ownerLocation
 			: CharacterInstanceService.CreateDefaultSpawnLocation(location, owner.RoomLayer);
 

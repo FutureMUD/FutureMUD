@@ -58,11 +58,11 @@ internal static partial class GNHProgram
 			return args switch
 			{
 				["--probe"] => Probe(),
-				["--cell-unique-name-run"] => RunCellUniqueNames(),
-				["--cell-spatial-contraction-run"] => RunCellSpatialExpansion(contract: true),
-				["--cell-spatial-contraction-reader", string databaseName] => ReadCellSpatialExpansion(databaseName, contracted: true),
-				["--cell-spatial-expansion-run"] => RunCellSpatialExpansion(),
-				["--cell-spatial-expansion-reader", string databaseName] => ReadCellSpatialExpansion(databaseName),
+				["--cell-unique-name-run"] => RunRoomUniqueNames(),
+				["--cell-spatial-contraction-run"] => RunRoomSpatialExpansion(contract: true),
+				["--cell-spatial-contraction-reader", string databaseName] => ReadRoomSpatialExpansion(databaseName, contracted: true),
+				["--cell-spatial-expansion-run"] => RunRoomSpatialExpansion(),
+				["--cell-spatial-expansion-reader", string databaseName] => ReadRoomSpatialExpansion(databaseName),
 				["--emotional-melee-run"] => RunEmotionalHooks("melee"),
 				["--emotional-firearm-run"] => RunEmotionalHooks("firearm"),
 				["--emotional-countershot-run"] => RunEmotionalHooks("countershot"),
@@ -321,7 +321,7 @@ internal static partial class GNHProgram
 		string executable = Assembly.GetExecutingAssembly().Location;
 		string host = Environment.GetEnvironmentVariable("DOTNET_HOST_PATH") ?? "dotnet";
 		string arguments = string.Join(' ',
-			$"\"{executable}\"", "--reader", databaseName, scenario, fixture.CharacterId, fixture.BodyId, fixture.CellId,
+			$"\"{executable}\"", "--reader", databaseName, scenario, fixture.CharacterId, fixture.BodyId, fixture.RoomId,
 			fixture.ResourceId, fixture.CapabilityId, fixture.HealthStrategyId, fixture.TraitExpressionId,
 			fixture.ExistingWoundId?.ToString() ?? "0", fixture.BodypartId, operationId,
 			expectedMana.ToString(System.Globalization.CultureInfo.InvariantCulture),
@@ -406,7 +406,7 @@ internal static partial class GNHProgram
 	private sealed record FixtureIds(
 		long CharacterId,
 		long BodyId,
-		long CellId,
+		long RoomId,
 		long ResourceId,
 		long CapabilityId,
 		long HealthStrategyId,
@@ -689,10 +689,10 @@ internal static partial class GNHProgram
 			cultures.Add(culture.Object);
 			world.SetupGet(x => x.Cultures).Returns(cultures);
 
-			Mock<ICell> cell = NewCell(fixture.CellId, world.Object);
-			var cells = new All<ICell>();
-			cells.Add(cell.Object);
-			world.SetupGet(x => x.Cells).Returns(cells);
+			Mock<IRoom> room = NewRoom(fixture.RoomId, world.Object);
+			var rooms = new All<IRoom>();
+			rooms.Add(room.Object);
+			world.SetupGet(x => x.Rooms).Returns(rooms);
 
 			Mock<ITraitDefinition> trait = NewTraitDefinition(1, world.Object);
 			var traits = new All<ITraitDefinition>();
@@ -728,7 +728,7 @@ internal static partial class GNHProgram
 			capabilities.Add(capability);
 			world.SetupGet(x => x.MagicCapabilities).Returns(capabilities);
 
-			NativeHarnessCharacter actor = NativeHarnessCharacter.Create(world.Object, character.Id, cell.Object, culture.Object);
+			NativeHarnessCharacter actor = NativeHarnessCharacter.Create(world.Object, character.Id, room.Object, culture.Object);
 			using var capacityRestoration = (IDisposable)typeof(RuntimeCharacter).GetMethod("DeferCastingCapacityReconciliation", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(actor, [false])!;
 			RuntimeBody body = new(bodyModel, world.Object, actor);
 			actor.AttachBody(body);
@@ -883,15 +883,15 @@ internal static partial class GNHProgram
 			return culture;
 		}
 
-		private static Mock<ICell> NewCell(long id, IFuturemud world)
+		private static Mock<IRoom> NewRoom(long id, IFuturemud world)
 		{
-			var cell = new Mock<ICell>(MockBehavior.Loose);
-			cell.As<ICustodyRollbackLocation>();
-			cell.SetupGet(x => x.Id).Returns(id);
-			cell.SetupGet(x => x.Name).Returns("Harness cell");
-			cell.SetupGet(x => x.Gameworld).Returns(world);
-			cell.Setup(x => x.EventHandlersFor(It.IsAny<IPerceivable>())).Returns(Array.Empty<IHandleEvents>());
-			return cell;
+			var room = new Mock<IRoom>(MockBehavior.Loose);
+			room.As<ICustodyRollbackLocation>();
+			room.SetupGet(x => x.Id).Returns(id);
+			room.SetupGet(x => x.Name).Returns("Harness cell");
+			room.SetupGet(x => x.Gameworld).Returns(world);
+			room.Setup(x => x.EventHandlersFor(It.IsAny<IPerceivable>())).Returns(Array.Empty<IHandleEvents>());
+			return room;
 		}
 
 		private static Mock<ITraitDefinition> NewTraitDefinition(long id, IFuturemud world)
@@ -941,7 +941,7 @@ internal static partial class GNHProgram
 		{
 		}
 
-		public static NativeHarnessCharacter Create(IFuturemud world, long id, ICell cell, ICulture culture)
+		public static NativeHarnessCharacter Create(IFuturemud world, long id, IRoom room, ICulture culture)
 		{
 			var character = (NativeHarnessCharacter)RuntimeHelpers.GetUninitializedObject(typeof(NativeHarnessCharacter));
 			SetPrivateField(character, "_id", id);
@@ -951,7 +951,7 @@ internal static partial class GNHProgram
 			SetPrivateMember(character, "EffectHandler", new EffectHandler(character));
 			SetPrivateField(character, "_cachedEffects", new List<(IEffect Effect, TimeSpan Time)>());
 			SetPrivateMember(character, "OutputHandler", new NonPlayerOutputHandler());
-			SetPrivateMember(character, "Location", cell);
+			SetPrivateMember(character, "Location", room);
 			SetPrivateMember(character, "Culture", culture);
 			SetPrivateMember(character, "PermissionLevel", PermissionLevel.Player);
 			SetPrivateField(character, "_account", NewFormattingAccount());
@@ -1276,7 +1276,7 @@ internal static partial class GNHProgram
 		private void ImportSupportedSnapshot(bool historicalExpanded)
 		{
 			string snapshot = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "DatabaseSeeder", "Assets", "Database", "BlankDatabaseSnapshot.sql"));
-			if (historicalExpanded) snapshot = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "Fixtures", "ExpandedCellSpatialSnapshot.sql"));
+			if (historicalExpanded) snapshot = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "Temporary Scratch App", "GatheringNativePersistenceHarness", "Fixtures", "ExpandedCellSpatialSnapshot.sql"));
 			if (!File.Exists(snapshot))
 			{
 				throw new FileNotFoundException("The supported blank database snapshot was not found.", snapshot);

@@ -42,7 +42,7 @@ internal sealed class StructuredNoisePropagation
 	public static StructuredNoisePropagation Instance { get; } = new(RouteSpatialService.Instance);
 
 	public bool Propagate(
-		ICell originCell,
+		IRoom originRoom,
 		string audioText,
 		AudioVolume volume,
 		double propagationBudget,
@@ -55,7 +55,7 @@ internal sealed class StructuredNoisePropagation
 		if (volume == AudioVolume.Silent ||
 			!double.IsFinite(propagationBudget) ||
 			propagationBudget <= 0.0 ||
-			!TryResolveSourceLocation(originCell, source, originalLayer, out var origin))
+			!TryResolveSourceLocation(originRoom, source, originalLayer, out var origin))
 		{
 			return false;
 		}
@@ -68,12 +68,12 @@ internal sealed class StructuredNoisePropagation
 			}
 
 			var receivedVolume = Attenuate(volume, result.Cost, propagationBudget);
-			var proximity = ReferenceEquals(originCell, result.Location.Cell)
+			var proximity = ReferenceEquals(originRoom, result.Location.Room)
 				? result.Listener.GetProximity(source)
 				: Proximity.VeryDistant;
 			NoiseEmission.RaiseReceivedEvent(
 				result.Listener,
-				originCell,
+				originRoom,
 				source,
 				receivedVolume,
 				proximity,
@@ -167,18 +167,18 @@ internal sealed class StructuredNoisePropagation
 		double propagationBudget,
 		IDictionary<ICharacter, ReceivedNoisePath> listeners)
 	{
-		foreach (var listener in state.Cell.Characters.Where(x => x.RoomLayer == state.Layer))
+		foreach (var listener in state.Room.Characters.Where(x => x.RoomLayer == state.Layer))
 		{
 			var location = _spatialService.GetEffectiveLocation(listener);
 			if (!_spatialService.TryValidateLocation(location, out _) ||
-				!ReferenceEquals(location.Cell, state.Cell) ||
+				!ReferenceEquals(location.Room, state.Room) ||
 				location.Layer != state.Layer)
 			{
 				continue;
 			}
 
 			var localCost = 0.0;
-			if (state.Cell.RouteDefinition is { } routeDefinition)
+			if (state.Room.RouteDefinition is { } routeDefinition)
 			{
 				if (!state.CoordinateMetres.HasValue || !location.RoutePositionMetres.HasValue)
 				{
@@ -206,7 +206,7 @@ internal sealed class StructuredNoisePropagation
 
 	private IEnumerable<TraversalEdge> Expand(TraversalState state, AudioPropagationMode mode)
 	{
-		foreach (var exit in state.Cell.ExitsFor(null, true) ?? Array.Empty<ICellExit>())
+		foreach (var exit in state.Room.ExitsFor(null, true) ?? Array.Empty<IRoomExit>())
 		{
 			if (!TryResolveDestination(exit, state, out var destination))
 			{
@@ -221,9 +221,9 @@ internal sealed class StructuredNoisePropagation
 		}
 	}
 
-	private bool TryResolveDestination(ICellExit exit, TraversalState state, out TraversalState destination)
+	private bool TryResolveDestination(IRoomExit exit, TraversalState state, out TraversalState destination)
 	{
-		if (exit.Destination is not { } destinationCell)
+		if (exit.Destination is not { } destinationRoom)
 		{
 			destination = default;
 			return false;
@@ -236,40 +236,40 @@ internal sealed class StructuredNoisePropagation
 			return false;
 		}
 
-		var perceiver = new DummyPerceiver(location: state.Cell) { RoomLayer = state.Layer };
+		var perceiver = new DummyPerceiver(location: state.Room) { RoomLayer = state.Layer };
 		var transition = exit.MovementTransition(perceiver);
-		if (transition.TransitionType == CellMovementTransition.NoViableTransition)
+		if (transition.TransitionType == RoomMovementTransition.NoViableTransition)
 		{
 			destination = default;
 			return false;
 		}
 
-		if (destinationCell.RouteDefinition is null)
+		if (destinationRoom.RouteDefinition is null)
 		{
-			destination = new TraversalState(destinationCell, transition.TargetLayer, null);
+			destination = new TraversalState(destinationRoom, transition.TargetLayer, null);
 			return true;
 		}
 
-		if (!_spatialService.TryGetExitAnchor(exit, destinationCell, out var anchor) || anchor is null)
+		if (!_spatialService.TryGetExitAnchor(exit, destinationRoom, out var anchor) || anchor is null)
 		{
 			destination = default;
 			return false;
 		}
 
-		destination = new TraversalState(destinationCell, transition.TargetLayer, anchor.ArrivalPositionMetres);
+		destination = new TraversalState(destinationRoom, transition.TargetLayer, anchor.ArrivalPositionMetres);
 		return _spatialService.TryValidateLocation(destination.ToSpatialLocation(), out _);
 	}
 
 	private double GetExitCost(
 		TraversalState origin,
 		TraversalState destination,
-		ICellExit exit,
+		IRoomExit exit,
 		AudioPropagationMode mode)
 	{
-		if (origin.Cell.RouteDefinition is { } route)
+		if (origin.Room.RouteDefinition is { } route)
 		{
 			if (!origin.CoordinateMetres.HasValue ||
-				!_spatialService.TryGetExitAnchor(exit, origin.Cell, out var anchor) ||
+				!_spatialService.TryGetExitAnchor(exit, origin.Room, out var anchor) ||
 				anchor is null)
 			{
 				return double.PositiveInfinity;
@@ -281,17 +281,17 @@ internal sealed class StructuredNoisePropagation
 			       ValidExitMultiplier(exit);
 		}
 
-		if (destination.Cell.RouteDefinition is not null)
+		if (destination.Room.RouteDefinition is not null)
 		{
 			return ValidExitMultiplier(exit);
 		}
 
 		return mode == AudioPropagationMode.CoordinateAware
-			? Math.Max(1.0, origin.Cell.EstimatedDirectDistanceTo(destination.Cell))
+			? Math.Max(1.0, origin.Room.EstimatedDirectDistanceTo(destination.Room))
 			: 1.0;
 	}
 
-	private static double ValidExitMultiplier(ICellExit exit)
+	private static double ValidExitMultiplier(IRoomExit exit)
 	{
 		var multiplier = exit.Exit?.TimeMultiplier ?? 1.0;
 		return double.IsFinite(multiplier) && multiplier > 0.0 ? multiplier : 1.0;
@@ -309,15 +309,15 @@ internal sealed class StructuredNoisePropagation
 	}
 
 	private bool TryResolveSourceLocation(
-		ICell sourceCell,
+		IRoom sourceRoom,
 		IPerceiver source,
 		RoomLayer originalLayer,
 		out SpatialLocation origin)
 	{
 		var effective = _spatialService.GetEffectiveLocation(source);
-		if (ReferenceEquals(effective.Cell, sourceCell))
+		if (ReferenceEquals(effective.Room, sourceRoom))
 		{
-			origin = new SpatialLocation(sourceCell, originalLayer, effective.RoutePositionMetres);
+			origin = new SpatialLocation(sourceRoom, originalLayer, effective.RoutePositionMetres);
 			return _spatialService.TryValidateLocation(origin, out _);
 		}
 
@@ -327,7 +327,7 @@ internal sealed class StructuredNoisePropagation
 			var inherited = _spatialService.GetInheritedRoutePosition(item, owner);
 			if (inherited.HasValue)
 			{
-				origin = new SpatialLocation(sourceCell, originalLayer, inherited);
+				origin = new SpatialLocation(sourceRoom, originalLayer, inherited);
 				return _spatialService.TryValidateLocation(origin, out _);
 			}
 		}
@@ -339,13 +339,13 @@ internal sealed class StructuredNoisePropagation
 	private static string DescribeDirection(
 		SpatialLocation reachedLocation,
 		SpatialLocation listener,
-		ICellExit? incomingExit)
+		IRoomExit? incomingExit)
 	{
-		if (ReferenceEquals(reachedLocation.Cell, listener.Cell) &&
+		if (ReferenceEquals(reachedLocation.Room, listener.Room) &&
 			reachedLocation.RoutePositionMetres.HasValue && listener.RoutePositionMetres.HasValue &&
 			Math.Abs(reachedLocation.RoutePositionMetres.Value - listener.RoutePositionMetres.Value) > CostEpsilon)
 		{
-			var route = reachedLocation.Cell.RouteDefinition!;
+			var route = reachedLocation.Room.RouteDefinition!;
 			return $"from {(reachedLocation.RoutePositionMetres > listener.RoutePositionMetres ? route.PositiveDirectionName : route.NegativeDirectionName)}";
 		}
 
@@ -357,22 +357,22 @@ internal sealed class StructuredNoisePropagation
 		return "here";
 	}
 
-	private readonly record struct TraversalRoute(double Cost, ICellExit? IncomingExit);
-	private readonly record struct TraversalEdge(TraversalState Destination, double Cost, ICellExit Exit);
-	private readonly record struct TraversalState(ICell Cell, RoomLayer Layer, double? CoordinateMetres)
+	private readonly record struct TraversalRoute(double Cost, IRoomExit? IncomingExit);
+	private readonly record struct TraversalEdge(TraversalState Destination, double Cost, IRoomExit Exit);
+	private readonly record struct TraversalState(IRoom Room, RoomLayer Layer, double? CoordinateMetres)
 	{
 		public static TraversalState From(SpatialLocation location) =>
-			new(location.Cell, location.Layer, location.RoutePositionMetres);
-		public SpatialLocation ToSpatialLocation() => new(Cell, Layer, CoordinateMetres);
+			new(location.Room, location.Layer, location.RoutePositionMetres);
+		public SpatialLocation ToSpatialLocation() => new(Room, Layer, CoordinateMetres);
 	}
 
 	private sealed class TraversalStateComparer : IEqualityComparer<TraversalState>
 	{
 		public static TraversalStateComparer Instance { get; } = new();
 		public bool Equals(TraversalState x, TraversalState y) =>
-			ReferenceEquals(x.Cell, y.Cell) && x.Layer == y.Layer &&
+			ReferenceEquals(x.Room, y.Room) && x.Layer == y.Layer &&
 			Nullable.Equals(x.CoordinateMetres, y.CoordinateMetres);
 		public int GetHashCode(TraversalState obj) =>
-			HashCode.Combine(RuntimeHelpers.GetHashCode(obj.Cell), (int)obj.Layer, obj.CoordinateMetres);
+			HashCode.Combine(RuntimeHelpers.GetHashCode(obj.Room), (int)obj.Layer, obj.CoordinateMetres);
 	}
 }

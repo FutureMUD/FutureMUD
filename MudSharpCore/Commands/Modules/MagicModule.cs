@@ -436,7 +436,7 @@ The syntax is:
     public static void MagicAnchors(ICharacter actor, StringStack command)
     {
         var filter = command.SafeRemainingArgument;
-        var anchors = actor.Gameworld.Cells
+        var anchors = actor.Gameworld.Rooms
                            .SelectMany(x => x.EffectsOfType<IMagicTagEffect>(tag =>
                                string.IsNullOrWhiteSpace(filter) || tag.Tag.EqualTo(filter)).Select(tag => (Owner: (IPerceivable)x, Tag: tag)))
                            .Concat(actor.Gameworld.Items

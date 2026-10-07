@@ -63,7 +63,7 @@ public sealed record NativeOrganicPenaltyDefinition(
 /// generation/definition; a field source uses FieldId, generation and vegetation definition.
 /// </summary>
 public sealed record NativeOrganicLifecycleIdentity(
-	long CellId,
+	long RoomId,
 	long? FieldId,
 	long Generation,
 	long DefinitionId,

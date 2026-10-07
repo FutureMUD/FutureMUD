@@ -61,8 +61,8 @@ public abstract class GroupAIType : IGroupAIType, IHaveFuturemud
     protected class BaseGroupTypeData : IGroupTypeData
     {
         public IFuturemud Gameworld { get; }
-        public List<ICell> KnownWaterLocations { get; } = new();
-        public Dictionary<ICell, DateTime> KnownThreatLocations { get; } = new();
+        public List<IRoom> KnownWaterLocations { get; } = new();
+        public Dictionary<IRoom, DateTime> KnownThreatLocations { get; } = new();
         public DateTime LastEmote { get; set; }
 
         public BaseGroupTypeData(IFuturemud gameworld)
@@ -89,24 +89,24 @@ public abstract class GroupAIType : IGroupAIType, IHaveFuturemud
 
             foreach (XElement item in root.Element("Water").Elements())
             {
-                ICell cell = gameworld.Cells.Get(long.Parse(item.Value));
-                if (cell == null)
+                IRoom room = gameworld.Rooms.Get(long.Parse(item.Value));
+                if (room == null)
                 {
                     continue;
                 }
 
-                KnownWaterLocations.Add(cell);
+                KnownWaterLocations.Add(room);
             }
 
             foreach (XElement item in root.Element("Threats").Elements())
             {
-                ICell cell = gameworld.Cells.Get(long.Parse(item.Attribute("id").Value));
-                if (cell == null)
+                IRoom room = gameworld.Rooms.Get(long.Parse(item.Attribute("id").Value));
+                if (room == null)
                 {
                     continue;
                 }
 
-                KnownThreatLocations[cell] = DateTime.Parse(item.Value);
+                KnownThreatLocations[room] = DateTime.Parse(item.Value);
             }
         }
 
@@ -114,10 +114,10 @@ public abstract class GroupAIType : IGroupAIType, IHaveFuturemud
         {
             return new XElement("Data",
                 new XElement("LastEmote", LastEmote.ToString("o")),
-                new XElement("Water", from cell in KnownWaterLocations select new XElement("Cell", cell.Id)),
+                new XElement("Water", from room in KnownWaterLocations select new XElement("Cell", room.Id)),
                 new XElement("Threats",
-                    from cell in KnownThreatLocations
-                    select new XElement("Cell", new XAttribute("id", cell.Key.Id), cell.Value.ToString("o")))
+                    from room in KnownThreatLocations
+                    select new XElement("Cell", new XAttribute("id", room.Key.Id), room.Value.ToString("o")))
             );
         }
     }
@@ -351,15 +351,15 @@ public abstract class GroupAIType : IGroupAIType, IHaveFuturemud
         }
     }
 
-    protected Func<ICellExit, bool> CanMoveExitFunctionFor(ICharacter ch, IGroupAI group)
+    protected Func<IRoomExit, bool> CanMoveExitFunctionFor(ICharacter ch, IGroupAI group)
     {
         return exit => ch.CouldMove(false, null).Success && ch.CanMove(exit) &&
-                       !group.AvoidCell(exit.Destination, group.Alertness);
+                       !group.AvoidRoom(exit.Destination, group.Alertness);
     }
 
-    protected bool PathIndividualToLocation(ICharacter ch, IGroupAI group, ICell location)
+    protected bool PathIndividualToLocation(ICharacter ch, IGroupAI group, IRoom location)
     {
-        List<ICellExit> path = ch.PathBetween(location, 20, CanMoveExitFunctionFor(ch, group)).ToList();
+        List<IRoomExit> path = ch.PathBetween(location, 20, CanMoveExitFunctionFor(ch, group)).ToList();
         if (!path.Any())
         {
             return false;
@@ -450,7 +450,7 @@ public abstract class GroupAIType : IGroupAIType, IHaveFuturemud
             ch.CombinedEffectsOfType<FollowingPath>().Any();
     }
 
-    protected List<ILiquidContainer> LocalLiquids(ICell location, RoomLayer layer)
+    protected List<ILiquidContainer> LocalLiquids(IRoom location, RoomLayer layer)
     {
         return location
                .LayerGameItems(layer)

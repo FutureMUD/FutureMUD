@@ -125,7 +125,7 @@ The syntax is as follows:
                         crime.Name,
                         crime.Victim?.HowSeen(actor) ?? "",
                         crime.TimeOfCrime.ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Short),
-                        crime.CrimeLocation?.GetOverlayFor(actor).CellName ?? "",
+                        crime.CrimeLocation?.GetOverlayFor(actor).RoomName ?? "",
                         crime.HasBeenEnforced.ToColouredString(),
                         crime.HasBeenFinalised ? (crime.HasBeenConvicted ? "Convicted" : "Acquitted") : ""
                     },
@@ -227,7 +227,7 @@ The syntax is as follows:
                     crime.Name,
                     crime.Victim?.HowSeen(actor) ?? "",
                     crime.TimeOfCrime.ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Short),
-                    crime.CrimeLocation?.GetOverlayFor(actor).CellName ?? "",
+                    crime.CrimeLocation?.GetOverlayFor(actor).RoomName ?? "",
                     crime.HasBeenEnforced.ToColouredString(),
                     crime.HasBeenFinalised ? (crime.HasBeenConvicted ? "Convicted" : "Acquitted") : "",
                     crime.IsKnownCrime.ToColouredString()
@@ -337,7 +337,7 @@ The syntax for this command is as follows:
                     crime.Name,
                     crime.Victim?.HowSeen(actor) ?? "",
                     crime.TimeOfCrime.ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Short),
-                    crime.CrimeLocation?.GetOverlayFor(actor).CellName ?? "",
+                    crime.CrimeLocation?.GetOverlayFor(actor).RoomName ?? "",
                     crime.HasBeenEnforced.ToColouredString(),
                     crime.HasBeenFinalised ? (crime.HasBeenConvicted ? "Convicted" : "Acquitted") : "",
                     crime.HasBeenFinalised ? crime.DescribePunishment(actor) : "",
@@ -884,7 +884,7 @@ The syntax for this command is simply #3argue defense#0 or #3argue prosecution#0
 
         if (target.EffectsOfType<AwaitingExecution>(x => x.LegalAuthority == jurisdiction).Any())
         {
-            jurisdiction.SendCharacterToHoldingCell(target);
+            jurisdiction.SendCharacterToHoldingRoom(target);
             return;
         }
 
@@ -988,7 +988,7 @@ You can use the following options for punishments, can can include multiples in 
                     crime.Name,
                     crime.Victim?.HowSeen(actor) ?? "",
                     crime.TimeOfCrime.ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Short),
-                    crime.CrimeLocation?.GetOverlayFor(actor).CellName ?? "",
+                    crime.CrimeLocation?.GetOverlayFor(actor).RoomName ?? "",
                     crime.HasBeenEnforced.ToColouredString(),
                 },
                 new List<string>
@@ -1254,7 +1254,7 @@ There are the following syntaxes for this command:
                     crime.Name,
                     crime.Victim?.HowSeen(actor) ?? "",
                     crime.TimeOfCrime.ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Short),
-                    crime.CrimeLocation?.GetOverlayFor(actor).CellName ?? "",
+                    crime.CrimeLocation?.GetOverlayFor(actor).RoomName ?? "",
                     crime.HasBeenEnforced.ToColouredString(),
                 },
                 new List<string>
@@ -1637,11 +1637,11 @@ Durations use ordinary time units such as #3hours#0, #3days#0 or #3weeks#0; mont
 			}
 
 			target.RemoveAllEffects<PermitWork>(x =>
-				x.Cell == actor.Location || x.Controller?.FrameworkItemType == privateController.FrameworkItemType &&
+				x.Room == actor.Location || x.Controller?.FrameworkItemType == privateController.FrameworkItemType &&
 				x.Controller.Id == privateController.Id);
 			target.AddEffect(new PermitWork(target)
 			{
-				Cell = actor.Location,
+				Room = actor.Location,
 				Controller = privateController
 			}, timespan);
 			actor.OutputHandler.Handle(new EmoteOutput(new Emote(
@@ -1685,8 +1685,8 @@ Durations use ordinary time units such as #3hours#0, #3days#0 or #3weeks#0; mont
             return;
         }
 
-        target.RemoveAllEffects<PermitWork>(x => x.Cell == actor.Location);
-        target.AddEffect(new PermitWork(target) { Cell = actor.Location }, timespan);
+        target.RemoveAllEffects<PermitWork>(x => x.Room == actor.Location);
+        target.AddEffect(new PermitWork(target) { Room = actor.Location }, timespan);
         actor.OutputHandler.Handle(new EmoteOutput(new Emote(
             "@ authorise|authorises $1 to work in this location for $2.", actor, actor, target,
             new DummyPerceivable(perceiver =>
@@ -1737,7 +1737,7 @@ The syntax for this command is simply #3requesttrial#0.", AutoHelp.HelpArg)]
         foreach (AwaitingSentencing effect in sentences)
         {
             ILegalAuthority jurisdiction = effect.LegalAuthority;
-            if (!jurisdiction.IsInRemandCell(actor))
+            if (!jurisdiction.IsInRemandRoom(actor))
             {
                 errors.Add($"you are not being held in a {jurisdiction.Name.ColourName()} remand cell");
                 continue;
@@ -1821,7 +1821,7 @@ The syntax for this command is simply #3requestexecution#0.", AutoHelp.HelpArg)]
         foreach (AwaitingExecution effect in actor.EffectsOfType<AwaitingExecution>())
         {
             ILegalAuthority jurisdiction = effect.LegalAuthority;
-            if (!jurisdiction.IsInRemandCell(actor))
+            if (!jurisdiction.IsInRemandRoom(actor))
             {
                 errors.Add($"you are not being held in a {jurisdiction.Name.ColourName()} remand cell");
                 continue;
@@ -2010,7 +2010,7 @@ The syntax is as follows:
             return;
         }
 
-        List<ICharacter> prisoners = jurisdiction.CellLocations.SelectMany(x => x.Characters)
+        List<ICharacter> prisoners = jurisdiction.RoomLocations.SelectMany(x => x.Characters)
                                     .Where(x => x.AffectedBy<AwaitingSentencing>(jurisdiction)).ToList();
         string whoText = ss.PopSpeech();
         if (whoText.EqualTo("list"))
@@ -2249,14 +2249,14 @@ The syntax is as follows:
         {
             jurisdiction = actor.Gameworld.LegalAuthorities.FirstOrDefault(x =>
                 x.PrisonLocation == actor.Location ||
-                x.IsInRemandCell(actor));
+                x.IsInRemandRoom(actor));
             if (jurisdiction is null)
             {
                 actor.OutputHandler.Send($"You are not at the prison location or in a remand cell of any legal jurisdiction.");
                 return;
             }
 
-            List<ICharacter> prisoners = jurisdiction.CellLocations.SelectMany(x => x.Characters)
+            List<ICharacter> prisoners = jurisdiction.RoomLocations.SelectMany(x => x.Characters)
                                         .Where(x => x.AffectedBy<AwaitingSentencing>(jurisdiction))
                                         .Where(x => !x.AffectedBy<HasLegalCounsel>())
                                         .ToList();
@@ -2372,7 +2372,7 @@ The syntax is as follows:
         }
         else
         {
-            List<IGameItem> remandBelongings = actor == who && jurisdiction.IsInRemandCell(actor)
+            List<IGameItem> remandBelongings = actor == who && jurisdiction.IsInRemandRoom(actor)
                 ? PrisonerBelongingsBundles(jurisdiction, actor).ToList()
                 : new List<IGameItem>();
             OtherCashPayment payment = remandBelongings.Any()
@@ -2551,7 +2551,7 @@ The syntax is as follows:
 
         if (defendant.AffectedBy<AwaitingSentencing>(authority))
         {
-            return authority.IsInRemandCell(defendant)
+            return authority.IsInRemandRoom(defendant)
                 ? "Remand".Colour(Telnet.Yellow)
                 : "At Large / Bail Revoked".Colour(Telnet.Orange);
         }
@@ -2733,7 +2733,7 @@ The syntax is as follows:
 
         string targetText = ss.PopSpeech();
         ICharacter target = actor.TargetActor(targetText);
-        List<ICharacter> remandPrisoners = jurisdiction.CellLocations
+        List<ICharacter> remandPrisoners = jurisdiction.RoomLocations
                                                        .SelectMany(x => x.Characters)
                                                        .Where(x => x.AffectedBy<AwaitingSentencing>(jurisdiction))
                                                        .ToList();

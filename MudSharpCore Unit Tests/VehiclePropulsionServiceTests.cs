@@ -57,7 +57,7 @@ public class VehiclePropulsionServiceTests
 		var profile = CreateMovementProfile([propulsion.Object]);
 		var weather = new Mock<IWeatherEvent>();
 		weather.SetupGet(x => x.Wind).Returns(WindLevel.Still);
-		var location = new Mock<ICell>();
+		var location = new Mock<IRoom>();
 		location.Setup(x => x.CurrentWeather(null)).Returns(weather.Object);
 		var vehicle = CreateVehicle(profile, propulsion.Object, [], [], location.Object);
 		var actor = new Mock<ICharacter>();
@@ -79,7 +79,7 @@ public class VehiclePropulsionServiceTests
 		var wind = WindLevel.Breeze;
 		var weather = new Mock<IWeatherEvent>();
 		weather.SetupGet(x => x.Wind).Returns(() => wind);
-		var location = new Mock<ICell>();
+		var location = new Mock<IRoom>();
 		location.Setup(x => x.CurrentWeather(null)).Returns(weather.Object);
 		var vehicle = CreateVehicle(profile, propulsion.Object, [], [], location.Object);
 		var gameworld = new Mock<IFuturemud>();
@@ -334,7 +334,7 @@ public class VehiclePropulsionServiceTests
 		actor.SetupGet(x => x.State).Returns(CharacterState.Awake);
 		actor.SetupGet(x => x.EncumbrancePercentage).Returns(0.5);
 		actor.Setup(x => x.CanSpendStamina(It.IsAny<double>())).Returns(true);
-		var origin = new Mock<ICell>();
+		var origin = new Mock<IRoom>();
 		origin.Setup(x => x.Terrain(actor.Object)).Returns(terrain.Object);
 		var vehicle = CreateVehicle(profile, propulsion.Object, [], [], origin.Object);
 		var exit = CreateExit(1.0, origin.Object);
@@ -389,7 +389,7 @@ public class VehiclePropulsionServiceTests
 		profile.SetupGet(x => x.MovementEnvironment).Returns(VehicleMovementEnvironment.Unrestricted);
 		var terrain = new Mock<ITerrain>();
 		terrain.SetupGet(x => x.StaminaCost).Returns(5.0);
-		var location = new Mock<ICell>();
+		var location = new Mock<IRoom>();
 		var actor = new Mock<ICharacter>();
 		location.Setup(x => x.Terrain(actor.Object)).Returns(terrain.Object);
 		var gameworld = new Mock<IFuturemud>();
@@ -411,7 +411,7 @@ public class VehiclePropulsionServiceTests
 	{
 		var profile = new Mock<IVehicleMovementProfilePrototype>();
 		profile.SetupGet(x => x.Id).Returns(10);
-		profile.SetupGet(x => x.MovementType).Returns(VehicleMovementProfileType.CellExit);
+		profile.SetupGet(x => x.MovementType).Returns(VehicleMovementProfileType.RoomExit);
 		profile.SetupGet(x => x.MovementEnvironment).Returns(VehicleMovementEnvironment.SurfaceWater);
 		profile.SetupGet(x => x.PropulsionProfiles).Returns(propulsion);
 		return profile;
@@ -454,7 +454,7 @@ public class VehiclePropulsionServiceTests
 
 	private static Mock<IVehicle> CreateVehicle(Mock<IVehicleMovementProfilePrototype> movement,
 		IVehiclePropulsionProfilePrototype? active, IEnumerable<IVehicleOccupancy> occupancies,
-		IEnumerable<IVehicleInstallation> installations, ICell? location = null)
+		IEnumerable<IVehicleInstallation> installations, IRoom? location = null)
 	{
 		var vehicle = new Mock<IVehicle>();
 		vehicle.SetupGet(x => x.MovementProfile).Returns(movement.Object);
@@ -502,11 +502,11 @@ public class VehiclePropulsionServiceTests
 		return (occupancy, item);
 	}
 
-	private static Mock<ICellExit> CreateExit(double timeMultiplier, ICell? origin = null)
+	private static Mock<IRoomExit> CreateExit(double timeMultiplier, IRoom? origin = null)
 	{
 		var exitModel = new Mock<IExit>();
 		exitModel.SetupGet(x => x.TimeMultiplier).Returns(timeMultiplier);
-		var exit = new Mock<ICellExit>();
+		var exit = new Mock<IRoomExit>();
 		exit.SetupGet(x => x.Exit).Returns(exitModel.Object);
 		exit.SetupGet(x => x.Origin).Returns(origin!);
 		return exit;

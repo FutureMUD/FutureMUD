@@ -54,7 +54,7 @@ public abstract class CharacterLoginMenu : Menu
         }
         else
         {
-            Gameworld.Cells.First().Login(Character);
+            Gameworld.Rooms.First().Login(Character);
         }
 
         _nextContext = Character;

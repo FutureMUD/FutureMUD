@@ -441,7 +441,7 @@ Using #3show#0 on its own displays the topic list appropriate to your current pe
             case "cell overlay packages":
             case "overlay packages":
             case "overlays":
-                Show_CellOverlayPackages(actor, ss);
+                Show_RoomOverlayPackages(actor, ss);
                 break;
             case "terrain":
             case "terrains":
@@ -3644,7 +3644,7 @@ Using #3show#0 on its own displays the topic list appropriate to your current pe
         );
     }
 
-    private static void Show_CellOverlayPackages(ICharacter actor, StringStack input)
+    private static void Show_RoomOverlayPackages(ICharacter actor, StringStack input)
     {
         if (!actor.IsAdministrator())
         {
@@ -3652,7 +3652,7 @@ Using #3show#0 on its own displays the topic list appropriate to your current pe
             return;
         }
 
-        List<Construction.ICellOverlayPackage> overlays = actor.Gameworld.CellOverlayPackages.ToList();
+        List<Construction.IRoomOverlayPackage> overlays = actor.Gameworld.RoomOverlayPackages.ToList();
 
         // TODO - filters
 

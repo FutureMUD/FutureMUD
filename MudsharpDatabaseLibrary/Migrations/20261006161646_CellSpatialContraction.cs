@@ -31,8 +31,8 @@ BEGIN
   SELECT TABLE_NAME, COLUMN_NAME FROM information_schema.COLUMNS
   WHERE TABLE_SCHEMA=DATABASE() AND DATA_TYPE IN ('char','varchar','tinytext','text','mediumtext','longtext','json');
  DECLARE CONTINUE HANDLER FOR NOT FOUND SET finished=TRUE;
- IF EXISTS(SELECT 1 FROM `Rooms`) AND COALESCE(@FutureMUD_CellSpatialContractionMaintenance,0) <> 1 THEN
-  SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT='Cell spatial contraction requires frozen writers, verified backup and maintenance session opt-in';
+ IF EXISTS(SELECT 1 FROM `Rooms`) AND COALESCE(@FutureMUD_CellSpatialContractionMaintenance,0)<>1 THEN
+  SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT='Cell spatial cutover: explicitly freeze all writers and set maintenance session flag';
  END IF;
  IF EXISTS(SELECT 1 FROM `Cells` GROUP BY RoomId HAVING COUNT(*)>1) THEN
   SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT='Cell spatial preflight: Room has multiple Cells; no child will be chosen';
@@ -50,9 +50,6 @@ BEGIN
            WHERE r.Id IS NULL OR ar.Id IS NULL) THEN
   SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT='Cell spatial preflight: orphan Area membership';
  END IF;
- IF EXISTS(SELECT 1 FROM `Areas_Rooms` a LEFT JOIN `Cells` c ON c.RoomId=a.RoomId WHERE c.Id IS NULL) THEN
-  SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT='Cell spatial preflight: Area references an empty Room; explicit disposition required';
- END IF;
  IF EXISTS(SELECT 1 FROM `Cells` c LEFT JOIN `CellOverlays` o ON o.Id=c.CurrentOverlayId
            WHERE o.Id IS NULL OR o.CellId<>c.Id) THEN
   SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT='Cell spatial preflight: missing or foreign current overlay';
@@ -69,7 +66,12 @@ BEGIN
  END IF;
  IF EXISTS(SELECT 1 FROM Zones z LEFT JOIN Cells c ON c.Id=z.DefaultCellId
            WHERE z.DefaultCellId IS NOT NULL AND (c.Id IS NULL OR NOT(c.RoomId IN (SELECT Id FROM Rooms WHERE ZoneId=z.Id)))) THEN
-  SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT='Cell spatial contraction: invalid owning-zone default Cell reference';
+  SELECT LEFT(CONCAT('Cell contraction: invalid owning-zone default; zone ',z.Id,', Cell ',z.DefaultCellId,
+                     ', owner ',COALESCE(CAST(r.ZoneId AS CHAR),'missing')),128) INTO diagnostic
+  FROM Zones z LEFT JOIN Cells c ON c.Id=z.DefaultCellId LEFT JOIN Rooms r ON r.Id=c.RoomId
+  WHERE z.DefaultCellId IS NOT NULL AND (c.Id IS NULL OR r.Id IS NULL OR r.ZoneId<>z.Id)
+  ORDER BY z.Id LIMIT 1;
+  SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT=diagnostic;
  END IF;
  IF EXISTS(SELECT 1 FROM Areas_Cells a LEFT JOIN Areas ar ON ar.Id=a.AreaId LEFT JOIN Cells c ON c.Id=a.CellId WHERE ar.Id IS NULL OR c.Id IS NULL)
     OR EXISTS(SELECT 1 FROM Cells c LEFT JOIN Zones z ON z.Id=c.ZoneId WHERE c.ZoneId IS NOT NULL AND z.Id IS NULL) THEN
@@ -114,7 +116,7 @@ BEGIN
                WHERE m.RoomId IS NULL OR NOT(m.CellId<=>c.Id) OR m.ZoneId<>r.ZoneId OR m.X<>r.X OR m.Y<>r.Y OR m.Z<>r.Z
                      OR (c.Id IS NULL AND (m.Warning IS NULL OR m.Warning='')))
      OR (SELECT COUNT(*) FROM CellRoomAreaContractionLedger)<>(SELECT COUNT(*) FROM Areas_Rooms)
-     OR EXISTS(SELECT 1 FROM Areas_Rooms a JOIN Cells c ON c.RoomId=a.RoomId LEFT JOIN CellRoomAreaContractionLedger m ON m.AreaId=a.AreaId AND m.RoomId=a.RoomId AND m.CellId=c.Id WHERE m.CellId IS NULL) THEN
+     OR EXISTS(SELECT 1 FROM Areas_Rooms a LEFT JOIN Cells c ON c.RoomId=a.RoomId LEFT JOIN CellRoomAreaContractionLedger m ON m.AreaId=a.AreaId AND m.RoomId=a.RoomId WHERE m.RoomId IS NULL OR NOT(m.CellId<=>c.Id)) THEN
    SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT='Cell contraction: final provenance or complete mapping invariant failed; no Room data may be dropped';
   END IF;
  END IF;
@@ -126,7 +128,7 @@ BEGIN
   IF LOWER(column_name_value) LIKE '%type' THEN
    SET @fm_cell_spatial_pattern='^[[:space:]]*Room[[:space:]]*$';
   ELSE
-   SET @fm_cell_spatial_pattern='([[:alnum:]_]*Type["'']?[[:space:]]*[:=][[:space:]]*["'']Room["'']|<([[:alnum:]_]*Type)>[[:space:]]*Room[[:space:]]*</)';
+   SET @fm_cell_spatial_pattern='(Type["'']?[[:space:]]*[:=][[:space:]]*["'']Room["'']|<([[:alnum:]_]*Type)>[[:space:]]*Room[[:space:]]*</)';
   END IF;
   SET @fm_cell_spatial_query=CONCAT('SELECT COUNT(*) INTO @fm_cell_spatial_hits FROM `',REPLACE(table_name_value,'`','``'),
    '` WHERE REGEXP_LIKE(`',REPLACE(column_name_value,'`','``'),'`, ?, ''i'')');
@@ -148,7 +150,7 @@ END;
                 {
                     AreaId = table.Column<long>(type: "bigint(20)", nullable: false),
                     RoomId = table.Column<long>(type: "bigint(20)", nullable: false),
-                    CellId = table.Column<long>(type: "bigint(20)", nullable: false)
+                    CellId = table.Column<long>(type: "bigint(20)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -178,10 +180,10 @@ END;
 START TRANSACTION;
 INSERT INTO CellRoomContractionLedger(RoomId,CellId,ZoneId,X,Y,Z,Warning)
 SELECT r.Id,c.Id,r.ZoneId,r.X,r.Y,r.Z,
-       CASE WHEN c.Id IS NULL THEN 'Unreferenced empty Room removed at contraction; final original metadata retained here' ELSE NULL END
+       CASE WHEN c.Id IS NULL THEN 'Empty Room removed at contraction; original metadata and discarded Area memberships retained in ledgers' ELSE NULL END
 FROM Rooms r LEFT JOIN Cells c ON c.RoomId=r.Id;
 INSERT INTO CellRoomAreaContractionLedger(AreaId,RoomId,CellId)
-SELECT a.AreaId,a.RoomId,c.Id FROM Areas_Rooms a JOIN Cells c ON c.RoomId=a.RoomId;
+SELECT a.AreaId,a.RoomId,c.Id FROM Areas_Rooms a LEFT JOIN Cells c ON c.RoomId=a.RoomId;
 UPDATE Cells c JOIN Rooms r ON r.Id=c.RoomId SET c.ZoneId=r.ZoneId,c.X=r.X,c.Y=r.Y,c.Z=r.Z
 WHERE NOT(c.ZoneId<=>r.ZoneId) OR NOT(c.X<=>r.X) OR NOT(c.Y<=>r.Y) OR NOT(c.Z<=>r.Z);
 DELETE n FROM Areas_Cells n LEFT JOIN Cells c ON c.Id=n.CellId LEFT JOIN Areas_Rooms a ON a.AreaId=n.AreaId AND a.RoomId=c.RoomId WHERE a.RoomId IS NULL;

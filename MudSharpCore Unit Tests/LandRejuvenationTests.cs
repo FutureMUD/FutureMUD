@@ -77,11 +77,11 @@ public class LandRejuvenationTests
 		Assert.AreEqual(10.0, f.Progress.RemainingBudget);
 		Assert.AreEqual(2.0, f.Progress.TotalRepaired);
 		f.Environment.Clock.Advance(TimeSpan.FromSeconds(30));
-		f.Cell.RemoveEffect(child.ParentEffect, true);
+		f.Room.RemoveEffect(child.ParentEffect, true);
 		f.Advance(600);
 		Assert.AreEqual(18.0, f.Scar);
 		Assert.AreEqual(0, f.Environment.Coordinator.ActiveTreatmentCount);
-		Assert.IsFalse(f.Cell.Effects.OfType<SpellRejuvenateLandEffect>().Any());
+		Assert.IsFalse(f.Room.Effects.OfType<SpellRejuvenateLandEffect>().Any());
 		Assert.AreEqual(LandRejuvenationStatus.Cancelled, f.Progress.Status);
 	}
 
@@ -105,34 +105,34 @@ public class LandRejuvenationTests
 	public void CastSpell_ExclusiveAndCompositeConflict_PreservesOldParentAndSiblings()
 	{
 		using var f = new Fixture();
-		f.Spell.CastSpell(f.Actor.Object, f.Cell, SpellPower.Standard);
-		var original = f.Cell.Effects.OfType<MagicSpellParent>().Single();
+		f.Spell.CastSpell(f.Actor.Object, f.Room, SpellPower.Standard);
+		var original = f.Room.Effects.OfType<MagicSpellParent>().Single();
 		var child = original.SpellEffects.Single();
-		var sibling = new SpellRoomLightEffect(f.Cell, original, null!, 1, "", Telnet.Green);
+		var sibling = new SpellRoomLightEffect(f.Room, original, null!, 1, "", Telnet.Green);
 		original.AddSpellEffect(sibling);
-		f.Cell.AddEffect(sibling);
+		f.Room.AddEffect(sibling);
 		var extra = new Mock<IMagicSpellEffectTemplate>();
 		((List<IMagicSpellEffectTemplate>)f.Spell.SpellEffects).Add(extra.Object);
-		f.Spell.CastSpell(f.Actor.Object, f.Cell, SpellPower.Standard);
-		Assert.AreSame(original, f.Cell.Effects.OfType<MagicSpellParent>().Single());
-		Assert.IsTrue(f.Cell.Effects.Contains(child));
-		Assert.IsTrue(f.Cell.Effects.Contains(sibling));
+		f.Spell.CastSpell(f.Actor.Object, f.Room, SpellPower.Standard);
+		Assert.AreSame(original, f.Room.Effects.OfType<MagicSpellParent>().Single());
+		Assert.IsTrue(f.Room.Effects.Contains(child));
+		Assert.IsTrue(f.Room.Effects.Contains(sibling));
 		extra.Verify(x => x.GetOrApplyEffect(It.IsAny<ICharacter>(), It.IsAny<IPerceivable>(), It.IsAny<OpposedOutcomeDegree>(),
 			It.IsAny<SpellPower>(), It.IsAny<IMagicSpellEffectParent>(), It.IsAny<SpellAdditionalParameter[]>()), Times.Never);
-		Assert.IsFalse(f.Template.TryPrepareApplication(f.Actor.Object, f.Cell, OpposedOutcomeDegree.Moderate, SpellPower.Strong,
+		Assert.IsFalse(f.Template.TryPrepareApplication(f.Actor.Object, f.Room, OpposedOutcomeDegree.Moderate, SpellPower.Strong,
 			TimeSpan.FromSeconds(600), out _, out _));
 		Assert.AreEqual(2, f.CostPayments);
 	}
 
 	[TestMethod, TestCategory("R-T12"), TestCategory("R-I21")]
-	public void CastSpell_RepeatedRoomAndIndependentTargets_PaysOnceAndInstallsPerCell()
+	public void CastSpell_RepeatedRoomAndIndependentTargets_PaysOnceAndInstallsPerRoom()
 	{
 		using var f = new Fixture(count: 2);
-		var second = (Cell)f.Environment.Cells.At(1);
+		var second = (Room)f.Environment.Rooms.At(1);
 		f.Environment.Coordinator.ApplyOperation(second, new(Guid.NewGuid(), null, "test scars", Damage: 20));
-		f.Spell.CastSpell(f.Actor.Object, new PerceivableGroup([f.Cell, second, f.Cell]), SpellPower.Standard);
+		f.Spell.CastSpell(f.Actor.Object, new PerceivableGroup([f.Room, second, f.Room]), SpellPower.Standard);
 		Assert.AreEqual(1, f.CostPayments);
-		Assert.AreEqual(1, f.Cell.Effects.OfType<MagicSpellParent>().Count());
+		Assert.AreEqual(1, f.Room.Effects.OfType<MagicSpellParent>().Count());
 		Assert.AreEqual(1, second.Effects.OfType<MagicSpellParent>().Count());
 		Assert.AreEqual(2, f.Environment.Coordinator.ActiveTreatmentCount);
 		Assert.AreEqual(20.0, f.Scar);
@@ -143,33 +143,33 @@ public class LandRejuvenationTests
 	{
 		using var f = new Fixture();
 		f.Environment.Edit("output 1 maximum max(0,100-scardamage)");
-		Assert.IsTrue(f.Environment.Coordinator.TryMutateResource(f.Cell, f.Environment.Resources.At(0), EnvironmentalResourceMutation.Set, 30, out var set));
+		Assert.IsTrue(f.Environment.Coordinator.TryMutateResource(f.Room, f.Environment.Resources.At(0), EnvironmentalResourceMutation.Set, 30, out var set));
 		Assert.IsTrue(set);
 		f.Environment.Edit("output 1 rate 1 / (20 - scardamage)");
-		Assert.IsFalse(f.Environment.Coordinator.Inspect(f.Cell).IsValid);
+		Assert.IsFalse(f.Environment.Coordinator.Inspect(f.Room).IsValid);
 		f.Install(5, 5, 60);
 		f.Advance(60);
 		Assert.AreEqual(15.0, f.Scar);
-		Assert.AreEqual(30.0, f.Cell.MagicResourceAmounts[f.Environment.Resources.At(0)]);
+		Assert.AreEqual(30.0, f.Room.MagicResourceAmounts[f.Environment.Resources.At(0)]);
 		f.Environment.Edit("output 1 rate 0");
-		Assert.AreEqual(85.0, f.Environment.Coordinator.Inspect(f.Cell).Outputs.Single().Maximum);
+		Assert.AreEqual(85.0, f.Environment.Coordinator.Inspect(f.Room).Outputs.Single().Maximum);
 	}
 
 	[DataTestMethod, DataRow(100.0, 100.0, "1"), DataRow(0.0, 0.0, "1"), DataRow(100.0, 30.0, "0"), TestCategory("R-I01")]
-	public void Treatment_FullZeroCapacityAndDormantCells_AdvanceWithoutResourceProduction(double maximum, double balance, string rate)
+	public void Treatment_FullZeroCapacityAndDormantRooms_AdvanceWithoutResourceProduction(double maximum, double balance, string rate)
 	{
 		using var f = new Fixture();
 		f.Environment.Edit($"output 1 maximum {maximum:R}");
 		f.Environment.Edit($"output 1 rate {rate}");
 		var resource = f.Environment.Resources.At(0);
-		Assert.IsTrue(f.Environment.Coordinator.TryMutateResource(f.Cell, resource, EnvironmentalResourceMutation.Set, balance, out _));
+		Assert.IsTrue(f.Environment.Coordinator.TryMutateResource(f.Room, resource, EnvironmentalResourceMutation.Set, balance, out _));
 		f.Environment.Coordinator.Pump();
-		Assert.IsTrue(f.Environment.Coordinator.Inspect(f.Cell).IsValid);
+		Assert.IsTrue(f.Environment.Coordinator.Inspect(f.Room).IsValid);
 		f.Install();
 		f.Advance(60);
 		Assert.AreEqual(19.0, f.Scar);
 		Assert.AreEqual(11.0, f.Progress.RemainingBudget);
-		Assert.AreEqual(balance, f.Cell.MagicResourceAmounts[resource]);
+		Assert.AreEqual(balance, f.Room.MagicResourceAmounts[resource]);
 	}
 
 	[TestMethod, TestCategory("R-I02")]
@@ -183,7 +183,7 @@ public class LandRejuvenationTests
 		var profile = f.Environment.AddProfile(2, definition);
 		Assert.IsTrue(profile.OrganicValidationErrors.Count > 0);
 		Assert.IsFalse(profile.EvaluateOrganicPenalty(NativeOrganicPenaltyChannel.CropYieldRecovery, new Dictionary<string, double>()).IsValid);
-		f.Environment.Coordinator.SetBinding(f.Cell, EnvironmentalMagicBindingMode.Explicit, profile.Id);
+		f.Environment.Coordinator.SetBinding(f.Room, EnvironmentalMagicBindingMode.Explicit, profile.Id);
 		f.Install();
 		f.Advance(60);
 		Assert.AreEqual(19.0, f.Scar);
@@ -196,16 +196,16 @@ public class LandRejuvenationTests
 		using var f = new Fixture();
 		if (invalidState)
 		{
-			f.Cell.LoadEnvironmentForTest(f.Cell.EnvironmentState with { ScarDamage = double.NaN });
+			f.Room.LoadEnvironmentForTest(f.Room.EnvironmentState with { ScarDamage = double.NaN });
 		}
 		else
 		{
 			var definition = XElement.Parse(f.Environment.Profile.ExportDefinition());
 			definition.SetElementValue("MagicalRepairLimitPerMinute", "invalid");
 			var profile = f.Environment.AddProfile(2, definition);
-			f.Environment.Coordinator.SetBinding(f.Cell, EnvironmentalMagicBindingMode.Explicit, profile.Id);
+			f.Environment.Coordinator.SetBinding(f.Room, EnvironmentalMagicBindingMode.Explicit, profile.Id);
 		}
-		Assert.IsFalse(f.Template.TryPrepareApplication(f.Actor.Object, f.Cell, OpposedOutcomeDegree.Moderate,
+		Assert.IsFalse(f.Template.TryPrepareApplication(f.Actor.Object, f.Room, OpposedOutcomeDegree.Moderate,
 			SpellPower.Standard, TimeSpan.FromMinutes(1), out _, out var error));
 		Assert.IsFalse(string.IsNullOrEmpty(error));
 		Assert.AreEqual(0, f.Environment.Coordinator.ActiveTreatmentCount);
@@ -223,9 +223,9 @@ public class LandRejuvenationTests
 		f.Advance(60);
 		Assert.AreEqual(18.0, f.Scar, 0.00001);
 		Assert.AreEqual(11.0, f.Progress.RemainingBudget, 0.00001);
-		Assert.IsTrue(f.Environment.Coordinator.ApplyOperation(f.Cell, new(Guid.NewGuid(), null, "staff repair", Repair: 100)).Success);
+		Assert.IsTrue(f.Environment.Coordinator.ApplyOperation(f.Room, new(Guid.NewGuid(), null, "staff repair", Repair: 100)).Success);
 		Assert.AreEqual(0, f.Environment.Coordinator.ActiveTreatmentCount);
-		Assert.IsTrue(f.Environment.Coordinator.ApplyOperation(f.Cell, new(Guid.NewGuid(), null, "new damage", Damage: 5)).Success);
+		Assert.IsTrue(f.Environment.Coordinator.ApplyOperation(f.Room, new(Guid.NewGuid(), null, "new damage", Damage: 5)).Success);
 		f.Environment.Edit("repair 0");
 		f.Environment.Coordinator.Pump();
 		f.Advance(120);
@@ -244,13 +244,13 @@ public class LandRejuvenationTests
 		if (failTerminationSave)
 		{
 			f.Environment.Operations.FailTreatmentSave = true;
-			Assert.IsFalse(f.Environment.Coordinator.ApplyOperation(f.Cell, request).Success);
+			Assert.IsFalse(f.Environment.Coordinator.ApplyOperation(f.Room, request).Success);
 			Assert.IsFalse(f.Environment.Operations.Receipts.ContainsKey(request.OperationId));
 			Assert.IsFalse(f.Environment.Operations.Treatments[child.TreatmentId].CancellationRequested);
 			Assert.AreEqual(1.0, f.Scar, "Failed termination must not commit new damage or consume the natural sample.");
 			f.Environment.Operations.FailTreatmentSave = false;
 		}
-		Assert.IsTrue(f.Environment.Coordinator.ApplyOperation(f.Cell, request).Success);
+		Assert.IsTrue(f.Environment.Coordinator.ApplyOperation(f.Room, request).Success);
 		Assert.AreEqual(0, f.Environment.Coordinator.ActiveTreatmentCount);
 		Assert.IsTrue(f.Environment.Operations.Treatments[child.TreatmentId].CancellationRequested);
 		Assert.AreEqual(0.0, f.Progress.TotalRepaired);
@@ -299,9 +299,9 @@ public class LandRejuvenationTests
 		using var f = new Fixture();
 		f.Install();
 		var replacement = f.Environment.AddProfile(2, XElement.Parse(f.Environment.Profile.ExportDefinition()));
-		f.Environment.Coordinator.SetBinding(f.Cell, replace ? EnvironmentalMagicBindingMode.Explicit : EnvironmentalMagicBindingMode.Disabled,
+		f.Environment.Coordinator.SetBinding(f.Room, replace ? EnvironmentalMagicBindingMode.Explicit : EnvironmentalMagicBindingMode.Disabled,
 			replace ? replacement.Id : null);
-		f.Environment.Coordinator.SetBinding(f.Cell, EnvironmentalMagicBindingMode.Inherit, null);
+		f.Environment.Coordinator.SetBinding(f.Room, EnvironmentalMagicBindingMode.Inherit, null);
 		f.Advance(120);
 		Assert.AreEqual(20.0, f.Scar);
 		Assert.AreEqual(0, f.Environment.Coordinator.ActiveTreatmentCount);
@@ -315,13 +315,13 @@ public class LandRejuvenationTests
 		f.Install();
 		var foreign = new EnvironmentalMagicOperationRequest(Guid.NewGuid(), null, "foreign uncertainty", Damage: 1);
 		f.Environment.Operations.FailAfterCommit = true;
-		Assert.IsFalse(f.Environment.Coordinator.ApplyOperation(f.Cell, foreign).Success);
+		Assert.IsFalse(f.Environment.Coordinator.ApplyOperation(f.Room, foreign).Success);
 		f.Advance(120);
 		Assert.AreEqual(0L, f.Progress.AcknowledgedSequence);
 		Assert.AreEqual(0.0, f.Progress.EarnedWork);
 		Assert.AreEqual(480.0, f.Progress.RemainingSeconds);
 		f.Environment.Operations.FailAfterCommit = false;
-		Assert.IsTrue(f.Environment.Coordinator.ApplyOperation(f.Cell, foreign).Success);
+		Assert.IsTrue(f.Environment.Coordinator.ApplyOperation(f.Room, foreign).Success);
 		f.Advance(60);
 		Assert.AreEqual(20.0, f.Scar);
 		Assert.AreEqual(1.0, f.Progress.TotalRepaired);
@@ -341,7 +341,7 @@ public class LandRejuvenationTests
 		var running = false;
 		prog.Setup(x => x.ExecuteBool(It.IsAny<object[]>())).Returns(() =>
 		{
-			if (running) f.Environment.Coordinator.ApplyOperation(f.Cell, new(Guid.NewGuid(), null, "forbidden", Damage: 10));
+			if (running) f.Environment.Coordinator.ApplyOperation(f.Room, new(Guid.NewGuid(), null, "forbidden", Damage: 10));
 			return true;
 		});
 		((EnvironmentalMagicTestRegistry<MudSharp.FutureProg.IFutureProg>)f.Environment.World.Object.FutureProgs).Add(prog.Object);
@@ -361,7 +361,7 @@ public class LandRejuvenationTests
 		using var f = new Fixture();
 		var template = new RejuvenateLandEffect(new XElement("Effect", new XAttribute("version", 1),
 			new XElement("Budget", budget), new XElement("Rate", rate)), f.Spell);
-		Assert.IsFalse(template.TryPrepareApplication(f.Actor.Object, f.Cell, OpposedOutcomeDegree.Moderate, SpellPower.Standard,
+		Assert.IsFalse(template.TryPrepareApplication(f.Actor.Object, f.Room, OpposedOutcomeDegree.Moderate, SpellPower.Standard,
 			TimeSpan.FromSeconds(seconds), out _, out var error));
 		Assert.IsFalse(string.IsNullOrEmpty(error));
 		Assert.AreEqual(20.0, f.Scar);
@@ -403,18 +403,18 @@ public class LandRejuvenationTests
 		f.Advance(60);
 		var request = f.Progress.PendingRequest!;
 		Assert.IsNotNull(request);
-		Assert.IsFalse(f.Environment.Coordinator.CanInstallTreatment(f.Cell, out _));
+		Assert.IsFalse(f.Environment.Coordinator.CanInstallTreatment(f.Room, out _));
 		var stored = f.Environment.Operations.Treatments[f.Progress.Id];
 		Assert.AreEqual(committed ? 11.0 : 12.0, stored.RemainingBudget);
 		f.Environment.Operations.FailAfterCommit = false;
 		f.Environment.Operations.FailAfterClaim = false;
-		Assert.IsTrue(f.Environment.Coordinator.ConfirmTreatment(f.Cell, f.Progress.Id, out var error), error);
+		Assert.IsTrue(f.Environment.Coordinator.ConfirmTreatment(f.Room, f.Progress.Id, out var error), error);
 		Assert.AreEqual(committed ? 19.0 : 20.0, f.Scar, "Staff confirmation must never apply repair.");
 		if (!committed) f.Advance(60);
 		Assert.AreEqual(19.0, f.Scar);
 		Assert.AreEqual(11.0, f.Progress.RemainingBudget);
 		Assert.AreEqual(request.OperationId, f.Progress.LastOperationId);
-		Assert.IsTrue(f.Environment.Coordinator.ConfirmTreatment(f.Cell, f.Progress.Id, out error), error);
+		Assert.IsTrue(f.Environment.Coordinator.ConfirmTreatment(f.Room, f.Progress.Id, out error), error);
 		Assert.AreEqual(19.0, f.Scar);
 	}
 
@@ -426,10 +426,10 @@ public class LandRejuvenationTests
 		f.Environment.Operations.FailAfterClaim = true;
 		f.Advance(60);
 		var id = f.Progress.Id;
-		f.Cell.RemoveEffect(child.ParentEffect, true);
+		f.Room.RemoveEffect(child.ParentEffect, true);
 		Assert.IsTrue(f.Progress.CancellationRequested);
 		f.Environment.Operations.FailAfterClaim = false;
-		Assert.IsTrue(f.Environment.Coordinator.ConfirmTreatment(f.Cell, id, out var error), error);
+		Assert.IsTrue(f.Environment.Coordinator.ConfirmTreatment(f.Room, id, out var error), error);
 		f.Advance(120);
 		Assert.AreEqual(20.0, f.Scar);
 		Assert.AreEqual(LandRejuvenationStatus.Cancelled, f.Progress.Status);
@@ -444,7 +444,7 @@ public class LandRejuvenationTests
 		f.Actor.Raise(x => x.OnQuit += null, f.Actor.Object);
 		f.Advance(60);
 		Assert.AreEqual(19.0, f.Scar);
-		f.Cell.RemoveEffect(independent, true);
+		f.Room.RemoveEffect(independent, true);
 		f.Actors.Add(f.Actor.Object);
 		f.Template.BuildingCommand(f.Environment.Builder, new StringStack("local on"));
 		f.Install();
@@ -469,12 +469,12 @@ public class LandRejuvenationTests
 		using var f = new Fixture(operations: store, scar: null);
 		f.Environment.Clock.Advance(TimeSpan.FromDays(7));
 		// Independent environmental load uses the committed scalar, never the former process clock.
-		f.Cell.LoadEnvironmentForTest(store.PersistedStates[f.Cell.Id]);
+		f.Room.LoadEnvironmentForTest(store.PersistedStates[f.Room.Id]);
 		MagicSpellParent.InitialiseEffectType();
 		SpellRejuvenateLandEffect.InitialiseEffectType();
-		var parent = (MagicSpellParent)Effect.LoadEffect(saved, f.Cell);
+		var parent = (MagicSpellParent)Effect.LoadEffect(saved, f.Room);
 		Assert.AreEqual(19.0, f.Scar);
-		f.Cell.AddEffect(parent, TimeSpan.FromSeconds(540));
+		f.Room.AddEffect(parent, TimeSpan.FromSeconds(540));
 		Assert.AreEqual(0, f.Environment.Coordinator.ActiveTreatmentCount);
 		parent.Login();
 		f.Environment.Coordinator.Pump();
@@ -503,11 +503,11 @@ public class LandRejuvenationTests
 			Assert.AreEqual(0.5, first.Progress.EarnedWork);
 		}
 		using var f = new Fixture(operations: store, scar: null);
-		f.Cell.LoadEnvironmentForTest(store.PersistedStates[f.Cell.Id]);
+		f.Room.LoadEnvironmentForTest(store.PersistedStates[f.Room.Id]);
 		MagicSpellParent.InitialiseEffectType();
 		SpellRejuvenateLandEffect.InitialiseEffectType();
-		var parent = (MagicSpellParent)Effect.LoadEffect(saved, f.Cell);
-		f.Cell.AddEffect(parent, TimeSpan.FromSeconds(510));
+		var parent = (MagicSpellParent)Effect.LoadEffect(saved, f.Room);
+		f.Room.AddEffect(parent, TimeSpan.FromSeconds(510));
 		parent.Login();
 		f.Environment.Coordinator.Pump();
 		f.Environment.Clock.Advance(TimeSpan.FromSeconds(510));
@@ -659,7 +659,7 @@ public class LandRejuvenationTests
 		}
 		Assert.AreEqual(18.0, f.Scar);
 		Assert.AreEqual(0.5, f.Progress.EarnedWork);
-		f.Cell.RemoveEffect(parent, true);
+		f.Room.RemoveEffect(parent, true);
 		SaveParentWithoutRepair(f, parent, 450);
 		f.Advance(600);
 		Assert.AreEqual(18.0, f.Scar);
@@ -721,24 +721,24 @@ public class LandRejuvenationTests
 		var child = f.Install();
 		var saved = child.ParentEffect.SaveToXml([]);
 		// Model a fresh coordinator after an unclean stop, with the source deleted before activation.
-		f.Environment.Coordinator.Unregister(f.Cell);
+		f.Environment.Coordinator.Unregister(f.Room);
 		((All<IMagicSpell>)f.Environment.World.Object.MagicSpells).Remove(f.Spell);
 		MagicSpellParent.InitialiseEffectType();
 		SpellRejuvenateLandEffect.InitialiseEffectType();
-		var parent = (MagicSpellParent)Effect.LoadEffect(saved, f.Cell);
-		f.Cell.AddEffect(parent, TimeSpan.FromSeconds(600));
+		var parent = (MagicSpellParent)Effect.LoadEffect(saved, f.Room);
+		f.Room.AddEffect(parent, TimeSpan.FromSeconds(600));
 		parent.Login();
 		f.Environment.Coordinator.Pump();
 		Assert.AreEqual(20.0, f.Scar);
 		Assert.AreEqual(LandRejuvenationStatus.Cancelled, f.Progress.Status);
-		Assert.IsTrue(f.Environment.Coordinator.CanInstallTreatment(f.Cell, out var error), error);
+		Assert.IsTrue(f.Environment.Coordinator.CanInstallTreatment(f.Room, out var error), error);
 	}
 
 	[TestMethod, TestCategory("R-I22"), TestCategory("R-I23"), TestCategory("R-I24"), TestCategory("J-C08")]
-	public void Scheduling_ThirtyThousandCells_VisitsOnlyIndexedTreatmentsAndInspectionIsPure()
+	public void Scheduling_ThirtyThousandRooms_VisitsOnlyIndexedTreatmentsAndInspectionIsPure()
 	{
 		using var f = new Fixture(count: 30000);
-		f.Environment.Cells.ForbidEnumeration = true;
+		f.Environment.Rooms.ForbidEnumeration = true;
 		f.Environment.Fields.ForbidEnumeration = true;
 		var reads = f.Environment.Operations.TreatmentReads;
 		f.Advance(60);
@@ -753,13 +753,13 @@ public class LandRejuvenationTests
 			SaveParentWithoutRepair(f, child.ParentEffect, 600 - seconds);
 			f.Environment.Coordinator.Pump();
 			Assert.AreEqual(1, f.Environment.Coordinator.ActiveTreatmentCount);
-			Assert.IsTrue(f.Environment.Coordinator.Diagnostics.LastCellVisits <= f.Environment.Coordinator.Options.MaximumCellVisits);
+			Assert.IsTrue(f.Environment.Coordinator.Diagnostics.LastRoomVisits <= f.Environment.Coordinator.Options.MaximumRoomVisits);
 		}
 		Assert.AreEqual(1L, f.Environment.Coordinator.TreatmentVisits);
 		Assert.AreEqual(19.0, f.Scar);
 		Assert.AreEqual(1, f.Environment.SecondSubscriptions);
-		Assert.IsTrue(f.Environment.Coordinator.Diagnostics.LastCellVisits <= f.Environment.Coordinator.Options.MaximumCellVisits);
-		f.Environment.Coordinator.Unregister(f.Cell);
+		Assert.IsTrue(f.Environment.Coordinator.Diagnostics.LastRoomVisits <= f.Environment.Coordinator.Options.MaximumRoomVisits);
+		f.Environment.Coordinator.Unregister(f.Room);
 		Assert.AreEqual(0, f.Environment.Coordinator.ActiveTreatmentCount);
 	}
 
@@ -771,7 +771,7 @@ public class LandRejuvenationTests
 		first.Dispose();
 		Assert.AreEqual(0, first.Environment.Coordinator.ActiveTreatmentCount);
 		Assert.AreEqual(0, first.Environment.SecondSubscriptions);
-		Assert.IsNull(first.Environment.Coordinator.InspectTreatment(first.Cell, child.TreatmentId));
+		Assert.IsNull(first.Environment.Coordinator.InspectTreatment(first.Room, child.TreatmentId));
 		first.Advance(120);
 		Assert.AreEqual(20.0, first.Scar);
 		using var next = new Fixture();
@@ -790,7 +790,7 @@ public class LandRejuvenationTests
 		Assert.IsTrue(f.Template.BuildingCommand(f.Environment.Builder, new StringStack("budget variable + 1")));
 		Assert.IsTrue(f.Template.BuildingCommand(f.Environment.Builder, new StringStack("rate variable")));
 		if (vancianContext) ScrollSpellCompatibility.Bind(f.Spell, new SpellNumericalContext(0, 1, 3, SpellPower.Standard, Outcome.Pass, false), null);
-		f.Spell.CastSpell(f.Actor.Object, f.Cell, SpellPower.Standard);
+		f.Spell.CastSpell(f.Actor.Object, f.Room, SpellPower.Standard);
 		Assert.AreEqual(5.0, f.Progress.InitialBudget);
 		Assert.AreEqual(4.0, f.Progress.Rate);
 		f.Actor.Setup(x => x.TraitValue(f.Spell.CastingTrait, TraitBonusContext.SpellDuration)).Returns(100.0);
@@ -826,15 +826,15 @@ public class LandRejuvenationTests
 		var resource = f.Environment.Resources.At(0);
 		f.Environment.Edit("output 1 maximum max(0,100-scardamage)");
 		f.Environment.Edit("output 1 rate max(0,20-scardamage)");
-		Assert.IsTrue(f.Environment.Coordinator.TryMutateResource(f.Cell, resource, EnvironmentalResourceMutation.Set, 30, out _));
+		Assert.IsTrue(f.Environment.Coordinator.TryMutateResource(f.Room, resource, EnvironmentalResourceMutation.Set, 30, out _));
 		f.Environment.Coordinator.Pump();
 		f.Install(5, 5, 60);
 		f.Advance(60);
 		Assert.AreEqual(15.0, f.Scar);
-		Assert.AreEqual(85.0, f.Environment.Coordinator.Inspect(f.Cell).Outputs.Single().Maximum);
-		Assert.AreEqual(30.0, f.Cell.MagicResourceAmounts[resource], "Restored rate must not produce during the old scarred interval.");
+		Assert.AreEqual(85.0, f.Environment.Coordinator.Inspect(f.Room).Outputs.Single().Maximum);
+		Assert.AreEqual(30.0, f.Room.MagicResourceAmounts[resource], "Restored rate must not produce during the old scarred interval.");
 		f.Advance(60);
-		Assert.AreEqual(35.0, f.Cell.MagicResourceAmounts[resource], 1e-9);
+		Assert.AreEqual(35.0, f.Room.MagicResourceAmounts[resource], 1e-9);
 	}
 
 	[DataTestMethod, DataRow("move"), DataRow("layer"), DataRow("plane"), DataRow("death"), DataRow("stasis"), DataRow("instance"), TestCategory("R-I09")]
@@ -845,7 +845,7 @@ public class LandRejuvenationTests
 		f.Install();
 		switch (change)
 		{
-			case "move": f.Actor.SetupGet(x => x.Location).Returns(f.Environment.Cells.At(1)); break;
+			case "move": f.Actor.SetupGet(x => x.Location).Returns(f.Environment.Rooms.At(1)); break;
 			case "layer": f.Actor.SetupGet(x => x.RoomLayer).Returns(RoomLayer.InTrees); break;
 			case "plane": f.Actor.SetupGet(x => x.Body.BasePlanarPresence).Returns(PlanarPresenceDefinition.DefaultMaterial(2L)); break;
 			case "death": f.Actor.Raise(x => x.OnDeath += null, f.Actor.Object); break;
@@ -873,7 +873,7 @@ public class LandRejuvenationTests
 		f.Environment.Progs.Add(prog.Object);
 		f.Template.BuildingCommand(f.Environment.Builder, new StringStack("continuation 88"));
 		f.Install();
-		f.Actor.SetupGet(x => x.Location).Returns(f.Environment.Cells.At(1));
+		f.Actor.SetupGet(x => x.Location).Returns(f.Environment.Rooms.At(1));
 		f.Advance(60);
 		Assert.AreEqual(19.0, f.Scar);
 		permit = false;
@@ -907,9 +907,9 @@ public class LandRejuvenationTests
 		Assert.IsFalse(f.Template.BuildingCommand(f.Environment.Builder, new StringStack("continuation 88")));
 		var restored = new RejuvenateLandEffect(xml, f.Spell);
 		Assert.IsNotNull(restored.DefinitionError);
-		Assert.IsFalse(restored.TryPrepareApplication(f.Actor.Object, f.Cell, OpposedOutcomeDegree.Moderate,
+		Assert.IsFalse(restored.TryPrepareApplication(f.Actor.Object, f.Room, OpposedOutcomeDegree.Moderate,
 			SpellPower.Standard, TimeSpan.FromMinutes(1), out _, out _));
-		Assert.IsFalse(f.Environment.Coordinator.EvaluateRepairPolicy(f.Cell, f.Actor.Object, prog.Object, out var error));
+		Assert.IsFalse(f.Environment.Coordinator.EvaluateRepairPolicy(f.Room, f.Actor.Object, prog.Object, out var error));
 		Assert.IsFalse(string.IsNullOrEmpty(error));
 		prog.Verify(x => x.ExecuteBool(It.IsAny<object[]>()), Times.Never);
 		Assert.AreEqual(20.0, f.Scar);
@@ -923,12 +923,12 @@ public class LandRejuvenationTests
 		XElement saved;
 		using (var first = new Fixture(operations: store)) saved = first.Install().ParentEffect.SaveToXml([]);
 		using var f = new Fixture(operations: store, scar: null);
-		f.Cell.LoadEnvironmentForTest(store.PersistedStates[f.Cell.Id]);
+		f.Room.LoadEnvironmentForTest(store.PersistedStates[f.Room.Id]);
 		MagicSpellParent.InitialiseEffectType(); SpellRejuvenateLandEffect.InitialiseEffectType();
 		for (var i = 0; i < 2; i++)
 		{
-			var parent = (MagicSpellParent)Effect.LoadEffect(saved, f.Cell);
-			f.Cell.AddEffect(parent, TimeSpan.FromSeconds(600)); parent.Login();
+			var parent = (MagicSpellParent)Effect.LoadEffect(saved, f.Room);
+			f.Room.AddEffect(parent, TimeSpan.FromSeconds(600)); parent.Login();
 		}
 		f.Environment.Coordinator.Pump();
 		Assert.AreEqual(1, f.Environment.Coordinator.ActiveTreatmentCount);
@@ -953,15 +953,15 @@ public class LandRejuvenationTests
 			.SetAttributeValue("version", malformed == "version" ? "99" : "invalid");
 		else store.Treatments[id] = malformed == "budget" ? original with { TotalRepaired = 12 } : original with { Status = LandRejuvenationStatus.Pending };
 		using var f = new Fixture(operations: store, scar: null);
-		f.Cell.LoadEnvironmentForTest(store.PersistedStates[f.Cell.Id]);
+		f.Room.LoadEnvironmentForTest(store.PersistedStates[f.Room.Id]);
 		MagicSpellParent.InitialiseEffectType(); SpellRejuvenateLandEffect.InitialiseEffectType();
-		var parent = (MagicSpellParent)Effect.LoadEffect(saved, f.Cell);
-		f.Cell.AddEffect(parent, TimeSpan.FromSeconds(600)); parent.Login();
+		var parent = (MagicSpellParent)Effect.LoadEffect(saved, f.Room);
+		f.Room.AddEffect(parent, TimeSpan.FromSeconds(600)); parent.Login();
 		f.Advance(120);
 		Assert.AreEqual(0, f.Environment.Coordinator.ActiveTreatmentCount);
 		Assert.AreEqual(20.0, f.Scar);
 		Assert.AreEqual(12.0, f.Progress.RemainingBudget);
-		Assert.IsFalse(f.Environment.Coordinator.CanInstallTreatment(f.Cell, out _));
+		Assert.IsFalse(f.Environment.Coordinator.CanInstallTreatment(f.Room, out _));
 	}
 
 	[TestMethod, TestCategory("R-I16")]
@@ -973,7 +973,7 @@ public class LandRejuvenationTests
 		f.Advance(60);
 		var id = f.Progress.Id;
 		f.Environment.Operations.FailAfterCommit = false;
-		Assert.IsTrue(f.Environment.Coordinator.ConfirmTreatment(f.Cell, id, out var error), error);
+		Assert.IsTrue(f.Environment.Coordinator.ConfirmTreatment(f.Room, id, out var error), error);
 		Assert.AreEqual(0.0, f.Scar);
 		Assert.AreEqual(LandRejuvenationStatus.Completed, f.Progress.Status);
 		Assert.AreEqual(f.Progress, f.Environment.Operations.Treatments[id]);
@@ -996,11 +996,11 @@ public class LandRejuvenationTests
 		}
 		store.FailAfterClaim = false;
 		using var f = new Fixture(scar: null, operations: store);
-		f.Cell.LoadEnvironmentForTest(store.PersistedStates[f.Cell.Id]);
+		f.Room.LoadEnvironmentForTest(store.PersistedStates[f.Room.Id]);
 		f.Environment.Edit("repair 1"); f.Environment.Coordinator.Pump();
 		MagicSpellParent.InitialiseEffectType(); SpellRejuvenateLandEffect.InitialiseEffectType();
-		var parent = (MagicSpellParent)Effect.LoadEffect(saved, f.Cell);
-		f.Cell.AddEffect(parent, TimeSpan.FromSeconds(120)); parent.Login(); f.Environment.Coordinator.Pump();
+		var parent = (MagicSpellParent)Effect.LoadEffect(saved, f.Room);
+		f.Room.AddEffect(parent, TimeSpan.FromSeconds(120)); parent.Login(); f.Environment.Coordinator.Pump();
 		f.Environment.Clock.Advance(TimeSpan.FromSeconds(120));
 		parent.ExpireEffect();
 		Assert.AreEqual(0.0, f.Scar);
@@ -1023,23 +1023,23 @@ public class LandRejuvenationTests
 		otherCaster.SetupGet(x => x.Id).Returns(99L);
 		var effect = new RejuvenateLandEffect(f.Template.SaveToXml(), otherSpell.Object);
 		var before = f.Progress;
-		Assert.IsFalse(effect.TryPrepareApplication(otherCaster.Object, f.Cell, OpposedOutcomeDegree.Major, SpellPower.Standard,
+		Assert.IsFalse(effect.TryPrepareApplication(otherCaster.Object, f.Room, OpposedOutcomeDegree.Major, SpellPower.Standard,
 			TimeSpan.FromSeconds(600), out _, out var error));
 		StringAssert.Contains(error, "active or unresolved");
 		Assert.AreEqual(before, f.Progress);
 	}
 
 	[TestMethod, TestCategory("R-I20")]
-	public void RepairCommit_RejectsNestedSameCellLandDebit_AndAllowsOtherCell()
+	public void RepairCommit_RejectsNestedSameRoomLandDebit_AndAllowsOtherRoom()
 	{
 		using var f = new Fixture(count: 2);
-		var other = (Cell)f.Environment.Cells.At(1);
+		var other = (Room)f.Environment.Rooms.At(1);
 		var attempted = false;
-		f.Environment.Operations.BeforeCommit = cell =>
+		f.Environment.Operations.BeforeCommit = room =>
 		{
-			if (cell != f.Cell) return;
+			if (room != f.Room) return;
 			attempted = true;
-			Assert.IsFalse(f.Environment.Coordinator.TryApplyLandDebitGroup(f.Cell,
+			Assert.IsFalse(f.Environment.Coordinator.TryApplyLandDebitGroup(f.Room,
 				[new(f.Environment.Resources.At(0), 1)], [], out var ambient, out var native, out var error));
 			Assert.AreEqual(0, ambient.Count); Assert.AreEqual(0, native.Count);
 			StringAssert.Contains(error, "mutation in progress");
@@ -1052,27 +1052,27 @@ public class LandRejuvenationTests
 	}
 
 	[TestMethod, TestCategory("R-I20")]
-	public void LandDebit_RejectsNestedRepair_WithoutBlockingAnotherCell()
+	public void LandDebit_RejectsNestedRepair_WithoutBlockingAnotherRoom()
 	{
 		using var f = new Fixture(count: 2);
-		var other = (Cell)f.Environment.Cells.At(1);
+		var other = (Room)f.Environment.Rooms.At(1);
 		var resource = f.Environment.Resources.At(0);
 		f.Environment.Edit("organic source add crop");
-		Assert.IsTrue(f.Environment.Coordinator.TryMutateResource(f.Cell, resource, EnvironmentalResourceMutation.Set, 30, out _));
+		Assert.IsTrue(f.Environment.Coordinator.TryMutateResource(f.Room, resource, EnvironmentalResourceMutation.Set, 30, out _));
 		f.Environment.ResetSavedFlags();
 		var attempted = false;
 		f.Environment.Saves.Setup(x => x.Add(It.IsAny<MudSharp.Framework.Save.ISaveable>())).Callback<MudSharp.Framework.Save.ISaveable>(item =>
 		{
-			if (!ReferenceEquals(item, f.Cell) || attempted) return;
+			if (!ReferenceEquals(item, f.Room) || attempted) return;
 			attempted = true;
-			var result = f.Environment.Coordinator.ApplyOperation(f.Cell, new(Guid.NewGuid(), null, "nested repair", Repair: 1));
+			var result = f.Environment.Coordinator.ApplyOperation(f.Room, new(Guid.NewGuid(), null, "nested repair", Repair: 1));
 			Assert.IsFalse(result.Success); StringAssert.Contains(result.Error, "mutation in progress");
 			Assert.IsTrue(f.Environment.Coordinator.ApplyOperation(other, new(Guid.NewGuid(), null, "other cell", Damage: 1)).Success);
 		});
-		Assert.IsTrue(f.Environment.Coordinator.TryApplyLandDebitGroup(f.Cell, [new(resource, 1)], [], out var applied, out _, out var error), error);
+		Assert.IsTrue(f.Environment.Coordinator.TryApplyLandDebitGroup(f.Room, [new(resource, 1)], [], out var applied, out _, out var error), error);
 		Assert.IsTrue(attempted);
 		Assert.AreEqual(1, applied.Count);
-		Assert.AreEqual(29.0, f.Cell.MagicResourceAmounts[resource]);
+		Assert.AreEqual(29.0, f.Room.MagicResourceAmounts[resource]);
 		Assert.AreEqual(20.0, f.Scar);
 		Assert.AreEqual(1.0, other.EnvironmentState.ScarDamage);
 	}
@@ -1080,9 +1080,9 @@ public class LandRejuvenationTests
 	private sealed class Fixture : IDisposable
 	{
 		public EnvironmentalMagicTestWorld Environment { get; }
-		public Cell Cell => (Cell)Environment.Cells.At(0);
-		public double Scar => Cell.EnvironmentState.ScarDamage;
-		public LandRejuvenationProgress Progress => Environment.Coordinator.InspectTreatments(Cell).OrderByDescending(x => x.Revision).First();
+		public Room Room => (Room)Environment.Rooms.At(0);
+		public double Scar => Room.EnvironmentState.ScarDamage;
+		public LandRejuvenationProgress Progress => Environment.Coordinator.InspectTreatments(Room).OrderByDescending(x => x.Revision).First();
 		public Mock<ICharacter> Actor { get; } = new() { DefaultValue = DefaultValue.Mock };
 		public All<ICharacter> Actors { get; } = new();
 		public MagicSpell Spell { get; }
@@ -1103,7 +1103,7 @@ public class LandRejuvenationTests
 			Actor.SetupGet(x => x.Gameworld).Returns(Environment.World.Object);
 			Actor.SetupGet(x => x.Id).Returns(10L);
 			Actor.SetupGet(x => x.InstanceId).Returns(11L);
-			Actor.SetupGet(x => x.Location).Returns(Cell);
+			Actor.SetupGet(x => x.Location).Returns(Room);
 			Actor.SetupGet(x => x.State).Returns(CharacterState.Awake);
 			Actor.SetupGet(x => x.Body.BasePlanarPresence).Returns(PlanarPresenceDefinition.DefaultMaterial(1L));
 			Actor.SetupGet(x => x.OutputHandler).Returns(new Mock<IOutputHandler>().Object);
@@ -1135,20 +1135,20 @@ public class LandRejuvenationTests
 			Environment.World.SetupGet(x => x.MagicSpells).Returns(spells);
 			Template = (RejuvenateLandEffect)SpellEffectFactory.LoadEffectFromBuilderInput("rejuvenateland", new StringStack(""), Spell).Trigger;
 			((List<IMagicSpellEffectTemplate>)Spell.SpellEffects).Add(Template);
-			if (scar.HasValue) Assert.IsTrue(Environment.Coordinator.ApplyOperation(Cell, new(Guid.NewGuid(), null, "fixture", Damage: scar.Value)).Success);
+			if (scar.HasValue) Assert.IsTrue(Environment.Coordinator.ApplyOperation(Room, new(Guid.NewGuid(), null, "fixture", Damage: scar.Value)).Success);
 		}
 		public SpellRejuvenateLandEffect Install(double budget = 12, double rate = 1, double seconds = 600)
 		{
 			Assert.IsTrue(Template.BuildingCommand(Environment.Builder, new StringStack($"budget {budget:R}")));
 			Assert.IsTrue(Template.BuildingCommand(Environment.Builder, new StringStack($"rate {rate:R}")));
-			Assert.IsTrue(Template.TryPrepareApplication(Actor.Object, Cell, OpposedOutcomeDegree.Moderate, SpellPower.Standard,
+			Assert.IsTrue(Template.TryPrepareApplication(Actor.Object, Room, OpposedOutcomeDegree.Moderate, SpellPower.Standard,
 				TimeSpan.FromSeconds(seconds), out var application, out var error), error);
-			var parent = new MagicSpellParent(Cell, Spell, Actor.Object) { ResolvedDuration = TimeSpan.FromSeconds(seconds) };
+			var parent = new MagicSpellParent(Room, Spell, Actor.Object) { ResolvedDuration = TimeSpan.FromSeconds(seconds) };
 			var child = (SpellRejuvenateLandEffect)application!.Create(parent);
 			parent.AddSpellEffect(child);
-			Cell.AddEffect(child);
+			Room.AddEffect(child);
 			Assert.AreEqual(0, Environment.Coordinator.ActiveTreatmentCount);
-			Cell.AddEffect(parent, TimeSpan.FromSeconds(seconds));
+			Room.AddEffect(parent, TimeSpan.FromSeconds(seconds));
 			Assert.AreEqual(1, Environment.Coordinator.ActiveTreatmentCount, string.Join(";", Environment.Messages));
 			return child;
 		}
@@ -1157,14 +1157,14 @@ public class LandRejuvenationTests
 	}
 }
 
-internal static class RejuvenationCellTestExtensions
+internal static class RejuvenationRoomTestExtensions
 {
-	public static void LoadEnvironmentForTest(this Cell cell, EnvironmentalMagicState state)
+	public static void LoadEnvironmentForTest(this Room room, EnvironmentalMagicState state)
 	{
-		var model = new MudSharp.Models.Cell { Id = cell.Id, EnvironmentalState = new MudSharp.Models.CellEnvironmentalState() };
-		typeof(Cell).GetMethod("CopyEnvironmentState", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)!
+		var model = new MudSharp.Models.Room { Id = room.Id, EnvironmentalState = new MudSharp.Models.RoomEnvironmentalState() };
+		typeof(Room).GetMethod("CopyEnvironmentState", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)!
 			.Invoke(null, [state, model.EnvironmentalState]);
-		typeof(Cell).GetMethod("LoadEnvironment", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
-			.Invoke(cell, [model]);
+		typeof(Room).GetMethod("LoadEnvironment", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
+			.Invoke(room, [model]);
 	}
 }

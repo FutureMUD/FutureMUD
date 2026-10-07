@@ -74,15 +74,15 @@ internal static partial class GNHProgram
 			Console.WriteLine($"C-P01=passed field:{fieldId} staged:50 factor:{factor} expected:{expected} observed:{observed.Stock} assessment:assessed");
 		}
 		foreach (var (cellId, factor, expected) in new[]
-		         { (fixture.ConstructorHalfCellId, 0.5, 25), (fixture.ConstructorZeroCellId, 0.0, 0) })
+		         { (fixture.ConstructorHalfRoomId, 0.5, 25), (fixture.ConstructorZeroRoomId, 0.0, 0) })
 		{
 			var owner = NativeOrganicRuntime.Load(database.ConnectionString, fixture.FractionalFieldId,
 				initialFactor: factor);
-			var newCell = new Mock<ICell>(MockBehavior.Loose);
-			newCell.SetupGet(x => x.Id).Returns(cellId);
-			newCell.SetupGet(x => x.Gameworld).Returns(owner.World);
-			newCell.Setup(x => x.CurrentTemperature(It.IsAny<IPerceiver>())).Returns(20.0);
-			var newField = new AgricultureField(newCell.Object, owner.Field.Profile);
+			var newRoom = new Mock<IRoom>(MockBehavior.Loose);
+			newRoom.SetupGet(x => x.Id).Returns(cellId);
+			newRoom.SetupGet(x => x.Gameworld).Returns(owner.World);
+			newRoom.Setup(x => x.CurrentTemperature(It.IsAny<IPerceiver>())).Returns(20.0);
+			var newField = new AgricultureField(newRoom.Object, owner.Field.Profile);
 			Require(ReadPastureAssessment(database.ConnectionString, newField.Id) == "pending",
 				"C-P01 constructor did not persist pending assessment on its first insert.");
 			var firstSave = NativeOrganicObservation.Read(database.ConnectionString, newField.Id,
@@ -171,7 +171,7 @@ internal static partial class GNHProgram
 			"Y-P01 parent reader did not observe the separately reconstructed remainder debit exactly once.");
 		p01Watch.Stop();
 		Console.WriteLine(
-			$"Y-P01=passed field:{fixture.FractionalFieldId} cell:{fixture.FractionalCellId} generation:{afterRemainder.Generation} openingStock:10 quarterObservedStock:{afterQuarter.Stock} quarterObservedPrepaid:{afterQuarter.Prepaid} closingStock:{afterRemainder.Stock} closingPrepaid:{afterRemainder.Prepaid} elapsedMs:{p01Watch.ElapsedMilliseconds}");
+			$"Y-P01=passed field:{fixture.FractionalFieldId} cell:{fixture.FractionalRoomId} generation:{afterRemainder.Generation} openingStock:10 quarterObservedStock:{afterQuarter.Stock} quarterObservedPrepaid:{afterQuarter.Prepaid} closingStock:{afterRemainder.Stock} closingPrepaid:{afterRemainder.Prepaid} elapsedMs:{p01Watch.ElapsedMilliseconds}");
 
 		var p02Watch = Stopwatch.StartNew();
 		var p02 = NativeOrganicRuntime.Load(database.ConnectionString, fixture.FractionalFieldId,
@@ -216,7 +216,7 @@ internal static partial class GNHProgram
 		Require(cropRuntime.Field.TryApplyNativeOrganicDebit(firstCropDebit, out applyReason), applyReason);
 		var preCraftPlan = PlanNativeDebit(cropRuntime.Field, NativeOrganicSourceKind.Crop, 0.5m);
 		var craftInput = NativeAgricultureInput(cropRuntime.World, cropRuntime.Crop.Id, 5);
-		craftInput.ReserveInput(cropRuntime.Cell);
+		craftInput.ReserveInput(cropRuntime.Room);
 		Require(!cropRuntime.Field.TryApplyNativeOrganicDebit(preCraftPlan, out _),
 			"Y-P03 accepted a native plan made stale by a real craft input reservation.");
 		var postCraftPlan = PlanNativeDebit(cropRuntime.Field, NativeOrganicSourceKind.Crop, 0.5m);
@@ -296,7 +296,7 @@ internal static partial class GNHProgram
 		RunLandActionPersistenceProbe(database.Name, database.ConnectionString, fixture.CoordinatorActorFixture,
 			fixture.GentleActorFixture, fixture.CoordinatorCropFieldId, coordinatorProfileId,
 			fixture.EnvironmentalResourceId);
-		RunLandReceiptPersistenceProbe(database.ConnectionString, fixture.FractionalCellId,
+		RunLandReceiptPersistenceProbe(database.ConnectionString, fixture.FractionalRoomId,
 			fixture.EnvironmentalResourceId, coordinatorProfileId);
 		Console.WriteLine("landHarnessSubstitutions=world catalogues and deterministic weather; C-P03 uses a persisted overlay and forage profile with a real Cell/coordinator/agriculture owner and a controllable apiary candidate; other land cases use an ecological scalar fixture; SaveManager and independent EF/MySQL observations are production paths");
 		total.Stop();
@@ -370,9 +370,9 @@ internal static partial class GNHProgram
 		using var read = NewIndependentContext(connectionString);
 		Db.AgricultureField fieldModel = read.AgricultureFields.Include(x => x.AgricultureFieldCrop)
 			.AsNoTracking().Single(x => x.Id == fieldId);
-		Db.Cell cellModel = read.Cells.Include(x => x.CellOverlays).Include(x => x.CellsForagableYields)
-			.Include(x => x.CellsMagicResources).Include(x => x.EnvironmentalState)
-			.AsNoTracking().Single(x => x.Id == fieldModel.CellId);
+		Db.Room cellModel = read.Rooms.Include(x => x.RoomOverlays).Include(x => x.RoomsForagableYields)
+			.Include(x => x.RoomsMagicResources).Include(x => x.EnvironmentalState)
+			.AsNoTracking().Single(x => x.Id == fieldModel.RoomId);
 		Db.ForagableProfile forageModel = read.ForagableProfiles.Include(x => x.EditableItem)
 			.Include(x => x.ForagableProfilesMaximumYields)
 			.Include(x => x.ForagableProfilesHourlyYieldGains).AsNoTracking()
@@ -389,29 +389,29 @@ internal static partial class GNHProgram
 		generators.Add(environmentalProfile);
 		world.SetupGet(x => x.MagicResourceRegenerators).Returns(generators);
 		var terrain = new Terrain(read.Terrains.AsNoTracking()
-			.Single(x => x.Id == cellModel.CellOverlays.Single().TerrainId), world.Object);
+			.Single(x => x.Id == cellModel.RoomOverlays.Single().TerrainId), world.Object);
 		var terrains = new All<ITerrain>();
 		terrains.Add(terrain);
 		world.SetupGet(x => x.Terrains).Returns(terrains);
-		var package = new Mock<ICellOverlayPackage>();
-		package.SetupGet(x => x.Id).Returns(cellModel.CellOverlays.Single().CellOverlayPackageId);
+		var package = new Mock<IRoomOverlayPackage>();
+		package.SetupGet(x => x.Id).Returns(cellModel.RoomOverlays.Single().RoomOverlayPackageId);
 		package.SetupGet(x => x.RevisionNumber).Returns(1);
 		package.SetupGet(x => x.Status).Returns(RevisionStatus.Current);
-		var packages = new RevisableAll<ICellOverlayPackage>();
+		var packages = new RevisableAll<IRoomOverlayPackage>();
 		packages.Add(package.Object);
-		world.SetupGet(x => x.CellOverlayPackages).Returns(packages);
+		world.SetupGet(x => x.RoomOverlayPackages).Returns(packages);
 		var forageProfiles = new RevisableAll<IForagableProfile>();
 		forageProfiles.Add(new ForagableProfile(forageModel, world.Object));
 		world.SetupGet(x => x.ForagableProfiles).Returns(forageProfiles);
 		var zone = new Mock<IZone>();
 		zone.SetupGet(x => x.Gameworld).Returns(world.Object);
 		zone.SetupGet(x => x.Id).Returns(cellModel.ZoneId);
-		var cell = new Cell(cellModel, zone.Object);
-		cell.PostLoadTasks(cellModel);
-		var cells = new All<ICell>();
-		cells.Add(cell);
-		world.SetupGet(x => x.Cells).Returns(cells);
-		SetPrivateMember(actorRuntime.Actor, "Location", cell);
+		var room = new Room(cellModel, zone.Object);
+		room.PostLoadTasks(cellModel);
+		var rooms = new All<IRoom>();
+		rooms.Add(room);
+		world.SetupGet(x => x.Rooms).Returns(rooms);
+		SetPrivateMember(actorRuntime.Actor, "Location", room);
 		var fieldProfileModel = read.AgricultureFieldProfiles.AsNoTracking()
 			.Single(x => x.Id == fieldModel.ProfileId);
 		var fieldProfile = new Mock<IAgricultureFieldProfile>();
@@ -454,7 +454,7 @@ internal static partial class GNHProgram
 		Require(started.Success && started.OperationId.HasValue,
 			$"L-P01 native Land action did not begin: {started.Message} {string.Join(", ", actorRuntime.Capability.GatheringConfigurationErrors())}");
 		Guid operationId = started.OperationId ?? throw new InvalidOperationException("Land start did not issue a token.");
-		double forageBefore = cell.GetForagableYield("herbs");
+		double forageBefore = room.GetForagableYield("herbs");
 		var cropBefore = field.InspectNativeOrganicSource(NativeOrganicSourceKind.Crop);
 		clock.Advance(TimeSpan.FromSeconds(1));
 		MagicGatheringResult completed = service.Complete(actorRuntime.Actor, operationId);
@@ -462,7 +462,7 @@ internal static partial class GNHProgram
 			$"L-P01 native Land action did not complete: {completed.Message}; receipt {new MagicGatheringReceiptStore().Operation(operationId)?.Diagnostic}");
 		if (rejuvenation)
 		{
-			RunRejuvenationSpellProbes(databaseName, connectionString, actorFixture, actorRuntime, cell, field,
+			RunRejuvenationSpellProbes(databaseName, connectionString, actorFixture, actorRuntime, room, field,
 				environmentalProfile, coordinator, treatmentClock!, repairStore!, operationId);
 			return;
 		}
@@ -475,13 +475,13 @@ internal static partial class GNHProgram
 			.Single(x => x.CharacterId == actorFixture.CharacterId &&
 				x.MagicResourceId == actorFixture.ResourceId).Amount;
 		var cropAfter = NativeOrganicObservation.Read(connectionString, fieldId, NativeOrganicSourceKind.Crop);
-		double forageAfter = ReadForageYield(connectionString, cell.Id);
+		double forageAfter = ReadForageYield(connectionString, room.Id);
 		Require(parent.Status == "Completed" && parent.AccountingPersisted &&
 		        parent.EcologicalApplied && child.Id == parent.EcologicalChildId &&
 		        Same(credited, 1.0) && cropAfter.Prepaid == cropBefore.PrepaidFraction - 0.25m &&
 		        Same(forageBefore - forageAfter, 0.5),
 			"L-P01 separate context did not observe complete crop/forage debit, ecology and personal credit.");
-		Console.WriteLine($"L-P01-native=passed operation:{operationId} cell:{cell.Id} field:{fieldId} cropPrepaid:{cropBefore.PrepaidFraction}->{cropAfter.Prepaid} forage:{forageBefore:F2}->{forageAfter:F2} child:{child.Id} credit:{credited:F2}");
+		Console.WriteLine($"L-P01-native=passed operation:{operationId} cell:{room.Id} field:{fieldId} cropPrepaid:{cropBefore.PrepaidFraction}->{cropAfter.Prepaid} forage:{forageBefore:F2}->{forageAfter:F2} child:{child.Id} credit:{credited:F2}");
 		var capability = (SkillLevelBasedMagicCapability)actorRuntime.Capability;
 		foreach (string command in new[]
 		         {
@@ -495,10 +495,10 @@ internal static partial class GNHProgram
 				$"L-P01 could not author the two-forage method: {command}");
 		}
 		actorRuntime.World.SaveManager.Flush();
-		Require(cell.TryConsumeYield("herbs", forageAfter - 0.25),
+		Require(room.TryConsumeYield("herbs", forageAfter - 0.25),
 			"L-P01 could not set the first forage key's limited stock through ordinary consumption.");
 		actorRuntime.World.SaveManager.Flush();
-		Require(Same(ReadForageYield(connectionString, cell.Id), 0.25),
+		Require(Same(ReadForageYield(connectionString, room.Id), 0.25),
 			"L-P01 ordinary forage consumption was not saved before the second action.");
 		MagicGatheringResult secondStart = service.Begin(actorRuntime.Actor, actorRuntime.Capability, "draw", 1.0);
 		Require(secondStart.Success && secondStart.OperationId.HasValue,
@@ -511,8 +511,8 @@ internal static partial class GNHProgram
 		MagicGatheringResult secondComplete = service.Complete(actorRuntime.Actor, secondOperationId);
 		Require(secondComplete.Success,
 			$"L-P01 two-forage action did not complete: {secondComplete.Message}; receipt {new MagicGatheringReceiptStore().Operation(secondOperationId)?.Diagnostic}");
-		double observedHerbs = ReadForageYield(connectionString, cell.Id);
-		double observedBerries = ReadForageYield(connectionString, cell.Id, "berries");
+		double observedHerbs = ReadForageYield(connectionString, room.Id);
+		double observedBerries = ReadForageYield(connectionString, room.Id, "berries");
 		using var finalRead = NewIndependentContext(connectionString);
 		double finalCredit = finalRead.CharactersMagicResources.AsNoTracking()
 			.Single(x => x.CharacterId == actorFixture.CharacterId &&
@@ -522,7 +522,7 @@ internal static partial class GNHProgram
 		        finalRead.MagicGatheringOperations.AsNoTracking().Count(x => x.Status == "Completed" &&
 				x.ActorId == actorFixture.CharacterId) == 2,
 			"L-P01 independent reader did not observe both forage debits, one additional credit and two completed parents.");
-		Console.WriteLine($"L-P01-two-forage=passed operation:{secondStart.OperationId} cell:{cell.Id} herbs:0.25->{observedHerbs:F2} berries:100.00->{observedBerries:F2} totalCredit:{finalCredit:F2}");
+		Console.WriteLine($"L-P01-two-forage=passed operation:{secondStart.OperationId} cell:{room.Id} herbs:0.25->{observedHerbs:F2} berries:100.00->{observedBerries:F2} totalCredit:{finalCredit:F2}");
 		foreach (string command in new[]
 		         {
 			"gather land draw source 1 remove",
@@ -536,13 +536,13 @@ internal static partial class GNHProgram
 		}
 		actorRuntime.World.SaveManager.Flush();
 		IMagicResource ambient = resources.Get(environmentalResourceId)!;
-		Require(coordinator.TryInspectLandResource(cell, ambient, out var ambientBefore) && ambientBefore.IsValid,
+		Require(coordinator.TryInspectLandResource(room, ambient, out var ambientBefore) && ambientBefore.IsValid,
 			"L-P01 ambient funding output is not valid on the physical cell.");
-		Require(coordinator.TryMutateResource(cell, ambient, EnvironmentalResourceMutation.Set,
+		Require(coordinator.TryMutateResource(room, ambient, EnvironmentalResourceMutation.Set,
 			0.5, out bool staged) && staged,
 			"L-P01 could not stage the exact managed ambient balance.");
 		actorRuntime.World.SaveManager.Flush();
-		Require(coordinator.TryInspectLandResource(cell, ambient, out var fundedAmbient) &&
+		Require(coordinator.TryInspectLandResource(room, ambient, out var fundedAmbient) &&
 		        Same(fundedAmbient.Balance, 0.5),
 			$"L-P01 did not stage exactly half an ambient unit through the managed output (before {ambientBefore.Balance}, after {fundedAmbient.Balance}, maximum {fundedAmbient.Maximum}, diagnostic {fundedAmbient.Error}).");
 		MagicGatheringResult thirdStart = service.Begin(actorRuntime.Actor, actorRuntime.Capability, "draw", 1.0);
@@ -558,8 +558,8 @@ internal static partial class GNHProgram
 			$"L-P01 ambient-plus-crop action did not complete: {thirdComplete.Message}; receipt {new MagicGatheringReceiptStore().Operation(thirdOperationId)?.Diagnostic}");
 		var cropThird = NativeOrganicObservation.Read(connectionString, fieldId, NativeOrganicSourceKind.Crop);
 		using var thirdRead = NewIndependentContext(connectionString);
-		Db.CellMagicResource savedAmbient = thirdRead.CellsMagicResources.AsNoTracking()
-			.Single(x => x.CellId == cell.Id && x.MagicResourceId == environmentalResourceId);
+		Db.RoomMagicResource savedAmbient = thirdRead.RoomsMagicResources.AsNoTracking()
+			.Single(x => x.RoomId == room.Id && x.MagicResourceId == environmentalResourceId);
 		double thirdCredit = thirdRead.CharactersMagicResources.AsNoTracking()
 			.Single(x => x.CharacterId == actorFixture.CharacterId && x.MagicResourceId == actorFixture.ResourceId).Amount;
 		Db.MagicGatheringOperation thirdParent = thirdRead.MagicGatheringOperations.AsNoTracking()
@@ -573,7 +573,7 @@ internal static partial class GNHProgram
 		        cropThird.Prepaid == 0.125m &&
 		        Same(thirdCredit, 3.0),
 			$"L-P01 independent reader did not observe an exact half-unit ambient debit, fractional crop payment and exact credit (ambient residual {savedAmbient.Amount}, crop prepaid {cropThird.Prepaid}, credit {thirdCredit}).");
-		Console.WriteLine($"L-P01-ambient-crop=passed operation:{thirdStart.OperationId} cell:{cell.Id} ambient:0.50->{savedAmbient.Amount:F2} cropPrepaid:0.25->{cropThird.Prepaid} totalCredit:{thirdCredit:F2}");
+		Console.WriteLine($"L-P01-ambient-crop=passed operation:{thirdStart.OperationId} cell:{room.Id} ambient:0.50->{savedAmbient.Amount:F2} cropPrepaid:0.25->{cropThird.Prepaid} totalCredit:{thirdCredit:F2}");
 		foreach (string command in new[]
 		         {
 			"gather land draw source 1 remove",
@@ -624,36 +624,36 @@ internal static partial class GNHProgram
 		}
 		RunLandActionReaderProcess(databaseName, actorFixture,
 			fieldId, environmentalResourceId, lastOperationId);
-		RunLandPlayerCommandAndRepairProbe(actorRuntime, capability, service, clock, coordinator, cell,
+		RunLandPlayerCommandAndRepairProbe(actorRuntime, capability, service, clock, coordinator, room,
 			connectionString, actorFixture);
-		RunLandConsumerAndReplacementProbe(actorRuntime, capability, service, clock, coordinator, cell,
+		RunLandConsumerAndReplacementProbe(actorRuntime, capability, service, clock, coordinator, room,
 			field, fieldId, environmentalProfile, environmentalResourceId, connectionString, actorFixture);
-		RunLandCheckpointFailureProbe(actorRuntime, capability, service, clock, coordinator, cell,
+		RunLandCheckpointFailureProbe(actorRuntime, capability, service, clock, coordinator, room,
 			field, fieldId, connectionString, actorFixture);
-		RunLandPrepaidAtZeroStockProbe(actorRuntime, capability, service, clock, cell,
+		RunLandPrepaidAtZeroStockProbe(actorRuntime, capability, service, clock, room,
 			field, fieldId, connectionString, actorFixture);
-		RunLandForageCheckpointFailureProbe(actorRuntime, capability, service, clock, cell,
+		RunLandForageCheckpointFailureProbe(actorRuntime, capability, service, clock, room,
 			connectionString, actorFixture);
-		RunLandNativeGrowthDuringWaitProbe(actorRuntime, capability, service, clock, cell,
+		RunLandNativeGrowthDuringWaitProbe(actorRuntime, capability, service, clock, room,
 			field, fieldId, connectionString, actorFixture);
 		RunLandIneffectiveScarCorrectionProbe(actorRuntime, capability, service, clock, coordinator,
-			cell, environmentalProfile, connectionString, actorFixture, environmentalResourceId);
+			room, environmentalProfile, connectionString, actorFixture, environmentalResourceId);
 		RunLandComposedSourceCorrectionProbe(actorRuntime, capability, service, clock, coordinator,
-			cell, environmentalProfile, connectionString, actorFixture, environmentalResourceId);
+			room, environmentalProfile, connectionString, actorFixture, environmentalResourceId);
 		RunLandParticipantQuarantineCorrectionProbe(actorRuntime, gentleFixture, capability, service, clock,
-			coordinator, cell, connectionString, environmentalResourceId);
+			coordinator, room, connectionString, environmentalResourceId);
 	}
 
 	private static void RunLandComposedSourceCorrectionProbe(NativeRuntime runtime,
 		SkillLevelBasedMagicCapability capability, MagicGatheringService service, HarnessClock clock,
-		EnvironmentalMagicCoordinator coordinator, Cell cell, EnvironmentalMagicGenerator profile,
+		EnvironmentalMagicCoordinator coordinator, Room room, EnvironmentalMagicGenerator profile,
 		string connectionString, FixtureIds fixture, long ambientResourceId)
 	{
 		IMagicResource ambient = runtime.World.MagicResources.Get(ambientResourceId)!;
-		Require(coordinator.TryMutateResource(cell, ambient, EnvironmentalResourceMutation.Set, 5.0,
+		Require(coordinator.TryMutateResource(room, ambient, EnvironmentalResourceMutation.Set, 5.0,
 			out bool staged) && staged, "C3B-P02 could not stage five recorded ambient units.");
-		double berries = cell.GetForagableYield("berries");
-		Require(berries >= 5.0 && cell.TryConsumeYield("berries", berries - 5.0),
+		double berries = room.GetForagableYield("berries");
+		Require(berries >= 5.0 && room.TryConsumeYield("berries", berries - 5.0),
 			"C3B-P02 could not stage five real forage units through its native owner.");
 		runtime.World.SaveManager.Flush();
 		CompiledFutureProg.Initialise();
@@ -703,9 +703,9 @@ internal static partial class GNHProgram
 		Require(completed.Success,
 			$"C3B-P02 approved mixed group did not complete: {completed.Message}; {new MagicGatheringReceiptStore().Operation(started.OperationId.Value)?.Diagnostic}");
 		using var independent = NewIndependentContext(connectionString);
-		double savedAmbient = independent.CellsMagicResources.AsNoTracking()
-			.Single(x => x.CellId == cell.Id && x.MagicResourceId == ambientResourceId).Amount;
-		double savedBerries = ReadForageYield(connectionString, cell.Id, "berries");
+		double savedAmbient = independent.RoomsMagicResources.AsNoTracking()
+			.Single(x => x.RoomId == room.Id && x.MagicResourceId == ambientResourceId).Amount;
+		double savedBerries = ReadForageYield(connectionString, room.Id, "berries");
 		double credit = independent.CharactersMagicResources.AsNoTracking()
 			.Single(x => x.CharacterId == fixture.CharacterId && x.MagicResourceId == fixture.ResourceId).Amount;
 		Db.MagicGatheringOperation parent = independent.MagicGatheringOperations.AsNoTracking()
@@ -718,12 +718,12 @@ internal static partial class GNHProgram
 		MagicGatheringResult later = service.Begin(runtime.Actor, runtime.Capability, "draw", 1.0);
 		Require(!later.Success && later.Message.Contains("non-finite", StringComparison.OrdinalIgnoreCase),
 			$"C3B-P02 later independent gather did not observe the resulting invalid factor: {later.Message}");
-		Console.WriteLine($"C3B-P02=passed cell:{cell.Id} ambient:5->0 forage:berries:5->0 credit:{initialCredit:F2}->{credit:F2} child:{parent.EcologicalChildId} laterInvalid:True");
+		Console.WriteLine($"C3B-P02=passed cell:{room.Id} ambient:5->0 forage:berries:5->0 credit:{initialCredit:F2}->{credit:F2} child:{parent.EcologicalChildId} laterInvalid:True");
 	}
 
 	private static void RunLandParticipantQuarantineCorrectionProbe(NativeRuntime runtime,
 		FixtureIds gentleFixture, SkillLevelBasedMagicCapability landCapability, MagicGatheringService service,
-		HarnessClock clock, EnvironmentalMagicCoordinator coordinator, Cell cell, string connectionString,
+		HarnessClock clock, EnvironmentalMagicCoordinator coordinator, Room room, string connectionString,
 		long ambientResourceId)
 	{
 		using (var authoring = NewIndependentContext(connectionString))
@@ -746,10 +746,10 @@ internal static partial class GNHProgram
 		((All<IMagicResource>)gentleRuntime.World.MagicResources).Add(ambient);
 		((All<IMagicResource>)runtime.World.MagicResources).Add(gentleRuntime.Resource);
 		SetPrivateMember(gentleRuntime.Actor, "Gameworld", runtime.World);
-		SetPrivateMember(gentleRuntime.Actor, "Location", cell);
+		SetPrivateMember(gentleRuntime.Actor, "Location", room);
 		Require(gentleRuntime.Capability.GatheringConfigurationErrors().Count == 0,
 			$"C3B-P01 native Gentle capability is invalid: {string.Join("; ", gentleRuntime.Capability.GatheringConfigurationErrors())}");
-		Require(coordinator.TryMutateResource(cell, ambient, EnvironmentalResourceMutation.Set, 5.0,
+		Require(coordinator.TryMutateResource(room, ambient, EnvironmentalResourceMutation.Set, 5.0,
 			out bool staged) && staged, "C3B-P01 could not stage five real ambient units.");
 		while (landCapability.GatheringMethods.Single().LandSources.Count > 0)
 		{
@@ -803,12 +803,12 @@ internal static partial class GNHProgram
 			             x.MagicResourceId == gentleFixture.ResourceId).Amount;
 		int gentleWoundsBefore = independent.Wounds.AsNoTracking()
 			.Count(x => x.BodyId == gentleFixture.BodyId);
-		double savedAmbientBefore = independent.CellsMagicResources.AsNoTracking()
-			.Single(x => x.CellId == cell.Id && x.MagicResourceId == ambientResourceId).Amount;
-		Require(coordinator.TryInspectLandResource(cell, ambient, out var paidAmbient),
+		double savedAmbientBefore = independent.RoomsMagicResources.AsNoTracking()
+			.Single(x => x.RoomId == room.Id && x.MagicResourceId == ambientResourceId).Amount;
+		Require(coordinator.TryInspectLandResource(room, ambient, out var paidAmbient),
 			"C3B-P01 could not inspect the paid source after checkpoint failure.");
 		double liveAmbientBefore = paidAmbient.Balance;
-		Console.WriteLine($"C3B-P01-diagnostic status:{parent.Status} ecologicalApplied:{parent.EcologicalApplied} credited:{parent.DestinationCredited} child:{parent.EcologicalChildId} childRows:{independent.EnvironmentalMagicOperations.AsNoTracking().Count(x => x.Id == parent.EcologicalChildId)} indexedRows:{independent.MagicGatheringParticipants.AsNoTracking().Count(x => x.OperationId == parent.Id && x.SourceKey == $"ambient:{ambientResourceId}")} pending:{cell.PendingEnvironmentalOperationId} source:{parent.SourceResourceId}");
+		Console.WriteLine($"C3B-P01-diagnostic status:{parent.Status} ecologicalApplied:{parent.EcologicalApplied} credited:{parent.DestinationCredited} child:{parent.EcologicalChildId} childRows:{independent.EnvironmentalMagicOperations.AsNoTracking().Count(x => x.Id == parent.EcologicalChildId)} indexedRows:{independent.MagicGatheringParticipants.AsNoTracking().Count(x => x.OperationId == parent.Id && x.SourceKey == $"ambient:{ambientResourceId}")} pending:{room.PendingEnvironmentalOperationId} source:{parent.SourceResourceId}");
 		Require(!landResult.Success && parent.Status == "NeedsReview" && parent.SourceResourceId is null &&
 		        parent.EcologicalApplied &&
 		        !parent.DestinationCredited && parent.EcologicalChildId.HasValue &&
@@ -816,7 +816,7 @@ internal static partial class GNHProgram
 			        .Count(x => x.Id == parent.EcologicalChildId) == 1 &&
 		        independent.MagicGatheringParticipants.AsNoTracking()
 			        .Any(x => x.OperationId == parent.Id && x.SourceKey == $"ambient:{ambientResourceId}") &&
-		        !cell.PendingEnvironmentalOperationId.HasValue,
+		        !room.PendingEnvironmentalOperationId.HasValue,
 			$"C3B-P01 did not preserve a confirmed ecological child and indexed unresolved parent: {landResult.Message}, {parent.Status}.");
 		MagicGatheringResult refused = service.Complete(gentleRuntime.Actor,
 			gentle.OperationId ?? throw new InvalidOperationException("C3B-P01 Gentle did not start."));
@@ -825,21 +825,21 @@ internal static partial class GNHProgram
 			.Single(x => x.CharacterId == gentleFixture.CharacterId &&
 			             x.MagicResourceId == gentleFixture.ResourceId).Amount;
 		int gentleWoundsAfter = after.Wounds.AsNoTracking().Count(x => x.BodyId == gentleFixture.BodyId);
-		double savedAmbientAfter = after.CellsMagicResources.AsNoTracking()
-			.Single(x => x.CellId == cell.Id && x.MagicResourceId == ambientResourceId).Amount;
-		Require(coordinator.TryInspectLandResource(cell, ambient, out var refusedAmbient),
+		double savedAmbientAfter = after.RoomsMagicResources.AsNoTracking()
+			.Single(x => x.RoomId == room.Id && x.MagicResourceId == ambientResourceId).Amount;
+		Require(coordinator.TryInspectLandResource(room, ambient, out var refusedAmbient),
 			"C3B-P01 could not inspect source after Gentle refusal.");
 		Require(!refused.Success && Same(gentleCreditBefore, gentleCreditAfter) &&
 		        gentleWoundsBefore == gentleWoundsAfter && Same(savedAmbientBefore, savedAmbientAfter) &&
 		        Same(liveAmbientBefore, refusedAmbient.Balance) &&
 		        after.MagicGatheringOperations.AsNoTracking().Count(x => x.ActorId == gentleFixture.CharacterId) == 0,
 			$"C3B-P01 waiting Gentle actor was not quarantined before payment: {refused.Message}.");
-		Console.WriteLine($"C3B-P01=passed cell:{cell.Id} land:{parent.Id} child:{parent.EcologicalChildId} status:{parent.Status} secondActor:{gentleFixture.CharacterId} credit:{gentleCreditBefore}->{gentleCreditAfter} wounds:{gentleWoundsBefore}->{gentleWoundsAfter} ambient:{savedAmbientBefore:R}->{savedAmbientAfter:R} denied:True");
+		Console.WriteLine($"C3B-P01=passed cell:{room.Id} land:{parent.Id} child:{parent.EcologicalChildId} status:{parent.Status} secondActor:{gentleFixture.CharacterId} credit:{gentleCreditBefore}->{gentleCreditAfter} wounds:{gentleWoundsBefore}->{gentleWoundsAfter} ambient:{savedAmbientBefore:R}->{savedAmbientAfter:R} denied:True");
 	}
 
 	private static void RunLandIneffectiveScarCorrectionProbe(NativeRuntime runtime,
 		SkillLevelBasedMagicCapability capability, MagicGatheringService service, HarnessClock clock,
-		EnvironmentalMagicCoordinator coordinator, Cell cell, EnvironmentalMagicGenerator profile,
+		EnvironmentalMagicCoordinator coordinator, Room room, EnvironmentalMagicGenerator profile,
 		string connectionString,
 		FixtureIds fixture, long ambientResourceId)
 	{
@@ -865,7 +865,7 @@ internal static partial class GNHProgram
 		Require(profile.BuildingCommand(runtime.Actor,
 			new StringStack($"output {ambientResourceId} baserate 0")),
 			"C3B-P03 could not disable incidental ambient production.");
-		Require(coordinator.TryMutateResource(cell, ambient, EnvironmentalResourceMutation.Set, 2.0,
+		Require(coordinator.TryMutateResource(room, ambient, EnvironmentalResourceMutation.Set, 2.0,
 			out bool staged) && staged, "C3B-P03 could not stage two real recorded ambient units.");
 		runtime.World.SaveManager.Flush();
 		using var before = NewIndependentContext(connectionString);
@@ -876,10 +876,10 @@ internal static partial class GNHProgram
 		MagicGatheringResult waiting = service.Begin(runtime.Actor, runtime.Capability, "draw", 1.0);
 		Require(waiting.Success && waiting.OperationId.HasValue,
 			$"C3B-P03 small representable scar did not permit a timed start: {waiting.Message}");
-		double openingScar = coordinator.InspectState(cell).State.ScarDamage;
-		var large = coordinator.ApplyOperation(cell, new EnvironmentalMagicOperationRequest(
+		double openingScar = coordinator.InspectState(room).State.ScarDamage;
+		var large = coordinator.ApplyOperation(room, new EnvironmentalMagicOperationRequest(
 			Guid.NewGuid(), runtime.Actor.Id, "C3B-P03 prior scar", Damage: 1_000_000_000_000.0 - openingScar));
-		Require(large.Success && Same(coordinator.InspectState(cell).State.ScarDamage, 1_000_000_000_000.0),
+		Require(large.Success && Same(coordinator.InspectState(room).State.ScarDamage, 1_000_000_000_000.0),
 			$"C3B-P03 could not persist the large scar: {large.Error}");
 		Require(!service.Preview(runtime.Actor, runtime.Capability, "draw", 1.0).Success &&
 		        !service.Begin(runtime.Actor, runtime.Capability, "draw", 1.0).Success,
@@ -892,17 +892,17 @@ internal static partial class GNHProgram
 		{
 			double credit = refused.CharactersMagicResources.AsNoTracking()
 				.Single(x => x.CharacterId == fixture.CharacterId && x.MagicResourceId == fixture.ResourceId).Amount;
-			double ambientSaved = refused.CellsMagicResources.AsNoTracking()
-				.Single(x => x.CellId == cell.Id && x.MagicResourceId == ambientResourceId).Amount;
+			double ambientSaved = refused.RoomsMagicResources.AsNoTracking()
+				.Single(x => x.RoomId == room.Id && x.MagicResourceId == ambientResourceId).Amount;
 			int parents = refused.MagicGatheringOperations.AsNoTracking()
 				.Count(x => x.ActorId == fixture.CharacterId);
 			Require(Same(credit, initialCredit) && Same(ambientSaved, 2.0) &&
-			        parents == initialParents && Same(coordinator.InspectState(cell).State.ScarDamage, 1_000_000_000_000.0),
-				$"C3B-P03 independent refusal observation changed credit {initialCredit}->{credit}, ambient 2->{ambientSaved}, parents {initialParents}->{parents}, scar {coordinator.InspectState(cell).State.ScarDamage:R}.");
+			        parents == initialParents && Same(coordinator.InspectState(room).State.ScarDamage, 1_000_000_000_000.0),
+				$"C3B-P03 independent refusal observation changed credit {initialCredit}->{credit}, ambient 2->{ambientSaved}, parents {initialParents}->{parents}, scar {coordinator.InspectState(room).State.ScarDamage:R}.");
 		}
-		var repaired = coordinator.ApplyOperation(cell, new EnvironmentalMagicOperationRequest(
+		var repaired = coordinator.ApplyOperation(room, new EnvironmentalMagicOperationRequest(
 			Guid.NewGuid(), runtime.Actor.Id, "C3B-P03 reset scar", Repair: 1_000_000_000_000.0));
-		Require(repaired.Success && coordinator.InspectState(cell).State.ScarDamage == 0.0,
+		Require(repaired.Success && coordinator.InspectState(room).State.ScarDamage == 0.0,
 			$"C3B-P03 could not restore representable scar headroom: {repaired.Error}");
 		MagicGatheringResult started = service.Begin(runtime.Actor, runtime.Capability, "draw", 1.0);
 		Require(started.Success && started.OperationId.HasValue,
@@ -914,21 +914,21 @@ internal static partial class GNHProgram
 		using var accepted = NewIndependentContext(connectionString);
 		double acceptedCredit = accepted.CharactersMagicResources.AsNoTracking()
 			.Single(x => x.CharacterId == fixture.CharacterId && x.MagicResourceId == fixture.ResourceId).Amount;
-		double acceptedAmbient = accepted.CellsMagicResources.AsNoTracking()
-			.Single(x => x.CellId == cell.Id && x.MagicResourceId == ambientResourceId).Amount;
+		double acceptedAmbient = accepted.RoomsMagicResources.AsNoTracking()
+			.Single(x => x.RoomId == room.Id && x.MagicResourceId == ambientResourceId).Amount;
 		Db.MagicGatheringOperation parent = accepted.MagicGatheringOperations.AsNoTracking()
 			.Single(x => x.Id == started.OperationId.Value);
 		Require(Same(acceptedCredit, initialCredit + 1.0) && Same(acceptedAmbient, 1.0) &&
 		        parent.Status == "Completed" && parent.EcologicalChildId.HasValue &&
 		        accepted.EnvironmentalMagicOperations.AsNoTracking().Count(x => x.Id == parent.EcologicalChildId) == 1 &&
-		        Same(coordinator.InspectState(cell).State.ScarDamage, 0.000001),
+		        Same(coordinator.InspectState(room).State.ScarDamage, 0.000001),
 			"C3B-P03 independent read missed the one affordable representable Land transfer.");
-		Console.WriteLine($"C3B-P03=passed cell:{cell.Id} ineffectiveScar:1000000000000 unchangedCredit:{initialCredit:F2} acceptedScar:{coordinator.InspectState(cell).State.ScarDamage:R} ambient:2->1 credit:{acceptedCredit:F2} child:{parent.EcologicalChildId}");
+		Console.WriteLine($"C3B-P03=passed cell:{room.Id} ineffectiveScar:1000000000000 unchangedCredit:{initialCredit:F2} acceptedScar:{coordinator.InspectState(room).State.ScarDamage:R} ambient:2->1 credit:{acceptedCredit:F2} child:{parent.EcologicalChildId}");
 	}
 
 	private static void RunLandNativeGrowthDuringWaitProbe(NativeRuntime runtime,
 		SkillLevelBasedMagicCapability capability, MagicGatheringService service, HarnessClock clock,
-		Cell cell, AgricultureField field, long fieldId, string connectionString, FixtureIds fixture)
+		Room room, AgricultureField field, long fieldId, string connectionString, FixtureIds fixture)
 	{
 		foreach (string command in new[]
 		         {
@@ -968,7 +968,7 @@ internal static partial class GNHProgram
 
 	private static void RunLandForageCheckpointFailureProbe(NativeRuntime runtime,
 		SkillLevelBasedMagicCapability capability, MagicGatheringService service, HarnessClock clock,
-		Cell cell, string connectionString, FixtureIds fixture)
+		Room room, string connectionString, FixtureIds fixture)
 	{
 		foreach (string command in new[]
 		         {
@@ -980,7 +980,7 @@ internal static partial class GNHProgram
 				$"L-T37 could not author the forage checkpoint method: {command}");
 		}
 		runtime.World.SaveManager.Flush();
-		double before = ReadForageYield(connectionString, cell.Id, "berries");
+		double before = ReadForageYield(connectionString, room.Id, "berries");
 		MagicGatheringResult started = service.Begin(runtime.Actor, runtime.Capability, "draw", 1.0);
 		Require(started.Success && started.OperationId.HasValue,
 			$"L-T37 forage checkpoint action did not begin: {started.Message}");
@@ -1014,13 +1014,13 @@ internal static partial class GNHProgram
 		double credit = read.CharactersMagicResources.AsNoTracking()
 			.Single(x => x.CharacterId == fixture.CharacterId && x.MagicResourceId == fixture.ResourceId).Amount;
 		Require(!result.Success && parent.Status == "NeedsReview" && parent.EcologicalApplied &&
-			!parent.DestinationCredited && cell.YieldsChanged &&
-			runtime.World.SaveManager.IsQueued(cell) && Same(ReadForageYield(connectionString, cell.Id, "berries"), before) &&
+			!parent.DestinationCredited && room.YieldsChanged &&
+			runtime.World.SaveManager.IsQueued(room) && Same(ReadForageYield(connectionString, room.Id, "berries"), before) &&
 			Same(credit, 8.0),
 			$"L-T37 forage checkpoint did not preserve the retryable dirty facet: {result.Message}");
 		runtime.World.SaveManager.Flush();
-		double after = ReadForageYield(connectionString, cell.Id, "berries");
-		Require(Same(after, before - 1.0) && !cell.YieldsChanged &&
+		double after = ReadForageYield(connectionString, room.Id, "berries");
+		Require(Same(after, before - 1.0) && !room.YieldsChanged &&
 			!service.Complete(runtime.Actor, operationId).Success &&
 			read.EnvironmentalMagicOperations.AsNoTracking().Count(x => x.Id == parent.EcologicalChildId) == 1 &&
 			Same(read.CharactersMagicResources.AsNoTracking()
@@ -1033,7 +1033,7 @@ internal static partial class GNHProgram
 
 	private static void RunLandPrepaidAtZeroStockProbe(NativeRuntime runtime,
 		SkillLevelBasedMagicCapability capability, MagicGatheringService service, HarnessClock clock,
-		Cell cell, AgricultureField field, long fieldId, string connectionString, FixtureIds fixture)
+		Room room, AgricultureField field, long fieldId, string connectionString, FixtureIds fixture)
 	{
 		Require(capability.BuildingCommand(runtime.Actor, new StringStack("gather land draw crophealth 0")),
 			"L-T15 could not disable the optional vegetation health cost for the prepaid-only probe.");
@@ -1044,7 +1044,7 @@ internal static partial class GNHProgram
 		Console.WriteLine($"L-T15-setup savedStock:{before.Stock} ownerStock:{currentYield} cropHealth:{field.CropHealth} prepaid:{before.Prepaid}");
 		Require(currentYield > 0, "L-T15 current crop owner has no whole yield to exhaust.");
 		var craftInput = NativeAgricultureInput(runtime.World, field.CurrentCrop.Id, currentYield);
-		craftInput.ReserveInput(cell);
+		craftInput.ReserveInput(room);
 		runtime.World.SaveManager.Flush();
 		var depleted = NativeOrganicObservation.Read(connectionString, fieldId, NativeOrganicSourceKind.Crop);
 		Require(depleted.HasCrop && depleted.Stock == 0 && depleted.Prepaid == before.Prepaid,
@@ -1067,7 +1067,7 @@ internal static partial class GNHProgram
 
 	private static void RunLandConsumerAndReplacementProbe(NativeRuntime runtime,
 		SkillLevelBasedMagicCapability capability, MagicGatheringService service, HarnessClock clock,
-		EnvironmentalMagicCoordinator coordinator, Cell cell, AgricultureField field, long fieldId,
+		EnvironmentalMagicCoordinator coordinator, Room room, AgricultureField field, long fieldId,
 		EnvironmentalMagicGenerator environmentalProfile, long environmentalResourceId,
 		string connectionString, FixtureIds fixture)
 	{
@@ -1092,7 +1092,7 @@ internal static partial class GNHProgram
 				new StringStack($"output {environmentalResourceId} maximum living")),
 			"L-T16 could not bind ambient maximum to the current crop health.");
 		IMagicResource ambient = runtime.World.MagicResources.Get(environmentalResourceId)!;
-		Require(coordinator.TryMutateResource(cell, ambient, EnvironmentalResourceMutation.Set,
+		Require(coordinator.TryMutateResource(room, ambient, EnvironmentalResourceMutation.Set,
 			healthBefore, out bool staged) && staged,
 			"L-T16 could not fill the ambient balance to the living maximum.");
 		runtime.World.SaveManager.Flush();
@@ -1104,7 +1104,7 @@ internal static partial class GNHProgram
 		Require(service.Complete(runtime.Actor, operationId).Success,
 			"L-P04 fractional Land action did not complete.");
 		var paid = NativeOrganicObservation.Read(connectionString, fieldId, NativeOrganicSourceKind.Crop);
-		Require(coordinator.TryInspectLandResource(cell, ambient, out var afterCap) && afterCap.IsValid &&
+		Require(coordinator.TryInspectLandResource(room, ambient, out var afterCap) && afterCap.IsValid &&
 			Same(afterCap.Maximum, healthBefore - 1) && Same(afterCap.Balance, healthBefore - 1) &&
 			Same(service.LandDetails(operationId)!["paid:ambient:" + environmentalResourceId], 0.5),
 			"L-T16 vegetation maximum did not fall after the paid ambient collateral debit.");
@@ -1122,12 +1122,12 @@ internal static partial class GNHProgram
 		MagicGatheringResult staleStart = service.Begin(runtime.Actor, runtime.Capability, "draw", 1.0);
 		Require(staleStart.Success && staleStart.OperationId.HasValue,
 			$"L-T10 could not start a timed action against the surviving crop: {staleStart.Message}");
-		Require(coordinator.TryPlanOrganicDebit(cell, "crop", 0.125, out var oldPlan, out string? planError),
+		Require(coordinator.TryPlanOrganicDebit(room, "crop", 0.125, out var oldPlan, out string? planError),
 			planError ?? "L-P04 could not capture the old crop lifecycle plan.");
 		IAgricultureCropDefinition crop = field.CurrentCrop;
 		var craftInput = NativeAgricultureInput(runtime.World, crop.Id, 5);
-		craftInput.ReserveInput(cell);
-		Require(!coordinator.TryApplyOrganicDebit(cell, oldPlan, out _, out _),
+		craftInput.ReserveInput(room);
+		Require(!coordinator.TryApplyOrganicDebit(room, oldPlan, out _, out _),
 			"L-P04 applied a plan made stale by the real craft reservation.");
 		SetPrivateMember(field, "CropStage", AgricultureCropStage.Harvestable);
 		field.Changed = true;
@@ -1147,7 +1147,7 @@ internal static partial class GNHProgram
 		clock.Advance(TimeSpan.FromSeconds(1));
 		bool staleCompletionRefused = !service.Complete(runtime.Actor, staleStart.OperationId!.Value).Success;
 		Require(replaced.HasCrop && replaced.Generation > paid.Generation && replaced.Prepaid == 0m &&
-			!coordinator.TryApplyOrganicDebit(cell, oldPlan, out _, out _) && staleCompletionRefused &&
+			!coordinator.TryApplyOrganicDebit(room, oldPlan, out _, out _) && staleCompletionRefused &&
 			Same(runtime.Actor.MagicResourceAmounts[runtime.Resource], 7.0),
 			"L-P04 replacement reused the previous crop generation or Land-paid fraction.");
 		Console.WriteLine($"L-P04=passed operation:{operationId} field:{fieldId} generation:{paid.Generation}->{replaced.Generation} paidPrepaid:{paid.Prepaid}->harvest:{removed.Prepaid}->replant:{replaced.Prepaid} cropHealth:{healthBefore}->{healthAfter} nativeCraft:5 credit:7 oldPlanRefused:True timedReplacementRefused:{staleCompletionRefused}");
@@ -1155,7 +1155,7 @@ internal static partial class GNHProgram
 
 	private static void RunLandCheckpointFailureProbe(NativeRuntime runtime,
 		SkillLevelBasedMagicCapability capability, MagicGatheringService service, HarnessClock clock,
-		EnvironmentalMagicCoordinator coordinator, Cell cell, AgricultureField field, long fieldId,
+		EnvironmentalMagicCoordinator coordinator, Room room, AgricultureField field, long fieldId,
 		string connectionString, FixtureIds fixture)
 	{
 		SetPrivateMember(field, "CropStage", AgricultureCropStage.Growing);
@@ -1233,18 +1233,18 @@ internal static partial class GNHProgram
 
 	private static void RunLandPlayerCommandAndRepairProbe(NativeRuntime runtime,
 		SkillLevelBasedMagicCapability capability, MagicGatheringService service, HarnessClock clock,
-		EnvironmentalMagicCoordinator coordinator, Cell cell, string connectionString, FixtureIds fixture)
+		EnvironmentalMagicCoordinator coordinator, Room room, string connectionString, FixtureIds fixture)
 	{
 		runtime.WorldMock.SetupGet(x => x.MagicGathering).Returns(service);
 		MagicModule.EnsureMagicSchoolVerbRegistered("draw");
-		double openingScar = coordinator.InspectState(cell).State.ScarDamage;
+		double openingScar = coordinator.InspectState(room).State.ScarDamage;
 		if (openingScar >= 19.0)
 		{
-			EnvironmentalMagicOperationResult priorRepair = coordinator.ApplyOperation(cell,
+			EnvironmentalMagicOperationResult priorRepair = coordinator.ApplyOperation(room,
 				new EnvironmentalMagicOperationRequest(Guid.NewGuid(), runtime.Actor.Id,
 					"fixture prior-scar repair", Repair: openingScar - 10.0));
 			Require(priorRepair.Success, "L-P05 could not establish valid native recovery before the player action.");
-			openingScar = coordinator.InspectState(cell).State.ScarDamage;
+			openingScar = coordinator.InspectState(room).State.ScarDamage;
 		}
 		double landDamage = 19.0 - openingScar;
 		Require(landDamage > 0.0 && capability.BuildingCommand(runtime.Actor,
@@ -1259,8 +1259,8 @@ internal static partial class GNHProgram
 		double paidCredit = paidRead.CharactersMagicResources.AsNoTracking()
 			.Single(x => x.CharacterId == fixture.CharacterId && x.MagicResourceId == fixture.ResourceId).Amount;
 		Require(Same(paidCredit, 6.0), "L-P05 player command did not persist exactly one additional personal credit.");
-		NativeOrganicPenaltyEvaluation suppressed = ForageRecoveryPenalty(coordinator, cell);
-		Console.WriteLine($"L-P05-suppression-diagnostic openingScar:{openingScar:F4} plannedDamage:{landDamage:F4} observedScar:{coordinator.InspectState(cell).State.ScarDamage:F4} factor:{suppressed.Factor:F4} valid:{suppressed.IsValid} error:{suppressed.Error}");
+		NativeOrganicPenaltyEvaluation suppressed = ForageRecoveryPenalty(coordinator, room);
+		Console.WriteLine($"L-P05-suppression-diagnostic openingScar:{openingScar:F4} plannedDamage:{landDamage:F4} observedScar:{coordinator.InspectState(room).State.ScarDamage:F4} factor:{suppressed.Factor:F4} valid:{suppressed.IsValid} error:{suppressed.Error}");
 		Require(suppressed.IsValid && suppressed.Factor >= 0.0 && suppressed.Factor <= 0.051,
 			$"L-P05 native forage recovery was not suppressed after real Land damage: {suppressed.Factor} {suppressed.Error}");
 		MagicModule.MagicGeneric(runtime.Actor, $"draw gather {fixture.CapabilityId} draw 100");
@@ -1272,20 +1272,20 @@ internal static partial class GNHProgram
 		clock.Advance(TimeSpan.FromSeconds(1));
 		Require(!service.Complete(runtime.Actor, interrupted.OperationId).Success,
 			"L-P05 interrupted player action completed after its effect was removed.");
-		double stockBeforeRepair = ReadForageYield(connectionString, cell.Id, "berries");
-		double scarBeforeRepair = coordinator.InspectState(cell).State.ScarDamage;
-		EnvironmentalMagicOperationResult repaired = coordinator.ApplyOperation(cell,
+		double stockBeforeRepair = ReadForageYield(connectionString, room.Id, "berries");
+		double scarBeforeRepair = coordinator.InspectState(room).State.ScarDamage;
+		EnvironmentalMagicOperationResult repaired = coordinator.ApplyOperation(room,
 			new EnvironmentalMagicOperationRequest(Guid.NewGuid(), runtime.Actor.Id, "explicit repair probe",
 				Repair: scarBeforeRepair - 1.0));
 		Require(repaired.Success, $"L-P05 existing explicit room repair refused: {repaired.Error}");
-		NativeOrganicPenaltyEvaluation restored = ForageRecoveryPenalty(coordinator, cell);
+		NativeOrganicPenaltyEvaluation restored = ForageRecoveryPenalty(coordinator, room);
 		using var repairedRead = NewIndependentContext(connectionString);
 		double repairCredit = repairedRead.CharactersMagicResources.AsNoTracking()
 			.Single(x => x.CharacterId == fixture.CharacterId && x.MagicResourceId == fixture.ResourceId).Amount;
 		Require(restored.IsValid && restored.Factor > 0.0 && Same(repairCredit, 6.0) &&
-			Same(ReadForageYield(connectionString, cell.Id, "berries"), stockBeforeRepair),
+			Same(ReadForageYield(connectionString, room.Id, "berries"), stockBeforeRepair),
 			"L-P05 explicit repair failed to restore future recovery or granted an instant source/personal refill.");
-		AgricultureField cropField = (AgricultureField)(coordinator.FieldFor(cell) ??
+		AgricultureField cropField = (AgricultureField)(coordinator.FieldFor(room) ??
 			throw new InvalidOperationException("L-P05 lost the indexed crop field."));
 		SetPrivateMember(cropField, "CropStage", AgricultureCropStage.Growing);
 		cropField.Changed = true;
@@ -1302,12 +1302,12 @@ internal static partial class GNHProgram
 		apiary.SetupGet(x => x.PollinationStrength).Returns(50);
 		bool pollinationActive = true;
 		var pollinator = new Mock<IAgricultureField>();
-		pollinator.SetupGet(x => x.Cell).Returns(cell);
+		pollinator.SetupGet(x => x.Room).Returns(room);
 		pollinator.SetupGet(x => x.HasActiveApiary).Returns(true);
 		pollinator.SetupGet(x => x.IsApiaryHappy).Returns(() => pollinationActive);
 		pollinator.SetupGet(x => x.Apiary).Returns(apiary.Object);
 		coordinator.RefreshPollinationCandidate(pollinator.Object);
-		NativeOrganicSourceSnapshot cropSource = coordinator.InspectOrganicSource(cell, "crop");
+		NativeOrganicSourceSnapshot cropSource = coordinator.InspectOrganicSource(room, "crop");
 		Require(cropSource.Lifecycle is not null, "L-P05 lost the current crop lifecycle.");
 		bool prepared = cropField.TryApplyLandHealthCost(NativeOrganicSourceKind.Crop, cropSource.Lifecycle!, 1,
 			out int preparationLoss, out _, out string preparationError);
@@ -1340,9 +1340,9 @@ internal static partial class GNHProgram
 	}
 
 	private static NativeOrganicPenaltyEvaluation ForageRecoveryPenalty(EnvironmentalMagicCoordinator coordinator,
-		Cell cell) => coordinator.EvaluateOrganicPenalty(cell, NativeOrganicPenaltyChannel.ForageReplenishment,
+		Room room) => coordinator.EvaluateOrganicPenalty(room, NativeOrganicPenaltyChannel.ForageReplenishment,
 			new NativeOrganicPenaltyContext(NativeOrganicSourceKind.Forage, "forage:berries",
-				cell.GetForagableYield("berries"), 0.0, 0.0, 100.0, 0.0, 0.0));
+				room.GetForagableYield("berries"), 0.0, 0.0, 100.0, 0.0, 0.0));
 
 	private static int RunLandActionReader(string[] arguments)
 	{
@@ -1374,14 +1374,14 @@ internal static partial class GNHProgram
 			.Single(x => x.Id == operationId);
 		Db.EnvironmentalMagicOperation child = read.EnvironmentalMagicOperations.AsNoTracking()
 			.Single(x => x.Id == parent.EcologicalChildId);
-		Db.CellMagicResource ambient = read.CellsMagicResources.AsNoTracking()
-			.Single(x => x.CellId == fixture.CellId && x.MagicResourceId == environmentalResourceId);
+		Db.RoomMagicResource ambient = read.RoomsMagicResources.AsNoTracking()
+			.Single(x => x.RoomId == fixture.RoomId && x.MagicResourceId == environmentalResourceId);
 		Require(parent.Status == "Completed" && parent.AccountingPersisted && parent.EcologicalApplied &&
 			child.Id != parent.Id && child.Id == parent.EcologicalChildId &&
 			read.MagicGatheringParticipants.AsNoTracking().Any(x => x.OperationId == operationId) &&
 			ambient.Amount >= 0.0 && ambient.Amount < 0.1 &&
-			Same(ReadForageYield(database.ConnectionString, fixture.CellId, "herbs"), 0.0) &&
-			Same(ReadForageYield(database.ConnectionString, fixture.CellId, "berries"), 97.25),
+			Same(ReadForageYield(database.ConnectionString, fixture.RoomId, "herbs"), 0.0) &&
+			Same(ReadForageYield(database.ConnectionString, fixture.RoomId, "berries"), 97.25),
 			"L-P03 separate process did not reconstruct the completed parent, child and physical debits.");
 		MagicGatheringResult replay = new MagicGatheringService(runtime.World).Complete(runtime.Actor, operationId);
 		Require(!replay.Success && Same(runtime.Actor.MagicResourceAmounts[runtime.Resource], 5.0),
@@ -1396,7 +1396,7 @@ internal static partial class GNHProgram
 		string executable = Assembly.GetExecutingAssembly().Location;
 		string host = Environment.GetEnvironmentVariable("DOTNET_HOST_PATH") ?? "dotnet";
 		string arguments = string.Join(' ', $"\"{executable}\"", "--land-action-reader",
-			databaseName, fixture.CharacterId, fixture.BodyId, fixture.CellId, fixture.ResourceId,
+			databaseName, fixture.CharacterId, fixture.BodyId, fixture.RoomId, fixture.ResourceId,
 			fixture.CapabilityId, fixture.HealthStrategyId, fixture.TraitExpressionId,
 			fixture.ExistingWoundId?.ToString() ?? "0", fixture.BodypartId, fieldId,
 			environmentalResourceId, operationId);
@@ -1488,16 +1488,16 @@ internal static partial class GNHProgram
 		crop.SetupGet(x => x.PollinationHealthBonus).Returns(3);
 		using (var binding = NewIndependentContext(database.ConnectionString))
 		{
-			var persistedCell = binding.Cells.Single(x => x.Id == baseRuntime.Field.Cell.Id);
-			persistedCell.EnvironmentalMagicBindingMode = (int)EnvironmentalMagicBindingMode.Explicit;
-			persistedCell.EnvironmentalMagicProfileId = profileId;
+			var persistedRoom = binding.Rooms.Single(x => x.Id == baseRuntime.Field.Room.Id);
+			persistedRoom.EnvironmentalMagicBindingMode = (int)EnvironmentalMagicBindingMode.Explicit;
+			persistedRoom.EnvironmentalMagicProfileId = profileId;
 			binding.SaveChanges();
 		}
 		using var read = NewIndependentContext(database.ConnectionString);
 		var fieldModel = read.AgricultureFields.Include(x => x.AgricultureFieldCrop)
 			.AsNoTracking().Single(x => x.Id == fieldId);
-		var cellModel = read.Cells.Include(x => x.CellOverlays).Include(x => x.CellsForagableYields)
-			.AsNoTracking().Single(x => x.Id == fieldModel.CellId);
+		var cellModel = read.Rooms.Include(x => x.RoomOverlays).Include(x => x.RoomsForagableYields)
+			.AsNoTracking().Single(x => x.Id == fieldModel.RoomId);
 		var forageModel = read.ForagableProfiles.Include(x => x.EditableItem)
 			.Include(x => x.ForagableProfilesMaximumYields)
 			.Include(x => x.ForagableProfilesHourlyYieldGains)
@@ -1512,28 +1512,28 @@ internal static partial class GNHProgram
 		world.SetupGet(x => x.MagicResourceRegenerators).Returns(generators);
 		world.SetupGet(x => x.FutureProgs).Returns(new All<MudSharp.FutureProg.IFutureProg>());
 		var terrain = new Terrain(read.Terrains.AsNoTracking()
-			.Single(x => x.Id == cellModel.CellOverlays.Single().TerrainId), world.Object);
+			.Single(x => x.Id == cellModel.RoomOverlays.Single().TerrainId), world.Object);
 		var terrains = new All<ITerrain>();
 		terrains.Add(terrain);
 		world.SetupGet(x => x.Terrains).Returns(terrains);
-		var package = new Mock<ICellOverlayPackage>();
-		package.SetupGet(x => x.Id).Returns(cellModel.CellOverlays.Single().CellOverlayPackageId);
+		var package = new Mock<IRoomOverlayPackage>();
+		package.SetupGet(x => x.Id).Returns(cellModel.RoomOverlays.Single().RoomOverlayPackageId);
 		package.SetupGet(x => x.RevisionNumber).Returns(1);
 		package.SetupGet(x => x.Status).Returns(RevisionStatus.Current);
-		var packages = new RevisableAll<ICellOverlayPackage>();
+		var packages = new RevisableAll<IRoomOverlayPackage>();
 		packages.Add(package.Object);
-		world.SetupGet(x => x.CellOverlayPackages).Returns(packages);
+		world.SetupGet(x => x.RoomOverlayPackages).Returns(packages);
 		var forageProfiles = new RevisableAll<IForagableProfile>();
 		forageProfiles.Add(new ForagableProfile(forageModel, world.Object));
 		world.SetupGet(x => x.ForagableProfiles).Returns(forageProfiles);
 		var zone = new Mock<IZone>();
 		zone.SetupGet(x => x.Gameworld).Returns(world.Object);
 		zone.SetupGet(x => x.Id).Returns(cellModel.ZoneId);
-		var cell = new Cell(cellModel, zone.Object);
-		cell.PostLoadTasks(cellModel);
-		var cells = new All<ICell>();
-		cells.Add(cell);
-		world.SetupGet(x => x.Cells).Returns(cells);
+		var room = new Room(cellModel, zone.Object);
+		room.PostLoadTasks(cellModel);
+		var rooms = new All<IRoom>();
+		rooms.Add(room);
+		world.SetupGet(x => x.Rooms).Returns(rooms);
 		var fields = new All<IAgricultureField>();
 		world.SetupGet(x => x.AgricultureFields).Returns(fields);
 		world.SetupGet(x => x.HeartbeatManager).Returns(new HeartbeatManager(world.Object));
@@ -1542,62 +1542,62 @@ internal static partial class GNHProgram
 		var field = new AgricultureField(fieldModel, world.Object);
 		fields.Add(field);
 		coordinator.Initialise();
-		Require(cell.HasForagableProfile,
-			$"C-P03 did not resolve persisted forage profile {cellModel.ForagableProfileId} for cell {cell.Id}.");
-		Require(cell.GetForagableYield("herbs") == 100.0,
+		Require(room.HasForagableProfile,
+			$"C-P03 did not resolve persisted forage profile {cellModel.ForagableProfileId} for cell {room.Id}.");
+		Require(room.GetForagableYield("herbs") == 100.0,
 			"C-P03 did not load the native forage maximum before ordinary consumption.");
-		cell.ConsumeYield("herbs", 10.0);
-		Require(cell.GetForagableYield("herbs") == 90.0 && baseRuntime.SaveManager.IsQueued(cell),
+		room.ConsumeYield("herbs", 10.0);
+		Require(room.GetForagableYield("herbs") == 90.0 && baseRuntime.SaveManager.IsQueued(room),
 			"C-P03 ordinary forage consumption did not queue the native cell owner.");
 		baseRuntime.SaveManager.Flush();
-		Require(ReadForageYield(database.ConnectionString, cell.Id) == 90.0,
+		Require(ReadForageYield(database.ConnectionString, room.Id) == 90.0,
 			"C-P03 forage setup did not persist native stock before conversion.");
-		Require(coordinator.TryPlanOrganicDebit(cell, "forage:herbs", 0.25, out var foragePlan,
+		Require(coordinator.TryPlanOrganicDebit(room, "forage:herbs", 0.25, out var foragePlan,
 			out var forageError), forageError ?? "C-P03 forage conversion failed.");
-		var damage = coordinator.ApplyOperation(cell, new EnvironmentalMagicOperationRequest(
+		var damage = coordinator.ApplyOperation(room, new EnvironmentalMagicOperationRequest(
 			Guid.NewGuid(), 1, "C-P03 forage damage", Damage: 30.0));
 		Require(damage.Success, damage.Error ?? "C-P03 forage damage failed.");
-		Require(!coordinator.TryPlanOrganicDebit(cell, "forage:herbs", 0.25, out _, out _),
+		Require(!coordinator.TryPlanOrganicDebit(room, "forage:herbs", 0.25, out _, out _),
 			"C-P03 accepted forage planning with an invalid dynamic penalty.");
-		Require(!coordinator.TryApplyOrganicDebit(cell, foragePlan, out _, out _),
+		Require(!coordinator.TryApplyOrganicDebit(room, foragePlan, out _, out _),
 			"C-P03 applied a stale forage plan after its penalty became invalid.");
 		baseRuntime.SaveManager.Flush();
-		Require(ReadForageYield(database.ConnectionString, cell.Id) == 90.0,
+		Require(ReadForageYield(database.ConnectionString, room.Id) == 90.0,
 			"C-P03 refused forage conversions mutated persisted stock.");
-		var repair = coordinator.ApplyOperation(cell, new EnvironmentalMagicOperationRequest(
+		var repair = coordinator.ApplyOperation(room, new EnvironmentalMagicOperationRequest(
 			Guid.NewGuid(), 1, "C-P03 forage repair", Repair: 30.0));
 		Require(repair.Success, repair.Error ?? "C-P03 forage repair failed.");
-		Require(coordinator.TryPlanOrganicDebit(cell, "forage:herbs", 0.25, out var correctedForage,
+		Require(coordinator.TryPlanOrganicDebit(room, "forage:herbs", 0.25, out var correctedForage,
 			out forageError), forageError ?? "C-P03 forage conversion failed.");
-		Require(coordinator.TryApplyOrganicDebit(cell, correctedForage, out _, out forageError), forageError ?? "C-P03 forage conversion failed.");
+		Require(coordinator.TryApplyOrganicDebit(room, correctedForage, out _, out forageError), forageError ?? "C-P03 forage conversion failed.");
 		baseRuntime.SaveManager.Flush();
-		Require(Math.Abs(ReadForageYield(database.ConnectionString, cell.Id) - 89.75) < 1e-9,
+		Require(Math.Abs(ReadForageYield(database.ConnectionString, room.Id) - 89.75) < 1e-9,
 			"C-P03 corrected forage conversion did not persist the exact quarter debit.");
 		var apiary = new Mock<IAgricultureFieldApiary>();
 		apiary.SetupGet(x => x.PollinationRadius).Returns(1);
 		apiary.SetupGet(x => x.PollinationStrength).Returns(50);
 		var pollinationActive = true;
 		var pollinator = new Mock<IAgricultureField>();
-		pollinator.SetupGet(x => x.Cell).Returns(cell);
+		pollinator.SetupGet(x => x.Room).Returns(room);
 		pollinator.SetupGet(x => x.HasActiveApiary).Returns(true);
 		pollinator.SetupGet(x => x.IsApiaryHappy).Returns(() => pollinationActive);
 		pollinator.SetupGet(x => x.Apiary).Returns(apiary.Object);
 		coordinator.RefreshPollinationCandidate(pollinator.Object);
 		Require(field.InspectCurrentOrganicRecoveryContext(NativeOrganicPenaltyChannel.CropHealthRecovery)?
 			.BaselineIncrease == 4.0, "C-P03 did not supply the native pollinated health baseline of four.");
-		Require(coordinator.TryPlanOrganicDebit(cell, "crop", 0.25, out var initial, out var error),
+		Require(coordinator.TryPlanOrganicDebit(room, "crop", 0.25, out var initial, out var error),
 			error ?? "C-P03 initial crop conversion failed.");
-		Require(coordinator.TryApplyOrganicDebit(cell, initial, out _, out error), error ?? "C-P03 crop conversion failed.");
+		Require(coordinator.TryApplyOrganicDebit(room, initial, out _, out error), error ?? "C-P03 crop conversion failed.");
 		baseRuntime.SaveManager.Flush();
 		var prepaid = NativeOrganicObservation.Read(database.ConnectionString, fieldId,
 			NativeOrganicSourceKind.Crop);
 		Require(prepaid.Stock == 9 && prepaid.Prepaid == 0.75m,
 			"C-P03 initial real-coordinator debit did not persist native stock and prepaid credit.");
-		Require(coordinator.TryPlanOrganicDebit(cell, "crop", 0.25, out var planned, out error), error ?? "C-P03 crop conversion failed.");
+		Require(coordinator.TryPlanOrganicDebit(room, "crop", 0.25, out var planned, out error), error ?? "C-P03 crop conversion failed.");
 		pollinationActive = false;
-		Require(!coordinator.TryPlanOrganicDebit(cell, "crop", 0.25, out _, out _),
+		Require(!coordinator.TryPlanOrganicDebit(room, "crop", 0.25, out _, out _),
 			"C-P03 accepted planning with actual invalid factor 2 at baseline one.");
-		Require(!coordinator.TryApplyOrganicDebit(cell, planned, out _, out _),
+		Require(!coordinator.TryApplyOrganicDebit(room, planned, out _, out _),
 			"C-P03 applied a previously valid plan after its native context became invalid.");
 		var refused = NativeOrganicObservation.Read(database.ConnectionString, fieldId,
 			NativeOrganicSourceKind.Crop);
@@ -1605,21 +1605,21 @@ internal static partial class GNHProgram
 		        refused.Revision == prepaid.Revision,
 			"C-P03 refusal changed persisted native stock, fraction or revision.");
 		pollinationActive = true;
-		Require(coordinator.TryPlanOrganicDebit(cell, "crop", 0.25, out var corrected, out error), error ?? "C-P03 crop conversion failed.");
-		Require(coordinator.TryApplyOrganicDebit(cell, corrected, out _, out error), error ?? "C-P03 crop conversion failed.");
+		Require(coordinator.TryPlanOrganicDebit(room, "crop", 0.25, out var corrected, out error), error ?? "C-P03 crop conversion failed.");
+		Require(coordinator.TryApplyOrganicDebit(room, corrected, out _, out error), error ?? "C-P03 crop conversion failed.");
 		baseRuntime.SaveManager.Flush();
 		var accepted = NativeOrganicObservation.Read(database.ConnectionString, fieldId,
 			NativeOrganicSourceKind.Crop);
 		Require(accepted.Stock == 9 && accepted.Prepaid == 0.5m && accepted.Revision > refused.Revision,
 			"C-P03 corrected conversion did not persist exactly one prepaid-credit debit.");
-		Console.WriteLine($"C-P03=passed field:{fieldId} cell:{cell.Id} profile:{profileId} forage:90->90->89.75 baseline:4->1->4 persistedStock:{prepaid.Stock}->{refused.Stock}->{accepted.Stock} prepaid:{prepaid.Prepaid}->{refused.Prepaid}->{accepted.Prepaid} revision:{prepaid.Revision}->{refused.Revision}->{accepted.Revision}");
+		Console.WriteLine($"C-P03=passed field:{fieldId} cell:{room.Id} profile:{profileId} forage:90->90->89.75 baseline:4->1->4 persistedStock:{prepaid.Stock}->{refused.Stock}->{accepted.Stock} prepaid:{prepaid.Prepaid}->{refused.Prepaid}->{accepted.Prepaid} revision:{prepaid.Revision}->{refused.Revision}->{accepted.Revision}");
 	}
 
 	private static double ReadForageYield(string connectionString, long cellId, string key = "herbs")
 	{
 		using var context = NewIndependentContext(connectionString);
-		return context.CellsForagableYields.AsNoTracking()
-			.Single(x => x.CellId == cellId && x.ForagableType == key).Yield;
+		return context.RoomsForagableYields.AsNoTracking()
+			.Single(x => x.RoomId == cellId && x.ForagableType == key).Yield;
 	}
 
 	private static int RunNativeOrganicReader(string[] arguments)
@@ -1732,10 +1732,10 @@ internal static partial class GNHProgram
 			[model, new Mock<ICraft>().Object, world], null)!;
 	}
 
-	private sealed record NativeOrganicFixtureIds(long FractionalCellId, long FractionalFieldId,
+	private sealed record NativeOrganicFixtureIds(long FractionalRoomId, long FractionalFieldId,
 		long ConsumerCropFieldId, long GrazingFieldId, long EnvironmentalResourceId,
 		long PendingPastureFieldId, long ZeroPastureFieldId, long OrchardFieldId,
-		long ConstructorHalfCellId, long ConstructorZeroCellId, long CoordinatorCropFieldId,
+		long ConstructorHalfRoomId, long ConstructorZeroRoomId, long CoordinatorCropFieldId,
 		FixtureIds CoordinatorActorFixture, FixtureIds GentleActorFixture);
 
 	private static class NativeOrganicFixtureSeed
@@ -1780,20 +1780,20 @@ internal static partial class GNHProgram
 				(int)(MagicResourceType.PlayerResource | MagicResourceType.LocationResource);
 			context.SaveChanges();
 
-			var fractional = CropField(fractionalBase.CellId, profile.Id, crop.Id, 10,
+			var fractional = CropField(fractionalBase.RoomId, profile.Id, crop.Id, 10,
 				AgricultureCropStage.Growing, nutrients: 100);
-			var cropConsumer = CropField(cropConsumerBase.CellId, profile.Id, crop.Id, 20,
+			var cropConsumer = CropField(cropConsumerBase.RoomId, profile.Id, crop.Id, 20,
 				AgricultureCropStage.Harvestable, nutrients: 50);
-			var pasture = BaseField(pastureBase.CellId, profile.Id, AgricultureFieldUse.Pasture, 10, 50);
-			var pendingPasture = BaseField(pendingPastureBase.CellId, profile.Id,
+			var pasture = BaseField(pastureBase.RoomId, profile.Id, AgricultureFieldUse.Pasture, 10, 50);
+			var pendingPasture = BaseField(pendingPastureBase.RoomId, profile.Id,
 				AgricultureFieldUse.Fallow, 50, 50);
 			pendingPasture.Definition = "<Field><NativeOrganicAccounting version=\"2\" pastureAssessment=\"pending\" /></Field>";
-			var zeroPasture = BaseField(zeroPastureBase.CellId, profile.Id,
+			var zeroPasture = BaseField(zeroPastureBase.RoomId, profile.Id,
 				AgricultureFieldUse.Fallow, 50, 50);
 			zeroPasture.Definition = pendingPasture.Definition;
-			var orchard = CropField(orchardBase.CellId, profile.Id, crop.Id, 100,
+			var orchard = CropField(orchardBase.RoomId, profile.Id, crop.Id, 100,
 				AgricultureCropStage.Harvestable, nutrients: 100);
-			var coordinatorCrop = CropField(coordinatorCropBase.CellId, profile.Id, crop.Id, 10,
+			var coordinatorCrop = CropField(coordinatorCropBase.RoomId, profile.Id, crop.Id, 10,
 				AgricultureCropStage.Growing, nutrients: 100);
 			orchard.CurrentUse = (int)AgricultureFieldUse.Orchard;
 			pasture.AgricultureFieldHerds.Add(new Db.AgricultureFieldHerd
@@ -1833,7 +1833,7 @@ internal static partial class GNHProgram
 				ForageType = "berries", Yield = 10.0
 			});
 			context.ForagableProfiles.Add(forageProfile);
-			var overlayPackage = new Db.CellOverlayPackage
+			var overlayPackage = new Db.RoomOverlayPackage
 			{
 				Id = 930001,
 				Name = "Land harness overlay package", RevisionNumber = 1,
@@ -1843,7 +1843,7 @@ internal static partial class GNHProgram
 					BuilderAccountId = 1, BuilderDate = DateTime.UtcNow
 				}
 			};
-			context.CellOverlayPackages.Add(overlayPackage);
+			context.RoomOverlayPackages.Add(overlayPackage);
 			var terrain = new Db.Terrain
 			{
 				Id = 930001,
@@ -1853,26 +1853,26 @@ internal static partial class GNHProgram
 			context.Terrains.Add(terrain);
 			context.SaveChanges();
 			terrain.ForagableProfileId = forageProfile.Id;
-			var coordinatorCell = context.Cells.Single(x => x.Id == coordinatorCropBase.CellId);
-			coordinatorCell.ForagableProfileId = forageProfile.Id;
-			var overlay = new Db.CellOverlay
+			var coordinatorRoom = context.Rooms.Single(x => x.Id == coordinatorCropBase.RoomId);
+			coordinatorRoom.ForagableProfileId = forageProfile.Id;
+			var overlay = new Db.RoomOverlay
 			{
 				Id = 930001,
 				Name = "Land harness coordinator overlay",
-				CellName = "Land harness coordinator cell",
-				CellDescription = "Disposable native organic acceptance cell.",
-				CellId = coordinatorCell.Id,
-				CellOverlayPackageId = overlayPackage.Id,
-				CellOverlayPackageRevisionNumber = overlayPackage.RevisionNumber,
+				RoomName = "Land harness coordinator cell",
+				RoomDescription = "Disposable native organic acceptance cell.",
+				RoomId = coordinatorRoom.Id,
+				RoomOverlayPackageId = overlayPackage.Id,
+				RoomOverlayPackageRevisionNumber = overlayPackage.RevisionNumber,
 				TerrainId = terrain.Id, AmbientLightFactor = 1.0, SafeQuit = true
 			};
-			context.CellOverlays.Add(overlay);
+			context.RoomOverlays.Add(overlay);
 			context.SaveChanges();
-			coordinatorCell.CurrentOverlayId = overlay.Id;
+			coordinatorRoom.CurrentOverlayId = overlay.Id;
 			context.SaveChanges();
-			return new NativeOrganicFixtureIds(fractionalBase.CellId, fractional.Id, cropConsumer.Id, pasture.Id,
+			return new NativeOrganicFixtureIds(fractionalBase.RoomId, fractional.Id, cropConsumer.Id, pasture.Id,
 				fractionalBase.ResourceId, pendingPasture.Id, zeroPasture.Id, orchard.Id,
-				constructorHalfBase.CellId, constructorZeroBase.CellId, coordinatorCrop.Id,
+				constructorHalfBase.RoomId, constructorZeroBase.RoomId, coordinatorCrop.Id,
 				coordinatorCropBase, gentleActorBase);
 		}
 
@@ -1897,7 +1897,7 @@ internal static partial class GNHProgram
 		{
 			return new Db.AgricultureField
 			{
-				CellId = cellId,
+				RoomId = cellId,
 				ProfileId = profileId,
 				CurrentUse = (int)use,
 				Moisture = 50,
@@ -1919,20 +1919,20 @@ internal static partial class GNHProgram
 
 	private sealed class NativeOrganicRuntime
 	{
-		private NativeOrganicRuntime(IFuturemud world, SaveManager saveManager, Mock<ICell> cell,
+		private NativeOrganicRuntime(IFuturemud world, SaveManager saveManager, Mock<IRoom> room,
 			AgricultureField field, IAgricultureCropDefinition crop)
 		{
 			World = world;
 			SaveManager = saveManager;
-			CellMock = cell;
+			RoomMock = room;
 			Field = field;
 			Crop = crop;
 		}
 
 		public IFuturemud World { get; }
 		public SaveManager SaveManager { get; }
-		public Mock<ICell> CellMock { get; }
-		public ICell Cell => CellMock.Object;
+		public Mock<IRoom> RoomMock { get; }
+		public IRoom Room => RoomMock.Object;
 		public AgricultureField Field { get; }
 		public IAgricultureCropDefinition Crop { get; }
 
@@ -1953,16 +1953,16 @@ internal static partial class GNHProgram
 			var world = new Mock<IFuturemud>(MockBehavior.Loose) { DefaultValue = DefaultValue.Mock };
 			var saves = new SaveManager();
 			world.SetupGet(x => x.SaveManager).Returns(saves);
-			var cell = new Mock<ICell>(MockBehavior.Loose);
-			cell.SetupGet(x => x.Id).Returns(model.CellId);
-			cell.SetupGet(x => x.Name).Returns($"Land harness cell {model.CellId}");
-			cell.SetupGet(x => x.FrameworkItemType).Returns("Cell");
-			cell.SetupGet(x => x.Gameworld).Returns(world.Object);
-			cell.Setup(x => x.CurrentTemperature(It.IsAny<IPerceiver>())).Returns(20.0);
-			cell.Setup(x => x.CurrentWeather(It.IsAny<IPerceiver>())).Returns(default(IWeatherEvent)!);
-			var cells = new All<ICell>();
-			cells.Add(cell.Object);
-			world.SetupGet(x => x.Cells).Returns(cells);
+			var room = new Mock<IRoom>(MockBehavior.Loose);
+			room.SetupGet(x => x.Id).Returns(model.RoomId);
+			room.SetupGet(x => x.Name).Returns($"Land harness cell {model.RoomId}");
+			room.SetupGet(x => x.FrameworkItemType).Returns("Cell");
+			room.SetupGet(x => x.Gameworld).Returns(world.Object);
+			room.Setup(x => x.CurrentTemperature(It.IsAny<IPerceiver>())).Returns(20.0);
+			room.Setup(x => x.CurrentWeather(It.IsAny<IPerceiver>())).Returns(default(IWeatherEvent)!);
+			var rooms = new All<IRoom>();
+			rooms.Add(room.Object);
+			world.SetupGet(x => x.Rooms).Returns(rooms);
 
 			var profile = new Mock<IAgricultureFieldProfile>();
 			profile.SetupGet(x => x.Id).Returns(profileModel.Id);
@@ -2018,9 +2018,9 @@ internal static partial class GNHProgram
 			world.SetupGet(x => x.Properties).Returns(new All<IProperty>());
 
 			var environment = new Mock<IEnvironmentalMagicService>();
-			environment.Setup(x => x.EvaluateOrganicPenalty(It.IsAny<ICell>(),
+			environment.Setup(x => x.EvaluateOrganicPenalty(It.IsAny<IRoom>(),
 				It.IsAny<NativeOrganicPenaltyChannel>(), It.IsAny<NativeOrganicPenaltyContext>()))
-				.Returns((ICell _, NativeOrganicPenaltyChannel channel, NativeOrganicPenaltyContext _) =>
+				.Returns((IRoom _, NativeOrganicPenaltyChannel channel, NativeOrganicPenaltyContext _) =>
 					channel is NativeOrganicPenaltyChannel.CropHealthRecovery or
 						NativeOrganicPenaltyChannel.CropYieldRecovery or
 						NativeOrganicPenaltyChannel.WoodlandHealthRecovery or
@@ -2033,12 +2033,12 @@ internal static partial class GNHProgram
 			world.SetupGet(x => x.EnvironmentalMagic).Returns(environment.Object);
 
 			var field = new AgricultureField(model, world.Object);
-			cell.SetupGet(x => x.AgricultureField).Returns(field);
+			room.SetupGet(x => x.AgricultureField).Returns(field);
 			var fields = new All<IAgricultureField>();
 			fields.Add(field);
 			world.SetupGet(x => x.AgricultureFields).Returns(fields);
 			var primaryCrop = crops.Get(model.AgricultureFieldCrop?.CropDefinitionId ?? cropModels[0].Id)!;
-			return new NativeOrganicRuntime(world.Object, saves, cell, field, primaryCrop);
+			return new NativeOrganicRuntime(world.Object, saves, room, field, primaryCrop);
 		}
 	}
 

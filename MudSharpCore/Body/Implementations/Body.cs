@@ -276,7 +276,7 @@ public partial class Body : PerceiverItem, IBody
         Changed = true;
     }
 
-    public override ICell Location
+    public override IRoom Location
     {
         get => EmbodiedActor.Location;
         protected set => MoveTo(value, RoomLayer);
@@ -308,7 +308,7 @@ public partial class Body : PerceiverItem, IBody
         remove => EmbodiedActor.OnLocationChangedIntentionally -= value;
     }
 
-    public override void MoveTo(ICell location, RoomLayer layer, ICellExit exit = null, bool noSave = false)
+    public override void MoveTo(IRoom location, RoomLayer layer, IRoomExit exit = null, bool noSave = false)
     {
         EmbodiedActor.MoveTo(location, layer, exit, noSave);
     }

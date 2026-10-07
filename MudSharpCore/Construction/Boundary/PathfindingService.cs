@@ -14,7 +14,7 @@ public class PathfindingService : IPathfindingService
 	private long _nextSnapshotVersion = 1;
 	private TimeSpan _lastBuildDuration;
 	private TimeSpan _lastSliceDuration;
-	private int _lastSliceCellsProcessed;
+	private int _lastSliceRoomsProcessed;
 	private int _lastSliceEdgesScanned;
 
 	public PathfindingService(IFuturemud gameworld)
@@ -22,25 +22,25 @@ public class PathfindingService : IPathfindingService
 		_gameworld = gameworld;
 	}
 
-	public int MaximumCellsPerIdleSlice { get; set; } = 512;
+	public int MaximumRoomsPerIdleSlice { get; set; } = 512;
 
 	public PathfindingServiceDiagnostics Diagnostics => new()
 	{
 		CurrentSnapshotVersion = _snapshot.Version,
 		IsDirty = _dirty,
 		IsBuildQueued = _builder != null || _warmupRequested,
-		SnapshotCellCount = _snapshot.CellCount,
+		SnapshotRoomCount = _snapshot.RoomCount,
 		SnapshotClusterCount = _snapshot.ClusterCount,
 		SnapshotBoundaryEdgeCount = _snapshot.BoundaryEdgeCount,
-		QueuedCellCount = _builder?.QueuedCellCount ?? 0,
-		ProcessedCellCount = _builder?.ProcessedCellCount ?? 0,
-		LastSliceCellsProcessed = _lastSliceCellsProcessed,
+		QueuedRoomCount = _builder?.QueuedRoomCount ?? 0,
+		ProcessedRoomCount = _builder?.ProcessedRoomCount ?? 0,
+		LastSliceRoomsProcessed = _lastSliceRoomsProcessed,
 		LastSliceEdgesScanned = _lastSliceEdgesScanned,
 		LastBuildDuration = _lastBuildDuration,
 		LastSliceDuration = _lastSliceDuration
 	};
 
-	public void InvalidateTopology(ICell changedCell = null)
+	public void InvalidateTopology(IRoom changedRoom = null)
 	{
 		_dirty = true;
 		_warmupRequested = true;
@@ -49,15 +49,15 @@ public class PathfindingService : IPathfindingService
 
 	public void RequestIndexWarmup()
 	{
-		if (_snapshot.Version == 0 || _dirty || HasLiveCellCountChanged())
+		if (_snapshot.Version == 0 || _dirty || HasLiveRoomCountChanged())
 		{
 			_warmupRequested = true;
 		}
 	}
 
-	private bool HasLiveCellCountChanged()
+	private bool HasLiveRoomCountChanged()
 	{
-		return _snapshot.Version > 0 && _snapshot.CellCount != _gameworld.Cells.Count;
+		return _snapshot.Version > 0 && _snapshot.RoomCount != _gameworld.Rooms.Count;
 	}
 
 	public void DoIdleWork(TimeSpan budget)
@@ -69,7 +69,7 @@ public class PathfindingService : IPathfindingService
 
 		if (_builder == null)
 		{
-			if (!_dirty && HasLiveCellCountChanged())
+			if (!_dirty && HasLiveRoomCountChanged())
 			{
 				_dirty = true;
 			}
@@ -83,9 +83,9 @@ public class PathfindingService : IPathfindingService
 			_warmupRequested = false;
 		}
 
-		IndexBuildSlice slice = _builder.DoWork(budget, MaximumCellsPerIdleSlice);
+		IndexBuildSlice slice = _builder.DoWork(budget, MaximumRoomsPerIdleSlice);
 		_lastSliceDuration = slice.Duration;
-		_lastSliceCellsProcessed = slice.CellsProcessed;
+		_lastSliceRoomsProcessed = slice.RoomsProcessed;
 		_lastSliceEdgesScanned = slice.EdgesScanned;
 
 		if (!slice.Completed)
@@ -96,15 +96,15 @@ public class PathfindingService : IPathfindingService
 		_snapshot = slice.Snapshot;
 		_lastBuildDuration = slice.Snapshot.BuildDuration;
 		_builder = null;
-		_dirty = HasLiveCellCountChanged();
+		_dirty = HasLiveRoomCountChanged();
 		_warmupRequested = _dirty;
 	}
 
-	public bool TryFindLongRangePath(ICell source, IReadOnlyCollection<ICell> targets, uint maximumDistance,
-		Func<ICellExit, bool> suitabilityFunction, bool ignoreLayers, PathSearchOptions options,
-		out IReadOnlyList<ICellExit> path)
+	public bool TryFindLongRangePath(IRoom source, IReadOnlyCollection<IRoom> targets, uint maximumDistance,
+		Func<IRoomExit, bool> suitabilityFunction, bool ignoreLayers, PathSearchOptions options,
+		out IReadOnlyList<IRoomExit> path)
 	{
-		path = Array.Empty<ICellExit>();
+		path = Array.Empty<IRoomExit>();
 		if (source == null || targets == null || targets.Count == 0 || suitabilityFunction == null ||
 		    maximumDistance == 0)
 		{
@@ -120,7 +120,7 @@ public class PathfindingService : IPathfindingService
 			return false;
 		}
 
-		List<ICell> targetList = targets
+		List<IRoom> targetList = targets
 		                         .Where(x => x != null)
 		                         .DistinctBy(x => x.Id)
 		                         .ToList();
@@ -140,7 +140,7 @@ public class PathfindingService : IPathfindingService
 
 		if (targetClusters.Contains(sourceCluster))
 		{
-			List<ICellExit> localPath = PerceivedItemExtensions.FindShortestExitPathForPathfinding(source,
+			List<IRoomExit> localPath = PerceivedItemExtensions.FindShortestExitPathForPathfinding(source,
 				targetList, maximumDistance, suitabilityFunction, ignoreLayers);
 			if (localPath.Count > 0)
 			{
@@ -162,7 +162,7 @@ public class PathfindingService : IPathfindingService
 			}
 
 			if (TryAssembleLivePath(source, targetList, route, maximumDistance, suitabilityFunction, ignoreLayers,
-				    options, blockedEdges, out List<ICellExit> assembledPath))
+				    options, blockedEdges, out List<IRoomExit> assembledPath))
 			{
 				path = assembledPath;
 				return true;
@@ -172,30 +172,30 @@ public class PathfindingService : IPathfindingService
 		return false;
 	}
 
-	private bool TryAssembleLivePath(ICell source, IReadOnlyCollection<ICell> targets,
-		IReadOnlyList<AbstractEdge> route, uint maximumDistance, Func<ICellExit, bool> suitabilityFunction,
+	private bool TryAssembleLivePath(IRoom source, IReadOnlyCollection<IRoom> targets,
+		IReadOnlyList<AbstractEdge> route, uint maximumDistance, Func<IRoomExit, bool> suitabilityFunction,
 		bool ignoreLayers, PathSearchOptions options, ISet<AbstractEdgeKey> blockedEdges,
-		out List<ICellExit> path)
+		out List<IRoomExit> path)
 	{
-		path = new List<ICellExit>();
-		ICell current = source;
+		path = new List<IRoomExit>();
+		IRoom current = source;
 		uint remainingDistance = maximumDistance;
 		uint segmentLimit = Math.Max(1, Math.Min(options.MaximumExactSegmentDistance, maximumDistance));
 
 		foreach (AbstractEdge edge in route)
 		{
-			ICell fromCell = _gameworld.Cells.Get(edge.FromCellId);
-			ICell toCell = _gameworld.Cells.Get(edge.ToCellId);
-			if (fromCell == null || toCell == null)
+			IRoom fromRoom = _gameworld.Rooms.Get(edge.FromRoomId);
+			IRoom toRoom = _gameworld.Rooms.Get(edge.ToRoomId);
+			if (fromRoom == null || toRoom == null)
 			{
 				blockedEdges.Add(edge.Key);
 				return false;
 			}
 
-			if (!ReferenceEquals(current, fromCell))
+			if (!ReferenceEquals(current, fromRoom))
 			{
-				List<ICellExit> segment = PerceivedItemExtensions.FindShortestExitPathForPathfinding(current,
-					[fromCell], Math.Min(remainingDistance, segmentLimit), suitabilityFunction, ignoreLayers);
+				List<IRoomExit> segment = PerceivedItemExtensions.FindShortestExitPathForPathfinding(current,
+					[fromRoom], Math.Min(remainingDistance, segmentLimit), suitabilityFunction, ignoreLayers);
 				if (segment.Count == 0)
 				{
 					blockedEdges.Add(edge.Key);
@@ -210,9 +210,9 @@ public class PathfindingService : IPathfindingService
 				}
 			}
 
-			ICellExit liveExit = fromCell
+			IRoomExit liveExit = fromRoom
 			                     .ExitsFor(null, ignoreLayers)
-			                     .FirstOrDefault(x => x.Destination?.Id == toCell.Id && suitabilityFunction(x));
+			                     .FirstOrDefault(x => x.Destination?.Id == toRoom.Id && suitabilityFunction(x));
 			if (liveExit == null)
 			{
 				blockedEdges.Add(edge.Key);
@@ -226,7 +226,7 @@ public class PathfindingService : IPathfindingService
 			}
 
 			remainingDistance = maximumDistance - (uint)path.Count;
-			current = toCell;
+			current = toRoom;
 		}
 
 		if (targets.Any(x => ReferenceEquals(x, current) || x.Id == current.Id))
@@ -234,7 +234,7 @@ public class PathfindingService : IPathfindingService
 			return path.Count <= maximumDistance;
 		}
 
-		List<ICellExit> finalSegment = PerceivedItemExtensions.FindShortestExitPathForPathfinding(current,
+		List<IRoomExit> finalSegment = PerceivedItemExtensions.FindShortestExitPathForPathfinding(current,
 			targets, Math.Min(remainingDistance, segmentLimit), suitabilityFunction, ignoreLayers);
 		if (finalSegment.Count == 0)
 		{
@@ -265,7 +265,7 @@ public class PathfindingService : IPathfindingService
 		private readonly IFuturemud _gameworld;
 		private readonly long _version;
 		private readonly int _bucketSize;
-		private readonly IReadOnlyList<ICell> _cells;
+		private readonly IReadOnlyList<IRoom> _cells;
 		private readonly Stopwatch _buildStopwatch = new();
 		private readonly Dictionary<ClusterKey, int> _clusterIds = new();
 		private readonly Dictionary<long, int> _cellClusters = new();
@@ -277,20 +277,20 @@ public class PathfindingService : IPathfindingService
 			_gameworld = gameworld;
 			_version = version;
 			_bucketSize = bucketSize;
-			_cells = _gameworld.Cells.ToList();
-			QueuedCellCount = _cells.Count;
+			_cells = _gameworld.Rooms.ToList();
+			QueuedRoomCount = _cells.Count;
 			_buildStopwatch.Start();
 		}
 
-		public int QueuedCellCount { get; }
-		public int ProcessedCellCount { get; private set; }
+		public int QueuedRoomCount { get; }
+		public int ProcessedRoomCount { get; private set; }
 
-		public IndexBuildSlice DoWork(TimeSpan budget, int maximumCells)
+		public IndexBuildSlice DoWork(TimeSpan budget, int maximumRooms)
 		{
 			Stopwatch sliceStopwatch = Stopwatch.StartNew();
 			int cellsProcessed = 0;
 			int edgesScanned = 0;
-			while (cellsProcessed < maximumCells && sliceStopwatch.Elapsed < budget)
+			while (cellsProcessed < maximumRooms && sliceStopwatch.Elapsed < budget)
 			{
 				if (_cellIndex >= _cells.Count)
 				{
@@ -298,45 +298,45 @@ public class PathfindingService : IPathfindingService
 					return new IndexBuildSlice
 					{
 						Completed = true,
-						CellsProcessed = cellsProcessed,
+						RoomsProcessed = cellsProcessed,
 						EdgesScanned = edgesScanned,
 						Duration = sliceStopwatch.Elapsed,
 						Snapshot = BuildSnapshot(_buildStopwatch.Elapsed)
 					};
 				}
 
-				edgesScanned += ProcessCell(_cells[_cellIndex++]);
+				edgesScanned += ProcessRoom(_cells[_cellIndex++]);
 				cellsProcessed++;
-				ProcessedCellCount++;
+				ProcessedRoomCount++;
 			}
 
 			return new IndexBuildSlice
 			{
 				Completed = false,
-				CellsProcessed = cellsProcessed,
+				RoomsProcessed = cellsProcessed,
 				EdgesScanned = edgesScanned,
 				Duration = sliceStopwatch.Elapsed
 			};
 		}
 
-		private int ProcessCell(ICell cell)
+		private int ProcessRoom(IRoom room)
 		{
-			if (cell == null || cell.Id == 0)
+			if (room == null || room.Id == 0)
 			{
 				return 0;
 			}
 
-			int clusterId = GetClusterId(ClusterKeyFor(cell));
-			_cellClusters[cell.Id] = clusterId;
+			int clusterId = GetClusterId(ClusterKeyFor(room));
+			_cellClusters[room.Id] = clusterId;
 			int edgeCount = 0;
-			foreach (ICellExit exit in cell.ExitsFor(null, true))
+			foreach (IRoomExit exit in room.ExitsFor(null, true))
 			{
 				if (exit?.Destination == null || exit.Destination.Id == 0)
 				{
 					continue;
 				}
 
-				_topologyEdges.Add(new TopologyEdge(cell.Id, exit.Destination.Id, exit.Exit?.Id ?? 0));
+				_topologyEdges.Add(new TopologyEdge(room.Id, exit.Destination.Id, exit.Exit?.Id ?? 0));
 				edgeCount++;
 			}
 
@@ -355,15 +355,15 @@ public class PathfindingService : IPathfindingService
 			return id;
 		}
 
-		private ClusterKey ClusterKeyFor(ICell cell)
+		private ClusterKey ClusterKeyFor(IRoom room)
 		{
-			if (cell == null)
+			if (room == null)
 			{
-				return new ClusterKey(cell.Zone?.Id ?? 0, (int)(cell.Id / 64), 0, 0);
+				return new ClusterKey(room.Zone?.Id ?? 0, (int)(room.Id / 64), 0, 0);
 			}
 
-			return new ClusterKey(cell.Zone?.Id ?? 0, FloorDiv(cell.StoredCoordinates.X, _bucketSize),
-				FloorDiv(cell.StoredCoordinates.Y, _bucketSize), FloorDiv(cell.StoredCoordinates.Z, _bucketSize));
+			return new ClusterKey(room.Zone?.Id ?? 0, FloorDiv(room.StoredCoordinates.X, _bucketSize),
+				FloorDiv(room.StoredCoordinates.Y, _bucketSize), FloorDiv(room.StoredCoordinates.Z, _bucketSize));
 		}
 
 		private static int FloorDiv(int value, int divisor)
@@ -377,14 +377,14 @@ public class PathfindingService : IPathfindingService
 			HashSet<AbstractEdgeKey> seenEdges = new();
 			foreach (TopologyEdge edge in _topologyEdges)
 			{
-				if (!_cellClusters.TryGetValue(edge.FromCellId, out int fromCluster) ||
-				    !_cellClusters.TryGetValue(edge.ToCellId, out int toCluster) ||
+				if (!_cellClusters.TryGetValue(edge.FromRoomId, out int fromCluster) ||
+				    !_cellClusters.TryGetValue(edge.ToRoomId, out int toCluster) ||
 				    fromCluster == toCluster)
 				{
 					continue;
 				}
 
-				AbstractEdge abstractEdge = new(fromCluster, toCluster, edge.FromCellId, edge.ToCellId, edge.ExitId);
+				AbstractEdge abstractEdge = new(fromCluster, toCluster, edge.FromRoomId, edge.ToRoomId, edge.ExitId);
 				if (!seenEdges.Add(abstractEdge.Key))
 				{
 					continue;
@@ -414,25 +414,25 @@ public class PathfindingService : IPathfindingService
 			int boundaryEdgeCount, TimeSpan buildDuration)
 		{
 			Version = version;
-			CellClusters = cellClusters;
+			RoomClusters = cellClusters;
 			BoundaryEdges = boundaryEdges;
 			ClusterCount = clusterCount;
-			CellCount = cellCount;
+			RoomCount = cellCount;
 			BoundaryEdgeCount = boundaryEdgeCount;
 			BuildDuration = buildDuration;
 		}
 
 		public long Version { get; }
-		public IReadOnlyDictionary<long, int> CellClusters { get; }
+		public IReadOnlyDictionary<long, int> RoomClusters { get; }
 		public IReadOnlyDictionary<int, List<AbstractEdge>> BoundaryEdges { get; }
 		public int ClusterCount { get; }
-		public int CellCount { get; }
+		public int RoomCount { get; }
 		public int BoundaryEdgeCount { get; }
 		public TimeSpan BuildDuration { get; }
 
 		public bool TryGetCluster(long cellId, out int cluster)
 		{
-			return CellClusters.TryGetValue(cellId, out cluster);
+			return RoomClusters.TryGetValue(cellId, out cluster);
 		}
 
 		public List<AbstractEdge> FindClusterRoute(int sourceCluster, ISet<int> targetClusters,
@@ -491,21 +491,21 @@ public class PathfindingService : IPathfindingService
 
 	private readonly record struct ClusterKey(long ZoneId, int X, int Y, int Z);
 
-	private readonly record struct TopologyEdge(long FromCellId, long ToCellId, long ExitId);
+	private readonly record struct TopologyEdge(long FromRoomId, long ToRoomId, long ExitId);
 
-	private readonly record struct AbstractEdge(int FromCluster, int ToCluster, long FromCellId, long ToCellId,
+	private readonly record struct AbstractEdge(int FromCluster, int ToCluster, long FromRoomId, long ToRoomId,
 		long ExitId)
 	{
-		public AbstractEdgeKey Key => new(FromCluster, ToCluster, FromCellId, ToCellId, ExitId);
+		public AbstractEdgeKey Key => new(FromCluster, ToCluster, FromRoomId, ToRoomId, ExitId);
 	}
 
-	private readonly record struct AbstractEdgeKey(int FromCluster, int ToCluster, long FromCellId, long ToCellId,
+	private readonly record struct AbstractEdgeKey(int FromCluster, int ToCluster, long FromRoomId, long ToRoomId,
 		long ExitId);
 
 	private sealed class IndexBuildSlice
 	{
 		public bool Completed { get; init; }
-		public int CellsProcessed { get; init; }
+		public int RoomsProcessed { get; init; }
 		public int EdgesScanned { get; init; }
 		public TimeSpan Duration { get; init; }
 		public PathfindingSnapshot Snapshot { get; init; }

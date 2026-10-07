@@ -19,7 +19,7 @@ public enum RestaurantStorageRole
 	TakeawayBags = 16
 }
 
-public enum RestaurantCellRole
+public enum RestaurantRoomRole
 {
 	Service,
 	Internal,

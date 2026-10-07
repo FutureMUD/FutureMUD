@@ -76,7 +76,7 @@ public class FlareEffect : Effect, IEffect, IAreaLightEffect, IDescriptionAdditi
         }
 
         return voyeur.Location.GetOverlayFor(voyeur).OutdoorsType
-                     .In(CellOutdoorsType.Outdoors, CellOutdoorsType.IndoorsWithWindows);
+                     .In(RoomOutdoorsType.Outdoors, RoomOutdoorsType.IndoorsWithWindows);
     }
 
     public override bool SavingEffect => true;
@@ -86,9 +86,9 @@ public class FlareEffect : Effect, IEffect, IAreaLightEffect, IDescriptionAdditi
         if (Owner is IZone zone)
         {
             EmoteOutput emote = new(new Emote(FlareEndEmote, new DummyPerceiver()));
-            foreach (ICell cell in zone.Cells.Where(x => x.CurrentOverlay.OutdoorsType == CellOutdoorsType.Outdoors))
+            foreach (IRoom room in zone.Rooms.Where(x => x.CurrentOverlay.OutdoorsType == RoomOutdoorsType.Outdoors))
             {
-                cell.Handle(emote);
+                room.Handle(emote);
             }
 
             zone.RecalculateLightLevel();

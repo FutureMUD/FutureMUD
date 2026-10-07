@@ -103,7 +103,7 @@ public class AggressivePatherAI : PathingAIWithProgTargetsBase
         //TODO: With this, AI can find you through doorways it doesn't have direct LOS into, which doesn't seem fair
         //Worth revisiting at some point.
         {
-            foreach (ICharacter tch in ch.Location.CellsInVicinity(range, true, true).Except(ch.Location)
+            foreach (ICharacter tch in ch.Location.RoomsInVicinity(range, true, true).Except(ch.Location)
                                   .SelectMany(x => x.Characters).Shuffle(Constants.Random).ToList())
             {
                 if (CheckForAttack(ch, tch))
@@ -118,7 +118,7 @@ public class AggressivePatherAI : PathingAIWithProgTargetsBase
 
     public override bool HandleEvent(EventType type, params dynamic[] arguments)
     {
-        ICharacter ch = (type == EventType.CharacterEnterCellWitness ?
+        ICharacter ch = (type == EventType.CharacterEnterRoomWitness ?
             arguments[3] :
             arguments[0]) as ICharacter;
         if (ch is null || ch.State.IsDead() || ch.State.IsInStatis())
@@ -131,7 +131,7 @@ public class AggressivePatherAI : PathingAIWithProgTargetsBase
             case EventType.TenSecondTick:
                 ch = (ICharacter)arguments[0];
                 return CheckAllTargetsForAttack(ch);
-            case EventType.CharacterEnterCellWitness:
+            case EventType.CharacterEnterRoomWitness:
                 return CheckForAttack((ICharacter)arguments[0], (ICharacter)arguments[3]);
         }
 
@@ -145,7 +145,7 @@ public class AggressivePatherAI : PathingAIWithProgTargetsBase
             switch (type)
             {
                 case EventType.TenSecondTick:
-                case EventType.CharacterEnterCellWitness:
+                case EventType.CharacterEnterRoomWitness:
                     return true;
             }
         }
@@ -270,27 +270,27 @@ public class AggressivePatherAI : PathingAIWithProgTargetsBase
         RegisterAIBuilderInformation("aggressivepather", (gameworld, name) => new AggressivePatherAI(gameworld, name), new AggressivePatherAI().HelpText);
     }
 
-    protected override (ICell? Target, IEnumerable<ICellExit>) GetPath(ICharacter ch)
+    protected override (IRoom? Target, IEnumerable<IRoomExit>) GetPath(ICharacter ch)
     {
         if (ch.Effects.Any(x => x.IsBlockingEffect("movement")))
         {
-            return (null, Enumerable.Empty<ICellExit>());
+            return (null, Enumerable.Empty<IRoomExit>());
         }
 
-        Tuple<IPerceivable, IEnumerable<ICellExit>> target = ch.AcquireTargetAndPath(GetTargetFunction(ch), 5, GetSuitabilityFunction(ch));
+        Tuple<IPerceivable, IEnumerable<IRoomExit>> target = ch.AcquireTargetAndPath(GetTargetFunction(ch), 5, GetSuitabilityFunction(ch));
         if (target.Item1 != null && target.Item2.Any())
         {
             return (target.Item1.Location, target.Item2);
         }
 
-        ICell location = TargetLocationProg?.Execute<ICell>(ch);
+        IRoom location = TargetLocationProg?.Execute<IRoom>(ch);
         if (location == null || Equals(location, ch.Location))
         {
-            return (null, Enumerable.Empty<ICellExit>());
+            return (null, Enumerable.Empty<IRoomExit>());
         }
 
         // First try to find a path to the primary target
-        IEnumerable<ICellExit> path = ch.PathBetween(location, 12, GetSuitabilityFunction(ch));
+        IEnumerable<IRoomExit> path = ch.PathBetween(location, 12, GetSuitabilityFunction(ch));
         if (path.Any())
         {
             return (location, path);
@@ -306,10 +306,10 @@ public class AggressivePatherAI : PathingAIWithProgTargetsBase
         }
 
         // If we can't find a path to the primary target, check if there is a fallback target
-        location = FallbackLocationProg?.Execute<ICell>(ch);
+        location = FallbackLocationProg?.Execute<IRoom>(ch);
         if (location == null || location == ch.Location)
         {
-            return (null, Enumerable.Empty<ICellExit>());
+            return (null, Enumerable.Empty<IRoomExit>());
         }
 
         path = ch.PathBetween(location, 12, GetSuitabilityFunction(ch));
@@ -330,7 +330,7 @@ public class AggressivePatherAI : PathingAIWithProgTargetsBase
         // If the fallback target can't be reached, see if we can reach of any of the way points
         if (WayPointsProg is not null)
         {
-            path = ch.PathBetween((WayPointsProg.ExecuteCollection<ICell>(ch)).ToList(), 12,
+            path = ch.PathBetween((WayPointsProg.ExecuteCollection<IRoom>(ch)).ToList(), 12,
                 GetSuitabilityFunction(ch));
             if (path.Any())
             {
@@ -339,10 +339,10 @@ public class AggressivePatherAI : PathingAIWithProgTargetsBase
         }
 
 
-        return (null, Enumerable.Empty<ICellExit>());
+        return (null, Enumerable.Empty<IRoomExit>());
     }
 
-	protected override (ICell? Target, ISpatialPath? Path) GetSpatialPath(ICharacter ch)
+	protected override (IRoom? Target, ISpatialPath? Path) GetSpatialPath(ICharacter ch)
 	{
 		if (ch.Effects.Any(x => x.IsBlockingEffect("movement")))
 		{
@@ -363,8 +363,8 @@ public class AggressivePatherAI : PathingAIWithProgTargetsBase
 
 		foreach (var location in new[]
 		{
-			TargetLocationProg?.Execute<ICell>(ch),
-			FallbackLocationProg?.Execute<ICell>(ch)
+			TargetLocationProg?.Execute<IRoom>(ch),
+			FallbackLocationProg?.Execute<IRoom>(ch)
 		}.Where(x => x is not null && !ReferenceEquals(x, ch.Location)))
 		{
 			if (TryFindSpatialPath(ch, location!, 12.0, GetSuitabilityFunction(ch), out var path))

@@ -14,14 +14,14 @@ namespace MudSharp.Framework;
 
 public class DummyPerceiver : DummyPerceivable, IPerceiver
 {
-    public DummyPerceiver(string sdesc = "a thing", string fdesc = "it is a thing", ICell location = null,
+    public DummyPerceiver(string sdesc = "a thing", string fdesc = "it is a thing", IRoom location = null,
         bool sentient = false, double illumination = 0) : base(sdesc, fdesc, location, sentient, illumination)
     {
     }
 
     public int LineFormatLength => 120;
     public int InnerLineFormatLength => 80;
-    public ICellOverlayPackage CurrentOverlayPackage { get; set; }
+    public IRoomOverlayPackage CurrentOverlayPackage { get; set; }
     public PerceptionTypes NaturalPerceptionTypes { get; } = PerceptionTypes.All;
     public bool BriefCombatMode { get; set; }
 
@@ -104,7 +104,7 @@ public class DummyPerceiver : DummyPerceivable, IPerceiver
 
     public virtual IGameItem TargetLocalItem(string keyword)
     {
-        ICellExit targetExit = Location.GetExit(keyword, "", this);
+        IRoomExit targetExit = Location.GetExit(keyword, "", this);
         if (targetExit?.Exit.Door != null)
         {
             return targetExit.Exit.Door.Parent;
@@ -144,28 +144,28 @@ public class DummyPerceiver : DummyPerceivable, IPerceiver
         throw new NotImplementedException();
     }
 
-    public virtual (ICharacter Target, IEnumerable<ICellExit> Path) TargetDistantActor(string keyword,
-        ICellExit initialExit, uint maximumRange,
+    public virtual (ICharacter Target, IEnumerable<IRoomExit> Path) TargetDistantActor(string keyword,
+        IRoomExit initialExit, uint maximumRange,
         bool respectDoors, bool respectCorners)
     {
         IEnumerable<CardinalDirection> permittedDirections = initialExit == null
             ? Constants.CardinalDirections
             : Constants.CardinalDirections.Where(x => !x.IsOpposingDirection(initialExit.OutboundDirection));
-        ICharacter target = this.CellsInVicinity(maximumRange, respectDoors, respectCorners, permittedDirections,
+        ICharacter target = this.RoomsInVicinity(maximumRange, respectDoors, respectCorners, permittedDirections,
                              initialExit?.OutboundDirection ?? CardinalDirection.Unknown)
                          .SelectMany(x => x.Characters)
                          .GetFromItemListByKeyword(keyword, this);
         return (target, this.PathBetween(target, maximumRange, false, false, respectDoors));
     }
 
-    public virtual (IGameItem Target, IEnumerable<ICellExit> Path) TargetDistantItem(string keyword,
-        ICellExit initialExit, uint maximumRange,
+    public virtual (IGameItem Target, IEnumerable<IRoomExit> Path) TargetDistantItem(string keyword,
+        IRoomExit initialExit, uint maximumRange,
         bool respectDoors, bool respectCorners)
     {
         IEnumerable<CardinalDirection> permittedDirections = initialExit == null
             ? Constants.CardinalDirections
             : Constants.CardinalDirections.Where(x => !x.IsOpposingDirection(initialExit.OutboundDirection));
-        IGameItem target = this.CellsInVicinity(maximumRange, respectDoors, respectCorners, permittedDirections,
+        IGameItem target = this.RoomsInVicinity(maximumRange, respectDoors, respectCorners, permittedDirections,
                              initialExit?.OutboundDirection ?? CardinalDirection.Unknown)
                          .SelectMany(x => x.GameItems)
                          .GetFromItemListByKeyword(keyword, this);

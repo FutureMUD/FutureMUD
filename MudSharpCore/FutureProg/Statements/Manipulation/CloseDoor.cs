@@ -135,7 +135,7 @@ internal class CloseDoor : Statement
             return StatementResult.Error;
         }
 
-        ICellExit exit = (ICellExit)ExitFunction.Result;
+        IRoomExit exit = (IRoomExit)ExitFunction.Result;
         if (exit == null)
         {
             ErrorMessage = "Exit was null in Opendoor statement.";

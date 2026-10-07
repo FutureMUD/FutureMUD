@@ -32,8 +32,18 @@ public static partial class SpatialAreaPackageSerializer
 				{
 					if (area.RoomKeys is null || area.RoomKeys.Count == 0)
 						diagnostics.Add(Error("invalid-area-rooms", $"Legacy area '{area.Key}' requires room membership."));
-					else if (area.RoomKeys.Any(x => x is null || !children.ContainsKey(x)))
-						diagnostics.Add(Error("referenced-empty-room", $"Legacy area '{area.Key}' references an empty or missing room; explicit disposition is required."));
+					else
+					{
+						foreach (var key in area.RoomKeys.Where(x => !children.ContainsKey(x)))
+						{
+							var parent = source.Rooms.SingleOrDefault(x => x.Key == key);
+							if (parent is null)
+								diagnostics.Add(Error("orphan-area-room", $"Legacy area '{area.Key}' references missing room '{key}'."));
+							else
+								diagnostics.Add(Warning("empty-room-area-membership-skipped",
+									$"Area '{area.Key}' (source #{area.SourceId}) membership of empty legacy room '{key}' (source #{parent.SourceId}) was removed; the original package retains its provenance."));
+						}
+					}
 				}
 			}
 			if (diagnostics.Any(x => x.Severity == SpatialAreaTransferDiagnosticSeverity.Error))
@@ -41,52 +51,52 @@ public static partial class SpatialAreaPackageSerializer
 
 			var rooms = source.Rooms.ToDictionary(x => x.Key, StringComparer.Ordinal);
 			var legacyZones = Legacy.SpatialAreaPackageSerializer.GetZoneDefinitions(source);
-			var package = new SpatialAreaPackage
+			var package = new LegacyV4.SpatialAreaPackage
 			{
 				CreatedUtc = source.CreatedUtc,
-				Source = CopyWireValue<SpatialAreaPackageSource>(source.Source),
+				Source = CopyWireValue<LegacyV4.SpatialAreaPackageSource>(source.Source),
 				SourceZones = source.Version == 1
-					? [CopyWireValue<SpatialAreaPackageSource>(source.Source)]
-					: CopyWireValue<List<SpatialAreaPackageSource>>(source.SourceZones),
+					? [CopyWireValue<LegacyV4.SpatialAreaPackageSource>(source.Source)]
+					: CopyWireValue<List<LegacyV4.SpatialAreaPackageSource>>(source.SourceZones),
 				Zones = legacyZones.Select((zone, index) =>
 				{
-					var result = CopyWireValue<SpatialZoneDefinition>(zone);
+					var result = CopyWireValue<LegacyV4.SpatialZoneDefinition>(zone);
 					result.Key = Legacy.SpatialAreaPackageSerializer.ZoneKey(source, zone, index);
 					return result;
 				}).ToList(),
 				Cells = source.Cells.Select(cell =>
 				{
 					var room = rooms[cell.RoomKey];
-					return new SpatialCellDefinition
+					return new LegacyV4.SpatialCellDefinition
 					{
 						Key = cell.Key,
 						SourceId = cell.SourceId,
 						ZoneKey = Legacy.SpatialAreaPackageSerializer.RoomZoneKey(source, room),
 						X = room.X, Y = room.Y, Z = room.Z,
-						Overlay = CopyWireValue<SpatialCellOverlayDefinition>(cell.Overlay),
-						ForagableProfile = cell.ForagableProfile is null ? null : CopyWireValue<SpatialNamedReference>(cell.ForagableProfile),
-						Tags = CopyWireValue<List<SpatialNamedReference>>(cell.Tags),
-						RangedCovers = CopyWireValue<List<SpatialNamedReference>>(cell.RangedCovers),
-						MagicResources = CopyWireValue<List<SpatialMagicResourceDefinition>>(cell.MagicResources),
-						RouteCell = cell.RouteCell is null ? null : CopyWireValue<SpatialRouteCellDefinition>(cell.RouteCell)
+						Overlay = CopyWireValue<LegacyV4.SpatialCellOverlayDefinition>(cell.Overlay),
+						ForagableProfile = cell.ForagableProfile is null ? null : CopyWireValue<LegacyV4.SpatialNamedReference>(cell.ForagableProfile),
+						Tags = CopyWireValue<List<LegacyV4.SpatialNamedReference>>(cell.Tags),
+						RangedCovers = CopyWireValue<List<LegacyV4.SpatialNamedReference>>(cell.RangedCovers),
+						MagicResources = CopyWireValue<List<LegacyV4.SpatialMagicResourceDefinition>>(cell.MagicResources),
+						RouteCell = cell.RouteCell is null ? null : CopyWireValue<LegacyV4.SpatialRouteCellDefinition>(cell.RouteCell)
 					};
 				}).ToList(),
-				Exits = CopyWireValue<List<SpatialExitDefinition>>(source.Exits),
-				Areas = source.Areas!.Select(area => new SpatialAreaDefinition
+				Exits = CopyWireValue<List<LegacyV4.SpatialExitDefinition>>(source.Exits),
+				Areas = source.Areas!.Select(area => new LegacyV4.SpatialAreaDefinition
 				{
 					Key = area.Key, SourceId = area.SourceId, Name = area.Name,
-					WeatherController = area.WeatherController is null ? null : CopyWireValue<SpatialNamedReference>(area.WeatherController),
-					CellKeys = area.RoomKeys.Select(x => children[x].Single().Key).ToList()
+					WeatherController = area.WeatherController is null ? null : CopyWireValue<LegacyV4.SpatialNamedReference>(area.WeatherController),
+					CellKeys = area.RoomKeys.Where(children.ContainsKey).Select(x => children[x].Single().Key).ToList()
 				}).ToList(),
-				Omissions = CopyWireValue<List<SpatialPackageOmission>>(source.Omissions)
+				Omissions = CopyWireValue<List<LegacyV4.SpatialPackageOmission>>(source.Omissions)
 			};
-			diagnostics.AddRange(Validate(package));
+			var currentPackage = NormalizeDirectCellPackage(package);
+			diagnostics.AddRange(Validate(currentPackage));
 			if (diagnostics.Any(x => x.Severity == SpatialAreaTransferDiagnosticSeverity.Error))
 				return new SpatialAreaPackageReadResult { Diagnostics = diagnostics };
-			Serialize(package);
 			return new SpatialAreaPackageReadResult
 			{
-				Package = package, Diagnostics = diagnostics,
+				Package = currentPackage, Diagnostics = diagnostics,
 				SourceVersion = source.Version, SourceIntegritySha256 = source.IntegritySha256
 			};
 		}

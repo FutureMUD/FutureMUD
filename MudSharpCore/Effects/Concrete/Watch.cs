@@ -8,13 +8,13 @@ public class Watch : Effect, IRemoteObservationEffect, IScoreAddendumEffect
 {
     public ICharacter CharacterOwner { get; set; }
     public string ExitDescription { get; set; }
-    public ICell CellOwner { get; set; }
+    public IRoom RoomOwner { get; set; }
     public IDoor Door { get; set; }
 
-    public Watch(ICell owner, ICharacter characterOwner, IFutureProg applicabilityProg = null) : base(owner,
+    public Watch(IRoom owner, ICharacter characterOwner, IFutureProg applicabilityProg = null) : base(owner,
         applicabilityProg)
     {
-        CellOwner = owner;
+        RoomOwner = owner;
         ExitDescription = characterOwner.Location.GetExitTo(owner, characterOwner).OutboundDirectionDescription;
         CharacterOwner = characterOwner;
         Door = characterOwner.Location.GetExitTo(owner, characterOwner)?.Exit?.Door;
@@ -65,14 +65,14 @@ public class Watch : Effect, IRemoteObservationEffect, IScoreAddendumEffect
     {
         if (!CharacterState.Conscious.HasFlag(CharacterOwner.State))
         {
-            Owner.EffectsOfType<WatchMaster>().FirstOrDefault()?.RemoveSpiedCell(CellOwner);
+            Owner.EffectsOfType<WatchMaster>().FirstOrDefault()?.RemoveSpiedRoom(RoomOwner);
             Owner.RemoveEffect(this, true);
         }
     }
 
     private void CharacterOwner_OnMoved(object sender, Movement.MoveEventArgs e)
     {
-        Owner.EffectsOfType<WatchMaster>().FirstOrDefault()?.RemoveSpiedCell(CellOwner);
+        Owner.EffectsOfType<WatchMaster>().FirstOrDefault()?.RemoveSpiedRoom(RoomOwner);
         Owner.RemoveEffect(this, true);
     }
 
@@ -85,7 +85,7 @@ public class Watch : Effect, IRemoteObservationEffect, IScoreAddendumEffect
 
     private void CharacterOwner_NoLongerValid(IPerceivable owner)
     {
-        Owner.EffectsOfType<WatchMaster>().FirstOrDefault()?.RemoveSpiedCell(CellOwner);
+        Owner.EffectsOfType<WatchMaster>().FirstOrDefault()?.RemoveSpiedRoom(RoomOwner);
         Owner.RemoveEffect(this, true);
     }
 
@@ -112,19 +112,19 @@ public class Watch : Effect, IRemoteObservationEffect, IScoreAddendumEffect
 
 	public bool Observes(SpatialLocation source)
 	{
-		if (source.Cell.RouteDefinition is null)
+		if (source.Room.RouteDefinition is null)
 		{
 			return true;
 		}
 
-		if (!ReferenceEquals(source.Cell, CellOwner) || !source.RoutePositionMetres.HasValue)
+		if (!ReferenceEquals(source.Room, RoomOwner) || !source.RoutePositionMetres.HasValue)
 		{
 			return false;
 		}
 
-		var watchedExit = CellOwner.GetExitTo(CharacterOwner.Location, CharacterOwner);
+		var watchedExit = RoomOwner.GetExitTo(CharacterOwner.Location, CharacterOwner);
 		if (watchedExit is null ||
-		    !RouteSpatialService.Instance.TryGetExitAnchor(watchedExit, CellOwner, out var anchor))
+		    !RouteSpatialService.Instance.TryGetExitAnchor(watchedExit, RoomOwner, out var anchor))
 		{
 			return false;
 		}
@@ -175,7 +175,7 @@ public class Watch : Effect, IRemoteObservationEffect, IScoreAddendumEffect
         if (!output.Flags.HasFlag(OutputFlags.PurelyAudible))
         {
             Difficulty difficulty = CharacterOwner.Location.Terrain(CharacterOwner).SpotDifficulty
-                                           .Highest(CellOwner.Terrain(CharacterOwner).SpotDifficulty)
+                                           .Highest(RoomOwner.Terrain(CharacterOwner).SpotDifficulty)
                                            .StageUp(CharacterOwner.EffectsOfType<WatchMaster>().First().WatchEffects
                                                                   .Count);
             if (check.Check(CharacterOwner, difficulty).IsFail())
@@ -190,5 +190,5 @@ public class Watch : Effect, IRemoteObservationEffect, IScoreAddendumEffect
 
     public bool ShowInScore => true;
     public bool ShowInHealth => false;
-    public string ScoreAddendum => $"You are watching {CellOwner.HowSeen(CharacterOwner)}.";
+    public string ScoreAddendum => $"You are watching {RoomOwner.HowSeen(CharacterOwner)}.";
 }

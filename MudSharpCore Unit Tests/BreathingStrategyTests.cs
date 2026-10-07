@@ -22,13 +22,13 @@ public class BreathingStrategyTests
 		race.SetupGet(x => x.BreathableFluids).Returns(new IFluid[] { canonicalAtmosphere.Object });
 		race.Setup(x => x.CanBreatheFluid(equivalentAtmosphere.Object)).Returns((true, 1.0));
 
-		var cell = new Mock<ICell>();
-		cell.Setup(x => x.IsUnderwaterLayer(RoomLayer.GroundLevel)).Returns(false);
-		cell.SetupGet(x => x.Atmosphere).Returns(equivalentAtmosphere.Object);
+		var room = new Mock<IRoom>();
+		room.Setup(x => x.IsUnderwaterLayer(RoomLayer.GroundLevel)).Returns(false);
+		room.SetupGet(x => x.Atmosphere).Returns(equivalentAtmosphere.Object);
 
 		var body = new Mock<IBody>();
 		body.SetupGet(x => x.Race).Returns(race.Object);
-		body.SetupGet(x => x.Location).Returns(cell.Object);
+		body.SetupGet(x => x.Location).Returns(room.Object);
 		body.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
 
 		Assert.IsTrue(new PartlessBreather().CanBreathe(body.Object));

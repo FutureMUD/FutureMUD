@@ -114,7 +114,7 @@ internal static partial class GNHProgram
 		long historyId, foreignItem;
 		using (var db = NewIndependentContext(database.ConnectionString))
 		{
-			var history = new Db.CharacterLog { CharacterId = characterId, CellId = fixture.CellId, Command = "archive attribution sentinel", Time = now };
+			var history = new Db.CharacterLog { CharacterId = characterId, RoomId = fixture.RoomId, Command = "archive attribution sentinel", Time = now };
 			db.Set<Db.CharacterLog>().Add(history);
 			db.Wounds.Find(fixture.ExistingWoundId)!.ActorOriginId = characterId;
 			var item = NewLifecycleItem(); db.GameItems.Add(item); db.SaveChanges();
@@ -266,7 +266,7 @@ internal static partial class GNHProgram
 		var clearedMocks = new HashSet<Mock>(ReferenceEqualityComparer.Instance);
 		ClearArchiveFixtureMock(native.WorldMock, clearedMocks);
 		foreach (var value in native.World.Races.Cast<object>().Concat(native.World.BodyPrototypes).Concat(native.World.BodypartPrototypes)
-		         .Concat(native.World.Cultures).Concat(native.World.Cells).Concat(native.World.TraitExpressions))
+		         .Concat(native.World.Cultures).Concat(native.World.Rooms).Concat(native.World.TraitExpressions))
 			if (value is IMocked mocked) ClearArchiveFixtureMock(mocked.Mock, clearedMocks);
 		foreach (var name in new[] { "TotalBloodVolumeProg", "LiverFunctionProg", "MaximumStaminaProg" })
 			ClearArchiveFixtureMock(Mock.Get((IFutureProg)typeof(RuntimeCharacter).GetField(name, BindingFlags.Static | BindingFlags.NonPublic)!.GetValue(null)!), clearedMocks);

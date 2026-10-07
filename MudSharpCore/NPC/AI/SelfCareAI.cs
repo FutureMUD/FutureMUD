@@ -211,7 +211,7 @@ public class SelfCareAI : ArtificialIntelligenceBase
 		ICharacter ch = null;
 		switch (type)
 		{
-			case EventType.CharacterEnterCellFinish:
+			case EventType.CharacterEnterRoomFinish:
 			case EventType.LeaveCombat:
 			case EventType.NoLongerEngagedInMelee:
 			case EventType.BleedTick:
@@ -230,8 +230,8 @@ public class SelfCareAI : ArtificialIntelligenceBase
 
 		switch (type)
 		{
-			case EventType.CharacterEnterCellFinish:
-				return HandleCharacterEnterCellFinish((ICharacter)arguments[0]);
+			case EventType.CharacterEnterRoomFinish:
+				return HandleCharacterEnterRoomFinish((ICharacter)arguments[0]);
 			case EventType.LeaveCombat:
 				return HandleLeaveCombat((ICharacter)arguments[0]);
 			case EventType.NoLongerTargettedInCombat:
@@ -253,7 +253,7 @@ public class SelfCareAI : ArtificialIntelligenceBase
 		{
 			switch (type)
 			{
-				case EventType.CharacterEnterCellFinish:
+				case EventType.CharacterEnterRoomFinish:
 				case EventType.LeaveCombat:
 				case EventType.NoLongerTargettedInCombat:
 				case EventType.NoLongerEngagedInMelee:
@@ -284,16 +284,16 @@ public class SelfCareAI : ArtificialIntelligenceBase
 		return RequiredSelfCare.None;
 	}
 
-	internal static bool CellHasHostileNpcs(ICell cell, ICharacter character)
+	internal static bool RoomHasHostileNpcs(IRoom room, ICharacter character)
 	{
-		return cell?.Characters.Any(x =>
+		return room?.Characters.Any(x =>
 			x != character &&
 			x is INPC npc &&
 			!npc.AffectedBy<IPauseAIEffect>() &&
 			npc.AIs.Any(y => y.CountsAsAggressive)) == true;
 	}
 
-	internal static ICellExit GetSafeExitForSelfCare(ICharacter character)
+	internal static IRoomExit GetSafeExitForSelfCare(ICharacter character)
 	{
 		if (character.Location == null)
 		{
@@ -301,7 +301,7 @@ public class SelfCareAI : ArtificialIntelligenceBase
 		}
 
 		return character.Location.ExitsFor(character, true)
-		                .Where(x => !CellHasHostileNpcs(x.Destination, character))
+		                .Where(x => !RoomHasHostileNpcs(x.Destination, character))
 		                .FirstOrDefault(x => character.CanMove(
 			                    x,
 			                    CanMoveFlags.IgnoreCancellableActionBlockers | CanMoveFlags.IgnoreSafeMovement)
@@ -366,7 +366,7 @@ public class SelfCareAI : ArtificialIntelligenceBase
 
 	private static bool TryMoveToSafeLocationForSelfCare(ICharacter character)
 	{
-		if (character.Location == null || !CellHasHostileNpcs(character.Location, character))
+		if (character.Location == null || !RoomHasHostileNpcs(character.Location, character))
 		{
 			return false;
 		}
@@ -447,7 +447,7 @@ public class SelfCareAI : ArtificialIntelligenceBase
 		return HandleSelfCare(character);
 	}
 
-	private bool HandleCharacterEnterCellFinish(ICharacter character)
+	private bool HandleCharacterEnterRoomFinish(ICharacter character)
 	{
 		return HandleSelfCare(character);
 	}

@@ -50,7 +50,7 @@ internal static class VehicleJourneyFutureProgEvents
 					journey.Route.Id,
 					journey.Service.Id,
 					journey.Vehicle.Id,
-					stop.Location.Cell,
+					stop.Location.Room,
 					stop.Location.RoutePositionMetres ?? -1.0,
 					message);
 				return;

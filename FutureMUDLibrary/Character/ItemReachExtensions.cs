@@ -79,7 +79,7 @@ public static class ItemReachExtensions
 			var installedExit = current.GetItemType<IDoor>()?.InstalledExit;
 			if (actor.Location is null ||
 			    (installedExit is not null
-				    ? !installedExit.Cells.Contains(actor.Location)
+				    ? !installedExit.Rooms.Contains(actor.Location)
 				    : current.Location != actor.Location || current.RoomLayer != actor.RoomLayer))
 			{
 				return (false, $"{item.HowSeen(actor, true)} is too far away for you to reach.");

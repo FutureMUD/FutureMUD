@@ -391,20 +391,20 @@ internal partial class ProgModule
 
 				if (long.TryParse(parText, out long iValue))
 				{
-					var targetCell = actor.Gameworld.Cells.Get(iValue);
-					return ResolveFrameworkItemArgument(actor, targetCell, "location", parameterArgument);
+					var targetRoom = actor.Gameworld.Rooms.Get(iValue);
+					return ResolveFrameworkItemArgument(actor, targetRoom, "location", parameterArgument);
 				}
 				else
 				{
-					var targetCell = RoomBuilderModule.LookupCell(actor.Gameworld, parText);
-					if (targetCell == null)
+					var targetRoom = RoomBuilderModule.LookupRoom(actor.Gameworld, parText);
+					if (targetRoom == null)
 					{
 						actor.OutputHandler.Send(
 							$"There is no such location{parameterArgument}.");
 						return (null, false);
 					}
 
-					return ResolveFrameworkItemArgument(actor, targetCell, "location", parameterArgument);
+					return ResolveFrameworkItemArgument(actor, targetRoom, "location", parameterArgument);
 				}
 
 			case ProgVariableTypeCode.Number:
@@ -646,7 +646,7 @@ internal partial class ProgModule
 
 				return (merch, true);
 			case ProgVariableTypeCode.OverlayPackage:
-				var overlay = actor.Gameworld.CellOverlayPackages.GetByIdOrName(parText);
+				var overlay = actor.Gameworld.RoomOverlayPackages.GetByIdOrName(parText);
 				if (overlay is null)
 				{
 					actor.OutputHandler.Send($"There is no such overlay package{parameterArgument}");

@@ -60,15 +60,15 @@ public class NaturalRangedAttackRuntimeTests
 	}
 
 	[TestMethod]
-	public void BreathScatterVictimSelection_RouteCellExcludesKilometreSeparatedCharacters()
+	public void BreathScatterVictimSelection_RouteRoomExcludesKilometreSeparatedCharacters()
 	{
-		var route = ScatterTestHelpers.CreateRouteCell("long road", 10_000.0);
-		var assailant = ScatterTestHelpers.CreateRouteCharacter(route.Cell.Object, 95.0);
-		var nearby = ScatterTestHelpers.CreateRouteCharacter(route.Cell.Object, 105.0);
-		var distant = ScatterTestHelpers.CreateRouteCharacter(route.Cell.Object, 5_000.0);
+		var route = ScatterTestHelpers.CreateRouteRoom("long road", 10_000.0);
+		var assailant = ScatterTestHelpers.CreateRouteCharacter(route.Room.Object, 95.0);
+		var nearby = ScatterTestHelpers.CreateRouteCharacter(route.Room.Object, 105.0);
+		var distant = ScatterTestHelpers.CreateRouteCharacter(route.Room.Object, 5_000.0);
 		route.Characters.AddRange([assailant.Object, nearby.Object, distant.Object]);
 		var scatter = new RangedScatterResult(
-			route.Cell.Object,
+			route.Room.Object,
 			RoomLayer.GroundLevel,
 			CardinalDirection.Unknown,
 			0,
@@ -83,14 +83,14 @@ public class NaturalRangedAttackRuntimeTests
 	}
 
 	[TestMethod]
-	public void ExplosionScatterVictimSelection_RouteCellExcludesKilometreSeparatedPerceivables()
+	public void ExplosionScatterVictimSelection_RouteRoomExcludesKilometreSeparatedPerceivables()
 	{
-		var route = ScatterTestHelpers.CreateRouteCell("long road", 10_000.0);
-		var nearby = ScatterTestHelpers.CreateRouteCharacter(route.Cell.Object, 105.0);
-		var distant = ScatterTestHelpers.CreateRouteCharacter(route.Cell.Object, 5_000.0);
+		var route = ScatterTestHelpers.CreateRouteRoom("long road", 10_000.0);
+		var nearby = ScatterTestHelpers.CreateRouteCharacter(route.Room.Object, 105.0);
+		var distant = ScatterTestHelpers.CreateRouteCharacter(route.Room.Object, 5_000.0);
 		route.Characters.AddRange([nearby.Object, distant.Object]);
 		var scatter = new RangedScatterResult(
-			route.Cell.Object,
+			route.Room.Object,
 			RoomLayer.GroundLevel,
 			CardinalDirection.Unknown,
 			0,
@@ -107,16 +107,16 @@ public class NaturalRangedAttackRuntimeTests
 	}
 
 	[TestMethod]
-	public void TargetRange_ZeroRangeOnlyAllowsSameCell()
+	public void TargetRange_ZeroRangeOnlyAllowsSameRoom()
 	{
-		var firstCell = new Mock<ICell>();
-		var secondCell = new Mock<ICell>();
+		var firstRoom = new Mock<IRoom>();
+		var secondRoom = new Mock<IRoom>();
 		var assailant = new Mock<ICharacter>();
 		var colocated = new Mock<IPerceivable>();
 		var remote = new Mock<IPerceivable>();
-		assailant.SetupGet(x => x.Location).Returns(firstCell.Object);
-		colocated.SetupGet(x => x.Location).Returns(firstCell.Object);
-		remote.SetupGet(x => x.Location).Returns(secondCell.Object);
+		assailant.SetupGet(x => x.Location).Returns(firstRoom.Object);
+		colocated.SetupGet(x => x.Location).Returns(firstRoom.Object);
+		remote.SetupGet(x => x.Location).Returns(secondRoom.Object);
 
 		Assert.IsTrue(NaturalRangedAttackMoveBase.TargetIsInRange(assailant.Object, colocated.Object, 0));
 		Assert.IsFalse(NaturalRangedAttackMoveBase.TargetIsInRange(assailant.Object, remote.Object, 0));

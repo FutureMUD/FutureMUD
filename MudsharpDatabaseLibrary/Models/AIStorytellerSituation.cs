@@ -11,7 +11,7 @@ public class AIStorytellerSituation
 
     public virtual AIStoryteller AIStoryteller { get; set; }
     public virtual Character ScopeCharacter { get; set; }
-    public virtual Cell ScopeRoom { get; set; }
+    public virtual Room ScopeRoom { get; set; }
     public string Name { get; set; }
     public string SituationText { get; set; }
     public DateTime CreatedOn { get; set; }

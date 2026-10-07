@@ -42,14 +42,14 @@ internal sealed class EnvironmentalMagicTestWorld : IDisposable
 	public Scheduler Scheduler { get; }
 	public EnvironmentalMagicCoordinator Coordinator { get; }
 	public EnvironmentalMagicTestOperationStore Operations { get; }
-	public EnvironmentalMagicTestRegistry<ICell> Cells { get; } = new();
+	public EnvironmentalMagicTestRegistry<IRoom> Rooms { get; } = new();
 	public EnvironmentalMagicTestRegistry<IMagicResource> Resources { get; } = new();
 	public EnvironmentalMagicTestRegistry<IMagicResourceRegenerator> Profiles { get; } = new();
 	public EnvironmentalMagicTestRegistry<IFutureProg> Progs { get; } = new();
 	public EnvironmentalMagicTestRegistry<IAgricultureField> Fields { get; } = new();
 	public EnvironmentalMagicTestRegistry<ITerrain> Terrains { get; } = new();
 	public RevisableAll<IForagableProfile> ForageProfiles { get; } = new();
-	public Dictionary<long, Db.Cell> Models { get; } = new();
+	public Dictionary<long, Db.Room> Models { get; } = new();
 	public Mock<ISaveManager> Saves { get; } = new();
 	public HashSet<ISaveable> PendingSaves { get; } = new();
 	public long SaveRequests { get; private set; }
@@ -63,7 +63,7 @@ internal sealed class EnvironmentalMagicTestWorld : IDisposable
 	private readonly Mock<IZone> _zone = new();
 	private readonly Mock<ICharacter> _builder = new();
 	private readonly Mock<IOutputHandler> _builderOutput = new();
-	private long _nextCellId;
+	private long _nextRoomId;
 
 	public EnvironmentalMagicTestWorld(int count = 1, int outputs = 1, double activePercent = 100.0,
 		string policy = "constant", EnvironmentalMagicOptions? options = null, bool missingBalances = false,
@@ -71,7 +71,7 @@ internal sealed class EnvironmentalMagicTestWorld : IDisposable
 	{
 		Clock = clock ?? new EnvironmentalMagicTestClock();
 		Operations = operations ?? new EnvironmentalMagicTestOperationStore();
-		World.SetupGet(world => world.Cells).Returns(Cells);
+		World.SetupGet(world => world.Rooms).Returns(Rooms);
 		World.SetupGet(world => world.MagicResources).Returns(Resources);
 		World.SetupGet(world => world.MagicResourceRegenerators).Returns(Profiles);
 		World.SetupGet(world => world.FutureProgs).Returns(Progs);
@@ -93,19 +93,19 @@ internal sealed class EnvironmentalMagicTestWorld : IDisposable
 		Scheduler = new Scheduler(Clock);
 		World.SetupGet(world => world.HeartbeatManager).Returns(Heartbeat);
 		World.SetupGet(world => world.Scheduler).Returns(Scheduler);
-		var packages = new RevisableAll<ICellOverlayPackage>();
-		var package = new Mock<ICellOverlayPackage>();
+		var packages = new RevisableAll<IRoomOverlayPackage>();
+		var package = new Mock<IRoomOverlayPackage>();
 		package.SetupGet(value => value.Id).Returns(1);
 		package.SetupGet(value => value.RevisionNumber).Returns(1);
 		package.SetupGet(value => value.Status).Returns(RevisionStatus.Current);
 		packages.Add(package.Object);
-		World.SetupGet(world => world.CellOverlayPackages).Returns(packages);
-		_zone.SetupGet(zone => zone.Cells).Returns(() => Cells);
+		World.SetupGet(world => world.RoomOverlayPackages).Returns(packages);
+		_zone.SetupGet(zone => zone.Rooms).Returns(() => Rooms);
 		_zone.SetupGet(zone => zone.Gameworld).Returns(World.Object);
-		World.Setup(world => world.Destroy(It.IsAny<ICell>())).Callback<ICell>(cell =>
+		World.Setup(world => world.Destroy(It.IsAny<IRoom>())).Callback<IRoom>(room =>
 		{
-			Coordinator!.Unregister(cell);
-			Cells.Remove(cell.Id);
+			Coordinator!.Unregister(room);
+			Rooms.Remove(room.Id);
 		});
 		_builder.SetupGet(actor => actor.Gameworld).Returns(World.Object);
 		_builder.SetupGet(actor => actor.OutputHandler).Returns(_builderOutput.Object);
@@ -145,7 +145,7 @@ internal sealed class EnvironmentalMagicTestWorld : IDisposable
 		World.SetupGet(world => world.EnvironmentalMagic).Returns(Coordinator);
 		for (var i = 0; i < count; i++)
 		{
-			CreateCell(missingBalances ? null : i < count * activePercent / 100.0 ? 0.0 : 100.0);
+			CreateRoom(missingBalances ? null : i < count * activePercent / 100.0 ? 0.0 : 100.0);
 		}
 		if (start) Start();
 		ResetSavedFlags();
@@ -157,36 +157,36 @@ internal sealed class EnvironmentalMagicTestWorld : IDisposable
 		Coordinator.Initialise();
 	}
 
-	public Cell CreateCell(double? balance = 0.0, EnvironmentalMagicBindingMode binding = EnvironmentalMagicBindingMode.Inherit,
+	public Room CreateRoom(double? balance = 0.0, EnvironmentalMagicBindingMode binding = EnvironmentalMagicBindingMode.Inherit,
 		long? profileId = null, long? id = null)
 	{
-		var cellId = id ?? ++_nextCellId;
-		_nextCellId = Math.Max(_nextCellId, cellId);
-		var model = new Db.Cell
+		var cellId = id ?? ++_nextRoomId;
+		_nextRoomId = Math.Max(_nextRoomId, cellId);
+		var model = new Db.Room
 		{
 			Id = cellId, CurrentOverlayId = cellId, EnvironmentalMagicBindingMode = (int)binding,
 			EnvironmentalMagicProfileId = profileId, EffectData = "<Effects/>"
 		};
-		model.CellOverlays.Add(new Db.CellOverlay
+		model.RoomOverlays.Add(new Db.RoomOverlay
 		{
-			Id = cellId, CellId = cellId, CellName = $"Test Cell {cellId}", CellDescription = "Test environment.",
-			TerrainId = Terrain.Id, CellOverlayPackageId = 1, CellOverlayPackageRevisionNumber = 1,
+			Id = cellId, RoomId = cellId, RoomName = $"Test Cell {cellId}", RoomDescription = "Test environment.",
+			TerrainId = Terrain.Id, RoomOverlayPackageId = 1, RoomOverlayPackageRevisionNumber = 1,
 			AmbientLightFactor = 1.0
 		});
 		if (balance.HasValue)
 			foreach (var resource in Resources)
-				model.CellsMagicResources.Add(new Db.CellMagicResource { CellId = cellId, MagicResourceId = resource.Id, Amount = balance.Value });
-		return LoadCell(model);
+				model.RoomsMagicResources.Add(new Db.RoomMagicResource { RoomId = cellId, MagicResourceId = resource.Id, Amount = balance.Value });
+		return LoadRoom(model);
 	}
 
-	public Cell LoadCell(Db.Cell model)
+	public Room LoadRoom(Db.Room model)
 	{
-		var cell = new Cell(model, _zone.Object);
-		cell.PostLoadTasks(model);
-		Cells.Add(cell);
-		Models[cell.Id] = model;
-		Operations.Models[cell.Id] = model;
-		return cell;
+		var room = new Room(model, _zone.Object);
+		room.PostLoadTasks(model);
+		Rooms.Add(room);
+		Models[room.Id] = model;
+		Operations.Models[room.Id] = model;
+		return room;
 	}
 
 	public Terrain AddTerrain(long id, long? environmentalProfile, long forageProfile = 0)
@@ -259,7 +259,7 @@ internal sealed class EnvironmentalMagicTestWorld : IDisposable
 	}
 
 	public double Balance(int index = 0, long resourceId = 1) =>
-		((Cell)Cells.At(index)).MagicResourceAmounts.GetValueOrDefault(Resources.Get(resourceId)!);
+		((Room)Rooms.At(index)).MagicResourceAmounts.GetValueOrDefault(Resources.Get(resourceId)!);
 
 	public void Edit(string command)
 	{
@@ -267,24 +267,24 @@ internal sealed class EnvironmentalMagicTestWorld : IDisposable
 			throw new InvalidOperationException($"Rejected environmental test command: {command}");
 	}
 
-	public Db.Cell Snapshot(Cell cell)
+	public Db.Room Snapshot(Room room)
 	{
-		var model = Models[cell.Id];
-		foreach (var resource in cell.MagicResourceAmounts.Keys)
-			if (!model.CellsMagicResources.Any(value => value.MagicResourceId == resource.Id))
-				model.CellsMagicResources.Add(new Db.CellMagicResource { CellId = cell.Id, MagicResourceId = resource.Id });
-		cell.SaveMagic(model);
-		typeof(Cell).GetMethod("SaveEnvironment", BindingFlags.NonPublic | BindingFlags.Instance)!.Invoke(cell, new object[] { model });
+		var model = Models[room.Id];
+		foreach (var resource in room.MagicResourceAmounts.Keys)
+			if (!model.RoomsMagicResources.Any(value => value.MagicResourceId == resource.Id))
+				model.RoomsMagicResources.Add(new Db.RoomMagicResource { RoomId = room.Id, MagicResourceId = resource.Id });
+		room.SaveMagic(model);
+		typeof(Room).GetMethod("SaveEnvironment", BindingFlags.NonPublic | BindingFlags.Instance)!.Invoke(room, new object[] { model });
 		return model;
 	}
 
 	public void ResetSavedFlags()
 	{
-		foreach (var cell in Cells.Cast<Cell>())
+		foreach (var room in Rooms.Cast<Room>())
 		{
-			cell.Changed = false;
-			cell.ResourcesChanged = false;
-			cell.YieldsChanged = false;
+			room.Changed = false;
+			room.ResourcesChanged = false;
+			room.YieldsChanged = false;
 		}
 		PendingSaves.Clear();
 		SaveRequests = 0;
@@ -350,7 +350,7 @@ internal sealed class EnvironmentalMagicTestOperationStore : IEnvironmentalMagic
 	{
 		TreatmentReads++;
 		if (FailRead) throw new InvalidOperationException("Test treatment read failure");
-		return Treatments.Values.Where(x => x.CellId == cellId).ToArray();
+		return Treatments.Values.Where(x => x.RoomId == cellId).ToArray();
 	}
 	public void SaveTreatment(LandRejuvenationProgress progress, long? expectedRevision)
 	{
@@ -359,7 +359,7 @@ internal sealed class EnvironmentalMagicTestOperationStore : IEnvironmentalMagic
 			throw new InvalidOperationException("Test treatment checkpoint concurrency conflict");
 		Treatments[progress.Id] = progress;
 	}
-	public void CommitRepair(Cell cell, EnvironmentalMagicOperationRequest request, EnvironmentalMagicOperationResult result,
+	public void CommitRepair(Room room, EnvironmentalMagicOperationRequest request, EnvironmentalMagicOperationResult result,
 		EnvironmentalMagicState state, DateTimeOffset atUtc, IReadOnlyDictionary<IMagicResource, double> balances,
 		LandRejuvenationProgress progress, long expectedRevision)
 	{
@@ -369,7 +369,7 @@ internal sealed class EnvironmentalMagicTestOperationStore : IEnvironmentalMagic
 		FailAfterCommit = false;
 		try
 		{
-			Commit(cell, request, result, state, atUtc, balances);
+			Commit(room, request, result, state, atUtc, balances);
 			Treatments[progress.Id] = progress;
 		}
 		finally { FailAfterCommit = loseAck; }
@@ -378,12 +378,12 @@ internal sealed class EnvironmentalMagicTestOperationStore : IEnvironmentalMagic
 	public Dictionary<Guid, StoredEnvironmentalMagicOperation> Receipts { get; } = new();
 	public Dictionary<long, EnvironmentalMagicState> PersistedStates { get; } = new();
 	public Dictionary<long, IReadOnlyDictionary<long, double>> PersistedResourceAmounts { get; } = new();
-	public Dictionary<long, Db.Cell> Models { get; } = new();
+	public Dictionary<long, Db.Room> Models { get; } = new();
 	public bool FailCommit { get; set; }
 	public bool FailAfterCommit { get; set; }
 	public bool FailAfterClaim { get; set; }
 	public bool FailRead { get; set; }
-	public Action<Cell>? BeforeCommit { get; set; }
+	public Action<Room>? BeforeCommit { get; set; }
 	public int Reads { get; private set; }
 	public int Commits { get; private set; }
 	public StoredEnvironmentalMagicOperation? Find(Guid operationId)
@@ -392,41 +392,41 @@ internal sealed class EnvironmentalMagicTestOperationStore : IEnvironmentalMagic
 		if (FailRead) throw new InvalidOperationException("Test persistence read failure");
 		return Receipts.GetValueOrDefault(operationId);
 	}
-	public StoredEnvironmentalMagicState Load(Cell cell)
+	public StoredEnvironmentalMagicState Load(Room room)
 	{
 		if (FailRead) throw new InvalidOperationException("Test persistence read failure");
-		return new(PersistedStates.GetValueOrDefault(cell.Id, cell.EnvironmentState),
-			PersistedResourceAmounts.GetValueOrDefault(cell.Id) ?? cell.MagicResourceAmounts.ToDictionary(value => value.Key.Id, value => value.Value),
-			PersistedStates.ContainsKey(cell.Id));
+		return new(PersistedStates.GetValueOrDefault(room.Id, room.EnvironmentState),
+			PersistedResourceAmounts.GetValueOrDefault(room.Id) ?? room.MagicResourceAmounts.ToDictionary(value => value.Key.Id, value => value.Value),
+			PersistedStates.ContainsKey(room.Id));
 	}
-	public void Commit(Cell cell, EnvironmentalMagicOperationRequest request, EnvironmentalMagicOperationResult result,
+	public void Commit(Room room, EnvironmentalMagicOperationRequest request, EnvironmentalMagicOperationResult result,
 		EnvironmentalMagicState state, DateTimeOffset atUtc,
 		IReadOnlyDictionary<IMagicResource, double>? resourceAmounts = null)
 	{
-		BeforeCommit?.Invoke(cell);
+		BeforeCommit?.Invoke(room);
 		if (FailCommit) throw new InvalidOperationException("Test persistence failure");
-		typeof(Cell).GetMethod("BeginEnvironmentalOperation", BindingFlags.Instance | BindingFlags.NonPublic)!
-			.Invoke(cell, new object[] { request.OperationId });
+		typeof(Room).GetMethod("BeginEnvironmentalOperation", BindingFlags.Instance | BindingFlags.NonPublic)!
+			.Invoke(room, new object[] { request.OperationId });
 		if (FailAfterClaim) throw new InvalidOperationException("Test transaction rolled back after claiming operation");
 		Commits++;
-		Receipts.Add(request.OperationId, new StoredEnvironmentalMagicOperation(cell.Id, request, result));
-		PersistedStates[cell.Id] = state;
-		var balances = cell.MagicResourceAmounts.ToDictionary(value => value.Key.Id, value => value.Value);
+		Receipts.Add(request.OperationId, new StoredEnvironmentalMagicOperation(room.Id, request, result));
+		PersistedStates[room.Id] = state;
+		var balances = room.MagicResourceAmounts.ToDictionary(value => value.Key.Id, value => value.Value);
 		if (resourceAmounts is not null)
 			foreach (var (resource, amount) in resourceAmounts) balances[resource.Id] = amount;
-		PersistedResourceAmounts[cell.Id] = balances;
-		if (Models.TryGetValue(cell.Id, out var model))
+		PersistedResourceAmounts[room.Id] = balances;
+		if (Models.TryGetValue(room.Id, out var model))
 		{
-			model.EnvironmentalState ??= new Db.CellEnvironmentalState { CellId = cell.Id, Cell = model };
-			typeof(Cell).GetMethod("CopyEnvironmentState", BindingFlags.Static | BindingFlags.NonPublic)!
+			model.EnvironmentalState ??= new Db.RoomEnvironmentalState { RoomId = room.Id, Room = model };
+			typeof(Room).GetMethod("CopyEnvironmentState", BindingFlags.Static | BindingFlags.NonPublic)!
 				.Invoke(null, new object[] { state, model.EnvironmentalState });
 			foreach (var (resourceId, amount) in balances)
 			{
-				var row = model.CellsMagicResources.FirstOrDefault(value => value.MagicResourceId == resourceId);
+				var row = model.RoomsMagicResources.FirstOrDefault(value => value.MagicResourceId == resourceId);
 				if (row is null)
 				{
-					row = new Db.CellMagicResource { CellId = cell.Id, MagicResourceId = resourceId };
-					model.CellsMagicResources.Add(row);
+					row = new Db.RoomMagicResource { RoomId = room.Id, MagicResourceId = resourceId };
+					model.RoomsMagicResources.Add(row);
 				}
 				row.Amount = amount;
 			}

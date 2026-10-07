@@ -147,20 +147,20 @@ public partial class CreateItemEffect : IMagicSpellEffectTemplate, IMagicSpellEf
             return null;
         }
 
-        if (target is ICell cell)
+        if (target is IRoom room)
         {
             IEnumerable<IGameItem> items = prototype.CreateNew(caster, skin, Quantity, LoadString);
             foreach (IGameItem item in items)
             {
                 item.SetOwner(caster);
-                if (ReferenceEquals(caster.Location, cell))
+                if (ReferenceEquals(caster.Location, room))
                 {
                     item.RoomLayer = caster.RoomLayer;
                     item.InsertAtSource(caster, true);
                 }
                 else
                 {
-                    cell.Insert(item, true);
+                    room.Insert(item, true);
                 }
                 item.HandleEvent(EventType.ItemFinishedLoading, item);
                 item.Login();

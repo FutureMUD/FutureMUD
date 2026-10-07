@@ -389,14 +389,14 @@ public sealed class SpellCorpsePossessionEffect : SimpleSpellStatusEffectBase, I
 		RemovalEffect();
 	}
 
-	private void RestoreCorpseItem(ICharacter? animated, ICell? animatedLocation, RoomLayer? animatedLayer)
+	private void RestoreCorpseItem(ICharacter? animated, IRoom? animatedLocation, RoomLayer? animatedLayer)
 	{
 		if (Owner is not IGameItem corpse || corpse.Location is not null)
 		{
 			return;
 		}
 
-		var location = animatedLocation ?? Gameworld.Cells.Get(OriginalLocationId);
+		var location = animatedLocation ?? Gameworld.Rooms.Get(OriginalLocationId);
 		if (location is null)
 		{
 			Gameworld.SystemMessage(
@@ -746,14 +746,14 @@ public sealed class SpellAnimatedCorpseEffect : SimpleSpellStatusEffectBase, IAn
 		RemovalEffect();
 	}
 
-	private void RestoreCorpseItem(ICharacter? animated, ICell? animatedLocation, RoomLayer? animatedLayer)
+	private void RestoreCorpseItem(ICharacter? animated, IRoom? animatedLocation, RoomLayer? animatedLayer)
 	{
 		if (Owner is not IGameItem corpse || corpse.Location is not null)
 		{
 			return;
 		}
 
-		var location = animatedLocation ?? Gameworld.Cells.Get(OriginalLocationId);
+		var location = animatedLocation ?? Gameworld.Rooms.Get(OriginalLocationId);
 		if (location is null)
 		{
 			Gameworld.SystemMessage(

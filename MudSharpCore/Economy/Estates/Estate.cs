@@ -241,12 +241,12 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
         return gameworld.AlwaysFalseProg;
     }
 
-    public static IEconomicZone DetermineZone(IFuturemud gameworld, ICell cell)
+    public static IEconomicZone DetermineZone(IFuturemud gameworld, IRoom room)
     {
-        return gameworld.Properties.FirstOrDefault(x => x.PropertyLocations.Contains(cell))?.EconomicZone ??
-               gameworld.Banks.FirstOrDefault(x => x.BranchLocations.Contains(cell))?.EconomicZone ??
-               gameworld.AuctionHouses.FirstOrDefault(x => x.AuctionHouseCell == cell)?.EconomicZone ??
-               gameworld.EconomicZones.FirstOrDefault(x => x.ZoneForTimePurposes == cell.Zone);
+        return gameworld.Properties.FirstOrDefault(x => x.PropertyLocations.Contains(room))?.EconomicZone ??
+               gameworld.Banks.FirstOrDefault(x => x.BranchLocations.Contains(room))?.EconomicZone ??
+               gameworld.AuctionHouses.FirstOrDefault(x => x.AuctionHouseRoom == room)?.EconomicZone ??
+               gameworld.EconomicZones.FirstOrDefault(x => x.ZoneForTimePurposes == room.Zone);
     }
 
     public Estate(MudSharp.Models.Estate estate, IFuturemud gameworld)

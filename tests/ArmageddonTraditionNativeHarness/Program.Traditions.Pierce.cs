@@ -78,8 +78,8 @@ internal static partial class GNHProgram
 		var terrain = Mock.Get(native.Actor.Location.CurrentOverlay.Terrain);
 		terrain.SetupGet(x => x.Type).Returns(ProgVariableTypes.Terrain); terrain.SetupGet(x => x.GetObject).Returns(terrain.Object);
 		terrain.SetupGet(x => x.Name).Returns(name); terrain.Setup(x => x.GetProperty("name")).Returns(new TextVariable(name));
-		var cell = Mock.Get(native.Actor.Location); cell.SetupGet(x => x.Type).Returns(ProgVariableTypes.Location);
-		cell.SetupGet(x => x.GetObject).Returns(native.Actor.Location); cell.Setup(x => x.GetProperty("terrain")).Returns(terrain.Object);
+		var room = Mock.Get(native.Actor.Location); room.SetupGet(x => x.Type).Returns(ProgVariableTypes.Location);
+		room.SetupGet(x => x.GetObject).Returns(native.Actor.Location); room.Setup(x => x.GetProperty("terrain")).Returns(terrain.Object);
 	}
 	private static void InstalledPierceReserve(NativeRuntime native, TestDatabase database, bool author)
 	{

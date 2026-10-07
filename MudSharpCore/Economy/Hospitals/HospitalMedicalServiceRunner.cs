@@ -1900,7 +1900,7 @@ public static class HospitalMedicalServiceRunner
 	{
 		if (request.Service.ServiceType is not (HospitalServiceType.BloodDonation or HospitalServiceType.BloodTransfusion or HospitalServiceType.Stabilisation or HospitalServiceType.FullTreatment) ||
 		    !bagIds.Any() ||
-		    request.OperatingTheatreCellId is not { } theatreId ||
+		    request.OperatingTheatreRoomId is not { } theatreId ||
 		    request.Hospital.OperatingTheatres.FirstOrDefault(x => x.Id == theatreId) is not { } theatre ||
 		    request.Hospital.SupplyRooms.FirstOrDefault() is not { } supplyRoom ||
 		    supplyRoom.Id == theatre.Id)
@@ -1961,7 +1961,7 @@ public static class HospitalMedicalServiceRunner
 	private static IEnumerable<IGameItem> CandidateHospitalItems(IEmploymentTaskContext context,
 		ICharacter employee, IHospitalServiceRequest request)
 	{
-		var theatre = request.OperatingTheatreCellId is { } theatreId
+		var theatre = request.OperatingTheatreRoomId is { } theatreId
 			? request.Hospital.OperatingTheatres.FirstOrDefault(x => x.Id == theatreId)
 			: null;
 		var theatreItems = theatre is null

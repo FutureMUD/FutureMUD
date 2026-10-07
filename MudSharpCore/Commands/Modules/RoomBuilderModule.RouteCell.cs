@@ -15,7 +15,7 @@ namespace MudSharp.Commands.Modules;
 
 internal partial class RoomBuilderModule
 {
-	private const string RouteCellSetHelp = @"RouteCell authoring commands:
+	private const string RouteRoomSetHelp = @"RouteCell authoring commands:
 
 	#3cell set route create <length>#0
 	#3cell set route clear#0
@@ -30,17 +30,17 @@ internal partial class RoomBuilderModule
 	#3cell set route map#0
 	#3cell set route validate#0";
 
-	private static void CellSetRoute(ICharacter actor, StringStack command)
+	private static void RoomSetRoute(ICharacter actor, StringStack command)
 	{
 		if (command.IsFinished || command.Peek().EqualTo("help") || command.Peek().EqualTo("?"))
 		{
-			actor.OutputHandler.Send(RouteCellSetHelp.SubstituteANSIColour());
+			actor.OutputHandler.Send(RouteRoomSetHelp.SubstituteANSIColour());
 			return;
 		}
 
-		if (actor.Location is not MudSharp.Construction.Cell cell)
+		if (actor.Location is not MudSharp.Construction.Room room)
 		{
-			actor.OutputHandler.Send("This cell implementation cannot host RouteCell geometry.");
+			actor.OutputHandler.Send("This room implementation cannot host RouteCell geometry.");
 			return;
 		}
 
@@ -48,57 +48,57 @@ internal partial class RoomBuilderModule
 		{
 			case "create":
 			case "new":
-				CellSetRouteCreate(actor, cell, command);
+				RoomSetRouteCreate(actor, room, command);
 				return;
 			case "clear":
 			case "remove":
 			case "delete":
-				CellSetRouteClear(actor, cell);
+				RoomSetRouteClear(actor, room);
 				return;
 			case "length":
-				CellSetRouteLength(actor, cell, command);
+				RoomSetRouteLength(actor, room, command);
 				return;
 			case "default":
-				CellSetRouteDefault(actor, cell, command);
+				RoomSetRouteDefault(actor, room, command);
 				return;
 			case "direction":
-				CellSetRouteDirection(actor, cell, command);
+				RoomSetRouteDirection(actor, room, command);
 				return;
 			case "roomequivalent":
 			case "room-equivalent":
 			case "room":
-				CellSetRouteRoomEquivalent(actor, cell, command);
+				RoomSetRouteRoomEquivalent(actor, room, command);
 				return;
 			case "landmark":
 			case "landmarks":
-				CellSetRouteLandmark(actor, cell, command);
+				RoomSetRouteLandmark(actor, room, command);
 				return;
 			case "exit":
 			case "portal":
-				CellSetRouteExit(actor, cell, command);
+				RoomSetRouteExit(actor, room, command);
 				return;
 			case "show":
 			case "view":
-				CellSetRouteShow(actor, cell);
+				RoomSetRouteShow(actor, room);
 				return;
 			case "map":
-				CellSetRouteMap(actor, cell);
+				RoomSetRouteMap(actor, room);
 				return;
 			case "validate":
 			case "audit":
-				CellSetRouteValidate(actor, cell);
+				RoomSetRouteValidate(actor, room);
 				return;
 			default:
-				actor.OutputHandler.Send(RouteCellSetHelp.SubstituteANSIColour());
+				actor.OutputHandler.Send(RouteRoomSetHelp.SubstituteANSIColour());
 				return;
 		}
 	}
 
-	private static void CellSetRouteCreate(ICharacter actor, MudSharp.Construction.Cell cell, StringStack command)
+	private static void RoomSetRouteCreate(ICharacter actor, MudSharp.Construction.Room room, StringStack command)
 	{
-		if (cell.RouteDefinition is not null)
+		if (room.RouteDefinition is not null)
 		{
-			actor.OutputHandler.Send("This cell is already a RouteCell.");
+			actor.OutputHandler.Send("This room is already a RouteCell.");
 			return;
 		}
 
@@ -109,37 +109,37 @@ internal partial class RoomBuilderModule
 		}
 
 		var blockers = new List<string>();
-		if (cell.Characters.Any(x => !ReferenceEquals(x, actor)))
+		if (room.Characters.Any(x => !ReferenceEquals(x, actor)))
 		{
 			AddRouteMutationBlocker(blockers, "other live characters");
 		}
 
-		if (cell.GameItems.Any())
+		if (room.GameItems.Any())
 		{
 			AddRouteMutationBlocker(blockers, "top-level items");
 		}
 
-		if (actor.Gameworld.Vehicles.Any(x => ReferenceEquals(x.Location, cell)))
+		if (actor.Gameworld.Vehicles.Any(x => ReferenceEquals(x.Location, room)))
 		{
 			AddRouteMutationBlocker(blockers, "vehicles");
 		}
 
-		if (cell.LocalProjects.Any())
+		if (room.LocalProjects.Any())
 		{
 			AddRouteMutationBlocker(blockers, "projects");
 		}
 
-		if (cell.Tracks.Any())
+		if (room.Tracks.Any())
 		{
 			AddRouteMutationBlocker(blockers, "tracks");
 		}
 
-		if (cell.HasPointSurfaceLiquid)
+		if (room.HasPointSurfaceLiquid)
 		{
 			AddRouteMutationBlocker(blockers, "coordinate-bound surface liquid");
 		}
 
-		if (actor.Gameworld.ExitManager.GetAllExits(cell).Any())
+		if (actor.Gameworld.ExitManager.GetAllExits(room).Any())
 		{
 			AddRouteMutationBlocker(blockers, "unanchored exits");
 		}
@@ -148,7 +148,7 @@ internal partial class RoomBuilderModule
 		using (new FMDB())
 		using (var transaction = FMDB.Context.Database.BeginTransaction(IsolationLevel.Serializable))
 		{
-			var persisted = RouteCellMutationSafety.InspectOccupancy(FMDB.Context, cell.Id, actorIdentity);
+			var persisted = RouteRoomMutationSafety.InspectOccupancy(FMDB.Context, room.Id, actorIdentity);
 			if (persisted.HasOtherCharacters)
 			{
 				AddRouteMutationBlocker(blockers, "other persisted character locations");
@@ -177,13 +177,13 @@ internal partial class RoomBuilderModule
 			if (blockers.Any())
 			{
 				actor.OutputHandler.Send(
-					$"This cell cannot become a RouteCell while it contains {blockers.ListToString()}. Clear those blockers first.");
+					$"This room cannot become a RouteCell while it contains {blockers.ListToString()}. Clear those blockers first.");
 				return;
 			}
 
-			FMDB.Context.RouteCells.Add(new DB.RouteCell
+			FMDB.Context.RouteRooms.Add(new DB.RouteRoom
 			{
-				CellId = cell.Id,
+				RoomId = room.Id,
 				LengthMetres = ToPersistedMetres(length),
 				DefaultPositionMetres = 0.000M,
 				PositiveDirectionName = "forward",
@@ -192,28 +192,28 @@ internal partial class RoomBuilderModule
 					actor.Gameworld.GetStaticDouble("RouteCellDefaultRoomEquivalentMetres")),
 				TopologyVersion = 1L
 			});
-			RouteCellMutationSafety.PersistActorSpatialState(
+			RouteRoomMutationSafety.PersistActorSpatialState(
 				FMDB.Context,
 				actorIdentity,
-				cell.Id,
+				room.Id,
 				actor.RoomLayer,
 				0.0);
 			FMDB.Context.SaveChanges();
 			transaction.Commit();
 		}
 
-		ReloadRouteDefinition(cell);
+		ReloadRouteDefinition(room);
 		SetCommittedActorRoutePosition(actor, 0.0);
 		actor.OutputHandler.Send(
-			$"You convert this cell into a {DescribeRouteMetres(actor, length).ColourValue()} linear RouteCell at topology version {1L.ToString("N0", actor).ColourValue()}.");
+			$"You convert this room into a {DescribeRouteMetres(actor, length).ColourValue()} linear RouteCell at topology version {1L.ToString("N0", actor).ColourValue()}.");
 	}
 
-	private static void CellSetRouteClear(ICharacter actor, MudSharp.Construction.Cell cell)
+	private static void RoomSetRouteClear(ICharacter actor, MudSharp.Construction.Room room)
 	{
-		var route = cell.RouteDefinition;
+		var route = room.RouteDefinition;
 		if (route is null)
 		{
-			actor.OutputHandler.Send("This is already an ordinary cell.");
+			actor.OutputHandler.Send("This is already an ordinary room.");
 			return;
 		}
 
@@ -221,7 +221,7 @@ internal partial class RoomBuilderModule
 		using (new FMDB())
 		using (var transaction = FMDB.Context.Database.BeginTransaction(IsolationLevel.Serializable))
 		{
-			var blockers = RouteRemovalBlockers(actor, cell, route, FMDB.Context);
+			var blockers = RouteRemovalBlockers(actor, room, route, FMDB.Context);
 			if (blockers.Any())
 			{
 				actor.OutputHandler.Send(
@@ -229,59 +229,59 @@ internal partial class RoomBuilderModule
 				return;
 			}
 
-			RouteCellMutationSafety.PersistActorSpatialState(
+			RouteRoomMutationSafety.PersistActorSpatialState(
 				FMDB.Context,
 				actorIdentity,
-				cell.Id,
+				room.Id,
 				actor.RoomLayer,
 				null);
-			var dbroute = FMDB.Context.RouteCells.Find(cell.Id);
+			var dbroute = FMDB.Context.RouteRooms.Find(room.Id);
 			if (dbroute is not null)
 			{
-				FMDB.Context.RouteCells.Remove(dbroute);
+				FMDB.Context.RouteRooms.Remove(dbroute);
 			}
 			FMDB.Context.SaveChanges();
 			transaction.Commit();
 		}
 
-		cell.ReloadRouteDefinition(null);
+		room.ReloadRouteDefinition(null);
 		SetCommittedActorRoutePosition(actor, null);
-		actor.OutputHandler.Send("You clear the RouteCell geometry. This is now an ordinary cell.");
+		actor.OutputHandler.Send("You clear the RouteCell geometry. This is now an ordinary room.");
 	}
 
 	private static List<string> RouteRemovalBlockers(
 		ICharacter actor,
-		MudSharp.Construction.Cell cell,
-		IRouteCellDefinition route,
+		MudSharp.Construction.Room room,
+		IRouteRoomDefinition route,
 		FuturemudDatabaseContext context)
 	{
 		var blockers = new List<string>();
-		if (cell.Characters.Any(x => !ReferenceEquals(x, actor)))
+		if (room.Characters.Any(x => !ReferenceEquals(x, actor)))
 		{
 			AddRouteMutationBlocker(blockers, "other live characters");
 		}
 
-		if (cell.GameItems.Any())
+		if (room.GameItems.Any())
 		{
 			AddRouteMutationBlocker(blockers, "top-level items");
 		}
 
-		if (actor.Gameworld.Vehicles.Any(x => ReferenceEquals(x.Location, cell)))
+		if (actor.Gameworld.Vehicles.Any(x => ReferenceEquals(x.Location, room)))
 		{
 			AddRouteMutationBlocker(blockers, "vehicles");
 		}
 
-		if (cell.LocalProjects.Any())
+		if (room.LocalProjects.Any())
 		{
 			AddRouteMutationBlocker(blockers, "projects");
 		}
 
-		if (cell.Tracks.Any())
+		if (room.Tracks.Any())
 		{
 			AddRouteMutationBlocker(blockers, "tracks");
 		}
 
-		if (cell.HasPointSurfaceLiquid)
+		if (room.HasPointSurfaceLiquid)
 		{
 			AddRouteMutationBlocker(blockers, "coordinate-bound surface liquid");
 		}
@@ -296,9 +296,9 @@ internal partial class RoomBuilderModule
 			AddRouteMutationBlocker(blockers, "anchored exits");
 		}
 
-		var persisted = RouteCellMutationSafety.InspectOccupancy(
+		var persisted = RouteRoomMutationSafety.InspectOccupancy(
 			context,
-			cell.Id,
+			room.Id,
 			RouteMutationActor(actor));
 		if (persisted.HasOtherCharacters)
 		{
@@ -325,13 +325,13 @@ internal partial class RoomBuilderModule
 			AddRouteMutationBlocker(blockers, "coordinate-bound surface liquid");
 		}
 
-		if (context.ActiveRouteMotions.Any(x => x.RouteCellId == cell.Id))
+		if (context.ActiveRouteMotions.Any(x => x.RouteRoomId == room.Id))
 		{
 			AddRouteMutationBlocker(blockers, "active route motions");
 		}
 
-		if (context.VehicleRouteStops.Any(x => x.CellId == cell.Id) ||
-			context.VehicleRouteTopologyPins.Any(x => x.RouteCellId == cell.Id))
+		if (context.VehicleRouteStops.Any(x => x.RoomId == room.Id) ||
+			context.VehicleRouteTopologyPins.Any(x => x.RouteRoomId == room.Id))
 		{
 			AddRouteMutationBlocker(blockers, "vehicle routes, stops, services, or journeys");
 		}
@@ -339,9 +339,9 @@ internal partial class RoomBuilderModule
 		return blockers;
 	}
 
-	private static void CellSetRouteLength(ICharacter actor, MudSharp.Construction.Cell cell, StringStack command)
+	private static void RoomSetRouteLength(ICharacter actor, MudSharp.Construction.Room room, StringStack command)
 	{
-		if (!RequireRoute(actor, cell, out var route))
+		if (!RequireRoute(actor, room, out var route))
 		{
 			return;
 		}
@@ -357,7 +357,7 @@ internal partial class RoomBuilderModule
 		{
 			if (length < route.LengthMetres)
 			{
-				var blockers = RouteLengthBlockers(actor, cell, route, length, FMDB.Context);
+				var blockers = RouteLengthBlockers(actor, room, route, length, FMDB.Context);
 				if (blockers.Any())
 				{
 					actor.OutputHandler.Send(
@@ -366,22 +366,22 @@ internal partial class RoomBuilderModule
 				}
 			}
 
-			var dbroute = FMDB.Context.RouteCells.Single(x => x.CellId == cell.Id);
+			var dbroute = FMDB.Context.RouteRooms.Single(x => x.RoomId == room.Id);
 			dbroute.LengthMetres = ToPersistedMetres(length);
 			dbroute.TopologyVersion++;
 			FMDB.Context.SaveChanges();
 			transaction.Commit();
 		}
 
-		ReloadRouteDefinition(cell);
+		ReloadRouteDefinition(room);
 		actor.OutputHandler.Send(
 			$"You set the RouteCell length to {DescribeRouteMetres(actor, length).ColourValue()} and increment its topology version.");
 	}
 
 	private static List<string> RouteLengthBlockers(
 		ICharacter actor,
-		MudSharp.Construction.Cell cell,
-		IRouteCellDefinition route,
+		MudSharp.Construction.Room room,
+		IRouteRoomDefinition route,
 		double length,
 		FuturemudDatabaseContext context)
 	{
@@ -401,27 +401,27 @@ internal partial class RoomBuilderModule
 			AddRouteMutationBlocker(blockers, "one or more exit anchors");
 		}
 
-		if (cell.Perceivables.OfType<ILocateable>().Any(x => x.RoutePositionMetres > length))
+		if (room.Perceivables.OfType<ILocateable>().Any(x => x.RoutePositionMetres > length))
 		{
 			AddRouteMutationBlocker(blockers, "one or more live entities");
 		}
 
-		if (actor.Gameworld.Vehicles.Any(x => ReferenceEquals(x.Location, cell) && x.RoutePositionMetres > length))
+		if (actor.Gameworld.Vehicles.Any(x => ReferenceEquals(x.Location, room) && x.RoutePositionMetres > length))
 		{
 			AddRouteMutationBlocker(blockers, "one or more vehicles");
 		}
 
-		if (cell.Tracks.Any(x => x.RoutePositionMetres > length))
+		if (room.Tracks.Any(x => x.RoutePositionMetres > length))
 		{
 			AddRouteMutationBlocker(blockers, "one or more tracks");
 		}
 
-		if (cell.HasPointSurfaceLiquidBeyond(length))
+		if (room.HasPointSurfaceLiquidBeyond(length))
 		{
 			AddRouteMutationBlocker(blockers, "coordinate-bound surface liquid");
 		}
 
-		var persisted = RouteCellMutationSafety.InspectLength(context, cell.Id, length);
+		var persisted = RouteRoomMutationSafety.InspectLength(context, room.Id, length);
 		if (persisted.HasCharactersBeyondLength)
 		{
 			AddRouteMutationBlocker(blockers, "one or more persisted character locations");
@@ -448,17 +448,17 @@ internal partial class RoomBuilderModule
 		}
 
 		if (context.ActiveRouteMotions.Any(x =>
-			x.RouteCellId == cell.Id &&
+			x.RouteRoomId == room.Id &&
 			(x.CheckpointPositionMetres > (decimal)length || x.TargetMaximumPositionMetres > (decimal)length)))
 		{
 			AddRouteMutationBlocker(blockers, "an active route motion");
 		}
 
 		if (context.VehicleRouteStops.Any(x =>
-			x.CellId == cell.Id && x.RoutePositionMetres > (decimal)length) ||
+			x.RoomId == room.Id && x.RoutePositionMetres > (decimal)length) ||
 			context.VehicleRouteSteps.Any(x =>
-				(x.OriginCellId == cell.Id && x.OriginRoutePositionMetres > (decimal)length) ||
-				(x.DestinationCellId == cell.Id && x.DestinationRoutePositionMetres > (decimal)length)))
+				(x.OriginRoomId == room.Id && x.OriginRoutePositionMetres > (decimal)length) ||
+				(x.DestinationRoomId == room.Id && x.DestinationRoutePositionMetres > (decimal)length)))
 		{
 			AddRouteMutationBlocker(blockers, "a vehicle route stop or compiled route step");
 		}
@@ -466,9 +466,9 @@ internal partial class RoomBuilderModule
 		return blockers;
 	}
 
-	private static void CellSetRouteDefault(ICharacter actor, MudSharp.Construction.Cell cell, StringStack command)
+	private static void RoomSetRouteDefault(ICharacter actor, MudSharp.Construction.Room room, StringStack command)
 	{
-		if (!RequireRoute(actor, cell, out var route))
+		if (!RequireRoute(actor, room, out var route))
 		{
 			return;
 		}
@@ -479,14 +479,14 @@ internal partial class RoomBuilderModule
 			return;
 		}
 
-		MutateRouteDefinition(cell, dbroute => dbroute.DefaultPositionMetres = ToPersistedMetres(position));
+		MutateRouteDefinition(room, dbroute => dbroute.DefaultPositionMetres = ToPersistedMetres(position));
 		actor.OutputHandler.Send(
 			$"You set the default RouteCell coordinate to {DescribeRouteMetres(actor, position).ColourValue()}.");
 	}
 
-	private static void CellSetRouteDirection(ICharacter actor, MudSharp.Construction.Cell cell, StringStack command)
+	private static void RoomSetRouteDirection(ICharacter actor, MudSharp.Construction.Room room, StringStack command)
 	{
-		if (!RequireRoute(actor, cell, out _))
+		if (!RequireRoute(actor, room, out _))
 		{
 			return;
 		}
@@ -511,7 +511,7 @@ internal partial class RoomBuilderModule
 			return;
 		}
 
-		MutateRouteDefinition(cell, dbroute =>
+		MutateRouteDefinition(room, dbroute =>
 		{
 			if (direction is "positive" or "+")
 			{
@@ -525,9 +525,9 @@ internal partial class RoomBuilderModule
 		actor.OutputHandler.Send($"You rename the {direction.ColourName()} RouteCell direction to {name.ColourName()}.");
 	}
 
-	private static void CellSetRouteRoomEquivalent(ICharacter actor, MudSharp.Construction.Cell cell, StringStack command)
+	private static void RoomSetRouteRoomEquivalent(ICharacter actor, MudSharp.Construction.Room room, StringStack command)
 	{
-		if (!RequireRoute(actor, cell, out _))
+		if (!RequireRoute(actor, room, out _))
 		{
 			return;
 		}
@@ -542,21 +542,21 @@ internal partial class RoomBuilderModule
 			return;
 		}
 
-		MutateRouteDefinition(cell, dbroute => dbroute.MetresPerRoomEquivalent = ToPersistedMetres(value));
+		MutateRouteDefinition(room, dbroute => dbroute.MetresPerRoomEquivalent = ToPersistedMetres(value));
 		actor.OutputHandler.Send(
 			$"You set this RouteCell's room-equivalent scale to {DescribeRouteMetres(actor, value).ColourValue()}.");
 	}
 
-	private static void CellSetRouteLandmark(ICharacter actor, MudSharp.Construction.Cell cell, StringStack command)
+	private static void RoomSetRouteLandmark(ICharacter actor, MudSharp.Construction.Room room, StringStack command)
 	{
-		if (!RequireRoute(actor, cell, out var route))
+		if (!RequireRoute(actor, room, out var route))
 		{
 			return;
 		}
 
 		if (command.IsFinished)
 		{
-			CellSetRouteShow(actor, cell);
+			RoomSetRouteShow(actor, room);
 			return;
 		}
 
@@ -581,10 +581,10 @@ internal partial class RoomBuilderModule
 
 			using (new FMDB())
 			{
-				var dbroute = FMDB.Context.RouteCells
+				var dbroute = FMDB.Context.RouteRooms
 					.Include(x => x.Landmarks)
-					.Single(x => x.CellId == cell.Id);
-				dbroute.Landmarks.Add(new DB.RouteCellLandmark
+					.Single(x => x.RoomId == room.Id);
+				dbroute.Landmarks.Add(new DB.RouteRoomLandmark
 				{
 					Name = name,
 					Keywords = name.ToLowerInvariant(),
@@ -596,7 +596,7 @@ internal partial class RoomBuilderModule
 				FMDB.Context.SaveChanges();
 			}
 
-			ReloadRouteDefinition(cell);
+			ReloadRouteDefinition(room);
 			actor.OutputHandler.Send(
 				$"You add the RouteCell landmark {name.ColourName()} at {DescribeRouteMetres(actor, position).ColourValue()}.");
 			return;
@@ -628,7 +628,7 @@ internal partial class RoomBuilderModule
 					return;
 				}
 
-				MutateLandmark(cell, landmark.Id, x => x.Name = name);
+				MutateLandmark(room, landmark.Id, x => x.Name = name);
 				actor.OutputHandler.Send($"You rename the RouteCell landmark to {name.ColourName()}.");
 				return;
 			}
@@ -642,7 +642,7 @@ internal partial class RoomBuilderModule
 					return;
 				}
 
-				MutateLandmark(cell, landmark.Id, x => x.Keywords = keywords);
+				MutateLandmark(room, landmark.Id, x => x.Keywords = keywords);
 				actor.OutputHandler.Send($"You set the landmark keywords to {keywords.ColourCommand()}.");
 				return;
 			}
@@ -657,7 +657,7 @@ internal partial class RoomBuilderModule
 					return;
 				}
 
-				MutateLandmark(cell, landmark.Id, x => x.PositionMetres = ToPersistedMetres(position));
+				MutateLandmark(room, landmark.Id, x => x.PositionMetres = ToPersistedMetres(position));
 				actor.OutputHandler.Send(
 					$"You move {landmark.Name.ColourName()} to {DescribeRouteMetres(actor, position).ColourValue()}.");
 				return;
@@ -672,24 +672,24 @@ internal partial class RoomBuilderModule
 					1.0,
 					null,
 					EditorOptions.None,
-					[cell.Id, landmark.Id]);
+					[room.Id, landmark.Id]);
 				return;
 			case "delete":
 			case "remove":
 				using (new FMDB())
 				{
-					var dbroute = FMDB.Context.RouteCells.Single(x => x.CellId == cell.Id);
-					var dblandmark = FMDB.Context.RouteCellLandmarks.Single(x => x.Id == landmark.Id);
-					FMDB.Context.RouteCellLandmarks.Remove(dblandmark);
+					var dbroute = FMDB.Context.RouteRooms.Single(x => x.RoomId == room.Id);
+					var dblandmark = FMDB.Context.RouteRoomLandmarks.Single(x => x.Id == landmark.Id);
+					FMDB.Context.RouteRoomLandmarks.Remove(dblandmark);
 					dbroute.TopologyVersion++;
 					FMDB.Context.SaveChanges();
 				}
 
-				ReloadRouteDefinition(cell);
+				ReloadRouteDefinition(room);
 				actor.OutputHandler.Send($"You delete the RouteCell landmark {landmark.Name.ColourName()}.");
 				return;
 			default:
-				actor.OutputHandler.Send(RouteCellSetHelp.SubstituteANSIColour());
+				actor.OutputHandler.Send(RouteRoomSetHelp.SubstituteANSIColour());
 				return;
 		}
 	}
@@ -700,8 +700,8 @@ internal partial class RoomBuilderModule
 		var landmarkId = (long)arguments[1];
 		using (new FMDB())
 		{
-			var landmark = FMDB.Context.RouteCellLandmarks.SingleOrDefault(x => x.Id == landmarkId);
-			var route = FMDB.Context.RouteCells.SingleOrDefault(x => x.CellId == cellId);
+			var landmark = FMDB.Context.RouteRoomLandmarks.SingleOrDefault(x => x.Id == landmarkId);
+			var route = FMDB.Context.RouteRooms.SingleOrDefault(x => x.RoomId == cellId);
 			if (landmark is null || route is null)
 			{
 				handler.Send("That RouteCell landmark no longer exists.");
@@ -713,10 +713,10 @@ internal partial class RoomBuilderModule
 			FMDB.Context.SaveChanges();
 		}
 
-		var cell = Futuremud.Games.FirstOrDefault()?.Cells.Get(cellId) as MudSharp.Construction.Cell;
-		if (cell is not null)
+		var room = Futuremud.Games.FirstOrDefault()?.Rooms.Get(cellId) as MudSharp.Construction.Room;
+		if (room is not null)
 		{
-			ReloadRouteDefinition(cell);
+			ReloadRouteDefinition(room);
 		}
 
 		handler.Send("You replace the RouteCell landmark description.");
@@ -727,9 +727,9 @@ internal partial class RoomBuilderModule
 		handler.Send("You decide not to replace the RouteCell landmark description.");
 	}
 
-	private static void CellSetRouteExit(ICharacter actor, MudSharp.Construction.Cell cell, StringStack command)
+	private static void RoomSetRouteExit(ICharacter actor, MudSharp.Construction.Room room, StringStack command)
 	{
-		if (!RequireRoute(actor, cell, out var route))
+		if (!RequireRoute(actor, room, out var route))
 		{
 			return;
 		}
@@ -740,16 +740,16 @@ internal partial class RoomBuilderModule
 			return;
 		}
 
-		var exit = GetCellExitForBuilderInput(actor.Gameworld.ExitManager.GetAllExits(cell), command, actor);
+		var exit = GetRoomExitForBuilderInput(actor.Gameworld.ExitManager.GetAllExits(room), command, actor);
 		if (exit is null)
 		{
-			actor.OutputHandler.Send("There is no such exit in this cell's topology.");
+			actor.OutputHandler.Send("There is no such exit in this room's topology.");
 			return;
 		}
 
 		if (command.IsFinished || !command.PopSpeech().EqualTo("band"))
 		{
-			actor.OutputHandler.Send("Use: cell set route exit <exit> band <minimum> <maximum> arrival <distance>.");
+			actor.OutputHandler.Send("Use: room set route exit <exit> band <minimum> <maximum> arrival <distance>.");
 			return;
 		}
 
@@ -776,14 +776,14 @@ internal partial class RoomBuilderModule
 
 		using (new FMDB())
 		{
-			var dbroute = FMDB.Context.RouteCells.Single(x => x.CellId == cell.Id);
-			var anchor = FMDB.Context.RouteExitAnchors.Find(exit.Exit.Id, cell.Id);
+			var dbroute = FMDB.Context.RouteRooms.Single(x => x.RoomId == room.Id);
+			var anchor = FMDB.Context.RouteExitAnchors.Find(exit.Exit.Id, room.Id);
 			if (anchor is null)
 			{
 				anchor = new DB.RouteExitAnchor
 				{
 					ExitId = exit.Exit.Id,
-					RouteCellId = cell.Id
+					RouteRoomId = room.Id
 				};
 				FMDB.Context.RouteExitAnchors.Add(anchor);
 			}
@@ -795,20 +795,20 @@ internal partial class RoomBuilderModule
 			FMDB.Context.SaveChanges();
 		}
 
-		ReloadRouteDefinition(cell);
+		ReloadRouteDefinition(room);
 		actor.OutputHandler.Send(
 			$"You anchor exit #{exit.Exit.Id.ToString("N0", actor).ColourValue()} from {DescribeRouteMetres(actor, minimum).ColourValue()} through {DescribeRouteMetres(actor, maximum).ColourValue()}, arriving at {DescribeRouteMetres(actor, arrival).ColourValue()}.");
 	}
 
-	private static void CellSetRouteShow(ICharacter actor, MudSharp.Construction.Cell cell)
+	private static void RoomSetRouteShow(ICharacter actor, MudSharp.Construction.Room room)
 	{
-		if (!RequireRoute(actor, cell, out var route))
+		if (!RequireRoute(actor, room, out var route))
 		{
 			return;
 		}
 
 		var sb = new StringBuilder();
-		sb.AppendLine($"RouteCell Geometry for {cell.GetFriendlyReference(actor).ColourName()}");
+		sb.AppendLine($"RouteCell Geometry for {room.GetFriendlyReference(actor).ColourName()}");
 		sb.AppendLine($"Length: {DescribeRouteMetres(actor, route.LengthMetres).ColourValue()}");
 		sb.AppendLine($"Default: {DescribeRouteMetres(actor, route.DefaultPositionMetres).ColourValue()}");
 		sb.AppendLine($"Negative: {route.NegativeDirectionName.ColourName()}");
@@ -845,9 +845,9 @@ internal partial class RoomBuilderModule
 		actor.OutputHandler.Send(sb.ToString());
 	}
 
-	private static void CellSetRouteMap(ICharacter actor, MudSharp.Construction.Cell cell)
+	private static void RoomSetRouteMap(ICharacter actor, MudSharp.Construction.Room room)
 	{
-		if (!RequireRoute(actor, cell, out var route))
+		if (!RequireRoute(actor, room, out var route))
 		{
 			return;
 		}
@@ -869,9 +869,9 @@ internal partial class RoomBuilderModule
 		actor.OutputHandler.Send(sb.ToString());
 	}
 
-	private static void CellSetRouteValidate(ICharacter actor, MudSharp.Construction.Cell cell)
+	private static void RoomSetRouteValidate(ICharacter actor, MudSharp.Construction.Room room)
 	{
-		if (!RequireRoute(actor, cell, out var route))
+		if (!RequireRoute(actor, room, out var route))
 		{
 			return;
 		}
@@ -889,7 +889,7 @@ internal partial class RoomBuilderModule
 			errors.Add("One or more landmarks are outside the RouteCell bounds.");
 		}
 
-		var topologyExits = actor.Gameworld.ExitManager.GetAllExits(cell).ToList();
+		var topologyExits = actor.Gameworld.ExitManager.GetAllExits(room).ToList();
 		var anchoredExitIds = route.ExitAnchors.Select(x => x.Exit.Exit.Id).ToHashSet();
 		foreach (var exit in topologyExits.Where(x => !anchoredExitIds.Contains(x.Exit.Id)))
 		{
@@ -914,7 +914,7 @@ internal partial class RoomBuilderModule
 			}
 		}
 
-		foreach (var entity in cell.Perceivables.OfType<ILocateable>())
+		foreach (var entity in room.Perceivables.OfType<ILocateable>())
 		{
 			if (entity.RoutePositionMetres is null)
 			{
@@ -927,7 +927,7 @@ internal partial class RoomBuilderModule
 		}
 
 		var sb = new StringBuilder();
-		sb.AppendLine($"RouteCell validation for Cell #{cell.Id.ToString("N0", actor).ColourValue()}, topology {route.TopologyVersion.ToString("N0", actor).ColourValue()}:");
+		sb.AppendLine($"RouteCell validation for Room #{room.Id.ToString("N0", actor).ColourValue()}, topology {route.TopologyVersion.ToString("N0", actor).ColourValue()}:");
 		if (!errors.Any() && !warnings.Any())
 		{
 			sb.AppendLine("No errors or warnings were found.".Colour(Telnet.Green));
@@ -950,20 +950,20 @@ internal partial class RoomBuilderModule
 
 	private static bool RequireRoute(
 		ICharacter actor,
-		MudSharp.Construction.Cell cell,
-		out IRouteCellDefinition route)
+		MudSharp.Construction.Room room,
+		out IRouteRoomDefinition route)
 	{
-		route = cell.RouteDefinition!;
+		route = room.RouteDefinition!;
 		if (route is not null)
 		{
 			return true;
 		}
 
-		actor.OutputHandler.Send("This is an ordinary cell. Use CELL SET ROUTE CREATE <LENGTH> first.");
+		actor.OutputHandler.Send("This is an ordinary room. Use CELL SET ROUTE CREATE <LENGTH> first.");
 		return false;
 	}
 
-	private static IRouteCellLandmark? ResolveRouteLandmark(IRouteCellDefinition route, string selector)
+	private static IRouteRoomLandmark? ResolveRouteLandmark(IRouteRoomDefinition route, string selector)
 	{
 		if (long.TryParse(selector, out var id))
 		{
@@ -976,7 +976,7 @@ internal partial class RoomBuilderModule
 
 	private static bool TryResolveRoutePosition(
 		ICharacter actor,
-		IRouteCellDefinition route,
+		IRouteRoomDefinition route,
 		string text,
 		out double position)
 	{
@@ -1011,9 +1011,9 @@ internal partial class RoomBuilderModule
 			actor);
 	}
 
-	private static RouteCellMutationActor RouteMutationActor(ICharacter actor)
+	private static RouteRoomMutationActor RouteMutationActor(ICharacter actor)
 	{
-		return new RouteCellMutationActor(
+		return new RouteRoomMutationActor(
 			CharacterInstanceIdentityComparer.IdentityId(actor),
 			actor.InstanceId,
 			actor.IsPrimaryInstance);
@@ -1048,47 +1048,47 @@ internal partial class RoomBuilderModule
 	}
 
 	private static void MutateRouteDefinition(
-		MudSharp.Construction.Cell cell,
-		Action<DB.RouteCell> mutation)
+		MudSharp.Construction.Room room,
+		Action<DB.RouteRoom> mutation)
 	{
 		using (new FMDB())
 		{
-			var route = FMDB.Context.RouteCells.Single(x => x.CellId == cell.Id);
+			var route = FMDB.Context.RouteRooms.Single(x => x.RoomId == room.Id);
 			mutation(route);
 			route.TopologyVersion++;
 			FMDB.Context.SaveChanges();
 		}
 
-		ReloadRouteDefinition(cell);
+		ReloadRouteDefinition(room);
 	}
 
 	private static void MutateLandmark(
-		MudSharp.Construction.Cell cell,
+		MudSharp.Construction.Room room,
 		long landmarkId,
-		Action<DB.RouteCellLandmark> mutation)
+		Action<DB.RouteRoomLandmark> mutation)
 	{
 		using (new FMDB())
 		{
-			var route = FMDB.Context.RouteCells.Single(x => x.CellId == cell.Id);
-			var landmark = FMDB.Context.RouteCellLandmarks.Single(x => x.Id == landmarkId);
+			var route = FMDB.Context.RouteRooms.Single(x => x.RoomId == room.Id);
+			var landmark = FMDB.Context.RouteRoomLandmarks.Single(x => x.Id == landmarkId);
 			mutation(landmark);
 			route.TopologyVersion++;
 			FMDB.Context.SaveChanges();
 		}
 
-		ReloadRouteDefinition(cell);
+		ReloadRouteDefinition(room);
 	}
 
-	private static void ReloadRouteDefinition(MudSharp.Construction.Cell cell)
+	private static void ReloadRouteDefinition(MudSharp.Construction.Room room)
 	{
 		using (new FMDB())
 		{
-			var route = FMDB.Context.RouteCells
+			var route = FMDB.Context.RouteRooms
 				.AsNoTracking()
 				.Include(x => x.Landmarks)
 				.Include(x => x.ExitAnchors)
-				.SingleOrDefault(x => x.CellId == cell.Id);
-			cell.ReloadRouteDefinition(route);
+				.SingleOrDefault(x => x.RoomId == room.Id);
+			room.ReloadRouteDefinition(route);
 		}
 	}
 }

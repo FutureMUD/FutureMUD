@@ -53,7 +53,7 @@ public class Movement : IMovement
     }
 
     /// <inheritdoc />
-    public ICellExit Exit { get; }
+    public IRoomExit Exit { get; }
 
     public RoomLayer OriginLayer { get; }
     private readonly ICharacter _originalMover;
@@ -91,7 +91,7 @@ public class Movement : IMovement
     public static bool EvaluateCharacterForAdditionToMovement(
         IParty party,
         ICharacter character,
-        ICellExit exit,
+        IRoomExit exit,
         List<ICharacter> considered,
         List<ICharacter> nonDraggers,
         List<ICharacter> mounts,
@@ -209,7 +209,7 @@ public class Movement : IMovement
         return true;
     }
 
-    public static IMovement CreateMovement(ICharacter originalMover, ICellExit exit, IEmote? emote = null, bool ignoreSafeMovement = false)
+    public static IMovement CreateMovement(ICharacter originalMover, IRoomExit exit, IEmote? emote = null, bool ignoreSafeMovement = false)
     {
         // First get all of the party members who are present
         List<ICharacter> primaryMovers = new();
@@ -306,7 +306,7 @@ public class Movement : IMovement
             IEnumerable<ICharacter> mounts,
             IEnumerable<IPerceivable> targets,
             IEnumerable<Dragging> dragEffects,
-			ICellExit exit,
+			IRoomExit exit,
 			bool ignoreSafeMovement = false
         )
     {
@@ -1121,7 +1121,7 @@ public class Movement : IMovement
         }
 
         // Check to see if terrain type permits tracks
-        ICell location = actor.Location;
+        IRoom location = actor.Location;
         if (!location.Terrain(actor).CanHaveTracks)
         {
             return;
@@ -1147,7 +1147,7 @@ public class Movement : IMovement
         location.AddTrack(track);
     }
 
-    internal static bool GetTrackIntensities(ICharacter actor, ICell location, ref TrackCircumstances circumstances, out double visual, out double olfactory)
+    internal static bool GetTrackIntensities(ICharacter actor, IRoom location, ref TrackCircumstances circumstances, out double visual, out double olfactory)
     {
         visual = 1.0 * location.Terrain(actor).TrackIntensityMultiplierVisual * actor.Race.TrackIntensityVisual;
         olfactory = 1.0 * location.Terrain(actor).TrackIntensityMultiplierOlfactory * actor.Race.TrackIntensityOlfactory;
@@ -1192,7 +1192,7 @@ public class Movement : IMovement
         {
             return;
         }
-        ICell location = actor.Location;
+        IRoom location = actor.Location;
         if (!location.Terrain(actor).CanHaveTracks)
         {
             return;

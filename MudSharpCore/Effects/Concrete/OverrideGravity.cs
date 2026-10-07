@@ -42,17 +42,17 @@ public class OverrideGravity : Effect, IGravityOverrideEffect
 
 	public override void InitialEffect()
 	{
-		if (Owner is ICell cell)
+		if (Owner is IRoom room)
 		{
-			cell.CheckFallExitStatus();
+			room.CheckFallExitStatus();
 		}
 	}
 
 	public override void RemovalEffect()
 	{
-		if (Owner is ICell cell)
+		if (Owner is IRoom room)
 		{
-			cell.CheckFallExitStatus();
+			room.CheckFallExitStatus();
 		}
 	}
 }

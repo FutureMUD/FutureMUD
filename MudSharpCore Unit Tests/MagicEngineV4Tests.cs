@@ -626,12 +626,12 @@ public class MagicEngineV4Tests
 		var gameworld = CreateGameworld();
 		var zoneOne = CreateZone(1);
 		var zoneTwo = CreateZone(2);
-		var cellOne = CreateCell(10, gameworld.Object, zoneOne.Object);
-		var cellTwo = CreateCell(11, gameworld.Object, zoneOne.Object);
-		var cellThree = CreateCell(12, gameworld.Object, zoneTwo.Object);
+		var cellOne = CreateRoom(10, gameworld.Object, zoneOne.Object);
+		var cellTwo = CreateRoom(11, gameworld.Object, zoneOne.Object);
+		var cellThree = CreateRoom(12, gameworld.Object, zoneTwo.Object);
 		var caster = CreateCharacter(1, gameworld.Object, cellOne.Object);
 		var target = CreateCharacter(2, gameworld.Object, cellOne.Object);
-		var sameCellViewer = CreateCharacter(3, gameworld.Object, cellOne.Object);
+		var sameRoomViewer = CreateCharacter(3, gameworld.Object, cellOne.Object);
 		var sameZoneViewer = CreateCharacter(4, gameworld.Object, cellTwo.Object);
 		var otherZoneViewer = CreateCharacter(5, gameworld.Object, cellThree.Object);
 		var partyViewer = CreateCharacter(6, gameworld.Object, cellTwo.Object);
@@ -639,9 +639,9 @@ public class MagicEngineV4Tests
 		var clanOutsider = CreateCharacter(8, gameworld.Object, cellTwo.Object);
 		var falseViewerProg = CreateProg(4, false);
 		gameworld.SetupGet(x => x.FutureProgs).Returns(CreateCollectionMock(CreateProg(0, true).Object, falseViewerProg.Object).Object);
-		gameworld.SetupGet(x => x.Actors).Returns(CreateCollectionMock(caster.Object, target.Object, sameCellViewer.Object,
+		gameworld.SetupGet(x => x.Actors).Returns(CreateCollectionMock(caster.Object, target.Object, sameRoomViewer.Object,
 			sameZoneViewer.Object, otherZoneViewer.Object, partyViewer.Object, clanViewer.Object, clanOutsider.Object).Object);
-		gameworld.SetupGet(x => x.Characters).Returns(CreateCollectionMock(caster.Object, target.Object, sameCellViewer.Object,
+		gameworld.SetupGet(x => x.Characters).Returns(CreateCollectionMock(caster.Object, target.Object, sameRoomViewer.Object,
 			sameZoneViewer.Object, otherZoneViewer.Object, partyViewer.Object, clanViewer.Object, clanOutsider.Object).Object);
 		var party = new Mock<IParty>();
 		party.SetupGet(x => x.CharacterMembers).Returns([caster.Object, partyViewer.Object]);
@@ -660,11 +660,11 @@ public class MagicEngineV4Tests
 		}
 
 		Assert.IsTrue(Effect(IllusionAudienceScope.Caster).OverrideApplies(caster.Object, MudSharp.Form.Shape.DescriptionType.Full));
-		Assert.IsFalse(Effect(IllusionAudienceScope.Caster).OverrideApplies(sameCellViewer.Object, MudSharp.Form.Shape.DescriptionType.Full));
+		Assert.IsFalse(Effect(IllusionAudienceScope.Caster).OverrideApplies(sameRoomViewer.Object, MudSharp.Form.Shape.DescriptionType.Full));
 		Assert.IsTrue(Effect(IllusionAudienceScope.Target).OverrideApplies(target.Object, MudSharp.Form.Shape.DescriptionType.Full));
 		Assert.IsTrue(Effect(IllusionAudienceScope.Everyone).OverrideApplies(otherZoneViewer.Object, MudSharp.Form.Shape.DescriptionType.Full));
-		Assert.IsTrue(Effect(IllusionAudienceScope.SameCell).OverrideApplies(sameCellViewer.Object, MudSharp.Form.Shape.DescriptionType.Full));
-		Assert.IsFalse(Effect(IllusionAudienceScope.SameCell).OverrideApplies(sameZoneViewer.Object, MudSharp.Form.Shape.DescriptionType.Full));
+		Assert.IsTrue(Effect(IllusionAudienceScope.SameRoom).OverrideApplies(sameRoomViewer.Object, MudSharp.Form.Shape.DescriptionType.Full));
+		Assert.IsFalse(Effect(IllusionAudienceScope.SameRoom).OverrideApplies(sameZoneViewer.Object, MudSharp.Form.Shape.DescriptionType.Full));
 		Assert.IsTrue(Effect(IllusionAudienceScope.SameZone).OverrideApplies(sameZoneViewer.Object, MudSharp.Form.Shape.DescriptionType.Full));
 		Assert.IsFalse(Effect(IllusionAudienceScope.SameZone).OverrideApplies(otherZoneViewer.Object, MudSharp.Form.Shape.DescriptionType.Full));
 		Assert.IsTrue(Effect(IllusionAudienceScope.Party).OverrideApplies(partyViewer.Object, MudSharp.Form.Shape.DescriptionType.Full));
@@ -672,7 +672,7 @@ public class MagicEngineV4Tests
 		Assert.IsTrue(Effect(IllusionAudienceScope.Clan, clan.Object.Id).OverrideApplies(clanViewer.Object, MudSharp.Form.Shape.DescriptionType.Full));
 		Assert.IsFalse(Effect(IllusionAudienceScope.Clan, clan.Object.Id).OverrideApplies(clanOutsider.Object, MudSharp.Form.Shape.DescriptionType.Full));
 		Assert.IsFalse(Effect(IllusionAudienceScope.Everyone, viewerProg: falseViewerProg.Object)
-			.OverrideApplies(sameCellViewer.Object, MudSharp.Form.Shape.DescriptionType.Full));
+			.OverrideApplies(sameRoomViewer.Object, MudSharp.Form.Shape.DescriptionType.Full));
 	}
 
 	[TestMethod]
@@ -681,12 +681,12 @@ public class MagicEngineV4Tests
 		var gameworld = CreateGameworld();
 		var zoneOne = CreateZone(1);
 		var zoneTwo = CreateZone(2);
-		var room = CreateCell(10, gameworld.Object, zoneOne.Object);
+		var room = CreateRoom(10, gameworld.Object, zoneOne.Object);
 		var localViewer = CreateCharacter(3, gameworld.Object, room.Object);
-		var distantViewer = CreateCharacter(4, gameworld.Object, CreateCell(11, gameworld.Object, zoneTwo.Object).Object);
+		var distantViewer = CreateCharacter(4, gameworld.Object, CreateRoom(11, gameworld.Object, zoneTwo.Object).Object);
 		var parent = CreateParent();
 		var effect = new SpellPhantomIllusionEffect(room.Object, parent.Object, "A silver arch flickers here.",
-			IllusionAudienceScope.SameCell, 1L, room.Object.Id, null, priority: 9, illusionKey: "silver-arch",
+			IllusionAudienceScope.SameRoom, 1L, room.Object.Id, null, priority: 9, illusionKey: "silver-arch",
 			colour: Telnet.BoldCyan);
 
 		Assert.IsInstanceOfType(effect, typeof(IDescriptionAdditionEffect));
@@ -703,7 +703,7 @@ public class MagicEngineV4Tests
 	{
 		var gameworld = CreateGameworld();
 		var zone = CreateZone(1);
-		var room = CreateCell(10, gameworld.Object, zone.Object);
+		var room = CreateRoom(10, gameworld.Object, zone.Object);
 		var caster = CreateCharacter(1, gameworld.Object, room.Object);
 		var spell = CreateSpellMock(gameworld.Object);
 		var parent = new MagicSpellParent(room.Object, spell.Object, caster.Object);
@@ -1079,16 +1079,16 @@ public class MagicEngineV4Tests
 		return zone;
 	}
 
-	private static Mock<ICell> CreateCell(long id, IFuturemud gameworld, IZone zone)
+	private static Mock<IRoom> CreateRoom(long id, IFuturemud gameworld, IZone zone)
 	{
-		var cell = new Mock<ICell>();
-		cell.SetupGet(x => x.Id).Returns(id);
-		cell.SetupGet(x => x.Name).Returns($"Cell {id}");
-		cell.SetupGet(x => x.FrameworkItemType).Returns("Cell");
-		cell.SetupGet(x => x.Gameworld).Returns(gameworld);
-		cell.SetupGet(x => x.Location).Returns(cell.Object);
-		cell.SetupGet(x => x.Zone).Returns(zone);
-		return cell;
+		var room = new Mock<IRoom>();
+		room.SetupGet(x => x.Id).Returns(id);
+		room.SetupGet(x => x.Name).Returns($"Cell {id}");
+		room.SetupGet(x => x.FrameworkItemType).Returns("Cell");
+		room.SetupGet(x => x.Gameworld).Returns(gameworld);
+		room.SetupGet(x => x.Location).Returns(room.Object);
+		room.SetupGet(x => x.Zone).Returns(zone);
+		return room;
 	}
 
 	private static Mock<IClan> CreateClan(long id)
@@ -1109,7 +1109,7 @@ public class MagicEngineV4Tests
 		return membership;
 	}
 
-	private static Mock<ICharacter> CreateCharacter(long id, IFuturemud gameworld, ICell? location = null)
+	private static Mock<ICharacter> CreateCharacter(long id, IFuturemud gameworld, IRoom? location = null)
 	{
 		var character = new Mock<ICharacter>();
 		character.SetupGet(x => x.Id).Returns(id);

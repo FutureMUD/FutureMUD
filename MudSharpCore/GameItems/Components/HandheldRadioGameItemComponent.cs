@@ -379,7 +379,7 @@ public class HandheldRadioGameItemComponent : GameItemComponent, ITransmit, IRec
             return;
         }
 
-        Construction.ICell location = Parent.TrueLocations.FirstOrDefault();
+        Construction.IRoom location = Parent.TrueLocations.FirstOrDefault();
         if (location == null)
         {
 #if DEBUG

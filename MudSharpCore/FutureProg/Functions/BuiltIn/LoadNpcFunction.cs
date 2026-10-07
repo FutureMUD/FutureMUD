@@ -61,7 +61,7 @@ internal class LoadNpcFunction : BuiltInFunction
             return StatementResult.Error;
         }
 
-        if (ParameterFunctions[1].Result?.GetObject is not ICell location)
+        if (ParameterFunctions[1].Result?.GetObject is not IRoom location)
         {
             ErrorMessage = "Location cannot be null";
             return StatementResult.Error;

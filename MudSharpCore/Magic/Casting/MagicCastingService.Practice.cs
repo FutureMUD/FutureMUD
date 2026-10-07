@@ -20,7 +20,7 @@ public sealed partial class MagicCastingService
 		public IInventoryPlan Plan { get; } = plan;
 		public bool SkillEligible { get; } = skillEligible;
 		public bool MasteryEligible { get; } = masteryEligible;
-		public ICell? Location { get; } = intent.Actor.Location;
+		public IRoom? Location { get; } = intent.Actor.Location;
 		public DateTime Deadline { get; } = operation.CreatedUtc + prepared.Spell.GradeProfile!.Practice!.Duration;
 		public MagicPracticeAction? Action { get; set; }
 		public ControlledSpellProfile Profile { get; } = prepared.Spell.GradeProfile!;

@@ -69,7 +69,7 @@ namespace MudSharp.Database
 			ConfigureOutfitTemplates(modelBuilder);
 			ConfigureCharacterInstances(modelBuilder);
 			ConfigureWritingCollections(modelBuilder);
-			ConfigureRouteCells(modelBuilder);
+			ConfigureRouteRooms(modelBuilder);
 			ConfigureVehicleRoutesAndServices(modelBuilder);
 			ConfigureSeederManagedRecords(modelBuilder);
 			ConfigureLootTables(modelBuilder);
@@ -332,18 +332,18 @@ namespace MudSharp.Database
             {
                 entity.ToTable("AgricultureFields");
                 entity.HasKey(e => e.Id).HasName("PRIMARY");
-                entity.HasIndex(e => e.CellId).IsUnique().HasDatabaseName("IX_AgricultureFields_CellId");
+                entity.HasIndex(e => e.RoomId).IsUnique().HasDatabaseName("IX_AgricultureFields_RoomId");
                 entity.HasIndex(e => e.ProfileId).HasDatabaseName("FK_AgricultureFields_Profiles_idx");
                 entity.Property(e => e.Id).HasColumnType("bigint(20)");
-                entity.Property(e => e.CellId).HasColumnType("bigint(20)");
+                entity.Property(e => e.RoomId).HasColumnType("bigint(20)");
                 entity.Property(e => e.ProfileId).HasColumnType("bigint(20)");
                 entity.Property(e => e.CurrentUse).HasColumnType("int(11)");
                 entity.Property(e => e.LastTickMudDateTime).HasColumnType("varchar(500)").HasCharSet("utf8").UseCollation("utf8_general_ci");
                 entity.Property(e => e.Definition).IsRequired().HasColumnType("mediumtext").HasCharSet("utf8").UseCollation("utf8_general_ci");
-                entity.HasOne(e => e.Cell)
+                entity.HasOne(e => e.Room)
                       .WithOne(e => e.AgricultureField)
-                      .HasForeignKey<AgricultureField>(e => e.CellId)
-                      .HasConstraintName("FK_AgricultureFields_Cells");
+                      .HasForeignKey<AgricultureField>(e => e.RoomId)
+                      .HasConstraintName("FK_AgricultureFields_Rooms");
                 entity.HasOne(e => e.Profile)
                       .WithMany(e => e.AgricultureFields)
                       .HasForeignKey(e => e.ProfileId)

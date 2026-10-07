@@ -281,18 +281,18 @@ public class MagicCombatPowerTests
 		var f = new Fixture();
 		MagicAttackPower.RegisterLoader();
 		var power = (MagicAttackPower)MagicPowerFactory.LoadPower(Fixture.Model(PsionicStockContent.CombatPowers.Single(x => x.Verb == "forcelance")), f.World.Object);
-		var cell = new Mock<ICell>();
+		var room = new Mock<IRoom>();
 		f.Actor.SetupGet(x => x.Powers).Returns([power]);
 		f.Actor.SetupGet(x => x.Movement).Returns((MudSharp.Movement.IMovement)null!);
-		f.Actor.SetupGet(x => x.Location).Returns(cell.Object);
-		f.Attacker.SetupGet(x => x.Location).Returns(cell.Object);
+		f.Actor.SetupGet(x => x.Location).Returns(room.Object);
+		f.Attacker.SetupGet(x => x.Location).Returns(room.Object);
 		Assert.IsTrue(power.CanInvokePower(f.Actor.Object, f.Attacker.Object));
 		f.Actor.Setup(x => x.CanSee(It.IsAny<IPerceivable>(), It.IsAny<PerceiveIgnoreFlags>())).Returns(false);
 		Assert.IsFalse(power.CanInvokePower(f.Actor.Object, f.Attacker.Object));
 		f.Actor.Setup(x => x.CanSee(It.IsAny<IPerceivable>(), It.IsAny<PerceiveIgnoreFlags>())).Returns(true);
-		f.Attacker.SetupGet(x => x.Location).Returns((ICell)null!);
+		f.Attacker.SetupGet(x => x.Location).Returns((IRoom)null!);
 		Assert.IsFalse(power.CanInvokePower(f.Actor.Object, f.Attacker.Object));
-		f.Attacker.SetupGet(x => x.Location).Returns(cell.Object);
+		f.Attacker.SetupGet(x => x.Location).Returns(room.Object);
 		f.Resources[f.Resource.Object] = 0;
 		Assert.IsFalse(power.CanInvokePower(f.Actor.Object, f.Attacker.Object));
 		Assert.AreEqual(0, f.Resources[f.Resource.Object]);
@@ -452,8 +452,8 @@ public class MagicCombatPowerTests
 	[DataRow(MagicAttackEffectType.BreakClinch)]
 	public void ControlRiders_SuccessUsesExistingRuntimeActions_ResistancePreventsThem(MagicAttackEffectType type)
 	{
-		var f = new Fixture(); var cell = new Mock<ICell>();
-		f.Actor.SetupGet(x => x.Location).Returns(cell.Object); f.Attacker.SetupGet(x => x.Location).Returns(cell.Object);
+		var f = new Fixture(); var room = new Mock<IRoom>();
+		f.Actor.SetupGet(x => x.Location).Returns(room.Object); f.Attacker.SetupGet(x => x.Location).Returns(room.Object);
 		f.Attacker.SetupGet(x => x.Combat).Returns(f.Actor.Object.Combat);
 		f.Attacker.SetupGet(x => x.CombatTarget).Returns(f.Actor.Object);
 		f.Attacker.Setup(x => x.ColocatedWith(f.Actor.Object)).Returns(true);

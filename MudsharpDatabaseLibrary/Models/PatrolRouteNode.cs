@@ -11,10 +11,10 @@ namespace MudSharp.Models
         }
 
         public long PatrolRouteId { get; set; }
-        public long CellId { get; set; }
+        public long RoomId { get; set; }
         public int Order { get; set; }
 
         public virtual PatrolRoute PatrolRoute { get; set; }
-        public virtual Cell Cell { get; set; }
+        public virtual Room Room { get; set; }
     }
 }

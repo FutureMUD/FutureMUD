@@ -75,7 +75,7 @@ public sealed class DatabaseVehicleRouteMotionPersistence : IVehicleRouteMotionP
 	{
 		ArgumentNullException.ThrowIfNull(start.RootVehicle);
 		ArgumentNullException.ThrowIfNull(start.Segment);
-		var route = start.Segment.Origin.Cell.RouteDefinition ??
+		var route = start.Segment.Origin.Room.RouteDefinition ??
 		            throw new InvalidOperationException("Active vehicle route motion requires a RouteCell definition.");
 		var operationKey = start.OperationId.ToString("N");
 		var state = new VehicleRouteMotionState(
@@ -110,7 +110,7 @@ public sealed class DatabaseVehicleRouteMotionPersistence : IVehicleRouteMotionP
 			{
 				MoverType = VehicleMoverType,
 				MoverId = start.RootVehicle.Id,
-				RouteCellId = start.Segment.Origin.Cell.Id,
+				RouteRoomId = start.Segment.Origin.Room.Id,
 				RoomLayer = (int)start.Segment.Origin.Layer,
 				CheckpointPositionMetres = ToMetres(start.Segment.Origin.RoutePositionMetres!.Value),
 				TargetMinimumPositionMetres = ToMetres(start.TargetMinimumMetres),

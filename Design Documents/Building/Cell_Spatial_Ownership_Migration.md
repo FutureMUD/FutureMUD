@@ -1,5 +1,17 @@
 # Cell spatial ownership migration
 
+## Final Room terminology checkpoint
+
+The live concept is now `Room` / `IRoom`, mechanically the former Cell with its numeric identity preserved. The **legacy containing Room** described by the historical migration stages below is eliminated. The new `RoomTerminology` stage follows contraction; it renames physical tables, columns, indexes and named constraints without recreating tables or changing identities. Four provenance tables become `RoomSpatial*Ledger`; their historical parent ID becomes `LegacyRoomId` before the retained child ID becomes `RoomId`.
+
+Populated naming cutovers require all writers stopped and `@FutureMUD_RoomTerminologyMaintenance=1` in the executing session. Source/target collisions, unknown dependencies and affected triggers refuse. MySQL DDL cannot be treated as an atomic rollback: preserve a complete verified backup and matching binary/external files. Automatic Down is unsupported; restoring that backup is the recovery method, and loses later writes if they have resumed.
+
+The approved empty-parent policy retains every original AreaId/parent-ID pair in independent Area provenance, with a nullable child ID for a discarded membership. Empty-parent warnings remain in the matching parent provenance. Areas themselves and their other memberships remain. Both initial and final ledger snapshots preserve these dispositions; cardinality, orphan and genuine external-reference refusals remain intact. The unpublished expansion/contraction metadata was regenerated through EF design services to match this nullable representation. The final naming stage also permits null child IDs for previously contracted databases with the earlier required ledger columns.
+
+New public type names are Room; new persisted type/ID pairs use `Room:v2`. Explicit legacy `Cell` references retain their child IDs. Bare historical `Room` references still refuse, even if their ID matches an unrelated surviving Room; unknown qualified versions refuse. Position writers, emote targets, tether anchors, fixed perceivers, Crime loading and check-result comparisons use this boundary. Default-hook categories use public Room with Cell-category compatibility, not the storage qualifier.
+
+This is an unaccepted source checkpoint until current managed verification, independent review, blank-snapshot refresh/import and complete native upgrade/boot/restore qualification have succeeded. Earlier receipts and the bounded LabMUD default repair do not qualify this naming stage. The sections below record the preceding structural design using its historical Cell/Room labels.
+
 ## Contraction checkpoint
 
 `20261006161646_CellSpatialContraction` follows the additive checkpoint below. The current runtime, shared interfaces and EF model have no Room entity. Cells directly own Zone/XYZ and Areas; Cell → Zone → Shard is the ownership chain. Existing numeric Cell IDs, unique names, exits, overlays, hosted interiors, routes, physical instances, custody and other Cell references remain unchanged. Historical migrations, RPI source room vocabulary, builder commands, RoomLayer and Cell-valued script API names remain compatible. Legacy spatial package DTOs are frozen wire records, not runtime owners.
@@ -61,6 +73,8 @@ The migration executes its SQL preflight before its first table change, includin
 Serialized scanning is conservative and is not a proof that arbitrary extension formats contain no Room references. Before contraction, classify local extension tables, formats and true referents explicitly. A serialized spelling not covered by these patterns must be audited; do not silently retarget it. Stage 1's runtime identifier validation remains the authoritative invariant/case comparison; this migration does not rewrite keys or substitute database collation equality for it.
 
 The guard uses a reserved migration-specific stored procedure and parameterized regular-expression scans. The migration connection needs normal schema privileges plus `CREATE ROUTINE`, `ALTER ROUTINE` and `EXECUTE`. Missing privileges fail before table changes. A refused call can leave this reserved preflight routine behind; a subsequent guard attempt refuses its preexisting name. Inspect the routine and recorded failure, then explicitly remove only the confirmed migration-owned guard or restore the full backup before retrying. A preexisting unknown routine is never overwritten. No game rows are repaired.
+
+The attribute/JSON alternative begins at `Type`, without a greedy identifier prefix. This preserves its previous unanchored matches: any prefixed match also contains the same matching `Type` suffix, and the old prefix permitted zero characters. The XML element alternative retains its prefix because `<` anchors the element name. This avoids repeated identifier scanning in large stock definitions without changing the candidate columns, case/whitespace rules, conservative malformed-input matches or MySQL regex resource limits. A regex timeout still aborts preflight; it is never treated as zero references.
 
 ## Mapping and provenance
 

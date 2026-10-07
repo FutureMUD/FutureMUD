@@ -678,25 +678,25 @@ namespace MudSharp.Database
                     .HasConstraintName("FK_NPCSpawners_OnSpawnProg");
             });
 
-            modelBuilder.Entity<NPCSpawnerCell>(entity =>
+            modelBuilder.Entity<NPCSpawnerRoom>(entity =>
             {
-                entity.ToTable("NPCSpawnerCells");
-                entity.Property(e => e.CellId).HasColumnType("bigint(20)");
+                entity.ToTable("NPCSpawnerRooms");
+                entity.Property(e => e.RoomId).HasColumnType("bigint(20)");
                 entity.Property(e => e.NPCSpawnerId).HasColumnType("bigint(20)");
-                entity.HasKey(e => new { e.NPCSpawnerId, e.CellId })
+                entity.HasKey(e => new { e.NPCSpawnerId, e.RoomId })
                     .HasName("PRIMARY");
 
                 entity.HasOne(e => e.NPCSpawner)
-                    .WithMany(e => e.Cells)
+                    .WithMany(e => e.Rooms)
                     .HasForeignKey(e => e.NPCSpawnerId)
                     .OnDelete(DeleteBehavior.Cascade)
-                    .HasConstraintName("FK_NPCSpawnerCells_NPCSpawner");
+                    .HasConstraintName("FK_NPCSpawnerRooms_NPCSpawner");
 
-                entity.HasOne(e => e.Cell)
+                entity.HasOne(e => e.Room)
                     .WithMany()
-                    .HasForeignKey(e => e.CellId)
+                    .HasForeignKey(e => e.RoomId)
                     .OnDelete(DeleteBehavior.Cascade)
-                    .HasConstraintName("FK_NPCSpawnerCells_Cell");
+                    .HasConstraintName("FK_NPCSpawnerRooms_Room");
             });
 
             modelBuilder.Entity<NPCSpawnerZone>(entity =>
@@ -922,11 +922,11 @@ namespace MudSharp.Database
             {
                 entity.ToTable("PatrolRoutesNodes");
                 entity.Property(e => e.PatrolRouteId).HasColumnType("bigint(20)");
-                entity.Property(e => e.CellId).HasColumnType("bigint(20)");
+                entity.Property(e => e.RoomId).HasColumnType("bigint(20)");
                 entity.Property(e => e.Order).HasColumnType("int(11)");
-                entity.HasKey(e => new { e.PatrolRouteId, e.CellId }).HasName("PRIMARY");
+                entity.HasKey(e => new { e.PatrolRouteId, e.RoomId }).HasName("PRIMARY");
                 entity.HasIndex(e => e.PatrolRouteId).HasDatabaseName("FK_PatrolRoutesNodes_PatrolRoutes_idx");
-                entity.HasIndex(e => e.CellId).HasDatabaseName("FK_PatrolRoutesNodes_Cells_idx");
+                entity.HasIndex(e => e.RoomId).HasDatabaseName("FK_PatrolRoutesNodes_Rooms_idx");
 
                 entity
                     .HasOne(e => e.PatrolRoute)
@@ -935,10 +935,10 @@ namespace MudSharp.Database
                     .HasConstraintName("FK_PatrolRoutesNodes_PatrolRoutes");
 
                 entity
-                    .HasOne(e => e.Cell)
+                    .HasOne(e => e.Room)
                     .WithMany()
-                    .HasForeignKey(e => e.CellId)
-                    .HasConstraintName("FK_PatrolRoutesNodes_Cells");
+                    .HasForeignKey(e => e.RoomId)
+                    .HasConstraintName("FK_PatrolRoutesNodes_Rooms");
             });
 
             modelBuilder.Entity<PatrolRouteNumbers>(entity =>
@@ -1621,19 +1621,19 @@ namespace MudSharp.Database
             modelBuilder.Entity<PropertyLocation>(entity =>
             {
                 entity.ToTable("PropertyLocations");
-                entity.HasKey(x => new { x.PropertyId, x.CellId }).HasName("PRIMARY");
+                entity.HasKey(x => new { x.PropertyId, x.RoomId }).HasName("PRIMARY");
 
                 entity.Property(e => e.PropertyId).HasColumnType("bigint(20)");
-                entity.Property(e => e.CellId).HasColumnType("bigint(20)");
+                entity.Property(e => e.RoomId).HasColumnType("bigint(20)");
 
                 entity.HasOne(d => d.Property)
                     .WithMany(e => e.PropertyLocations)
                     .HasForeignKey(d => d.PropertyId)
                     .HasConstraintName("FK_PropertyLocations_Property");
-                entity.HasOne(d => d.Cell)
+                entity.HasOne(d => d.Room)
                     .WithMany()
-                    .HasForeignKey(d => d.CellId)
-                    .HasConstraintName("FK_PropertyLocations_Cell");
+                    .HasForeignKey(d => d.RoomId)
+                    .HasConstraintName("FK_PropertyLocations_Room");
             });
 
             modelBuilder.Entity<PropertyOwner>(entity =>

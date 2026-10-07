@@ -18,23 +18,23 @@ namespace MudSharp_Unit_Tests;
 public class EnvironmentalMagicLifecycleTests
 {
 	[TestMethod]
-	public void Futuremud_CellAddAndDestroy_NotifyCoordinatorAtOwningLifecycle()
+	public void Futuremud_RoomAddAndDestroy_NotifyCoordinatorAtOwningLifecycle()
 	{
 		var service = new Mock<IEnvironmentalMagicService>();
 		using var world = CreateWorld(service.Object);
 		var zone = new Mock<IZone>();
-		var cell = new Mock<ICell>();
-		cell.SetupGet(x => x.Id).Returns(10L);
-		cell.SetupGet(x => x.OwningZone).Returns(zone.Object);
-		cell.SetupGet(x => x.Gameworld).Returns(world);
+		var room = new Mock<IRoom>();
+		room.SetupGet(x => x.Id).Returns(10L);
+		room.SetupGet(x => x.OwningZone).Returns(zone.Object);
+		room.SetupGet(x => x.Gameworld).Returns(world);
 
-		world.Add(cell.Object);
-		Assert.AreSame(cell.Object, world.Cells.Get(10));
-		service.Verify(x => x.Register(cell.Object), Times.Once);
-		world.Destroy(cell.Object);
-		Assert.IsNull(world.Cells.Get(10));
-		service.Verify(x => x.Unregister(cell.Object), Times.Once);
-		zone.Verify(x => x.Unregister(cell.Object), Times.Once);
+		world.Add(room.Object);
+		Assert.AreSame(room.Object, world.Rooms.Get(10));
+		service.Verify(x => x.Register(room.Object), Times.Once);
+		world.Destroy(room.Object);
+		Assert.IsNull(world.Rooms.Get(10));
+		service.Verify(x => x.Unregister(room.Object), Times.Once);
+		zone.Verify(x => x.Unregister(room.Object), Times.Once);
 		service.VerifyNoOtherCalls();
 	}
 
@@ -43,9 +43,9 @@ public class EnvironmentalMagicLifecycleTests
 	{
 		var service = new Mock<IEnvironmentalMagicService>();
 		using var world = CreateWorld(service.Object);
-		var cell = Mock.Of<ICell>(x => x.Id == 10L);
-		var first = Mock.Of<IAgricultureField>(x => x.Id == 1L && x.Cell == cell);
-		var replacement = Mock.Of<IAgricultureField>(x => x.Id == 2L && x.Cell == cell);
+		var room = Mock.Of<IRoom>(x => x.Id == 10L);
+		var first = Mock.Of<IAgricultureField>(x => x.Id == 1L && x.Room == room);
+		var replacement = Mock.Of<IAgricultureField>(x => x.Id == 2L && x.Room == room);
 
 		world.Add(first);
 		world.Add(replacement);
@@ -88,7 +88,7 @@ public class EnvironmentalMagicLifecycleTests
 	{
 		var world = TestObjectFactory.CreateUninitialized<Futuremud>();
 		typeof(Futuremud).GetProperty(nameof(Futuremud.EnvironmentalMagic))!.SetValue(world, service);
-		SetField(world, "_cells", new All<ICell>());
+		SetField(world, "_cells", new All<IRoom>());
 		SetField(world, "_listeners", new All<ITemporalListener>());
 		SetField(world, "_agricultureFields", new All<IAgricultureField>());
 		SetField(world, "_magicResources", new All<IMagicResource>());

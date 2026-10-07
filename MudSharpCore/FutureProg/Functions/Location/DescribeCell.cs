@@ -4,7 +4,7 @@ using MudSharp.FutureProg.Variables;
 
 namespace MudSharp.FutureProg.Functions.Location;
 
-internal class DescribeCell : BuiltInFunction
+internal class DescribeRoom : BuiltInFunction
 {
     public IFuturemud Gameworld { get; set; }
 
@@ -20,7 +20,7 @@ internal class DescribeCell : BuiltInFunction
                     ProgVariableTypes.Location, ProgVariableTypes.OverlayPackage,
                     ProgVariableTypes.Text
                 },
-                (pars, gameworld) => new DescribeCell(pars, gameworld),
+                (pars, gameworld) => new DescribeRoom(pars, gameworld),
                 new List<string>
                 {
                     "room",
@@ -47,7 +47,7 @@ internal class DescribeCell : BuiltInFunction
                     ProgVariableTypes.Location, ProgVariableTypes.OverlayPackage,
                     ProgVariableTypes.Text
                 },
-                (pars, gameworld) => new DescribeCell(pars, gameworld),
+                (pars, gameworld) => new DescribeRoom(pars, gameworld),
                 new List<string>
                 {
                     "room",
@@ -71,7 +71,7 @@ internal class DescribeCell : BuiltInFunction
 
     #region Constructors
 
-    protected DescribeCell(IList<IFunction> parameterFunctions, IFuturemud gameworld) : base(parameterFunctions)
+    protected DescribeRoom(IList<IFunction> parameterFunctions, IFuturemud gameworld) : base(parameterFunctions)
     {
         Gameworld = gameworld;
     }
@@ -91,14 +91,14 @@ internal class DescribeCell : BuiltInFunction
             return StatementResult.Error;
         }
 
-        ICell cell = (ICell)ParameterFunctions[0].Result?.GetObject;
-        if (cell == null)
+        IRoom room = (IRoom)ParameterFunctions[0].Result?.GetObject;
+        if (room == null)
         {
             Result = new BooleanVariable(false);
             return StatementResult.Normal;
         }
 
-        ICellOverlayPackage package = (ICellOverlayPackage)ParameterFunctions[1].Result?.GetObject;
+        IRoomOverlayPackage package = (IRoomOverlayPackage)ParameterFunctions[1].Result?.GetObject;
         if (package == null)
         {
             Result = new BooleanVariable(false);
@@ -118,8 +118,8 @@ internal class DescribeCell : BuiltInFunction
             return StatementResult.Normal;
         }
 
-        IEditableCellOverlay overlay = cell.GetOrCreateOverlay(package);
-        overlay.CellDescription = text;
+        IEditableRoomOverlay overlay = room.GetOrCreateOverlay(package);
+        overlay.RoomDescription = text;
         Result = new BooleanVariable(true);
         return StatementResult.Normal;
     }

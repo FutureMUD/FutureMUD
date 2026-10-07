@@ -2,12 +2,12 @@ namespace TerrainPlanner.Contracts;
 
 public static class MaskSerializer
 {
-	public static string ExportTerrainMask(PlannerMap map) => string.Join(',', map.Cells.Select(cell => cell.TerrainId));
+	public static string ExportTerrainMask(PlannerMap map) => string.Join(',', map.Rooms.Select(room => room.TerrainId));
 
 	public static void ImportTerrainMask(PlannerMap map, string mask, IReadOnlySet<long> validTerrainIds)
 	{
-		var values = SplitCells(mask);
-		EnsureCellCount(map, values.Length, "terrain");
+		var values = SplitRooms(mask);
+		EnsureRoomCount(map, values.Length, "terrain");
 		for (var index = 0; index < values.Length; index++)
 		{
 			if (!long.TryParse(values[index].Trim(), out var terrainId) || terrainId < 0 ||
@@ -16,21 +16,21 @@ public static class MaskSerializer
 				throw new InvalidDataException($"Terrain mask entry {index + 1} is not a known terrain ID.");
 			}
 
-			map.CellAt(index % map.Width, index / map.Width).SetTerrain(terrainId);
+			map.RoomAt(index % map.Width, index / map.Width).SetTerrain(terrainId);
 		}
 	}
 
 	public static string ExportFeatureMask(PlannerMap map)
 	{
-		return string.Join(',', map.Cells.Select(cell =>
+		return string.Join(',', map.Rooms.Select(room =>
 		{
-			if (cell.TerrainId == 0)
+			if (room.TerrainId == 0)
 			{
 				return string.Empty;
 			}
 
-			var tagIds = cell.TagIds
-				.Concat(cell.UnresolvedFeatures.Select(ParseFeatureTagId))
+			var tagIds = room.TagIds
+				.Concat(room.UnresolvedFeatures.Select(ParseFeatureTagId))
 				.Distinct()
 				.Order();
 			return string.Join('|', tagIds);
@@ -40,13 +40,13 @@ public static class MaskSerializer
 	public static void ImportFeatureMask(PlannerMap map, string mask,
 		IReadOnlyDictionary<long, TagCatalogueItem> tagsById)
 	{
-		var values = SplitCells(mask);
-		EnsureCellCount(map, values.Length, "feature");
+		var values = SplitRooms(mask);
+		EnsureRoomCount(map, values.Length, "feature");
 		for (var index = 0; index < values.Length; index++)
 		{
-			var cell = map.CellAt(index % map.Width, index / map.Width);
-			cell.ClearTags();
-			if (cell.TerrainId == 0 || string.IsNullOrWhiteSpace(values[index]))
+			var room = map.RoomAt(index % map.Width, index / map.Width);
+			room.ClearTags();
+			if (room.TerrainId == 0 || string.IsNullOrWhiteSpace(values[index]))
 			{
 				continue;
 			}
@@ -56,11 +56,11 @@ public static class MaskSerializer
 				var tagId = ParseFeatureTagId(value);
 				if (tagsById.ContainsKey(tagId))
 				{
-					cell.AddTag(tagId);
+					room.AddTag(tagId);
 				}
 				else
 				{
-					cell.AddUnresolvedFeature(tagId.ToString(System.Globalization.CultureInfo.InvariantCulture));
+					room.AddUnresolvedFeature(tagId.ToString(System.Globalization.CultureInfo.InvariantCulture));
 				}
 			}
 		}
@@ -77,10 +77,10 @@ public static class MaskSerializer
 		return tagId;
 	}
 
-	private static string[] SplitCells(string mask) =>
+	private static string[] SplitRooms(string mask) =>
 		(mask ?? string.Empty).Trim().Split(',', StringSplitOptions.None);
 
-	private static void EnsureCellCount(PlannerMap map, int count, string noun)
+	private static void EnsureRoomCount(PlannerMap map, int count, string noun)
 	{
 		if (count != map.Width * map.Height)
 		{

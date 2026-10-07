@@ -48,7 +48,7 @@ public sealed record CombatSimulationParticipantRequest(
 	ICharacter? Character,
 	INPCTemplate? NpcTemplate,
 	int Ordinal = 1,
-	ICell? StartingCell = null,
+	IRoom? StartingRoom = null,
 	RoomLayer StartingLayer = RoomLayer.GroundLevel,
 	IPositionState? StartingPosition = null,
 	bool StartsInMelee = true,
@@ -67,7 +67,7 @@ public sealed record CombatSimulationParticipantRequest(
 public sealed record CombatSimulationRequest(
 	Guid RunId,
 	ICharacter RequestedBy,
-	ICell Scene,
+	IRoom Scene,
 	IReadOnlyList<CombatSimulationParticipantRequest> Participants,
 	int Seed,
 	TimeSpan MaximumVirtualTime,
@@ -75,12 +75,12 @@ public sealed record CombatSimulationRequest(
 	int MaximumTranscriptEntries,
 	TimeSpan MaximumWallClockTime,
 	bool Force,
-	IReadOnlyList<ICell>? Cells = null);
+	IReadOnlyList<IRoom>? Rooms = null);
 
 public sealed record CombatSimulationBatchRequest(
 	Guid BatchId,
 	ICharacter RequestedBy,
-	ICell Scene,
+	IRoom Scene,
 	IReadOnlyList<CombatSimulationParticipantRequest> Participants,
 	int FirstSeed,
 	int SeedIncrement,
@@ -90,7 +90,7 @@ public sealed record CombatSimulationBatchRequest(
 	TimeSpan MaximumWallClockTime,
 	TimeSpan MaximumBatchWallClockTime,
 	bool Force,
-	IReadOnlyList<ICell>? Cells = null);
+	IReadOnlyList<IRoom>? Rooms = null);
 
 public sealed record CombatSimulationValidationMessage(bool IsError, string Message);
 

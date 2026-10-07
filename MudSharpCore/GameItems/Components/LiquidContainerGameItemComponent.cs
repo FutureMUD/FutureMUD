@@ -222,7 +222,7 @@ internal class LiquidContainerGameItemComponent : GameItemComponent, ILiquidCont
             LiquidMixture?.Instances.Sum(x => (fluidDensity - x.Liquid.Density) * x.Amount * x.Liquid.Density) ?? 0.0;
     }
 
-    public override bool HandleDieOrMorph(IGameItem newItem, ICell location)
+    public override bool HandleDieOrMorph(IGameItem newItem, IRoom location)
     {
         ILockable newItemLockable = newItem?.GetItemType<ILockable>();
         if (newItemLockable != null)
@@ -266,8 +266,8 @@ internal class LiquidContainerGameItemComponent : GameItemComponent, ILiquidCont
 		{
 			var remainder = LiquidMixture;
 			LiquidMixture = null;
-			if (location is MudSharp.Construction.Cell cell && CapturedLifecycleSource is { } point)
-				cell.AddLiquidToSurfaceAt(remainder, point.Layer, point.RoutePositionMetres);
+			if (location is MudSharp.Construction.Room room && CapturedLifecycleSource is { } point)
+				room.AddLiquidToSurfaceAt(remainder, point.Layer, point.RoutePositionMetres);
 			else location.AddLiquidToSurface(remainder, Parent.RoomLayer, Parent.LocationLevelPerceivable);
 		}
 

@@ -12,12 +12,12 @@ namespace MudSharp.Construction;
 
 public class Area : Location, IEditableArea
 {
-    public Area(ICell firstCell, string name) : base(firstCell.Gameworld)
+    public Area(IRoom firstRoom, string name) : base(firstRoom.Gameworld)
     {
         using (new FMDB())
         {
             Areas dbitem = new() { Name = name };
-            dbitem.AreasCells.Add(new AreasCells { Area = dbitem, CellId = firstCell.Id });
+            dbitem.AreasRooms.Add(new AreasRooms { Area = dbitem, RoomId = firstRoom.Id });
             FMDB.Context.Areas.Add(dbitem);
             FMDB.Context.SaveChanges();
             _id = dbitem.Id;
@@ -25,20 +25,20 @@ public class Area : Location, IEditableArea
         }
         IdInitialised = true;
         Gameworld.Add(this);
-        Attach(firstCell);
+        Attach(firstRoom);
     }
 
-    private void Attach(ICell cell)
+    private void Attach(IRoom room)
     {
-        _cells.Add(cell);
-        cell.AddArea(this);
-        cell.CellRequestsDeletion -= Cell_CellRequestsDeletion;
-        cell.CellRequestsDeletion += Cell_CellRequestsDeletion;
+        _cells.Add(room);
+        room.AddArea(this);
+        room.RoomRequestsDeletion -= Room_RoomRequestsDeletion;
+        room.RoomRequestsDeletion += Room_RoomRequestsDeletion;
     }
 
-    private void Cell_CellRequestsDeletion(object sender, EventArgs e)
+    private void Room_RoomRequestsDeletion(object sender, EventArgs e)
     {
-        Remove((ICell)sender);
+        Remove((IRoom)sender);
     }
 
     public Area(Areas area, IFuturemud gameworld) : base(gameworld)
@@ -47,26 +47,26 @@ public class Area : Location, IEditableArea
         IdInitialised = true;
         _name = area.Name;
         _weatherController = Gameworld.WeatherControllers.Get(area.WeatherControllerId ?? 0L);
-        foreach (var membership in area.AreasCells)
+        foreach (var membership in area.AreasRooms)
         {
-            var cell = Gameworld.Cells.Get(membership.CellId)
-                ?? throw new InvalidOperationException($"Area #{Id} references missing cell #{membership.CellId}.");
-            Attach(cell);
+            var room = Gameworld.Rooms.Get(membership.RoomId)
+                ?? throw new InvalidOperationException($"Area #{Id} references missing cell #{membership.RoomId}.");
+            Attach(room);
         }
     }
 
-    public void Add(ICell cell)
+    public void Add(IRoom room)
     {
-        if (_cells.Contains(cell)) return;
-        Attach(cell);
+        if (_cells.Contains(room)) return;
+        Attach(room);
         Changed = true;
     }
 
-    public void Remove(ICell cell)
+    public void Remove(IRoom room)
     {
-        if (!_cells.Remove(cell)) return;
-        cell.RemoveArea(this);
-        cell.CellRequestsDeletion -= Cell_CellRequestsDeletion;
+        if (!_cells.Remove(room)) return;
+        room.RemoveArea(this);
+        room.RoomRequestsDeletion -= Room_RoomRequestsDeletion;
         Changed = true;
     }
 
@@ -76,10 +76,10 @@ public class Area : Location, IEditableArea
         dbitem.Name = Name;
         dbitem.WeatherControllerId = WeatherController?.Id;
 		var desiredIds = _cells.Select(x => x.Id).ToHashSet();
-		FMDB.Context.AreasCells.RemoveRange(dbitem.AreasCells.Where(x => !desiredIds.Contains(x.CellId)).ToList());
-		var existingIds = dbitem.AreasCells.Select(x => x.CellId).ToHashSet();
-		foreach (var cell in _cells.Where(x => !existingIds.Contains(x.Id)))
-			dbitem.AreasCells.Add(new AreasCells { Area = dbitem, CellId = cell.Id });
+		FMDB.Context.AreasRooms.RemoveRange(dbitem.AreasRooms.Where(x => !desiredIds.Contains(x.RoomId)).ToList());
+		var existingIds = dbitem.AreasRooms.Select(x => x.RoomId).ToHashSet();
+		foreach (var room in _cells.Where(x => !existingIds.Contains(x.Id)))
+			dbitem.AreasRooms.Add(new AreasRooms { Area = dbitem, RoomId = room.Id });
         Changed = false;
     }
 
@@ -91,17 +91,17 @@ public class Area : Location, IEditableArea
 			if (ReferenceEquals(_weatherController, value)) return;
 			using var exposureChange = EnvironmentalExposureService.ChangingDefinitions(Gameworld);
             _weatherController = value;
-			foreach (var cell in Cells.OfType<Cell>()) cell.RefreshWeatherSubscriptions();
+			foreach (var room in Rooms.OfType<Room>()) room.RefreshWeatherSubscriptions();
             Changed = true;
         }
     }
 
-    private readonly List<ICell> _cells = new();
+    private readonly List<IRoom> _cells = new();
     private IWeatherController _weatherController;
 
 
-    public override IEnumerable<ICell> Cells => _cells;
-    public IEnumerable<IZone> Zones => Cells.Select(x => x.OwningZone).Distinct();
+    public override IEnumerable<IRoom> Rooms => _cells;
+    public IEnumerable<IZone> Zones => Rooms.Select(x => x.OwningZone).Distinct();
 
     #region Overrides of Location
 
@@ -181,13 +181,13 @@ public class Area : Location, IEditableArea
         switch (property.ToLowerInvariant())
         {
             case "rooms":
-                return new CollectionVariable(Cells.ToList(), ProgVariableTypes.Location);
+                return new CollectionVariable(Rooms.ToList(), ProgVariableTypes.Location);
             case "now":
                 return new MudDateTime(Calendars.First().CurrentDate, Calendars.First().FeedClock.CurrentTime, Calendars.First().FeedClock.PrimaryTimezone);
             case "characters":
-                return new CollectionVariable(Cells.SelectMany(x => x.Characters).ToList(), ProgVariableTypes.Character);
+                return new CollectionVariable(Rooms.SelectMany(x => x.Characters).ToList(), ProgVariableTypes.Character);
             case "items":
-                return new CollectionVariable(Cells.SelectMany(x => x.GameItems).ToList(), ProgVariableTypes.Character);
+                return new CollectionVariable(Rooms.SelectMany(x => x.GameItems).ToList(), ProgVariableTypes.Character);
             case "timeofday":
                 return new TextVariable(CurrentTimeOfDay.DescribeEnum());
             default:

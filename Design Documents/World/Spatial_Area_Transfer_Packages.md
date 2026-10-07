@@ -12,7 +12,9 @@ Spatial area transfer packages let a senior administrator export one or more sel
 - unsupported state blocks export when silently dropping it would make the result misleading;
 - every deliberate omission is retained in the package and shown in-game.
 
-The file suffix is `.fmsa.json`. Files are read and written only beneath the server's `Spatial Packages` directory. Package names cannot contain a path. Versions 1 through 4 are accepted; new exports use version 4.
+The file suffix is `.fmsa.json`. Files are read and written only beneath the server's `Spatial Packages` directory. Package names cannot contain a path. Versions 1 through 5 are accepted; new exports use version 5 with Room-named properties and the former Cell identities. Frozen readers validate each version 1–4 archive's original canonical checksum before normalization; source version/checksum remain available. No identifier values or user-authored text are rewritten by property-name conversion.
+
+An empty legacy containing Room is skipped with a warning. Its ordinary Area memberships are removed with warnings identifying the original Area and parent IDs, while the original archive retains provenance and the Area remains, possibly with an empty RoomKeys list. Missing parents and multi-child ambiguity still refuse. Current version 5 accepts an empty area-membership list; null lists and references outside the package remain invalid. Earlier format labels in the sections below describe compatibility wire records, not a second live Room layer.
 
 ## Builder Workflow
 

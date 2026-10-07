@@ -65,13 +65,13 @@ internal class CreateOverlay : BuiltInFunction
         }
 
         string text = ParameterFunctions[1].Result?.GetObject?.ToString() ?? string.Empty;
-        if (string.IsNullOrWhiteSpace(text) || Gameworld.CellOverlayPackages.Any(x => x.Name.EqualTo(text)))
+        if (string.IsNullOrWhiteSpace(text) || Gameworld.RoomOverlayPackages.Any(x => x.Name.EqualTo(text)))
         {
             Result = null;
             return StatementResult.Normal;
         }
 
-        CellOverlayPackage overlay = new(Gameworld, character.Account, text);
+        RoomOverlayPackage overlay = new(Gameworld, character.Account, text);
         Gameworld.Add(overlay);
         Result = overlay;
         return StatementResult.Normal;

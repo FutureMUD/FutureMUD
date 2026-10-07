@@ -16,7 +16,7 @@ namespace MudSharp.GameItems.Groups
         /// </summary>
         /// <param name="cell">The cell against which to check</param>
         /// <returns>True if it applies</returns>
-        bool Applies(ICell cell);
+        bool Applies(IRoom room);
 
         bool Applies(long cellId);
         bool SpecialFormFor(long cellId);

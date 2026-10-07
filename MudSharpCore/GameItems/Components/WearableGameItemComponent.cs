@@ -53,7 +53,7 @@ public class WearableGameItemComponent : GameItemComponent, IWearable
 
     public override int ComponentDieOrder => 5;
 
-    public override bool HandleDieOrMorph(IGameItem newItem, ICell location)
+    public override bool HandleDieOrMorph(IGameItem newItem, IRoom location)
     {
         if (WornBy == null)
         {

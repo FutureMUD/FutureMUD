@@ -20,7 +20,7 @@ public class FollowingPathDoorTests
 	{
 		var fixture = CreateFixture(otherUsesSameExit: true);
 
-		Assert.IsTrue(FollowingPath.HasOtherWalkers(fixture.Actor.Object, fixture.CellExit.Object));
+		Assert.IsTrue(FollowingPath.HasOtherWalkers(fixture.Actor.Object, fixture.RoomExit.Object));
 	}
 
 	[TestMethod]
@@ -28,7 +28,7 @@ public class FollowingPathDoorTests
 	{
 		var fixture = CreateFixture(otherUsesSameExit: false);
 
-		Assert.IsFalse(FollowingPath.HasOtherWalkers(fixture.Actor.Object, fixture.CellExit.Object));
+		Assert.IsFalse(FollowingPath.HasOtherWalkers(fixture.Actor.Object, fixture.RoomExit.Object));
 	}
 
 	[TestMethod]
@@ -36,7 +36,7 @@ public class FollowingPathDoorTests
 	{
 		var fixture = CreateFixture(otherUsesSameExit: null);
 
-		Assert.IsFalse(FollowingPath.HasOtherWalkers(fixture.Actor.Object, fixture.CellExit.Object));
+		Assert.IsFalse(FollowingPath.HasOtherWalkers(fixture.Actor.Object, fixture.RoomExit.Object));
 	}
 
 	[TestMethod]
@@ -44,7 +44,7 @@ public class FollowingPathDoorTests
 	{
 		var fixture = CreateFixture(otherUsesSameExit: true, includeOpenDoor: true);
 
-		FollowingPath.CloseDoorBehind(fixture.Actor.Object, fixture.CellExit.Object, useKeys: false);
+		FollowingPath.CloseDoorBehind(fixture.Actor.Object, fixture.RoomExit.Object, useKeys: false);
 
 		fixture.Body.Verify(x => x.Close(fixture.Door!.Object, default!, default!), Times.Never);
 	}
@@ -54,7 +54,7 @@ public class FollowingPathDoorTests
 	{
 		var fixture = CreateFixture(otherUsesSameExit: true, includeOpenDoor: true);
 
-		FollowingPath.CloseDoorBehind(fixture.Actor.Object, fixture.CellExit.Object, useKeys: false,
+		FollowingPath.CloseDoorBehind(fixture.Actor.Object, fixture.RoomExit.Object, useKeys: false,
 			mustSecure: true);
 
 		fixture.Body.Verify(x => x.Close(fixture.Door!.Object, default!, default!), Times.Once);
@@ -68,8 +68,8 @@ public class FollowingPathDoorTests
 		var body = new Mock<IBody>();
 		actor.Setup(x => x.Body).Returns(body.Object);
 
-		var origin = new Mock<ICell>();
-		var destination = new Mock<ICell>();
+		var origin = new Mock<IRoom>();
+		var destination = new Mock<IRoom>();
 		origin.Setup(x => x.Characters).Returns(new[] { actor.Object, other.Object });
 		destination.Setup(x => x.Characters).Returns([]);
 
@@ -82,7 +82,7 @@ public class FollowingPathDoorTests
 			exit.Setup(x => x.Door).Returns(door.Object);
 		}
 
-		var cellExit = new Mock<ICellExit>();
+		var cellExit = new Mock<IRoomExit>();
 		cellExit.Setup(x => x.Exit).Returns(exit.Object);
 		cellExit.Setup(x => x.Origin).Returns(origin.Object);
 		cellExit.Setup(x => x.Destination).Returns(destination.Object);
@@ -90,10 +90,10 @@ public class FollowingPathDoorTests
 		if (otherUsesSameExit.HasValue)
 		{
 			var movementExit = otherUsesSameExit.Value ? exit : new Mock<IExit>();
-			var movementCellExit = new Mock<ICellExit>();
-			movementCellExit.Setup(x => x.Exit).Returns(movementExit.Object);
+			var movementRoomExit = new Mock<IRoomExit>();
+			movementRoomExit.Setup(x => x.Exit).Returns(movementExit.Object);
 			var movement = new Mock<IMovement>();
-			movement.Setup(x => x.Exit).Returns(movementCellExit.Object);
+			movement.Setup(x => x.Exit).Returns(movementRoomExit.Object);
 			movement.Setup(x => x.Cancelled).Returns(false);
 			other.Setup(x => x.Movement).Returns(movement.Object);
 		}
@@ -102,5 +102,5 @@ public class FollowingPathDoorTests
 	}
 
 	private sealed record DoorMovementFixture(Mock<ICharacter> Actor, Mock<IBody> Body,
-		Mock<ICellExit> CellExit, Mock<IDoor>? Door);
+		Mock<IRoomExit> RoomExit, Mock<IDoor>? Door);
 }

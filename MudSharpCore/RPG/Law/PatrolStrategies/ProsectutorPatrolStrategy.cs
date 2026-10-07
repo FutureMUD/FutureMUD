@@ -61,7 +61,7 @@ public class ProsectutorPatrolStrategy : PatrolStrategyBase
                 return;
             }
 
-            List<ICellExit> path = patrol.PatrolLeader
+            List<IRoomExit> path = patrol.PatrolLeader
                              .PathBetween(patrol.NextMajorNode, 20,
                                  PathSearch.PathIncludeUnlockableDoors(patrol.PatrolLeader))
                              .ToList();

@@ -6,7 +6,7 @@ using MudSharp.Framework;
 
 namespace MudSharp.Form.Shape;
 
-public delegate void LocatableEvent(ILocateable locatable, ICellExit exit);
+public delegate void LocatableEvent(ILocateable locatable, IRoomExit exit);
 public delegate void SpatialLocationEvent(
 	ILocateable locatable,
 	SpatialLocation previousLocation,
@@ -14,7 +14,7 @@ public delegate void SpatialLocationEvent(
 
 public interface ILocateable : IFrameworkItem, IKeyworded
 {
-	ICell Location { get; }
+	IRoom Location { get; }
 
 	RoomLayer RoomLayer { get; set; }
 
@@ -40,7 +40,7 @@ public interface ILocateable : IFrameworkItem, IKeyworded
 	/// Tests raw cell-and-layer membership. Unlike <see cref="ColocatedWith"/>, this deliberately
 	/// ignores longitudinal distance inside a route cell.
 	/// </summary>
-	bool SharesCellLayerWith(ILocateable? otherThing)
+	bool SharesRoomLayerWith(ILocateable? otherThing)
 	{
 		return otherThing is not null &&
 		       ReferenceEquals(Location, otherThing.Location) &&

@@ -133,7 +133,7 @@ internal static partial class GNHProgram
 		{
 			Require(life.State == SpellLifecycleState.Completed && !db.GameItems.Any(x => x.Id == input.Item) &&
 				!db.GameItemComponents.Any(x => x.GameItemId == input.Item) && !db.BodiesGameItems.Any(x => x.GameItemId == input.Item) &&
-				!db.CellsGameItems.Any(x => x.GameItemId == input.Item) && !native.Body.AllItems.Any(x => x.Id == input.Item),
+				!db.RoomsGameItems.Any(x => x.GameItemId == input.Item) && !native.Body.AllItems.Any(x => x.Id == input.Item),
 				"Committed removal must persist terminal lifecycle and clear only its exact item/components/custody.");
 		}
 		else

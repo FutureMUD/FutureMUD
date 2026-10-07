@@ -76,15 +76,15 @@ public class AuctionHouseSettlementTests
 		calendar.SetupGet(x => x.CurrentDateTime).Returns(MudDateTime.Never);
 		zone.SetupGet(x => x.FinancialPeriodReferenceCalendar).Returns(calendar.Object);
 
-		Mock<ICell> cell = new();
-		cell.SetupGet(x => x.Id).Returns(41L);
-		cell.SetupGet(x => x.Name).Returns("Auction Floor");
+		Mock<IRoom> room = new();
+		room.SetupGet(x => x.Id).Returns(41L);
+		room.SetupGet(x => x.Name).Returns("Auction Floor");
 
 		Mock<IHeartbeatManager> heartbeatManager = new();
 		All<IEconomicZone> economicZones = new();
 		economicZones.Add(zone.Object);
-		All<ICell> cells = new();
-		cells.Add(cell.Object);
+		All<IRoom> rooms = new();
+		rooms.Add(room.Object);
 		All<IBankAccount> bankAccounts = new();
 		if (linkedProfitsAccount)
 		{
@@ -97,7 +97,7 @@ public class AuctionHouseSettlementTests
 		gameworld.SetupGet(x => x.HeartbeatManager).Returns(heartbeatManager.Object);
 		gameworld.SetupGet(x => x.SaveManager).Returns(new Mock<ISaveManager>().Object);
 		gameworld.SetupGet(x => x.EconomicZones).Returns(economicZones);
-		gameworld.SetupGet(x => x.Cells).Returns(cells);
+		gameworld.SetupGet(x => x.Rooms).Returns(rooms);
 		gameworld.SetupGet(x => x.BankAccounts).Returns(bankAccounts);
 		gameworld.SetupGet(x => x.Properties).Returns(properties);
 
@@ -106,7 +106,7 @@ public class AuctionHouseSettlementTests
 			Id = 51L,
 			Name = "Central Auction House",
 			EconomicZoneId = zone.Object.Id,
-			AuctionHouseCellId = cell.Object.Id,
+			AuctionHouseRoomId = room.Object.Id,
 			ProfitsBankAccountId = linkedProfitsAccount ? profitsAccount.Object.Id : null,
 			AuctionListingFeeFlat = 10.0M,
 			AuctionListingFeeRate = 0.10M,

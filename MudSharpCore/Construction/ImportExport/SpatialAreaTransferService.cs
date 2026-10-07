@@ -32,7 +32,7 @@ public sealed partial class SpatialAreaTransferService : ISpatialAreaTransferSer
 		public required string ZoneName { get; init; }
 		public required IReadOnlyList<SpatialZoneDefinition> Zones { get; init; }
 		public required IReadOnlyDictionary<string, string> ZoneNames { get; init; }
-		public required ICellOverlayPackage OverlayPackage { get; init; }
+		public required IRoomOverlayPackage OverlayPackage { get; init; }
 		public required IReadOnlyDictionary<string, ITerrain> Terrains { get; init; }
 		public required IReadOnlyDictionary<string, IHearingProfile> HearingProfiles { get; init; }
 		public required IReadOnlyDictionary<string, IFluid> Fluids { get; init; }
@@ -88,7 +88,7 @@ public sealed partial class SpatialAreaTransferService : ISpatialAreaTransferSer
 			PackagePath = preflight.PackagePath,
 			Diagnostics = preflight.Diagnostics,
 			ZoneCount = zoneNames.Count,
-			CellCount = preflight.Package.Cells.Count,
+			RoomCount = preflight.Package.Rooms.Count,
 			ExitCount = preflight.Package.Exits.Count,
 			OmittedItems = PackageOmissions(preflight)
 		};
@@ -223,12 +223,12 @@ public sealed partial class SpatialAreaTransferService : ISpatialAreaTransferSer
 		ValidateEnums(package, diagnostics);
 
 		var terrains = ResolveReferences(
-			package.Cells.Select(x => x.Overlay.Terrain),
+			package.Rooms.Select(x => x.Overlay.Terrain),
 			actor.Gameworld.Terrains,
 			"terrain",
 			diagnostics);
 		var hearingProfiles = ResolveReferences(
-			package.Cells
+			package.Rooms
 				.Select(x => x.Overlay.HearingProfile)
 				.Where(x => x is not null)
 				.Select(x => x!),
@@ -236,7 +236,7 @@ public sealed partial class SpatialAreaTransferService : ISpatialAreaTransferSer
 			"hearing-profile",
 			diagnostics);
 		var foragableProfiles = ResolveReferences(
-			package.Cells.Select(x => x.ForagableProfile)
+			package.Rooms.Select(x => x.ForagableProfile)
 				.Concat(zones.Select(x => x.ForagableProfile))
 				.Where(x => x is not null)
 				.Select(x => x!),
@@ -244,23 +244,23 @@ public sealed partial class SpatialAreaTransferService : ISpatialAreaTransferSer
 			"foragable-profile",
 			diagnostics);
 		var tags = ResolveReferences(
-			package.Cells.SelectMany(x => x.Tags),
+			package.Rooms.SelectMany(x => x.Tags),
 			actor.Gameworld.Tags,
 			"tag",
 			diagnostics);
 		var covers = ResolveReferences(
-			package.Cells.SelectMany(x => x.RangedCovers),
+			package.Rooms.SelectMany(x => x.RangedCovers),
 			actor.Gameworld.RangedCovers,
 			"ranged-cover",
 			diagnostics);
 		var magicResources = ResolveReferences(
-			package.Cells.SelectMany(x => x.MagicResources).Select(x => x.Resource),
+			package.Rooms.SelectMany(x => x.MagicResources).Select(x => x.Resource),
 			actor.Gameworld.MagicResources,
 			"magic-resource",
 			diagnostics);
 
 		var fluids = new Dictionary<string, IFluid>(StringComparer.InvariantCultureIgnoreCase);
-		foreach (var fluidReference in package.Cells
+		foreach (var fluidReference in package.Rooms
 			         .Select(x => x.Overlay.Atmosphere)
 			         .Where(x => x is not null)
 			         .Select(x => x!)
@@ -342,7 +342,7 @@ public sealed partial class SpatialAreaTransferService : ISpatialAreaTransferSer
 				PackagePath = packagePath,
 				Diagnostics = diagnostics,
 				ZoneCount = zones.Count,
-				CellCount = package.Cells.Count,
+				RoomCount = package.Rooms.Count,
 				ExitCount = package.Exits.Count,
 				OmittedItems = package.Omissions?.Select(x => x.Message).ToList() ?? []
 			};
@@ -374,9 +374,9 @@ public sealed partial class SpatialAreaTransferService : ISpatialAreaTransferSer
 		return preflight;
 	}
 
-	private static SpatialExitSideDefinition BuildExitSide(ICellExit side)
+	private static SpatialExitSideDefinition BuildExitSide(IRoomExit side)
 	{
-		if (side is not INonCardinalCellExit nonCardinal)
+		if (side is not INonCardinalRoomExit nonCardinal)
 		{
 			return new SpatialExitSideDefinition { Direction = (int)side.OutboundDirection };
 		}
@@ -394,63 +394,63 @@ public sealed partial class SpatialAreaTransferService : ISpatialAreaTransferSer
 		};
 	}
 
-	private static IReadOnlyList<SpatialAreaTransferDiagnostic> ValidateExportableCells(
-		IReadOnlyCollection<ICell> cells)
+	private static IReadOnlyList<SpatialAreaTransferDiagnostic> ValidateExportableRooms(
+		IReadOnlyCollection<IRoom> rooms)
 	{
 		var diagnostics = new List<SpatialAreaTransferDiagnostic>();
 		using (new FMDB())
 		{
-			var ids = cells.Select(x => x.Id).ToList();
-			var persistedCells = FMDB.Context.Cells
+			var ids = rooms.Select(x => x.Id).ToList();
+			var persistedRooms = FMDB.Context.Rooms
 				.Where(x => ids.Contains(x.Id))
 				.ToDictionary(x => x.Id);
-			foreach (var cell in cells)
+			foreach (var room in rooms)
 			{
-				if (cell.Temporary)
+				if (room.Temporary)
 				{
 					diagnostics.Add(Error("temporary-cell",
-						$"Cell #{cell.Id:N0} is temporary and cannot be faithfully imported."));
+						$"Cell #{room.Id:N0} is temporary and cannot be faithfully imported."));
 				}
 
-				if (cell is Cell concreteCell &&
-				    (concreteCell.HostedVehicleId.HasValue || concreteCell.HostedVehicleCompartmentId.HasValue))
+				if (room is Room concreteRoom &&
+				    (concreteRoom.HostedVehicleId.HasValue || concreteRoom.HostedVehicleCompartmentId.HasValue))
 				{
 					diagnostics.Add(Error("hosted-vehicle-cell",
-						$"Cell #{cell.Id:N0} is a hosted vehicle interior and cannot be detached from its vehicle."));
+						$"Cell #{room.Id:N0} is a hosted vehicle interior and cannot be detached from its vehicle."));
 				}
 
-				if (cell.AgricultureField is not null)
+				if (room.AgricultureField is not null)
 				{
 					diagnostics.Add(Error("agriculture-field",
-						$"Cell #{cell.Id:N0} has an agriculture field, which spatial packages do not carry."));
+						$"Cell #{room.Id:N0} has an agriculture field, which spatial packages do not carry."));
 				}
 
-				if (persistedCells.TryGetValue(cell.Id, out var dbCell))
+				if (persistedRooms.TryGetValue(room.Id, out var dbRoom))
 				{
-					if (HasPersistedEffects(dbCell.EffectData))
+					if (HasPersistedEffects(dbRoom.EffectData))
 					{
 						diagnostics.Add(Error("persisted-cell-effects",
-							$"Cell #{cell.Id:N0} has persisted effects. Spatial packages refuse to discard effect state."));
+							$"Cell #{room.Id:N0} has persisted effects. Spatial packages refuse to discard effect state."));
 					}
 
-					if (HasSurfaceLiquid(dbCell.SurfaceLiquidData))
+					if (HasSurfaceLiquid(dbRoom.SurfaceLiquidData))
 					{
 						diagnostics.Add(Error("surface-liquid",
-							$"Cell #{cell.Id:N0} has persistent surface-liquid state, which spatial packages do not carry."));
+							$"Cell #{room.Id:N0} has persistent surface-liquid state, which spatial packages do not carry."));
 					}
 				}
 			}
 		}
 
-		var characterCount = cells.Sum(x => x.Characters.Count());
-		var itemCount = cells.Sum(x => x.GameItems.Count());
+		var characterCount = rooms.Sum(x => x.Characters.Count());
+		var itemCount = rooms.Sum(x => x.GameItems.Count());
 		if (characterCount > 0 || itemCount > 0)
 		{
 			diagnostics.Add(Warning("contents-omitted",
 				$"The source contains {characterCount:N0} character(s) and {itemCount:N0} item(s). Spatial packages never move live contents."));
 		}
 
-		var hookCount = cells.Sum(x => x.Hooks.Count());
+		var hookCount = rooms.Sum(x => x.Hooks.Count());
 		if (hookCount > 0)
 		{
 			diagnostics.Add(Warning("hooks-omitted",
@@ -595,19 +595,19 @@ public sealed partial class SpatialAreaTransferService : ISpatialAreaTransferSer
 		SpatialAreaPackage package,
 		ICollection<SpatialAreaTransferDiagnostic> diagnostics)
 	{
-		foreach (var cell in package.Cells)
+		foreach (var room in package.Rooms)
 		{
-			if (!Enum.IsDefined((CellOutdoorsType)cell.Overlay.OutdoorsType))
+			if (!Enum.IsDefined((RoomOutdoorsType)room.Overlay.OutdoorsType))
 			{
 				diagnostics.Add(Error("invalid-outdoors-type",
-					$"Cell '{cell.Key}' has an unknown outdoors type."));
+					$"Cell '{room.Key}' has an unknown outdoors type."));
 			}
 
-			foreach (var resource in cell.MagicResources.Where(x =>
+			foreach (var resource in room.MagicResources.Where(x =>
 				         !double.IsFinite(x.Amount) || x.Amount < 0.0))
 			{
 				diagnostics.Add(Error("invalid-magic-resource",
-					$"Cell '{cell.Key}' has an invalid amount for magic resource '{resource.Resource.Name}'."));
+					$"Cell '{room.Key}' has an invalid amount for magic resource '{resource.Resource.Name}'."));
 			}
 		}
 

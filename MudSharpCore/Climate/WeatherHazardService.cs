@@ -13,32 +13,32 @@ namespace MudSharp.Climate;
 
 internal static class WeatherHazardService
 {
-	internal static bool AtmosphereExposed(ICell cell) => cell.OutdoorsType(null) is CellOutdoorsType.Outdoors or CellOutdoorsType.IndoorsClimateExposed;
-	internal static IFluid? WeatherAtmosphere(ICell cell) => AtmosphereExposed(cell) && cell.CurrentWeather(null)?.Hazards is { AtmosphereGasId: > 0 } hazard
-		? cell.Gameworld.Gases.Get(hazard.AtmosphereGasId) : null;
+	internal static bool AtmosphereExposed(IRoom room) => room.OutdoorsType(null) is RoomOutdoorsType.Outdoors or RoomOutdoorsType.IndoorsClimateExposed;
+	internal static IFluid? WeatherAtmosphere(IRoom room) => AtmosphereExposed(room) && room.CurrentWeather(null)?.Hazards is { AtmosphereGasId: > 0 } hazard
+		? room.Gameworld.Gases.Get(hazard.AtmosphereGasId) : null;
 
-	internal static bool Exposed(ICell cell, ICharacter character) => !cell.IsUnderwaterLayer(character.RoomLayer) &&
+	internal static bool Exposed(IRoom room, ICharacter character) => !room.IsUnderwaterLayer(character.RoomLayer) &&
 		!(character.PositionModifier == PositionModifier.Under && character.PositionTarget is { } shelter &&
 		  shelter.Size > character.CurrentContextualSize(SizeContext.RainfallExposure));
-	internal static bool Exposed(ICell cell, IGameItem item) => !cell.IsUnderwaterLayer(item.RoomLayer) &&
+	internal static bool Exposed(IRoom room, IGameItem item) => !room.IsUnderwaterLayer(item.RoomLayer) &&
 		item.ContainedIn is null && item.InInventoryOf is null &&
 		!(item.PositionModifier == PositionModifier.Under && item.PositionTarget is { } shelter && shelter.Size > item.Size);
 
-	internal static void Tick(IWeatherEvent weather, ICell cell, Func<double> random)
+	internal static void Tick(IWeatherEvent weather, IRoom room, Func<double> random)
 	{
 		var config = weather.Hazards;
-		if (cell.CurrentWeather(null) != weather || cell.OutdoorsType(null) != CellOutdoorsType.Outdoors ||
+		if (room.CurrentWeather(null) != weather || room.OutdoorsType(null) != RoomOutdoorsType.Outdoors ||
 			config is null || config.LightningChance <= 0 && config.AtmosphericLightningChance <= 0) return;
 		var strike = config.LightningChance > 0 && random() < config.LightningChance;
 		if (!strike && !(config.AtmosphericLightningChance > 0 && random() < config.AtmosphericLightningChance)) return;
-		foreach (var character in cell.Characters.Where(x => !cell.IsUnderwaterLayer(x.RoomLayer)).ToArray())
-			if (character.CanSee(cell)) character.OutputHandler.Send(config.Flash.SubstituteANSIColour());
-		cell.HandleAudioEcho(config.Thunder.SubstituteANSIColour(), AudioVolume.ExtremelyLoud,
-			config.ThunderDistance, AudioPropagationMode.Topological, new DummyPerceiver("the sky", location: cell),
+		foreach (var character in room.Characters.Where(x => !room.IsUnderwaterLayer(x.RoomLayer)).ToArray())
+			if (character.CanSee(room)) character.OutputHandler.Send(config.Flash.SubstituteANSIColour());
+		room.HandleAudioEcho(config.Thunder.SubstituteANSIColour(), AudioVolume.ExtremelyLoud,
+			config.ThunderDistance, AudioPropagationMode.Topological, new DummyPerceiver("the sky", location: room),
 			RoomLayer.GroundLevel, false, "thunder");
 		if (!strike) return;
-		var characters = cell.Characters.Where(x => Exposed(cell, x)).ToArray();
-		var items = cell.GameItems.Where(x => Exposed(cell, x)).ToArray();
+		var characters = room.Characters.Where(x => Exposed(room, x)).ToArray();
+		var items = room.GameItems.Where(x => Exposed(room, x)).ToArray();
 		var choices = new List<(int Event, double Chance)> { (0, config.GroundWeight) };
 		if (characters.Length > 0) choices.Add((1, config.CharacterWeight));
 		if (items.Length > 0) choices.Add((2, config.ItemWeight));

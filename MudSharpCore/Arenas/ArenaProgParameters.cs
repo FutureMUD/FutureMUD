@@ -79,7 +79,7 @@ internal static class ArenaProgParameters
         [
             participants,
             sideIndices,
-            SelectArenaCell(arenaEvent.Arena.ArenaCells)!,
+            SelectArenaRoom(arenaEvent.Arena.ArenaRooms)!,
             arenaEvent.EventType.Name,
             arenaEvent.Arena.Name,
             arenaEvent.Name,
@@ -101,7 +101,7 @@ internal static class ArenaProgParameters
         [
             participants,
             sideIndex,
-            SelectWaitingCell(arenaEvent.Arena, sideIndex)!,
+            SelectWaitingRoom(arenaEvent.Arena, sideIndex)!,
             arenaEvent.EventType.Name,
             arenaEvent.Arena.Name,
             arenaEvent.Name,
@@ -114,7 +114,7 @@ internal static class ArenaProgParameters
         [
             sideIndex,
             slotsNeeded,
-            SelectWaitingCell(arenaEvent.Arena, sideIndex)!,
+            SelectWaitingRoom(arenaEvent.Arena, sideIndex)!,
             arenaEvent.EventType.Name,
             arenaEvent.Arena.Name,
             arenaEvent.Name,
@@ -145,19 +145,19 @@ internal static class ArenaProgParameters
         return results;
     }
 
-    private static ICell? SelectWaitingCell(ICombatArena arena, int sideIndex)
+    private static IRoom? SelectWaitingRoom(ICombatArena arena, int sideIndex)
     {
-        return SelectIndexedCell(arena.WaitingCells, sideIndex);
+        return SelectIndexedRoom(arena.WaitingRooms, sideIndex);
     }
 
-    private static ICell? SelectArenaCell(IEnumerable<ICell> arenaCells)
+    private static IRoom? SelectArenaRoom(IEnumerable<IRoom> arenaRooms)
     {
-        return SelectIndexedCell(arenaCells, 0);
+        return SelectIndexedRoom(arenaRooms, 0);
     }
 
-    private static ICell? SelectIndexedCell(IEnumerable<ICell> cells, int index)
+    private static IRoom? SelectIndexedRoom(IEnumerable<IRoom> rooms, int index)
     {
-        List<ICell> list = cells?.ToList() ?? [];
+        List<IRoom> list = rooms?.ToList() ?? [];
         if (list.Count == 0)
         {
             return null;

@@ -1261,7 +1261,7 @@ public partial class CoreDataSeeder
 		    .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
         void AddTerrain(string name, string behaviour, double movementRate, double staminaCost,
-            Difficulty hideDifficulty, Difficulty spotDifficulty, string? atmosphere, CellOutdoorsType outdoorsType,
+            Difficulty hideDifficulty, Difficulty spotDifficulty, string? atmosphere, RoomOutdoorsType outdoorsType,
             Color editorColour, string? editorText = null, bool isdefault = false, IEnumerable<string>? tags = null,
             GravityModel gravityModel = GravityModel.Normal, string atmosphereType = "Gas")
         {
@@ -1312,7 +1312,7 @@ public partial class CoreDataSeeder
                 TerrainANSIColour = StockTerrainAnsiColour(name, behaviour, tagNames),
                 TerrainEditorColour = $"#{editorColour.R:X2}{editorColour.G:X2}{editorColour.B:X2}",
                 TerrainEditorText = editorText,
-                DefaultCellOutdoorsType = (int)outdoorsType,
+                DefaultRoomOutdoorsType = (int)outdoorsType,
                 GravityModel = (int)gravityModel,
                 CanHaveTracks = trackSettings.CanHaveTracks,
                 TrackIntensityMultiplierVisual = trackSettings.VisualMultiplier,
@@ -1335,392 +1335,392 @@ public partial class CoreDataSeeder
         #region Urban
 
         AddTerrain("Residence", "indoors", 0.5, 3.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-                CellOutdoorsType.IndoorsWithWindows, Color.CornflowerBlue, "Re", true,
+                RoomOutdoorsType.IndoorsWithWindows, Color.CornflowerBlue, "Re", true,
                 tags: ["Urban", "Residential", "Private"]);
         AddTerrain("Bedroom", "indoors", 0.5, 3.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-                CellOutdoorsType.IndoorsWithWindows, Color.MediumPurple, "Br",
+                RoomOutdoorsType.IndoorsWithWindows, Color.MediumPurple, "Br",
                 tags: ["Urban", "Residential", "Private"]);
         AddTerrain("Kitchen", "indoors", 0.5, 3.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-                CellOutdoorsType.IndoorsWithWindows, Color.Orange, "Ki",
+                RoomOutdoorsType.IndoorsWithWindows, Color.Orange, "Ki",
                 tags: ["Urban", "Residential", "Private"]);
         AddTerrain("Bathroom", "indoors", 0.5, 3.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-                CellOutdoorsType.IndoorsWithWindows, Color.SkyBlue, "To",
+                RoomOutdoorsType.IndoorsWithWindows, Color.SkyBlue, "To",
                 tags: ["Urban", "Residential", "Private"]);
         AddTerrain("Living Room", "indoors", 0.5, 3.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-                CellOutdoorsType.IndoorsWithWindows, Color.SeaGreen, "LR",
+                RoomOutdoorsType.IndoorsWithWindows, Color.SeaGreen, "LR",
                 tags: ["Urban", "Residential", "Private"]);
         AddTerrain("Hallway", "indoors", 0.5, 3.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-                CellOutdoorsType.Indoors, Color.CadetBlue, "Hw",
+                RoomOutdoorsType.Indoors, Color.CadetBlue, "Hw",
                 tags: ["Urban", "Residential", "Private"]);
         AddTerrain("Hall", "indoors", 0.5, 3.0, Difficulty.Hard, Difficulty.Automatic, "Breathable Atmosphere",
-                CellOutdoorsType.Indoors, Color.Teal, "Ha", tags: ["Urban", "Administrative", "Public"]);
+                RoomOutdoorsType.Indoors, Color.Teal, "Ha", tags: ["Urban", "Administrative", "Public"]);
         AddTerrain("Barracks", "indoors", 0.5, 3.0, Difficulty.Hard, Difficulty.Automatic, "Breathable Atmosphere",
-                CellOutdoorsType.Indoors, Color.OliveDrab, "Bk", tags: ["Urban", "Residential", "Private"]);
+                RoomOutdoorsType.Indoors, Color.OliveDrab, "Bk", tags: ["Urban", "Residential", "Private"]);
         AddTerrain("Gymnasium", "indoors", 0.5, 3.0, Difficulty.Hard, Difficulty.Automatic, "Breathable Atmosphere",
-                CellOutdoorsType.Indoors, Color.Goldenrod, "Gy", tags: ["Urban", "Commercial", "Public"]);
+                RoomOutdoorsType.Indoors, Color.Goldenrod, "Gy", tags: ["Urban", "Commercial", "Public"]);
         AddTerrain("Shopfront", "indoors", 0.5, 3.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-                CellOutdoorsType.IndoorsWithWindows, Color.SandyBrown, "Sf",
+                RoomOutdoorsType.IndoorsWithWindows, Color.SandyBrown, "Sf",
                 tags: ["Urban", "Commercial", "Public"]);
         AddTerrain("Workshop", "indoors", 0.5, 3.0, Difficulty.Easy, Difficulty.Automatic, "Polluted Breathable Atmosphere",
-                CellOutdoorsType.IndoorsWithWindows, Color.SaddleBrown, "Ws",
+                RoomOutdoorsType.IndoorsWithWindows, Color.SaddleBrown, "Ws",
                 tags: ["Urban", "Industrial", "Private"]);
         AddTerrain("Office", "indoors", 0.5, 3.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-                CellOutdoorsType.IndoorsWithWindows, Color.LightSteelBlue, "Of",
+                RoomOutdoorsType.IndoorsWithWindows, Color.LightSteelBlue, "Of",
                 tags: ["Urban", "Administrative", "Private"]);
         AddTerrain("Factory", "indoors", 0.5, 3.0, Difficulty.Easy, Difficulty.Automatic, "Polluted Breathable Atmosphere",
-                CellOutdoorsType.IndoorsWithWindows, Color.Silver, "Fa",
+                RoomOutdoorsType.IndoorsWithWindows, Color.Silver, "Fa",
                 tags: ["Urban", "Industrial", "Private"]);
         AddTerrain("Warehouse", "indoors", 0.5, 3.0, Difficulty.Easy, Difficulty.Automatic, "Stale Breathable Atmosphere",
-                CellOutdoorsType.IndoorsWithWindows, Color.DarkGray, "Wh",
+                RoomOutdoorsType.IndoorsWithWindows, Color.DarkGray, "Wh",
                 tags: ["Urban", "Industrial", "Private"]);
         AddTerrain("Indoor Market", "indoors", 0.5, 3.0, Difficulty.ExtremelyEasy, Difficulty.Easy,
-                "Breathable Atmosphere", CellOutdoorsType.IndoorsWithWindows, Color.Plum, "Im",
+                "Breathable Atmosphere", RoomOutdoorsType.IndoorsWithWindows, Color.Plum, "Im",
                 tags: ["Urban", "Commercial", "Public"]);
         AddTerrain("Underground Market", "indoors", 0.5, 3.0, Difficulty.ExtremelyEasy, Difficulty.Easy,
-                "Stale Breathable Atmosphere", CellOutdoorsType.IndoorsWithWindows, Color.DarkOrchid, "Um",
+                "Stale Breathable Atmosphere", RoomOutdoorsType.IndoorsWithWindows, Color.DarkOrchid, "Um",
                 tags: ["Urban", "Commercial", "Public"]);
         AddTerrain("Garage", "indoors", 0.5, 3.0, Difficulty.ExtremelyEasy, Difficulty.Easy, "Polluted Breathable Atmosphere",
-                CellOutdoorsType.IndoorsWithWindows, Color.DimGray, "Ga",
+                RoomOutdoorsType.IndoorsWithWindows, Color.DimGray, "Ga",
                 tags: ["Urban", "Industrial", "Private"]);
         AddTerrain("Underground Garage", "indoors", 0.5, 3.0, Difficulty.ExtremelyEasy, Difficulty.Easy,
-                "Polluted Breathable Atmosphere", CellOutdoorsType.IndoorsNoLight, Color.DarkSlateGray, "Ug",
+                "Polluted Breathable Atmosphere", RoomOutdoorsType.IndoorsNoLight, Color.DarkSlateGray, "Ug",
                 tags: ["Urban", "Industrial", "Private"]);
         AddTerrain("Barn", "indoors", 0.5, 3.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-                CellOutdoorsType.Indoors, Color.Brown, "Bn", tags: ["Rural"]);
+                RoomOutdoorsType.Indoors, Color.Brown, "Bn", tags: ["Rural"]);
         AddTerrain("Cell", "indoors", 0.5, 3.0, Difficulty.Insane, Difficulty.Automatic, "Stale Breathable Atmosphere",
-                CellOutdoorsType.IndoorsNoLight, Color.LightSlateGray, "Ce",
+                RoomOutdoorsType.IndoorsNoLight, Color.LightSlateGray, "Ce",
                 tags: ["Urban", "Administrative", "Private"]);
         AddTerrain("Dank Cell", "indoors", 0.5, 3.0, Difficulty.Insane, Difficulty.Automatic, "Humid Breathable Atmosphere",
-                CellOutdoorsType.IndoorsNoLight, Color.Gray, "Dc",
+                RoomOutdoorsType.IndoorsNoLight, Color.Gray, "Dc",
                 tags: ["Urban", "Administrative", "Private"]);
         AddTerrain("Dungeon", "indoors", 0.5, 3.0, Difficulty.Insane, Difficulty.Automatic, "Stale Breathable Atmosphere",
-                CellOutdoorsType.IndoorsNoLight, Color.Indigo, "Du",
+                RoomOutdoorsType.IndoorsNoLight, Color.Indigo, "Du",
                 tags: ["Urban", "Administrative", "Private"]);
         AddTerrain("Grotto", "cave", 0.5, 3.0, Difficulty.Insane, Difficulty.Automatic, "Humid Breathable Atmosphere",
-                CellOutdoorsType.IndoorsNoLight, Color.DarkSlateBlue, "Gr", tags: ["Rural"]);
+                RoomOutdoorsType.IndoorsNoLight, Color.DarkSlateBlue, "Gr", tags: ["Rural"]);
         AddTerrain("Cellar", "indoors", 0.5, 3.0, Difficulty.Insane, Difficulty.Automatic, "Stale Breathable Atmosphere",
-                 CellOutdoorsType.IndoorsNoLight, Color.BurlyWood, "Cl",
+                 RoomOutdoorsType.IndoorsNoLight, Color.BurlyWood, "Cl",
                  tags: ["Urban", "Residential", "Private"]);
         AddTerrain("Baths", "indoors", 0.5, 3.0, Difficulty.ExtremelyHard, Difficulty.ExtremelyEasy,
-                 "Humid Breathable Atmosphere", CellOutdoorsType.Indoors, Color.LightBlue, "Bt",
+                 "Humid Breathable Atmosphere", RoomOutdoorsType.Indoors, Color.LightBlue, "Bt",
                  tags: ["Urban", "Aquatic", "Commercial", "Public"]);
         AddTerrain("Indoor Pool", $"shallowwater {poolwater.Id}", 0.5, 5.0, Difficulty.ExtremelyHard,
-                 Difficulty.ExtremelyEasy, "Humid Breathable Atmosphere", CellOutdoorsType.Indoors, Color.DeepSkyBlue, "IP",
+                 Difficulty.ExtremelyEasy, "Humid Breathable Atmosphere", RoomOutdoorsType.Indoors, Color.DeepSkyBlue, "IP",
                  tags: ["Urban", "Aquatic", "Private"]);
         AddTerrain("Indoor Spring", $"shallowwater {springwater.Id}", 0.5, 5.0, Difficulty.ExtremelyHard,
-                 Difficulty.ExtremelyEasy, "Humid Breathable Atmosphere", CellOutdoorsType.Indoors, Color.MediumAquamarine, "IS", tags: ["Rural", "Aquatic"]);
+                 Difficulty.ExtremelyEasy, "Humid Breathable Atmosphere", RoomOutdoorsType.Indoors, Color.MediumAquamarine, "IS", tags: ["Rural", "Aquatic"]);
 
 		AddTerrain("Vehicle Interior", "indoors", 0.5, 2.0, Difficulty.Hard, Difficulty.Automatic,
-			"Breathable Atmosphere", CellOutdoorsType.Indoors, Color.LightSlateGray, "VI", tags: ["Vehicle"]);
+			"Breathable Atmosphere", RoomOutdoorsType.Indoors, Color.LightSlateGray, "VI", tags: ["Vehicle"]);
 		AddTerrain("Vehicle Passenger Cabin", "indoors", 0.5, 2.0, Difficulty.Hard, Difficulty.Automatic,
-			"Breathable Atmosphere", CellOutdoorsType.IndoorsWithWindows, Color.LightSteelBlue, "VC", tags: ["Vehicle"]);
+			"Breathable Atmosphere", RoomOutdoorsType.IndoorsWithWindows, Color.LightSteelBlue, "VC", tags: ["Vehicle"]);
 		AddTerrain("Vehicle Cargo Hold", "indoors", 0.5, 3.0, Difficulty.Easy, Difficulty.VeryEasy,
-			"Stale Breathable Atmosphere", CellOutdoorsType.Indoors, Color.DimGray, "VH", tags: ["Vehicle"]);
+			"Stale Breathable Atmosphere", RoomOutdoorsType.Indoors, Color.DimGray, "VH", tags: ["Vehicle"]);
 		AddTerrain("Ship Corridor", "indoors", 0.5, 2.0, Difficulty.Hard, Difficulty.Automatic,
-			"Breathable Atmosphere", CellOutdoorsType.Indoors, Color.CadetBlue, "SC", tags: ["Ship"]);
+			"Breathable Atmosphere", RoomOutdoorsType.Indoors, Color.CadetBlue, "SC", tags: ["Ship"]);
 		AddTerrain("Ship Cabin", "indoors", 0.5, 2.0, Difficulty.Hard, Difficulty.Automatic,
-			"Breathable Atmosphere", CellOutdoorsType.IndoorsWithWindows, Color.SteelBlue, "SB", tags: ["Ship"]);
+			"Breathable Atmosphere", RoomOutdoorsType.IndoorsWithWindows, Color.SteelBlue, "SB", tags: ["Ship"]);
 		AddTerrain("Ship Cargo Hold", "indoors", 0.5, 3.0, Difficulty.Easy, Difficulty.VeryEasy,
-			"Stale Breathable Atmosphere", CellOutdoorsType.Indoors, Color.DarkSlateGray, "SH", tags: ["Ship"]);
+			"Stale Breathable Atmosphere", RoomOutdoorsType.Indoors, Color.DarkSlateGray, "SH", tags: ["Ship"]);
 		AddTerrain("Ship Engine Room", "indoors", 0.6, 4.0, Difficulty.Easy, Difficulty.Easy,
-			"Polluted Breathable Atmosphere", CellOutdoorsType.Indoors, Color.SlateGray, "SE", tags: ["Ship"]);
+			"Polluted Breathable Atmosphere", RoomOutdoorsType.Indoors, Color.SlateGray, "SE", tags: ["Ship"]);
 		AddTerrain("Spaceship Corridor", "indoors", 0.5, 2.0, Difficulty.Hard, Difficulty.Automatic,
-			"Pressurized Breathable Atmosphere", CellOutdoorsType.Indoors, Color.LightCyan, "XC", tags: ["Spaceship"]);
+			"Pressurized Breathable Atmosphere", RoomOutdoorsType.Indoors, Color.LightCyan, "XC", tags: ["Spaceship"]);
 		AddTerrain("Spaceship Cabin", "indoors", 0.5, 2.0, Difficulty.Hard, Difficulty.Automatic,
-			"Pressurized Breathable Atmosphere", CellOutdoorsType.IndoorsWithWindows, Color.PowderBlue, "XB", tags: ["Spaceship"]);
+			"Pressurized Breathable Atmosphere", RoomOutdoorsType.IndoorsWithWindows, Color.PowderBlue, "XB", tags: ["Spaceship"]);
 		AddTerrain("Spaceship Bridge", "indoors", 0.5, 2.0, Difficulty.Hard, Difficulty.VeryEasy,
-			"Pressurized Breathable Atmosphere", CellOutdoorsType.IndoorsWithWindows, Color.DeepSkyBlue, "XG", tags: ["Spaceship"]);
+			"Pressurized Breathable Atmosphere", RoomOutdoorsType.IndoorsWithWindows, Color.DeepSkyBlue, "XG", tags: ["Spaceship"]);
 		AddTerrain("Spaceship Engineering", "indoors", 0.6, 4.0, Difficulty.Easy, Difficulty.Easy,
-			"Polluted Breathable Atmosphere", CellOutdoorsType.Indoors, Color.DarkCyan, "XE", tags: ["Spaceship"]);
+			"Polluted Breathable Atmosphere", RoomOutdoorsType.Indoors, Color.DarkCyan, "XE", tags: ["Spaceship"]);
 		AddTerrain("Spaceship Cargo Hold", "indoors", 0.5, 3.0, Difficulty.Easy, Difficulty.VeryEasy,
-			"Stale Breathable Atmosphere", CellOutdoorsType.Indoors, Color.Teal, "XH", tags: ["Spaceship"]);
+			"Stale Breathable Atmosphere", RoomOutdoorsType.Indoors, Color.Teal, "XH", tags: ["Spaceship"]);
 		AddTerrain("Spaceship Airlock", "indoors", 0.5, 2.0, Difficulty.Insane, Difficulty.Automatic,
-			"Pressurized Breathable Atmosphere", CellOutdoorsType.Indoors, Color.MediumTurquoise, "XA", tags: ["Spaceship"]);
+			"Pressurized Breathable Atmosphere", RoomOutdoorsType.Indoors, Color.MediumTurquoise, "XA", tags: ["Spaceship"]);
 
         AddTerrain("Rooftop", "rooftopsonly", 0.75, 7.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-                CellOutdoorsType.Outdoors, Color.DarkSlateGray, tags: ["Urban", "Private"]);
+                RoomOutdoorsType.Outdoors, Color.DarkSlateGray, tags: ["Urban", "Private"]);
         AddTerrain("Ghetto Street", "outdoors", 0.75, 7.0, Difficulty.Easy, Difficulty.Automatic,
-                "Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DimGray, tags: ["Urban", "Public"]);
+                "Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.DimGray, tags: ["Urban", "Public"]);
         AddTerrain("Slum Street", "outdoors", 0.75, 7.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-                CellOutdoorsType.Outdoors, Color.Gray, tags: ["Urban", "Public"]);
+                RoomOutdoorsType.Outdoors, Color.Gray, tags: ["Urban", "Public"]);
         AddTerrain("Poor Street", "outdoors", 0.75, 7.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-                CellOutdoorsType.Outdoors, Color.SlateGray, tags: ["Urban", "Public"]);
+                RoomOutdoorsType.Outdoors, Color.SlateGray, tags: ["Urban", "Public"]);
         AddTerrain("Urban Street", "outdoors", 0.75, 7.0, Difficulty.Easy, Difficulty.Automatic,
-                "Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkGray, tags: ["Urban", "Public"]);
+                "Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.DarkGray, tags: ["Urban", "Public"]);
         AddTerrain("Suburban Street", "outdoors", 0.75, 7.0, Difficulty.Easy, Difficulty.Automatic,
-                "Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.LightSlateGray, tags: ["Urban", "Public"]);
+                "Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.LightSlateGray, tags: ["Urban", "Public"]);
         AddTerrain("Wealthy Street", "outdoors", 0.75, 7.0, Difficulty.Easy, Difficulty.Automatic,
-                "Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.Gainsboro, tags: ["Urban", "Public"]);
+                "Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.Gainsboro, tags: ["Urban", "Public"]);
         AddTerrain("Village Street", "outdoors", 0.75, 7.0, Difficulty.Easy, Difficulty.Automatic,
-                "Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.LightGray, tags: ["Rural"]);
+                "Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.LightGray, tags: ["Rural"]);
         AddTerrain("Rural Street", "outdoors", 0.75, 7.0, Difficulty.Easy, Difficulty.Automatic,
-                "Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.WhiteSmoke, tags: ["Rural"]);
+                "Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.WhiteSmoke, tags: ["Rural"]);
 
         AddTerrain("Marketplace", "outdoors", 1.0, 7.0, Difficulty.Easy, Difficulty.VeryEasy, "Breathable Atmosphere",
-                CellOutdoorsType.Outdoors, Color.SlateGray, tags: ["Urban", "Commercial", "Public"]);
+                RoomOutdoorsType.Outdoors, Color.SlateGray, tags: ["Urban", "Commercial", "Public"]);
         AddTerrain("Courtyard", "outdoors", 1.0, 7.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-                CellOutdoorsType.Outdoors, Color.SlateGray, tags: ["Urban", "Private"]);
+                RoomOutdoorsType.Outdoors, Color.SlateGray, tags: ["Urban", "Private"]);
         AddTerrain("Park", "trees", 1.0, 7.0, Difficulty.VeryEasy, Difficulty.Automatic, "Fresh Breathable Atmosphere",
-                CellOutdoorsType.Outdoors, Color.LightGreen, tags: ["Urban", "Natural", "Public", "Diggable Soil"]);
+                RoomOutdoorsType.Outdoors, Color.LightGreen, tags: ["Urban", "Natural", "Public", "Diggable Soil"]);
         AddTerrain("Garden", "trees", 1.0, 7.0, Difficulty.VeryEasy, Difficulty.Automatic, "Fresh Breathable Atmosphere",
-                CellOutdoorsType.Outdoors, Color.LightGreen, tags: ["Urban", "Natural", "Private", "Diggable Soil"]);
+                RoomOutdoorsType.Outdoors, Color.LightGreen, tags: ["Urban", "Natural", "Private", "Diggable Soil"]);
         AddTerrain("Lawn", "outdoors", 1.0, 7.0, Difficulty.VeryEasy, Difficulty.Automatic, "Fresh Breathable Atmosphere",
-                CellOutdoorsType.Outdoors, Color.LightGreen, tags: ["Urban", "Natural", "Private", "Diggable Soil"]);
+                RoomOutdoorsType.Outdoors, Color.LightGreen, tags: ["Urban", "Natural", "Private", "Diggable Soil"]);
         AddTerrain("Showground", "outdoors", 1.0, 7.0, Difficulty.VeryHard, Difficulty.Automatic,
-                "Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.LightGreen,
+                "Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.LightGreen,
                 tags: ["Urban", "Commercial", "Public", "Diggable Soil"]);
         AddTerrain("Forum", "outdoors", 1.0, 7.0, Difficulty.VeryEasy, Difficulty.VeryEasy, "Breathable Atmosphere",
-                CellOutdoorsType.Outdoors, Color.SlateGray, tags: ["Urban", "Administrative", "Public"]);
+                RoomOutdoorsType.Outdoors, Color.SlateGray, tags: ["Urban", "Administrative", "Public"]);
         AddTerrain("Public Square", "outdoors", 1.0, 7.0, Difficulty.VeryEasy, Difficulty.VeryEasy,
-                "Polluted Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.SlateGray,
+                "Polluted Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.SlateGray,
                 tags: ["Urban", "Administrative", "Public"]);
         AddTerrain("Outdoor Mall", "outdoors", 1.0, 7.0, Difficulty.VeryEasy, Difficulty.VeryEasy,
-                "Polluted Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.SlateGray,
+                "Polluted Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.SlateGray,
                 tags: ["Urban", "Commercial", "Public"]);
         AddTerrain("Alleyway", "outdoors", 1.0, 7.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-                CellOutdoorsType.Outdoors, Color.SlateGray, tags: ["Urban", "Public"]);
+                RoomOutdoorsType.Outdoors, Color.SlateGray, tags: ["Urban", "Public"]);
         AddTerrain("Garbage Dump", "outdoors", 1.5, 10.0, Difficulty.VeryEasy, Difficulty.VeryEasy,
-                "Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.SlateGray,
+                "Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.SlateGray,
                 tags: ["Urban", "Industrial", "Private", "Diggable Soil"]);
         AddTerrain("Midden Heap", "outdoors", 1.5, 10.0, Difficulty.VeryEasy, Difficulty.VeryEasy,
-                "Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.SlateGray,
+                "Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.SlateGray,
                 tags: ["Urban", "Industrial", "Private", "Diggable Soil"]);
         AddTerrain("Gatehouse", "indoors", 1.0, 7.0, Difficulty.Easy, Difficulty.Trivial, "Breathable Atmosphere",
-                CellOutdoorsType.IndoorsClimateExposed, Color.SlateGray,
+                RoomOutdoorsType.IndoorsClimateExposed, Color.SlateGray,
                 tags: ["Urban", "Administrative", "Private"]);
         AddTerrain("Battlement", "outdoors", 1.0, 7.0, Difficulty.VeryHard, Difficulty.Trivial, "Breathable Atmosphere",
-                CellOutdoorsType.Outdoors, Color.SlateGray, tags: ["Urban", "Administrative", "Private"]);
+                RoomOutdoorsType.Outdoors, Color.SlateGray, tags: ["Urban", "Administrative", "Private"]);
 
         #endregion
 
         #region Roads
 
         AddTerrain("Animal Trail", "outdoors", 1.75, 10.0, Difficulty.Normal, Difficulty.Automatic,
-            "Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DimGray, tags: ["Rural", "Diggable Soil"]);
+            "Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.DimGray, tags: ["Rural", "Diggable Soil"]);
         AddTerrain("Trail", "outdoors", 1.6, 10.0, Difficulty.Normal, Difficulty.Automatic, "Breathable Atmosphere",
-            CellOutdoorsType.Outdoors, Color.DimGray, tags: ["Rural", "Diggable Soil"]);
+            RoomOutdoorsType.Outdoors, Color.DimGray, tags: ["Rural", "Diggable Soil"]);
         AddTerrain("Dirt Road", "outdoors", 1.5, 10.0, Difficulty.Hard, Difficulty.Automatic, "Breathable Atmosphere",
-            CellOutdoorsType.Outdoors, Color.DimGray, tags: ["Rural", "Diggable Soil"]);
+            RoomOutdoorsType.Outdoors, Color.DimGray, tags: ["Rural", "Diggable Soil"]);
         AddTerrain("Compacted Dirt Road", "outdoors", 1.4, 10.0, Difficulty.ExtremelyHard, Difficulty.Automatic,
-            "Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DimGray, tags: ["Rural"]);
+            "Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.DimGray, tags: ["Rural"]);
         AddTerrain("Gravel Road", "outdoors", 1.3, 10.0, Difficulty.ExtremelyHard, Difficulty.Automatic,
-            "Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DimGray, tags: ["Rural"]);
+            "Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.DimGray, tags: ["Rural"]);
         AddTerrain("Cobblestone Road", "outdoors", 1.2, 10.0, Difficulty.ExtremelyHard, Difficulty.Automatic,
-            "Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DimGray, tags: ["Rural"]);
+            "Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.DimGray, tags: ["Rural"]);
         AddTerrain("Asphalt Road", "outdoors", 1.0, 10.0, Difficulty.Insane, Difficulty.Automatic,
-            "Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DimGray, tags: ["Urban"]);
+            "Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.DimGray, tags: ["Urban"]);
 
         #endregion
 
         #region Terrestrial
 
         AddTerrain("Grasslands", "outdoors", 2.0, 15.0, Difficulty.Normal, Difficulty.Automatic,
-            "Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.LightGreen, tags: ["Terrestrial", "Diggable Soil"]);
+            "Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.LightGreen, tags: ["Terrestrial", "Diggable Soil"]);
         AddTerrain("Savannah", "outdoors", 2.0, 15.0, Difficulty.Normal, Difficulty.Automatic, "Breathable Atmosphere",
-            CellOutdoorsType.Outdoors, Color.LightGreen, tags: ["Terrestrial", "Diggable Soil"]);
+            RoomOutdoorsType.Outdoors, Color.LightGreen, tags: ["Terrestrial", "Diggable Soil"]);
         AddTerrain("Shrublands", "outdoors", 2.0, 15.0, Difficulty.Normal, Difficulty.Automatic,
-            "Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.LightGreen, tags: ["Terrestrial", "Diggable Soil"]);
+            "Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.LightGreen, tags: ["Terrestrial", "Diggable Soil"]);
         AddTerrain("Steppe", "outdoors", 2.0, 15.0, Difficulty.Normal, Difficulty.Automatic, "Breathable Atmosphere",
-            CellOutdoorsType.Outdoors, Color.LightGreen, tags: ["Terrestrial", "Diggable Soil"]);
+            RoomOutdoorsType.Outdoors, Color.LightGreen, tags: ["Terrestrial", "Diggable Soil"]);
         AddTerrain("Shortgrass Prairie", "outdoors", 2.0, 15.0, Difficulty.Normal, Difficulty.Automatic,
-            "Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.LightGreen, tags: ["Terrestrial", "Diggable Soil"]);
+            "Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.LightGreen, tags: ["Terrestrial", "Diggable Soil"]);
         AddTerrain("Tallgrass Prairie", "outdoors", 2.0, 15.0, Difficulty.Normal, Difficulty.Automatic,
-            "Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.LightGreen, tags: ["Terrestrial", "Diggable Soil"]);
+            "Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.LightGreen, tags: ["Terrestrial", "Diggable Soil"]);
         AddTerrain("Heath", "outdoors", 2.0, 15.0, Difficulty.Normal, Difficulty.Automatic, "Breathable Atmosphere",
-            CellOutdoorsType.Outdoors, Color.LightGreen, tags: ["Terrestrial", "Diggable Soil"]);
+            RoomOutdoorsType.Outdoors, Color.LightGreen, tags: ["Terrestrial", "Diggable Soil"]);
         AddTerrain("Pasture", "outdoors", 2.0, 15.0, Difficulty.Normal, Difficulty.Automatic, "Breathable Atmosphere",
-            CellOutdoorsType.Outdoors, Color.LightGreen, tags: ["Rural", "Diggable Soil"]);
+            RoomOutdoorsType.Outdoors, Color.LightGreen, tags: ["Rural", "Diggable Soil"]);
         AddTerrain("Meadow", "outdoors", 2.0, 15.0, Difficulty.Normal, Difficulty.Automatic, "Breathable Atmosphere",
-            CellOutdoorsType.Outdoors, Color.LightGreen, tags: ["Terrestrial", "Diggable Soil"]);
+            RoomOutdoorsType.Outdoors, Color.LightGreen, tags: ["Terrestrial", "Diggable Soil"]);
         AddTerrain("Field", "outdoors", 2.0, 15.0, Difficulty.Normal, Difficulty.Automatic, "Breathable Atmosphere",
-            CellOutdoorsType.Outdoors, Color.LightGreen, tags: ["Rural", "Diggable Soil"]);
+            RoomOutdoorsType.Outdoors, Color.LightGreen, tags: ["Rural", "Diggable Soil"]);
         AddTerrain("Tundra", "outdoors", 2.0, 15.0, Difficulty.Normal, Difficulty.Automatic, "Cold Dry Breathable Atmosphere",
-            CellOutdoorsType.Outdoors, Color.LightGreen, tags: ["Terrestrial", "Diggable Soil"]);
+            RoomOutdoorsType.Outdoors, Color.LightGreen, tags: ["Terrestrial", "Diggable Soil"]);
         AddTerrain("Flood Plain", "outdoors", 2.0, 15.0, Difficulty.Normal, Difficulty.Automatic,
-            "Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.LightGreen, tags: ["Terrestrial", "Riparian", "Diggable Soil", "Foragable Clay"]);
+            "Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.LightGreen, tags: ["Terrestrial", "Riparian", "Diggable Soil", "Foragable Clay"]);
         AddTerrain("Chaparral", "outdoors", 2.5, 18.0, Difficulty.Normal, Difficulty.Automatic,
-            "Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.OliveDrab, tags: ["Terrestrial", "Arid", "Diggable Soil"]);
+            "Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.OliveDrab, tags: ["Terrestrial", "Arid", "Diggable Soil"]);
         AddTerrain("Badlands", "outdoors", 3.5, 18.0, Difficulty.Hard, Difficulty.Automatic,
-            "Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.SandyBrown, tags: ["Terrestrial", "Arid"]);
+            "Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.SandyBrown, tags: ["Terrestrial", "Arid"]);
         AddTerrain("Salt Flat", "outdoors", 2.5, 18.0, Difficulty.Hard, Difficulty.Automatic,
-            "Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.Linen, tags: ["Terrestrial", "Arid", "Foragable Sand"]);
+            "Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.Linen, tags: ["Terrestrial", "Arid", "Foragable Sand"]);
 		AddTerrain("Sahel", "outdoors", 2.5, 18.0, Difficulty.Normal, Difficulty.Automatic,
-			"Hot Dry Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkKhaki,
+			"Hot Dry Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.DarkKhaki,
 			tags: ["Terrestrial", "Arid", "Diggable Soil"]);
 		AddTerrain("Thorn Scrub", "trees", 3.0, 20.0, Difficulty.Easy, Difficulty.Easy,
-			"Hot Dry Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.OliveDrab,
+			"Hot Dry Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.OliveDrab,
 			tags: ["Terrestrial", "Arid", "Diggable Soil"]);
 		AddTerrain("Wadi", "outdoors", 3.0, 18.0, Difficulty.Normal, Difficulty.Automatic,
-			"Hot Dry Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.Tan,
+			"Hot Dry Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.Tan,
 			tags: ["Terrestrial", "Riparian", "Arid", "Diggable Soil", "Foragable Sand"]);
 		AddTerrain("Dry Riverbed", "outdoors", 3.0, 18.0, Difficulty.Normal, Difficulty.Automatic,
-			"Dry Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.Peru,
+			"Dry Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.Peru,
 			tags: ["Terrestrial", "Riparian", "Arid", "Diggable Soil", "Foragable Sand"]);
 		AddTerrain("Montane Grassland", "outdoors", 3.5, 18.0, Difficulty.Normal, Difficulty.Automatic,
-			"High Altitude Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.YellowGreen,
+			"High Altitude Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.YellowGreen,
 			tags: ["Terrestrial", "Diggable Soil"]);
 		AddTerrain("Alpine Meadow", "outdoors", 3.5, 20.0, Difficulty.Normal, Difficulty.Automatic,
-			"High Altitude Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.PaleGreen,
+			"High Altitude Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.PaleGreen,
 			tags: ["Terrestrial", "Diggable Soil"]);
 		AddTerrain("Karst", "outdoors", 4.0, 20.0, Difficulty.Easy, Difficulty.Automatic,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.LightSlateGray, tags: ["Terrestrial"]);
+			"Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.LightSlateGray, tags: ["Terrestrial"]);
 		AddTerrain("Rice Paddy", $"shallowwater {riverwater.Id}", 3.0, 22.0, Difficulty.Easy, Difficulty.Easy,
-			"Humid Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.YellowGreen,
+			"Humid Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.YellowGreen,
 			tags: ["Rural", "Wetland", "Diggable Soil", "Foragable Clay"]);
 		AddTerrain("Terraced Field", "outdoors", 2.5, 16.0, Difficulty.Normal, Difficulty.Automatic,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.Olive,
+			"Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.Olive,
 			tags: ["Rural", "Diggable Soil"]);
 
         AddTerrain("Hills", "outdoors", 3.0, 15.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-            CellOutdoorsType.Outdoors, Color.OrangeRed, tags: ["Terrestrial", "Diggable Soil"]);
+            RoomOutdoorsType.Outdoors, Color.OrangeRed, tags: ["Terrestrial", "Diggable Soil"]);
         AddTerrain("Foothills", "outdoors", 3.0, 15.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-            CellOutdoorsType.Outdoors, Color.OrangeRed, tags: ["Terrestrial", "Diggable Soil"]);
+            RoomOutdoorsType.Outdoors, Color.OrangeRed, tags: ["Terrestrial", "Diggable Soil"]);
         AddTerrain("Mound", "outdoors", 3.0, 15.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-            CellOutdoorsType.Outdoors, Color.OrangeRed, tags: ["Terrestrial", "Diggable Soil"]);
+            RoomOutdoorsType.Outdoors, Color.OrangeRed, tags: ["Terrestrial", "Diggable Soil"]);
         AddTerrain("Drumlin", "outdoors", 3.0, 15.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-            CellOutdoorsType.Outdoors, Color.OrangeRed, tags: ["Terrestrial", "Diggable Soil"]);
+            RoomOutdoorsType.Outdoors, Color.OrangeRed, tags: ["Terrestrial", "Diggable Soil"]);
         AddTerrain("Butte", "outdoors", 3.0, 15.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-            CellOutdoorsType.Outdoors, Color.OrangeRed, tags: ["Terrestrial", "Diggable Soil"]);
+            RoomOutdoorsType.Outdoors, Color.OrangeRed, tags: ["Terrestrial", "Diggable Soil"]);
         AddTerrain("Kuppe", "outdoors", 3.0, 15.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-            CellOutdoorsType.Outdoors, Color.OrangeRed, tags: ["Terrestrial", "Diggable Soil"]);
+            RoomOutdoorsType.Outdoors, Color.OrangeRed, tags: ["Terrestrial", "Diggable Soil"]);
         AddTerrain("Mesa", "outdoors", 3.0, 15.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-            CellOutdoorsType.Outdoors, Color.OrangeRed, tags: ["Terrestrial", "Diggable Soil"]);
+            RoomOutdoorsType.Outdoors, Color.OrangeRed, tags: ["Terrestrial", "Diggable Soil"]);
         AddTerrain("Canyon", "outdoors", 3.0, 15.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-            CellOutdoorsType.Outdoors, Color.OrangeRed, tags: ["Terrestrial", "Diggable Soil"]);
+            RoomOutdoorsType.Outdoors, Color.OrangeRed, tags: ["Terrestrial", "Diggable Soil"]);
         AddTerrain("Knoll", "outdoors", 3.0, 15.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-            CellOutdoorsType.Outdoors, Color.OrangeRed, tags: ["Terrestrial", "Diggable Soil"]);
+            RoomOutdoorsType.Outdoors, Color.OrangeRed, tags: ["Terrestrial", "Diggable Soil"]);
         AddTerrain("Moor", "outdoors", 3.0, 15.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-            CellOutdoorsType.Outdoors, Color.OrangeRed, tags: ["Terrestrial", "Diggable Soil"]);
+            RoomOutdoorsType.Outdoors, Color.OrangeRed, tags: ["Terrestrial", "Diggable Soil"]);
         AddTerrain("Tell", "outdoors", 3.0, 15.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-            CellOutdoorsType.Outdoors, Color.OrangeRed, tags: ["Terrestrial", "Diggable Soil"]);
+            RoomOutdoorsType.Outdoors, Color.OrangeRed, tags: ["Terrestrial", "Diggable Soil"]);
         AddTerrain("Dunes", "outdoors", 3.0, 15.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-            CellOutdoorsType.Outdoors, Color.OrangeRed, tags: ["Terrestrial", "Diggable Soil", "Foragable Sand"]);
+            RoomOutdoorsType.Outdoors, Color.OrangeRed, tags: ["Terrestrial", "Diggable Soil", "Foragable Sand"]);
         AddTerrain("Plateau", "outdoors", 3.0, 15.0, Difficulty.Easy, Difficulty.Automatic,
-            "High Altitude Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.Peru, tags: ["Terrestrial", "Diggable Soil"]);
+            "High Altitude Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.Peru, tags: ["Terrestrial", "Diggable Soil"]);
         AddTerrain("Escarpment", "cliff", 4.5, 22.0, Difficulty.VeryHard, Difficulty.Automatic,
-            "High Altitude Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.IndianRed, tags: ["Terrestrial"]);
+            "High Altitude Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.IndianRed, tags: ["Terrestrial"]);
         AddTerrain("Scree Slope", "outdoors", 4.0, 25.0, Difficulty.Hard, Difficulty.Automatic,
-            "High Altitude Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkKhaki, tags: ["Terrestrial"]);
+            "High Altitude Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.DarkKhaki, tags: ["Terrestrial"]);
         AddTerrain("Talus Field", "outdoors", 4.0, 25.0, Difficulty.Hard, Difficulty.Automatic,
-            "High Altitude Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkGoldenrod, tags: ["Terrestrial"]);
+            "High Altitude Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.DarkGoldenrod, tags: ["Terrestrial"]);
 
         AddTerrain("Mountainside", "outdoors", 4.0, 20.0, Difficulty.ExtremelyEasy, Difficulty.Automatic,
-            "High Altitude Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.Red, tags: ["Terrestrial", "Diggable Soil"]);
+            "High Altitude Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.Red, tags: ["Terrestrial", "Diggable Soil"]);
         AddTerrain("Mountain Pass", "outdoors", 4.0, 20.0, Difficulty.ExtremelyEasy, Difficulty.Automatic,
-            "High Altitude Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.Red, tags: ["Terrestrial", "Diggable Soil"]);
+            "High Altitude Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.Red, tags: ["Terrestrial", "Diggable Soil"]);
         AddTerrain("Mountain Ridge", "outdoors", 4.0, 20.0, Difficulty.ExtremelyEasy, Difficulty.Automatic,
-            "Thin Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.Red, tags: ["Terrestrial"]);
+            "Thin Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.Red, tags: ["Terrestrial"]);
         AddTerrain("Cliff Face", "cliff", 5.0, 20.0, Difficulty.Insane, Difficulty.Automatic, "High Altitude Breathable Atmosphere",
-            CellOutdoorsType.Outdoors, Color.Red, tags: ["Terrestrial"]);
+            RoomOutdoorsType.Outdoors, Color.Red, tags: ["Terrestrial"]);
         AddTerrain("Cliff Edge", "outdoors", 5.0, 20.0, Difficulty.ExtremelyEasy, Difficulty.Automatic,
-            "High Altitude Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.Red, tags: ["Terrestrial"]);
+            "High Altitude Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.Red, tags: ["Terrestrial"]);
 
         AddTerrain("Valley", "outdoors", 3.0, 10.0, Difficulty.Normal, Difficulty.Automatic, "Breathable Atmosphere",
-            CellOutdoorsType.Outdoors, Color.Beige, tags: ["Terrestrial", "Diggable Soil"]);
+            RoomOutdoorsType.Outdoors, Color.Beige, tags: ["Terrestrial", "Diggable Soil"]);
         AddTerrain("Vale", "outdoors", 3.0, 10.0, Difficulty.Normal, Difficulty.Automatic, "Breathable Atmosphere",
-            CellOutdoorsType.Outdoors, Color.Beige, tags: ["Terrestrial", "Diggable Soil"]);
+            RoomOutdoorsType.Outdoors, Color.Beige, tags: ["Terrestrial", "Diggable Soil"]);
         AddTerrain("Dell", "trees", 3.0, 10.0, Difficulty.Normal, Difficulty.Automatic, "Breathable Atmosphere",
-            CellOutdoorsType.Outdoors, Color.Beige, tags: ["Terrestrial", "Diggable Soil"]);
+            RoomOutdoorsType.Outdoors, Color.Beige, tags: ["Terrestrial", "Diggable Soil"]);
         AddTerrain("Glen", "trees", 3.0, 10.0, Difficulty.Normal, Difficulty.Automatic, "Breathable Atmosphere",
-            CellOutdoorsType.Outdoors, Color.Beige, tags: ["Terrestrial", "Diggable Soil"]);
+            RoomOutdoorsType.Outdoors, Color.Beige, tags: ["Terrestrial", "Diggable Soil"]);
         AddTerrain("Strath", "trees", 3.0, 10.0, Difficulty.Normal, Difficulty.Automatic, "Breathable Atmosphere",
-            CellOutdoorsType.Outdoors, Color.Beige, tags: ["Terrestrial", "Diggable Soil"]);
+            RoomOutdoorsType.Outdoors, Color.Beige, tags: ["Terrestrial", "Diggable Soil"]);
         AddTerrain("Combe", "outdoors", 3.0, 10.0, Difficulty.Normal, Difficulty.Automatic, "Breathable Atmosphere",
-            CellOutdoorsType.Outdoors, Color.Beige, tags: ["Terrestrial", "Diggable Soil"]);
+            RoomOutdoorsType.Outdoors, Color.Beige, tags: ["Terrestrial", "Diggable Soil"]);
         AddTerrain("Ravine", "outdoors", 3.0, 10.0, Difficulty.Normal, Difficulty.Automatic, "Breathable Atmosphere",
-            CellOutdoorsType.Outdoors, Color.Beige, tags: ["Terrestrial", "Diggable Soil"]);
+            RoomOutdoorsType.Outdoors, Color.Beige, tags: ["Terrestrial", "Diggable Soil"]);
         AddTerrain("Gorge", "outdoors", 3.0, 10.0, Difficulty.Normal, Difficulty.Automatic, "Breathable Atmosphere",
-            CellOutdoorsType.Outdoors, Color.Beige, tags: ["Terrestrial", "Diggable Soil"]);
+            RoomOutdoorsType.Outdoors, Color.Beige, tags: ["Terrestrial", "Diggable Soil"]);
         AddTerrain("Gully", "outdoors", 3.0, 10.0, Difficulty.Normal, Difficulty.Automatic, "Breathable Atmosphere",
-            CellOutdoorsType.Outdoors, Color.Beige, tags: ["Terrestrial", "Diggable Soil"]);
+            RoomOutdoorsType.Outdoors, Color.Beige, tags: ["Terrestrial", "Diggable Soil"]);
 
         AddTerrain("Boreal Forest", "talltrees", 3.5, 20.0, Difficulty.VeryEasy, Difficulty.ExtremelyEasy,
-            "Fresh Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkGreen, tags: ["Terrestrial", "Diggable Soil"]);
+            "Fresh Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.DarkGreen, tags: ["Terrestrial", "Diggable Soil"]);
         AddTerrain("Broadleaf Forest", "talltrees", 3.5, 20.0, Difficulty.VeryEasy, Difficulty.ExtremelyEasy,
-            "Fresh Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkGreen, tags: ["Terrestrial", "Diggable Soil"]);
+            "Fresh Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.DarkGreen, tags: ["Terrestrial", "Diggable Soil"]);
         AddTerrain("Temperate Coniferous Forest", "talltrees", 3.5, 20.0, Difficulty.VeryEasy, Difficulty.ExtremelyEasy,
-            "Fresh Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkGreen, tags: ["Terrestrial", "Diggable Soil"]);
+            "Fresh Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.DarkGreen, tags: ["Terrestrial", "Diggable Soil"]);
         AddTerrain("Temperate Rainforest", "talltrees", 3.5, 20.0, Difficulty.VeryEasy, Difficulty.ExtremelyEasy,
-            "Fresh Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkGreen, tags: ["Terrestrial", "Diggable Soil"]);
+            "Fresh Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.DarkGreen, tags: ["Terrestrial", "Diggable Soil"]);
         AddTerrain("Tropical Rainforest", "talltrees", 3.5, 20.0, Difficulty.VeryEasy, Difficulty.ExtremelyEasy,
-            "Hot Humid Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkGreen, tags: ["Terrestrial", "Diggable Soil"]);
+            "Hot Humid Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.DarkGreen, tags: ["Terrestrial", "Diggable Soil"]);
 		AddTerrain("Tropical Dry Forest", "talltrees", 3.5, 20.0, Difficulty.Easy, Difficulty.Easy,
-			"Hot Dry Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.OliveDrab,
+			"Hot Dry Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.OliveDrab,
 			tags: ["Terrestrial", "Arid", "Diggable Soil"]);
 		AddTerrain("Monsoon Forest", "talltrees", 3.5, 22.0, Difficulty.VeryEasy, Difficulty.Easy,
-			"Hot Humid Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.ForestGreen,
+			"Hot Humid Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.ForestGreen,
 			tags: ["Terrestrial", "Diggable Soil"]);
 		AddTerrain("Cloud Forest", "talltrees", 4.0, 22.0, Difficulty.VeryEasy, Difficulty.Hard,
-			"Humid Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.SeaGreen,
+			"Humid Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.SeaGreen,
 			tags: ["Terrestrial", "Diggable Soil"]);
 		AddTerrain("Bamboo Forest", "talltrees", 3.0, 16.0, Difficulty.Easy, Difficulty.Easy,
-			"Humid Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.MediumSeaGreen,
+			"Humid Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.MediumSeaGreen,
 			tags: ["Terrestrial", "Diggable Soil"]);
         AddTerrain("Bramble", "talltrees", 3.0, 20.0, Difficulty.VeryEasy, Difficulty.ExtremelyEasy,
-            "Fresh Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkGreen, tags: ["Terrestrial", "Diggable Soil"]);
+            "Fresh Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.DarkGreen, tags: ["Terrestrial", "Diggable Soil"]);
         AddTerrain("Plantation Forest", "talltrees", 3.0, 10.0, Difficulty.VeryEasy, Difficulty.ExtremelyEasy,
-            "Fresh Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkGreen, tags: ["Rural", "Diggable Soil"]);
+            "Fresh Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.DarkGreen, tags: ["Rural", "Diggable Soil"]);
         AddTerrain("Orchard", "talltrees", 3.0, 10.0, Difficulty.VeryEasy, Difficulty.ExtremelyEasy,
-            "Fresh Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkGreen, tags: ["Rural", "Diggable Soil"]);
+            "Fresh Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.DarkGreen, tags: ["Rural", "Diggable Soil"]);
         AddTerrain("Grove", "talltrees", 3.0, 10.0, Difficulty.VeryEasy, Difficulty.ExtremelyEasy,
-            "Fresh Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkGreen, tags: ["Rural", "Diggable Soil"]);
+            "Fresh Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.DarkGreen, tags: ["Rural", "Diggable Soil"]);
         AddTerrain("Woodland", "talltrees", 3.0, 10.0, Difficulty.VeryEasy, Difficulty.ExtremelyEasy,
-            "Fresh Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkGreen, tags: ["Rural", "Diggable Soil"]);
+            "Fresh Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.DarkGreen, tags: ["Rural", "Diggable Soil"]);
 
         AddTerrain("Bog", $"shallowwatertrees {swampwater.Id}", 4.0, 30.0, Difficulty.VeryEasy,
-            Difficulty.ExtremelyEasy, "Humid Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkOliveGreen, tags: ["Terrestrial", "Wetland", "Diggable Soil", "Foragable Clay"]);
+            Difficulty.ExtremelyEasy, "Humid Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.DarkOliveGreen, tags: ["Terrestrial", "Wetland", "Diggable Soil", "Foragable Clay"]);
         AddTerrain("Fen", $"shallowwater {swampwater.Id}", 4.0, 30.0, Difficulty.VeryEasy,
-            Difficulty.ExtremelyEasy, "Humid Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.OliveDrab, tags: ["Terrestrial", "Wetland", "Riparian", "Diggable Soil", "Foragable Clay"]);
+            Difficulty.ExtremelyEasy, "Humid Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.OliveDrab, tags: ["Terrestrial", "Wetland", "Riparian", "Diggable Soil", "Foragable Clay"]);
         AddTerrain("Marsh", $"shallowwater {swampwater.Id}", 4.0, 30.0, Difficulty.VeryEasy,
-            Difficulty.ExtremelyEasy, "Humid Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkSeaGreen, tags: ["Terrestrial", "Wetland", "Riparian", "Diggable Soil", "Foragable Clay"]);
+            Difficulty.ExtremelyEasy, "Humid Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.DarkSeaGreen, tags: ["Terrestrial", "Wetland", "Riparian", "Diggable Soil", "Foragable Clay"]);
         AddTerrain("Salt Marsh", $"shallowwater {brackishwater.Id}", 4.0, 30.0, Difficulty.VeryEasy,
-            Difficulty.ExtremelyEasy, "Humid Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkKhaki, tags: ["Terrestrial", "Littoral", "Wetland", "Diggable Soil", "Foragable Clay", "Foragable Sand"]);
+            Difficulty.ExtremelyEasy, "Humid Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.DarkKhaki, tags: ["Terrestrial", "Littoral", "Wetland", "Diggable Soil", "Foragable Clay", "Foragable Sand"]);
         AddTerrain("Mangrove Swamp", $"shallowwatertrees {brackishwater.Id}", 4.0, 30.0, Difficulty.VeryEasy,
-            Difficulty.ExtremelyEasy, "Hot Humid Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkGreen, tags: ["Terrestrial", "Littoral", "Wetland", "Diggable Soil", "Foragable Sand"]);
+            Difficulty.ExtremelyEasy, "Hot Humid Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.DarkGreen, tags: ["Terrestrial", "Littoral", "Wetland", "Diggable Soil", "Foragable Sand"]);
         AddTerrain("Wetland", $"shallowwater {swampwater.Id}", 4.0, 30.0, Difficulty.VeryEasy, Difficulty.ExtremelyEasy,
-            "Humid Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.Teal, tags: ["Terrestrial", "Wetland", "Diggable Soil", "Foragable Clay"]);
+            "Humid Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.Teal, tags: ["Terrestrial", "Wetland", "Diggable Soil", "Foragable Clay"]);
         AddTerrain("Swamp Forest", $"shallowwatertrees {swampwater.Id}", 4.0, 30.0, Difficulty.VeryEasy,
-            Difficulty.ExtremelyEasy, "Humid Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkSlateGray, tags: ["Terrestrial", "Wetland", "Diggable Soil", "Foragable Clay"]);
+            Difficulty.ExtremelyEasy, "Humid Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.DarkSlateGray, tags: ["Terrestrial", "Wetland", "Diggable Soil", "Foragable Clay"]);
         AddTerrain("Tropical Freshwater Swamp", $"shallowwatertrees {swampwater.Id}", 4.0, 30.0, Difficulty.VeryEasy,
-            Difficulty.ExtremelyEasy, "Hot Humid Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.SeaGreen, tags: ["Terrestrial", "Wetland", "Diggable Soil", "Foragable Clay"]);
+            Difficulty.ExtremelyEasy, "Hot Humid Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.SeaGreen, tags: ["Terrestrial", "Wetland", "Diggable Soil", "Foragable Clay"]);
         AddTerrain("Temperate Freshwater Swamp", $"shallowwatertrees {swampwater.Id}", 4.0, 30.0, Difficulty.VeryEasy,
-            Difficulty.ExtremelyEasy, "Humid Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.CadetBlue, tags: ["Terrestrial", "Wetland", "Diggable Soil", "Foragable Clay"]);
+            Difficulty.ExtremelyEasy, "Humid Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.CadetBlue, tags: ["Terrestrial", "Wetland", "Diggable Soil", "Foragable Clay"]);
 
         AddTerrain("Sandy Desert", "outdoors", 4.0, 20.0, Difficulty.VeryHard, Difficulty.Automatic,
-            "Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.Yellow, tags: ["Terrestrial", "Arid", "Diggable Soil", "Foragable Sand"]);
+            "Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.Yellow, tags: ["Terrestrial", "Arid", "Diggable Soil", "Foragable Sand"]);
         AddTerrain("Rocky Desert", "outdoors", 4.0, 20.0, Difficulty.VeryHard, Difficulty.Automatic,
-            "Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.Yellow, tags: ["Terrestrial", "Arid", "Diggable Soil"]);
+            "Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.Yellow, tags: ["Terrestrial", "Arid", "Diggable Soil"]);
         AddTerrain("Coastal Desert", "outdoors", 4.0, 20.0, Difficulty.VeryHard, Difficulty.Automatic,
-            "Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.Yellow, tags: ["Terrestrial", "Arid", "Diggable Soil", "Foragable Sand"]);
+            "Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.Yellow, tags: ["Terrestrial", "Arid", "Diggable Soil", "Foragable Sand"]);
         AddTerrain("Oasis", "trees", 2.0, 12.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-            CellOutdoorsType.Outdoors, Color.MediumSeaGreen, tags: ["Terrestrial", "Arid", "Diggable Soil"]);
+            RoomOutdoorsType.Outdoors, Color.MediumSeaGreen, tags: ["Terrestrial", "Arid", "Diggable Soil"]);
         AddTerrain("Volcanic Plain", "outdoors", 3.5, 20.0, Difficulty.Hard, Difficulty.Automatic,
-            "Sulfurous Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.Firebrick, tags: ["Terrestrial", "Volcanic"]);
+            "Sulfurous Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.Firebrick, tags: ["Terrestrial", "Volcanic"]);
         AddTerrain("Lava Field", "outdoors", 4.0, 25.0, Difficulty.Hard, Difficulty.Automatic,
-            "Sulfurous Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkRed, tags: ["Terrestrial", "Volcanic"]);
+            "Sulfurous Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.DarkRed, tags: ["Terrestrial", "Volcanic"]);
         AddTerrain("Caldera", "outdoors", 3.5, 20.0, Difficulty.Normal, Difficulty.Automatic,
-            "Sulfurous Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.IndianRed, tags: ["Terrestrial", "Volcanic"]);
+            "Sulfurous Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.IndianRed, tags: ["Terrestrial", "Volcanic"]);
         AddTerrain("Crater", "outdoors", 3.5, 20.0, Difficulty.Normal, Difficulty.Automatic,
-            "Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.BurlyWood, tags: ["Terrestrial"]);
+            "Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.BurlyWood, tags: ["Terrestrial"]);
         AddTerrain("Glacier", "outdoors", 4.0, 22.0, Difficulty.Hard, Difficulty.Automatic,
-            "Cold Dry Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.LightCyan, tags: ["Terrestrial", "Glacial"]);
+            "Cold Dry Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.LightCyan, tags: ["Terrestrial", "Glacial"]);
         AddTerrain("Ice Field", "outdoors", 3.0, 18.0, Difficulty.Hard, Difficulty.Automatic,
-            "Cold Dry Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.AliceBlue, tags: ["Terrestrial", "Glacial"]);
+            "Cold Dry Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.AliceBlue, tags: ["Terrestrial", "Glacial"]);
         AddTerrain("Snowfield", "outdoors", 3.0, 18.0, Difficulty.Normal, Difficulty.Automatic,
-            "Cold Dry Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.WhiteSmoke, tags: ["Terrestrial", "Glacial"]);
+            "Cold Dry Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.WhiteSmoke, tags: ["Terrestrial", "Glacial"]);
 
         AddTerrain("Cave Entrance", "indoors", 3.0, 20.0, Difficulty.Normal, Difficulty.Automatic,
-            "Breathable Atmosphere", CellOutdoorsType.IndoorsClimateExposed, Color.SlateGray, tags: ["Terrestrial"]);
+            "Breathable Atmosphere", RoomOutdoorsType.IndoorsClimateExposed, Color.SlateGray, tags: ["Terrestrial"]);
         AddTerrain("Cave", "cave", 3.0, 20.0, Difficulty.Normal, Difficulty.Automatic, "Stale Breathable Atmosphere",
-            CellOutdoorsType.IndoorsNoLight, Color.DimGray, tags: ["Terrestrial"]);
+            RoomOutdoorsType.IndoorsNoLight, Color.DimGray, tags: ["Terrestrial"]);
         AddTerrain("Cavern", "cave", 3.0, 20.0, Difficulty.Normal, Difficulty.Automatic, "Stale Breathable Atmosphere",
-            CellOutdoorsType.IndoorsNoLight, Color.DarkSlateGray, tags: ["Terrestrial"]);
+            RoomOutdoorsType.IndoorsNoLight, Color.DarkSlateGray, tags: ["Terrestrial"]);
         AddTerrain("Cave Pool", $"shallowwatercave {springwater.Id}", 3.0, 15.0, Difficulty.Normal,
-            Difficulty.Normal, "Humid Breathable Atmosphere", CellOutdoorsType.IndoorsNoLight, Color.SteelBlue, tags: ["Terrestrial", "Aquatic"]);
+            Difficulty.Normal, "Humid Breathable Atmosphere", RoomOutdoorsType.IndoorsNoLight, Color.SteelBlue, tags: ["Terrestrial", "Aquatic"]);
         AddTerrain("Underground Water", $"deepwatercave {springwater.Id}", 4.0, 22.0, Difficulty.Easy,
-            Difficulty.Hard, "Humid Breathable Atmosphere", CellOutdoorsType.IndoorsNoLight, Color.MidnightBlue, tags: ["Terrestrial", "Aquatic"]);
+            Difficulty.Hard, "Humid Breathable Atmosphere", RoomOutdoorsType.IndoorsNoLight, Color.MidnightBlue, tags: ["Terrestrial", "Aquatic"]);
 		AddTerrain("Cenote", $"deepwatercave {springwater.Id}", 4.0, 22.0, Difficulty.Easy,
-			Difficulty.Hard, "Humid Breathable Atmosphere", CellOutdoorsType.IndoorsClimateExposed, Color.Turquoise,
+			Difficulty.Hard, "Humid Breathable Atmosphere", RoomOutdoorsType.IndoorsClimateExposed, Color.Turquoise,
 			tags: ["Terrestrial", "Aquatic", "Foragable Clay"]);
 
         #endregion
@@ -1728,107 +1728,107 @@ public partial class CoreDataSeeder
         #region Water
 
         AddTerrain("Sandy Beach", "outdoors", 4.0, 20.0, Difficulty.Insane, Difficulty.Automatic,
-            "Humid Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.Yellow, tags: ["Littoral", "Diggable Soil", "Foragable Sand"]);
+            "Humid Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.Yellow, tags: ["Littoral", "Diggable Soil", "Foragable Sand"]);
         AddTerrain("Rocky Beach", "outdoors", 4.0, 20.0, Difficulty.Insane, Difficulty.Automatic,
-            "Humid Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.Yellow, tags: ["Littoral"]);
+            "Humid Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.Yellow, tags: ["Littoral"]);
         AddTerrain("Beachrock", "outdoors", 4.0, 20.0, Difficulty.Insane, Difficulty.Automatic, "Humid Breathable Atmosphere",
-            CellOutdoorsType.Outdoors, Color.Yellow, tags: ["Littoral"]);
+            RoomOutdoorsType.Outdoors, Color.Yellow, tags: ["Littoral"]);
         AddTerrain("Riverbank", "outdoors", 3.0, 20.0, Difficulty.Normal, Difficulty.Automatic, "Humid Breathable Atmosphere",
-            CellOutdoorsType.Outdoors, Color.Yellow, tags: ["Riparian", "Diggable Soil", "Foragable Clay", "Foragable Sand"]);
+            RoomOutdoorsType.Outdoors, Color.Yellow, tags: ["Riparian", "Diggable Soil", "Foragable Clay", "Foragable Sand"]);
         AddTerrain("Lake Shore", "outdoors", 3.0, 20.0, Difficulty.Normal, Difficulty.Automatic,
-            "Humid Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.Yellow, tags: ["Littoral", "Diggable Soil", "Foragable Clay", "Foragable Sand"]);
+            "Humid Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.Yellow, tags: ["Littoral", "Diggable Soil", "Foragable Clay", "Foragable Sand"]);
 
         AddTerrain("Ocean Shallows", $"shallowwater {saltwater.Id}", 3.0, 15.0, Difficulty.VeryHard, Difficulty.VeryEasy,
-            "Humid Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkBlue, tags: ["Aquatic", "Littoral", "Foragable Sand"]);
+            "Humid Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.DarkBlue, tags: ["Aquatic", "Littoral", "Foragable Sand"]);
         AddTerrain("Ocean Surf", $"water {saltwater.Id}", 4.0, 20.0, Difficulty.VeryHard, Difficulty.Easy,
-            "Humid Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkBlue, tags: ["Aquatic", "Littoral", "Foragable Sand"]);
+            "Humid Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.DarkBlue, tags: ["Aquatic", "Littoral", "Foragable Sand"]);
         AddTerrain("Ocean", $"deepwater {saltwater.Id}", 4.0, 22.0, Difficulty.Normal, Difficulty.Normal,
-            "Humid Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkBlue, tags: ["Aquatic", "Foragable Sand"]);
+            "Humid Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.DarkBlue, tags: ["Aquatic", "Foragable Sand"]);
         AddTerrain("Mudflat", "outdoors", 4.0, 30.0, Difficulty.VeryHard, Difficulty.Automatic,
-            "Humid Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.SaddleBrown, tags: ["Littoral", "Wetland", "Diggable Soil", "Foragable Clay", "Foragable Sand"]);
+            "Humid Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.SaddleBrown, tags: ["Littoral", "Wetland", "Diggable Soil", "Foragable Clay", "Foragable Sand"]);
         AddTerrain("Bay", $"water {saltwater.Id}", 3.5, 18.0, Difficulty.Hard, Difficulty.Easy,
-            "Humid Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkBlue, tags: ["Aquatic", "Foragable Sand"]);
+            "Humid Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.DarkBlue, tags: ["Aquatic", "Foragable Sand"]);
         AddTerrain("Lagoon", $"water {brackishwater.Id}", 3.0, 15.0, Difficulty.Normal, Difficulty.Normal,
-            "Humid Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkBlue, tags: ["Aquatic", "Foragable Sand"]);
+            "Humid Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.DarkBlue, tags: ["Aquatic", "Foragable Sand"]);
         AddTerrain("Cove", $"shallowwater {saltwater.Id}", 3.0, 15.0, Difficulty.Hard, Difficulty.Easy,
-            "Humid Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkBlue, tags: ["Aquatic", "Foragable Sand"]);
+            "Humid Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.DarkBlue, tags: ["Aquatic", "Foragable Sand"]);
         AddTerrain("Tide Pool", $"shallowwater {saltwater.Id}", 2.0, 10.0, Difficulty.Normal, Difficulty.Normal,
-            "Humid Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkBlue, tags: ["Aquatic", "Foragable Sand"]);
+            "Humid Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.DarkBlue, tags: ["Aquatic", "Foragable Sand"]);
         AddTerrain("Shoal", $"shallowwater {saltwater.Id}", 3.0, 15.0, Difficulty.VeryHard, Difficulty.VeryEasy,
-            "Humid Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkBlue, tags: ["Aquatic", "Foragable Sand"]);
+            "Humid Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.DarkBlue, tags: ["Aquatic", "Foragable Sand"]);
         AddTerrain("Coral Reef", $"deepwater {saltwater.Id}", 4.0, 22.0, Difficulty.Easy, Difficulty.Hard,
-            "Humid Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkBlue, tags: ["Aquatic", "Foragable Sand"]);
+            "Humid Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.DarkBlue, tags: ["Aquatic", "Foragable Sand"]);
         AddTerrain("Reef", $"deepwater {saltwater.Id}", 4.0, 22.0, Difficulty.Easy, Difficulty.Hard,
-            "Humid Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkBlue, tags: ["Aquatic", "Foragable Sand"]);
+            "Humid Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.DarkBlue, tags: ["Aquatic", "Foragable Sand"]);
         AddTerrain("Sound", $"deepwater {saltwater.Id}", 4.0, 22.0, Difficulty.Normal, Difficulty.Normal,
-            "Humid Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkBlue, tags: ["Aquatic", "Foragable Sand"]);
+            "Humid Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.DarkBlue, tags: ["Aquatic", "Foragable Sand"]);
         AddTerrain("Estuary", $"shallowwater {brackishwater.Id}", 3.0, 18.0, Difficulty.Normal, Difficulty.Normal,
-            "Humid Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkBlue, tags: ["Aquatic", "Foragable Clay", "Foragable Sand"]);
+            "Humid Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.DarkBlue, tags: ["Aquatic", "Foragable Clay", "Foragable Sand"]);
         AddTerrain("Shallow River", $"shallowwater {riverwater.Id}", 3.0, 18.0, Difficulty.VeryHard, Difficulty.VeryEasy,
-            "Humid Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkBlue, tags: ["Aquatic", "Foragable Clay", "Foragable Sand"]);
+            "Humid Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.DarkBlue, tags: ["Aquatic", "Foragable Clay", "Foragable Sand"]);
         AddTerrain("River", $"water {riverwater.Id}", 3.5, 20.0, Difficulty.Hard, Difficulty.Easy,
-            "Humid Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkBlue, tags: ["Aquatic", "Foragable Clay", "Foragable Sand"]);
+            "Humid Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.DarkBlue, tags: ["Aquatic", "Foragable Clay", "Foragable Sand"]);
         AddTerrain("Deep River", $"deepwater {riverwater.Id}", 4.0, 24.0, Difficulty.Normal, Difficulty.Normal,
-            "Humid Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkBlue, tags: ["Aquatic", "Foragable Clay", "Foragable Sand"]);
+            "Humid Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.DarkBlue, tags: ["Aquatic", "Foragable Clay", "Foragable Sand"]);
         AddTerrain("Shallow Lake", $"shallowwater {lakewater.Id}", 3.0, 15.0, Difficulty.VeryHard, Difficulty.VeryEasy,
-            "Humid Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkBlue, tags: ["Aquatic", "Foragable Clay", "Foragable Sand"]);
+            "Humid Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.DarkBlue, tags: ["Aquatic", "Foragable Clay", "Foragable Sand"]);
         AddTerrain("Lake", $"water {lakewater.Id}", 3.5, 18.0, Difficulty.Hard, Difficulty.Easy,
-            "Humid Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkBlue, tags: ["Aquatic", "Foragable Clay", "Foragable Sand"]);
+            "Humid Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.DarkBlue, tags: ["Aquatic", "Foragable Clay", "Foragable Sand"]);
         AddTerrain("Deep Lake", $"deepwater {lakewater.Id}", 4.0, 22.0, Difficulty.Normal, Difficulty.Normal,
-            "Humid Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkBlue, tags: ["Aquatic", "Foragable Clay", "Foragable Sand"]);
+            "Humid Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.DarkBlue, tags: ["Aquatic", "Foragable Clay", "Foragable Sand"]);
         AddTerrain("Deep Ocean", $"verydeepunderwater {saltwater.Id}", 5.0, 30.0, Difficulty.Easy,
-            Difficulty.Hard, "salt water", CellOutdoorsType.Outdoors, Color.DarkBlue, tags: ["Aquatic", "Foragable Sand"], atmosphereType: "Liquid");
+            Difficulty.Hard, "salt water", RoomOutdoorsType.Outdoors, Color.DarkBlue, tags: ["Aquatic", "Foragable Sand"], atmosphereType: "Liquid");
 
         #endregion
 
         #region Extraterrestrial
 
         AddTerrain("Moon Surface", "outdoors", 2.5, 18.0, Difficulty.Hard, Difficulty.Automatic, null,
-            CellOutdoorsType.Outdoors, Color.LightSlateGray, tags: ["Extraterrestrial", "Lunar", "Vacuum"]);
+            RoomOutdoorsType.Outdoors, Color.LightSlateGray, tags: ["Extraterrestrial", "Lunar", "Vacuum"]);
         AddTerrain("Lunar Mare", "outdoors", 2.5, 18.0, Difficulty.Hard, Difficulty.Automatic, null,
-            CellOutdoorsType.Outdoors, Color.DimGray, tags: ["Extraterrestrial", "Lunar", "Vacuum", "Volcanic"]);
+            RoomOutdoorsType.Outdoors, Color.DimGray, tags: ["Extraterrestrial", "Lunar", "Vacuum", "Volcanic"]);
         AddTerrain("Lunar Highlands", "outdoors", 3.0, 20.0, Difficulty.Hard, Difficulty.Automatic, null,
-            CellOutdoorsType.Outdoors, Color.Gainsboro, tags: ["Extraterrestrial", "Lunar", "Vacuum"]);
+            RoomOutdoorsType.Outdoors, Color.Gainsboro, tags: ["Extraterrestrial", "Lunar", "Vacuum"]);
         AddTerrain("Lunar Crater", "outdoors", 3.5, 22.0, Difficulty.Hard, Difficulty.Automatic, null,
-            CellOutdoorsType.Outdoors, Color.Gray, tags: ["Extraterrestrial", "Lunar", "Vacuum"]);
+            RoomOutdoorsType.Outdoors, Color.Gray, tags: ["Extraterrestrial", "Lunar", "Vacuum"]);
         AddTerrain("Asteroid Surface", "outdoors", 4.0, 25.0, Difficulty.Hard, Difficulty.Automatic, null,
-            CellOutdoorsType.Outdoors, Color.DarkSlateGray, tags: ["Extraterrestrial", "Vacuum"]);
+            RoomOutdoorsType.Outdoors, Color.DarkSlateGray, tags: ["Extraterrestrial", "Vacuum"]);
 		AddTerrain("Airless Planet Surface", "outdoors", 3.5, 22.0, Difficulty.Hard, Difficulty.Automatic, null,
-			CellOutdoorsType.Outdoors, Color.SlateGray, tags: ["Planetary", "Vacuum"]);
+			RoomOutdoorsType.Outdoors, Color.SlateGray, tags: ["Planetary", "Vacuum"]);
 		AddTerrain("Habitable Exoplanet Plains", "outdoors", 2.5, 16.0, Difficulty.Normal, Difficulty.Automatic,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.MediumAquamarine,
+			"Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.MediumAquamarine,
 			tags: ["Planetary", "Diggable Soil"]);
 		AddTerrain("Alien Forest", "talltrees", 3.5, 22.0, Difficulty.Easy, Difficulty.Easy,
-			"Oxygen-Enriched Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.MediumPurple,
+			"Oxygen-Enriched Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.MediumPurple,
 			tags: ["Planetary", "Diggable Soil"]);
 		AddTerrain("Frozen Exoplanet Surface", "outdoors", 4.0, 24.0, Difficulty.Hard, Difficulty.Automatic,
-			"Very Thin Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.LightCyan,
+			"Very Thin Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.LightCyan,
 			tags: ["Planetary", "Glacial"]);
 		AddTerrain("Carbon Dioxide Planet Surface", "outdoors", 3.5, 22.0, Difficulty.Hard, Difficulty.Automatic,
-			"Carbon Dioxide", CellOutdoorsType.Outdoors, Color.IndianRed, tags: ["Planetary", "Arid"]);
+			"Carbon Dioxide", RoomOutdoorsType.Outdoors, Color.IndianRed, tags: ["Planetary", "Arid"]);
 		AddTerrain("Methane World Surface", "outdoors", 4.0, 24.0, Difficulty.Hard, Difficulty.Automatic,
-			"Methane", CellOutdoorsType.Outdoors, Color.Olive, tags: ["Planetary", "Glacial"]);
+			"Methane", RoomOutdoorsType.Outdoors, Color.Olive, tags: ["Planetary", "Glacial"]);
 		AddTerrain("Volcanic Exoplanet Surface", "outdoors", 4.5, 28.0, Difficulty.Hard, Difficulty.Automatic,
-			"Sulfur Dioxide", CellOutdoorsType.Outdoors, Color.DarkRed, tags: ["Planetary", "Volcanic"]);
+			"Sulfur Dioxide", RoomOutdoorsType.Outdoors, Color.DarkRed, tags: ["Planetary", "Volcanic"]);
 		AddTerrain("Gas Giant Atmosphere", "cliff", 5.0, 30.0, Difficulty.Insane, Difficulty.Insane,
-			"Hydrogen", CellOutdoorsType.Outdoors, Color.Goldenrod, tags: ["Planetary"]);
+			"Hydrogen", RoomOutdoorsType.Outdoors, Color.Goldenrod, tags: ["Planetary"]);
 		AddTerrain("Artificial Habitat", "indoors", 0.6, 3.0, Difficulty.Normal, Difficulty.Automatic,
-			"Pressurized Breathable Atmosphere", CellOutdoorsType.IndoorsWithWindows, Color.MediumAquamarine, "AH",
+			"Pressurized Breathable Atmosphere", RoomOutdoorsType.IndoorsWithWindows, Color.MediumAquamarine, "AH",
 			tags: ["Artificial"]);
         AddTerrain("Orbital Space", "outdoors", 1.0, 5.0, Difficulty.Insane, Difficulty.Automatic, null,
-            CellOutdoorsType.Outdoors, Color.Black, tags: ["Extraterrestrial", "Space", "Vacuum"],
+            RoomOutdoorsType.Outdoors, Color.Black, tags: ["Extraterrestrial", "Space", "Vacuum"],
             gravityModel: GravityModel.ZeroGravity);
         AddTerrain("Interplanetary Space", "outdoors", 1.0, 5.0, Difficulty.Insane, Difficulty.Automatic, null,
-            CellOutdoorsType.Outdoors, Color.Black, tags: ["Extraterrestrial", "Space", "Vacuum"],
+            RoomOutdoorsType.Outdoors, Color.Black, tags: ["Extraterrestrial", "Space", "Vacuum"],
             gravityModel: GravityModel.ZeroGravity);
         AddTerrain("Interstellar Space", "outdoors", 1.0, 5.0, Difficulty.Insane, Difficulty.Automatic, null,
-            CellOutdoorsType.Outdoors, Color.Black, tags: ["Extraterrestrial", "Space", "Vacuum"],
+            RoomOutdoorsType.Outdoors, Color.Black, tags: ["Extraterrestrial", "Space", "Vacuum"],
             gravityModel: GravityModel.ZeroGravity);
         AddTerrain("Intergalactic Space", "outdoors", 1.0, 5.0, Difficulty.Insane, Difficulty.Automatic, null,
-            CellOutdoorsType.Outdoors, Color.Black, tags: ["Extraterrestrial", "Space", "Vacuum"],
+            RoomOutdoorsType.Outdoors, Color.Black, tags: ["Extraterrestrial", "Space", "Vacuum"],
             gravityModel: GravityModel.ZeroGravity);
         AddTerrain("Zero-G Spaceship Compartment", "indoors", 0.5, 2.0, Difficulty.Normal, Difficulty.Automatic,
-            "Pressurized Breathable Atmosphere", CellOutdoorsType.Indoors, Color.MidnightBlue, "ZG",
+            "Pressurized Breathable Atmosphere", RoomOutdoorsType.Indoors, Color.MidnightBlue, "ZG",
             tags: ["Spaceship", "Space"],
             gravityModel: GravityModel.ZeroGravity);
 
@@ -1837,30 +1837,30 @@ public partial class CoreDataSeeder
 		#region Supernatural
 
 		AddTerrain("Astral Expanse", "outdoors", 1.5, 8.0, Difficulty.Normal, Difficulty.Normal,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.MediumOrchid, tags: ["Astral"]);
+			"Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.MediumOrchid, tags: ["Astral"]);
 		AddTerrain("Astral Void", "cliff", 1.0, 5.0, Difficulty.Hard, Difficulty.Hard, null,
-			CellOutdoorsType.Outdoors, Color.Indigo, tags: ["Astral", "Vacuum"], gravityModel: GravityModel.ZeroGravity);
+			RoomOutdoorsType.Outdoors, Color.Indigo, tags: ["Astral", "Vacuum"], gravityModel: GravityModel.ZeroGravity);
 		AddTerrain("Fae Glade", "trees", 2.5, 14.0, Difficulty.VeryEasy, Difficulty.Normal,
-			"Fresh Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.PaleGreen,
+			"Fresh Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.PaleGreen,
 			tags: ["Fae", "Diggable Soil"]);
 		AddTerrain("Fae Wilds", "talltrees", 3.5, 20.0, Difficulty.ExtremelyEasy, Difficulty.Hard,
-			"Fresh Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.SpringGreen,
+			"Fresh Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.SpringGreen,
 			tags: ["Fae", "Diggable Soil"]);
 		AddTerrain("Shadow Realm", "outdoors", 2.5, 14.0, Difficulty.ExtremelyEasy, Difficulty.Hard,
-			"Stale Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkSlateBlue, tags: ["Shadow"]);
+			"Stale Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.DarkSlateBlue, tags: ["Shadow"]);
 		AddTerrain("Shadow Labyrinth", "cave", 3.0, 18.0, Difficulty.ExtremelyEasy, Difficulty.VeryHard,
-			"Stale Breathable Atmosphere", CellOutdoorsType.IndoorsNoLight, Color.DarkMagenta, tags: ["Shadow"]);
+			"Stale Breathable Atmosphere", RoomOutdoorsType.IndoorsNoLight, Color.DarkMagenta, tags: ["Shadow"]);
 		AddTerrain("Heavenly Realm", "outdoors", 1.5, 8.0, Difficulty.Hard, Difficulty.Normal,
-			"Fresh Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.GhostWhite, tags: ["Celestial"]);
+			"Fresh Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.GhostWhite, tags: ["Celestial"]);
 		AddTerrain("Celestial Palace", "indoors", 0.5, 3.0, Difficulty.Hard, Difficulty.Automatic,
-			"Fresh Breathable Atmosphere", CellOutdoorsType.IndoorsWithWindows, Color.LightGoldenrodYellow, "HP",
+			"Fresh Breathable Atmosphere", RoomOutdoorsType.IndoorsWithWindows, Color.LightGoldenrodYellow, "HP",
 			tags: ["Celestial"]);
 		AddTerrain("Hellscape", "outdoors", 4.0, 25.0, Difficulty.Easy, Difficulty.Easy,
-			"Sulfurous Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.Firebrick, tags: ["Infernal", "Volcanic"]);
+			"Sulfurous Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.Firebrick, tags: ["Infernal", "Volcanic"]);
 		AddTerrain("Infernal Fortress", "indoors", 0.75, 5.0, Difficulty.Easy, Difficulty.Easy,
-			"Smoke-Tainted Breathable Atmosphere", CellOutdoorsType.Indoors, Color.DarkRed, "NF", tags: ["Infernal"]);
+			"Smoke-Tainted Breathable Atmosphere", RoomOutdoorsType.Indoors, Color.DarkRed, "NF", tags: ["Infernal"]);
 		AddTerrain("Dreamscape", "outdoors", 1.5, 8.0, Difficulty.Easy, Difficulty.Easy,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.HotPink, tags: ["Dream"]);
+			"Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.HotPink, tags: ["Dream"]);
 
 		#endregion
 

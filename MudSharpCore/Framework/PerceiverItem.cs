@@ -52,14 +52,14 @@ public abstract partial class PerceiverItem : PerceivedItem, IPerceiver
         }
     }
 
-    public override void MoveTo(ICell location, RoomLayer layer, ICellExit exit = null, bool noSave = false)
+    public override void MoveTo(IRoom location, RoomLayer layer, IRoomExit exit = null, bool noSave = false)
     {
         base.MoveTo(location, layer, exit, noSave);
         RoomLayer = layer;
         Combat?.ReevaluateMeleeRange(this);
     }
 
-    public virtual ICellOverlayPackage CurrentOverlayPackage { get; set; }
+    public virtual IRoomOverlayPackage CurrentOverlayPackage { get; set; }
 
     public abstract int LineFormatLength { get; }
 
@@ -358,7 +358,7 @@ public abstract partial class PerceiverItem : PerceivedItem, IPerceiver
     #endregion
 
 #nullable enable
-    internal static bool IsSupportedRooftopsOnlyLayer(ICell? location, IPerceiver perceiver, RoomLayer roomLayer)
+    internal static bool IsSupportedRooftopsOnlyLayer(IRoom? location, IPerceiver perceiver, RoomLayer roomLayer)
     {
         return roomLayer == RoomLayer.OnRooftops &&
                location?.Terrain(perceiver).TerrainLayers.Contains(RoomLayer.GroundLevel) == false;
@@ -431,7 +431,7 @@ public abstract partial class PerceiverItem : PerceivedItem, IPerceiver
         return false;
     }
 
-    public virtual (bool Success, IEmoteOutput FailureOutput) CanCross(ICellExit exit)
+    public virtual (bool Success, IEmoteOutput FailureOutput) CanCross(IRoomExit exit)
     {
         if (exit.Exit.Door?.IsOpen == false)
         {
@@ -443,7 +443,7 @@ public abstract partial class PerceiverItem : PerceivedItem, IPerceiver
         return (true, null);
     }
 
-    public ICellExit GetFirstFallExit()
+    public IRoomExit GetFirstFallExit()
     {
         return Location.ExitsFor(this)
                        .Where(x => (x.IsFallExit || x.IsClimbExit) && x.OutboundDirection == CardinalDirection.Down)
@@ -504,7 +504,7 @@ public abstract partial class PerceiverItem : PerceivedItem, IPerceiver
                 }
 
                 // Figure out if there is a fall exit
-                ICellExit fallExit = GetFirstFallExit();
+                IRoomExit fallExit = GetFirstFallExit();
                 if (fallExit != null)
                 {
                     cumulativeFallDistance += 0.5;

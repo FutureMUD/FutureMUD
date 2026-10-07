@@ -188,7 +188,7 @@ public class BreathingFilterGameItemComponent : GameItemComponent, IProvideGasFo
             }
         }
 
-        ICell location = emptier?.Location ?? Parent.TrueLocations.FirstOrDefault();
+        IRoom location = emptier?.Location ?? Parent.TrueLocations.FirstOrDefault();
         List<IGameItem> contents = Contents.ToList();
         _installedFilterConsumable = null;
         if (emptier is not null)

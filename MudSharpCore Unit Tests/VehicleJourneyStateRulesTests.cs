@@ -17,8 +17,8 @@ public class VehicleJourneyStateRulesTests
 	public void TryOpenBoarding_AutomaticService_OpensAccessPointBeforeDocking()
 	{
 		var gameworld = new Mock<IFuturemud>();
-		var stopCell = new Mock<ICell>();
-		var platformCell = new Mock<ICell>();
+		var stopRoom = new Mock<IRoom>();
+		var platformRoom = new Mock<IRoom>();
 		var vehiclePrototype = new Mock<IVehiclePrototype>();
 		vehiclePrototype.SetupGet(x => x.Scale).Returns(VehicleScale.RoomScale);
 		var accessPrototype = new Mock<IVehicleAccessPointPrototype>();
@@ -35,15 +35,15 @@ public class VehicleJourneyStateRulesTests
 			.Callback<bool>(value => accessIsOpen = value);
 		var binding = new Mock<IVehicleRoutePlatformBinding>();
 		binding.SetupGet(x => x.Id).Returns(51);
-		binding.SetupGet(x => x.PlatformCell).Returns(platformCell.Object);
+		binding.SetupGet(x => x.PlatformRoom).Returns(platformRoom.Object);
 		binding.SetupGet(x => x.AccessPoint).Returns(accessPrototype.Object);
 		var stop = new Mock<IVehicleRouteStop>();
 		stop.SetupGet(x => x.Location)
-			.Returns(new SpatialLocation(stopCell.Object, RoomLayer.GroundLevel, null));
+			.Returns(new SpatialLocation(stopRoom.Object, RoomLayer.GroundLevel, null));
 		stop.SetupGet(x => x.PlatformBindings).Returns([binding.Object]);
 		var vehicle = new Mock<IVehicle>();
 		vehicle.SetupGet(x => x.Prototype).Returns(vehiclePrototype.Object);
-		vehicle.SetupGet(x => x.Location).Returns(stopCell.Object);
+		vehicle.SetupGet(x => x.Location).Returns(stopRoom.Object);
 		vehicle.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
 		vehicle.SetupGet(x => x.AccessPoints).Returns([accessPoint.Object]);
 		vehicle.SetupGet(x => x.Dockings).Returns([]);
@@ -55,10 +55,10 @@ public class VehicleJourneyStateRulesTests
 		journey.SetupGet(x => x.CurrentStop).Returns(stop.Object);
 		var docking = new Mock<IVehicleDocking>();
 		var dockingService = new Mock<IVehicleDockingService>();
-		dockingService.Setup(x => x.CanDock(vehicle.Object, accessPoint.Object, platformCell.Object,
+		dockingService.Setup(x => x.CanDock(vehicle.Object, accessPoint.Object, platformRoom.Object,
 				RoomLayer.GroundLevel, stop.Object, out It.Ref<string>.IsAny))
 			.Returns(true);
-		dockingService.Setup(x => x.Dock(vehicle.Object, accessPoint.Object, platformCell.Object,
+		dockingService.Setup(x => x.Dock(vehicle.Object, accessPoint.Object, platformRoom.Object,
 				RoomLayer.GroundLevel, stop.Object))
 			.Returns(docking.Object);
 		var coordinator = new VehicleJourneyCoordinator(gameworld.Object, dockingService: dockingService.Object);
@@ -73,8 +73,8 @@ public class VehicleJourneyStateRulesTests
 	public void TryOpenBoarding_OnboardServiceWithClosedAccessPoint_FailsWithoutPhantomDocking()
 	{
 		var gameworld = new Mock<IFuturemud>();
-		var stopCell = new Mock<ICell>();
-		var platformCell = new Mock<ICell>();
+		var stopRoom = new Mock<IRoom>();
+		var platformRoom = new Mock<IRoom>();
 		var vehiclePrototype = new Mock<IVehiclePrototype>();
 		vehiclePrototype.SetupGet(x => x.Scale).Returns(VehicleScale.RoomScale);
 		var accessPrototype = new Mock<IVehicleAccessPointPrototype>();
@@ -87,15 +87,15 @@ public class VehicleJourneyStateRulesTests
 		accessPoint.SetupGet(x => x.IsLocked).Returns(false);
 		var binding = new Mock<IVehicleRoutePlatformBinding>();
 		binding.SetupGet(x => x.Id).Returns(51);
-		binding.SetupGet(x => x.PlatformCell).Returns(platformCell.Object);
+		binding.SetupGet(x => x.PlatformRoom).Returns(platformRoom.Object);
 		binding.SetupGet(x => x.AccessPoint).Returns(accessPrototype.Object);
 		var stop = new Mock<IVehicleRouteStop>();
 		stop.SetupGet(x => x.Location)
-			.Returns(new SpatialLocation(stopCell.Object, RoomLayer.GroundLevel, null));
+			.Returns(new SpatialLocation(stopRoom.Object, RoomLayer.GroundLevel, null));
 		stop.SetupGet(x => x.PlatformBindings).Returns([binding.Object]);
 		var vehicle = new Mock<IVehicle>();
 		vehicle.SetupGet(x => x.Prototype).Returns(vehiclePrototype.Object);
-		vehicle.SetupGet(x => x.Location).Returns(stopCell.Object);
+		vehicle.SetupGet(x => x.Location).Returns(stopRoom.Object);
 		vehicle.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
 		vehicle.SetupGet(x => x.AccessPoints).Returns([accessPoint.Object]);
 		var service = new Mock<IVehicleService>();
@@ -111,7 +111,7 @@ public class VehicleJourneyStateRulesTests
 		StringAssert.Contains(reason, "must be opened by the onboard operator");
 		accessPoint.Verify(x => x.SetOpen(It.IsAny<bool>()), Times.Never);
 		dockingService.Verify(x => x.Dock(It.IsAny<IVehicle>(), It.IsAny<IVehicleAccessPoint>(),
-			It.IsAny<ICell>(), It.IsAny<RoomLayer>(), It.IsAny<IVehicleRouteStop?>()), Times.Never);
+			It.IsAny<IRoom>(), It.IsAny<RoomLayer>(), It.IsAny<IVehicleRouteStop?>()), Times.Never);
 		dockingService.Verify(x => x.SetBoardingOpen(It.IsAny<IVehicleDocking>(), It.IsAny<bool>()), Times.Never);
 	}
 
@@ -195,20 +195,20 @@ public class VehicleJourneyStateRulesTests
 	}
 
 	[TestMethod]
-	public void TryOpenBoarding_SameCellAndCoordinateWrongLayer_FailsClosed()
+	public void TryOpenBoarding_SameRoomAndCoordinateWrongLayer_FailsClosed()
 	{
 		var gameworld = new Mock<IFuturemud>();
-		var cell = new Mock<ICell>();
+		var room = new Mock<IRoom>();
 		var prototype = new Mock<IVehiclePrototype>();
 		prototype.SetupGet(x => x.Scale).Returns(VehicleScale.RoomScale);
 		var vehicle = new Mock<IVehicle>();
 		vehicle.SetupGet(x => x.Prototype).Returns(prototype.Object);
-		vehicle.SetupGet(x => x.Location).Returns(cell.Object);
+		vehicle.SetupGet(x => x.Location).Returns(room.Object);
 		vehicle.SetupGet(x => x.RoomLayer).Returns(RoomLayer.HighInAir);
 		vehicle.SetupGet(x => x.RoutePositionMetres).Returns(100.0);
 		var stop = new Mock<IVehicleRouteStop>();
 		stop.SetupGet(x => x.Location)
-			.Returns(new SpatialLocation(cell.Object, RoomLayer.GroundLevel, 100.0));
+			.Returns(new SpatialLocation(room.Object, RoomLayer.GroundLevel, 100.0));
 		var journey = new Mock<IVehicleJourney>();
 		journey.SetupGet(x => x.Vehicle).Returns(vehicle.Object);
 		journey.SetupGet(x => x.CurrentStop).Returns(stop.Object);

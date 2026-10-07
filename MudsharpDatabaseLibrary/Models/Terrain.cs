@@ -7,7 +7,7 @@ namespace MudSharp.Models
     {
         public Terrain()
         {
-            CellOverlays = new HashSet<CellOverlay>();
+            RoomOverlays = new HashSet<RoomOverlay>();
             TerrainsRangedCovers = new HashSet<TerrainsRangedCovers>();
         }
 
@@ -28,7 +28,7 @@ namespace MudSharp.Models
         public string TerrainEditorColour { get; set; }
         public string TerrainANSIColour { get; set; }
         public long? WeatherControllerId { get; set; }
-        public int DefaultCellOutdoorsType { get; set; }
+        public int DefaultRoomOutdoorsType { get; set; }
         public string TerrainEditorText { get; set; }
         public bool CanHaveTracks { get; set; }
         public double TrackIntensityMultiplierVisual { get; set; }
@@ -39,7 +39,7 @@ namespace MudSharp.Models
 
         public virtual AgricultureFieldProfile DefaultAgricultureFieldProfile { get; set; }
         public virtual WeatherController WeatherController { get; set; }
-        public virtual ICollection<CellOverlay> CellOverlays { get; set; }
+        public virtual ICollection<RoomOverlay> RoomOverlays { get; set; }
         public virtual ICollection<TerrainsRangedCovers> TerrainsRangedCovers { get; set; }
     }
 }

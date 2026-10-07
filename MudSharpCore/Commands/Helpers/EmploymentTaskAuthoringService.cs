@@ -795,7 +795,7 @@ internal sealed class EmploymentTaskAuthoringService
 			return false;
 		}
 
-		var destination = targetShop.StockroomCell ?? targetShop.ShopfrontCells.FirstOrDefault();
+		var destination = targetShop.StockroomRoom ?? targetShop.ShopfrontRooms.FirstOrDefault();
 		EmploymentItemSelector? containerSelector = null;
 		while (!input.IsFinished)
 		{
@@ -867,7 +867,7 @@ internal sealed class EmploymentTaskAuthoringService
 			return false;
 		}
 
-		if (!targetShop.AllShopCells.Any(x => x.Id == destination.Id))
+		if (!targetShop.AllShopRooms.Any(x => x.Id == destination.Id))
 		{
 			message = "Stock transfer steps must deliver to one of the target shop's locations.";
 			return false;
@@ -1893,11 +1893,11 @@ internal sealed class EmploymentTaskAuthoringService
 		room = null!;
 		if (selector.EqualTo("here"))
 		{
-			room = hotel.Rooms.FirstOrDefault(x => x.Cell.Id == actor.Location.Id)!;
+			room = hotel.Rooms.FirstOrDefault(x => x.Room.Id == actor.Location.Id)!;
 		}
 		else if (long.TryParse(selector, NumberStyles.Integer, CultureInfo.InvariantCulture, out var cellId))
 		{
-			room = hotel.Rooms.FirstOrDefault(x => x.Cell.Id == cellId)!;
+			room = hotel.Rooms.FirstOrDefault(x => x.Room.Id == cellId)!;
 		}
 		else
 		{
@@ -2165,7 +2165,7 @@ internal sealed class EmploymentTaskAuthoringService
 			return false;
 		}
 
-		ICell? location = null;
+		IRoom? location = null;
 		if (!input.IsFinished)
 		{
 			if (!input.PopSpeech().EqualTo("at"))
@@ -2208,7 +2208,7 @@ internal sealed class EmploymentTaskAuthoringService
 			return false;
 		}
 
-		ICell? location = null;
+		IRoom? location = null;
 		if (!input.IsFinished)
 		{
 			if (!input.PopSpeech().EqualTo("at"))
@@ -2649,7 +2649,7 @@ internal sealed class EmploymentTaskAuthoringService
 		out string message)
 	{
 		step = null!;
-		ICell? location = null;
+		IRoom? location = null;
 		if (!input.IsFinished && input.PeekSpeech().EqualTo("at"))
 		{
 			input.PopSpeech();
@@ -4371,7 +4371,7 @@ internal sealed class EmploymentTaskAuthoringService
 			return false;
 		}
 
-		var routeStops = new List<ICell> { destination };
+		var routeStops = new List<IRoom> { destination };
 		while (!input.IsFinished && input.PeekSpeech().EqualToAny("then", "via", "and"))
 		{
 			input.PopSpeech();
@@ -4443,7 +4443,7 @@ internal sealed class EmploymentTaskAuthoringService
 			return false;
 		}
 
-		var routeStops = new List<ICell> { destination };
+		var routeStops = new List<IRoom> { destination };
 		while (!input.IsFinished && input.PeekSpeech().EqualToAny("then", "via", "and"))
 		{
 			input.PopSpeech();
@@ -4505,7 +4505,7 @@ internal sealed class EmploymentTaskAuthoringService
 			return false;
 		}
 
-		var routeStops = new List<ICell>();
+		var routeStops = new List<IRoom>();
 		if (!input.IsFinished && input.PeekSpeech().EqualTo("to"))
 		{
 			input.PopSpeech();
@@ -5593,10 +5593,10 @@ internal sealed class EmploymentTaskAuthoringService
 		return values.Any();
 	}
 
-	private static bool TryParseLocations(ICharacter actor, IEnumerable<string> tokens, out List<ICell> locations,
+	private static bool TryParseLocations(ICharacter actor, IEnumerable<string> tokens, out List<IRoom> locations,
 		out string message)
 	{
-		locations = new List<ICell>();
+		locations = new List<IRoom>();
 		foreach (var token in tokens)
 		{
 			foreach (var split in token.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
@@ -5620,7 +5620,7 @@ internal sealed class EmploymentTaskAuthoringService
 		return true;
 	}
 
-	private static bool TryResolveLocation(ICharacter actor, string token, out ICell location, out string message)
+	private static bool TryResolveLocation(ICharacter actor, string token, out IRoom location, out string message)
 	{
 		if (token.EqualTo("here"))
 		{
@@ -5636,7 +5636,7 @@ internal sealed class EmploymentTaskAuthoringService
 			return false;
 		}
 
-		location = actor.Gameworld.Cells.Get(id)!;
+		location = actor.Gameworld.Rooms.Get(id)!;
 		if (location is null)
 		{
 			message = $"There is no cell with id {id.ToString("N0", actor).ColourValue()}.";
@@ -6154,7 +6154,7 @@ internal sealed class EmploymentTaskAuthoringService
 		return amount.Currency.Describe(amount.Amount, CurrencyDescriptionPatternType.ShortDecimal).ColourValue();
 	}
 
-	private static string DescribeLocations(IEnumerable<ICell> locations, ICharacter actor)
+	private static string DescribeLocations(IEnumerable<IRoom> locations, ICharacter actor)
 	{
 		return locations
 		       .Select(x => x.GetFriendlyReference(actor).ColourName())
@@ -6222,7 +6222,7 @@ internal sealed class EmploymentTaskAuthoringService
 		return deliver.ContainerSelector is null ? string.Empty : $" into {DescribeItemSelector(deliver.ContainerSelector, actor)}";
 	}
 
-	private static string DescribeOptionalLocation(ICell? location, IGameItem? item, ICharacter actor)
+	private static string DescribeOptionalLocation(IRoom? location, IGameItem? item, ICharacter actor)
 	{
 		if (location is not null)
 		{

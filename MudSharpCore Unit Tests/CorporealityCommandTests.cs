@@ -45,7 +45,7 @@ public class CorporealityCommandTests
 		var output = new Mock<IOutputHandler>();
 		var observer = new Mock<ICharacter>();
 		var target = new Mock<IPerceivable>();
-		var location = new Mock<ICell>();
+		var location = new Mock<IRoom>();
 		location.Setup(x => x.Characters).Returns(new[] { observer.Object });
 		target.Setup(x => x.Location).Returns(location.Object);
 		target.Setup(x => x.HowSeen(observer.Object, true, DescriptionType.Short, true, PerceiveIgnoreFlags.None))

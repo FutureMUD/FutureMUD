@@ -44,7 +44,7 @@ public class CommandableAiTests
 		var actor = new Mock<ICharacter>(); actor.SetupGet(x => x.Gameworld).Returns(world.Object);
 		var commander = new Mock<ICharacter>(); commander.SetupGet(x => x.Gameworld).Returns(world.Object);
 		actor.As<ICharacterInstance>(); commander.As<ICharacterInstance>();
-		var cell = new Mock<ICell>(); cell.SetupGet(x => x.Characters).Returns([actor.Object, commander.Object]);
+		var room = new Mock<IRoom>(); room.SetupGet(x => x.Characters).Returns([actor.Object, commander.Object]);
 		var roots = new All<ICharacter>();
 		world.SetupGet(x => x.Actors).Returns(roots);
 		world.SetupGet(x => x.Characters).Returns(new All<ICharacter>());
@@ -56,7 +56,7 @@ public class CommandableAiTests
 			identity.SetupGet(x => x.Instances).Returns(new List<ICharacterInstance> { (ICharacterInstance)character.Object });
 			var body = new Mock<IBody>(); body.SetupGet(x => x.Actor).Returns(character.Object);
 			character.SetupGet(x => x.Id).Returns(id); character.SetupGet(x => x.Identity).Returns(identity.Object);
-			character.SetupGet(x => x.Body).Returns(body.Object); character.SetupGet(x => x.Location).Returns(cell.Object);
+			character.SetupGet(x => x.Body).Returns(body.Object); character.SetupGet(x => x.Location).Returns(room.Object);
 			character.SetupGet(x => x.State).Returns(CharacterState.Awake);
 		}
 		roots.Add(actor.Object); roots.Add(commander.Object);

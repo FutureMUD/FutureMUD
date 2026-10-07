@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -24,8 +24,8 @@ BEGIN
   SELECT TABLE_NAME, COLUMN_NAME FROM information_schema.COLUMNS
   WHERE TABLE_SCHEMA=DATABASE() AND DATA_TYPE IN ('char','varchar','tinytext','text','mediumtext','longtext','json');
  DECLARE CONTINUE HANDLER FOR NOT FOUND SET finished=TRUE;
- IF EXISTS(SELECT 1 FROM `Rooms`) AND COALESCE(@FutureMUD_CellSpatialMaintenance,0) <> 1 THEN
-  SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT='Cell spatial expansion requires frozen writers, verified backup and maintenance session opt-in';
+ IF EXISTS(SELECT 1 FROM `Rooms`) AND COALESCE(@FutureMUD_CellSpatialMaintenance,0)<>1 THEN
+  SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT='Cell spatial cutover: explicitly freeze all writers and set maintenance session flag';
  END IF;
  IF EXISTS(SELECT 1 FROM `Cells` GROUP BY RoomId HAVING COUNT(*)>1) THEN
   SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT='Cell spatial preflight: Room has multiple Cells; no child will be chosen';
@@ -42,9 +42,6 @@ BEGIN
  IF EXISTS(SELECT 1 FROM `Areas_Rooms` a LEFT JOIN `Rooms` r ON r.Id=a.RoomId LEFT JOIN `Areas` ar ON ar.Id=a.AreaId
            WHERE r.Id IS NULL OR ar.Id IS NULL) THEN
   SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT='Cell spatial preflight: orphan Area membership';
- END IF;
- IF EXISTS(SELECT 1 FROM `Areas_Rooms` a LEFT JOIN `Cells` c ON c.RoomId=a.RoomId WHERE c.Id IS NULL) THEN
-  SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT='Cell spatial preflight: Area references an empty Room; explicit disposition required';
  END IF;
  IF EXISTS(SELECT 1 FROM `Cells` c LEFT JOIN `CellOverlays` o ON o.Id=c.CurrentOverlayId
            WHERE o.Id IS NULL OR o.CellId<>c.Id) THEN
@@ -68,7 +65,7 @@ BEGIN
   IF LOWER(column_name_value) LIKE '%type' THEN
    SET @fm_cell_spatial_pattern='^[[:space:]]*Room[[:space:]]*$';
   ELSE
-   SET @fm_cell_spatial_pattern='([[:alnum:]_]*Type["'']?[[:space:]]*[:=][[:space:]]*["'']Room["'']|<([[:alnum:]_]*Type)>[[:space:]]*Room[[:space:]]*</)';
+   SET @fm_cell_spatial_pattern='(Type["'']?[[:space:]]*[:=][[:space:]]*["'']Room["'']|<([[:alnum:]_]*Type)>[[:space:]]*Room[[:space:]]*</)';
   END IF;
   SET @fm_cell_spatial_query=CONCAT('SELECT COUNT(*) INTO @fm_cell_spatial_hits FROM `',REPLACE(table_name_value,'`','``'),
    '` WHERE REGEXP_LIKE(`',REPLACE(column_name_value,'`','``'),'`, ?, ''i'')');
@@ -140,7 +137,7 @@ END;
                 {
                     AreaId = table.Column<long>(type: "bigint(20)", nullable: false),
                     RoomId = table.Column<long>(type: "bigint(20)", nullable: false),
-                    CellId = table.Column<long>(type: "bigint(20)", nullable: false)
+                    CellId = table.Column<long>(type: "bigint(20)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -190,14 +187,14 @@ END;
 START TRANSACTION;
 INSERT INTO `CellRoomMigrationLedger`(RoomId,CellId,ZoneId,X,Y,Z,Warning)
 SELECT r.Id,c.Id,r.ZoneId,r.X,r.Y,r.Z,
-       CASE WHEN c.Id IS NULL THEN 'Unreferenced empty Room: removal permitted at contraction; original metadata retained here' ELSE NULL END
+       CASE WHEN c.Id IS NULL THEN 'Empty Room: removal permitted; original metadata and discarded Area memberships retained in ledgers' ELSE NULL END
 FROM `Rooms` r LEFT JOIN `Cells` c ON c.RoomId=r.Id;
 INSERT INTO `CellRoomAreaMigrationLedger`(AreaId,RoomId,CellId)
-SELECT a.AreaId,a.RoomId,c.Id FROM `Areas_Rooms` a JOIN `Cells` c ON c.RoomId=a.RoomId;
+SELECT a.AreaId,a.RoomId,c.Id FROM `Areas_Rooms` a LEFT JOIN `Cells` c ON c.RoomId=a.RoomId;
 UPDATE `Cells` c JOIN `CellRoomMigrationLedger` m ON m.CellId=c.Id
 SET c.ZoneId=m.ZoneId,c.X=m.X,c.Y=m.Y,c.Z=m.Z;
 INSERT INTO `Areas_Cells`(AreaId,CellId)
-SELECT AreaId,CellId FROM `CellRoomAreaMigrationLedger`;
+SELECT AreaId,CellId FROM `CellRoomAreaMigrationLedger` WHERE CellId IS NOT NULL;
 COMMIT;
 """, suppressTransaction: true);
         }

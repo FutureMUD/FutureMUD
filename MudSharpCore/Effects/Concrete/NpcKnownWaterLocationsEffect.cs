@@ -7,7 +7,7 @@ public sealed class NpcKnownWaterLocationsEffect : Effect
 {
 	private const int MaximumRememberedWaterLocations = 20;
 
-	private readonly List<long> _knownWaterCellIds = new();
+	private readonly List<long> _knownWaterRoomIds = new();
 
 	public NpcKnownWaterLocationsEffect(ICharacter owner)
 		: base(owner)
@@ -19,7 +19,7 @@ public sealed class NpcKnownWaterLocationsEffect : Effect
 	{
 		XElement effect = root.Element("Effect") ??
 		                  throw new ArgumentException("Invalid NPC known-water effect definition.");
-		_knownWaterCellIds.AddRange(effect.Elements("Cell").Select(x => long.Parse(x.Value)).Distinct());
+		_knownWaterRoomIds.AddRange(effect.Elements("Cell").Select(x => long.Parse(x.Value)).Distinct());
 	}
 
 	public static void InitialiseEffectType()
@@ -46,31 +46,31 @@ public sealed class NpcKnownWaterLocationsEffect : Effect
 		return owner.CombinedEffectsOfType<NpcKnownWaterLocationsEffect>().FirstOrDefault();
 	}
 
-	public IEnumerable<ICell> KnownWaterLocations => _knownWaterCellIds
-		.Select(x => Gameworld.Cells.Get(x))
+	public IEnumerable<IRoom> KnownWaterLocations => _knownWaterRoomIds
+		.Select(x => Gameworld.Rooms.Get(x))
 		.WhereNotNull(x => x);
 
-	public bool Knows(ICell cell)
+	public bool Knows(IRoom room)
 	{
-		return _knownWaterCellIds.Contains(cell.Id);
+		return _knownWaterRoomIds.Contains(room.Id);
 	}
 
-	public void Remember(ICell cell)
+	public void Remember(IRoom room)
 	{
-		_knownWaterCellIds.Remove(cell.Id);
-		_knownWaterCellIds.Insert(0, cell.Id);
-		if (_knownWaterCellIds.Count > MaximumRememberedWaterLocations)
+		_knownWaterRoomIds.Remove(room.Id);
+		_knownWaterRoomIds.Insert(0, room.Id);
+		if (_knownWaterRoomIds.Count > MaximumRememberedWaterLocations)
 		{
-			_knownWaterCellIds.RemoveRange(MaximumRememberedWaterLocations,
-				_knownWaterCellIds.Count - MaximumRememberedWaterLocations);
+			_knownWaterRoomIds.RemoveRange(MaximumRememberedWaterLocations,
+				_knownWaterRoomIds.Count - MaximumRememberedWaterLocations);
 		}
 
 		Changed = true;
 	}
 
-	public void Forget(ICell cell)
+	public void Forget(IRoom room)
 	{
-		if (!_knownWaterCellIds.Remove(cell.Id))
+		if (!_knownWaterRoomIds.Remove(room.Id))
 		{
 			return;
 		}
@@ -80,12 +80,12 @@ public sealed class NpcKnownWaterLocationsEffect : Effect
 
 	protected override XElement SaveDefinition()
 	{
-		return new XElement("Effect", _knownWaterCellIds.Select(x => new XElement("Cell", x)));
+		return new XElement("Effect", _knownWaterRoomIds.Select(x => new XElement("Cell", x)));
 	}
 
 	public override string Describe(IPerceiver voyeur)
 	{
-		return $"NPC remembers water in cells {_knownWaterCellIds.Select(x => x.ToString("N0", voyeur)).ListToCommaSeparatedValues()}.";
+		return $"NPC remembers water in cells {_knownWaterRoomIds.Select(x => x.ToString("N0", voyeur)).ListToCommaSeparatedValues()}.";
 	}
 
 	public override bool SavingEffect => true;

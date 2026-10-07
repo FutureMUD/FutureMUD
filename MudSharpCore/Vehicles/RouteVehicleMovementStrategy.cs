@@ -31,7 +31,7 @@ public sealed class RouteVehicleMovementStrategy : IVehicleRouteLegExecutor
 	private readonly IVehicleOperationalReadinessService _readinessService;
 	private readonly IVehicleHitchGraphService _graphService;
 	private readonly IVehicleRouteMotionPersistence _persistence;
-	private readonly CellExitVehicleMovementStrategy _cellExitStrategy;
+	private readonly RoomExitVehicleMovementStrategy _cellExitStrategy;
 	private readonly Action<IFuturemud, Action, TimeSpan> _schedule;
 
 	public RouteVehicleMovementStrategy(
@@ -39,14 +39,14 @@ public sealed class RouteVehicleMovementStrategy : IVehicleRouteLegExecutor
 		IVehicleOperationalReadinessService? readinessService = null,
 		IVehicleHitchGraphService? graphService = null,
 		IVehicleRouteMotionPersistence? persistence = null,
-		CellExitVehicleMovementStrategy? cellExitStrategy = null,
+		RoomExitVehicleMovementStrategy? cellExitStrategy = null,
 		Action<IFuturemud, Action, TimeSpan>? schedule = null)
 	{
 		_spatialService = spatialService ?? RouteSpatialService.Instance;
 		_graphService = graphService ?? new VehicleHitchGraphService();
 		_readinessService = readinessService ?? new VehicleOperationalReadinessService(_graphService);
 		_persistence = persistence ?? new DatabaseVehicleRouteMotionPersistence();
-		_cellExitStrategy = cellExitStrategy ?? new CellExitVehicleMovementStrategy(
+		_cellExitStrategy = cellExitStrategy ?? new RoomExitVehicleMovementStrategy(
 			new VehicleTowService(), _graphService, _readinessService);
 		_schedule = schedule ?? ((gameworld, action, delay) => gameworld.Scheduler.AddSchedule(
 			new Schedule(action, ScheduleType.Movement, delay,
@@ -181,7 +181,7 @@ public sealed class RouteVehicleMovementStrategy : IVehicleRouteLegExecutor
 		var current = new SpatialLocation(vehicle.Location, vehicle.RoomLayer,
 			EffectivePositionMetres(vehicle));
 		var start = route.Stops
-			.Where(x => ReferenceEquals(x.Location.Cell, current.Cell) && x.Location.Layer == current.Layer)
+			.Where(x => ReferenceEquals(x.Location.Room, current.Room) && x.Location.Layer == current.Layer)
 			.OrderBy(x => SpatialDistance(x.Location, current))
 			.FirstOrDefault(x => SpatialDistance(x.Location, current) <= 0.002);
 		IReadOnlyList<IVehicleRouteLeg> legs;
@@ -260,7 +260,7 @@ public sealed class RouteVehicleMovementStrategy : IVehicleRouteLegExecutor
 				switch (step)
 				{
 					case IVehicleRouteLinearStep linear when
-						ReferenceEquals(linear.RouteCell.Cell, current.Cell) &&
+						ReferenceEquals(linear.RouteRoom.Room, current.Room) &&
 						linear.Origin.Layer == current.Layer &&
 						current.RoutePositionMetres.HasValue:
 					{
@@ -343,7 +343,7 @@ public sealed class RouteVehicleMovementStrategy : IVehicleRouteLegExecutor
 		var origin = vehicle.ExteriorItem is null
 			? vehicle.SpatialLocation
 			: _spatialService.GetEffectiveLocation(vehicle.ExteriorItem);
-		var route = origin.Cell.RouteDefinition;
+		var route = origin.Room.RouteDefinition;
 		if (route is null || !origin.RoutePositionMetres.HasValue)
 		{
 			reason = "That vehicle is not positioned in a RouteCell.";
@@ -386,7 +386,7 @@ public sealed class RouteVehicleMovementStrategy : IVehicleRouteLegExecutor
 		try
 		{
 			segment = new LinearRouteMovementSegment(origin,
-				new SpatialLocation(origin.Cell, origin.Layer, targetPositionMetres), speed);
+				new SpatialLocation(origin.Room, origin.Layer, targetPositionMetres), speed);
 		}
 		catch (ArgumentException ex)
 		{
@@ -572,7 +572,7 @@ public sealed class RouteVehicleMovementStrategy : IVehicleRouteLegExecutor
 			_cellExitStrategy.EchoArrival(vehicle, null!, exit, towTrain, transition.TargetLayer);
 		}
 
-		if (step.Destination.Cell.RouteDefinition is not null && step.Destination.RoutePositionMetres.HasValue)
+		if (step.Destination.Room.RouteDefinition is not null && step.Destination.RoutePositionMetres.HasValue)
 		{
 			foreach (var member in movedPlan?.Vehicles ?? [vehicle])
 			{
@@ -700,8 +700,8 @@ public sealed class RouteVehicleMovementStrategy : IVehicleRouteLegExecutor
 		foreach (var locateable in locateables)
 		{
 			var location = _spatialService.GetEffectiveLocation(locateable);
-			var isCloseEnough = ReferenceEquals(location.Cell, origin.Cell) && location.Layer == origin.Layer &&
-			                    (origin.Cell.RouteDefinition is null ||
+			var isCloseEnough = ReferenceEquals(location.Room, origin.Room) && location.Layer == origin.Layer &&
+			                    (origin.Room.RouteDefinition is null ||
 			                     location.RoutePositionMetres.HasValue && origin.RoutePositionMetres.HasValue &&
 			                     Math.Abs(location.RoutePositionMetres.Value - origin.RoutePositionMetres.Value) <=
 			                     immediate);
@@ -847,7 +847,7 @@ public sealed class RouteVehicleMovementStrategy : IVehicleRouteLegExecutor
 
 	private static double SpatialDistance(SpatialLocation lhs, SpatialLocation rhs)
 	{
-		if (!ReferenceEquals(lhs.Cell, rhs.Cell) || lhs.Layer != rhs.Layer)
+		if (!ReferenceEquals(lhs.Room, rhs.Room) || lhs.Layer != rhs.Layer)
 		{
 			return double.PositiveInfinity;
 		}
@@ -865,7 +865,7 @@ public sealed class RouteVehicleMovementStrategy : IVehicleRouteLegExecutor
 	private static bool CanCohortTraverseExit(
 		VehicleRouteCohort cohort,
 		VehicleHitchGraphMovePlan movePlan,
-		ICellExit exit,
+		IRoomExit exit,
 		ICharacter motiveCharacter,
 		out string reason)
 	{
@@ -881,7 +881,7 @@ public sealed class RouteVehicleMovementStrategy : IVehicleRouteLegExecutor
 			}
 
 			var transition = exit.MovementTransition(character);
-			if (transition.TransitionType == CellMovementTransition.NoViableTransition)
+			if (transition.TransitionType == RoomMovementTransition.NoViableTransition)
 			{
 				reason = $"{character.HowSeen(motiveCharacter, true)} cannot use that exit.";
 				return false;
@@ -902,7 +902,7 @@ public sealed class RouteVehicleMovementStrategy : IVehicleRouteLegExecutor
 	private static void MoveExternalCohortAcrossExit(
 		VehicleRouteCohort cohort,
 		VehicleHitchGraphMovePlan movePlan,
-		ICellExit exit,
+		IRoomExit exit,
 		VehicleRouteExitMovement movement)
 	{
 		var vehicleOccupants = movePlan.Vehicles
@@ -939,7 +939,7 @@ public sealed class RouteVehicleMovementStrategy : IVehicleRouteLegExecutor
 	private static void MoveExtraCohortItemsAcrossExit(
 		VehicleRouteCohort? cohort,
 		VehicleHitchGraphMovePlan? movePlan,
-		ICellExit exit,
+		IRoomExit exit,
 		RoomLayer targetLayer)
 	{
 		if (cohort is null || movePlan is null)
@@ -977,7 +977,7 @@ public sealed class RouteVehicleMovementStrategy : IVehicleRouteLegExecutor
 			return [];
 		}
 
-		var roomEquivalents = distanceMetres / origin.Cell.RouteDefinition!.MetresPerRoomEquivalent;
+		var roomEquivalents = distanceMetres / origin.Room.RouteDefinition!.MetresPerRoomEquivalent;
 		return characters.Select(character =>
 		{
 			var terrainCost = character.PositionState.IgnoreTerrainStaminaCostsForMovement
@@ -1030,7 +1030,7 @@ public sealed class RouteVehicleMovementStrategy : IVehicleRouteLegExecutor
 
 		public VehicleRouteExitMovement(ICharacter motiveCharacter,
 			IReadOnlyCollection<ICharacter> characters,
-			ICellExit exit,
+			IRoomExit exit,
 			IReadOnlyCollection<IVehicle> vehicles)
 		{
 			_motiveCharacter = motiveCharacter;
@@ -1041,7 +1041,7 @@ public sealed class RouteVehicleMovementStrategy : IVehicleRouteLegExecutor
 
 		public bool Cancelled => false;
 		public bool CanBeVoluntarilyCancelled => false;
-		public ICellExit Exit { get; }
+		public IRoomExit Exit { get; }
 		public MovementPhase Phase => MovementPhase.NewRoom;
 		public IEnumerable<ICharacter> CharacterMovers => _characters;
 		public IParty Party => _motiveCharacter.Party!;
@@ -1174,7 +1174,7 @@ public sealed class RouteVehicleMovementStrategy : IVehicleRouteLegExecutor
 			_stepSequence = stepSequence;
 			_automaticOperation = automaticOperation;
 			_completion = completion;
-			_topologyVersion = segment.Origin.Cell.RouteDefinition!.TopologyVersion;
+			_topologyVersion = segment.Origin.Room.RouteDefinition!.TopologyVersion;
 			_destinationMetres = segment.Destination.RoutePositionMetres!.Value;
 			_operationDuration = segment.Duration;
 			_operationDistanceMetres = segment.DistanceMetres;
@@ -1182,7 +1182,7 @@ public sealed class RouteVehicleMovementStrategy : IVehicleRouteLegExecutor
 			OperationId = Guid.NewGuid();
 			_hookContext = new RouteMovementHookContext(
 				OperationId,
-				segment.Origin.Cell,
+				segment.Origin.Room,
 				segment.Origin.RoutePositionMetres.Value,
 				segment.Destination.RoutePositionMetres!.Value,
 				segment.Direction,
@@ -1195,7 +1195,7 @@ public sealed class RouteVehicleMovementStrategy : IVehicleRouteLegExecutor
 		public Guid OperationId { get; }
 		public bool Cancelled { get; private set; }
 		public bool CanBeVoluntarilyCancelled => !_finished;
-		public ICellExit? Exit => null;
+		public IRoomExit? Exit => null;
 		public MovementPhase Phase => MovementPhase.OriginalRoom;
 		public IEnumerable<ICharacter> CharacterMovers => _cohort.Characters.ToArray();
 		public IParty Party => _cohort.StaminaMovers.FirstOrDefault()?.Party ?? _actor?.Party!;
@@ -1210,7 +1210,7 @@ public sealed class RouteVehicleMovementStrategy : IVehicleRouteLegExecutor
 			new Dictionary<ICharacter, ISneakMoveEffect>();
 		public TimeSpan Duration => _operationDuration;
 		public double StaminaMultiplier => _operationDistanceMetres /
-		                                   Segment.Origin.Cell.RouteDefinition!.MetresPerRoomEquivalent;
+		                                   Segment.Origin.Room.RouteDefinition!.MetresPerRoomEquivalent;
 
 		public void Start()
 		{
@@ -1365,7 +1365,7 @@ public sealed class RouteVehicleMovementStrategy : IVehicleRouteLegExecutor
 				return;
 			}
 
-			if (Segment.Origin.Cell.RouteDefinition?.TopologyVersion != _topologyVersion)
+			if (Segment.Origin.Room.RouteDefinition?.TopologyVersion != _topologyVersion)
 			{
 				CommitEffectivePosition(out _);
 				if (!_finished)
@@ -1426,8 +1426,8 @@ public sealed class RouteVehicleMovementStrategy : IVehicleRouteLegExecutor
 			}
 
 			Segment = new LinearRouteMovementSegment(
-				new SpatialLocation(Segment.Origin.Cell, Segment.Origin.Layer, _lastCheckpointMetres),
-				new SpatialLocation(Segment.Origin.Cell, Segment.Origin.Layer, _destinationMetres),
+				new SpatialLocation(Segment.Origin.Room, Segment.Origin.Layer, _lastCheckpointMetres),
+				new SpatialLocation(Segment.Origin.Room, Segment.Origin.Layer, _destinationMetres),
 				Segment.SpeedMetresPerSecond);
 			BeginLazySegment();
 			CreateTracksAtCheckpoint();
@@ -1762,7 +1762,7 @@ public sealed class RouteVehicleMovementStrategy : IVehicleRouteLegExecutor
 		private void CreateTracksAtCheckpoint()
 		{
 			if (!Vehicle.Gameworld.GetStaticBool("TrackingEnabled") ||
-				!Segment.Origin.Cell.Terrain(Vehicle.ExteriorItem).CanHaveTracks)
+				!Segment.Origin.Room.Terrain(Vehicle.ExteriorItem).CanHaveTracks)
 			{
 				return;
 			}
@@ -1781,7 +1781,7 @@ public sealed class RouteVehicleMovementStrategy : IVehicleRouteLegExecutor
 					visual,
 					olfactory);
 				member.Gameworld.Add(track);
-				Segment.Origin.Cell.AddTrack(track);
+				Segment.Origin.Room.AddTrack(track);
 			}
 
 			foreach (var mover in _cohort.StaminaMovers.Where(x => !x.IsAdministrator()))
@@ -1789,7 +1789,7 @@ public sealed class RouteVehicleMovementStrategy : IVehicleRouteLegExecutor
 				var circumstances = TrackCircumstances.None;
 				if (MudSharp.Movement.Movement.GetTrackIntensities(
 						mover,
-						Segment.Origin.Cell,
+						Segment.Origin.Room,
 						ref circumstances,
 						out var visual,
 						out var olfactory))
@@ -1806,7 +1806,7 @@ public sealed class RouteVehicleMovementStrategy : IVehicleRouteLegExecutor
 					visual,
 					olfactory);
 				mover.Gameworld.Add(track);
-				Segment.Origin.Cell.AddTrack(track);
+				Segment.Origin.Room.AddTrack(track);
 			}
 		}
 
@@ -1894,8 +1894,8 @@ public sealed class RouteVehicleMovementStrategy : IVehicleRouteLegExecutor
 
 		private string DirectionName()
 		{
-			var route = Segment.Origin.Cell.RouteDefinition!;
-			return Segment.Direction == RouteCellDirection.Positive
+			var route = Segment.Origin.Room.RouteDefinition!;
+			return Segment.Direction == RouteRoomDirection.Positive
 				? route.PositiveDirectionName
 				: route.NegativeDirectionName;
 		}
@@ -1924,9 +1924,9 @@ public sealed class RouteVehicleMovementStrategy : IVehicleRouteLegExecutor
 			reason = string.Empty;
 			foreach (var pin in _journey.Route.TopologyPins)
 			{
-				if (pin.RouteCell.RouteDefinition?.TopologyVersion != pin.TopologyVersion)
+				if (pin.RouteRoom.RouteDefinition?.TopologyVersion != pin.TopologyVersion)
 				{
-					reason = $"RouteCell #{pin.RouteCell.Id:N0} no longer matches the route's pinned topology version.";
+					reason = $"RouteCell #{pin.RouteRoom.Id:N0} no longer matches the route's pinned topology version.";
 					return false;
 				}
 			}
@@ -1990,7 +1990,7 @@ public sealed class RouteVehicleMovementStrategy : IVehicleRouteLegExecutor
 			var actor = automatic ? null : _journey.Vehicle.Controller;
 			if (step is IVehicleRouteLinearStep linear)
 			{
-				if (linear.RouteCell.TopologyVersion != linear.PinnedTopologyVersion)
+				if (linear.RouteRoom.TopologyVersion != linear.PinnedTopologyVersion)
 				{
 					reason = "The current RouteCell topology no longer matches the compiled linear step.";
 					return false;
@@ -2111,7 +2111,7 @@ public sealed class RouteVehicleMovementStrategy : IVehicleRouteLegExecutor
 			var step = _legs[_legIndex].Steps[_stepIndex];
 			if (step is IVehicleRouteLinearStep linear)
 			{
-				if (linear.RouteCell.TopologyVersion != linear.PinnedTopologyVersion)
+				if (linear.RouteRoom.TopologyVersion != linear.PinnedTopologyVersion)
 				{
 					reason = "The current RouteCell topology no longer matches the compiled route step.";
 					return false;

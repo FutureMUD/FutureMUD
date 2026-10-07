@@ -48,7 +48,7 @@ public partial class AIStoryteller
     internal static void HandleCharacterSpeechInRoomEvent(ICharacter speaker, IPerceivable? target, string message,
         AudioVolume volume, ILanguage language, IAccent accent)
     {
-        if (speaker.Location is not ICell location)
+        if (speaker.Location is not IRoom location)
         {
             return;
         }
@@ -58,7 +58,7 @@ public partial class AIStoryteller
 
         foreach (AIStoryteller storyteller in speaker.Gameworld.AIStorytellers.OfType<AIStoryteller>())
         {
-            if (!storyteller.SubscribeToSpeechEvents || storyteller.IsPaused || !storyteller.IsCellSurveilled(location))
+            if (!storyteller.SubscribeToSpeechEvents || storyteller.IsPaused || !storyteller.IsRoomSurveilled(location))
             {
                 continue;
             }
@@ -71,14 +71,14 @@ public partial class AIStoryteller
 	internal static void HandleCharacterSignInRoomEvent(ICharacter signer, IPerceivable? target, string message,
 		ISignedLanguage language, ISignedLanguageVariety? variety)
 	{
-		if (signer.Location is not ICell location)
+		if (signer.Location is not IRoom location)
 		{
 			return;
 		}
 
 		foreach (var storyteller in signer.Gameworld.AIStorytellers.OfType<AIStoryteller>())
 		{
-			if (!storyteller.SubscribeToSpeechEvents || storyteller.IsPaused || !storyteller.IsCellSurveilled(location))
+			if (!storyteller.SubscribeToSpeechEvents || storyteller.IsPaused || !storyteller.IsRoomSurveilled(location))
 			{
 				continue;
 			}
@@ -89,7 +89,7 @@ public partial class AIStoryteller
 
     internal static void HandleCrimeCommittedInRoomEvent(ICrime crime)
     {
-        ICell location = crime.CrimeLocation ?? crime.Criminal.Location;
+        IRoom location = crime.CrimeLocation ?? crime.Criminal.Location;
         if (location is null)
         {
             return;
@@ -97,7 +97,7 @@ public partial class AIStoryteller
 
         foreach (AIStoryteller storyteller in crime.Criminal.Gameworld.AIStorytellers.OfType<AIStoryteller>())
         {
-            if (!storyteller.SubscribeToCrimeEvents || storyteller.IsPaused || !storyteller.IsCellSurveilled(location))
+            if (!storyteller.SubscribeToCrimeEvents || storyteller.IsPaused || !storyteller.IsRoomSurveilled(location))
             {
                 continue;
             }
@@ -108,14 +108,14 @@ public partial class AIStoryteller
 
     internal static void HandleCharacterStateInRoomEvent(ICharacter character, AIStorytellerStateTriggerType stateType)
     {
-        if (character.Location is not ICell location)
+        if (character.Location is not IRoom location)
         {
             return;
         }
 
         foreach (AIStoryteller storyteller in character.Gameworld.AIStorytellers.OfType<AIStoryteller>())
         {
-            if (!storyteller.SubscribeToStateEvents || storyteller.IsPaused || !storyteller.IsCellSurveilled(location))
+            if (!storyteller.SubscribeToStateEvents || storyteller.IsPaused || !storyteller.IsRoomSurveilled(location))
             {
                 continue;
             }
@@ -124,7 +124,7 @@ public partial class AIStoryteller
         }
     }
 
-    private static void RecordSpeechEventInContext(ICell location, ICharacter speaker, IPerceivable? target,
+    private static void RecordSpeechEventInContext(IRoom location, ICharacter speaker, IPerceivable? target,
         string message, AudioVolume volume, ILanguage language, IAccent accent, DateTime eventTimestampUtc)
     {
         IRecentSpeechContextEffect? contextEffect = location.EffectsOfType<IRecentSpeechContextEffect>().FirstOrDefault();
@@ -137,12 +137,12 @@ public partial class AIStoryteller
         contextEffect.RecordSpeechEvent(speaker, target, message, volume, language, accent, eventTimestampUtc);
     }
 
-    private bool IsCellSurveilled(ICell location)
+    private bool IsRoomSurveilled(IRoom location)
     {
-        return _subscribedCells.Contains(location);
+        return _subscribedRooms.Contains(location);
     }
 
-    private void PassSpeechEventToAIStoryteller(ICell location, ICharacter speaker, IPerceivable? target, string message,
+    private void PassSpeechEventToAIStoryteller(IRoom location, ICharacter speaker, IPerceivable? target, string message,
         AudioVolume volume, ILanguage language, IAccent accent, DateTime eventTimestampUtc)
     {
         string apiKey = Futuremud.Games.First().GetStaticConfiguration("GPT_Secret_Key");
@@ -176,7 +176,7 @@ public partial class AIStoryteller
             bypassReason: bypassReason);
     }
 
-	private void PassSignEventToAIStoryteller(ICell location, ICharacter signer, IPerceivable? target, string message,
+	private void PassSignEventToAIStoryteller(IRoom location, ICharacter signer, IPerceivable? target, string message,
 		ISignedLanguage language, ISignedLanguageVariety? variety)
 	{
 		var apiKey = Futuremud.Games.First().GetStaticConfiguration("GPT_Secret_Key");
@@ -210,7 +210,7 @@ public partial class AIStoryteller
 			bypassAttention: bypassAttention, bypassReason: bypassReason);
 	}
 
-    private void PassCrimeToAIStoryteller(ICell location, ICrime crime)
+    private void PassCrimeToAIStoryteller(IRoom location, ICrime crime)
     {
         string apiKey = Futuremud.Games.First().GetStaticConfiguration("GPT_Secret_Key");
         if (string.IsNullOrEmpty(apiKey))
@@ -253,7 +253,7 @@ public partial class AIStoryteller
             bypassReason: bypassReason);
     }
 
-    private void PassCharacterStateToAIStoryteller(ICell location, ICharacter character, AIStorytellerStateTriggerType stateType)
+    private void PassCharacterStateToAIStoryteller(IRoom location, ICharacter character, AIStorytellerStateTriggerType stateType)
     {
         string apiKey = Futuremud.Games.First().GetStaticConfiguration("GPT_Secret_Key");
         if (string.IsNullOrEmpty(apiKey))
@@ -281,7 +281,7 @@ public partial class AIStoryteller
             toolProfile: StorytellerToolProfile.Full);
     }
 
-    private void AppendRecentSpeechContext(StringBuilder sb, ICell location, DateTime eventTimestampUtc)
+    private void AppendRecentSpeechContext(StringBuilder sb, IRoom location, DateTime eventTimestampUtc)
     {
         IReadOnlyCollection<RecentSpeechContextEvent> priorEvents = GetPriorSpeechContextEvents(location, eventTimestampUtc);
         if (priorEvents.Count == 0)
@@ -302,7 +302,7 @@ public partial class AIStoryteller
         }
     }
 
-    private IReadOnlyCollection<RecentSpeechContextEvent> GetPriorSpeechContextEvents(ICell location,
+    private IReadOnlyCollection<RecentSpeechContextEvent> GetPriorSpeechContextEvents(IRoom location,
         DateTime eventTimestampUtc)
     {
         if (SpeechContextEventCount <= 0)
@@ -345,7 +345,7 @@ public partial class AIStoryteller
         sb.AppendLine("When that focus is no longer needed, call EndBypassAttention for the same target.");
     }
 
-    private bool TryGetAttentionBypassReason(ICell location, IEnumerable<ICharacter?> involvedCharacters,
+    private bool TryGetAttentionBypassReason(IRoom location, IEnumerable<ICharacter?> involvedCharacters,
         out string reason)
     {
         lock (_attentionBypassLock)

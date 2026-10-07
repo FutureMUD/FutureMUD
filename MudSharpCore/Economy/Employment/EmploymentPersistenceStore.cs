@@ -87,11 +87,11 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 
 	private sealed record ItemSelectorPayload(string Kind, long? Id, string? Text);
 
-	private sealed record DeliverItemsStepPayload(long DestinationCellId, long? ContainerId = null,
+	private sealed record DeliverItemsStepPayload(long DestinationRoomId, long? ContainerId = null,
 		string? ContainerTag = null, ItemSelectorPayload? ContainerSelector = null);
 
 	private sealed record ShopStockTransferStepPayload(long SourceShopId, long TargetShopId, long TargetMerchandiseId,
-		long DestinationCellId, long? ContainerId = null, string? ContainerTag = null,
+		long DestinationRoomId, long? ContainerId = null, string? ContainerTag = null,
 		ItemSelectorPayload? ContainerSelector = null);
 
 	private sealed record AuctionLotListingStepPayload(long AuctionHouseId, ItemSelectorPayload ItemSelector,
@@ -118,19 +118,19 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 	private sealed record UnloadItemsStepPayload(long? ContainerId = null, string? ContainerTag = null,
 		long? SourceLocationId = null, ItemSelectorPayload? ContainerSelector = null);
 
-	private sealed record ReturnAssetStepPayload(long? ContainerId, string? ContainerTag, long DestinationCellId,
+	private sealed record ReturnAssetStepPayload(long? ContainerId, string? ContainerTag, long DestinationRoomId,
 		long? DestinationContainerId, string? DestinationContainerTag, ItemSelectorPayload? ContainerSelector = null,
 		ItemSelectorPayload? DestinationContainerSelector = null);
 
 	private sealed record VehicleOperationStepPayload(long VehicleId, long? CargoSpaceId = null, string Operation = "cargo");
 
 	private sealed record StableAnimalOperationStepPayload(string Operation, long? MountId = null, long? StableId = null,
-		long? StayId = null, long? DestinationCellId = null, bool WaiveFees = false);
+		long? StayId = null, long? DestinationRoomId = null, bool WaiveFees = false);
 
 	private sealed record StableAdministrationStepPayload(string Operation, long StableId, long? StayId = null,
 		long? AccountId = null, string? Note = null);
 
-	private sealed record HotelAdministrationStepPayload(string Operation, long PropertyId, long? RoomCellId = null,
+	private sealed record HotelAdministrationStepPayload(string Operation, long PropertyId, long? RoomRoomId = null,
 		long? LostPropertyBundleId = null, long? PatronId = null, string? PatronSelector = null, string? Note = null);
 
 	private sealed record HospitalServiceStepPayload(long HospitalId, long RequestId);
@@ -1605,8 +1605,8 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 	private IEmploymentActionStep? ToActionStep(DbActionStep record)
 	{
 		var amount = ToMoney(record.AmountCurrencyId, record.Amount);
-		var destination = record.DestinationCellId.HasValue ? _gameworld.Cells.Get(record.DestinationCellId.Value) : null;
-		var executionCell = record.ExecutionCellId.HasValue ? _gameworld.Cells.Get(record.ExecutionCellId.Value) : null;
+		var destination = record.DestinationRoomId.HasValue ? _gameworld.Rooms.Get(record.DestinationRoomId.Value) : null;
+		var executionRoom = record.ExecutionRoomId.HasValue ? _gameworld.Rooms.Get(record.ExecutionRoomId.Value) : null;
 
 		return (EmploymentActionStepType)record.StepType switch
 		{
@@ -1621,7 +1621,7 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 			EmploymentActionStepType.CraftTrigger =>
 				new CraftTriggerActionStep(record.Description ?? "craft", record.ExistingFinancialRecord),
 			EmploymentActionStepType.Command =>
-				new CommandActionStep(record.CommandName ?? string.Empty, record.CommandArguments ?? string.Empty, executionCell),
+				new CommandActionStep(record.CommandName ?? string.Empty, record.CommandArguments ?? string.Empty, executionRoom),
 			EmploymentActionStepType.BankDeposit when amount is not null =>
 				new BankDepositActionStep(amount, record.ExistingFinancialRecord),
 			EmploymentActionStepType.BankWithdrawal when amount is not null =>
@@ -1933,7 +1933,7 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 		}
 
 		return new GetItemsByIdActionStep(payload.Quantity, payload.ResolvedItemPrototypeIds,
-			ResolveCells(payload.SourceLocationIds), payload.SpecificItemIds);
+			ResolveRooms(payload.SourceLocationIds), payload.SpecificItemIds);
 	}
 
 	private GetItemsByTagActionStep? ToGetItemsByTagStep(DbActionStep record)
@@ -1944,7 +1944,7 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 			return null;
 		}
 
-		return new GetItemsByTagActionStep(payload.Quantity, payload.TagName, ResolveCells(payload.SourceLocationIds));
+		return new GetItemsByTagActionStep(payload.Quantity, payload.TagName, ResolveRooms(payload.SourceLocationIds));
 	}
 
 	private GetCommodityActionStep? ToGetCommodityStep(DbActionStep record)
@@ -1956,13 +1956,13 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 		}
 
 		return new GetCommodityActionStep(payload.RequiredWeight, payload.MaterialName, payload.TagName,
-			payload.Characteristics, ResolveCells(payload.SourceLocationIds));
+			payload.Characteristics, ResolveRooms(payload.SourceLocationIds));
 	}
 
-	private DeliverItemsActionStep? ToDeliverItemsStep(DbActionStep record, ICell? destination)
+	private DeliverItemsActionStep? ToDeliverItemsStep(DbActionStep record, IRoom? destination)
 	{
 		var payload = TryDeserializeActionPayload<DeliverItemsStepPayload>(record.BoardText);
-		destination ??= payload is null ? null : _gameworld.Cells.Get(payload.DestinationCellId);
+		destination ??= payload is null ? null : _gameworld.Rooms.Get(payload.DestinationRoomId);
 		if (destination is null)
 		{
 			return null;
@@ -1986,7 +1986,7 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 			return null;
 		}
 
-		var destination = _gameworld.Cells.Get(payload.DestinationCellId);
+		var destination = _gameworld.Rooms.Get(payload.DestinationRoomId);
 		var merchandise = targetShop.Merchandises.FirstOrDefault(x => x.Id == payload.TargetMerchandiseId);
 		if (destination is null || merchandise is null)
 		{
@@ -2094,8 +2094,8 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 			status = parsedStatus;
 		}
 
-		var sourceBranch = payload.SourceBranchId.HasValue ? _gameworld.Cells.Get(payload.SourceBranchId.Value) : null;
-		var destinationBranch = payload.DestinationBranchId.HasValue ? _gameworld.Cells.Get(payload.DestinationBranchId.Value) : null;
+		var sourceBranch = payload.SourceBranchId.HasValue ? _gameworld.Rooms.Get(payload.SourceBranchId.Value) : null;
+		var destinationBranch = payload.DestinationBranchId.HasValue ? _gameworld.Rooms.Get(payload.DestinationBranchId.Value) : null;
 		return new BankAdministrationActionStep(bank, operation, amount, payload.AccountSelector, status,
 			sourceBranch, destinationBranch, payload.Reason);
 	}
@@ -2107,7 +2107,7 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 			return null;
 		}
 
-		var location = payload.TargetLocationId.HasValue ? _gameworld.Cells.Get(payload.TargetLocationId.Value) : null;
+		var location = payload.TargetLocationId.HasValue ? _gameworld.Rooms.Get(payload.TargetLocationId.Value) : null;
 		return new LoadItemsActionStep(ToItemSelector(payload.ContainerSelector, payload.ContainerId, payload.ContainerTag),
 			location);
 	}
@@ -2120,7 +2120,7 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 			return null;
 		}
 
-		var location = payload.SourceLocationId.HasValue ? _gameworld.Cells.Get(payload.SourceLocationId.Value) : null;
+		var location = payload.SourceLocationId.HasValue ? _gameworld.Rooms.Get(payload.SourceLocationId.Value) : null;
 		return new UnloadItemsActionStep(ToItemSelector(payload.ContainerSelector, payload.ContainerId, payload.ContainerTag),
 			location);
 	}
@@ -2133,7 +2133,7 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 			return null;
 		}
 
-		var destination = _gameworld.Cells.Get(payload.DestinationCellId);
+		var destination = _gameworld.Rooms.Get(payload.DestinationRoomId);
 		if (destination is null)
 		{
 			return null;
@@ -2182,7 +2182,7 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 		var stay = payload.StayId.HasValue && stable is not null
 			? stable.Stays.FirstOrDefault(x => x.Id == payload.StayId.Value)
 			: null;
-		var destination = payload.DestinationCellId.HasValue ? _gameworld.Cells.Get(payload.DestinationCellId.Value) : null;
+		var destination = payload.DestinationRoomId.HasValue ? _gameworld.Rooms.Get(payload.DestinationRoomId.Value) : null;
 		return new StableAnimalOperationActionStep(operation, mount, stable, stay, destination, payload.WaiveFees);
 	}
 
@@ -2223,8 +2223,8 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 			return null;
 		}
 
-		var room = payload.RoomCellId.HasValue
-			? hotel.Rooms.FirstOrDefault(x => x.Cell.Id == payload.RoomCellId.Value)
+		var room = payload.RoomRoomId.HasValue
+			? hotel.Rooms.FirstOrDefault(x => x.Room.Id == payload.RoomRoomId.Value)
 			: null;
 		var lost = payload.LostPropertyBundleId.HasValue
 			? hotel.Property.HotelLostProperties.FirstOrDefault(x => x.BundleId == payload.LostPropertyBundleId.Value)
@@ -2433,7 +2433,7 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 			(long)definition.Authority.Authorities);
 	}
 
-	private CataloguedActionShellStep? ToCataloguedShellStep(DbActionStep record, ICell? destination)
+	private CataloguedActionShellStep? ToCataloguedShellStep(DbActionStep record, IRoom? destination)
 	{
 		var payload = TryDeserializeActionPayload<CataloguedActionShellPayload>(record.BoardText);
 		var actionKey = payload?.ActionKey ?? record.CommandName ?? record.Description;
@@ -2448,15 +2448,15 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 			return null;
 		}
 
-		var targetLocationId = payload?.TargetLocationId ?? record.DestinationCellId;
-		destination ??= targetLocationId.HasValue ? _gameworld.Cells.Get(targetLocationId.Value) : null;
+		var targetLocationId = payload?.TargetLocationId ?? record.DestinationRoomId;
+		destination ??= targetLocationId.HasValue ? _gameworld.Rooms.Get(targetLocationId.Value) : null;
 		var amount = payload?.Amount is not null
 			? ToMoney(payload.AmountCurrencyId, payload.Amount)
 			: ToMoney(record.AmountCurrencyId, record.Amount);
 		var routeStopIds = payload?.RouteStopIds;
 		var routeStops = routeStopIds is { Count: > 0 }
-			? ResolveCells(routeStopIds).ToList()
-			: new List<ICell>();
+			? ResolveRooms(routeStopIds).ToList()
+			: new List<IRoom>();
 		return new CataloguedActionShellStep(
 			actionKey,
 			payload?.Description ?? record.Description ?? actionKey,
@@ -2465,7 +2465,7 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 			routeStops);
 	}
 
-	private IEnumerable<ICell> ResolveCells(IEnumerable<long>? ids)
+	private IEnumerable<IRoom> ResolveRooms(IEnumerable<long>? ids)
 	{
 		if (ids is null)
 		{
@@ -2474,10 +2474,10 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 
 		foreach (var id in ids)
 		{
-			var cell = _gameworld.Cells.Get(id);
-			if (cell is not null)
+			var room = _gameworld.Rooms.Get(id);
+			if (room is not null)
 			{
-				yield return cell;
+				yield return room;
 			}
 		}
 	}
@@ -2553,7 +2553,7 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 				break;
 			case MovementDeliveryActionStep delivery:
 				record.Description = delivery.DeliveryDescription;
-				record.DestinationCellId = delivery.Destination?.Id;
+				record.DestinationRoomId = delivery.Destination?.Id;
 				break;
 			case CraftTriggerActionStep craft:
 				record.Description = craft.CraftDescription;
@@ -2565,7 +2565,7 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 			case CommandActionStep command:
 				record.CommandName = command.CommandName;
 				record.CommandArguments = command.CommandArguments;
-				record.ExecutionCellId = command.ExecutionLocation?.Id;
+				record.ExecutionRoomId = command.ExecutionLocation?.Id;
 				break;
 			case BankDepositActionStep deposit:
 				record.AmountCurrencyId = deposit.Amount.Currency.Id;
@@ -2626,7 +2626,7 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 				break;
 			case DeliverItemsActionStep deliver:
 				record.Description = "deliver task items";
-				record.DestinationCellId = deliver.Destination.Id;
+				record.DestinationRoomId = deliver.Destination.Id;
 				record.BoardText = SerializeActionPayload(new DeliverItemsStepPayload(
 					deliver.Destination.Id,
 					deliver.Container?.Id,
@@ -2635,7 +2635,7 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 				break;
 			case ShopStockTransferActionStep stockTransfer:
 				record.Description = $"transfer stock to {stockTransfer.TargetShop.Name}";
-				record.DestinationCellId = stockTransfer.Destination.Id;
+				record.DestinationRoomId = stockTransfer.Destination.Id;
 				record.BoardText = SerializeActionPayload(new ShopStockTransferStepPayload(
 					stockTransfer.SourceShop.Id,
 					stockTransfer.TargetShop.Id,
@@ -2679,8 +2679,8 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 				record.Amount = bankAdmin.Amount?.Amount;
 				record.AccountName = bankAdmin.AccountSelector;
 				record.Description = bankAdmin.Reason;
-				record.ExecutionCellId = bankAdmin.SourceBranch?.Id;
-				record.DestinationCellId = bankAdmin.DestinationBranch?.Id;
+				record.ExecutionRoomId = bankAdmin.SourceBranch?.Id;
+				record.DestinationRoomId = bankAdmin.DestinationBranch?.Id;
 				record.BoardText = SerializeActionPayload(new BankAdministrationStepPayload(
 					bankAdmin.Operation.ToString(),
 					bankAdmin.Bank.Id,
@@ -2712,7 +2712,7 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 				break;
 			case LoadItemsActionStep load:
 				record.Description = "load task items";
-				record.DestinationCellId = load.TargetLocation?.Id;
+				record.DestinationRoomId = load.TargetLocation?.Id;
 				record.BoardText = SerializeActionPayload(new LoadItemsStepPayload(
 					load.TargetContainer?.Id,
 					load.TargetContainerTag,
@@ -2721,7 +2721,7 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 				break;
 			case UnloadItemsActionStep unload:
 				record.Description = "unload task items";
-				record.DestinationCellId = unload.SourceLocation?.Id;
+				record.DestinationRoomId = unload.SourceLocation?.Id;
 				record.BoardText = SerializeActionPayload(new UnloadItemsStepPayload(
 					unload.SourceContainer?.Id,
 					unload.SourceContainerTag,
@@ -2730,7 +2730,7 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 				break;
 			case ReturnAssetActionStep returnAsset:
 				record.Description = "return task container";
-				record.DestinationCellId = returnAsset.Destination.Id;
+				record.DestinationRoomId = returnAsset.Destination.Id;
 				record.BoardText = SerializeActionPayload(new ReturnAssetStepPayload(
 					returnAsset.Container?.Id,
 					returnAsset.ContainerTag,
@@ -2744,7 +2744,7 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 				record.Description = vehicle.AssignsDriver
 					? $"assign driver to {vehicle.Vehicle.Name}"
 					: $"select cargo {vehicle.CargoSpace!.Name} on {vehicle.Vehicle.Name}";
-				record.DestinationCellId = vehicle.Vehicle.Location?.Id;
+				record.DestinationRoomId = vehicle.Vehicle.Location?.Id;
 				record.BoardText = SerializeActionPayload(new VehicleOperationStepPayload(
 					vehicle.Vehicle.Id,
 					vehicle.CargoSpace?.Id,
@@ -2752,7 +2752,7 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 				break;
 			case StableAnimalOperationActionStep animal:
 				record.Description = $"{animal.Operation.DescribeEnum()} animal operation";
-				record.DestinationCellId = animal.Destination?.Id ?? animal.Stable?.Location.Id ?? animal.Mount?.Location.Id;
+				record.DestinationRoomId = animal.Destination?.Id ?? animal.Stable?.Location.Id ?? animal.Mount?.Location.Id;
 				record.BoardText = SerializeActionPayload(new StableAnimalOperationStepPayload(
 					animal.Operation.ToString(),
 					animal.Mount is null ? null : CharacterInstanceIdentityComparer.IdentityId(animal.Mount),
@@ -2763,7 +2763,7 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 				break;
 			case StableAdministrationActionStep stableAdmin:
 				record.Description = $"{stableAdmin.Operation} stable administration";
-				record.DestinationCellId = stableAdmin.Stable.Location.Id;
+				record.DestinationRoomId = stableAdmin.Stable.Location.Id;
 				record.BoardText = SerializeActionPayload(new StableAdministrationStepPayload(
 					stableAdmin.Operation.ToString(),
 					stableAdmin.Stable.Id,
@@ -2773,11 +2773,11 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 				break;
 			case HotelAdministrationActionStep hotelAdmin:
 				record.Description = $"{hotelAdmin.Operation} hotel administration";
-				record.DestinationCellId = hotelAdmin.Room?.Cell.Id;
+				record.DestinationRoomId = hotelAdmin.Room?.Room.Id;
 				record.BoardText = SerializeActionPayload(new HotelAdministrationStepPayload(
 					hotelAdmin.Operation.ToString(),
 					hotelAdmin.Hotel.Property.Id,
-					hotelAdmin.Room?.Cell.Id,
+					hotelAdmin.Room?.Room.Id,
 					hotelAdmin.LostProperty?.BundleId,
 					hotelAdmin.PatronBalance?.PatronId,
 					hotelAdmin.PatronSelector,
@@ -2785,28 +2785,28 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 				break;
 			case HospitalPatientPreparationActionStep hospitalPrep:
 				record.Description = $"prepare patient for request #{hospitalPrep.Request.Id.ToString("N0", CultureInfo.InvariantCulture)} at {hospitalPrep.Hospital.Name}";
-				record.DestinationCellId = hospitalPrep.Request.OperatingTheatreCellId ?? hospitalPrep.Request.Patient?.Location?.Id;
+				record.DestinationRoomId = hospitalPrep.Request.OperatingTheatreRoomId ?? hospitalPrep.Request.Patient?.Location?.Id;
 				record.BoardText = SerializeActionPayload(new HospitalPatientPreparationStepPayload(
 					hospitalPrep.Hospital.Id,
 					hospitalPrep.Request.Id));
 				break;
 			case HospitalServiceActionStep hospitalService:
 				record.Description = $"service request #{hospitalService.Request.Id.ToString("N0", CultureInfo.InvariantCulture)} at {hospitalService.Hospital.Name}";
-				record.DestinationCellId = hospitalService.Request.OperatingTheatreCellId ?? hospitalService.Request.Patient?.Location?.Id;
+				record.DestinationRoomId = hospitalService.Request.OperatingTheatreRoomId ?? hospitalService.Request.Patient?.Location?.Id;
 				record.BoardText = SerializeActionPayload(new HospitalServiceStepPayload(
 					hospitalService.Hospital.Id,
 					hospitalService.Request.Id));
 				break;
 			case HospitalSupplyPreparationActionStep hospitalSupply:
 				record.Description = $"prepare supplies for request #{hospitalSupply.Request.Id.ToString("N0", CultureInfo.InvariantCulture)} at {hospitalSupply.Hospital.Name}";
-				record.DestinationCellId = hospitalSupply.Request.OperatingTheatreCellId ?? hospitalSupply.Hospital.SupplyRooms.FirstOrDefault()?.Id;
+				record.DestinationRoomId = hospitalSupply.Request.OperatingTheatreRoomId ?? hospitalSupply.Hospital.SupplyRooms.FirstOrDefault()?.Id;
 				record.BoardText = SerializeActionPayload(new HospitalSupplyPreparationStepPayload(
 					hospitalSupply.Hospital.Id,
 					hospitalSupply.Request.Id));
 				break;
 			case HospitalAdministrationActionStep hospitalAdmin:
 				record.Description = $"{hospitalAdmin.Operation} hospital administration";
-				record.DestinationCellId = hospitalAdmin.Hospital.WaitingRooms.Concat(hospitalAdmin.Hospital.OperatingTheatres).FirstOrDefault()?.Id;
+				record.DestinationRoomId = hospitalAdmin.Hospital.WaitingRooms.Concat(hospitalAdmin.Hospital.OperatingTheatres).FirstOrDefault()?.Id;
 				record.BoardText = SerializeActionPayload(new HospitalAdministrationStepPayload(
 					hospitalAdmin.Operation.ToString(),
 					hospitalAdmin.Hospital.Id,
@@ -2817,7 +2817,7 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 				record.Description = shell.ActionDescription;
 				record.AmountCurrencyId = shell.Amount?.Currency.Id;
 				record.Amount = shell.Amount?.Amount;
-				record.DestinationCellId = shell.TargetLocation?.Id;
+				record.DestinationRoomId = shell.TargetLocation?.Id;
 				record.BoardText = SerializeActionPayload(new CataloguedActionShellPayload(
 					shell.ActionKey,
 					shell.ActionDescription,

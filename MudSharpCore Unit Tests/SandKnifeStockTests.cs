@@ -57,13 +57,13 @@ public class SandKnifeStockTests
 		var tag = tagged.Object; var tags = new All<ITag>(); if(includeTag) tags.Add(tag); world.SetupGet(x => x.Tags).Returns(tags);
 		var terrain = new Mock<ITerrain>(); terrain.SetupGet(x => x.GetObject).Returns(terrain.Object); terrain.SetupGet(x => x.Type).Returns(ProgVariableTypes.Terrain);
 		terrain.Setup(x => x.GetProperty("name")).Returns(new TextVariable(terrainName));
-		var cell = new Mock<ICell>(); cell.SetupGet(x => x.GetObject).Returns(cell.Object); cell.SetupGet(x => x.Type).Returns(ProgVariableTypes.Location);
-		cell.Setup(x => x.GetProperty("terrain")).Returns(terrain.Object); cell.Setup(x => x.IsA(tag)).Returns(stormFlag);
+		var room = new Mock<IRoom>(); room.SetupGet(x => x.GetObject).Returns(room.Object); room.SetupGet(x => x.Type).Returns(ProgVariableTypes.Location);
+		room.Setup(x => x.GetProperty("terrain")).Returns(terrain.Object); room.Setup(x => x.IsA(tag)).Returns(stormFlag);
 		var weather = new Mock<IWeatherEvent>(); weather.SetupGet(x => x.GetObject).Returns(weather.Object); weather.SetupGet(x => x.Type).Returns(ProgVariableTypes.WeatherEvent);
 		weather.Setup(x => x.GetProperty("id")).Returns(new NumberVariable(weatherId));
-		cell.Setup(x => x.GetProperty("weather")).Returns(weatherId == 0 ? new NullVariable(ProgVariableTypes.WeatherEvent) : weather.Object);
+		room.Setup(x => x.GetProperty("weather")).Returns(weatherId == 0 ? new NullVariable(ProgVariableTypes.WeatherEvent) : weather.Object);
 		var caster = new Mock<ICharacter>(); caster.SetupGet(x => x.GetObject).Returns(caster.Object); caster.SetupGet(x => x.Type).Returns(ProgVariableTypes.Character);
-		caster.Setup(x => x.GetProperty("location")).Returns(cell.Object);
+		caster.Setup(x => x.GetProperty("location")).Returns(room.Object);
 		var prog = new MudSharp.FutureProg.FutureProg(world.Object, "sand_test_environment", ProgVariableTypes.Boolean,
 			[new Tuple<ProgVariableTypes, string>(ProgVariableTypes.Character, "caster")], ArmageddonSandKnifeStock.EligibilitySource(tagId,3));
 		Assert.IsTrue(prog.Compile(), prog.CompileError);

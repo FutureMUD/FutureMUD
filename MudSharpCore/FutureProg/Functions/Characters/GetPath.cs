@@ -142,7 +142,7 @@ internal class GetPath : BuiltInFunction
             return StatementResult.Normal;
         }
 
-        if (ParameterFunctions[1].Result is not ICell location)
+        if (ParameterFunctions[1].Result is not IRoom location)
         {
             Result = new CollectionVariable(new List<IProgVariable>(), ProgVariableTypes.Text);
             return StatementResult.Normal;
@@ -166,7 +166,7 @@ internal class GetPath : BuiltInFunction
                     return x.OutboundDirection.DescribeBrief();
                 }
 
-                return x is NonCardinalCellExit nc ? $"{nc.Verb} {nc.PrimaryKeyword}".ToLowerInvariant() : "??";
+                return x is NonCardinalRoomExit nc ? $"{nc.Verb} {nc.PrimaryKeyword}".ToLowerInvariant() : "??";
             })
             .ToList();
 

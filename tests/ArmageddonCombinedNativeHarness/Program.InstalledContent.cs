@@ -112,9 +112,9 @@ internal static partial class GNHProgram
 		Require(proto.BuildingCommand(actor, new StringStack($"spell add {food.Id}")), "Combined focus builder whitelist edit failed.");
 		// A real Cell locates itself and reports its visible room description. The
 		// shared loose room fixture leaves both contracts at their default values.
-		var room = actor.Location; var cell = Mock.Get(room);
-		cell.SetupGet(x => x.Location).Returns(room);
-		cell.Setup(x => x.HiddenFromPerception(It.IsAny<IPerceiver>(), It.IsAny<PerceptionTypes>(), It.IsAny<PerceiveIgnoreFlags>())).Returns(true);
+		var room = actor.Location; var room = Mock.Get(room);
+		room.SetupGet(x => x.Location).Returns(room);
+		room.Setup(x => x.HiddenFromPerception(It.IsAny<IPerceiver>(), It.IsAny<PerceptionTypes>(), It.IsAny<PerceiveIgnoreFlags>())).Returns(true);
 		Require(actor.CanSee(room) && actor.CanInteractPlanar(room, PlanarInteractionKind.Magic), "Combined native focus room fixture is not visible/material-reachable.");
 		world.SaveManager.Flush();
 		VerifyProvisionFinalPayment(food, host, database, capability, terrain, wand);

@@ -113,18 +113,18 @@ internal static partial class GNHProgram
 		foreach (var row in db.Tags.AsNoTracking()) ((ILoadingTag)world.Tags.Get(row.Id)!).FinaliseLoad(row);
 	}
 
-	private static Cell CreateStormCell(NativeRuntime native, TestDatabase database, long cellId)
+	private static Room CreateStormRoom(NativeRuntime native, TestDatabase database, long cellId)
 	{
-		_ = CreateAreaCell(native, database.ConnectionString, cellId, create: true);
+		_ = CreateAreaRoom(native, database.ConnectionString, cellId, create: true);
 		using var db = NewIndependentContext(database.ConnectionString);
-		var model = db.Cells.Include(x => x.CellOverlays).Include(x => x.CellsMagicResources).AsNoTracking().Single(x => x.Id == cellId);
+		var model = db.Rooms.Include(x => x.RoomOverlays).Include(x => x.RoomsMagicResources).AsNoTracking().Single(x => x.Id == cellId);
 		var zoneModel = db.Zones.AsNoTracking().Single(x => x.Id == model.ZoneId);
 		var shard = new Shard(db.Shards.AsNoTracking().Single(x => x.Id == zoneModel.ShardId), native.World);
 		var shards = new All<IShard>(); shards.Add(shard); native.WorldMock.SetupGet(x => x.Shards).Returns(shards);
 		native.WorldMock.SetupGet(x => x.WeatherControllers).Returns(new All<IWeatherController>());
 		var zone = new Zone(zoneModel, native.World); var zones = new All<IZone>(); zones.Add(zone); native.WorldMock.SetupGet(x => x.Zones).Returns(zones);
-		var cell = new Cell(model, zone); var cells = new All<ICell>(); cells.Add(cell); native.WorldMock.SetupGet(x => x.Cells).Returns(cells); cell.PostLoadTasks(model);
-		return cell;
+		var room = new Room(model, zone); var rooms = new All<IRoom>(); rooms.Add(room); native.WorldMock.SetupGet(x => x.Rooms).Returns(rooms); room.PostLoadTasks(model);
+		return room;
 	}
 
 	private static int RunStormSpearStockChecks()
@@ -237,10 +237,10 @@ internal static partial class GNHProgram
 			FlushCasting(native); Console.WriteLine($"ARMStorm-paid-grade{grade}=passed actual-resource-debit actual-component-delete exact-one-native-weapon primary-hand-wield persisted-grade absolute-source-nominal-deadline seconds:{seconds}"); return item;
 		}
 		var low = Cast(1, lowToken);
-		var oldCell = caster.Location;
-		var cell = CreateStormCell(native, database, fixture.CellId);
-		foreach (var item in oldCell.GameItems.ToArray()) { oldCell.Extract(item); cell.Insert(item, true); }
-		SetPrivateMember(caster, "Location", cell); ((List<ICharacter>)cell.Characters).Add(caster);
+		var oldRoom = caster.Location;
+		var room = CreateStormRoom(native, database, fixture.RoomId);
+		foreach (var item in oldRoom.GameItems.ToArray()) { oldRoom.Extract(item); room.Insert(item, true); }
+		SetPrivateMember(caster, "Location", room); ((List<ICharacter>)room.Characters).Add(caster);
 		Mock.Get(native.Body.Race).SetupGet(x => x.NaturalPerceptionTypes).Returns(PerceptionTypes.DirectVisual);
 		Mock.Get(native.Body.Prototype).SetupGet(x => x.BasePlanarPresence).Returns(PlanarPresenceDefinition.DefaultMaterial(world));
 		var personalName = new PersonalName(new XElement("Name", new XAttribute("culture", 1), new XElement("Element", new XAttribute("usage", "BirthName"), "caster")), world);
@@ -249,12 +249,12 @@ internal static partial class GNHProgram
 		var templates = new RevisableAll<INPCTemplate>(); native.WorldMock.SetupGet(x => x.NpcTemplates).Returns(templates);
 		var data = new SimpleCharacterTemplate { Gameworld = world, SelectedName = new PersonalName(new XElement("Name", new XAttribute("culture", 1), new XElement("Element", new XAttribute("usage", "BirthName"), "opponent")), world),
 			SelectedRace = native.Body.Race, SelectedEthnicity = native.Body.Ethnicity, SelectedCulture = caster.Culture,
-			SelectedBirthday = world.Calendars.First().GetDate("1-month-2000"), SelectedStartingLocation = cell, SelectedGender = native.Body.Gender.Enum,
+			SelectedBirthday = world.Calendars.First().GetDate("1-month-2000"), SelectedStartingLocation = room, SelectedGender = native.Body.Gender.Enum,
 			SelectedHeight = 1.8, SelectedWeight = 80, SelectedSdesc = "an opponent", SelectedFullDesc = "A declared acceptance opponent.",
 			SelectedAccents = [], SelectedAttributes = [], SelectedCharacteristics = [], SelectedEntityDescriptionPatterns = [], SkillValues = [], SelectedRoles = [], SelectedMerits = [],
 			SelectedKnowledges = [], MissingBodyparts = [], SelectedDisfigurements = [], SelectedProstheses = [] };
 		var template = new SimpleNPCTemplate(world, DummyAccount.Instance, data, "Storm opponent"); templates.Add(template);
-		var opponent = (NPC)template.CreateNewCharacter(cell); world.Add(opponent, true); world.Add(opponent.Body); opponent.CombatSettings = caster.CombatSettings; cell.Enter(opponent);
+		var opponent = (NPC)template.CreateNewCharacter(room); world.Add(opponent, true); world.Add(opponent.Body); opponent.CombatSettings = caster.CombatSettings; room.Enter(opponent);
 		opponent.Body.Handedness = Alignment.Right;
 		void Strike(GameItem item, int grade, ICharacter? attacker = null, ICharacter? target = null)
 		{
@@ -304,11 +304,11 @@ internal static partial class GNHProgram
 		Console.WriteLine("ARMStorm-recipient-grade-gate=passed other-recipient-occupied-primary-refused caster-free-hand-preserved no-payment native-cap90 overreach-raw81-refused overreach-raw85point5-preflight-admitted approved-95-percent-gate controlled-grade-retained-independently no-paid-overreach-claim");
 		var high = Cast(7, highToken, opponent); Strike(high, 7, opponent, caster);
 		var highOrigin = high.SpellCreationOrigin!;
-		opponent.Body.Take(high); bag.Put(caster, high, false); var sibling = New("ARM03B2B goods"); cell.Extract(sibling); bag.Put(caster, sibling, false);
+		opponent.Body.Take(high); bag.Put(caster, high, false); var sibling = New("ARM03B2B goods"); room.Extract(sibling); bag.Put(caster, sibling, false);
 		world.SaveManager.Flush(); FlushCasting(native);
 		using (var db = NewIndependentContext(database.ConnectionString))
 		{
-			if (!db.CellsGameItems.Any(x => x.GameItemId == foreignBag.Id)) db.CellsGameItems.Add(new() { CellId = fixture.CellId, GameItemId = foreignBag.Id }); db.SaveChanges();
+			if (!db.RoomsGameItems.Any(x => x.GameItemId == foreignBag.Id)) db.RoomsGameItems.Add(new() { RoomId = fixture.RoomId, GameItemId = foreignBag.Id }); db.SaveChanges();
 			Require(db.GameItems.Find(high.Id)!.ContainerId == foreignBag.Id && db.GameItems.Find(sibling.Id)!.ContainerId == foreignBag.Id, "Foreign containment fixture not persisted.");
 		}
 		RunItemReaderProcess(new StormSpearReader(database.Name, fixture, RuntimeClock.UtcNow, spell.Id, high.Id, highOrigin.LifecycleId,
@@ -328,11 +328,11 @@ internal static partial class GNHProgram
 		try { fault = casting.Cast(new(caster, cap.Id, spell.Id, 1, false, "self", OriginId: invocation)); }
 		finally { native.Body.OnInventoryChange -= Redirect; }
 		Require(fault.Status == MagicCastingStatus.NeedsReview && fault.OperationId == invocation && faultToken.Deleted && redirected is not null &&
-			redirected.InInventoryOf is null && !native.Body.WieldedItems.Contains(redirected) && cell.GameItems.Contains(redirected) &&
+			redirected.InInventoryOf is null && !native.Body.WieldedItems.Contains(redirected) && room.GameItems.Contains(redirected) &&
 			caster.MagicResourceAmounts[native.Resource] == faultBalance - spell.GradeProfile!.Efficiency!.Cost(7, 1), "Placement callback was falsely accepted or created conflicting custody.");
 		FlushCasting(native);
 		using (var db = NewIndependentContext(database.ConnectionString)) Require(!db.BodiesGameItems.Any(x => x.GameItemId == redirected!.Id) &&
-			db.CellsGameItems.Count(x => x.GameItemId == redirected!.Id) == 1, "Normal save persisted conflicting body/cell placement.");
+			db.RoomsGameItems.Count(x => x.GameItemId == redirected!.Id) == 1, "Normal save persisted conflicting body/cell placement.");
 		RunItemReaderProcess(new StormPlacementReader(database.Name, fixture, RuntimeClock.UtcNow, redirected!.Id, invocation, spell.Id, cap.Id,
 			caster.MagicResourceAmounts[native.Resource]), "--storm-spear-placement-reader");
 		Console.WriteLine("ARMStorm-placement-callback=passed actual-Held-inventory-callback-drops-output post-Get-custody-revalidation paid-NeedsReview no-false-wield normal-save fresh-process single-cell-custody no-replay-or-refund");
@@ -349,7 +349,7 @@ internal static partial class GNHProgram
 		var world = host.Native.World; var items = new SpellOwnedItemService(world); host.Native.WorldMock.SetupGet(x => x.SpellOwnedItems).Returns(items);
 		var item = world.TryGetItem(input.Item, true)!;
 		using (var db = NewIndependentContext(database.ConnectionString)) Require(!db.BodiesGameItems.Any(x => x.GameItemId == input.Item) &&
-			db.CellsGameItems.Count(x => x.GameItemId == input.Item) == 1 && item.InInventoryOf is null && !host.Native.Body.WieldedItems.Contains(item), "Fresh load restored conflicting custody.");
+			db.RoomsGameItems.Count(x => x.GameItemId == input.Item) == 1 && item.InInventoryOf is null && !host.Native.Body.WieldedItems.Contains(item), "Fresh load restored conflicting custody.");
 		var casting = new MagicCastingService(world, clock: () => RuntimeClock.UtcNow);
 		var replay = casting.Cast(new(host.Native.Actor, input.Capability, input.Spell, 1, false, "self", OriginId: input.Invocation));
 		Require(replay.Status == MagicCastingStatus.Refused && host.Native.Actor.MagicResourceAmounts[host.Native.Resource] == input.Balance, "Restart replayed or refunded paid placement uncertainty.");

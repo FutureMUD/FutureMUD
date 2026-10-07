@@ -85,7 +85,7 @@ public abstract class AutobuilderAreaBase : SaveableItem, IAutobuilderArea, IHav
         return (true, string.Empty, args);
     }
 
-    public abstract IEnumerable<ICell> ExecuteTemplate(ICharacter builder, IEnumerable<object> arguments);
+    public abstract IEnumerable<IRoom> ExecuteTemplate(ICharacter builder, IEnumerable<object> arguments);
 
     public abstract string Show(ICharacter builder);
 

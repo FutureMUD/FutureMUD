@@ -90,7 +90,7 @@ public class GasContainerGameItemComponent : GameItemComponent, IGasSupply, ICon
 
     #endregion
 
-    public override bool HandleDieOrMorph(IGameItem newItem, ICell location)
+    public override bool HandleDieOrMorph(IGameItem newItem, IRoom location)
     {
         if (!_connectedItems.Any())
         {

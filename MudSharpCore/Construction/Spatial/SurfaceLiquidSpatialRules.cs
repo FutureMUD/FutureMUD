@@ -8,7 +8,7 @@ namespace MudSharp.Construction;
 /// </summary>
 public static class SurfaceLiquidSpatialRules
 {
-	public static double? Normalise(IRouteCellDefinition? route, double? coordinateMetres)
+	public static double? Normalise(IRouteRoomDefinition? route, double? coordinateMetres)
 	{
 		if (route is null)
 		{

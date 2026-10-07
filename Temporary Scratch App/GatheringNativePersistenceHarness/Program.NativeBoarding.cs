@@ -49,7 +49,7 @@ internal static partial class GNHProgram
 		var passenger = new Db.VehicleOccupantSlotProto { VehicleProtoId = proto.Id, VehicleCompartmentProtoId = compartment.Id, Name = "passenger", SlotType = (int)VehicleOccupantSlotType.Passenger, Capacity = 1 };
 		db.VehicleOccupantSlotProtos.AddRange(driver, passenger); db.SaveChanges();
 		db.VehicleControlStationProtos.Add(new() { VehicleProtoId = proto.Id, VehicleOccupantSlotProtoId = driver.Id, Name = "driver station", IsPrimary = true });
-		db.VehicleMovementProfileProtos.Add(new() { VehicleProtoId = proto.Id, Name = "ordinary", MovementType = (int)VehicleMovementProfileType.CellExit, IsDefault = true, RequiredInstalledRole = "" });
+		db.VehicleMovementProfileProtos.Add(new() { VehicleProtoId = proto.Id, Name = "ordinary", MovementType = (int)VehicleMovementProfileType.RoomExit, IsDefault = true, RequiredInstalledRole = "" });
 		var exterior = new Db.GameItemComponentProto { Id = db.GameItemComponentProtos.Max(x => x.Id) + 1, Name = "ARMBoarding exterior", Type = "Vehicle Exterior", Description = "Native vehicle exterior.", Definition = $"<Definition><VehiclePrototypeId>{proto.Id}</VehiclePrototypeId></Definition>", EditableItem = new() { BuilderDate = RuntimeClock.UtcNow, RevisionStatus = (int)RevisionStatus.Current } };
 		db.GameItemComponentProtos.Add(exterior); db.SaveChanges();
 		var item = new Db.GameItemProto { Id = db.GameItemProtos.Max(x => x.Id) + 1, Name = "ARMBoarding cart", Keywords = "cart", ShortDescription = "an acceptance cart", FullDescription = "A disposable native cart.", MaterialId = db.GameItemProtos.First().MaterialId, Size = 1, Weight = 1, BaseItemQuality = (int)ItemQuality.Standard, EditableItem = new() { BuilderDate = RuntimeClock.UtcNow, RevisionStatus = (int)RevisionStatus.Current } };
@@ -184,7 +184,7 @@ internal static partial class GNHProgram
 			var clock = new HarnessClock(); clock.Advance(payload.Now - clock.GetUtcNow().UtcDateTime); using var time = RuntimeClock.Push(clock);
 			var host = PrepareRetirementHost(database, payload.Fixture, clock, corpseAnimationAnatomy: true, consumablesAnatomy: true);
 			ConfigureNativeBoardingWorld(host, database);
-			var cell = CreateAreaCell(host.Native, database.ConnectionString, payload.Fixture.CellId, false); SetPrivateMember(host.Native.Actor, "Location", cell);
+			var room = CreateAreaRoom(host.Native, database.ConnectionString, payload.Fixture.RoomId, false); SetPrivateMember(host.Native.Actor, "Location", room);
 			var vehicle = ReloadNativeBoardingVehicle(database, host.Native.World, payload.Vehicle);
 			((All<IVehicle>)host.Native.World.Vehicles).Add(vehicle);
 			Require(vehicle.Occupancies.Count() == 1 && ReferenceEquals(vehicle.Occupancies.Single().Occupant, host.Native.Actor) && vehicle.Occupancies.Single().CharacterInstanceId == payload.Instance && vehicle.Occupancies.Single().Slot.Id == payload.Slot, "Fresh-process native vehicle resolves exact canonical actor and slot.");

@@ -212,61 +212,61 @@ internal static class PreIndustrialFoodCatalogue
 					continue;
 				}
 
-				var cells = line.Split('\t');
-				results.Add(parser(cells, resource, lineNumber));
+				var rooms = line.Split('\t');
+				results.Add(parser(rooms, resource, lineNumber));
 			}
 		}
 
 		return results;
 	}
 
-	private static PreIndustrialFoodItemCatalogueEntry ParseItem(string[] cells, string resource, int lineNumber)
+	private static PreIndustrialFoodItemCatalogueEntry ParseItem(string[] rooms, string resource, int lineNumber)
 	{
-		RequireCellCount(cells, 15, resource, lineNumber);
+		RequireRoomCount(rooms, 15, resource, lineNumber);
 		return new PreIndustrialFoodItemCatalogueEntry(
-			Required(cells[0], resource, lineNumber, "stable_reference"),
-			ParseEnum<FoodCatalogueScope>(cells[1], resource, lineNumber, "scope"),
-			ParseEnum<FoodCatalogueKind>(cells[2], resource, lineNumber, "kind"),
-			ParseEnum<FoodCatalogueFamily>(cells[3], resource, lineNumber, "family"),
-			Required(cells[4], resource, lineNumber, "noun"),
-			Required(cells[5], resource, lineNumber, "short_description"),
-			Required(cells[6], resource, lineNumber, "full_description"),
-			cells[7].Trim(),
-			Required(cells[8], resource, lineNumber, "material"),
-			ParseEnum<FoodNutritionBand>(cells[9], resource, lineNumber, "nutrition"),
-			ParseEnum<FoodFreshnessBand>(cells[10], resource, lineNumber, "freshness"),
-			ParseEnum<ItemQuality>(cells[11], resource, lineNumber, "quality"),
-			ParseDouble(cells[12], resource, lineNumber, "weight_grams"),
-			ParseDecimal(cells[13], resource, lineNumber, "cost"),
-			ParseEnum<FoodAdmissionProfile>(cells[14], resource, lineNumber, "admission_profile"));
+			Required(rooms[0], resource, lineNumber, "stable_reference"),
+			ParseEnum<FoodCatalogueScope>(rooms[1], resource, lineNumber, "scope"),
+			ParseEnum<FoodCatalogueKind>(rooms[2], resource, lineNumber, "kind"),
+			ParseEnum<FoodCatalogueFamily>(rooms[3], resource, lineNumber, "family"),
+			Required(rooms[4], resource, lineNumber, "noun"),
+			Required(rooms[5], resource, lineNumber, "short_description"),
+			Required(rooms[6], resource, lineNumber, "full_description"),
+			rooms[7].Trim(),
+			Required(rooms[8], resource, lineNumber, "material"),
+			ParseEnum<FoodNutritionBand>(rooms[9], resource, lineNumber, "nutrition"),
+			ParseEnum<FoodFreshnessBand>(rooms[10], resource, lineNumber, "freshness"),
+			ParseEnum<ItemQuality>(rooms[11], resource, lineNumber, "quality"),
+			ParseDouble(rooms[12], resource, lineNumber, "weight_grams"),
+			ParseDecimal(rooms[13], resource, lineNumber, "cost"),
+			ParseEnum<FoodAdmissionProfile>(rooms[14], resource, lineNumber, "admission_profile"));
 	}
 
-	private static PreIndustrialFoodLiquidCatalogueEntry ParseLiquid(string[] cells, string resource, int lineNumber)
+	private static PreIndustrialFoodLiquidCatalogueEntry ParseLiquid(string[] rooms, string resource, int lineNumber)
 	{
-		RequireCellCount(cells, 14, resource, lineNumber);
+		RequireRoomCount(rooms, 14, resource, lineNumber);
 		return new PreIndustrialFoodLiquidCatalogueEntry(
-			Required(cells[0], resource, lineNumber, "stable_reference"),
-			ParseEnum<FoodCatalogueScope>(cells[1], resource, lineNumber, "scope"),
-			ParseEnum<FoodCatalogueFamily>(cells[2], resource, lineNumber, "family"),
-			Required(cells[3], resource, lineNumber, "name"),
-			Required(cells[4], resource, lineNumber, "description"),
-			Required(cells[5], resource, lineNumber, "long_description"),
-			Required(cells[6], resource, lineNumber, "taste"),
-			Required(cells[7], resource, lineNumber, "smell"),
-			Required(cells[8], resource, lineNumber, "colour"),
-			ParseDouble(cells[9], resource, lineNumber, "alcohol_per_litre"),
-			ParseDouble(cells[10], resource, lineNumber, "water_per_litre"),
-			ParseDouble(cells[11], resource, lineNumber, "food_satiation_per_litre"),
-			ParseDouble(cells[12], resource, lineNumber, "drink_satiation_per_litre"),
-			ParseEnum<FoodAdmissionProfile>(cells[13], resource, lineNumber, "admission_profile"));
+			Required(rooms[0], resource, lineNumber, "stable_reference"),
+			ParseEnum<FoodCatalogueScope>(rooms[1], resource, lineNumber, "scope"),
+			ParseEnum<FoodCatalogueFamily>(rooms[2], resource, lineNumber, "family"),
+			Required(rooms[3], resource, lineNumber, "name"),
+			Required(rooms[4], resource, lineNumber, "description"),
+			Required(rooms[5], resource, lineNumber, "long_description"),
+			Required(rooms[6], resource, lineNumber, "taste"),
+			Required(rooms[7], resource, lineNumber, "smell"),
+			Required(rooms[8], resource, lineNumber, "colour"),
+			ParseDouble(rooms[9], resource, lineNumber, "alcohol_per_litre"),
+			ParseDouble(rooms[10], resource, lineNumber, "water_per_litre"),
+			ParseDouble(rooms[11], resource, lineNumber, "food_satiation_per_litre"),
+			ParseDouble(rooms[12], resource, lineNumber, "drink_satiation_per_litre"),
+			ParseEnum<FoodAdmissionProfile>(rooms[13], resource, lineNumber, "admission_profile"));
 	}
 
-	private static void RequireCellCount(string[] cells, int expected, string resource, int lineNumber)
+	private static void RequireRoomCount(string[] rooms, int expected, string resource, int lineNumber)
 	{
-		if (cells.Length != expected)
+		if (rooms.Length != expected)
 		{
 			throw new InvalidDataException(
-				$"Food catalogue resource {resource} line {lineNumber} has {cells.Length} columns; expected {expected}.");
+				$"Food catalogue resource {resource} line {lineNumber} has {rooms.Length} columns; expected {expected}.");
 		}
 	}
 

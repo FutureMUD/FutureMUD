@@ -53,14 +53,14 @@ public class MovementStrategyFactory
 
     internal abstract class BaseStrategy : IMovementStrategy
     {
-        public bool DoorGuardIsOpeningDoor(ICellExit exit)
+        public bool DoorGuardIsOpeningDoor(IRoomExit exit)
         {
             return exit.Origin.Characters
                        .Concat(exit.Destination.Characters)
                        .Any(x => x.AffectedBy<IDoorguardOpeningDoorEffect>(exit));
         }
 
-        public MovementStrategyResult CheckDoorGuard(ICharacter ch, ICharacter tch, ICellExit exit)
+        public MovementStrategyResult CheckDoorGuard(ICharacter ch, ICharacter tch, IRoomExit exit)
         {
             if (tch is not INPC tchNPC)
             {
@@ -138,12 +138,12 @@ public class MovementStrategyFactory
             return true;
         }
 
-        public abstract MovementStrategyResult TryToMove(ICharacter ch, ICellExit exit);
+        public abstract MovementStrategyResult TryToMove(ICharacter ch, IRoomExit exit);
     }
 
     internal class MoveOnlyStrategy : BaseStrategy
     {
-        public override MovementStrategyResult TryToMove(ICharacter ch, ICellExit exit)
+        public override MovementStrategyResult TryToMove(ICharacter ch, IRoomExit exit)
         {
             if (!CheckPosition(ch) || ch.Movement != null)
             {
@@ -156,7 +156,7 @@ public class MovementStrategyFactory
 
     internal class OpenDoorsOnlyStrategy : BaseStrategy
     {
-        public override MovementStrategyResult TryToMove(ICharacter character, ICellExit exit)
+        public override MovementStrategyResult TryToMove(ICharacter character, IRoomExit exit)
         {
             if (!CheckPosition(character) || character.Movement != null)
             {
@@ -184,7 +184,7 @@ public class MovementStrategyFactory
 
     internal class UseKeysStrategy : BaseStrategy
     {
-        public override MovementStrategyResult TryToMove(ICharacter ch, ICellExit exit)
+        public override MovementStrategyResult TryToMove(ICharacter ch, IRoomExit exit)
         {
             if (!CheckPosition(ch) || ch.Movement != null)
             {
@@ -220,7 +220,7 @@ public class MovementStrategyFactory
 
     internal class BreakDownDoorsStrategy : BaseStrategy
     {
-        public override MovementStrategyResult TryToMove(ICharacter ch, ICellExit exit)
+        public override MovementStrategyResult TryToMove(ICharacter ch, IRoomExit exit)
         {
             if (!CheckPosition(ch) || ch.Movement != null)
             {
@@ -249,7 +249,7 @@ public class MovementStrategyFactory
 
     internal class BreakDownDoorsOnlyStrategy : BaseStrategy
     {
-        public override MovementStrategyResult TryToMove(ICharacter ch, ICellExit exit)
+        public override MovementStrategyResult TryToMove(ICharacter ch, IRoomExit exit)
         {
             if (!CheckPosition(ch) || ch.Movement != null)
             {
@@ -273,7 +273,7 @@ public class MovementStrategyFactory
 
     internal class FullFriendlyStrategy : BaseStrategy
     {
-        public override MovementStrategyResult TryToMove(ICharacter ch, ICellExit exit)
+        public override MovementStrategyResult TryToMove(ICharacter ch, IRoomExit exit)
         {
             if (!CheckPosition(ch) || ch.Movement != null)
             {
@@ -345,7 +345,7 @@ public class MovementStrategyFactory
 
     internal class OpenDoorsUseDoorguardsStrategy : BaseStrategy
     {
-        public override MovementStrategyResult TryToMove(ICharacter ch, ICellExit exit)
+        public override MovementStrategyResult TryToMove(ICharacter ch, IRoomExit exit)
         {
             if (!CheckPosition(ch) || ch.Movement != null)
             {
@@ -409,7 +409,7 @@ public class MovementStrategyFactory
 
     internal class UseDoorguardsOnlyStrategy : BaseStrategy
     {
-        public override MovementStrategyResult TryToMove(ICharacter ch, ICellExit exit)
+        public override MovementStrategyResult TryToMove(ICharacter ch, IRoomExit exit)
         {
             if (!CheckPosition(ch) || ch.Movement != null)
             {

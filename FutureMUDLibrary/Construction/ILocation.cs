@@ -41,7 +41,7 @@ namespace MudSharp.Construction
         IEnumerable<IGameItem> LayerGameItems(RoomLayer layer);
 
         IEnumerable<IPerceivable> Perceivables { get; }
-        IEnumerable<ICell> Cells { get; }
+        IEnumerable<IRoom> Rooms { get; }
 
         IEnumerable<IClock> Clocks { get; }
         IEnumerable<ICalendar> Calendars { get; }
@@ -51,7 +51,7 @@ namespace MudSharp.Construction
         void Extract(IGameItem thing);
 
         void Leave(ICharacter movingCharacter);
-        void Enter(ICharacter movingCharacter, ICellExit exit = null, bool noSave = false, RoomLayer roomLayer = RoomLayer.GroundLevel);
+        void Enter(ICharacter movingCharacter, IRoomExit exit = null, bool noSave = false, RoomLayer roomLayer = RoomLayer.GroundLevel);
 
         CelestialInformation GetInfo(ICelestialObject celestial);
         MudTime Time(IClock whichClock);
@@ -71,6 +71,6 @@ namespace MudSharp.Construction
     }
 
     public delegate void CharacterMovementEvent(ICharacter character, ILocation location);
-    public delegate void RoomEchoEvent(ICell location, RoomLayer? layer, string emote);
-    public delegate void RoomEmoteEchoEvent(ICell location, RoomLayer? layer, IEmoteOutput emote);
+    public delegate void RoomEchoEvent(IRoom location, RoomLayer? layer, string emote);
+    public delegate void RoomEmoteEchoEvent(IRoom location, RoomLayer? layer, IEmoteOutput emote);
 }

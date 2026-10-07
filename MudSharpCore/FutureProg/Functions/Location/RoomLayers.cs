@@ -66,7 +66,7 @@ internal class RoomLayers : BuiltInFunction
             return StatementResult.Error;
         }
 
-        if (ParameterFunctions[0].Result is not ICell location)
+        if (ParameterFunctions[0].Result is not IRoom location)
         {
             Result = new CollectionVariable(new List<TextVariable>(), ProgVariableTypes.Text);
             return StatementResult.Normal;
@@ -75,14 +75,14 @@ internal class RoomLayers : BuiltInFunction
         ITerrain terrain;
         if (ParameterFunctions.Count == 2)
         {
-            ICellOverlayPackage package = (ICellOverlayPackage)ParameterFunctions[1].Result?.GetObject;
+            IRoomOverlayPackage package = (IRoomOverlayPackage)ParameterFunctions[1].Result?.GetObject;
             if (package == null)
             {
                 Result = new CollectionVariable(new List<TextVariable>(), ProgVariableTypes.Text);
                 return StatementResult.Normal;
             }
 
-            ICellOverlay overlay = location.GetOverlay(package);
+            IRoomOverlay overlay = location.GetOverlay(package);
             if (overlay == null)
             {
                 Result = new CollectionVariable(new List<TextVariable>(), ProgVariableTypes.Text);

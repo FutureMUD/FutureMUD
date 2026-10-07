@@ -63,14 +63,14 @@ namespace MudSharp.GameItems
         ///     Game Items are often not simply "in" a location but may be indirectly in one (e.g. in inventory) or even more (e.g.
         ///     installed doors). This will return all cells they are actually in.
         /// </summary>
-        IEnumerable<ICell> TrueLocations { get; }
+        IEnumerable<IRoom> TrueLocations { get; }
 
         /// <summary>
         /// This version of the TrueLocations property is designed to be used internally to avoid infinite loops when grabbing TrueLocations of things that are connected to other things. You should consider using the property version unless you know what you are doing.
         /// </summary>
         /// <param name="itemsConsidered"></param>
         /// <returns></returns>
-        IEnumerable<ICell> TrueLocationsExcept(List<IGameItem> itemsConsidered);
+        IEnumerable<IRoom> TrueLocationsExcept(List<IGameItem> itemsConsidered);
 
         /// <summary>
         ///     This is an item that for one reason or other this item is "In", whether that be sheath, container, etc.
@@ -268,7 +268,7 @@ namespace MudSharp.GameItems
 
         bool DropsWholeByWeight(double weight);
 
-        IGameItem DropByWeight(ICell location, double weight);
+        IGameItem DropByWeight(IRoom location, double weight);
         IGameItem GetByWeight(IBody getter, double weight);
         IGameItem PeekSplitByWeight(double weight);
 
@@ -277,7 +277,7 @@ namespace MudSharp.GameItems
         /// </summary>
         /// <param name="location"></param>
         /// <returns></returns>
-        IGameItem Drop(ICell location);
+        IGameItem Drop(IRoom location);
 
         /// <summary>
         ///     Drop the IGameItem to the specified ILocation in the specified quantity. Handles IGameItem side only.
@@ -285,7 +285,7 @@ namespace MudSharp.GameItems
         /// <param name="location"></param>
         /// <param name="quantity"></param>
         /// <returns></returns>
-        IGameItem Drop(ICell location, int quantity);
+        IGameItem Drop(IRoom location, int quantity);
 
         IGameItem PeekSplit(int quantity);
 

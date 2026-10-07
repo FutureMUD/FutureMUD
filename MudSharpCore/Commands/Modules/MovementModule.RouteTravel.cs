@@ -128,7 +128,7 @@ Passing an exit does not use it. Travelling to an exit stops at the nearest poin
 
 	private static bool TryResolveTravelDestination(
 		ICharacter actor,
-		IRouteCellDefinition route,
+		IRouteRoomDefinition route,
 		SpatialLocation origin,
 		string text,
 		out double destination,

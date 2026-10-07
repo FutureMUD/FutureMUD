@@ -543,11 +543,11 @@ public class EnvironmentalMagicGeneratorTests
 	public void MinuteDelegate_AllHolderKinds_RejectBeforeAddingCacheEntries()
 	{
 		var generator = Load(World());
-		IHaveMagicResource[] holders = { Mock.Of<ICell>(), Mock.Of<ICharacter>(), Mock.Of<IGameItem>() };
+		IHaveMagicResource[] holders = { Mock.Of<IRoom>(), Mock.Of<ICharacter>(), Mock.Of<IGameItem>() };
 		foreach (var holder in holders)
 		{
 			var exception = Assert.ThrowsException<InvalidOperationException>(() => generator.GetOnMinuteDelegate(holder));
-			StringAssert.Contains(exception.Message, holder is ICell ? "centrally coordinated" : "physical cells only");
+			StringAssert.Contains(exception.Message, holder is IRoom ? "centrally coordinated" : "physical cells only");
 		}
 		var cache = (IDictionary)typeof(BaseMagicResourceGenerator).GetField("_delegates", BindingFlags.Instance | BindingFlags.NonPublic)!
 			.GetValue(generator)!;

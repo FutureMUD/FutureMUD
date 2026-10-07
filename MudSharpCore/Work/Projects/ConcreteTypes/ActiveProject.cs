@@ -804,7 +804,7 @@ public abstract class ActiveProject : LateInitialisingItem, IActiveProject, ILaz
         }
     }
 
-    public virtual ICell Location { get; protected init; }
+    public virtual IRoom Location { get; protected init; }
 
     public void DoLoad()
     {

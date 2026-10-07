@@ -114,10 +114,10 @@ public partial class CreateLiquidEffect : IMagicSpellEffectTemplate, IMagicSpell
             return null;
         }
 
-        if (target is ICell cell)
+        if (target is IRoom room)
         {
             // Puddle
-            PuddleGameItemComponentProto.TopUpOrCreateNewPuddle(mixture, cell, caster.RoomLayer, null);
+            PuddleGameItemComponentProto.TopUpOrCreateNewPuddle(mixture, room, caster.RoomLayer, null);
             return null;
         }
 

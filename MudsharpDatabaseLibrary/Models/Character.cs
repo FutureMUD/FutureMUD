@@ -129,7 +129,7 @@ public partial class Character
 	public virtual SignedLanguage CurrentSignedLanguage { get; set; }
 	public virtual SignedLanguageVariety CurrentSignedLanguageVariety { get; set; }
     public virtual Language CurrentWritingLanguage { get; set; }
-    public virtual Cell LocationNavigation { get; set; }
+    public virtual Room LocationNavigation { get; set; }
     public virtual Guest Guest { get; set; }
     public virtual ICollection<ActiveProject> ActiveProjects { get; set; }
     public virtual ICollection<ActiveJob> ActiveJobs { get; set; }

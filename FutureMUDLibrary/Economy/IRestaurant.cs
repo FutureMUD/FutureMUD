@@ -32,16 +32,16 @@ public interface IRestaurant : IPermanentShop
 	string ServerServeEmote { get; set; }
 	string ServerClearEmote { get; set; }
 	string ServerReturnEmote { get; set; }
-	IEnumerable<ICell> ServiceCells { get; }
-	IEnumerable<ICell> InternalCells { get; }
-	IEnumerable<ICell> KitchenCells { get; }
+	IEnumerable<IRoom> ServiceRooms { get; }
+	IEnumerable<IRoom> InternalRooms { get; }
+	IEnumerable<IRoom> KitchenRooms { get; }
 	IEnumerable<IGameItem> RestaurantTables { get; }
 	IEnumerable<IRestaurantMenuItem> MenuItems { get; }
 	IEnumerable<IRestaurantTableSession> TableSessions { get; }
 	IEnumerable<IRestaurantOrder> Orders { get; }
 	IEnumerable<IRestaurantStorageContainer> StorageContainers { get; }
 
-	bool IsWithinRestaurant(ICell? cell);
+	bool IsWithinRestaurant(IRoom? room);
 	IRestaurantTableSession? TableSessionFor(IGameItem table);
 	IRestaurantTableSession? TableSessionFor(ICharacter character);
 	TimeSpan EstimateWait(ICharacter customer, IRestaurantMenuItem menuItem, int quantity = 1);

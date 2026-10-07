@@ -75,7 +75,7 @@ internal class WithdrawGrid : BuiltInFunction
             return StatementResult.Normal;
         }
 
-        ICell location = (ICell)ParameterFunctions[1].Result?.GetObject;
+        IRoom location = (IRoom)ParameterFunctions[1].Result?.GetObject;
         if (location == null || !grid.Locations.Contains(location))
         {
             Result = new BooleanVariable(false);

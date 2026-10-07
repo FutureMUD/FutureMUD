@@ -18,7 +18,7 @@ internal sealed class NativeDisplacementReceipt : IDisposable
 		internal readonly ICharacter Actor = actor;
 		internal readonly IBody Body = actor.Body;
 		internal readonly ICombat? Combat = actor.Combat;
-		internal readonly ICell Source = actor.Location;
+		internal readonly IRoom Source = actor.Location;
 		internal readonly RoomLayer SourceLayer = actor.RoomLayer;
 		internal readonly double? SourcePosition = actor.RoutePositionMetres;
 		internal Phase State;
@@ -26,14 +26,14 @@ internal sealed class NativeDisplacementReceipt : IDisposable
 
 	private readonly CommandExecutionScope _owner;
 	private readonly List<Participant> _participants;
-	internal ICell Destination { get; }
+	internal IRoom Destination { get; }
 	internal RoomLayer Layer { get; }
 	internal double? RoutePosition { get; }
 	private bool _completed;
 	private bool _disposed;
-	private readonly List<(IGameItem Item, ICell Source, RoomLayer Layer, double? Position, Action Restore)> _items = [];
+	private readonly List<(IGameItem Item, IRoom Source, RoomLayer Layer, double? Position, Action Restore)> _items = [];
 
-	internal NativeDisplacementReceipt(CommandExecutionScope owner, ICharacter actor, ICell destination, RoomLayer layer, double? routePosition)
+	internal NativeDisplacementReceipt(CommandExecutionScope owner, ICharacter actor, IRoom destination, RoomLayer layer, double? routePosition)
 	{
 		_owner = owner;
 		Destination = destination;
@@ -91,7 +91,7 @@ internal sealed class NativeDisplacementReceipt : IDisposable
 		return true;
 	}
 
-	internal bool BeginEnter(ICharacter actor, ICell destination)
+	internal bool BeginEnter(ICharacter actor, IRoom destination)
 	{
 		var participant = _participants.SingleOrDefault(x => ReferenceEquals(x.Actor, actor));
 		if (!ReferenceEquals(destination, Destination) || participant is null ||
@@ -131,12 +131,12 @@ internal sealed class NativeDisplacementReceipt : IDisposable
 			{
 				// IsCurrent can fail solely because of an interrupted membership gap. The explicit
 				// identity-only helper below separates that case from actual retirement.
-				live = CommandExecutionAuthority.IsCurrentWithoutCellMembership(actor);
+				live = CommandExecutionAuthority.IsCurrentWithoutRoomMembership(actor);
 			}
 			if (live && ReferenceEquals(canonical, participant.Source) && participant.State != Phase.Source && actor is PerceivedItem nativeActor)
 				nativeActor.RestoreInterruptedNativePosition(participant.Source, participant.SourceLayer, participant.SourcePosition);
-			if (participant.Source is Cell source) source.ReconcileNativeCharacterMembership(actor, live && ReferenceEquals(canonical, source));
-			if (Destination is Cell destination && !ReferenceEquals(destination, participant.Source))
+			if (participant.Source is Room source) source.ReconcileNativeCharacterMembership(actor, live && ReferenceEquals(canonical, source));
+			if (Destination is Room destination && !ReferenceEquals(destination, participant.Source))
 				destination.ReconcileNativeCharacterMembership(actor, live && ReferenceEquals(canonical, destination));
 		}
 		_disposed = true;

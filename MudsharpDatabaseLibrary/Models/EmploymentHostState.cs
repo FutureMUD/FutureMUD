@@ -214,8 +214,8 @@ public partial class EmploymentActionStepRecord
 	public long? AmountCurrencyId { get; set; }
 	public decimal? Amount { get; set; }
 	public string? ExistingFinancialRecord { get; set; }
-	public long? DestinationCellId { get; set; }
-	public long? ExecutionCellId { get; set; }
+	public long? DestinationRoomId { get; set; }
+	public long? ExecutionRoomId { get; set; }
 	public string? CommandName { get; set; }
 	public string? CommandArguments { get; set; }
 	public string? AccountName { get; set; }

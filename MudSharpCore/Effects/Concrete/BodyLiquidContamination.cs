@@ -321,7 +321,7 @@ public class BodyLiquidContamination : Effect, ILiquidContaminationEffect, IDesc
             _contaminatingLiquid.OnLiquidMixtureChanged -= ContaminatingLiquidOnLiquidMixtureChanged;
             double difference = mixture.TotalVolume - maxAbsorbed;
             ContaminatingLiquid.SetLiquidVolume(maxAbsorbed);
-            ICell location = BodyOwner.Location;
+            IRoom location = BodyOwner.Location;
             if (location != null && !location.IsSwimmingLayer(BodyOwner.RoomLayer))
             {
                 if (RuntimeClock.UtcNow - _lastDripEcho > TimeSpan.FromSeconds(120) && ShouldDripsEcho)

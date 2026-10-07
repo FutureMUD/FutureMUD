@@ -21,7 +21,7 @@ namespace MudSharp.Economy.Property;
 
 public partial class Property : SaveableItem, IProperty
 {
-    public Property(string name, IEconomicZone zone, ICell location, decimal value, IFrameworkItem owner,
+    public Property(string name, IEconomicZone zone, IRoom location, decimal value, IFrameworkItem owner,
         IBankAccount account)
     {
         Gameworld = zone.Gameworld;
@@ -33,8 +33,8 @@ public partial class Property : SaveableItem, IProperty
         _lastChangeOfOwnership = zone.FinancialPeriodReferenceCalendar.CurrentDateTime;
         InitialiseDefaultHotelState();
         _propertyLocations.Add(location);
-        location.CellProposedForDeletion += Location_CellProposedForDeletion;
-        location.CellRequestsDeletion += Location_CellRequestsDeletion;
+        location.RoomProposedForDeletion += Location_RoomProposedForDeletion;
+        location.RoomRequestsDeletion += Location_RoomRequestsDeletion;
         using (new FMDB())
         {
             Models.Property dbitem = new();
@@ -45,7 +45,7 @@ public partial class Property : SaveableItem, IProperty
             dbitem.Name = _name;
             dbitem.LastChangeOfOwnership = LastChangeOfOwnership.GetDateTimeString();
             dbitem.LastSaleValue = _lastSaleValue;
-            dbitem.PropertyLocations.Add(new PropertyLocation { CellId = location.Id, Property = dbitem });
+            dbitem.PropertyLocations.Add(new PropertyLocation { RoomId = location.Id, Property = dbitem });
             FMDB.Context.SaveChanges();
             _id = dbitem.Id;
         }
@@ -53,16 +53,16 @@ public partial class Property : SaveableItem, IProperty
         _propertyOwners.Add(new PropertyOwner(owner, 1.0M, account, this));
     }
 
-    private void Location_CellRequestsDeletion(object sender, EventArgs e)
+    private void Location_RoomRequestsDeletion(object sender, EventArgs e)
     {
-        ICell cell = (ICell)sender;
-        _propertyLocations.Remove(cell);
+        IRoom room = (IRoom)sender;
+        _propertyLocations.Remove(room);
         Changed = true;
-        cell.CellProposedForDeletion -= Location_CellProposedForDeletion;
-        cell.CellRequestsDeletion -= Location_CellRequestsDeletion;
+        room.RoomProposedForDeletion -= Location_RoomProposedForDeletion;
+        room.RoomRequestsDeletion -= Location_RoomRequestsDeletion;
     }
 
-    private void Location_CellProposedForDeletion(ICell cell, ProposalRejectionResponse response)
+    private void Location_RoomProposedForDeletion(IRoom room, ProposalRejectionResponse response)
     {
         if (_propertyLocations.Count <= 1)
         {
@@ -124,12 +124,12 @@ public partial class Property : SaveableItem, IProperty
 
         foreach (PropertyLocation location in property.PropertyLocations)
         {
-            ICell cell = Gameworld.Cells.Get(location.CellId);
-            _propertyLocations.AddNotNull(cell);
-            cell.CellProposedForDeletion -= Location_CellProposedForDeletion;
-            cell.CellProposedForDeletion += Location_CellProposedForDeletion;
-            cell.CellRequestsDeletion -= Location_CellRequestsDeletion;
-            cell.CellRequestsDeletion += Location_CellRequestsDeletion;
+            IRoom room = Gameworld.Rooms.Get(location.RoomId);
+            _propertyLocations.AddNotNull(room);
+            room.RoomProposedForDeletion -= Location_RoomProposedForDeletion;
+            room.RoomProposedForDeletion += Location_RoomProposedForDeletion;
+            room.RoomRequestsDeletion -= Location_RoomRequestsDeletion;
+            room.RoomRequestsDeletion += Location_RoomRequestsDeletion;
         }
 
         foreach (Models.PropertyKey key in property.PropertyKeys)
@@ -142,7 +142,7 @@ public partial class Property : SaveableItem, IProperty
 
     private IEconomicZone _economicZone;
     private readonly List<IPropertyOwner> _propertyOwners = new();
-    private readonly List<ICell> _propertyLocations = new();
+    private readonly List<IRoom> _propertyLocations = new();
     private string _detailedDescription;
     private MudDateTime _lastChangeOfOwnership;
     private decimal _lastSaleValue;
@@ -251,9 +251,9 @@ public partial class Property : SaveableItem, IProperty
         dbitem.LastSaleValue = LastSaleValue;
         MudSharp.Economy.Hotels.HotelPersistenceStore.Save(this);
         FMDB.Context.PropertyLocations.RemoveRange(dbitem.PropertyLocations);
-        foreach (ICell cell in _propertyLocations)
+        foreach (IRoom room in _propertyLocations)
         {
-            dbitem.PropertyLocations.Add(new PropertyLocation { CellId = cell.Id, PropertyId = _id });
+            dbitem.PropertyLocations.Add(new PropertyLocation { RoomId = room.Id, PropertyId = _id });
         }
 
         Changed = false;
@@ -294,7 +294,7 @@ public partial class Property : SaveableItem, IProperty
             case "addcell":
             case "here":
             case "addlocation":
-                return BuildingCommandAddCell(actor);
+                return BuildingCommandAddRoom(actor);
             case "zone":
             case "economiczone":
             case "economyzone":
@@ -414,7 +414,7 @@ public partial class Property : SaveableItem, IProperty
         return true;
     }
 
-    private bool BuildingCommandAddCell(ICharacter actor)
+    private bool BuildingCommandAddRoom(ICharacter actor)
     {
         if (PropertyLocations.Contains(actor.Location))
         {
@@ -426,8 +426,8 @@ public partial class Property : SaveableItem, IProperty
             }
 
             _propertyLocations.Remove(actor.Location);
-            actor.Location.CellProposedForDeletion -= Location_CellProposedForDeletion;
-            actor.Location.CellRequestsDeletion -= Location_CellRequestsDeletion;
+            actor.Location.RoomProposedForDeletion -= Location_RoomProposedForDeletion;
+            actor.Location.RoomRequestsDeletion -= Location_RoomRequestsDeletion;
             Changed = true;
             actor.OutputHandler.Send(
                 $"Your current location is no longer a part of the {Name.ColourName()} property.");
@@ -443,10 +443,10 @@ public partial class Property : SaveableItem, IProperty
         }
 
         _propertyLocations.Add(actor.Location);
-        actor.Location.CellProposedForDeletion -= Location_CellProposedForDeletion;
-        actor.Location.CellProposedForDeletion += Location_CellProposedForDeletion;
-        actor.Location.CellRequestsDeletion -= Location_CellRequestsDeletion;
-        actor.Location.CellRequestsDeletion += Location_CellRequestsDeletion;
+        actor.Location.RoomProposedForDeletion -= Location_RoomProposedForDeletion;
+        actor.Location.RoomProposedForDeletion += Location_RoomProposedForDeletion;
+        actor.Location.RoomRequestsDeletion -= Location_RoomRequestsDeletion;
+        actor.Location.RoomRequestsDeletion += Location_RoomRequestsDeletion;
         Changed = true;
         actor.OutputHandler.Send($"Your current location is now a part of the {Name.ColourName()} property.");
         return true;
@@ -491,10 +491,10 @@ public partial class Property : SaveableItem, IProperty
         sb.AppendLine(DetailedDescription.Wrap(actor.InnerLineFormatLength, "  "));
         sb.AppendLine();
         sb.AppendLine("Locations:");
-        foreach (ICell cell in PropertyLocations)
+        foreach (IRoom room in PropertyLocations)
         {
             sb.AppendLine(
-                $"#{cell.Id.ToString("N0", actor)}) {cell.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreLayers)}");
+                $"#{room.Id.ToString("N0", actor)}) {room.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreLayers)}");
         }
 
         sb.AppendLine();
@@ -585,7 +585,7 @@ public partial class Property : SaveableItem, IProperty
     public IEnumerable<IShop> PropertyShops => PropertyLocations.SelectNotNull(x => x.Shop).Distinct().ToList();
     public IEnumerable<IStable> PropertyStables => Gameworld.Stables.Where(x => PropertyLocations.Contains(x.Location)).Distinct().ToList();
     public IEnumerable<IHospital> PropertyHospitals => Gameworld.Hospitals
-        .Where(x => x.Locations.Any(location => PropertyLocations.Any(cell => cell.Id == location.Id)))
+        .Where(x => x.Locations.Any(location => PropertyLocations.Any(room => room.Id == location.Id)))
         .Distinct()
         .ToList();
     public IEnumerable<IPropertyLeaseOrder> ExpiredLeaseOrders => _expiredLeaseOrders;
@@ -740,9 +740,9 @@ public partial class Property : SaveableItem, IProperty
     {
         int pattern = Constants.Random.Next(0, 1000000);
 
-        foreach (ICell cell in PropertyLocations)
+        foreach (IRoom room in PropertyLocations)
         {
-            foreach (GameItems.IGameItem item in cell.GameItems.SelectMany(x => x.ShallowItems))
+            foreach (GameItems.IGameItem item in room.GameItems.SelectMany(x => x.ShallowItems))
             {
                 if (!item.IsOwnedBy(this))
                 {
@@ -755,7 +755,7 @@ public partial class Property : SaveableItem, IProperty
                 }
             }
 
-            foreach (ICellExit exit in cell.ExitsFor(null, true))
+            foreach (IRoomExit exit in room.ExitsFor(null, true))
             {
                 if (exit.Exit?.Door is IDoor door)
                 {
@@ -833,7 +833,7 @@ public partial class Property : SaveableItem, IProperty
 
     public IEnumerable<IPropertyOwner> PropertyOwners => _propertyOwners;
 
-    public IEnumerable<ICell> PropertyLocations => _propertyLocations;
+    public IEnumerable<IRoom> PropertyLocations => _propertyLocations;
 
     public string DetailedDescription
     {
@@ -919,18 +919,18 @@ public partial class Property : SaveableItem, IProperty
 
         sb.AppendLine(
             $"A {_propertyLocations.Count.ToString("N0", voyeur).ColourValue()} room property in {EconomicZone.Name.ColourName()}:");
-        foreach (ICell cell in PropertyLocations.OrderByDescending(x =>
+        foreach (IRoom room in PropertyLocations.OrderByDescending(x =>
                      x.ExitsFor(voyeur, true).Any(y => !PropertyLocations.Contains(y.Destination))))
         {
             if (voyeur.IsAdministrator())
             {
                 sb.AppendLine(
-                    $"\t#{cell.Id.ToString("N0", voyeur)}) {cell.HowSeen(voyeur, flags: PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreLayers)}");
+                    $"\t#{room.Id.ToString("N0", voyeur)}) {room.HowSeen(voyeur, flags: PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreLayers)}");
             }
             else
             {
                 sb.AppendLine(
-                    $"\t{cell.HowSeen(voyeur, flags: PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreLayers)}");
+                    $"\t{room.HowSeen(voyeur, flags: PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreLayers)}");
             }
         }
 

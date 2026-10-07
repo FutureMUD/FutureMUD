@@ -43,11 +43,11 @@ public class ArenaNpcService : IArenaNpcService
             .Select(x => CharacterInstanceIdentityComparer.InstanceId(x) ?? CharacterInstanceIdentityComparer.IdentityId(x))
             .ToHashSet();
 
-        List<ICell> stableCells = arenaEvent.Arena.NpcStablesCells?.ToList() ?? [];
-        if (stableCells.Count > 0)
+        List<IRoom> stableRooms = arenaEvent.Arena.NpcStablesRooms?.ToList() ?? [];
+        if (stableRooms.Count > 0)
         {
-            IEnumerable<ICharacter> stableNpcs = stableCells
-                .SelectMany(cell => cell.Characters)
+            IEnumerable<ICharacter> stableNpcs = stableRooms
+                .SelectMany(room => room.Characters)
                 .OfType<ICharacter>()
                 .Where(npc => !npc.IsPlayerCharacter)
                 .Where(npc => npc is INPC)
@@ -94,12 +94,12 @@ public class ArenaNpcService : IArenaNpcService
                 break;
             }
 
-            if (stableCells.Count > 0)
+            if (stableRooms.Count > 0)
             {
-                ICell? stableCell = SelectArenaCell(stableCells, sideIndex);
-                if (stableCell is not null)
+                IRoom? stableRoom = SelectArenaRoom(stableRooms, sideIndex);
+                if (stableRoom is not null)
                 {
-                    npc.Teleport(stableCell, RoomLayer.GroundLevel, false, false);
+                    npc.Teleport(stableRoom, RoomLayer.GroundLevel, false, false);
                 }
             }
 
@@ -144,10 +144,10 @@ public class ArenaNpcService : IArenaNpcService
             StripToArenaLoadout(npc.Body, effect);
         }
 
-        ICell? waitingCell = SelectArenaCell(arenaEvent.Arena.WaitingCells, sideIndex);
-        if (waitingCell is not null)
+        IRoom? waitingRoom = SelectArenaRoom(arenaEvent.Arena.WaitingRooms, sideIndex);
+        if (waitingRoom is not null)
         {
-            npc.Teleport(waitingCell, RoomLayer.GroundLevel, false, false);
+            npc.Teleport(waitingRoom, RoomLayer.GroundLevel, false, false);
         }
     }
 
@@ -170,7 +170,7 @@ public class ArenaNpcService : IArenaNpcService
             return;
         }
 
-        ICell? returnLocation = effect.OriginalLocation ?? npc.Location ?? npc.Gameworld.Cells.Get(1);
+        IRoom? returnLocation = effect.OriginalLocation ?? npc.Location ?? npc.Gameworld.Rooms.Get(1);
         if (resurrect && npc.State.HasFlag(CharacterState.Dead))
         {
             npc.Resurrect(returnLocation!);
@@ -362,9 +362,9 @@ public class ArenaNpcService : IArenaNpcService
         location.Insert(item, true);
     }
 
-    private static ICell? SelectArenaCell(IEnumerable<ICell> cells, int sideIndex)
+    private static IRoom? SelectArenaRoom(IEnumerable<IRoom> rooms, int sideIndex)
     {
-        return cells?.ElementAtOrDefault(sideIndex) ?? cells?.FirstOrDefault();
+        return rooms?.ElementAtOrDefault(sideIndex) ?? rooms?.FirstOrDefault();
     }
 
     private static bool IsEligibleForSide(ICharacter npc, IArenaEventTypeSide side)

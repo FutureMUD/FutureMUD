@@ -33,7 +33,7 @@ internal class AddTerritoryFunction : BuiltInFunction
             return StatementResult.Error;
         }
 
-        ICell target = (ICell)ParameterFunctions[1].Result;
+        IRoom target = (IRoom)ParameterFunctions[1].Result;
         if (target == null)
         {
             ErrorMessage = "Target Cell was null in AddTerritory function.";
@@ -47,10 +47,10 @@ internal class AddTerritoryFunction : BuiltInFunction
             source.AddEffect(effect);
         }
 
-        effect.AddCell(target);
+        effect.AddRoom(target);
         for (int i = 0; i < FlagCount; i++)
         {
-            effect.TagCell(target, ParameterFunctions[i + 2].Result?.GetObject?.ToString() ?? string.Empty);
+            effect.TagRoom(target, ParameterFunctions[i + 2].Result?.GetObject?.ToString() ?? string.Empty);
         }
 
         Result = new BooleanVariable(true);

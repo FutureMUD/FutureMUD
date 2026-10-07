@@ -116,7 +116,7 @@ internal sealed class PrivatePropertyFunction : BuiltInFunction
 			return StatementResult.Error;
 		}
 
-		if (ParameterFunctions[0].Result?.GetObject is not ICell cell)
+		if (ParameterFunctions[0].Result?.GetObject is not IRoom room)
 		{
 			Result = _mode == PrivatePropertyMode.Reason
 				? new TextVariable(string.Empty)
@@ -126,7 +126,7 @@ internal sealed class PrivatePropertyFunction : BuiltInFunction
 
 		if (_mode == PrivatePropertyMode.IsPrivate)
 		{
-			Result = new BooleanVariable(PrivatePropertyAccessService.EffectFor(cell) is not null);
+			Result = new BooleanVariable(PrivatePropertyAccessService.EffectFor(room) is not null);
 			return StatementResult.Normal;
 		}
 
@@ -138,7 +138,7 @@ internal sealed class PrivatePropertyFunction : BuiltInFunction
 			return StatementResult.Normal;
 		}
 
-		var access = PrivatePropertyAccessService.Evaluate(cell, character);
+		var access = PrivatePropertyAccessService.Evaluate(room, character);
 		Result = _mode switch
 		{
 			PrivatePropertyMode.IsAuthorised => new BooleanVariable(access.IsAuthorised),

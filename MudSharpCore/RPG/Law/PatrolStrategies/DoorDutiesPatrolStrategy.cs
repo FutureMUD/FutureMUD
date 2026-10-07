@@ -23,23 +23,23 @@ public class DoorDutiesPatrolStrategy : PatrolStrategyBase, IConfigurablePatrolS
 
 Normal uses the assigned DoorguardAI's existing will-open rules, such as clan-brother checks. Enforcers opens for characters with enforcement authority for this legal authority. Everyone opens for anyone.";
 
-	private static ICell DutyLocation(IPatrol patrol)
+	private static IRoom DutyLocation(IPatrol patrol)
 	{
 		return patrol.PatrolRoute.PatrolNodes.FirstOrDefault();
 	}
 
 	private void EnableDoorGuardMode(IPatrol patrol)
 	{
-		ICell dutyLocation = DutyLocation(patrol);
+		IRoom dutyLocation = DutyLocation(patrol);
 		if (dutyLocation is null)
 		{
 			return;
 		}
 
-		ICell[] dutyCells = { dutyLocation };
+		IRoom[] dutyRooms = { dutyLocation };
 		foreach (ICharacter member in patrol.PatrolMembers.Where(x => x.Location == dutyLocation))
 		{
-			if (!member.AffectedBy<IDoorguardModeEffect>() && HasKeysForCells(member, dutyCells))
+			if (!member.AffectedBy<IDoorguardModeEffect>() && HasKeysForRooms(member, dutyRooms))
 			{
 				member.AddEffect(new PatrolDoorguardMode(member, patrol.LegalAuthority, AccessMode));
 			}
@@ -199,16 +199,16 @@ Normal uses the assigned DoorguardAI's existing will-open rules, such as clan-br
 
 	protected override void PatrolTickPreparationPhase(IPatrol patrol)
 	{
-		ICell dutyLocation = DutyLocation(patrol);
+		IRoom dutyLocation = DutyLocation(patrol);
 		if (dutyLocation is null)
 		{
 			AbortDoorDuty(patrol);
 			return;
 		}
 
-		ICell[] dutyCells = { dutyLocation };
+		IRoom[] dutyRooms = { dutyLocation };
 		if (patrol.PatrolMembers.All(x => x.Location == dutyLocation) &&
-			HasKeysForCells(patrol.PatrolLeader, dutyCells))
+			HasKeysForRooms(patrol.PatrolLeader, dutyRooms))
 		{
 			patrol.PatrolPhase = PatrolPhase.Patrol;
 			patrol.LastArrivedTime = RuntimeClock.UtcNow;
@@ -224,7 +224,7 @@ Normal uses the assigned DoorguardAI's existing will-open rules, such as clan-br
 			{
 				if (!member.CombinedEffectsOfType<FollowingPath>().Any())
 				{
-					List<ICellExit> path = member.PathBetween(patrol.LegalAuthority.PreparingLocation, 25,
+					List<IRoomExit> path = member.PathBetween(patrol.LegalAuthority.PreparingLocation, 25,
 						PathSearch.PathIncludeUnlockableDoors(member)).ToList();
 					if (path.Any())
 					{
@@ -237,7 +237,7 @@ Normal uses the assigned DoorguardAI's existing will-open rules, such as clan-br
 
 			if (member == patrol.PatrolLeader)
 			{
-				PrepareKeysForCells(member, dutyCells);
+				PrepareKeysForRooms(member, dutyRooms);
 			}
 		}
 
@@ -251,7 +251,7 @@ Normal uses the assigned DoorguardAI's existing will-open rules, such as clan-br
 			return;
 		}
 
-		if (!HasKeysForCells(patrol.PatrolLeader, dutyCells))
+		if (!HasKeysForRooms(patrol.PatrolLeader, dutyRooms))
 		{
 			if (RuntimeClock.UtcNow - patrol.LastArrivedTime > TimeSpan.FromMinutes(3))
 			{
@@ -280,7 +280,7 @@ Normal uses the assigned DoorguardAI's existing will-open rules, such as clan-br
 			return;
 		}
 
-		ICell dutyLocation = DutyLocation(patrol);
+		IRoom dutyLocation = DutyLocation(patrol);
 		if (dutyLocation is null)
 		{
 			AbortDoorDuty(patrol);
@@ -312,7 +312,7 @@ Normal uses the assigned DoorguardAI's existing will-open rules, such as clan-br
 				return;
 			}
 
-			List<ICellExit> path = patrol.PatrolLeader
+			List<IRoomExit> path = patrol.PatrolLeader
 											 .PathBetween(dutyLocation, 20,
 												 PathSearch.PathIncludeUnlockableDoors(patrol.PatrolLeader))
 											 .ToList();
@@ -339,7 +339,7 @@ Normal uses the assigned DoorguardAI's existing will-open rules, such as clan-br
 	public override IEnumerable<ICharacter> SelectEnforcers(IPatrolRoute patrol, IEnumerable<ICharacter> pool,
 		int numberToPick)
 	{
-		ICell node = patrol.PatrolNodes.FirstOrDefault();
+		IRoom node = patrol.PatrolNodes.FirstOrDefault();
 		if (node is null)
 		{
 			return Enumerable.Empty<ICharacter>();

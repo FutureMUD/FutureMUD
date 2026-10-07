@@ -779,12 +779,12 @@ public abstract class StrategyBase : ICombatStrategy
 					if (weapon is not null)
 					{
 						combatant.Aim = new AimInformation(combatant.CombatTarget, combatant,
-							Enumerable.Empty<ICellExit>(), weapon);
+							Enumerable.Empty<IRoomExit>(), weapon);
 					}
                 }
                 else
                 {
-                    List<ICellExit> path = combatant.PathBetween(combatant.CombatTarget,
+                    List<IRoomExit> path = combatant.PathBetween(combatant.CombatTarget,
                         readyRangedWeapons.Max(x => x.WeaponType.DefaultRangeInRooms),
                         false, false, true).ToList();
                     IRangedWeapon weapon = readyRangedWeapons.Where(x => x.WeaponType.DefaultRangeInRooms >= path.Count)

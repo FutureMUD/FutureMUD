@@ -20,9 +20,9 @@ namespace FutureMUD.GatheringNativePersistenceHarness;
 
 internal static partial class GNHProgram
 {
-	private static void QualifyCellSpatialContraction(TestDatabase database,
+	private static void QualifyRoomSpatialContraction(TestDatabase database,
 		IReadOnlyDictionary<string, string[]> originalSchema, IReadOnlyDictionary<string, string> originalValues,
-		IReadOnlyDictionary<string, string> originalRetainedCellValues,
+		IReadOnlyDictionary<string, string> originalRetainedRoomValues,
 		long zoneId)
 	{
 		void Sql(string text) { using var c = database.OpenOwnedConnection(); using var cmd = new MySqlCommand(text, c); cmd.ExecuteNonQuery(); }
@@ -71,7 +71,7 @@ internal static partial class GNHProgram
 		}
 		void Migrate(bool optIn = true, bool reconcile = false, string? fault = null)
 		{
-			using var db = NewIndependentContext(database.ConnectionString, fault is null ? null : new CellSpatialContractionFault(fault));
+			using var db = NewIndependentContext(database.ConnectionString, fault is null ? null : new RoomSpatialContractionFault(fault));
 			db.Database.OpenConnection();
 			if (optIn) db.Database.ExecuteSqlRaw("SET @FutureMUD_CellSpatialContractionMaintenance=1;");
 			if (reconcile) db.Database.ExecuteSqlRaw("SET @FutureMUD_CellSpatialReconcile=1;");
@@ -150,7 +150,7 @@ internal static partial class GNHProgram
 				.ToDictionary(x => x.Key, x => x.Value);
 			var retainedActual = CaptureSpatialValues(c, retainedSchema).Where(x => x.Key != "cells").ToDictionary(x => x.Key, x => x.Value);
 			Require(SpatialValuesEqual(retainedExpected, retainedActual), "All original dependent rows, IDs and fields survive contraction.");
-			Require(SpatialValuesEqual(originalRetainedCellValues, CaptureSpatialValues(c,
+			Require(SpatialValuesEqual(originalRetainedRoomValues, CaptureSpatialValues(c,
 				new Dictionary<string,string[]> { ["cells"] = retainedSchema["cells"] })), "Every original retained Cell field and numeric ID survives.");
 			Require(SpatialValuesEqual(objects, CaptureSpatialObjectDefinitions(c)), "Unrelated SQL objects remain unchanged.");
 		}
@@ -170,13 +170,13 @@ internal static partial class GNHProgram
 	private static void ValidateContractedSpatialRuntime(TestDatabase database, long zoneId)
 	{
 		using var db = NewIndependentContext(database.ConnectionString);
-		var model = db.Cells.Include(x => x.CellOverlays).AsNoTracking().Single(x => x.Id == 8101);
+		var model = db.Rooms.Include(x => x.RoomOverlays).AsNoTracking().Single(x => x.Id == 8101);
 		Require(model.ZoneId == zoneId && model.X == 18 && model.UniqueName == "Mirandola:Gate", "Contracted model hydrates final data.");
 		// Use the same native Cell hydration path and frozen initial ledger, with final coordinates.
 		ValidateExpandedSpatialRuntime(database, finalCoordinates: true);
 	}
 
-	private sealed class CellSpatialContractionFault(string phase) : DbCommandInterceptor
+	private sealed class RoomSpatialContractionFault(string phase) : DbCommandInterceptor
 	{
 		public override InterceptionResult<int> NonQueryExecuting(DbCommand command, CommandEventData eventData, InterceptionResult<int> result)
 		{
@@ -187,7 +187,7 @@ internal static partial class GNHProgram
 		}
 	}
 
-	private static void QualifyContractedCellLifecycle(TestDatabase database, long sourceZoneId)
+	private static void QualifyContractedRoomLifecycle(TestDatabase database, long sourceZoneId)
 	{
 		void Sql(string text) { using var c = database.OpenOwnedConnection(); using var cmd = new MySqlCommand(text, c); cmd.ExecuteNonQuery(); }
 		long Scalar(string text) { using var c = database.OpenOwnedConnection(); using var cmd = new MySqlCommand(text, c); return Convert.ToInt64(cmd.ExecuteScalar()); }
@@ -202,40 +202,40 @@ internal static partial class GNHProgram
 		world.SetupGet(x => x.HearingProfiles).Returns(new All<IHearingProfile>());
 		world.SetupGet(x => x.WeatherControllers).Returns(new All<MudSharp.Climate.IWeatherController>());
 		world.SetupGet(x => x.Vehicles).Returns(new All<MudSharp.Vehicles.IVehicle>());
-		var package = new Mock<ICellOverlayPackage>(); package.SetupGet(x => x.Id).Returns(9000); package.SetupGet(x => x.Name).Returns("Spatial fixture package"); package.SetupGet(x => x.RevisionNumber).Returns(0); package.SetupGet(x => x.Status).Returns(RevisionStatus.Current);
-		world.Setup(x => x.CellOverlayPackages.Get(9000, 0)).Returns(package.Object);
+		var package = new Mock<IRoomOverlayPackage>(); package.SetupGet(x => x.Id).Returns(9000); package.SetupGet(x => x.Name).Returns("Spatial fixture package"); package.SetupGet(x => x.RevisionNumber).Returns(0); package.SetupGet(x => x.Status).Returns(RevisionStatus.Current);
+		world.Setup(x => x.RoomOverlayPackages.Get(9000, 0)).Returns(package.Object);
 		var terrain = new Mock<ITerrain>(); terrain.SetupGet(x => x.Id).Returns(9000); terrain.SetupGet(x => x.TerrainLayers).Returns(new[] { RoomLayer.GroundLevel }); world.Setup(x => x.Terrains.Get(9000)).Returns(terrain.Object);
 		var shard = new Shard(db.Shards.AsNoTracking().Single(x => x.Id == sourceModel.ShardId), world.Object);
 		world.SetupGet(x => x.Shards).Returns(new All<IShard> { shard });
 		var source = new Zone(sourceModel, world.Object); var destination = new Zone(newModel, world.Object);
-		var cells = new All<ICell>(); world.SetupGet(x => x.Cells).Returns(cells);
-		world.Setup(x => x.Add(It.IsAny<ICell>())).Callback<ICell>(x => cells.Add(x));
-		world.Setup(x => x.Destroy(It.IsAny<ICell>())).Callback<ICell>(x => { x.OwningZone.Unregister(x); cells.Remove(x); });
+		var rooms = new All<IRoom>(); world.SetupGet(x => x.Rooms).Returns(rooms);
+		world.Setup(x => x.Add(It.IsAny<IRoom>())).Callback<IRoom>(x => rooms.Add(x));
+		world.Setup(x => x.Destroy(It.IsAny<IRoom>())).Callback<IRoom>(x => { x.OwningZone.Unregister(x); rooms.Remove(x); });
 		world.SetupGet(x => x.ExitManager).Returns(new ExitManager(world.Object));
-		foreach (var model in db.Cells.Include(x => x.CellOverlays).ThenInclude(x => x.CellOverlaysExits).AsNoTracking().OrderBy(x => x.Id).ToArray()) cells.Add(new Cell(model, source));
-		var moved = (Cell)cells.Get(8101);
-		Require(ReferenceEquals(source.DefaultCell, moved), "Explicit non-first default survives Cell loading order.");
-		var clone = new Cell(package.Object, destination, moved, temporary: true);
+		foreach (var model in db.Rooms.Include(x => x.RoomOverlays).ThenInclude(x => x.RoomOverlaysExits).AsNoTracking().OrderBy(x => x.Id).ToArray()) rooms.Add(new Room(model, source));
+		var moved = (Room)rooms.Get(8101);
+		Require(ReferenceEquals(source.DefaultRoom, moved), "Explicit non-first default survives Cell loading order.");
+		var clone = new Room(package.Object, destination, moved, temporary: true);
 		Require(clone.UniqueName is null && clone.StoredCoordinates == (0, 0, 0) && !clone.OwningAreas.Any(), "Native clone retains fresh-cell defaults.");
-		Require(ReferenceEquals(destination.DefaultCell, clone) && destination.Changed, "First Cell selects a persisted default.");
+		Require(ReferenceEquals(destination.DefaultRoom, clone) && destination.Changed, "First Cell selects a persisted default.");
 		moved.SetNewZone(destination);
 		using (new FMDB()) { moved.Save(); source.Save(); destination.Save(); FMDB.Context.SaveChanges(); }
 		using (var reload = NewIndependentContext(database.ConnectionString))
 		{
-			Require(reload.Cells.AsNoTracking().Single(x => x.Id == moved.Id).ZoneId == destination.Id, "Rezone saves intrinsic owner.");
-			Require(reload.Zones.AsNoTracking().Single(x => x.Id == source.Id).DefaultCellId == source.DefaultCell.Id, "Old owner persists its surviving default.");
-			Require(reload.Zones.AsNoTracking().Single(x => x.Id == destination.Id).DefaultCellId == clone.Id, "First-cell default persists across reload.");
+			Require(reload.Rooms.AsNoTracking().Single(x => x.Id == moved.Id).ZoneId == destination.Id, "Rezone saves intrinsic owner.");
+			Require(reload.Zones.AsNoTracking().Single(x => x.Id == source.Id).DefaultRoomId == source.DefaultRoom.Id, "Old owner persists its surviving default.");
+			Require(reload.Zones.AsNoTracking().Single(x => x.Id == destination.Id).DefaultRoomId == clone.Id, "First-cell default persists across reload.");
 		}
 		var area = new Area(clone, "Deletion fixture area");
 		var exit = new Exit(world.Object, clone, moved, CardinalDirection.North, CardinalDirection.South, 1.0);
-		((IEditableCellOverlay)clone.CurrentOverlay).AddExit(exit); ((IEditableCellOverlay)moved.CurrentOverlay).AddExit(exit);
-		world.Object.ExitManager.UpdateCellOverlayExits(clone, clone.CurrentOverlay);
-		world.Object.ExitManager.UpdateCellOverlayExits(moved, moved.CurrentOverlay);
+		((IEditableRoomOverlay)clone.CurrentOverlay).AddExit(exit); ((IEditableRoomOverlay)moved.CurrentOverlay).AddExit(exit);
+		world.Object.ExitManager.UpdateRoomOverlayExits(clone, clone.CurrentOverlay);
+		world.Object.ExitManager.UpdateRoomOverlayExits(moved, moved.CurrentOverlay);
 		world.Object.SaveManager.Flush();
 		Sql($"UPDATE characters SET Location={clone.Id} WHERE Id=(SELECT MIN(Id) FROM (SELECT Id FROM characters) fixture_characters)");
 		clone.Destroy(moved);
-		Require(!cells.Any(x => ReferenceEquals(x, clone)) && !destination.Cells.Any(x => ReferenceEquals(x, clone)) && !shard.Cells.Any(x => ReferenceEquals(x, clone)), "Deletion removes Cell registries.");
-		Require(!area.Cells.Any() && ReferenceEquals(destination.DefaultCell, moved), "Deletion detaches Area and selects survivor default.");
+		Require(!rooms.Any(x => ReferenceEquals(x, clone)) && !destination.Rooms.Any(x => ReferenceEquals(x, clone)) && !shard.Rooms.Any(x => ReferenceEquals(x, clone)), "Deletion removes Cell registries.");
+		Require(!area.Rooms.Any() && ReferenceEquals(destination.DefaultRoom, moved), "Deletion detaches Area and selects survivor default.");
 		Require(Scalar($"SELECT COUNT(*) FROM cells WHERE Id={clone.Id}") == 0 && Scalar($"SELECT COUNT(*) FROM exits WHERE Id={exit.Id}") == 0 && Scalar($"SELECT COUNT(*) FROM areas_cells WHERE CellId={clone.Id}") == 0, "Direct Cell deletion persists Cell/exit/membership removal.");
 		Require(Scalar($"SELECT COUNT(*) FROM areas WHERE Id={area.Id}") == 1, "Deletion preserves empty Area object.");
 		Require(Scalar($"SELECT COUNT(*) FROM characters WHERE Location={moved.Id}") == 1, "Offline character survives at fallback.");

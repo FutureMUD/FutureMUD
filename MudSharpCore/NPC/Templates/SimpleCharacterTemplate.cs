@@ -123,7 +123,7 @@ public record SimpleCharacterTemplate : ICharacterTemplate
             select role
         );
         SelectedSdesc = definition.Element("SelectedSdesc").Value;
-        SelectedStartingLocation = Gameworld.Cells.Get(long.Parse(definition.Element("SelectedStartingLocation").Value));
+        SelectedStartingLocation = Gameworld.Rooms.Get(long.Parse(definition.Element("SelectedStartingLocation").Value));
         SelectedWeight = double.Parse(definition.Element("SelectedWeight").Value);
         SkillValues = new(
             from item in definition.Element("SkillValues").Elements("Skill")
@@ -275,7 +275,7 @@ public record SimpleCharacterTemplate : ICharacterTemplate
 
     public double SelectedWeight { get; init; }
 
-    public ICell SelectedStartingLocation { get; init; }
+    public IRoom SelectedStartingLocation { get; init; }
 
     public List<IChargenRole> SelectedRoles { get; init; }
 

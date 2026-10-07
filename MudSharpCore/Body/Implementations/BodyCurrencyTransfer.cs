@@ -19,7 +19,7 @@ public partial class Body
 
 	private sealed record CurrencyState(GameItem Item, IGameItemProto Prototype, CurrencyGameItemComponent Pile,
 		IGameItemComponentProto PilePrototype, HoldableGameItemComponent Holdable, ICurrency Currency,
-		Dictionary<ICoin, int> Coins, IBody? Holder, IGameItem? Container, ICell? Cell,
+		Dictionary<ICoin, int> Coins, IBody? Holder, IGameItem? Container, IRoom? Room,
 		RoomLayer Layer, double? Coordinate, ItemOwnershipReference? Owner)
 	{
 		internal static CurrencyState? Capture(IGameItem item) => item is GameItem native &&
@@ -31,12 +31,12 @@ public partial class Body
 			ReferenceEquals(Item.Prototype, Prototype) && ReferenceEquals(Item.GetItemType<CurrencyGameItemComponent>(), Pile) &&
 			ReferenceEquals(Pile.Prototype, PilePrototype) && ReferenceEquals(Item.GetItemType<HoldableGameItemComponent>(), Holdable) &&
 			ReferenceEquals(Holdable.HeldBy, Holder) &&
-			ReferenceEquals(Item.ContainedIn, Container) && ReferenceEquals(Item.DirectLocation, Cell) &&
+			ReferenceEquals(Item.ContainedIn, Container) && ReferenceEquals(Item.DirectLocation, Room) &&
 			Item.RoomLayer == Layer && Item.RoutePositionMetres == Coordinate && Item.OwnershipReference == Owner;
 		internal bool MembershipCurrent() => Holder is not null
 			? Holder.HeldOrWieldedItems.Any(x => ReferenceEquals(x, Item))
 			: Container is not null ? Container.GetItemType<IContainer>()?.Contents.Any(x => ReferenceEquals(x, Item)) == true
-			: Cell?.GameItems.Any(x => ReferenceEquals(x, Item)) == true;
+			: Room?.GameItems.Any(x => ReferenceEquals(x, Item)) == true;
 		internal bool CountsCurrent() => Pile.Coins.Count() == Coins.Count &&
 			Pile.Coins.All(x => Coins.TryGetValue(x.Item1, out var count) && count == x.Item2);
 	}
@@ -45,7 +45,7 @@ public partial class Body
 	// before callbacks, validate the component/storage again, and mutate only the prepared list.
 	private sealed record CurrencyContainer(GameItemComponent Component, IContainer Container,
 		GameItemComponent StorageOwner, IGameItemProto Prototype, IGameItemComponentProto ComponentPrototype, IGameItemComponentProto StoragePrototype,
-		List<IGameItem> Storage, IGameItem[] Contents, ICell? Cell, RoomLayer Layer, double? Coordinate,
+		List<IGameItem> Storage, IGameItem[] Contents, IRoom? Room, RoomLayer Layer, double? Coordinate,
 		IGameItem? ParentContainer, IBody? Holder, ICharacter? HolderActor, IOpenable? Openable, bool? IsOpen)
 	{
 		internal static CurrencyContainer? Capture(IGameItem? item)
@@ -66,7 +66,7 @@ public partial class Body
 			ReferenceEquals(item.GetItemType<IOpenable>(), Openable) && Openable?.IsOpen == IsOpen &&
 			item.Components.Any(x => ReferenceEquals(x, StorageOwner)) && StorageOwner is IContainer backing && ReferenceEquals(backing.Contents, Storage) &&
 			Storage.Count == Contents.Length && Storage.Zip(Contents).All(x => ReferenceEquals(x.First, x.Second)) &&
-			ReferenceEquals(item.Location, Cell) && item.RoomLayer == Layer && item.RoutePositionMetres == Coordinate &&
+			ReferenceEquals(item.Location, Room) && item.RoomLayer == Layer && item.RoutePositionMetres == Coordinate &&
 			ReferenceEquals(item.ContainedIn, ParentContainer) && ReferenceEquals(item.InInventoryOf, Holder) &&
 			(Holder is null || ReferenceEquals(Holder.Actor, HolderActor) && ReferenceEquals(HolderActor?.Body, Holder));
 	}
@@ -89,13 +89,13 @@ public partial class Body
 		var container = CurrencyContainer.Capture(containerItem);
 		bool Active() => CommandExecutionScope.TryContinue(executor) &&
 			ReferenceEquals(Actor, executor) && ReferenceEquals(executor.Body, this) &&
-			ReferenceEquals(Location, origin.Cell) && RoomLayer == origin.Layer && executor.RoutePositionMetres == origin.RoutePositionMetres &&
+			ReferenceEquals(Location, origin.Room) && RoomLayer == origin.Layer && executor.RoutePositionMetres == origin.RoutePositionMetres &&
 			(containerItem is null || container?.Current() == true) &&
 			(recipientBody is null || ReferenceEquals(recipientBody.Actor, recipientActor) &&
-				ReferenceEquals(recipientActor!.Location, recipientPoint!.Value.Cell) && recipientActor.RoomLayer == recipientPoint.Value.Layer &&
+				ReferenceEquals(recipientActor!.Location, recipientPoint!.Value.Room) && recipientActor.RoomLayer == recipientPoint.Value.Layer &&
 				recipientActor.RoutePositionMetres == recipientPoint.Value.RoutePositionMetres &&
 				(corpse is not null ? !capturedCorpseParent!.Deleted && !capturedCorpseParent.Destroyed && ReferenceEquals(corpse.Body, capturedCorpseBody) &&
-					ReferenceEquals(capturedCorpseParent.Location, corpsePoint!.Value.Cell) && capturedCorpseParent.RoomLayer == corpsePoint.Value.Layer &&
+					ReferenceEquals(capturedCorpseParent.Location, corpsePoint!.Value.Room) && capturedCorpseParent.RoomLayer == corpsePoint.Value.Layer &&
 					capturedCorpseParent.RoutePositionMetres == corpsePoint.Value.RoutePositionMetres
 					: recipientWasCanonical && ReferenceEquals(recipientActor.Body, recipientBody) && CommandExecutionAuthority.IsCurrent(recipientActor, false)));
 		if (!Active() || amount <= 0 || kind == CurrencyTransferKind.Give && recipientBody is null) return null;
@@ -163,14 +163,14 @@ public partial class Body
 		var get = destinationBody?.PrepareGetPlacement(draft, true);
 		if (destinationBody is not null && get is null) return null;
 		CurrencyState? merge = get?.Merge is { } bodyMerge ? CurrencyState.Capture(bodyMerge) : null;
-		var floor = kind == CurrencyTransferKind.Drop ? origin.Cell as Cell : null;
+		var floor = kind == CurrencyTransferKind.Drop ? origin.Room as Room : null;
 		var floorPoint = origin;
 		if (kind == CurrencyTransferKind.Drop)
 		{
 			if (floor is null) return null;
 			// Prepare layer/proximity/merge queries before any money or custody changes.
 			draft.SetPreparedCurrencyCustody(null, null, origin);
-			floorPoint = new(origin.Cell, floor.PrepareCurrencyInsertionLayer(draft), origin.RoutePositionMetres);
+			floorPoint = new(origin.Room, floor.PrepareCurrencyInsertionLayer(draft), origin.RoutePositionMetres);
 			if (!Active()) return null;
 			if (!newStack)
 				foreach (var candidate in floor.LayerGameItems(floorPoint.Layer).ToArray())
@@ -248,7 +248,7 @@ public partial class Body
 			else
 			{
 				draft.SetPreparedCurrencyCustody(null, null, floorPoint);
-				floor!.SetPreparedCurrencyCellMembership(draft, true);
+				floor!.SetPreparedCurrencyRoomMembership(draft, true);
 			}
 		}
 		// All value and destination membership is coherent before save queues and observers run.
@@ -294,7 +294,7 @@ public partial class Body
 					container.Storage.RemoveAll(x => ReferenceEquals(x, state.Item));
 					container.StorageOwner.Changed = true;
 				}
-				if (state.Cell is Cell sourceCell) { sourceCell.SetPreparedCurrencyCellMembership(state.Item, false); sourceCell.ContentsChanged = true; }
+				if (state.Room is Room sourceRoom) { sourceRoom.SetPreparedCurrencyRoomMembership(state.Item, false); sourceRoom.ContentsChanged = true; }
 				state.Item.SetPreparedCurrencyCustody(null, null, null);
 			});
 		}
@@ -308,7 +308,7 @@ public partial class Body
 			// A loading/delete observer may refill the absorbed candidate. Preserve that
 			// new value at the captured floor; a callback's existing custody claim wins.
 			draft.SetPreparedCurrencyCustody(null, null, origin);
-			if (origin.Cell is Cell completionCell) { completionCell.SetPreparedCurrencyCellMembership(draft, true); completionCell.ContentsChanged = true; }
+			if (origin.Room is Room completionRoom) { completionRoom.SetPreparedCurrencyRoomMembership(draft, true); completionRoom.ContentsChanged = true; }
 			draft.Changed = true;
 			RouteSpatialService.Instance.TrackPerceivable(draft);
 		}

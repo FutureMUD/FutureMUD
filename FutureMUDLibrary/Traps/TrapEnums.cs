@@ -37,7 +37,7 @@ public enum TrapTriggerType
 	ExitTraversal,
 	Openable,
 	Proximity,
-	CellEntry,
+	RoomEntry,
 	Signal,
 	Manual
 }

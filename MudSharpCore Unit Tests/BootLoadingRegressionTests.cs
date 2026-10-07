@@ -199,9 +199,9 @@ public class BootLoadingRegressionTests
         zone.SetupGet(x => x.Id).Returns(1L);
         zone.SetupGet(x => x.Name).Returns("Central");
 
-        Mock<ICell> cell = new();
-        cell.SetupGet(x => x.Id).Returns(2L);
-        cell.SetupGet(x => x.Name).Returns("Auction Floor");
+        Mock<IRoom> room = new();
+        room.SetupGet(x => x.Id).Returns(2L);
+        room.SetupGet(x => x.Name).Returns("Auction Floor");
 
         Mock<IBankAccount> profitsAccount = new();
         profitsAccount.SetupGet(x => x.Id).Returns(33L);
@@ -226,8 +226,8 @@ public class BootLoadingRegressionTests
         Mock<IHeartbeatManager> heartbeatManager = new();
         All<IEconomicZone> economicZones = new();
         economicZones.Add(zone.Object);
-        All<ICell> cells = new();
-        cells.Add(cell.Object);
+        All<IRoom> rooms = new();
+        rooms.Add(room.Object);
         All<IBankAccount> bankAccounts = new();
         bankAccounts.Add(profitsAccount.Object);
         bankAccounts.Add(payoutAccount.Object);
@@ -237,7 +237,7 @@ public class BootLoadingRegressionTests
         Mock<IFuturemud> gameworld = new();
         gameworld.SetupGet(x => x.HeartbeatManager).Returns(heartbeatManager.Object);
         gameworld.SetupGet(x => x.EconomicZones).Returns(economicZones);
-        gameworld.SetupGet(x => x.Cells).Returns(cells);
+        gameworld.SetupGet(x => x.Rooms).Returns(rooms);
         gameworld.SetupGet(x => x.BankAccounts).Returns(bankAccounts);
         gameworld.SetupGet(x => x.Properties).Returns(properties);
         gameworld.Setup(x => x.TryGetItem(11L, true)).Returns(item.Object);
@@ -250,7 +250,7 @@ public class BootLoadingRegressionTests
             Id = 10L,
             Name = "Central Auction House",
             EconomicZoneId = zone.Object.Id,
-            AuctionHouseCellId = cell.Object.Id,
+            AuctionHouseRoomId = room.Object.Id,
             ProfitsBankAccountId = profitsAccount.Object.Id,
             AuctionListingFeeFlat = 1.0M,
             AuctionListingFeeRate = 0.05M,

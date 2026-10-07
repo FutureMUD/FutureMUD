@@ -1,4 +1,4 @@
-﻿using JetBrains.Annotations;
+using JetBrains.Annotations;
 using MudSharp.Body;
 using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
@@ -73,12 +73,12 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
 
 	protected void SetPreparedSpatialState(SpatialLocation? location)
 	{
-		Location = location?.Cell;
+		Location = location?.Room;
 		if (location is { } point) _roomLayer = point.Layer;
 		_routePositionMetres = location?.RoutePositionMetres;
 	}
 
-    public virtual ICell Location { get; protected set; }
+    public virtual IRoom Location { get; protected set; }
 	private double? _routePositionMetres;
 
 	public virtual double? RoutePositionMetres => _routePositionMetres;
@@ -105,7 +105,7 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
     }
 
 
-	internal void RestoreInterruptedNativePosition(ICell source, RoomLayer layer, double? routePosition)
+	internal void RestoreInterruptedNativePosition(IRoom source, RoomLayer layer, double? routePosition)
 	{
 		if (!ReferenceEquals(Location, source)) return;
 		_roomLayer = layer;
@@ -116,7 +116,7 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
 
     public bool ColocatedWith(IPerceivable otherThing)
     {
-		if (otherThing == null || !SharesCellLayerWith(otherThing))
+		if (otherThing == null || !SharesRoomLayerWith(otherThing))
 		{
 			return false;
 		}
@@ -124,7 +124,7 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
 		return Location?.RouteDefinition is null || GetProximity(otherThing) <= Proximity.Immediate;
     }
 
-	public bool SharesCellLayerWith(ILocateable otherThing)
+	public bool SharesRoomLayerWith(ILocateable otherThing)
 	{
 		return otherThing is not null &&
 		       ReferenceEquals(Location, otherThing.Location) &&
@@ -139,7 +139,7 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
     public virtual bool Sentient => false;
 	private SpatialLocation? _nextSpatialMove;
 
-    public virtual void MoveTo(ICell location, RoomLayer layer, ICellExit exit = null, bool noSave = false)
+    public virtual void MoveTo(IRoom location, RoomLayer layer, IRoomExit exit = null, bool noSave = false)
     {
 		var requestedPoint = _nextSpatialMove;
 		_nextSpatialMove = null;
@@ -149,11 +149,11 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
 		var routePosition = default(double?);
 		if (location?.RouteDefinition is { } routeDefinition)
 		{
-			if (requestedPoint is { } requested && ReferenceEquals(requested.Cell, location) && requested.Layer == layer)
+			if (requestedPoint is { } requested && ReferenceEquals(requested.Room, location) && requested.Layer == layer)
 			{
 				routePosition = requested.RoutePositionMetres;
 			}
-			else if (ReferenceEquals(previousLocation.Cell, location) && previousLocation.RoutePositionMetres.HasValue)
+			else if (ReferenceEquals(previousLocation.Room, location) && previousLocation.RoutePositionMetres.HasValue)
 			{
 				routePosition = previousLocation.RoutePositionMetres;
 			}
@@ -173,7 +173,7 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
 		_routePositionMetres = routePosition;
 		RouteSpatialService.Instance.TrackPerceivable(this);
 		proximityChange?.Complete();
-		if (ReferenceEquals(previousLocation.Cell, location) &&
+		if (ReferenceEquals(previousLocation.Room, location) &&
 			previousLocation.Layer == layer &&
 			previousLocation.RoutePositionMetres != routePosition)
 		{
@@ -183,13 +183,13 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
         OnLocationChanged?.Invoke(this, exit);
     }
 
-	public virtual void MoveTo(SpatialLocation location, ICellExit exit = null, bool noSave = false)
+	public virtual void MoveTo(SpatialLocation location, IRoomExit exit = null, bool noSave = false)
 	{
 		if (!RouteSpatialService.Instance.TryValidateLocation(location, out var error))
 			throw new ArgumentException(error, nameof(location));
 		var previous = _nextSpatialMove;
 		_nextSpatialMove = location;
-		try { MoveTo(location.Cell, location.Layer, exit, noSave); }
+		try { MoveTo(location.Room, location.Layer, exit, noSave); }
 		finally { _nextSpatialMove = previous; }
 	}
 
@@ -851,7 +851,7 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
         character.PositionModifier = (int)PositionModifier;
         character.PositionEmote = PositionEmote?.SaveToXml().ToString() ?? "";
         character.PositionTargetId = PositionTarget?.Id;
-        character.PositionTargetType = PositionTarget?.FrameworkItemType;
+        character.PositionTargetType = PositionTarget?.GetPersistedReferenceType();
         _positionChanged = false;
     }
 
@@ -861,7 +861,7 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
         item.PositionModifier = (int)PositionModifier;
         item.PositionEmote = PositionEmote?.SaveToXml().ToString() ?? "";
         item.PositionTargetId = PositionTarget?.Id;
-        item.PositionTargetType = PositionTarget?.FrameworkItemType;
+        item.PositionTargetType = PositionTarget?.GetPersistedReferenceType();
         _positionChanged = false;
     }
 

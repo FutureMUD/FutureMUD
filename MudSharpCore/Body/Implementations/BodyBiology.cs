@@ -105,7 +105,7 @@ public partial class Body
         return null;
     }
 
-    public ICharacter Resurrect(ICell location)
+    public ICharacter Resurrect(IRoom location)
     {
         _breathingStrategy = Race.BreathingStrategy;
         CalculateOrganFunctions();

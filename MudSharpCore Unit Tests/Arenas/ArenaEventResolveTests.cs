@@ -98,8 +98,8 @@ public class ArenaEventResolveTests
         Mock<IUneditableAll<IBankAccount>> bankAccounts = new();
         Mock<IUneditableAll<IFutureProg>> futureProgs = new();
         futureProgs.Setup(x => x.Get(It.IsAny<long>())).Returns((IFutureProg?)null);
-        Mock<IUneditableAll<ICell>> cells = new();
-        cells.Setup(x => x.Get(It.IsAny<long>())).Returns((ICell?)null);
+        Mock<IUneditableAll<IRoom>> rooms = new();
+        rooms.Setup(x => x.Get(It.IsAny<long>())).Returns((IRoom?)null);
         Mock<IArenaScheduler> arenaScheduler = new();
         Mock<ISaveManager> saveManager = new();
 
@@ -107,7 +107,7 @@ public class ArenaEventResolveTests
         gameworld.SetupGet(x => x.Currencies).Returns(currencies.Object);
         gameworld.SetupGet(x => x.BankAccounts).Returns(bankAccounts.Object);
         gameworld.SetupGet(x => x.FutureProgs).Returns(futureProgs.Object);
-        gameworld.SetupGet(x => x.Cells).Returns(cells.Object);
+        gameworld.SetupGet(x => x.Rooms).Returns(rooms.Object);
         gameworld.SetupGet(x => x.ArenaScheduler).Returns(arenaScheduler.Object);
         gameworld.SetupGet(x => x.SaveManager).Returns(saveManager.Object);
         gameworld.SetupGet(x => x.ArenaBettingService).Returns(bettingService);

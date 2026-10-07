@@ -55,7 +55,7 @@ internal static class MagicInterdictionHelper
 		AddEffects(source, MagicInterdictionCoverage.Outgoing, results, seen);
 		AddEffects(source?.Location, MagicInterdictionCoverage.Outgoing, results, seen);
 
-		foreach (ICell room in ResolveIncomingRooms(target, additionalParameters))
+		foreach (IRoom room in ResolveIncomingRooms(target, additionalParameters))
 		{
 			AddEffects(room, MagicInterdictionCoverage.Incoming, results, seen);
 		}
@@ -68,12 +68,12 @@ internal static class MagicInterdictionHelper
 		return results;
 	}
 
-	private static IEnumerable<ICell> ResolveIncomingRooms(IPerceivable? target,
+	private static IEnumerable<IRoom> ResolveIncomingRooms(IPerceivable? target,
 		IEnumerable<SpellAdditionalParameter> additionalParameters)
 	{
-		HashSet<ICell> rooms = [];
+		HashSet<IRoom> rooms = [];
 
-		if (target is ICell cellTarget)
+		if (target is IRoom cellTarget)
 		{
 			rooms.Add(cellTarget);
 		}
@@ -83,9 +83,9 @@ internal static class MagicInterdictionHelper
 			rooms.Add(target.Location);
 		}
 
-		foreach (ICell room in additionalParameters
+		foreach (IRoom room in additionalParameters
 			         .Select(x => x.Item)
-			         .OfType<ICell>())
+			         .OfType<IRoom>())
 		{
 			rooms.Add(room);
 		}

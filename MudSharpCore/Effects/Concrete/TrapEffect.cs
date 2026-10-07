@@ -138,7 +138,7 @@ public sealed class TrapEffect : Effect, ITrap, IHandleEventsEffect, IEvaluateDe
 		RegisterFactory("Trap", (effect, owner) => new TrapEffect(effect, owner));
 	}
 
-	public TrapEffect(IPerceivable owner, ITrapTemplate template, ICharacter? creator = null, ICellExit? boundExit = null,
+	public TrapEffect(IPerceivable owner, ITrapTemplate template, ICharacter? creator = null, IRoomExit? boundExit = null,
 		IEnumerable<TrapComponentBinding>? components = null, SpellPower power = SpellPower.Standard)
 		: base(owner)
 	{
@@ -223,9 +223,9 @@ public sealed class TrapEffect : Effect, ITrap, IHandleEventsEffect, IEvaluateDe
 
 	public string DescribeAnchor(IPerceiver voyeur)
 	{
-		if (BoundExitId.HasValue && (Owner as ICell ?? Owner.Location) is { } cell)
+		if (BoundExitId.HasValue && (Owner as IRoom ?? Owner.Location) is { } room)
 		{
-			var exit = cell.ExitsFor(voyeur, true).FirstOrDefault(MatchesExit);
+			var exit = room.ExitsFor(voyeur, true).FirstOrDefault(MatchesExit);
 			if (exit is not null)
 			{
 				return Owner is IGameItem
@@ -272,7 +272,7 @@ public sealed class TrapEffect : Effect, ITrap, IHandleEventsEffect, IEvaluateDe
 	public override void InitialEffect()
 	{
 		base.InitialEffect();
-		InitialiseRuntime(deferCellInitialisation: true);
+		InitialiseRuntime(deferRoomInitialisation: true);
 	}
 
 	public override void Login()
@@ -281,7 +281,7 @@ public sealed class TrapEffect : Effect, ITrap, IHandleEventsEffect, IEvaluateDe
 		// Item effects can be hydrated before their owner is placed in a cell. Reindex
 		// the receiver now that placement is complete, including repeated login cycles.
 		UnsubscribeProximityTriggers();
-		InitialiseRuntime(deferCellInitialisation: true);
+		InitialiseRuntime(deferRoomInitialisation: true);
 	}
 
 	/// <summary>
@@ -291,12 +291,12 @@ public sealed class TrapEffect : Effect, ITrap, IHandleEventsEffect, IEvaluateDe
 	/// </summary>
 	internal void InitialiseAfterWorldItems()
 	{
-		InitialiseRuntime(deferCellInitialisation: false);
+		InitialiseRuntime(deferRoomInitialisation: false);
 	}
 
-	private void InitialiseRuntime(bool deferCellInitialisation)
+	private void InitialiseRuntime(bool deferRoomInitialisation)
 	{
-		if (deferCellInitialisation && Owner is ICell && Template is null)
+		if (deferRoomInitialisation && Owner is IRoom && Template is null)
 		{
 			return;
 		}
@@ -329,7 +329,7 @@ public sealed class TrapEffect : Effect, ITrap, IHandleEventsEffect, IEvaluateDe
 		base.RemovalEffect();
 	}
 
-	public bool MatchesExit(ICellExit exit)
+	public bool MatchesExit(IRoomExit exit)
 	{
 		if (BoundExitOriginId != exit.Origin.Id)
 		{
@@ -365,7 +365,7 @@ public sealed class TrapEffect : Effect, ITrap, IHandleEventsEffect, IEvaluateDe
 	/// </summary>
 	public static bool IsValidAnchor(ITrapTemplate template, IPerceivable anchor)
 	{
-		return anchor is not ICell || template.Triggers.All(x => x.TriggerType != TrapTriggerType.Proximity);
+		return anchor is not IRoom || template.Triggers.All(x => x.TriggerType != TrapTriggerType.Proximity);
 	}
 
 	public static bool TryBindComponents(ITrapTemplate template, IEnumerable<IGameItem> suppliedItems,
@@ -506,7 +506,7 @@ public sealed class TrapEffect : Effect, ITrap, IHandleEventsEffect, IEvaluateDe
 		ICharacter? triggerer = type switch
 		{
 			EventType.ItemOpened => arguments.Length > 0 ? arguments[0] as ICharacter : null,
-			EventType.CharacterEnterCellWitness => arguments.Length > 0 ? arguments[0] as ICharacter : null,
+			EventType.CharacterEnterRoomWitness => arguments.Length > 0 ? arguments[0] as ICharacter : null,
 			EventType.CharacterBeginMovementWitness => arguments.Length > 0 ? arguments[0] as ICharacter : null,
 			EventType.TrapSignalReceived => arguments.Length > 0 ? arguments[0] as ICharacter : null,
 			EventType.PerceivableProximityChanged => arguments.Length > 1 ? arguments[1] as ICharacter : null,
@@ -534,7 +534,7 @@ public sealed class TrapEffect : Effect, ITrap, IHandleEventsEffect, IEvaluateDe
 
 	public bool HandlesEvent(params EventType[] types)
 	{
-		return types.Any(x => x is EventType.ItemOpened or EventType.CharacterEnterCellWitness or
+		return types.Any(x => x is EventType.ItemOpened or EventType.CharacterEnterRoomWitness or
 			EventType.CharacterBeginMovementWitness or EventType.TrapSignalReceived or EventType.PerceivableProximityChanged);
 	}
 
@@ -643,8 +643,8 @@ public sealed class TrapEffect : Effect, ITrap, IHandleEventsEffect, IEvaluateDe
 			case TrapTriggerType.Openable:
 				return eventType == EventType.ItemOpened && Owner is IGameItem;
 
-			case TrapTriggerType.CellEntry:
-				if (!TrapEventRouting.IsCellArrivalWitness(eventType) || arguments.Length < 2 || arguments[1] is not ICell destination)
+			case TrapTriggerType.RoomEntry:
+				if (!TrapEventRouting.IsRoomArrivalWitness(eventType) || arguments.Length < 2 || arguments[1] is not IRoom destination)
 				{
 					return false;
 				}
@@ -662,17 +662,17 @@ public sealed class TrapEffect : Effect, ITrap, IHandleEventsEffect, IEvaluateDe
 
 				// Existing cell-owned proximity traps pre-date spatial anchors. Retain their cell-entry behaviour while
 				// preventing new trap placements from creating more of them.
-				return Owner is ICell && TrapEventRouting.IsCellArrivalWitness(eventType) && arguments.Length >= 2 &&
-				       arguments[1] is ICell proximityDestination && arguments[0] is ICharacter proximityCharacter &&
+				return Owner is IRoom && TrapEventRouting.IsRoomArrivalWitness(eventType) && arguments.Length >= 2 &&
+				       arguments[1] is IRoom proximityDestination && arguments[0] is ICharacter proximityCharacter &&
 				       AnchoredIn(proximityDestination, proximityCharacter);
 
 			case TrapTriggerType.ExitTraversal:
-				if (eventType != EventType.CharacterBeginMovementWitness || arguments.Length < 2 || arguments[1] is not ICell origin)
+				if (eventType != EventType.CharacterBeginMovementWitness || arguments.Length < 2 || arguments[1] is not IRoom origin)
 				{
 					return false;
 				}
 
-				if (BoundExitId.HasValue && (arguments.Length < 3 || arguments[2] is not ICellExit exit ||
+				if (BoundExitId.HasValue && (arguments.Length < 3 || arguments[2] is not IRoomExit exit ||
 				    !MatchesExit(exit)))
 				{
 					return false;
@@ -712,7 +712,7 @@ public sealed class TrapEffect : Effect, ITrap, IHandleEventsEffect, IEvaluateDe
 			}
 		}
 
-		var size = mover.CurrentContextualSize(SizeContext.CellExit);
+		var size = mover.CurrentContextualSize(SizeContext.RoomExit);
 		if (trigger.Parameters.TryGetValue("minimumsize", out var minimumText) &&
 		    minimumText.TryParseEnum<SizeCategory>(out var minimum) && size < minimum)
 		{
@@ -723,14 +723,14 @@ public sealed class TrapEffect : Effect, ITrap, IHandleEventsEffect, IEvaluateDe
 		       !maximumText.TryParseEnum<SizeCategory>(out var maximum) || size <= maximum;
 	}
 
-	private bool AnchoredIn(ICell cell, ICharacter? mover)
+	private bool AnchoredIn(IRoom room, ICharacter? mover)
 	{
-		if (ReferenceEquals(Owner, cell))
+		if (ReferenceEquals(Owner, room))
 		{
 			return true;
 		}
 
-		if (!ReferenceEquals(Owner.Location, cell))
+		if (!ReferenceEquals(Owner.Location, room))
 		{
 			return false;
 		}
@@ -856,8 +856,8 @@ public sealed class TrapEffect : Effect, ITrap, IHandleEventsEffect, IEvaluateDe
 	{
 		if (triggerer is null)
 		{
-			var anchorCell = Owner as ICell ?? Owner.Location;
-			var occupants = anchorCell?.LayerCharacters(Owner.RoomLayer) ?? Enumerable.Empty<ICharacter>();
+			var anchorRoom = Owner as IRoom ?? Owner.Location;
+			var occupants = anchorRoom?.LayerCharacters(Owner.RoomLayer) ?? Enumerable.Empty<ICharacter>();
 			return payload.TargetSelector switch
 			{
 				TrapTargetSelector.AnchorOccupants or TrapTargetSelector.SnapshotTarget => occupants,
@@ -868,9 +868,9 @@ public sealed class TrapEffect : Effect, ITrap, IHandleEventsEffect, IEvaluateDe
 		return payload.TargetSelector switch
 		{
 			TrapTargetSelector.Triggerer => [triggerer],
-			TrapTargetSelector.AnchorOccupants => (Owner as ICell ?? Owner.Location)?.LayerCharacters(triggerer.RoomLayer)
+			TrapTargetSelector.AnchorOccupants => (Owner as IRoom ?? Owner.Location)?.LayerCharacters(triggerer.RoomLayer)
 				?? Enumerable.Empty<ICharacter>(),
-			TrapTargetSelector.SnapshotTarget => ((Owner as ICell ?? Owner.Location)?.LayerCharacters(triggerer.RoomLayer)
+			TrapTargetSelector.SnapshotTarget => ((Owner as IRoom ?? Owner.Location)?.LayerCharacters(triggerer.RoomLayer)
 				?? Enumerable.Empty<ICharacter>()).Where(x => !ReferenceEquals(x, triggerer)),
 			_ => [triggerer]
 		};
@@ -976,12 +976,12 @@ public sealed class TrapEffect : Effect, ITrap, IHandleEventsEffect, IEvaluateDe
 							: null);
 				var detonator = detonationItem?.Components.OfType<IDetonatable>().FirstOrDefault();
 				if (detonationItem is not null && detonationItem.Location is null &&
-					(Owner as ICell ?? Owner.Location) is { } detonationCell)
+					(Owner as IRoom ?? Owner.Location) is { } detonationRoom)
 				{
 					var reservation = detonationItem.EffectsOfType<TrapComponentReservationEffect>()
 						.FirstOrDefault(x => x.TrapInstanceId == InstanceId);
 					RestoreInstalledComponent(detonationItem, new SpatialLocation(
-						detonationCell,
+						detonationRoom,
 						reservation?.SpatialLayer ?? Owner.RoomLayer,
 						reservation?.SpatialRoutePositionMetres));
 				}
@@ -1266,8 +1266,8 @@ public sealed class TrapEffect : Effect, ITrap, IHandleEventsEffect, IEvaluateDe
 		}
 
 		var gas = Gameworld.Gases.Get(gasId);
-		var cell = Owner as ICell ?? Owner.Location;
-		if (gas is null || cell is null)
+		var room = Owner as IRoom ?? Owner.Location;
+		if (gas is null || room is null)
 		{
 			return;
 		}
@@ -1296,7 +1296,7 @@ public sealed class TrapEffect : Effect, ITrap, IHandleEventsEffect, IEvaluateDe
 		var echo = payload.Parameters.TryGetValue("cloudecho", out var cloudEcho)
 			? cloudEcho
 			: "A cloud of gas billows out.";
-		cell.AddEffect(new TrapGasCloudEffect(cell, gas, dose, target?.RoomLayer ?? Owner.RoomLayer, echo, magicVolume, contactStrength), duration);
+		room.AddEffect(new TrapGasCloudEffect(room, gas, dose, target?.RoomLayer ?? Owner.RoomLayer, echo, magicVolume, contactStrength), duration);
 	}
 
 	private void ExecuteRestraintPayload(ITrapPayload payload, ICharacter target)
@@ -1313,7 +1313,7 @@ public sealed class TrapEffect : Effect, ITrap, IHandleEventsEffect, IEvaluateDe
 			? descriptionText
 			: "caught by a trap";
 		target.AddEffect(new TrapRestraintEffect(target, InstanceId, description, CreatorId,
-			(Owner as ICell ?? Owner.Location)?.Id ?? 0), duration);
+			(Owner as IRoom ?? Owner.Location)?.Id ?? 0), duration);
 		RecordHarmCrime(target);
 		var creator = CreatorId > 0 ? Gameworld.TryGetCharacter(CreatorId, true) : null;
 		creator?.HandleEvent(EventType.TrapCaughtPrey, creator, target, InstanceId.ToString());
@@ -1385,7 +1385,7 @@ public sealed class TrapEffect : Effect, ITrap, IHandleEventsEffect, IEvaluateDe
 
 	private void SubscribeProximityTriggers()
 	{
-		if (_proximityRegistration is not null || Owner is ICell || Template is null)
+		if (_proximityRegistration is not null || Owner is IRoom || Template is null)
 		{
 			return;
 		}
@@ -1522,7 +1522,7 @@ public sealed class TrapEffect : Effect, ITrap, IHandleEventsEffect, IEvaluateDe
 
 	private void RestoreInstalledComponents()
 	{
-		if ((Owner as ICell ?? Owner.Location) is not { } location)
+		if ((Owner as IRoom ?? Owner.Location) is not { } location)
 		{
 			return;
 		}
@@ -1610,7 +1610,7 @@ public sealed class TrapEffect : Effect, ITrap, IHandleEventsEffect, IEvaluateDe
 		return BoundTransientExitKey is not null &&
 		       BoundTransientExitKey.Equals(exit.StableKey, StringComparison.Ordinal) &&
 		       BoundExitOriginId.HasValue &&
-		       exit.Cells.Any(x => x.Id == BoundExitOriginId.Value);
+		       exit.Rooms.Any(x => x.Id == BoundExitOriginId.Value);
 	}
 
 	private void BindToTransientExit(ITransientExit exit)
@@ -1788,8 +1788,8 @@ public sealed class TrapComponentReservationEffect : Effect, INoGetEffect, IProv
 
 	public Guid TrapInstanceId { get; }
 	public IPerceivable SpatialHost { get; }
-	public RoomLayer SpatialLayer => SpatialHost is ICell ? _installedLayer : SpatialHost.RoomLayer;
-	public double? SpatialRoutePositionMetres => SpatialHost is ICell
+	public RoomLayer SpatialLayer => SpatialHost is IRoom ? _installedLayer : SpatialHost.RoomLayer;
+	public double? SpatialRoutePositionMetres => SpatialHost is IRoom
 		? _installedRoutePositionMetres
 		: SpatialHost.RoutePositionMetres;
 	public bool CombatRelated => false;

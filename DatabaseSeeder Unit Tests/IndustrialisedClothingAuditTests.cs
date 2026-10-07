@@ -108,10 +108,10 @@ public class IndustrialisedClothingAuditTests
 			Items = [source.Items.First() with { StableReference = "coat", Craftable = false }],
 			Crafts = [], Outfits = [], Clothing = IndustrialisedClothingCraftPlanTests.Document()
 		};
-		var cells = IndustrialisedCatalogueAudit.Generate(document, "hash").Split('\n')[1].Split('\t');
-		Assert.AreEqual("true", cells[10]);
-		Assert.AreEqual("sew_coat", cells[14]);
-		Assert.AreEqual("test_outfit", cells[15]);
+		var rooms = IndustrialisedCatalogueAudit.Generate(document, "hash").Split('\n')[1].Split('\t');
+		Assert.AreEqual("true", rooms[10]);
+		Assert.AreEqual("sew_coat", rooms[14]);
+		Assert.AreEqual("test_outfit", rooms[15]);
 	}
 
 	[TestMethod]
@@ -178,9 +178,9 @@ public class IndustrialisedClothingAuditTests
 		var headers = lines[0].Split('\t');
 		return lines.Skip(1).Select(line =>
 		{
-			var cells = line.Split('\t');
-			Assert.AreEqual(headers.Length, cells.Length);
-			return headers.Zip(cells).ToDictionary(x => x.First, x => x.Second, StringComparer.Ordinal);
+			var rooms = line.Split('\t');
+			Assert.AreEqual(headers.Length, rooms.Length);
+			return headers.Zip(rooms).ToDictionary(x => x.First, x => x.Second, StringComparer.Ordinal);
 		}).ToArray();
 	}
 

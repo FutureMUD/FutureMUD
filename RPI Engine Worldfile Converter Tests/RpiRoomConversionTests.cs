@@ -70,7 +70,7 @@ public class RpiRoomConversionTests
 		Assert.AreEqual(rooms[1007].RawDescription, rooms[1006].EffectiveDescription);
 		Assert.IsNotNull(rooms[1006].EffectiveWeather);
 
-		Assert.AreEqual((int)CellOutdoorsType.IndoorsClimateExposed, rooms[1007].OutdoorsTypeValue);
+		Assert.AreEqual((int)RoomOutdoorsType.IndoorsClimateExposed, rooms[1007].OutdoorsTypeValue);
 		Assert.IsTrue(rooms[1007].SafeQuit);
 
 		var hiddenExit = conversion.Exits.Single(x => x.RoomVnum1 == 1002 && x.RoomVnum2 == 1004);
@@ -198,7 +198,7 @@ public class RpiRoomConversionTests
 	}
 
 	[TestMethod]
-	public void RoomIdPlanner_PreservesPositiveLegacyVnums_ForCellIds()
+	public void RoomIdPlanner_PreservesPositiveLegacyVnums_ForRoomIds()
 	{
 		var rooms = new[]
 		{
@@ -209,8 +209,8 @@ public class RpiRoomConversionTests
 		var plan = FutureMudRoomIdPlanner.Plan(rooms, new HashSet<long>());
 
 		Assert.AreEqual(0, plan.Issues.Count);
-		Assert.AreEqual(66896L, plan.Reservations[66896].CellId);
-		Assert.AreEqual(66897L, plan.Reservations[66897].CellId);
+		Assert.AreEqual(66896L, plan.Reservations[66896].RoomId);
+		Assert.AreEqual(66897L, plan.Reservations[66897].RoomId);
 	}
 
 	[TestMethod]
@@ -227,9 +227,9 @@ public class RpiRoomConversionTests
 			rooms,
 			new HashSet<long> { 1001 });
 
-		Assert.AreEqual(1002L, plan.Reservations[0].CellId);
-		Assert.AreEqual(1000L, plan.Reservations[1000].CellId);
-		Assert.AreEqual(1003L, plan.Reservations[1001].CellId);
+		Assert.AreEqual(1002L, plan.Reservations[0].RoomId);
+		Assert.AreEqual(1000L, plan.Reservations[1000].RoomId);
+		Assert.AreEqual(1003L, plan.Reservations[1001].RoomId);
 		Assert.IsTrue(plan.Issues.Any(x => x.SourceKey == "rooms.0#0" && x.Message.Contains("cannot be used")));
 		Assert.IsTrue(plan.Issues.Any(x => x.SourceKey == "rooms.1001#1001" && x.Message.Contains("already exists")));
 	}
@@ -237,7 +237,7 @@ public class RpiRoomConversionTests
 	[TestMethod]
 	public void RoomTransformer_WarnsForLongDescriptions_AndImporterTruncatesForPersistence()
 	{
-		var longDescription = new string('a', FutureMudRoomImportLimits.CellDescriptionMaxLength + 1);
+		var longDescription = new string('a', FutureMudRoomImportLimits.RoomDescriptionMaxLength + 1);
 		var room = new RpiRoomRecord
 		{
 			Vnum = 99000,
@@ -258,10 +258,10 @@ public class RpiRoomConversionTests
 		Assert.AreEqual(longDescription.Length, converted.EffectiveDescription.Length);
 		Assert.IsTrue(converted.Warnings.Any(x => x.Code == "cell-description-truncated"));
 
-		var truncated = FutureMudRoomImportLimits.TruncateCellDescription(converted.EffectiveDescription);
+		var truncated = FutureMudRoomImportLimits.TruncateRoomDescription(converted.EffectiveDescription);
 
-		Assert.AreEqual(FutureMudRoomImportLimits.CellDescriptionMaxLength, truncated.Length);
-		Assert.AreEqual(longDescription[..FutureMudRoomImportLimits.CellDescriptionMaxLength], truncated);
+		Assert.AreEqual(FutureMudRoomImportLimits.RoomDescriptionMaxLength, truncated.Length);
+		Assert.AreEqual(longDescription[..FutureMudRoomImportLimits.RoomDescriptionMaxLength], truncated);
 	}
 
 	[TestMethod]
@@ -393,7 +393,7 @@ public class RpiRoomConversionTests
 			EffectiveDescription = "A test room.",
 			TerrainName = "Hall",
 			OutdoorsTypeName = "Indoors",
-			OutdoorsTypeValue = (int)CellOutdoorsType.Indoors,
+			OutdoorsTypeValue = (int)RoomOutdoorsType.Indoors,
 			SafeQuit = false,
 			Coordinates = new RoomCoordinate(vnum, 0, 0),
 			RawFlags = 0,

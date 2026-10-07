@@ -99,7 +99,7 @@ public class NoiseEmissionTests
 	[TestMethod]
 	public void EmitPlaybackNoise_QuietAudio_RaisesNoiseEventWithoutNearbyPropagation()
 	{
-		var origin = new Mock<ICell>();
+		var origin = new Mock<IRoom>();
 		var device = new Mock<IGameItem>();
 		device.SetupGet(x => x.TrueLocations).Returns([origin.Object]);
 		var packet = CreateAudioMediaPacket(AudioVolume.Quiet);
@@ -119,7 +119,7 @@ public class NoiseEmissionTests
 	[TestMethod]
 	public void EmitPlaybackNoise_LoudAudio_UsesNormalNearbyPropagationPath()
 	{
-		var origin = new Mock<ICell>();
+		var origin = new Mock<IRoom>();
 		var device = new Mock<IGameItem>();
 		device.SetupGet(x => x.TrueLocations).Returns([origin.Object]);
 		device.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
@@ -134,7 +134,7 @@ public class NoiseEmissionTests
 	[TestMethod]
 	public void EmitFeedback_IsVeryLoudLocalNoiseThatCannotPropagateOrBeRecaptured()
 	{
-		var origin = new Mock<ICell>();
+		var origin = new Mock<IRoom>();
 		var device = new Mock<IGameItem>();
 		device.SetupGet(x => x.TrueLocations).Returns([origin.Object]);
 
@@ -164,7 +164,7 @@ public class NoiseEmissionTests
 	[TestMethod]
 	public void RaiseEvent_NonSilentNoise_FiresOnceOnOriginWithDocumentedPayload()
 	{
-		var origin = new Mock<ICell>();
+		var origin = new Mock<IRoom>();
 		var source = new Mock<ICharacter>();
 		object[]? payload = null;
 		origin.Setup(x => x.HandleEvent(EventType.NoiseEmitted, It.IsAny<object[]>()))
@@ -191,7 +191,7 @@ public class NoiseEmissionTests
 	[TestMethod]
 	public void RaiseEvent_SilentNoise_DoesNotFire()
 	{
-		var origin = new Mock<ICell>();
+		var origin = new Mock<IRoom>();
 		var source = new Mock<ICharacter>();
 
 		var raised = NoiseEmission.RaiseEvent(
@@ -209,7 +209,7 @@ public class NoiseEmissionTests
 	public void EmitNoise_ValidArguments_UsesSharedAudioPath()
 	{
 		FutureProgTestBootstrap.EnsureInitialised();
-		var origin = new Mock<ICell>();
+		var origin = new Mock<IRoom>();
 		var source = new Mock<ICharacter>();
 		source.SetupGet(x => x.Location).Returns(origin.Object);
 		source.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
@@ -390,7 +390,7 @@ public class NoiseEmissionTests
 	[TestMethod]
 	public void RaiseReceivedEvent_UsesDocumentedReceiverPayload()
 	{
-		var origin = new Mock<ICell>();
+		var origin = new Mock<IRoom>();
 		var source = new Mock<ICharacter>();
 		var listener = new Mock<ICharacter>();
 		object[]? payload = null;
@@ -423,7 +423,7 @@ public class NoiseEmissionTests
 	public void EmitNoise_ExtendedArguments_UseBoundedStructuredPath()
 	{
 		FutureProgTestBootstrap.EnsureInitialised();
-		var origin = new Mock<ICell>();
+		var origin = new Mock<IRoom>();
 		var source = new Mock<ICharacter>();
 		source.SetupGet(x => x.Location).Returns(origin.Object);
 		source.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
@@ -467,7 +467,7 @@ public class NoiseEmissionTests
 	public void EmitNoise_ExtendedArguments_RejectInvalidBudgetAndMode()
 	{
 		FutureProgTestBootstrap.EnsureInitialised();
-		var origin = new Mock<ICell>();
+		var origin = new Mock<IRoom>();
 		var source = new Mock<ICharacter>();
 		source.SetupGet(x => x.Location).Returns(origin.Object);
 		var compiler = FutureProg.GetFunctionCompilerInformations()

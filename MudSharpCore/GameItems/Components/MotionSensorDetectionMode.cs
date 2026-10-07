@@ -8,7 +8,7 @@ public enum MotionSensorDetectionMode
 {
 	AnyMovement = 0,
 	BeginMovement = 1,
-	EnterCell = 2,
+	EnterRoom = 2,
 	StopMovement = 3
 }
 
@@ -19,11 +19,11 @@ public static class MotionSensorDetectionModeExtensions
 		return mode switch
 		{
 			MotionSensorDetectionMode.AnyMovement => type is EventType.CharacterBeginMovementWitness or
-				EventType.CharacterEnterCellWitness or
+				EventType.CharacterEnterRoomWitness or
 				EventType.CharacterStopMovementWitness or
 				EventType.CharacterStopMovementClosedDoorWitness,
 			MotionSensorDetectionMode.BeginMovement => type == EventType.CharacterBeginMovementWitness,
-			MotionSensorDetectionMode.EnterCell => type == EventType.CharacterEnterCellWitness,
+			MotionSensorDetectionMode.EnterRoom => type == EventType.CharacterEnterRoomWitness,
 			MotionSensorDetectionMode.StopMovement => type is EventType.CharacterStopMovementWitness or
 				EventType.CharacterStopMovementClosedDoorWitness,
 			_ => false
@@ -36,7 +36,7 @@ public static class MotionSensorDetectionModeExtensions
 		{
 			MotionSensorDetectionMode.AnyMovement => "Any Movement",
 			MotionSensorDetectionMode.BeginMovement => "Begin Movement",
-			MotionSensorDetectionMode.EnterCell => "Enter Cell",
+			MotionSensorDetectionMode.EnterRoom => "Enter Cell",
 			MotionSensorDetectionMode.StopMovement => "Stop Movement",
 			_ => "Unknown"
 		};
@@ -62,7 +62,7 @@ public static class MotionSensorDetectionModeExtensions
 			case "entercell":
 			case "enter cell":
 			case "arrival":
-				mode = MotionSensorDetectionMode.EnterCell;
+				mode = MotionSensorDetectionMode.EnterRoom;
 				return true;
 			case "stop":
 			case "stopmovement":

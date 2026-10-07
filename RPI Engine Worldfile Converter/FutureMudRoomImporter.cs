@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 
 using System.Xml.Linq;
 using Microsoft.EntityFrameworkCore;
@@ -48,8 +48,8 @@ public sealed record RoomApplyAuditRoomEntry(
 	string ZoneGroupKey,
 	string Action,
 	long? ZoneId,
+	long? LegacyRoomId,
 	long? RoomId,
-	long? CellId,
 	long? OverlayId);
 
 public sealed record RoomApplyAuditExitEntry(
@@ -75,7 +75,7 @@ public sealed record FutureMudRoomImportResult(
 	IReadOnlyList<FutureMudRoomValidationIssue> Issues,
 	RoomApplyAuditReport Audit);
 
-public sealed record FutureMudRoomIdReservation(int Vnum, long CellId);
+public sealed record FutureMudRoomIdReservation(int Vnum, long RoomId);
 
 public sealed record FutureMudRoomIdReservationPlan(
 	IReadOnlyDictionary<int, FutureMudRoomIdReservation> Reservations,
@@ -83,12 +83,12 @@ public sealed record FutureMudRoomIdReservationPlan(
 
 public static class FutureMudRoomImportLimits
 {
-	public const int CellDescriptionMaxLength = 4000;
+	public const int RoomDescriptionMaxLength = 4000;
 	public const int ExitTextMaxLength = 255;
 
-	public static string TruncateCellDescription(string description)
+	public static string TruncateRoomDescription(string description)
 	{
-		return TruncateText(description, CellDescriptionMaxLength);
+		return TruncateText(description, RoomDescriptionMaxLength);
 	}
 
 	public static string TruncateExitText(string? text)
@@ -108,24 +108,24 @@ public static class FutureMudRoomIdPlanner
 {
 	public static FutureMudRoomIdReservationPlan Plan(
 		IEnumerable<ConvertedRoomDefinition> rooms,
-		IReadOnlySet<long> existingCellIds)
+		IReadOnlySet<long> existingRoomIds)
 	{
 		var roomList = rooms
 			.OrderBy(x => x.Vnum)
 			.ToList();
 		Dictionary<int, FutureMudRoomIdReservation> reservations = [];
 		List<FutureMudRoomValidationIssue> issues = [];
-		HashSet<long> reservedCellIds = [];
-		var nextCellFallbackId = DetermineFirstFallbackId(roomList, existingCellIds);
+		HashSet<long> reservedRoomIds = [];
+		var nextRoomFallbackId = DetermineFirstFallbackId(roomList, existingRoomIds);
 
 		foreach (var room in roomList)
 		{
 			var cellId = ReserveId(
 				room,
-				"Cell",
-				existingCellIds,
-				reservedCellIds,
-				ref nextCellFallbackId,
+				"Room",
+				existingRoomIds,
+				reservedRoomIds,
+				ref nextRoomFallbackId,
 				issues);
 
 			reservations[room.Vnum] = new FutureMudRoomIdReservation(room.Vnum, cellId);
@@ -387,15 +387,15 @@ public sealed class FutureMudRoomImporter
 	private sealed class RoomDbState
 	{
 		public required ConvertedRoomDefinition Room { get; init; }
-		public required MudSharp.Models.Cell DbCell { get; init; }
-		public required MudSharp.Models.CellOverlay DbOverlay { get; init; }
+		public required MudSharp.Models.Room DbRoom { get; init; }
+		public required MudSharp.Models.RoomOverlay DbOverlay { get; init; }
 	}
 
 	private readonly FuturemudDatabaseContext _context;
 	private readonly FutureMudRoomBaselineCatalog _catalog;
 	private readonly string? _zoneTemplateName;
 	private readonly DateTime _now = DateTime.UtcNow;
-	private long _nextCellOverlayPackageId;
+	private long _nextRoomOverlayPackageId;
 
 	public FutureMudRoomImporter(
 		FuturemudDatabaseContext context,
@@ -405,7 +405,7 @@ public sealed class FutureMudRoomImporter
 		_context = context;
 		_catalog = catalog;
 		_zoneTemplateName = zoneTemplateName;
-		_nextCellOverlayPackageId = (context.CellOverlayPackages
+		_nextRoomOverlayPackageId = (context.RoomOverlayPackages
 			.AsNoTracking()
 			.Max(x => (long?)x.Id) ?? 0L) + 1L;
 	}
@@ -431,7 +431,7 @@ public sealed class FutureMudRoomImporter
 		}
 
 		var packageMarkers = LoadExistingPackageMarkers();
-		var existingPackageNames = _context.CellOverlayPackages
+		var existingPackageNames = _context.RoomOverlayPackages
 			.AsNoTracking()
 			.Select(x => x.Name)
 			.ToHashSet(StringComparer.OrdinalIgnoreCase);
@@ -457,7 +457,7 @@ public sealed class FutureMudRoomImporter
 			.ToList();
 		var idPlan = FutureMudRoomIdPlanner.Plan(
 			roomsToCreate,
-			_context.Cells.AsNoTracking().Select(x => x.Id).ToHashSet());
+			_context.Rooms.AsNoTracking().Select(x => x.Id).ToHashSet());
 		issues.AddRange(idPlan.Issues);
 
 		List<RoomApplyAuditZoneEntry> zoneAudit = [];
@@ -504,7 +504,7 @@ public sealed class FutureMudRoomImporter
 						"would-create",
 						null,
 						null,
-						reservation.CellId,
+						reservation.RoomId,
 						null));
 				}
 
@@ -545,51 +545,51 @@ public sealed class FutureMudRoomImporter
 				ReviewerDate = _now,
 				ReviewerComment = "Imported by the RPI Engine Worldfile Converter.",
 			};
-			var package = new CellOverlayPackage
+			var package = new RoomOverlayPackage
 			{
-				Id = _nextCellOverlayPackageId++,
+				Id = _nextRoomOverlayPackageId++,
 				Name = zone.OverlayPackageName,
 				RevisionNumber = 0,
 				EditableItem = editableItem,
 			};
-			_context.CellOverlayPackages.Add(package);
+			_context.RoomOverlayPackages.Add(package);
 			_context.SaveChanges();
 
 			zoneAudit.Add(new RoomApplyAuditZoneEntry(zone.GroupKey, zone.ZoneName, zone.OverlayPackageName, "created", dbZone.Id, package.Id));
 			insertedZoneCount++;
 
-			var zoneCells = new List<(ConvertedRoomDefinition room, MudSharp.Models.Cell dbCell)>();
+			var zoneRooms = new List<(ConvertedRoomDefinition room, MudSharp.Models.Room dbRoom)>();
 			foreach (var room in zone.Rooms.OrderBy(x => x.Vnum))
 			{
 				var reservation = idPlan.Reservations[room.Vnum];
-				var dbCell = new MudSharp.Models.Cell
+				var dbRoom = new MudSharp.Models.Room
 				{
-					Id = reservation.CellId, ZoneId = dbZone.Id,
+					Id = reservation.RoomId, ZoneId = dbZone.Id,
 					X = room.Coordinates.X, Y = room.Coordinates.Y, Z = room.Coordinates.Z,
 					Temporary = room.RoomFlagNames.Contains(nameof(RpiRoomFlags.Temporary), StringComparer.OrdinalIgnoreCase),
 					EffectData = "<Effects/>"
 				};
-				zoneCells.Add((room, dbCell));
+				zoneRooms.Add((room, dbRoom));
 			}
 
-			_context.Cells.AddRange(zoneCells.Select(x => x.dbCell));
+			_context.Rooms.AddRange(zoneRooms.Select(x => x.dbRoom));
 			_context.SaveChanges();
 
-			var firstCellId = zoneCells.Select(x => x.dbCell.Id).OrderBy(x => x).FirstOrDefault();
-			dbZone.DefaultCellId = firstCellId == 0 ? null : firstCellId;
+			var firstRoomId = zoneRooms.Select(x => x.dbRoom.Id).OrderBy(x => x).FirstOrDefault();
+			dbZone.DefaultRoomId = firstRoomId == 0 ? null : firstRoomId;
 
-			var zoneOverlays = new List<(ConvertedRoomDefinition room, MudSharp.Models.Cell dbCell, MudSharp.Models.CellOverlay dbOverlay)>();
-			foreach (var (room, dbCell) in zoneCells)
+			var zoneOverlays = new List<(ConvertedRoomDefinition room, MudSharp.Models.Room dbRoom, MudSharp.Models.RoomOverlay dbOverlay)>();
+			foreach (var (room, dbRoom) in zoneRooms)
 			{
 				var terrain = _catalog.Terrains[room.TerrainName];
-				var dbOverlay = new MudSharp.Models.CellOverlay
+				var dbOverlay = new MudSharp.Models.RoomOverlay
 				{
 					Name = package.Name,
-					CellName = room.Name,
-					CellDescription = FutureMudRoomImportLimits.TruncateCellDescription(room.EffectiveDescription),
-					CellOverlayPackageId = package.Id,
-					CellOverlayPackageRevisionNumber = package.RevisionNumber,
-					CellId = dbCell.Id,
+					RoomName = room.Name,
+					RoomDescription = FutureMudRoomImportLimits.TruncateRoomDescription(room.EffectiveDescription),
+					RoomOverlayPackageId = package.Id,
+					RoomOverlayPackageRevisionNumber = package.RevisionNumber,
+					RoomId = dbRoom.Id,
 					TerrainId = terrain.Id,
 					OutdoorsType = room.OutdoorsTypeValue,
 					AmbientLightFactor = 1.0,
@@ -598,19 +598,19 @@ public sealed class FutureMudRoomImporter
 					AtmosphereType = terrain.AtmosphereType,
 					SafeQuit = room.SafeQuit,
 				};
-				zoneOverlays.Add((room, dbCell, dbOverlay));
+				zoneOverlays.Add((room, dbRoom, dbOverlay));
 			}
 
-			_context.CellOverlays.AddRange(zoneOverlays.Select(x => x.dbOverlay));
+			_context.RoomOverlays.AddRange(zoneOverlays.Select(x => x.dbOverlay));
 			_context.SaveChanges();
 
-			foreach (var (room, dbCell, dbOverlay) in zoneOverlays)
+			foreach (var (room, dbRoom, dbOverlay) in zoneOverlays)
 			{
-				dbCell.CurrentOverlayId = dbOverlay.Id;
+				dbRoom.CurrentOverlayId = dbOverlay.Id;
 				createdRoomStates[room.Vnum] = new RoomDbState
 				{
 					Room = room,
-					DbCell = dbCell,
+					DbRoom = dbRoom,
 					DbOverlay = dbOverlay,
 				};
 
@@ -621,7 +621,7 @@ public sealed class FutureMudRoomImporter
 					"created",
 					dbZone.Id,
 					null,
-					dbCell.Id,
+					dbRoom.Id,
 					dbOverlay.Id));
 				insertedRoomCount++;
 			}
@@ -653,9 +653,9 @@ public sealed class FutureMudRoomImporter
 				new RoomApplyAuditReport(DateTime.UtcNow, false, defaults!.Description, zoneAudit, roomAudit, exitAudit));
 		}
 
-		var hiddenExitIdsByCell = new Dictionary<long, List<long>>();
+		var hiddenExitIdsByRoom = new Dictionary<long, List<long>>();
 		var exitModels = new List<(ConvertedRoomExitDefinition definition, Exit dbExit)>();
-		var linkedOverlayExits = new HashSet<(long CellOverlayId, long ExitId)>();
+		var linkedOverlayExits = new HashSet<(long RoomOverlayId, long ExitId)>();
 		foreach (var exit in orderedExits)
 		{
 			if (!createdRoomStates.TryGetValue(exit.RoomVnum1, out var room1) ||
@@ -667,8 +667,8 @@ public sealed class FutureMudRoomImporter
 
 			var dbExit = new Exit
 			{
-				CellId1 = room1.DbCell.Id,
-				CellId2 = room2.DbCell.Id,
+				RoomId1 = room1.DbRoom.Id,
+				RoomId2 = room2.DbRoom.Id,
 				Direction1 = (int)exit.Side1.Direction.ToFutureMudDirection(),
 				Direction2 = (int)exit.Side2.Direction.ToFutureMudDirection(),
 				Keywords1 = FutureMudRoomImportLimits.TruncateExitText(exit.Side1.Keywords),
@@ -690,8 +690,8 @@ public sealed class FutureMudRoomImporter
 				DoorSize = exit.DoorSize,
 				MaximumSizeToEnter = exit.MaximumSizeToEnter,
 				MaximumSizeToEnterUpright = exit.MaximumSizeToEnterUpright,
-				FallCell = exit.FallToRoomVnum is not null && createdRoomStates.TryGetValue(exit.FallToRoomVnum.Value, out var fallRoom)
-					? fallRoom.DbCell.Id
+				FallRoom = exit.FallToRoomVnum is not null && createdRoomStates.TryGetValue(exit.FallToRoomVnum.Value, out var fallRoom)
+					? fallRoom.DbRoom.Id
 					: null,
 				IsClimbExit = exit.IsClimbExit,
 				ClimbDifficulty = exit.ClimbDifficulty,
@@ -709,21 +709,21 @@ public sealed class FutureMudRoomImporter
 			var room1 = createdRoomStates[definition.RoomVnum1];
 			var room2 = createdRoomStates[definition.RoomVnum2];
 
-			AddCellOverlayExitLink(linkedOverlayExits, room1.DbOverlay.Id, dbExit.Id);
+			AddRoomOverlayExitLink(linkedOverlayExits, room1.DbOverlay.Id, dbExit.Id);
 
 			if (definition.Side2.Visible)
 			{
-				AddCellOverlayExitLink(linkedOverlayExits, room2.DbOverlay.Id, dbExit.Id);
+				AddRoomOverlayExitLink(linkedOverlayExits, room2.DbOverlay.Id, dbExit.Id);
 			}
 
 			if (definition.Side1.Hidden)
 			{
-				AddHiddenExit(hiddenExitIdsByCell, room1.DbCell.Id, dbExit.Id);
+				AddHiddenExit(hiddenExitIdsByRoom, room1.DbRoom.Id, dbExit.Id);
 			}
 
 			if (definition.Side2.Hidden)
 			{
-				AddHiddenExit(hiddenExitIdsByCell, room2.DbCell.Id, dbExit.Id);
+				AddHiddenExit(hiddenExitIdsByRoom, room2.DbRoom.Id, dbExit.Id);
 			}
 
 			exitAudit.Add(new RoomApplyAuditExitEntry(definition.ExitKey, definition.RoomVnum1, definition.RoomVnum2, "created", dbExit.Id));
@@ -732,7 +732,7 @@ public sealed class FutureMudRoomImporter
 
 		foreach (var roomState in createdRoomStates.Values)
 		{
-			roomState.DbCell.EffectData = BuildEffectData(hiddenExitIdsByCell.TryGetValue(roomState.DbCell.Id, out var exitIds)
+			roomState.DbRoom.EffectData = BuildEffectData(hiddenExitIdsByRoom.TryGetValue(roomState.DbRoom.Id, out var exitIds)
 				? exitIds
 				: Array.Empty<long>());
 		}
@@ -749,8 +749,8 @@ public sealed class FutureMudRoomImporter
 			new RoomApplyAuditReport(DateTime.UtcNow, true, defaults!.Description, zoneAudit, roomAudit, exitAudit));
 	}
 
-	private void AddCellOverlayExitLink(
-		ISet<(long CellOverlayId, long ExitId)> linkedOverlayExits,
+	private void AddRoomOverlayExitLink(
+		ISet<(long RoomOverlayId, long ExitId)> linkedOverlayExits,
 		long cellOverlayId,
 		long exitId)
 	{
@@ -759,9 +759,9 @@ public sealed class FutureMudRoomImporter
 			return;
 		}
 
-		_context.CellOverlaysExits.Add(new CellOverlayExit
+		_context.RoomOverlaysExits.Add(new RoomOverlayExit
 		{
-			CellOverlayId = cellOverlayId,
+			RoomOverlayId = cellOverlayId,
 			ExitId = exitId,
 		});
 	}
@@ -793,7 +793,7 @@ public sealed class FutureMudRoomImporter
 
 	private HashSet<string> LoadExistingPackageMarkers()
 	{
-		return _context.CellOverlayPackages
+		return _context.RoomOverlayPackages
 			.AsNoTracking()
 			.Where(x => x.EditableItem != null && x.EditableItem.BuilderComment != null && x.EditableItem.BuilderComment.StartsWith("RPIROOMPACKAGE|"))
 			.Select(x => x.EditableItem!.BuilderComment)
@@ -820,12 +820,12 @@ public sealed class FutureMudRoomImporter
 		]);
 	}
 
-	private static void AddHiddenExit(IDictionary<long, List<long>> hiddenExitIdsByCell, long cellId, long exitId)
+	private static void AddHiddenExit(IDictionary<long, List<long>> hiddenExitIdsByRoom, long cellId, long exitId)
 	{
-		if (!hiddenExitIdsByCell.TryGetValue(cellId, out var exitIds))
+		if (!hiddenExitIdsByRoom.TryGetValue(cellId, out var exitIds))
 		{
 			exitIds = [];
-			hiddenExitIdsByCell[cellId] = exitIds;
+			hiddenExitIdsByRoom[cellId] = exitIds;
 		}
 
 		exitIds.Add(exitId);

@@ -27,8 +27,8 @@ public class PlannerMapTests
 
 		map.PaintTerrain([new(0, 0)], 0);
 
-		Assert.AreEqual(0, map.CellAt(0, 0).TerrainId);
-		Assert.AreEqual(0, map.CellAt(0, 0).TagIds.Count);
+		Assert.AreEqual(0, map.RoomAt(0, 0).TerrainId);
+		Assert.AreEqual(0, map.RoomAt(0, 0).TagIds.Count);
 	}
 
 	[TestMethod]
@@ -40,8 +40,8 @@ public class PlannerMapTests
 
 		var cropped = map.Resize(2, 2);
 
-		Assert.AreEqual(1, cropped.CellAt(0, 0).TerrainId);
-		Assert.IsFalse(cropped.Cells.Any(cell => cell.TerrainId == 9));
+		Assert.AreEqual(1, cropped.RoomAt(0, 0).TerrainId);
+		Assert.IsFalse(cropped.Rooms.Any(room => room.TerrainId == 9));
 	}
 
 	[TestMethod]
@@ -54,9 +54,9 @@ public class PlannerMapTests
 		map.FillTerrain(new(0, 0), 5);
 		map.PaintRectangle(new(0, 0), new(2, 0), PlannerLayer.Tags, 44);
 
-		Assert.IsTrue(map.Cells.Where(cell => cell.X < 2).All(cell => cell.TerrainId == 5));
-		Assert.IsTrue(map.CellAt(0, 0).TagIds.Contains(44));
-		Assert.IsTrue(map.CellAt(2, 0).TagIds.Contains(44));
+		Assert.IsTrue(map.Rooms.Where(room => room.X < 2).All(room => room.TerrainId == 5));
+		Assert.IsTrue(map.RoomAt(0, 0).TagIds.Contains(44));
+		Assert.IsTrue(map.RoomAt(2, 0).TagIds.Contains(44));
 	}
 
 	[TestMethod]
@@ -68,9 +68,9 @@ public class PlannerMapTests
 		history.Record(map.PaintTag([new(0, 0)], 6, true));
 
 		Assert.IsTrue(history.Undo(map));
-		Assert.IsFalse(map.CellAt(0, 0).TagIds.Contains(6));
+		Assert.IsFalse(map.RoomAt(0, 0).TagIds.Contains(6));
 		Assert.IsTrue(history.Redo(map));
-		Assert.IsTrue(map.CellAt(0, 0).TagIds.Contains(6));
+		Assert.IsTrue(map.RoomAt(0, 0).TagIds.Contains(6));
 	}
 
 	[TestMethod]
@@ -83,7 +83,7 @@ public class PlannerMapTests
 		history.Record(MapChangeSet.Merge([first, second]));
 
 		Assert.IsTrue(history.Undo(map));
-		Assert.IsTrue(map.Cells.All(cell => cell.TerrainId == 0));
+		Assert.IsTrue(map.Rooms.All(room => room.TerrainId == 0));
 		Assert.IsFalse(history.CanUndo);
 	}
 
@@ -101,9 +101,9 @@ public class PlannerMapTests
 		var project = map.ToProject("West March", "revision", tags, new Dictionary<long, string> { [7] = "#336699" });
 		var restored = PlannerMap.FromProject(project);
 
-		Assert.AreEqual(5, restored.CellAt(0, 0).TerrainId);
-		Assert.IsTrue(restored.CellAt(0, 0).TagIds.Contains(7));
+		Assert.AreEqual(5, restored.RoomAt(0, 0).TerrainId);
+		Assert.IsTrue(restored.RoomAt(0, 0).TagIds.Contains(7));
 		Assert.AreEqual("#336699", project.TagColours[7]);
-		Assert.AreEqual("forest", project.Cells[0].Tags[0].Name);
+		Assert.AreEqual("forest", project.Rooms[0].Tags[0].Name);
 	}
 }

@@ -270,7 +270,7 @@ public class RemainsReferenceCompatibilityTests
 		var effect = (ResurrectionEffect)RuntimeHelpers.GetUninitializedObject(typeof(ResurrectionEffect));
 		Assert.IsNull(effect.GetOrApplyEffect(f.Owner.Object, f.Parent.Object, default, default, Mock.Of<IMagicSpellEffectParent>(), Array.Empty<SpellAdditionalParameter>()));
 		f.Parent.Verify(x => x.Delete(), Times.Never);
-		f.Owner.Verify(x => x.Resurrect(It.IsAny<MudSharp.Construction.ICell>()), Times.Never);
+		f.Owner.Verify(x => x.Resurrect(It.IsAny<MudSharp.Construction.IRoom>()), Times.Never);
 	}
 
 	[DataTestMethod]

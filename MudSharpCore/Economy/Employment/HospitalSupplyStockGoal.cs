@@ -173,7 +173,7 @@ internal sealed record HospitalSupplyStockDeficit(
 }
 
 internal sealed record HospitalTheatreStockDeficit(
-	ICell Theatre,
+	IRoom Theatre,
 	EmploymentItemSelector? Selector,
 	TreatmentType? TreatmentType,
 	string? BloodRequirement,
@@ -401,7 +401,7 @@ internal static class HospitalSupplyStockGoalPlanner
 		}
 	}
 
-	private static IEnumerable<IGameItem> ItemsInRoom(ICell room, IEmploymentTaskContext context)
+	private static IEnumerable<IGameItem> ItemsInRoom(IRoom room, IEmploymentTaskContext context)
 	{
 		var contextItems = context.AvailableItems(room).SelectMany(DeepItemsOrSelf);
 		var physicalItems = (room.GameItems ?? []).SelectMany(DeepItemsOrSelf);
@@ -638,7 +638,7 @@ internal static class HospitalTheatreStockGoalPlanner
 		}
 	}
 
-	private static IEnumerable<(ICell Theatre, ICell Source, IGameItem Item)> SelectSupplyRoomItems(IHospital hospital,
+	private static IEnumerable<(IRoom Theatre, IRoom Source, IGameItem Item)> SelectSupplyRoomItems(IHospital hospital,
 		IEmploymentTaskContext context, IEnumerable<HospitalTheatreStockDeficit> deficits)
 	{
 		var used = new HashSet<long>();
@@ -702,7 +702,7 @@ internal static class HospitalTheatreStockGoalPlanner
 		};
 	}
 
-	private static IEnumerable<IGameItem> ItemsInRoom(ICell room, IEmploymentTaskContext context)
+	private static IEnumerable<IGameItem> ItemsInRoom(IRoom room, IEmploymentTaskContext context)
 	{
 		var contextItems = context.AvailableItems(room).SelectMany(DeepItemsOrSelf);
 		var physicalItems = (room.GameItems ?? []).SelectMany(DeepItemsOrSelf);

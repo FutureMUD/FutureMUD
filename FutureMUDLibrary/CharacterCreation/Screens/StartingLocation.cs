@@ -12,26 +12,26 @@ namespace MudSharp.CharacterCreation.Screens
 {
     public class StartingLocation
     {
-        private ICell _location;
+        private IRoom _location;
 
         public string Name { get; set; }
         public string Blurb { get; set; }
         public IFutureProg FutureProg => Role.AvailabilityProg;
-        public ICell Location
+        public IRoom Location
         {
             get => _location; set
             {
-                _location?.CellProposedForDeletion -= LocationCellProposedForDeletion;
+                _location?.RoomProposedForDeletion -= LocationRoomProposedForDeletion;
                 _location = value;
                 if (_location is not null)
                 {
-                    _location.CellProposedForDeletion -= LocationCellProposedForDeletion;
-                    _location.CellProposedForDeletion += LocationCellProposedForDeletion;
+                    _location.RoomProposedForDeletion -= LocationRoomProposedForDeletion;
+                    _location.RoomProposedForDeletion += LocationRoomProposedForDeletion;
                 }
             }
         }
 
-        private void LocationCellProposedForDeletion(ICell cell, Framework.ProposalRejectionResponse response)
+        private void LocationRoomProposedForDeletion(IRoom room, Framework.ProposalRejectionResponse response)
         {
             response.RejectWithReason($"That room is the starting location for role #{Role.Id:N0} ({Role.Name.ColourName()})");
         }

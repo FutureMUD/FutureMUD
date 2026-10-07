@@ -85,8 +85,8 @@ public sealed record ArtilleryFiringSolution(
 	double Distance,
 	double Elevation,
 	double Traverse,
-	IReadOnlyList<long> CellPath,
-	long? RouteCellPositionId = null,
+	IReadOnlyList<long> RoomPath,
+	long? RouteRoomPositionId = null,
 	TimeSpan? Fuse = null);
 
 public interface IArtilleryPiece : IRangedWeaponPlatform

@@ -250,7 +250,7 @@ public class PlanetFromMoon : PerceivedItem, ICelestialObject
                 continue;
             }
 
-            if (ch.Location.OutdoorsType(ch).In(CellOutdoorsType.Outdoors))
+            if (ch.Location.OutdoorsType(ch).In(RoomOutdoorsType.Outdoors))
             {
                 ch.OutputHandler.Send(echo);
                 continue;

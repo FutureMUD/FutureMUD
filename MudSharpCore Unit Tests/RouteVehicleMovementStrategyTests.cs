@@ -99,7 +99,7 @@ public class RouteVehicleMovementStrategyTests
 		terrain.SetupGet(x => x.StaminaCost).Returns(1.0);
 		terrain.SetupGet(x => x.CanHaveTracks).Returns(false);
 		var perceivables = new List<IPerceivable>();
-		var cell = CreateRouteCell(91L, 1_000.0, perceivables, terrain.Object);
+		var room = CreateRouteRoom(91L, 1_000.0, perceivables, terrain.Object);
 
 		var exteriorComponentPrototype = CreateVehicleExteriorComponentProto(gameworld.Object);
 		var coordinateObserver = new Mock<IGameItemComponent>();
@@ -116,7 +116,7 @@ public class RouteVehicleMovementStrategyTests
 		itemPrototype.SetupGet(x => x.Morphs).Returns(false);
 		itemPrototype.SetupGet(x => x.Keywords).Returns(["occupied", "wagon", "exterior"]);
 		var exterior = new GameItem(itemPrototype.Object);
-		exterior.MoveTo(cell.Object, RoomLayer.GroundLevel);
+		exterior.MoveTo(room.Object, RoomLayer.GroundLevel);
 		perceivables.Add(exterior);
 
 		var driverPosition = 0.0;
@@ -125,11 +125,11 @@ public class RouteVehicleMovementStrategyTests
 		driver.SetupGet(x => x.Id).Returns(902L);
 		driver.SetupGet(x => x.Name).Returns("wagon driver");
 		driver.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
-		driver.SetupGet(x => x.Location).Returns(cell.Object);
+		driver.SetupGet(x => x.Location).Returns(room.Object);
 		driver.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
 		driver.SetupGet(x => x.RoutePositionMetres).Returns(() => driverPosition);
 		driver.SetupGet(x => x.SpatialLocation)
-			.Returns(() => new SpatialLocation(cell.Object, RoomLayer.GroundLevel, driverPosition));
+			.Returns(() => new SpatialLocation(room.Object, RoomLayer.GroundLevel, driverPosition));
 		driver.Setup(x => x.SetRoutePosition(It.IsAny<double?>()))
 			.Callback((double? value) => driverPosition = value!.Value);
 		driver.SetupGet(x => x.Movement).Returns(() => driverMovement!);
@@ -148,7 +148,7 @@ public class RouteVehicleMovementStrategyTests
 		var vehiclePosition = 0.0;
 		var vehicleOccupants = new List<ICharacter> { driver.Object };
 		var forcedMoveStacks = new List<string>();
-		var vehicle = CreateVehicle(903L, gameworld.Object, cell.Object, exterior, vehiclePrototype.Object,
+		var vehicle = CreateVehicle(903L, gameworld.Object, room.Object, exterior, vehiclePrototype.Object,
 			() => vehiclePosition, _ => { }, driver.Object);
 		vehicle.SetupGet(x => x.Occupants).Returns(vehicleOccupants);
 		vehicles.Setup(x => x.Get(903L)).Returns(vehicle.Object);
@@ -236,28 +236,28 @@ public class RouteVehicleMovementStrategyTests
 		terrain.SetupGet(x => x.StaminaCost).Returns(1.0);
 		terrain.SetupGet(x => x.CanHaveTracks).Returns(false);
 		var perceivables = new List<IPerceivable>();
-		var cell = CreateRouteCell(92L, 1_000.0, perceivables, terrain.Object);
+		var room = CreateRouteRoom(92L, 1_000.0, perceivables, terrain.Object);
 
 		var exteriorPrototype = CreateVehicleExteriorComponentProto(gameworld.Object);
-		var rootExterior = CreateRouteGameItem(gameworld.Object, cell.Object, 921L,
+		var rootExterior = CreateRouteGameItem(gameworld.Object, room.Object, 921L,
 			"lead wagon exterior", [exteriorPrototype]);
-		var trailerExterior = CreateRouteGameItem(gameworld.Object, cell.Object, 922L,
+		var trailerExterior = CreateRouteGameItem(gameworld.Object, room.Object, 922L,
 			"trailing wagon exterior", [exteriorPrototype]);
 		var harnessComponent = new Mock<IHitchGear>();
 		var harnessPrototype = CreateComponentPrototype(harnessComponent.Object);
-		var harness = CreateRouteGameItem(gameworld.Object, cell.Object, 923L,
+		var harness = CreateRouteGameItem(gameworld.Object, room.Object, 923L,
 			"physical horse harness", [harnessPrototype.Object]);
 		var towbarComponent = new Mock<IHitchGear>();
 		var towbarPrototype = CreateComponentPrototype(towbarComponent.Object);
-		var towbar = CreateRouteGameItem(gameworld.Object, cell.Object, 924L,
+		var towbar = CreateRouteGameItem(gameworld.Object, room.Object, 924L,
 			"physical wagon towbar", [towbarPrototype.Object]);
 		perceivables.AddRange([rootExterior, trailerExterior, harness, towbar]);
 
 		var pullerPosition = 0.0;
-		var puller = CreatePuller(925L, cell.Object, gameworld.Object, () => pullerPosition,
+		var puller = CreatePuller(925L, room.Object, gameworld.Object, () => pullerPosition,
 			value => pullerPosition = value, new Queue<bool>(Enumerable.Repeat(true, 20)));
 		var driverPosition = 0.0;
-		var driver = CreatePuller(926L, cell.Object, gameworld.Object, () => driverPosition,
+		var driver = CreatePuller(926L, room.Object, gameworld.Object, () => driverPosition,
 			value => driverPosition = value, new Queue<bool>(Enumerable.Repeat(true, 20)));
 		perceivables.Add(puller.Object);
 		perceivables.Add(driver.Object);
@@ -268,9 +268,9 @@ public class RouteVehicleMovementStrategyTests
 		vehiclePrototype.SetupGet(x => x.MovementProfiles).Returns([profile.Object]);
 		var rootPosition = 0.0;
 		var trailerPosition = 0.0;
-		var root = CreateVehicle(927L, gameworld.Object, cell.Object, rootExterior,
+		var root = CreateVehicle(927L, gameworld.Object, room.Object, rootExterior,
 			vehiclePrototype.Object, () => rootPosition, _ => { }, driver.Object);
-		var trailer = CreateVehicle(928L, gameworld.Object, cell.Object, trailerExterior,
+		var trailer = CreateVehicle(928L, gameworld.Object, room.Object, trailerExterior,
 			vehiclePrototype.Object, () => trailerPosition, _ => { }, null!);
 		var rootOccupants = new List<ICharacter> { driver.Object };
 		root.SetupGet(x => x.Occupants).Returns(rootOccupants);
@@ -524,7 +524,7 @@ public class RouteVehicleMovementStrategyTests
 		Assert.IsNull(track.Character);
 		Assert.IsNull(track.BodyProtoType);
 		Assert.AreEqual(0.0, track.RoutePositionMetres);
-		Assert.AreEqual(RouteCellDirection.Positive, track.RouteDirection);
+		Assert.AreEqual(RouteRoomDirection.Positive, track.RouteDirection);
 	}
 
 	[TestMethod]
@@ -536,13 +536,13 @@ public class RouteVehicleMovementStrategyTests
 		var terrain = new Mock<ITerrain>();
 		terrain.SetupGet(x => x.StaminaCost).Returns(1.0);
 		var occupants = new List<IPerceivable>();
-		var cell = CreateRouteCell(2L, 1_000.0, occupants, terrain.Object);
+		var room = CreateRouteRoom(2L, 1_000.0, occupants, terrain.Object);
 		var pullerPosition = 0.0;
 		var canPay = new Queue<bool>([true, false]);
-		var puller = CreatePuller(20L, cell.Object, gameworld.Object, () => pullerPosition,
+		var puller = CreatePuller(20L, room.Object, gameworld.Object, () => pullerPosition,
 			value => pullerPosition = value, canPay);
 		var exteriorPosition = 0.0;
-		var exterior = CreateExterior(201L, cell.Object, () => exteriorPosition,
+		var exterior = CreateExterior(201L, room.Object, () => exteriorPosition,
 			value => exteriorPosition = value);
 		occupants.Add(puller.Object);
 		occupants.Add(exterior.Object);
@@ -551,7 +551,7 @@ public class RouteVehicleMovementStrategyTests
 		prototype.SetupGet(x => x.Scale).Returns(VehicleScale.RoomScale);
 		prototype.SetupGet(x => x.MovementProfiles).Returns([profile.Object]);
 		var vehiclePosition = 0.0;
-		var vehicle = CreateVehicle(2L, gameworld.Object, cell.Object, exterior.Object, prototype.Object,
+		var vehicle = CreateVehicle(2L, gameworld.Object, room.Object, exterior.Object, prototype.Object,
 			() => vehiclePosition, value =>
 			{
 				vehiclePosition = value;
@@ -637,9 +637,9 @@ public class RouteVehicleMovementStrategyTests
 		harness.Puller.Verify(x => x.ExecuteMove(It.Is<IMovement>(movement =>
 			movement.Exit == harness.Exit.Object &&
 			movement.IsMovementLeader(harness.Puller.Object))), Times.Once);
-		harness.Root.Verify(x => x.BeginMoveToCell(harness.Destination.Object, RoomLayer.GroundLevel,
+		harness.Root.Verify(x => x.BeginMoveToRoom(harness.Destination.Object, RoomLayer.GroundLevel,
 			harness.Exit.Object), Times.Once);
-		harness.Trailer.Verify(x => x.BeginMoveToCell(harness.Destination.Object, RoomLayer.GroundLevel,
+		harness.Trailer.Verify(x => x.BeginMoveToRoom(harness.Destination.Object, RoomLayer.GroundLevel,
 			harness.Exit.Object), Times.Once);
 		harness.Root.Verify(x => x.MaterialiseRoutePosition(7_150.0, true), Times.Once);
 		harness.Trailer.Verify(x => x.MaterialiseRoutePosition(7_150.0, true), Times.Once);
@@ -675,15 +675,15 @@ public class RouteVehicleMovementStrategyTests
 		harness.Puller.Verify(x => x.ExecuteMove(It.IsAny<IMovement>()), Times.Never);
 			harness.Graph.Verify(x => x.CompleteVehicleTrainMove(
 			It.IsAny<VehicleHitchGraphMovePlan>(),
-			It.IsAny<ICell>(),
+			It.IsAny<IRoom>(),
 			It.IsAny<RoomLayer>(),
-			It.IsAny<ICellExit>(),
+			It.IsAny<IRoomExit>(),
 			It.IsAny<IMovement>(),
 			It.IsAny<IVehicle>()), Times.Never);
 	}
 
 	[TestMethod]
-	public void AutomaticCompiledExit_OrdinaryToOrdinary_UsesAuthoritativeCellExitCommitPath()
+	public void AutomaticCompiledExit_OrdinaryToOrdinary_UsesAuthoritativeRoomExitCommitPath()
 	{
 		var harness = CreateAutomaticExitHarness(null);
 		VehicleJourneyLegResult? completion = null;
@@ -704,9 +704,9 @@ public class RouteVehicleMovementStrategyTests
 				ReferenceEquals(request.Exit, harness.Exit.Object))), Times.Once);
 		harness.Readiness.Verify(x => x.RollTowCatastrophe(harness.MovePlan, null), Times.Once);
 		harness.Readiness.Verify(x => x.ConsumeMovementResources(harness.ResourcePlan), Times.Once);
-		harness.Root.Verify(x => x.BeginMoveToCell(harness.Destination.Object, RoomLayer.GroundLevel,
+		harness.Root.Verify(x => x.BeginMoveToRoom(harness.Destination.Object, RoomLayer.GroundLevel,
 			harness.Exit.Object), Times.Once);
-		harness.Trailer.Verify(x => x.BeginMoveToCell(harness.Destination.Object, RoomLayer.GroundLevel,
+		harness.Trailer.Verify(x => x.BeginMoveToRoom(harness.Destination.Object, RoomLayer.GroundLevel,
 			harness.Exit.Object), Times.Once);
 		harness.Graph.Verify(x => x.CompleteVehicleTrainMove(harness.MovePlan, harness.Destination.Object,
 			RoomLayer.GroundLevel, harness.Exit.Object, null, null), Times.Once);
@@ -715,7 +715,7 @@ public class RouteVehicleMovementStrategyTests
 	}
 
 	[TestMethod]
-	public void AutomaticCompiledExit_OrdinaryToRouteCell_LandsWholeTrainAtPinnedCoordinate()
+	public void AutomaticCompiledExit_OrdinaryToRouteRoom_LandsWholeTrainAtPinnedCoordinate()
 	{
 		var harness = CreateAutomaticExitHarness(7_150.0);
 
@@ -746,7 +746,7 @@ public class RouteVehicleMovementStrategyTests
 		harness.Readiness.Verify(x => x.BuildMovementReadiness(It.IsAny<VehicleMovementReadinessRequest>()), Times.Never);
 		harness.Readiness.Verify(x => x.ConsumeMovementResources(It.IsAny<VehicleResourceReadinessPlan>()), Times.Never);
 		harness.Graph.Verify(x => x.CompleteVehicleTrainMove(It.IsAny<VehicleHitchGraphMovePlan>(),
-			It.IsAny<ICell>(), It.IsAny<RoomLayer>(), It.IsAny<ICellExit>(), It.IsAny<IMovement>(),
+			It.IsAny<IRoom>(), It.IsAny<RoomLayer>(), It.IsAny<IRoomExit>(), It.IsAny<IMovement>(),
 			It.IsAny<IVehicle>()), Times.Never);
 	}
 
@@ -765,10 +765,10 @@ public class RouteVehicleMovementStrategyTests
 		Assert.IsFalse(started);
 		Assert.AreEqual(expected, reason);
 		harness.Readiness.Verify(x => x.ConsumeMovementResources(It.IsAny<VehicleResourceReadinessPlan>()), Times.Never);
-		harness.Root.Verify(x => x.BeginMoveToCell(It.IsAny<ICell>(), It.IsAny<RoomLayer>(),
-			It.IsAny<ICellExit>()), Times.Never);
-		harness.Trailer.Verify(x => x.BeginMoveToCell(It.IsAny<ICell>(), It.IsAny<RoomLayer>(),
-			It.IsAny<ICellExit>()), Times.Never);
+		harness.Root.Verify(x => x.BeginMoveToRoom(It.IsAny<IRoom>(), It.IsAny<RoomLayer>(),
+			It.IsAny<IRoomExit>()), Times.Never);
+		harness.Trailer.Verify(x => x.BeginMoveToRoom(It.IsAny<IRoom>(), It.IsAny<RoomLayer>(),
+			It.IsAny<IRoomExit>()), Times.Never);
 	}
 
 	[TestMethod]
@@ -787,12 +787,12 @@ public class RouteVehicleMovementStrategyTests
 		Assert.AreEqual(expected, reason);
 		harness.Readiness.Verify(x => x.RollTowCatastrophe(harness.MovePlan, null), Times.Once);
 		harness.Readiness.Verify(x => x.ConsumeMovementResources(It.IsAny<VehicleResourceReadinessPlan>()), Times.Never);
-		harness.Root.Verify(x => x.BeginMoveToCell(It.IsAny<ICell>(), It.IsAny<RoomLayer>(),
-			It.IsAny<ICellExit>()), Times.Never);
+		harness.Root.Verify(x => x.BeginMoveToRoom(It.IsAny<IRoom>(), It.IsAny<RoomLayer>(),
+			It.IsAny<IRoomExit>()), Times.Never);
 	}
 
 	[TestMethod]
-	public void AutomaticCellExitReadiness_WithoutDriver_UsesExitSpecificGraphValidation()
+	public void AutomaticRoomExitReadiness_WithoutDriver_UsesExitSpecificGraphValidation()
 	{
 		var harness = CreateAutomaticExitHarness(null);
 		harness.Graph.Setup(x => x.CanMoveVehicleTrain(
@@ -801,7 +801,7 @@ public class RouteVehicleMovementStrategyTests
 			harness.Exit.Object,
 			out It.Ref<VehicleHitchGraphMovePlan>.IsAny,
 			out It.Ref<string>.IsAny))
-			.Returns((IFuturemud _, IVehicle _, ICellExit _, out VehicleHitchGraphMovePlan plan,
+			.Returns((IFuturemud _, IVehicle _, IRoomExit _, out VehicleHitchGraphMovePlan plan,
 				out string reason) =>
 			{
 				plan = harness.MovePlan;
@@ -825,7 +825,7 @@ public class RouteVehicleMovementStrategyTests
 	}
 
 	[TestMethod]
-	public void AutomaticCellExitReadiness_GraphEnvironmentFailure_PreservesExactReason()
+	public void AutomaticRoomExitReadiness_GraphEnvironmentFailure_PreservesExactReason()
 	{
 		const string expected = "The trailer can only move to another surface-water location.";
 		var harness = CreateAutomaticExitHarness(null);
@@ -835,7 +835,7 @@ public class RouteVehicleMovementStrategyTests
 			harness.Exit.Object,
 			out It.Ref<VehicleHitchGraphMovePlan>.IsAny,
 			out It.Ref<string>.IsAny))
-			.Returns((IFuturemud _, IVehicle _, ICellExit _, out VehicleHitchGraphMovePlan plan,
+			.Returns((IFuturemud _, IVehicle _, IRoomExit _, out VehicleHitchGraphMovePlan plan,
 				out string reason) =>
 			{
 				plan = harness.MovePlan;
@@ -929,21 +929,21 @@ public class RouteVehicleMovementStrategyTests
 		string? catastropheReason = null)
 	{
 		var gameworld = CreateGameworld();
-		var origin = new Mock<ICell>();
+		var origin = new Mock<IRoom>();
 		origin.SetupGet(x => x.Id).Returns(70L);
-		origin.SetupGet(x => x.RouteDefinition).Returns((IRouteCellDefinition?)null);
-		Mock<ICell> destination;
+		origin.SetupGet(x => x.RouteDefinition).Returns((IRouteRoomDefinition?)null);
+		Mock<IRoom> destination;
 		if (destinationRoutePosition.HasValue)
 		{
 			var terrain = new Mock<ITerrain>();
 			terrain.SetupGet(x => x.StaminaCost).Returns(1.0);
-			destination = CreateRouteCell(71L, 10_000.0, [], terrain.Object);
+			destination = CreateRouteRoom(71L, 10_000.0, [], terrain.Object);
 		}
 		else
 		{
-			destination = new Mock<ICell>();
+			destination = new Mock<IRoom>();
 			destination.SetupGet(x => x.Id).Returns(71L);
-			destination.SetupGet(x => x.RouteDefinition).Returns((IRouteCellDefinition?)null);
+			destination.SetupGet(x => x.RouteDefinition).Returns((IRouteRoomDefinition?)null);
 		}
 
 		var exitModel = new Mock<IExit>();
@@ -956,14 +956,14 @@ public class RouteVehicleMovementStrategyTests
 			exitModel.SetupGet(x => x.Door).Returns(door.Object);
 		}
 
-		var exit = new Mock<ICellExit>();
+		var exit = new Mock<IRoomExit>();
 		exit.SetupGet(x => x.Exit).Returns(exitModel.Object);
 		exit.SetupGet(x => x.Origin).Returns(origin.Object);
 		exit.SetupGet(x => x.Destination).Returns(destination.Object);
 		exit.SetupGet(x => x.OutboundMovementSuffix).Returns("east");
 		exit.SetupGet(x => x.InboundMovementSuffix).Returns("from the west");
 		exit.Setup(x => x.MovementTransition(It.IsAny<IPerceiver>()))
-			.Returns((CellMovementTransition.GroundToGround, RoomLayer.GroundLevel));
+			.Returns((RoomMovementTransition.GroundToGround, RoomLayer.GroundLevel));
 		origin.Setup(x => x.ExitsFor(It.IsAny<IPerceiver>())).Returns([exit.Object]);
 
 		var profile = CreateRouteProfile(RouteVehiclePropulsionMode.Powered, 20.0);
@@ -1051,7 +1051,7 @@ public class RouteVehicleMovementStrategyTests
 				? new VehicleTowCatastropheResult(false, null, string.Empty, [], [])
 				: new VehicleTowCatastropheResult(true, null, catastropheReason, [], []));
 		var graph = new Mock<IVehicleHitchGraphService>();
-		var cellExitStrategy = new CellExitVehicleMovementStrategy(
+		var cellExitStrategy = new RoomExitVehicleMovementStrategy(
 			new Mock<IVehicleTowService>().Object,
 			graph.Object,
 			readiness.Object);
@@ -1088,7 +1088,7 @@ public class RouteVehicleMovementStrategyTests
 		step.SetupGet(x => x.Id).Returns(721L);
 		step.SetupGet(x => x.Leg).Returns(leg.Object);
 		step.SetupGet(x => x.Sequence).Returns(0);
-		step.SetupGet(x => x.StepType).Returns(VehicleRouteStepType.CellExit);
+		step.SetupGet(x => x.StepType).Returns(VehicleRouteStepType.RoomExit);
 		step.SetupGet(x => x.Origin).Returns(originLocation);
 		step.SetupGet(x => x.Destination).Returns(destinationLocation);
 		step.SetupGet(x => x.Exit).Returns(exit.Object);
@@ -1117,17 +1117,17 @@ public class RouteVehicleMovementStrategyTests
 		var terrain = new Mock<ITerrain>();
 		terrain.SetupGet(x => x.StaminaCost).Returns(1.0);
 		var perceivables = new List<IPerceivable>();
-		var origin = CreateRouteCell(50L, 10_000.0, perceivables, terrain.Object);
-		var destination = CreateRouteCell(51L, 10_000.0, [], terrain.Object);
+		var origin = CreateRouteRoom(50L, 10_000.0, perceivables, terrain.Object);
+		var destination = CreateRouteRoom(51L, 10_000.0, [], terrain.Object);
 		var exitModel = new Mock<IExit>();
 		exitModel.SetupGet(x => x.Id).Returns(900L);
 		exitModel.SetupGet(x => x.MaximumSizeToEnter).Returns(SizeCategory.Enormous);
-		var exit = new Mock<ICellExit>();
+		var exit = new Mock<IRoomExit>();
 		exit.SetupGet(x => x.Exit).Returns(exitModel.Object);
 		exit.SetupGet(x => x.Origin).Returns(origin.Object);
 		exit.SetupGet(x => x.Destination).Returns(destination.Object);
 		exit.Setup(x => x.MovementTransition(It.IsAny<IPerceiver>()))
-			.Returns((CellMovementTransition.GroundToGround, RoomLayer.GroundLevel));
+			.Returns((RoomMovementTransition.GroundToGround, RoomLayer.GroundLevel));
 		origin.Setup(x => x.ExitsFor(It.IsAny<IPerceiver>())).Returns([exit.Object]);
 
 		var driver = new Mock<ICharacter>();
@@ -1218,7 +1218,7 @@ public class RouteVehicleMovementStrategyTests
 				: new VehicleMovementReadinessResult(false, readinessFailure, null, null, []));
 		readiness.Setup(x => x.RollTowCatastrophe(movePlan, driver.Object))
 			.Returns(new VehicleTowCatastropheResult(false, null, string.Empty, [], []));
-		var cellExitStrategy = new CellExitVehicleMovementStrategy(
+		var cellExitStrategy = new RoomExitVehicleMovementStrategy(
 			new Mock<IVehicleTowService>().Object,
 			graph.Object,
 			readiness.Object);
@@ -1235,11 +1235,11 @@ public class RouteVehicleMovementStrategyTests
 	}
 
 	private static Mock<IVehicleRoute> CreateExitRoute(
-		ICell origin,
+		IRoom origin,
 		double originMetres,
-		ICell destination,
+		IRoom destination,
 		double destinationMetres,
-		ICellExit exit)
+		IRoomExit exit)
 	{
 		var route = new Mock<IVehicleRoute>();
 		var originStop = new Mock<IVehicleRouteStop>();
@@ -1265,7 +1265,7 @@ public class RouteVehicleMovementStrategyTests
 		step.SetupGet(x => x.Id).Returns(11L);
 		step.SetupGet(x => x.Leg).Returns(leg.Object);
 		step.SetupGet(x => x.Sequence).Returns(0);
-		step.SetupGet(x => x.StepType).Returns(VehicleRouteStepType.CellExit);
+		step.SetupGet(x => x.StepType).Returns(VehicleRouteStepType.RoomExit);
 		step.SetupGet(x => x.Origin).Returns(originLocation);
 		step.SetupGet(x => x.Destination).Returns(destinationLocation);
 		step.SetupGet(x => x.Exit).Returns(exit);
@@ -1276,7 +1276,7 @@ public class RouteVehicleMovementStrategyTests
 	}
 
 	private static Mock<IVehicleRoute> CreateLinearRoute(
-		ICell cell,
+		IRoom room,
 		params (long LegId, double Origin, double Destination)[] segments)
 	{
 		var route = new Mock<IVehicleRoute>();
@@ -1288,8 +1288,8 @@ public class RouteVehicleMovementStrategyTests
 			var destinationStop = new Mock<IVehicleRouteStop>();
 			var leg = new Mock<IVehicleRouteLeg>();
 			var step = new Mock<IVehicleRouteLinearStep>();
-			var origin = new SpatialLocation(cell, RoomLayer.GroundLevel, segment.Origin);
-			var destination = new SpatialLocation(cell, RoomLayer.GroundLevel, segment.Destination);
+			var origin = new SpatialLocation(room, RoomLayer.GroundLevel, segment.Origin);
+			var destination = new SpatialLocation(room, RoomLayer.GroundLevel, segment.Destination);
 			originStop.SetupGet(x => x.Id).Returns(segment.LegId * 10 + 1);
 			originStop.SetupGet(x => x.Route).Returns(route.Object);
 			originStop.SetupGet(x => x.Location).Returns(origin);
@@ -1308,12 +1308,12 @@ public class RouteVehicleMovementStrategyTests
 			step.SetupGet(x => x.StepType).Returns(VehicleRouteStepType.LinearRoute);
 			step.SetupGet(x => x.Origin).Returns(origin);
 			step.SetupGet(x => x.Destination).Returns(destination);
-			step.SetupGet(x => x.RouteCell).Returns(cell.RouteDefinition!);
+			step.SetupGet(x => x.RouteRoom).Returns(room.RouteDefinition!);
 			step.SetupGet(x => x.Direction).Returns(segment.Destination >= segment.Origin
-				? RouteCellDirection.Positive
-				: RouteCellDirection.Negative);
+				? RouteRoomDirection.Positive
+				: RouteRoomDirection.Negative);
 			step.SetupGet(x => x.DistanceMetres).Returns(Math.Abs(segment.Destination - segment.Origin));
-			step.SetupGet(x => x.PinnedTopologyVersion).Returns(cell.RouteDefinition!.TopologyVersion);
+			step.SetupGet(x => x.PinnedTopologyVersion).Returns(room.RouteDefinition!.TopologyVersion);
 			stops.Add(originStop.Object);
 			stops.Add(destinationStop.Object);
 			legs.Add(leg.Object);
@@ -1339,9 +1339,9 @@ public class RouteVehicleMovementStrategyTests
 		terrain.SetupGet(x => x.StaminaCost).Returns(1.0);
 		terrain.SetupGet(x => x.CanHaveTracks).Returns(trackingEnabled);
 		var occupants = new List<IPerceivable>();
-		var cell = CreateRouteCell(1L, 1_000.0, occupants, terrain.Object);
+		var room = CreateRouteRoom(1L, 1_000.0, occupants, terrain.Object);
 		var exteriorPosition = 0.0;
-		var exterior = CreateExterior(101L, cell.Object, () => exteriorPosition,
+		var exterior = CreateExterior(101L, room.Object, () => exteriorPosition,
 			value => exteriorPosition = value);
 		var events = new List<EventType>();
 		exterior.Setup(x => x.HandleEvent(It.IsAny<EventType>(), It.IsAny<object[]>()))
@@ -1358,7 +1358,7 @@ public class RouteVehicleMovementStrategyTests
 		actor.SetupGet(x => x.Name).Returns("driver");
 		actor.SetupGet(x => x.OutputHandler).Returns(new Mock<IOutputHandler>().Object);
 		var vehiclePosition = 0.0;
-		var vehicle = CreateVehicle(1L, gameworld.Object, cell.Object, exterior.Object, prototype.Object,
+		var vehicle = CreateVehicle(1L, gameworld.Object, room.Object, exterior.Object, prototype.Object,
 			() => vehiclePosition, value =>
 			{
 				vehiclePosition = value;
@@ -1466,7 +1466,7 @@ public class RouteVehicleMovementStrategyTests
 	private static Mock<IVehicle> CreateVehicle(
 		long id,
 		IFuturemud gameworld,
-		ICell cell,
+		IRoom room,
 		IGameItem exterior,
 		IVehiclePrototype prototype,
 		Func<double> position,
@@ -1478,11 +1478,11 @@ public class RouteVehicleMovementStrategyTests
 		vehicle.SetupGet(x => x.Name).Returns("route vehicle");
 		vehicle.SetupGet(x => x.Gameworld).Returns(gameworld);
 		vehicle.SetupGet(x => x.Prototype).Returns(prototype);
-		vehicle.SetupGet(x => x.Location).Returns(cell);
+		vehicle.SetupGet(x => x.Location).Returns(room);
 		vehicle.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
 		vehicle.SetupGet(x => x.RoutePositionMetres).Returns(() => position());
 		vehicle.SetupGet(x => x.SpatialLocation)
-			.Returns(() => new SpatialLocation(cell, RoomLayer.GroundLevel, position()));
+			.Returns(() => new SpatialLocation(room, RoomLayer.GroundLevel, position()));
 		vehicle.SetupGet(x => x.ExteriorItem).Returns(exterior);
 		vehicle.SetupGet(x => x.Controller).Returns(controller);
 		vehicle.SetupGet(x => x.Occupants).Returns([]);
@@ -1499,18 +1499,18 @@ public class RouteVehicleMovementStrategyTests
 
 	private static Mock<IGameItem> CreateExterior(
 		long id,
-		ICell cell,
+		IRoom room,
 		Func<double> position,
 		Action<double> setPosition)
 	{
 		var exterior = new Mock<IGameItem>();
 		exterior.SetupGet(x => x.Id).Returns(id);
 		exterior.SetupGet(x => x.Name).Returns("vehicle exterior");
-		exterior.SetupGet(x => x.Location).Returns(cell);
+		exterior.SetupGet(x => x.Location).Returns(room);
 		exterior.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
 		exterior.SetupGet(x => x.RoutePositionMetres).Returns(() => position());
 		exterior.SetupGet(x => x.SpatialLocation)
-			.Returns(() => new SpatialLocation(cell, RoomLayer.GroundLevel, position()));
+			.Returns(() => new SpatialLocation(room, RoomLayer.GroundLevel, position()));
 		exterior.Setup(x => x.SetRoutePosition(It.IsAny<double?>()))
 			.Callback((double? value) => setPosition(value!.Value));
 		return exterior;
@@ -1518,7 +1518,7 @@ public class RouteVehicleMovementStrategyTests
 
 	private static Mock<ICharacter> CreatePuller(
 		long id,
-		ICell cell,
+		IRoom room,
 		IFuturemud gameworld,
 		Func<double> position,
 		Action<double> setPosition,
@@ -1542,11 +1542,11 @@ public class RouteVehicleMovementStrategyTests
 			.Returns((ICharacter other) => ReferenceEquals(other, puller.Object));
 		puller.SetupGet(x => x.Gameworld).Returns(gameworld);
 		puller.SetupGet(x => x.Body).Returns(body.Object);
-		puller.SetupGet(x => x.Location).Returns(cell);
+		puller.SetupGet(x => x.Location).Returns(room);
 		puller.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
 		puller.SetupGet(x => x.RoutePositionMetres).Returns(() => position());
 		puller.SetupGet(x => x.SpatialLocation)
-			.Returns(() => new SpatialLocation(cell, RoomLayer.GroundLevel, position()));
+			.Returns(() => new SpatialLocation(room, RoomLayer.GroundLevel, position()));
 		puller.Setup(x => x.SetRoutePosition(It.IsAny<double?>()))
 			.Callback((double? value) => setPosition(value!.Value));
 		puller.SetupGet(x => x.OutputHandler).Returns(new Mock<IOutputHandler>().Object);
@@ -1624,7 +1624,7 @@ public class RouteVehicleMovementStrategyTests
 
 	private static GameItem CreateRouteGameItem(
 		IFuturemud gameworld,
-		ICell cell,
+		IRoom room,
 		long id,
 		string name,
 		IReadOnlyCollection<IGameItemComponentProto> components)
@@ -1640,23 +1640,23 @@ public class RouteVehicleMovementStrategyTests
 		{
 			Id = id
 		};
-		item.MoveTo(cell, RoomLayer.GroundLevel);
+		item.MoveTo(room, RoomLayer.GroundLevel);
 		return item;
 	}
 
-	private static Mock<ICell> CreateRouteCell(
+	private static Mock<IRoom> CreateRouteRoom(
 		long id,
 		double length,
 		IEnumerable<IPerceivable> perceivables,
 		ITerrain terrain)
 	{
-		var cell = new Mock<ICell>();
-		var route = new Mock<IRouteCellDefinition>();
-		cell.SetupGet(x => x.Id).Returns(id);
-		cell.SetupGet(x => x.RouteDefinition).Returns(route.Object);
-		cell.SetupGet(x => x.Perceivables).Returns(perceivables);
-		cell.Setup(x => x.Terrain(It.IsAny<IPerceiver>())).Returns(terrain);
-		route.SetupGet(x => x.Cell).Returns(cell.Object);
+		var room = new Mock<IRoom>();
+		var route = new Mock<IRouteRoomDefinition>();
+		room.SetupGet(x => x.Id).Returns(id);
+		room.SetupGet(x => x.RouteDefinition).Returns(route.Object);
+		room.SetupGet(x => x.Perceivables).Returns(perceivables);
+		room.Setup(x => x.Terrain(It.IsAny<IPerceiver>())).Returns(terrain);
+		route.SetupGet(x => x.Room).Returns(room.Object);
 		route.SetupGet(x => x.LengthMetres).Returns(length);
 		route.SetupGet(x => x.MetresPerRoomEquivalent).Returns(100.0);
 		route.SetupGet(x => x.PositiveDirectionName).Returns("townward");
@@ -1664,7 +1664,7 @@ public class RouteVehicleMovementStrategyTests
 		route.SetupGet(x => x.TopologyVersion).Returns(1L);
 		route.SetupGet(x => x.Landmarks).Returns([]);
 		route.SetupGet(x => x.ExitAnchors).Returns([]);
-		return cell;
+		return room;
 	}
 
 	private sealed class PoweredHarness(
@@ -1714,9 +1714,9 @@ public class RouteVehicleMovementStrategyTests
 		Mock<IVehicle> trailer,
 		Mock<ICharacter> driver,
 		Mock<ICharacter> puller,
-		Mock<ICell> origin,
-		Mock<ICell> destination,
-		Mock<ICellExit> exit,
+		Mock<IRoom> origin,
+		Mock<IRoom> destination,
+		Mock<IRoomExit> exit,
 		Mock<IVehicleRoute> route,
 		Mock<IVehicleOperationalReadinessService> readiness,
 		Mock<IVehicleHitchGraphService> graph,
@@ -1728,9 +1728,9 @@ public class RouteVehicleMovementStrategyTests
 		public Mock<IVehicle> Trailer { get; } = trailer;
 		public Mock<ICharacter> Driver { get; } = driver;
 		public Mock<ICharacter> Puller { get; } = puller;
-		public Mock<ICell> Origin { get; } = origin;
-		public Mock<ICell> Destination { get; } = destination;
-		public Mock<ICellExit> Exit { get; } = exit;
+		public Mock<IRoom> Origin { get; } = origin;
+		public Mock<IRoom> Destination { get; } = destination;
+		public Mock<IRoomExit> Exit { get; } = exit;
 		public Mock<IVehicleRoute> Route { get; } = route;
 		public Mock<IVehicleOperationalReadinessService> Readiness { get; } = readiness;
 		public Mock<IVehicleHitchGraphService> Graph { get; } = graph;
@@ -1742,8 +1742,8 @@ public class RouteVehicleMovementStrategyTests
 		RouteVehicleMovementStrategy strategy,
 		Mock<IVehicle> root,
 		Mock<IVehicle> trailer,
-		Mock<ICell> destination,
-		Mock<ICellExit> exit,
+		Mock<IRoom> destination,
+		Mock<IRoomExit> exit,
 		Mock<IVehicleRoute> route,
 		Mock<IVehicleRouteLeg> leg,
 		Mock<IVehicleJourney> journey,
@@ -1756,8 +1756,8 @@ public class RouteVehicleMovementStrategyTests
 		public RouteVehicleMovementStrategy Strategy { get; } = strategy;
 		public Mock<IVehicle> Root { get; } = root;
 		public Mock<IVehicle> Trailer { get; } = trailer;
-		public Mock<ICell> Destination { get; } = destination;
-		public Mock<ICellExit> Exit { get; } = exit;
+		public Mock<IRoom> Destination { get; } = destination;
+		public Mock<IRoomExit> Exit { get; } = exit;
 		public Mock<IVehicleRoute> Route { get; } = route;
 		public Mock<IVehicleRouteLeg> Leg { get; } = leg;
 		public Mock<IVehicleJourney> Journey { get; } = journey;

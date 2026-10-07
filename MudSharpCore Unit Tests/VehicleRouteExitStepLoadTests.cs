@@ -21,11 +21,11 @@ public class VehicleRouteExitStepLoadTests
 		var (gameworld, origin, _) = CreateGameworld();
 		var exitManager = Mock.Get(gameworld.Object.ExitManager);
 		var persistentExit = new Mock<IExit>();
-		var cellExit = new Mock<ICellExit>();
+		var cellExit = new Mock<IRoomExit>();
 		cellExit.SetupGet(x => x.Exit).Returns(persistentExit.Object);
 		persistentExit.SetupGet(x => x.Id).Returns(exitId);
 		persistentExit
-			.Setup(x => x.CellExitFor(origin.Object))
+			.Setup(x => x.RoomExitFor(origin.Object))
 			.Returns(cellExit.Object);
 		exitManager
 			.SetupSequence(x => x.GetExitByID(exitId))
@@ -70,28 +70,28 @@ public class VehicleRouteExitStepLoadTests
 		{
 			Id = 77L,
 			Sequence = 0,
-			StepType = (int)VehicleRouteStepType.CellExit,
-			OriginCellId = 101L,
+			StepType = (int)VehicleRouteStepType.RoomExit,
+			OriginRoomId = 101L,
 			OriginRoomLayer = (int)RoomLayer.GroundLevel,
-			DestinationCellId = 202L,
+			DestinationRoomId = 202L,
 			DestinationRoomLayer = (int)RoomLayer.GroundLevel,
 			RoomEquivalentCost = 1.0m,
 			ExitId = exitId
 		};
 	}
 
-	private static (Mock<IFuturemud> Gameworld, Mock<ICell> Origin, Mock<ICell> Destination) CreateGameworld()
+	private static (Mock<IFuturemud> Gameworld, Mock<IRoom> Origin, Mock<IRoom> Destination) CreateGameworld()
 	{
-		var origin = new Mock<ICell>();
+		var origin = new Mock<IRoom>();
 		origin.SetupGet(x => x.Id).Returns(101L);
-		var destination = new Mock<ICell>();
+		var destination = new Mock<IRoom>();
 		destination.SetupGet(x => x.Id).Returns(202L);
-		var cells = new Mock<IUneditableAll<ICell>>();
-		cells.Setup(x => x.Get(101L)).Returns(origin.Object);
-		cells.Setup(x => x.Get(202L)).Returns(destination.Object);
+		var rooms = new Mock<IUneditableAll<IRoom>>();
+		rooms.Setup(x => x.Get(101L)).Returns(origin.Object);
+		rooms.Setup(x => x.Get(202L)).Returns(destination.Object);
 		var exitManager = new Mock<IExitManager>();
 		var gameworld = new Mock<IFuturemud>();
-		gameworld.SetupGet(x => x.Cells).Returns(cells.Object);
+		gameworld.SetupGet(x => x.Rooms).Returns(rooms.Object);
 		gameworld.SetupGet(x => x.ExitManager).Returns(exitManager.Object);
 		return (gameworld, origin, destination);
 	}

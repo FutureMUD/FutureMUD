@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 
 using System.Collections;
 using System.Linq;
@@ -28,7 +28,7 @@ public class LogManagerTests
 
 		var queued = QueuedCommands(manager).Single();
 		Assert.AreEqual(10L, ReadProperty<long>(queued, "CharacterId"));
-		Assert.AreEqual(99L, ReadProperty<long>(queued, "CellId"));
+		Assert.AreEqual(99L, ReadProperty<long>(queued, "RoomId"));
 		Assert.AreEqual("look", ReadProperty<string>(queued, "Command"));
 	}
 
@@ -40,7 +40,7 @@ public class LogManagerTests
 		var account = new Mock<IAccount>();
 		account.SetupGet(x => x.Id).Returns(5);
 
-		var location = new Mock<ICell>();
+		var location = new Mock<IRoom>();
 		location.SetupGet(x => x.Id).Returns(99);
 
 		var character = new Mock<ICharacter>();

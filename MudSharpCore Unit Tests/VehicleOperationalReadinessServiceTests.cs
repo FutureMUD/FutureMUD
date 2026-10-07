@@ -158,7 +158,7 @@ public class VehicleOperationalReadinessServiceTests
 	public void TryBuildVehicleTrain_PublicMovePlan_RejectsDuplicateSourceTowPoint()
 	{
 		var graph = new VehicleHitchGraphService();
-		var location = new Mock<ICell>().Object;
+		var location = new Mock<IRoom>().Object;
 		var tractor = CreateTrainVehicle(1, "tractor", location, 10.0);
 		var trailerOne = CreateTrainVehicle(2, "first trailer", location, 20.0);
 		var trailerTwo = CreateTrainVehicle(3, "second trailer", location, 20.0);
@@ -390,17 +390,17 @@ public class VehicleOperationalReadinessServiceTests
 				"RouteCellDefaultRoomEquivalentMetres" => 100.0,
 				_ => 0.0
 			});
-		var route = new Mock<IRouteCellDefinition>();
+		var route = new Mock<IRouteRoomDefinition>();
 		route.SetupGet(x => x.LengthMetres).Returns(1_000.0);
-		var cell = new Mock<ICell>();
-		cell.SetupGet(x => x.RouteDefinition).Returns(route.Object);
+		var room = new Mock<IRoom>();
+		room.SetupGet(x => x.RouteDefinition).Returns(route.Object);
 
 		var activeMovement = new Mock<IMovement>();
 		var otherMovement = new Mock<IMovement>();
 		var actor = CreateCharacter(100L);
 		actor.Setup(x => x.SamePhysicalInstance(It.IsAny<IPerceivable>()))
 			.Returns((IPerceivable other) => ReferenceEquals(other, actor.Object));
-		actor.SetupGet(x => x.Location).Returns(cell.Object);
+		actor.SetupGet(x => x.Location).Returns(room.Object);
 		actor.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
 		actor.SetupGet(x => x.Movement).Returns(activeMovement.Object);
 		actor.SetupGet(x => x.Effects).Returns([]);
@@ -409,11 +409,11 @@ public class VehicleOperationalReadinessServiceTests
 		pullerBody.SetupGet(x => x.ExternalItems).Returns([]);
 		var puller = CreateCharacter(101L);
 		puller.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
-		puller.SetupGet(x => x.Location).Returns(cell.Object);
+		puller.SetupGet(x => x.Location).Returns(room.Object);
 		puller.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
 		puller.SetupGet(x => x.RoutePositionMetres).Returns(100.0);
 		puller.SetupGet(x => x.SpatialLocation)
-			.Returns(new SpatialLocation(cell.Object, RoomLayer.GroundLevel, 100.0));
+			.Returns(new SpatialLocation(room.Object, RoomLayer.GroundLevel, 100.0));
 		puller.SetupGet(x => x.Body).Returns(pullerBody.Object);
 		puller.SetupGet(x => x.MaximumDragWeight).Returns(6.0);
 		puller.Setup(x => x.IsTrustedAlly(actor.Object)).Returns(true);
@@ -421,22 +421,22 @@ public class VehicleOperationalReadinessServiceTests
 		secondPullerBody.SetupGet(x => x.ExternalItems).Returns([]);
 		var secondPuller = CreateCharacter(102L);
 		secondPuller.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
-		secondPuller.SetupGet(x => x.Location).Returns(cell.Object);
+		secondPuller.SetupGet(x => x.Location).Returns(room.Object);
 		secondPuller.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
 		secondPuller.SetupGet(x => x.RoutePositionMetres).Returns(100.0);
 		secondPuller.SetupGet(x => x.SpatialLocation)
-			.Returns(new SpatialLocation(cell.Object, RoomLayer.GroundLevel, 100.0));
+			.Returns(new SpatialLocation(room.Object, RoomLayer.GroundLevel, 100.0));
 		secondPuller.SetupGet(x => x.Body).Returns(secondPullerBody.Object);
 		secondPuller.SetupGet(x => x.MaximumDragWeight).Returns(6.0);
 		secondPuller.Setup(x => x.IsTrustedAlly(actor.Object)).Returns(true);
 
 		var exterior = new Mock<IGameItem>();
 		exterior.SetupGet(x => x.Id).Returns(200L);
-		exterior.SetupGet(x => x.Location).Returns(cell.Object);
+		exterior.SetupGet(x => x.Location).Returns(room.Object);
 		exterior.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
 		exterior.SetupGet(x => x.RoutePositionMetres).Returns(100.0);
 		exterior.SetupGet(x => x.SpatialLocation)
-			.Returns(new SpatialLocation(cell.Object, RoomLayer.GroundLevel, 100.0));
+			.Returns(new SpatialLocation(room.Object, RoomLayer.GroundLevel, 100.0));
 		exterior.SetupGet(x => x.Deleted).Returns(false);
 		exterior.SetupGet(x => x.Destroyed).Returns(false);
 		exterior.SetupGet(x => x.Weight).Returns(10.0);
@@ -456,7 +456,7 @@ public class VehicleOperationalReadinessServiceTests
 		vehicle.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
 		vehicle.SetupGet(x => x.Prototype).Returns(prototype.Object);
 		vehicle.SetupGet(x => x.ExteriorItem).Returns(exterior.Object);
-		vehicle.SetupGet(x => x.Location).Returns(cell.Object);
+		vehicle.SetupGet(x => x.Location).Returns(room.Object);
 		vehicle.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
 		vehicle.SetupGet(x => x.RoutePositionMetres).Returns(100.0);
 		vehicle.SetupGet(x => x.Controller).Returns(actor.Object);
@@ -564,8 +564,8 @@ public class VehicleOperationalReadinessServiceTests
 	{
 		const string expected = "The rear wagon towbar is broken.";
 		var gameworld = new Mock<IFuturemud>();
-		var origin = new Mock<ICell>();
-		var destination = new Mock<ICell>();
+		var origin = new Mock<IRoom>();
+		var destination = new Mock<IRoom>();
 		var actor = CreateCharacter(90L);
 		actor.SetupGet(x => x.Location).Returns(origin.Object);
 		actor.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
@@ -583,7 +583,7 @@ public class VehicleOperationalReadinessServiceTests
 		exterior.SetupGet(x => x.Destroyed).Returns(false);
 		var profile = CreateMovementProfile();
 		profile.SetupGet(x => x.Id).Returns(5L);
-		profile.SetupGet(x => x.MovementType).Returns(VehicleMovementProfileType.CellExit);
+		profile.SetupGet(x => x.MovementType).Returns(VehicleMovementProfileType.RoomExit);
 		var prototype = new Mock<IVehiclePrototype>();
 		prototype.SetupGet(x => x.Scale).Returns(VehicleScale.ItemScale);
 		prototype.SetupGet(x => x.OccupantSlots).Returns([]);
@@ -603,7 +603,7 @@ public class VehicleOperationalReadinessServiceTests
 			.Returns(false);
 		var exitModel = new Mock<IExit>();
 		exitModel.SetupGet(x => x.MaximumSizeToEnter).Returns(SizeCategory.Enormous);
-		var exit = new Mock<ICellExit>();
+		var exit = new Mock<IRoomExit>();
 		exit.SetupGet(x => x.Origin).Returns(origin.Object);
 		exit.SetupGet(x => x.Destination).Returns(destination.Object);
 		exit.SetupGet(x => x.Exit).Returns(exitModel.Object);
@@ -617,7 +617,7 @@ public class VehicleOperationalReadinessServiceTests
 				characters.Count() == 1 && ReferenceEquals(characters.Single(), puller.Object)),
 			out It.Ref<VehicleHitchGraphMovePlan>.IsAny,
 			out It.Ref<string>.IsAny))
-			.Returns((IFuturemud? _, IVehicle _, ICellExit _, IEnumerable<ICharacter> _,
+			.Returns((IFuturemud? _, IVehicle _, IRoomExit _, IEnumerable<ICharacter> _,
 				out VehicleHitchGraphMovePlan plan, out string reason) =>
 			{
 				plan = emptyPlan;
@@ -653,7 +653,7 @@ public class VehicleOperationalReadinessServiceTests
 			It.IsAny<IEnumerable<ICharacter>>(),
 			out It.Ref<VehicleHitchGraphMovePlan>.IsAny,
 			out It.Ref<string>.IsAny))
-			.Returns((IFuturemud? _, IVehicle _, ICellExit _, IEnumerable<ICharacter> _,
+			.Returns((IFuturemud? _, IVehicle _, IRoomExit _, IEnumerable<ICharacter> _,
 				out VehicleHitchGraphMovePlan plan, out string reason) =>
 			{
 				plan = overloadedPlan;
@@ -675,7 +675,7 @@ public class VehicleOperationalReadinessServiceTests
 		graph.Verify(x => x.CanMoveVehicleTrain(
 			It.IsAny<IFuturemud>(),
 			It.IsAny<IVehicle>(),
-			It.IsAny<ICellExit>(),
+			It.IsAny<IRoomExit>(),
 			out It.Ref<VehicleHitchGraphMovePlan>.IsAny,
 			out It.Ref<string>.IsAny), Times.Never);
 	}
@@ -715,7 +715,7 @@ public class VehicleOperationalReadinessServiceTests
 	public void RepairHitchLink_ValidTargetWithIncomingLink_Succeeds()
 	{
 		var service = new VehicleOperationalReadinessService();
-		var location = new Mock<ICell>().Object;
+		var location = new Mock<IRoom>().Object;
 		var tractor = CreateTrainVehicle(1, "tractor", location, 10.0);
 		var trailer = CreateTrainVehicle(2, "trailer", location, 20.0);
 		var sourcePoint = CreateTowPoint(31, "rear hitch", canTow: true, canBeTowed: false, maxWeight: 100.0);
@@ -820,7 +820,7 @@ public class VehicleOperationalReadinessServiceTests
 		                .Sum(x => x.Amount) ?? 0.0;
 	}
 
-	private static Mock<IVehicle> CreateTrainVehicle(long id, string name, ICell location, double weight)
+	private static Mock<IVehicle> CreateTrainVehicle(long id, string name, IRoom location, double weight)
 	{
 		var exterior = new Mock<IGameItem>();
 		exterior.SetupGet(x => x.Weight).Returns(weight);

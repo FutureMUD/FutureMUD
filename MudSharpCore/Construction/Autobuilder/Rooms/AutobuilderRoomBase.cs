@@ -30,12 +30,12 @@ public abstract class AutobuilderRoomBase : SaveableItem, IAutobuilderRoom
 
     protected abstract XElement SaveToXml();
 
-    protected void ApplyTagsToCell(ICell cell, string[] tags)
+    protected void ApplyTagsToRoom(IRoom room, string[] tags)
     {
-        ApplyTagsToCell(cell, [], tags);
+        ApplyTagsToRoom(room, [], tags);
     }
 
-    protected void ApplyTagsToCell(ICell cell, IReadOnlyCollection<ITag> frameworkTags, string[] tags)
+    protected void ApplyTagsToRoom(IRoom room, IReadOnlyCollection<ITag> frameworkTags, string[] tags)
     {
         if (!ApplyAutobuilderTagsAsFrameworkTags)
         {
@@ -46,7 +46,7 @@ public abstract class AutobuilderRoomBase : SaveableItem, IAutobuilderRoom
         {
             foreach (ITag frameworkTag in frameworkTags.DistinctBy(x => x.Id))
             {
-                cell.AddTag(frameworkTag);
+                room.AddTag(frameworkTag);
             }
 
             return;
@@ -57,7 +57,7 @@ public abstract class AutobuilderRoomBase : SaveableItem, IAutobuilderRoom
             ITag fwTag = Gameworld.Tags.FirstOrDefault(x => x.Name.EqualTo(tag));
             if (fwTag != null)
             {
-                cell.AddTag(fwTag);
+                room.AddTag(fwTag);
             }
         }
     }
@@ -72,15 +72,15 @@ public abstract class AutobuilderRoomBase : SaveableItem, IAutobuilderRoom
 
     public abstract IAutobuilderRoom Clone(string newName);
 
-    public abstract ICell CreateRoom(ICharacter builder, ITerrain specifiedTerrain, bool deferDescription,
+    public abstract IRoom CreateRoom(ICharacter builder, ITerrain specifiedTerrain, bool deferDescription,
         params string[] tags);
-    public virtual ICell CreateRoom(ICharacter builder, ITerrain specifiedTerrain, bool deferDescription,
+    public virtual IRoom CreateRoom(ICharacter builder, ITerrain specifiedTerrain, bool deferDescription,
         IReadOnlyCollection<ITag> frameworkTags, params string[] tags) =>
         CreateRoom(builder, specifiedTerrain, deferDescription, tags);
 
-    public virtual void RedescribeRoom(ICell cell, params string[] tags)
+    public virtual void RedescribeRoom(IRoom room, params string[] tags)
     {
-        ApplyTagsToCell(cell, tags);
+        ApplyTagsToRoom(room, tags);
     }
 
     protected string BuildingHelpText => $@"You can use the following options with this command:

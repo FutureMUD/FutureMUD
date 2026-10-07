@@ -44,7 +44,7 @@ public sealed record VehiclePropulsionReadinessResult(
 	string Reason,
 	IVehicle Vehicle,
 	ICharacter Actor,
-	ICellExit? Exit,
+	IRoomExit? Exit,
 	IVehiclePropulsionProfilePrototype? Profile,
 	IReadOnlyList<VehiclePropulsionContributor> Contributors,
 	IReadOnlyList<VehiclePropulsionMotorCandidate> Motors,
@@ -63,7 +63,7 @@ public sealed record VehiclePropulsionContributorResult(
 public sealed record VehiclePropulsionMovePlan(
 	IVehicle Vehicle,
 	ICharacter Actor,
-	ICellExit Exit,
+	IRoomExit Exit,
 	IVehiclePropulsionProfilePrototype Profile,
 	IReadOnlyList<VehiclePropulsionContributorResult> Contributors,
 	IReadOnlyList<VehiclePropulsionMotorCandidate> Motors,
@@ -77,7 +77,7 @@ public sealed record VehiclePropulsionMovePlan(
 public interface IVehiclePropulsionService
 {
 	VehicleEngineReadinessResult BuildEngineReadiness(IVehicle vehicle, double requiredPowerInWatts);
-	VehiclePropulsionReadinessResult BuildReadiness(IVehicle vehicle, ICharacter actor, ICellExit? exit);
+	VehiclePropulsionReadinessResult BuildReadiness(IVehicle vehicle, ICharacter actor, IRoomExit? exit);
 	bool TryCommitDeparture(VehiclePropulsionReadinessResult readiness, out VehiclePropulsionMovePlan? plan,
 		out string reason);
 	bool ValidateCommittedPlan(VehiclePropulsionMovePlan plan, out string reason);

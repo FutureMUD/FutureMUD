@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -84,7 +84,7 @@ public class LegalPatrolStrategyTests
 	{
 		var source = File.ReadAllText(GetSourcePath("MudSharpCore", "NPC", "AI", "LawyerAI.cs"));
 
-		StringAssert.Contains(source, "protected override (ICell? Target, ISpatialPath? Path) GetSpatialPath");
+		StringAssert.Contains(source, "protected override (IRoom? Target, ISpatialPath? Path) GetSpatialPath");
 		StringAssert.Contains(source, "RouteSpatialService.Instance.GetEffectiveLocation(defendant)");
 		StringAssert.Contains(source, "TryFindSpatialPath(");
 		StringAssert.Contains(source, "AffectedBy<OnTrial>(lawyering.LegalAuthority)");
@@ -137,12 +137,12 @@ public class LegalPatrolStrategyTests
 		law.SetupGet(x => x.EnforcementStrategy).Returns(EnforcementStrategy.ArrestAndDetain);
 		law.SetupGet(x => x.EnforcementPriority).Returns(10);
 
-		var cell = new Mock<MudSharp.Construction.ICell>();
+		var room = new Mock<MudSharp.Construction.IRoom>();
 		var crime = new Mock<ICrime>();
 		crime.SetupGet(x => x.IsKnownCrime).Returns(known);
 		crime.SetupGet(x => x.HasBeenFinalised).Returns(false);
 		crime.SetupGet(x => x.HasBeenEnforced).Returns(false);
-		crime.SetupGet(x => x.CrimeLocation).Returns(cell.Object);
+		crime.SetupGet(x => x.CrimeLocation).Returns(room.Object);
 		crime.SetupGet(x => x.RealTimeOfCrime).Returns(realTime);
 		crime.SetupGet(x => x.Law).Returns(law.Object);
 		return crime;

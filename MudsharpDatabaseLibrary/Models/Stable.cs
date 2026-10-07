@@ -13,7 +13,7 @@ public class Stable
 	public long Id { get; set; }
 	public string Name { get; set; }
 	public long EconomicZoneId { get; set; }
-	public long CellId { get; set; }
+	public long RoomId { get; set; }
 	public long? BankAccountId { get; set; }
 	public bool IsTrading { get; set; }
 	public decimal LodgeFee { get; set; }
@@ -25,7 +25,7 @@ public class Stable
 	public string EmployeeRecords { get; set; }
 
 	public virtual EconomicZone EconomicZone { get; set; }
-	public virtual Cell Cell { get; set; }
+	public virtual Room Room { get; set; }
 	public virtual BankAccount BankAccount { get; set; }
 	public virtual FutureProg LodgeFeeProg { get; set; }
 	public virtual FutureProg DailyFeeProg { get; set; }

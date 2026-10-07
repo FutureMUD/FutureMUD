@@ -362,7 +362,7 @@ public class NetworkSwitchGameItemComponent : PoweredMachineBaseGameItemComponen
 		return true;
 	}
 
-	public override bool HandleDieOrMorph(IGameItem newItem, ICell location)
+	public override bool HandleDieOrMorph(IGameItem newItem, IRoom location)
 	{
 		foreach (var connectedItem in _connectedItems.Select(x => x.Item2).Distinct().ToList())
 		{

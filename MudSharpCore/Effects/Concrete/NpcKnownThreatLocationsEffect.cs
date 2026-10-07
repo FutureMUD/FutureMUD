@@ -8,7 +8,7 @@ public sealed class NpcKnownThreatLocationsEffect : Effect
 {
 	private const int MaximumRememberedThreatLocations = 20;
 
-	private readonly List<(long CellId, DateTime RememberedAtUtc)> _knownThreatCellIds = new();
+	private readonly List<(long RoomId, DateTime RememberedAtUtc)> _knownThreatRoomIds = new();
 
 	public NpcKnownThreatLocationsEffect(ICharacter owner)
 		: base(owner)
@@ -20,16 +20,16 @@ public sealed class NpcKnownThreatLocationsEffect : Effect
 	{
 		XElement effect = root.Element("Effect") ??
 		                  throw new ArgumentException("Invalid NPC known-threat effect definition.");
-		foreach (XElement cell in effect.Elements("Cell"))
+		foreach (XElement room in effect.Elements("Cell"))
 		{
-			long id = long.Parse(cell.Attribute("id")?.Value ?? cell.Value);
-			DateTime remembered = DateTime.TryParse(cell.Attribute("utc")?.Value, CultureInfo.InvariantCulture,
+			long id = long.Parse(room.Attribute("id")?.Value ?? room.Value);
+			DateTime remembered = DateTime.TryParse(room.Attribute("utc")?.Value, CultureInfo.InvariantCulture,
 				DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal, out DateTime parsed)
 				? parsed
 				: RuntimeClock.UtcNow;
-			if (_knownThreatCellIds.All(x => x.CellId != id))
+			if (_knownThreatRoomIds.All(x => x.RoomId != id))
 			{
-				_knownThreatCellIds.Add((id, remembered));
+				_knownThreatRoomIds.Add((id, remembered));
 			}
 		}
 	}
@@ -58,36 +58,36 @@ public sealed class NpcKnownThreatLocationsEffect : Effect
 		return owner.CombinedEffectsOfType<NpcKnownThreatLocationsEffect>().FirstOrDefault();
 	}
 
-	public IEnumerable<ICell> KnownThreatLocations(TimeSpan memory)
+	public IEnumerable<IRoom> KnownThreatLocations(TimeSpan memory)
 	{
 		Prune(memory);
-		return _knownThreatCellIds
-		       .Select(x => Gameworld.Cells.Get(x.CellId))
+		return _knownThreatRoomIds
+		       .Select(x => Gameworld.Rooms.Get(x.RoomId))
 		       .WhereNotNull(x => x);
 	}
 
-	public bool Knows(ICell cell, TimeSpan memory)
+	public bool Knows(IRoom room, TimeSpan memory)
 	{
 		Prune(memory);
-		return _knownThreatCellIds.Any(x => x.CellId == cell.Id);
+		return _knownThreatRoomIds.Any(x => x.RoomId == room.Id);
 	}
 
-	public void Remember(ICell cell)
+	public void Remember(IRoom room)
 	{
-		_knownThreatCellIds.RemoveAll(x => x.CellId == cell.Id);
-		_knownThreatCellIds.Insert(0, (cell.Id, RuntimeClock.UtcNow));
-		if (_knownThreatCellIds.Count > MaximumRememberedThreatLocations)
+		_knownThreatRoomIds.RemoveAll(x => x.RoomId == room.Id);
+		_knownThreatRoomIds.Insert(0, (room.Id, RuntimeClock.UtcNow));
+		if (_knownThreatRoomIds.Count > MaximumRememberedThreatLocations)
 		{
-			_knownThreatCellIds.RemoveRange(MaximumRememberedThreatLocations,
-				_knownThreatCellIds.Count - MaximumRememberedThreatLocations);
+			_knownThreatRoomIds.RemoveRange(MaximumRememberedThreatLocations,
+				_knownThreatRoomIds.Count - MaximumRememberedThreatLocations);
 		}
 
 		Changed = true;
 	}
 
-	public void Forget(ICell cell)
+	public void Forget(IRoom room)
 	{
-		if (_knownThreatCellIds.RemoveAll(x => x.CellId == cell.Id) == 0)
+		if (_knownThreatRoomIds.RemoveAll(x => x.RoomId == room.Id) == 0)
 		{
 			return;
 		}
@@ -99,18 +99,18 @@ public sealed class NpcKnownThreatLocationsEffect : Effect
 	{
 		if (memory <= TimeSpan.Zero)
 		{
-			if (_knownThreatCellIds.Count == 0)
+			if (_knownThreatRoomIds.Count == 0)
 			{
 				return;
 			}
 
-			_knownThreatCellIds.Clear();
+			_knownThreatRoomIds.Clear();
 			Changed = true;
 			return;
 		}
 
 		DateTime cutoff = RuntimeClock.UtcNow.Subtract(memory);
-		int removed = _knownThreatCellIds.RemoveAll(x => x.RememberedAtUtc < cutoff);
+		int removed = _knownThreatRoomIds.RemoveAll(x => x.RememberedAtUtc < cutoff);
 		if (removed > 0)
 		{
 			Changed = true;
@@ -120,15 +120,15 @@ public sealed class NpcKnownThreatLocationsEffect : Effect
 	protected override XElement SaveDefinition()
 	{
 		return new XElement("Effect",
-			_knownThreatCellIds.Select(x =>
+			_knownThreatRoomIds.Select(x =>
 				new XElement("Cell",
-					new XAttribute("id", x.CellId),
+					new XAttribute("id", x.RoomId),
 					new XAttribute("utc", x.RememberedAtUtc.ToString("O")))));
 	}
 
 	public override string Describe(IPerceiver voyeur)
 	{
-		return $"NPC remembers threat locations in cells {_knownThreatCellIds.Select(x => x.CellId.ToString("N0", voyeur)).ListToCommaSeparatedValues()}.";
+		return $"NPC remembers threat locations in cells {_knownThreatRoomIds.Select(x => x.RoomId.ToString("N0", voyeur)).ListToCommaSeparatedValues()}.";
 	}
 
 	public override bool SavingEffect => true;

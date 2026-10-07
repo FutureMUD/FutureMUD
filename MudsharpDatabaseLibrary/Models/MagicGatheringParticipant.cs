@@ -8,6 +8,6 @@ namespace MudSharp.Models;
 public class MagicGatheringParticipant
 {
 	public Guid OperationId { get; set; }
-	public long CellId { get; set; }
+	public long RoomId { get; set; }
 	public string SourceKey { get; set; } = "";
 }

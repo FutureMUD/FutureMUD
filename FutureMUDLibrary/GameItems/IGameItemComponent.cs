@@ -58,13 +58,13 @@ namespace MudSharp.GameItems
         /// </summary>
         /// <param name="newItem">If relevant, the "corpse" of the destroyed item</param>
         /// <returns>True if the position of the new item was altered in any way</returns>
-        bool HandleDieOrMorph(IGameItem newItem, ICell location);
+        bool HandleDieOrMorph(IGameItem newItem, IRoom location);
 
 		/// <summary>
 		/// Runs destruction or morph handling with the exact source position captured before any
 		/// component callback can alter the parent's physical location.
 		/// </summary>
-		bool HandleDieOrMorph(IGameItem newItem, ICell location, SpatialLocation? capturedSource)
+		bool HandleDieOrMorph(IGameItem newItem, IRoom location, SpatialLocation? capturedSource)
 		{
 			return HandleDieOrMorph(newItem, location);
 		}

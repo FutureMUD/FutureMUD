@@ -26,7 +26,7 @@ namespace FutureMUD.GatheringNativePersistenceHarness;
 
 internal static partial class GNHProgram
 {
-	private static void RunRejuvenationVancianProbe(NativeRuntime runtime, string connectionString, Cell cell,
+	private static void RunRejuvenationVancianProbe(NativeRuntime runtime, string connectionString, Room room,
 		MagicSpell spell, HarnessClock clock, EnvironmentalMagicCoordinator coordinator)
 	{
 		var actor = runtime.Actor;
@@ -96,17 +96,17 @@ internal static partial class GNHProgram
 		var template = (RejuvenateLandEffect)spell.SpellEffects.Single();
 		Require(template.BuildingCommand(actor, new StringStack("budget 9 + spelllevel + castinglevel + casterlevel")) &&
 			template.BuildingCommand(actor, new StringStack("rate castinglevel")), "R-T12 numerical context configuration failed.");
-		var scar = cell.EnvironmentState.ScarDamage; var mana = actor.MagicResourceAmounts[runtime.Resource];
+		var scar = room.EnvironmentState.ScarDamage; var mana = actor.MagicResourceAmounts[runtime.Resource];
 		MagicModule.MagicGeneric(actor, $"{spell.School.SchoolVerb} vancian {capability.Id} cast known first \"{spell.Name}\" 1");
-		var child = cell.Effects.OfType<SpellRejuvenateLandEffect>().Single();
-		var treatment = coordinator.InspectTreatments(cell).Single(x => x.Id == child.TreatmentId);
+		var child = room.Effects.OfType<SpellRejuvenateLandEffect>().Single();
+		var treatment = coordinator.InspectTreatments(room).Single(x => x.Id == child.TreatmentId);
 		Require(treatment.InitialBudget == Math.Min(scar, 13) && treatment.Rate == 1 && actor.MagicResourceAmounts[runtime.Resource] == mana - 0.25,
 			"R-T12 direct Vancian invocation did not capture its levels/rate or paid cost exactly once.");
 		Require(store.Read(actor.Id, capability.Id).Slots.Single(x => x.Ordinal == 1).Status == VancianSlotStatus.Spent &&
 			store.Read(actor.Id, capability.Id).Slots.Single(x => x.Ordinal == 2).Status == VancianSlotStatus.Prepared, "R-T12 Vancian cost changed the wrong slots.");
 		clock.Advance(TimeSpan.FromSeconds(60)); coordinator.Pump();
-		Require(cell.EnvironmentState.ScarDamage == scar - 1, "R-T12 Vancian treatment did not advance through the real coordinator.");
-		cell.RemoveEffect(child.ParentEffect, true);
+		Require(room.EnvironmentState.ScarDamage == scar - 1, "R-T12 Vancian treatment did not advance through the real coordinator.");
+		room.RemoveEffect(child.ParentEffect, true);
 		Require(template.BuildingCommand(actor, new StringStack("budget 12")) && template.BuildingCommand(actor, new StringStack("rate 2")), "Unable to restore plain direct spell expressions.");
 		// The real learned-power route is independent of the remaining prepared slot.
 		var powerModel = new Db.MagicPower { Name = "Restore Through Power", MagicSchoolId = spell.School.Id, PowerModel = "spellbacked",
@@ -119,11 +119,11 @@ internal static partial class GNHProgram
 		actor.LearnPower(power);
 		var version = store.Read(actor.Id, capability.Id).Version; mana = actor.MagicResourceAmounts[runtime.Resource];
 		MagicModule.MagicGeneric(actor, $"{spell.School.SchoolVerb} invoke standard");
-		child = cell.Effects.OfType<SpellRejuvenateLandEffect>().Single();
+		child = room.Effects.OfType<SpellRejuvenateLandEffect>().Single();
 		Require(actor.MagicResourceAmounts[runtime.Resource] == mana - 0.25 && store.Read(actor.Id, capability.Id).Version == version &&
 			store.Read(actor.Id, capability.Id).Slots.Single(x => x.Ordinal == 2).Status == VancianSlotStatus.Prepared,
 			"R-T12 independently granted power incorrectly spent a Vancian slot or missed ordinary costs.");
-		cell.RemoveEffect(child.ParentEffect, true);
+		room.RemoveEffect(child.ParentEffect, true);
 		Console.WriteLine($"R-T12-native=passed capability:{capability.Id} direct-Vancian-slot:1-spent slot:2-prepared captured-budget:{treatment.InitialBudget} captured-rate:1 paid:0.25 independent-power-paid:0.25 independent-power-slot-debit:0");
 	}
 }

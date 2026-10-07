@@ -218,12 +218,12 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
         switch (type)
         {
             case EventType.FiveSecondTick:
-            case EventType.CharacterEnterCellFinish:
+            case EventType.CharacterEnterRoomFinish:
             case EventType.LeaveCombat:
             case EventType.CharacterStopMovementClosedDoor:
             case EventType.CommandDelayExpired:
             case EventType.MinuteTick:
-            case EventType.CharacterEnterCell:
+            case EventType.CharacterEnterRoom:
             case EventType.NPCOnGameLoadFinished:
                 ch = (ICharacter)arguments[0];
                 break;
@@ -248,17 +248,17 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
             case EventType.FiveSecondTick:
                 FiveSecondTick(ch);
                 return false;
-            case EventType.CharacterEnterCellFinish:
+            case EventType.CharacterEnterRoomFinish:
             case EventType.LeaveCombat:
                 CheckPathingEffect(ch, true);
                 return false;
             case EventType.CharacterStopMovementClosedDoor:
-                ClosedDoor((ICharacter)arguments[0], (ICellExit)arguments[2]);
+                ClosedDoor((ICharacter)arguments[0], (IRoomExit)arguments[2]);
                 return false;
             case EventType.CommandDelayExpired:
                 return HandleCommandDelayExpired((ICharacter)arguments[0], (IEnumerable<string>)arguments[1]);
-            case EventType.CharacterEnterCell:
-                CheckCloseDoor((ICharacter)arguments[0], (ICellExit)arguments[2]);
+            case EventType.CharacterEnterRoom:
+                CheckCloseDoor((ICharacter)arguments[0], (IRoomExit)arguments[2]);
                 return false;
             case EventType.MinuteTick:
                 CheckPathingEffect(ch, true);
@@ -275,11 +275,11 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
             switch (type)
             {
                 case EventType.FiveSecondTick:
-                case EventType.CharacterEnterCellFinish:
+                case EventType.CharacterEnterRoomFinish:
                 case EventType.LeaveCombat:
                 case EventType.CharacterStopMovementClosedDoor:
                 case EventType.CommandDelayExpired:
-                case EventType.CharacterEnterCell:
+                case EventType.CharacterEnterRoom:
                 case EventType.MinuteTick:
                 case EventType.NPCOnGameLoadFinished:
                     return true;
@@ -347,7 +347,7 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
 		return template.CreatePlan(ch);
 	}
 
-    protected void CheckCloseDoor(ICharacter ch, ICellExit exit)
+    protected void CheckCloseDoor(ICharacter ch, IRoomExit exit)
     {
         if (ch.State.HasFlag(CharacterState.Dead))
         {
@@ -372,7 +372,7 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
         }
     }
 
-    protected virtual bool Smash(ICharacter ch, ICellExit exit)
+    protected virtual bool Smash(ICharacter ch, IRoomExit exit)
     {
         if (ch.State.HasFlag(CharacterState.Dead))
         {
@@ -530,7 +530,7 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
             return true;
         }
 
-        ICellExit exit = focus.Exit;
+        IRoomExit exit = focus.Exit;
 
         if (exit.Origin != ch.Location)
         {
@@ -595,7 +595,7 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
         return true;
     }
 
-	protected virtual bool CanSmashDoor(ICharacter ch, ICellExit exit)
+	protected virtual bool CanSmashDoor(ICharacter ch, IRoomExit exit)
 	{
 		var door = exit.Exit.Door;
 		if (door?.IsOpen != false || !door.CanPlayersSmash ||
@@ -636,7 +636,7 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
 		         });
 	}
 
-    private DateTime NextDoorSmashAttempt(ICharacter ch, ICellExit exit)
+    private DateTime NextDoorSmashAttempt(ICharacter ch, IRoomExit exit)
     {
         var milliseconds = Math.Max(0.0M, DoorSmashDelayProg?.ExecuteDecimal(ch, exit) ?? 0.0M);
         var now = UtcNow;
@@ -644,7 +644,7 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
         return now.AddMilliseconds((double)Math.Min(milliseconds, maximumMilliseconds));
     }
 
-    protected void ClosedDoor(ICharacter ch, ICellExit exit)
+    protected void ClosedDoor(ICharacter ch, IRoomExit exit)
     {
         if (ch.State.HasFlag(CharacterState.Dead))
         {
@@ -692,7 +692,7 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
         FollowPathAction(ch, path);
     }
 
-    protected Func<ICellExit, bool> GetSuitabilityFunction(ICharacter ch, bool requireSuccess = true)
+    protected Func<IRoomExit, bool> GetSuitabilityFunction(ICharacter ch, bool requireSuccess = true)
     {
         List<IKey> keys = UseKeys
             ? ch.Body.ExternalItems.SelectNotNull(y => y.GetItemType<IKey>())
@@ -742,7 +742,7 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
         };
     }
 
-    protected virtual void OnBeginPathing(ICharacter ch, ICell target, IEnumerable<ICellExit> exits)
+    protected virtual void OnBeginPathing(ICharacter ch, IRoom target, IEnumerable<IRoomExit> exits)
     {
         // Do nothing unless overridden
     }
@@ -754,7 +754,7 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
             return false;
         }
 
-		(ICell? target, IEnumerable<ICellExit> pathEnumerables) = GetPath(ch);
+		(IRoom? target, IEnumerable<IRoomExit> pathEnumerables) = GetPath(ch);
 		var path = pathEnumerables.ToList();
 		var shouldTrySpatialPath = target?.RouteDefinition is not null || path.Count == 0;
 		if (shouldTrySpatialPath)
@@ -785,7 +785,7 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
 		return true;
     }
 
-    protected virtual FollowingPath CreatePathingEffect(ICharacter ch, IEnumerable<ICellExit> path)
+    protected virtual FollowingPath CreatePathingEffect(ICharacter ch, IEnumerable<IRoomExit> path)
     {
         return new FollowingPath(ch, path);
     }
@@ -799,12 +799,12 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
 	/// Gives route-aware AIs a typed fallback after their existing exit-only search cannot produce a path.
 	/// Ordinary paths continue through <see cref="GetPath"/> and the legacy FollowingPath queue.
 	/// </summary>
-	protected virtual (ICell? Target, ISpatialPath? Path) GetSpatialPath(ICharacter ch)
+	protected virtual (IRoom? Target, ISpatialPath? Path) GetSpatialPath(ICharacter ch)
 	{
 		return (null, null);
 	}
 
-	private (ICell? Target, ISpatialPath? Path) ResolveSpatialPath(ICharacter ch, ICell? legacyTarget)
+	private (IRoom? Target, ISpatialPath? Path) ResolveSpatialPath(ICharacter ch, IRoom? legacyTarget)
 	{
 		var specialised = GetSpatialPath(ch);
 		if (specialised.Target is not null && specialised.Path is not null)
@@ -834,9 +834,9 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
 
 	protected bool TryFindSpatialPath(
 		ICharacter ch,
-		ICell target,
+		IRoom target,
 		double maximumRoomEquivalentCost,
-		Func<ICellExit, bool> suitabilityFunction,
+		Func<IRoomExit, bool> suitabilityFunction,
 		out ISpatialPath? path)
 	{
 		path = null;
@@ -867,11 +867,11 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
 		ICharacter ch,
 		SpatialLocation destination,
 		double maximumRoomEquivalentCost,
-		Func<ICellExit, bool> suitabilityFunction,
+		Func<IRoomExit, bool> suitabilityFunction,
 		out ISpatialPath? path)
 	{
 		path = null;
-		if (ch.Location is null || destination.Cell is null ||
+		if (ch.Location is null || destination.Room is null ||
 			!double.IsFinite(maximumRoomEquivalentCost) || maximumRoomEquivalentCost <= 0.0 ||
 			!RouteSpatialService.Instance.TryValidateLocation(destination, out _))
 		{
@@ -900,8 +900,8 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
 
 	protected static bool RequiresSpatialFollowing(ISpatialPath path)
 	{
-		return path.Origin.Cell.RouteDefinition is not null ||
-		       path.Destination.Cell.RouteDefinition is not null ||
+		return path.Origin.Room.RouteDefinition is not null ||
+		       path.Destination.Room.RouteDefinition is not null ||
 		       path.Steps.Any(x => x is ILinearRoutePathStep);
 	}
 
@@ -958,7 +958,7 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
 		ch.RemoveAllEffects<FollowingPath>(Owns);
 	}
 
-    protected abstract (ICell? Target, IEnumerable<ICellExit>) GetPath(ICharacter ch);
+    protected abstract (IRoom? Target, IEnumerable<IRoomExit>) GetPath(ICharacter ch);
 
     protected virtual bool WouldMove(ICharacter ch)
     {

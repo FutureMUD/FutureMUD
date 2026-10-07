@@ -71,20 +71,20 @@ public sealed class VehicleRoute : EditableItem, IVehicleRoute
 				.SelectMany(x => x.Steps)
 				.ToList();
 			if (!steps.All(StepTopologyIsCurrent) ||
-			    _topologyPins.Any(x => x.RouteCell.RouteDefinition?.TopologyVersion != x.TopologyVersion))
+			    _topologyPins.Any(x => x.RouteRoom.RouteDefinition?.TopologyVersion != x.TopologyVersion))
 			{
 				return false;
 			}
 
-			var referencedRouteCells = _stops
-				.Select(x => x.Location.Cell)
-				.Concat(steps.SelectMany(x => new[] { x.Origin.Cell, x.Destination.Cell }))
+			var referencedRouteRooms = _stops
+				.Select(x => x.Location.Room)
+				.Concat(steps.SelectMany(x => new[] { x.Origin.Room, x.Destination.Room }))
 				.Where(x => x.RouteDefinition is not null)
 				.Distinct()
 				.ToList();
-			return referencedRouteCells.All(cell => _topologyPins.Any(pin =>
-				pin.RouteCell == cell && pin.TopologyVersion == cell.RouteDefinition!.TopologyVersion)) &&
-			       _topologyPins.All(pin => referencedRouteCells.Contains(pin.RouteCell));
+			return referencedRouteRooms.All(room => _topologyPins.Any(pin =>
+				pin.RouteRoom == room && pin.TopologyVersion == room.RouteDefinition!.TopologyVersion)) &&
+			       _topologyPins.All(pin => referencedRouteRooms.Contains(pin.RouteRoom));
 		}
 	}
 
@@ -96,7 +96,7 @@ public sealed class VehicleRoute : EditableItem, IVehicleRoute
 
 	private static bool EndpointTopologyIsCurrent(SpatialLocation location, long? pinnedVersion)
 	{
-		var definition = location.Cell.RouteDefinition;
+		var definition = location.Room.RouteDefinition;
 		return definition is null
 			? location.RoutePositionMetres is null && pinnedVersion is null
 			: location.RoutePositionMetres.HasValue && pinnedVersion == definition.TopologyVersion;
@@ -128,10 +128,10 @@ public sealed class VehicleRoute : EditableItem, IVehicleRoute
 			.ThenBy(x => x.Id)
 			.Select(x => new VehicleRouteLeg(this, x, stops, Gameworld)));
 		_topologyPins.AddRange(dbitem.TopologyPins
-			.OrderBy(x => x.RouteCellId)
-			.Select(x => (Cell: Gameworld.Cells.Get(x.RouteCellId), x.TopologyVersion))
-			.Where(x => x.Cell is not null)
-			.Select(x => new VehicleRouteTopologyPin(x.Cell!, x.TopologyVersion)));
+			.OrderBy(x => x.RouteRoomId)
+			.Select(x => (Room: Gameworld.Rooms.Get(x.RouteRoomId), x.TopologyVersion))
+			.Where(x => x.Room is not null)
+			.Select(x => new VehicleRouteTopologyPin(x.Room!, x.TopologyVersion)));
 	}
 
 	private void ReloadChildren()
@@ -228,15 +228,15 @@ public sealed class VehicleRoute : EditableItem, IVehicleRoute
 			var dbstep = new DB.VehicleRouteStep
 			{
 				Sequence = sequence,
-				OriginCellId = step.Origin.Cell.Id,
+				OriginRoomId = step.Origin.Room.Id,
 				OriginRoomLayer = (int)step.Origin.Layer,
 				OriginRoutePositionMetres = ToDecimal(step.Origin.RoutePositionMetres),
-				DestinationCellId = step.Destination.Cell.Id,
+				DestinationRoomId = step.Destination.Room.Id,
 				DestinationRoomLayer = (int)step.Destination.Layer,
 				DestinationRoutePositionMetres = ToDecimal(step.Destination.RoutePositionMetres),
 				RoomEquivalentCost = (decimal)step.RoomEquivalentCost,
-				PinnedTopologyVersion = step.Origin.Cell.RouteDefinition?.TopologyVersion,
-				DestinationTopologyVersion = step.Destination.Cell.RouteDefinition?.TopologyVersion
+				PinnedTopologyVersion = step.Origin.Room.RouteDefinition?.TopologyVersion,
+				DestinationTopologyVersion = step.Destination.Room.RouteDefinition?.TopologyVersion
 			};
 			switch (step)
 			{
@@ -246,7 +246,7 @@ public sealed class VehicleRoute : EditableItem, IVehicleRoute
 					dbstep.Direction = (int)linear.Direction;
 					break;
 				case IExitTraversalPathStep exit:
-					dbstep.StepType = (int)VehicleRouteStepType.CellExit;
+					dbstep.StepType = (int)VehicleRouteStepType.RoomExit;
 					dbstep.ExitId = exit.Exit.Exit.Id;
 					break;
 				default:
@@ -278,33 +278,33 @@ public sealed class VehicleRoute : EditableItem, IVehicleRoute
 				x.VehicleRouteLeg.VehicleRouteRevision == RevisionNumber)
 			.Select(x => new
 			{
-				x.OriginCellId,
+				x.OriginRoomId,
 				OriginVersion = x.PinnedTopologyVersion,
-				x.DestinationCellId,
+				x.DestinationRoomId,
 				x.DestinationTopologyVersion
 			})
 			.AsEnumerable()
 			.SelectMany(x => new[]
 			{
-				(CellId: x.OriginCellId, Version: x.OriginVersion),
-				(CellId: x.DestinationCellId, Version: x.DestinationTopologyVersion)
+				(RoomId: x.OriginRoomId, Version: x.OriginVersion),
+				(RoomId: x.DestinationRoomId, Version: x.DestinationTopologyVersion)
 			})
 			.Where(x => x.Version.HasValue)
-			.Select(x => (x.CellId, Version: x.Version!.Value))
+			.Select(x => (x.RoomId, Version: x.Version!.Value))
 			.ToList();
 		stepPins.AddRange(context.VehicleRouteStops
 			.Where(x => x.VehicleRouteId == Id && x.VehicleRouteRevision == RevisionNumber)
-			.Select(x => x.CellId)
+			.Select(x => x.RoomId)
 			.AsEnumerable()
-			.Select(x => Gameworld.Cells.Get(x)?.RouteDefinition)
+			.Select(x => Gameworld.Rooms.Get(x)?.RouteDefinition)
 			.Where(x => x is not null)
-			.Select(x => (x!.Cell.Id, x.TopologyVersion)));
+			.Select(x => (x!.Room.Id, x.TopologyVersion)));
 		var desiredPins = stepPins
-			.GroupBy(x => x.CellId)
+			.GroupBy(x => x.RoomId)
 			.ToDictionary(x => x.Key, x => x.Max(y => y.Version));
 		foreach (var pin in oldPins)
 		{
-			if (desiredPins.Remove(pin.RouteCellId, out var version))
+			if (desiredPins.Remove(pin.RouteRoomId, out var version))
 			{
 				pin.TopologyVersion = version;
 				continue;
@@ -317,7 +317,7 @@ public sealed class VehicleRoute : EditableItem, IVehicleRoute
 		{
 			VehicleRouteId = Id,
 			VehicleRouteRevision = RevisionNumber,
-			RouteCellId = x.Key,
+			RouteRoomId = x.Key,
 			TopologyVersion = x.Value
 		}));
 	}
@@ -350,7 +350,7 @@ public sealed class VehicleRoute : EditableItem, IVehicleRoute
 
 		foreach (var stop in _stops)
 		{
-			var definition = stop.Location.Cell.RouteDefinition;
+			var definition = stop.Location.Room.RouteDefinition;
 			if (definition is null && stop.Location.RoutePositionMetres.HasValue)
 			{
 				errors.Add($"Stop {stop.Name} supplies a route coordinate in an ordinary cell.");
@@ -364,7 +364,7 @@ public sealed class VehicleRoute : EditableItem, IVehicleRoute
 
 			foreach (var binding in stop.PlatformBindings)
 			{
-				if (binding.PlatformCell is null || binding.AccessPoint is null ||
+				if (binding.PlatformRoom is null || binding.AccessPoint is null ||
 				    binding.DockingToleranceMetres < 0.0)
 				{
 					errors.Add($"Stop {stop.Name} has an invalid platform binding.");
@@ -478,7 +478,7 @@ public sealed class VehicleRoute : EditableItem, IVehicleRoute
 		{
 			return false;
 		}
-		if (location.Cell.RouteDefinition is not null && !location.RoutePositionMetres.HasValue)
+		if (location.Room.RouteDefinition is not null && !location.RoutePositionMetres.HasValue)
 		{
 			actor.OutputHandler.Send("A stop in a RouteCell must have an exact route coordinate. Supply a location or move to a valid coordinate first.");
 			return false;
@@ -492,7 +492,7 @@ public sealed class VehicleRoute : EditableItem, IVehicleRoute
 				VehicleRouteRevision = RevisionNumber,
 				Name = name.TitleCase(),
 				Sequence = _stops.Any() ? _stops.Max(x => x.Sequence) + 1 : 0,
-				CellId = location.Cell.Id,
+				RoomId = location.Room.Id,
 				RoomLayer = (int)location.Layer,
 				RoutePositionMetres = ToDecimal(location.RoutePositionMetres),
 				DwellDurationMilliseconds = 0
@@ -572,7 +572,7 @@ public sealed class VehicleRoute : EditableItem, IVehicleRoute
 		using (new FMDB())
 		{
 			var dbitem = FMDB.Context.VehicleRouteStops.Find(stop.Id)!;
-			dbitem.CellId = location.Cell.Id;
+			dbitem.RoomId = location.Room.Id;
 			dbitem.RoomLayer = (int)location.Layer;
 			dbitem.RoutePositionMetres = ToDecimal(location.RoutePositionMetres);
 			var legs = FMDB.Context.VehicleRouteLegs.Where(x => x.OriginStopId == stop.Id || x.DestinationStopId == stop.Id);
@@ -636,7 +636,7 @@ public sealed class VehicleRoute : EditableItem, IVehicleRoute
 		}
 
 		if (operation != "add" || !long.TryParse(command.PopSpeech(), out var cellId) ||
-		    Gameworld.Cells.Get(cellId) is not { } platform ||
+		    Gameworld.Rooms.Get(cellId) is not { } platform ||
 		    !long.TryParse(command.PopSpeech(), out var accessId))
 		{
 			actor.OutputHandler.Send("Use stop platform add <stop> <platform cell id> <access-point prototype id> [tolerance metres].");
@@ -682,7 +682,7 @@ public sealed class VehicleRoute : EditableItem, IVehicleRoute
 			FMDB.Context.VehicleRoutePlatformBindings.Add(new DB.VehicleRoutePlatformBinding
 			{
 				VehicleRouteStopId = stop.Id,
-				PlatformCellId = platform.Id,
+				PlatformRoomId = platform.Id,
 				VehicleAccessPointProtoId = access.Id,
 				DockingToleranceMetres = (decimal)tolerance
 			});
@@ -722,7 +722,7 @@ public sealed class VehicleRoute : EditableItem, IVehicleRoute
 	private bool TryParseLocation(ICharacter actor, StringStack command, out SpatialLocation location)
 	{
 		location = default;
-		if (!long.TryParse(command.PopSpeech(), out var cellId) || Gameworld.Cells.Get(cellId) is not { } cell)
+		if (!long.TryParse(command.PopSpeech(), out var cellId) || Gameworld.Rooms.Get(cellId) is not { } room)
 		{
 			actor.OutputHandler.Send("Specify a valid cell ID.");
 			return false;
@@ -745,7 +745,7 @@ public sealed class VehicleRoute : EditableItem, IVehicleRoute
 			{
 				layer = (RoomLayer)layerValue;
 			}
-			else if (cell.RouteDefinition is not null)
+			else if (room.RouteDefinition is not null)
 			{
 				positionText = $"{next} {command.SafeRemainingArgument}".Trim();
 			}
@@ -766,14 +766,14 @@ public sealed class VehicleRoute : EditableItem, IVehicleRoute
 		}
 
 		double? position = null;
-		if (cell.RouteDefinition is not null)
+		if (room.RouteDefinition is not null)
 		{
 			if (string.IsNullOrWhiteSpace(positionText))
 			{
 				actor.OutputHandler.Send("A stop in a RouteCell must specify its position after AT, for example at 10km.");
 				return false;
 			}
-			if (!Commands.Modules.RouteCommandUtilities.TryResolveRoutePosition(actor, cell, positionText,
+			if (!Commands.Modules.RouteCommandUtilities.TryResolveRoutePosition(actor, room, positionText,
 				    out var parsedPosition, out var error))
 			{
 				actor.OutputHandler.Send(error);
@@ -787,7 +787,7 @@ public sealed class VehicleRoute : EditableItem, IVehicleRoute
 			return false;
 		}
 
-		location = new SpatialLocation(cell, layer, position);
+		location = new SpatialLocation(room, layer, position);
 		return true;
 	}
 
@@ -828,10 +828,10 @@ public sealed class VehicleRoute : EditableItem, IVehicleRoute
 		sb.AppendLine("Stops:");
 		foreach (var (stop, position) in _stops.OrderBy(x => x.Sequence).Select((x, index) => (x, index + 1)))
 		{
-			sb.AppendLine($"\t{position.ToString("N0", actor)}. #{stop.Id.ToString("N0", actor)} {stop.Name.ColourName()} - cell #{stop.Location.Cell.Id.ToString("N0", actor)} / {stop.Location.Layer.DescribeEnum().ColourName()}{(stop.Location.RoutePositionMetres.HasValue ? $" at {stop.Location.RoutePositionMetres.Value.ToString("N2", actor).ColourValue()}m" : string.Empty)}; dwell {stop.DwellDuration.Describe(actor).ColourValue()}");
+			sb.AppendLine($"\t{position.ToString("N0", actor)}. #{stop.Id.ToString("N0", actor)} {stop.Name.ColourName()} - cell #{stop.Location.Room.Id.ToString("N0", actor)} / {stop.Location.Layer.DescribeEnum().ColourName()}{(stop.Location.RoutePositionMetres.HasValue ? $" at {stop.Location.RoutePositionMetres.Value.ToString("N2", actor).ColourValue()}m" : string.Empty)}; dwell {stop.DwellDuration.Describe(actor).ColourValue()}");
 			foreach (var binding in stop.PlatformBindings)
 			{
-				sb.AppendLine($"\t\tPlatform #{binding.Id.ToString("N0", actor)}: cell #{binding.PlatformCell.Id.ToString("N0", actor)}, {binding.AccessPoint.Name.ColourName()}, tolerance {binding.DockingToleranceMetres.ToString("N2", actor).ColourValue()}m");
+				sb.AppendLine($"\t\tPlatform #{binding.Id.ToString("N0", actor)}: cell #{binding.PlatformRoom.Id.ToString("N0", actor)}, {binding.AccessPoint.Name.ColourName()}, tolerance {binding.DockingToleranceMetres.ToString("N2", actor).ColourValue()}m");
 			}
 		}
 
@@ -871,9 +871,9 @@ public sealed class VehicleRoute : EditableItem, IVehicleRoute
 				switch (step)
 				{
 					case IVehicleRouteLinearStep linear:
-						var direction = linear.Direction == RouteCellDirection.Positive
-							? linear.RouteCell.PositiveDirectionName
-							: linear.RouteCell.NegativeDirectionName;
+						var direction = linear.Direction == RouteRoomDirection.Positive
+							? linear.RouteRoom.PositiveDirectionName
+							: linear.RouteRoom.NegativeDirectionName;
 						sb.AppendLine(
 							$"\t\t{stepNumber.ToString("N0", actor)}. LinearRouteStep #{step.Id.ToString("N0", actor)}: {DescribeSpatialLocation(actor, step.Origin)} -> {DescribeSpatialLocation(actor, step.Destination)}");
 						sb.AppendLine(
@@ -895,7 +895,7 @@ public sealed class VehicleRoute : EditableItem, IVehicleRoute
 
 		sb.AppendLine("RouteCell Topology Pins:");
 		var orderedPins = topologyPins
-			.OrderBy(x => x.RouteCell.Id)
+			.OrderBy(x => x.RouteRoom.Id)
 			.ToList();
 		if (orderedPins.Count == 0)
 		{
@@ -904,12 +904,12 @@ public sealed class VehicleRoute : EditableItem, IVehicleRoute
 
 		foreach (var pin in orderedPins)
 		{
-			var currentVersion = pin.RouteCell.RouteDefinition?.TopologyVersion;
+			var currentVersion = pin.RouteRoom.RouteDefinition?.TopologyVersion;
 			var state = currentVersion == pin.TopologyVersion
 				? "current".Colour(Telnet.Green)
 				: "stale".ColourError();
 			sb.AppendLine(
-				$"\tCell #{pin.RouteCell.Id.ToString("N0", actor)} {pin.RouteCell.Name.ColourName()}: pinned v{pin.TopologyVersion.ToString("N0", actor).ColourValue()}, current v{(currentVersion?.ToString("N0", actor) ?? "missing").ColourValue()} [{state}]");
+				$"\tCell #{pin.RouteRoom.Id.ToString("N0", actor)} {pin.RouteRoom.Name.ColourName()}: pinned v{pin.TopologyVersion.ToString("N0", actor).ColourValue()}, current v{(currentVersion?.ToString("N0", actor) ?? "missing").ColourValue()} [{state}]");
 		}
 
 		return sb.ToString();
@@ -920,7 +920,7 @@ public sealed class VehicleRoute : EditableItem, IVehicleRoute
 		var coordinate = location.RoutePositionMetres.HasValue
 			? $" at {DescribeRouteMetres(actor, location.RoutePositionMetres.Value).ColourValue()}"
 			: string.Empty;
-		return $"cell #{location.Cell.Id.ToString("N0", actor)} {location.Cell.Name.ColourName()} / {location.Layer.DescribeEnum().ColourName()}{coordinate}";
+		return $"cell #{location.Room.Id.ToString("N0", actor)} {location.Room.Name.ColourName()} / {location.Layer.DescribeEnum().ColourName()}{coordinate}";
 	}
 
 	private static string DescribeStepTopologyPins(ICharacter actor, IVehicleRouteStep step)
@@ -930,14 +930,14 @@ public sealed class VehicleRoute : EditableItem, IVehicleRoute
 
 	private static string DescribeStepTopologyPin(ICharacter actor, SpatialLocation location, long? version)
 	{
-		if (location.Cell.RouteDefinition is null)
+		if (location.Room.RouteDefinition is null)
 		{
 			return "ordinary cell";
 		}
 
 		return version.HasValue
-			? $"cell #{location.Cell.Id.ToString("N0", actor)} v{version.Value.ToString("N0", actor).ColourValue()}"
-			: $"cell #{location.Cell.Id.ToString("N0", actor)} {"un-pinned".ColourError()}";
+			? $"cell #{location.Room.Id.ToString("N0", actor)} v{version.Value.ToString("N0", actor).ColourValue()}"
+			: $"cell #{location.Room.Id.ToString("N0", actor)} {"un-pinned".ColourError()}";
 	}
 
 	private static string DescribeRouteMetres(ICharacter actor, double metres)
@@ -984,7 +984,7 @@ public sealed class VehicleRoute : EditableItem, IVehicleRoute
 					VehicleRouteRevision = newRevision,
 					Name = stop.Name,
 					Sequence = stop.Sequence,
-					CellId = stop.Location.Cell.Id,
+					RoomId = stop.Location.Room.Id,
 					RoomLayer = (int)stop.Location.Layer,
 					RoutePositionMetres = ToDecimal(stop.Location.RoutePositionMetres),
 					DwellDurationMilliseconds = (long)stop.DwellDuration.TotalMilliseconds
@@ -1001,7 +1001,7 @@ public sealed class VehicleRoute : EditableItem, IVehicleRoute
 					FMDB.Context.VehicleRoutePlatformBindings.Add(new DB.VehicleRoutePlatformBinding
 					{
 						VehicleRouteStopId = stopMap[stop.Id].Id,
-						PlatformCellId = binding.PlatformCell.Id,
+						PlatformRoomId = binding.PlatformRoom.Id,
 						VehicleAccessPointProtoId = binding.AccessPoint.Id,
 						DockingToleranceMetres = (decimal)binding.DockingToleranceMetres
 					});
@@ -1026,10 +1026,10 @@ public sealed class VehicleRoute : EditableItem, IVehicleRoute
 					{
 						Sequence = step.Sequence,
 						StepType = (int)step.StepType,
-						OriginCellId = step.Origin.Cell.Id,
+						OriginRoomId = step.Origin.Room.Id,
 						OriginRoomLayer = (int)step.Origin.Layer,
 						OriginRoutePositionMetres = ToDecimal(step.Origin.RoutePositionMetres),
-						DestinationCellId = step.Destination.Cell.Id,
+						DestinationRoomId = step.Destination.Room.Id,
 						DestinationRoomLayer = (int)step.Destination.Layer,
 						DestinationRoutePositionMetres = ToDecimal(step.Destination.RoutePositionMetres),
 						RoomEquivalentCost = (decimal)step.RoomEquivalentCost,
@@ -1056,7 +1056,7 @@ public sealed class VehicleRoute : EditableItem, IVehicleRoute
 				{
 					VehicleRouteId = Id,
 					VehicleRouteRevision = newRevision,
-					RouteCellId = pin.RouteCell.Id,
+					RouteRoomId = pin.RouteRoom.Id,
 					TopologyVersion = pin.TopologyVersion
 				});
 			}
@@ -1144,8 +1144,8 @@ public sealed class VehicleRouteStop : FrameworkItem, IVehicleRouteStop
 		Sequence = dbitem.Sequence;
 		DwellDuration = TimeSpan.FromMilliseconds(dbitem.DwellDurationMilliseconds);
 		_location = new SpatialLocation(
-			gameworld.Cells.Get(dbitem.CellId) ??
-				throw new InvalidOperationException($"Vehicle route stop #{dbitem.Id:N0} references missing cell #{dbitem.CellId:N0}."),
+			gameworld.Rooms.Get(dbitem.RoomId) ??
+				throw new InvalidOperationException($"Vehicle route stop #{dbitem.Id:N0} references missing cell #{dbitem.RoomId:N0}."),
 			(RoomLayer)dbitem.RoomLayer,
 			dbitem.RoutePositionMetres is null ? null : (double)dbitem.RoutePositionMetres.Value);
 		_platformBindings = dbitem.PlatformBindings
@@ -1169,8 +1169,8 @@ public sealed class VehicleRoutePlatformBinding : FrameworkItem, IVehicleRoutePl
 		Stop = stop;
 		_id = dbitem.Id;
 		_name = $"Platform Binding #{dbitem.Id:N0}";
-		PlatformCell = gameworld.Cells.Get(dbitem.PlatformCellId) ??
-			throw new InvalidOperationException($"Vehicle route platform binding #{dbitem.Id:N0} references missing cell #{dbitem.PlatformCellId:N0}.");
+		PlatformRoom = gameworld.Rooms.Get(dbitem.PlatformRoomId) ??
+			throw new InvalidOperationException($"Vehicle route platform binding #{dbitem.Id:N0} references missing cell #{dbitem.PlatformRoomId:N0}.");
 		AccessPoint = gameworld.VehiclePrototypes
 			.SelectMany(x => x.AccessPoints)
 			.FirstOrDefault(x => x.Id == dbitem.VehicleAccessPointProtoId) ??
@@ -1180,12 +1180,12 @@ public sealed class VehicleRoutePlatformBinding : FrameworkItem, IVehicleRoutePl
 
 	public override string FrameworkItemType => "VehicleRoutePlatformBinding";
 	public IVehicleRouteStop Stop { get; }
-	public ICell PlatformCell { get; }
+	public IRoom PlatformRoom { get; }
 	public IVehicleAccessPointPrototype AccessPoint { get; }
 	public double DockingToleranceMetres { get; }
 }
 
-public sealed record VehicleRouteTopologyPin(ICell RouteCell, long TopologyVersion) : IVehicleRouteTopologyPin;
+public sealed record VehicleRouteTopologyPin(IRoom RouteRoom, long TopologyVersion) : IVehicleRouteTopologyPin;
 
 public sealed class VehicleRouteLeg : FrameworkItem, IVehicleRouteLeg
 {
@@ -1229,12 +1229,12 @@ public abstract class VehicleRouteStep : FrameworkItem, IVehicleRouteStep
 		_name = $"Vehicle Route Step #{dbitem.Id:N0}";
 		Sequence = dbitem.Sequence;
 		StepType = (VehicleRouteStepType)dbitem.StepType;
-		Origin = new SpatialLocation(gameworld.Cells.Get(dbitem.OriginCellId) ??
-			throw new InvalidOperationException($"Vehicle route step #{dbitem.Id:N0} references missing origin cell #{dbitem.OriginCellId:N0}."),
+		Origin = new SpatialLocation(gameworld.Rooms.Get(dbitem.OriginRoomId) ??
+			throw new InvalidOperationException($"Vehicle route step #{dbitem.Id:N0} references missing origin cell #{dbitem.OriginRoomId:N0}."),
 			(RoomLayer)dbitem.OriginRoomLayer,
 			dbitem.OriginRoutePositionMetres is null ? null : (double)dbitem.OriginRoutePositionMetres.Value);
-		Destination = new SpatialLocation(gameworld.Cells.Get(dbitem.DestinationCellId) ??
-			throw new InvalidOperationException($"Vehicle route step #{dbitem.Id:N0} references missing destination cell #{dbitem.DestinationCellId:N0}."),
+		Destination = new SpatialLocation(gameworld.Rooms.Get(dbitem.DestinationRoomId) ??
+			throw new InvalidOperationException($"Vehicle route step #{dbitem.Id:N0} references missing destination cell #{dbitem.DestinationRoomId:N0}."),
 			(RoomLayer)dbitem.DestinationRoomLayer,
 			dbitem.DestinationRoutePositionMetres is null ? null : (double)dbitem.DestinationRoutePositionMetres.Value);
 		RoomEquivalentCost = (double)dbitem.RoomEquivalentCost;
@@ -1258,14 +1258,14 @@ public sealed class VehicleRouteLinearStep : VehicleRouteStep, IVehicleRouteLine
 	public VehicleRouteLinearStep(VehicleRouteLeg leg, DB.VehicleRouteStep dbitem, IFuturemud gameworld)
 		: base(leg, dbitem, gameworld)
 	{
-		RouteCell = Origin.Cell.RouteDefinition!;
-		Direction = (RouteCellDirection)dbitem.Direction!.Value;
+		RouteRoom = Origin.Room.RouteDefinition!;
+		Direction = (RouteRoomDirection)dbitem.Direction!.Value;
 		DistanceMetres = (double)dbitem.DistanceMetres!.Value;
 		PinnedTopologyVersion = OriginTopologyVersion!.Value;
 	}
 
-	public IRouteCellDefinition RouteCell { get; }
-	public RouteCellDirection Direction { get; }
+	public IRouteRoomDefinition RouteRoom { get; }
+	public RouteRoomDirection Direction { get; }
 	public double DistanceMetres { get; }
 	public long PinnedTopologyVersion { get; }
 }
@@ -1278,9 +1278,9 @@ public sealed class VehicleRouteExitStep : VehicleRouteStep, IVehicleRouteExitSt
 		Exit = LoadExit(dbitem, gameworld);
 	}
 
-	public ICellExit Exit { get; }
+	public IRoomExit Exit { get; }
 
-	private ICellExit LoadExit(DB.VehicleRouteStep dbitem, IFuturemud gameworld)
+	private IRoomExit LoadExit(DB.VehicleRouteStep dbitem, IFuturemud gameworld)
 	{
 		if (dbitem.ExitId is not { } exitId)
 		{
@@ -1294,7 +1294,7 @@ public sealed class VehicleRouteExitStep : VehicleRouteStep, IVehicleRouteExitSt
 			// Ordinary exits are loaded lazily. Vehicle routes load before the general exit cache has necessarily
 			// initialised this cell, so force topology-wide initialisation rather than using actor-filtered exits.
 			var cellExit = gameworld.ExitManager
-				.GetAllExits(Origin.Cell)
+				.GetAllExits(Origin.Room)
 				.FirstOrDefault(x => x.Exit.Id == exitId);
 			if (cellExit is not null)
 			{
@@ -1307,17 +1307,17 @@ public sealed class VehicleRouteExitStep : VehicleRouteStep, IVehicleRouteExitSt
 		if (exit is null)
 		{
 			throw new InvalidOperationException(
-				$"Vehicle route exit step #{dbitem.Id:N0} references missing exit #{exitId:N0} from origin cell #{Origin.Cell.Id:N0}.");
+				$"Vehicle route exit step #{dbitem.Id:N0} references missing exit #{exitId:N0} from origin cell #{Origin.Room.Id:N0}.");
 		}
 
-		if (exit.Cells.All(x => x.Id != Origin.Cell.Id))
+		if (exit.Rooms.All(x => x.Id != Origin.Room.Id))
 		{
 			throw new InvalidOperationException(
-				$"Vehicle route exit step #{dbitem.Id:N0} references exit #{exitId:N0}, which is not connected to origin cell #{Origin.Cell.Id:N0}.");
+				$"Vehicle route exit step #{dbitem.Id:N0} references exit #{exitId:N0}, which is not connected to origin cell #{Origin.Room.Id:N0}.");
 		}
 
-		return exit.CellExitFor(Origin.Cell) ??
+		return exit.RoomExitFor(Origin.Room) ??
 		       throw new InvalidOperationException(
-			       $"Vehicle route exit step #{dbitem.Id:N0} could not resolve exit #{exitId:N0} from origin cell #{Origin.Cell.Id:N0}.");
+			       $"Vehicle route exit step #{dbitem.Id:N0} could not resolve exit #{exitId:N0} from origin cell #{Origin.Room.Id:N0}.");
 	}
 }

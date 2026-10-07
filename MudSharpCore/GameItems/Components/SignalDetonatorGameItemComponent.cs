@@ -481,7 +481,7 @@ public class SignalDetonatorGameItemComponent : GameItemComponent, IArmableExplo
 		RefreshPowerDrawdown();
 	}
 
-	private void ParentOnLocationChanged(ILocateable locatable, ICellExit exit)
+	private void ParentOnLocationChanged(ILocateable locatable, IRoomExit exit)
 	{
 		ReconnectSource();
 	}
@@ -518,7 +518,7 @@ public class SignalDetonatorGameItemComponent : GameItemComponent, IArmableExplo
 		_signalSourceParent = null;
 	}
 
-	private void SignalSourceParentOnLocationChanged(ILocateable locatable, ICellExit exit)
+	private void SignalSourceParentOnLocationChanged(ILocateable locatable, IRoomExit exit)
 	{
 		ReconnectSource();
 	}

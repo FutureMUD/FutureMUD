@@ -20,7 +20,7 @@ namespace MudSharp.GameItems.Interfaces
         bool CanLock(ICharacter actor, IKey key);
         bool Lock(ICharacter actor, IKey key, IPerceivable containingPerceivable, IEmote playerEmote);
         bool SetLocked(bool locked, bool echo);
-        void InstallLock(ILockable lockable, IExit exit, ICell installLocation);
+        void InstallLock(ILockable lockable, IExit exit, IRoom installLocation);
         string Inspect(ICharacter actor, string description);
     }
 }

@@ -9,7 +9,7 @@ namespace MudSharp.Framework;
 /// linear route cells supply a coordinate measured from the route cell's negative endpoint.
 /// </summary>
 public readonly record struct SpatialLocation(
-	ICell Cell,
+	IRoom Room,
 	RoomLayer Layer,
 	double? RoutePositionMetres = null)
 {
@@ -18,7 +18,7 @@ public readonly record struct SpatialLocation(
 	/// </summary>
 	public InRoomLocation InRoomLocation => new()
 	{
-		Location = Cell,
+		Location = Room,
 		RoomLayer = Layer
 	};
 
@@ -30,8 +30,8 @@ public readonly record struct SpatialLocation(
 	/// <summary>
 	/// Tests raw cell-and-layer membership without applying spatial proximity rules.
 	/// </summary>
-	public bool SharesCellLayerWith(SpatialLocation other)
+	public bool SharesRoomLayerWith(SpatialLocation other)
 	{
-		return ReferenceEquals(Cell, other.Cell) && Layer == other.Layer;
+		return ReferenceEquals(Room, other.Room) && Layer == other.Layer;
 	}
 }

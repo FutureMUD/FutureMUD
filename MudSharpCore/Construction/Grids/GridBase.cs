@@ -13,8 +13,8 @@ public abstract class GridBase : LateInitialisingItem, IGrid
 
 
     private readonly List<long> _locationIds = new();
-    private readonly List<ICell> _locations = new();
-    public IEnumerable<ICell> Locations => _locations;
+    private readonly List<IRoom> _locations = new();
+    public IEnumerable<IRoom> Locations => _locations;
 
     protected GridBase(Models.Grid grid, IFuturemud gameworld)
     {
@@ -28,15 +28,15 @@ public abstract class GridBase : LateInitialisingItem, IGrid
         }
     }
 
-    protected GridBase(IFuturemud gameworld, ICell initialLocation)
+    protected GridBase(IFuturemud gameworld, IRoom initialLocation)
     {
         Gameworld = gameworld;
         Gameworld.SaveManager.AddInitialisation(this);
         if (initialLocation != null)
         {
             _locations.Add(initialLocation);
-            initialLocation.CellRequestsDeletion -= Location_CellRequestsDeletion;
-            initialLocation.CellRequestsDeletion += Location_CellRequestsDeletion;
+            initialLocation.RoomRequestsDeletion -= Location_RoomRequestsDeletion;
+            initialLocation.RoomRequestsDeletion += Location_RoomRequestsDeletion;
         }
     }
 
@@ -45,45 +45,45 @@ public abstract class GridBase : LateInitialisingItem, IGrid
         Gameworld = rhs.Gameworld;
         Gameworld.SaveManager.AddInitialisation(this);
         _locations.AddRange(rhs.Locations);
-        foreach (ICell location in _locations)
+        foreach (IRoom location in _locations)
         {
-            location.CellRequestsDeletion -= Location_CellRequestsDeletion;
-            location.CellRequestsDeletion += Location_CellRequestsDeletion;
+            location.RoomRequestsDeletion -= Location_RoomRequestsDeletion;
+            location.RoomRequestsDeletion += Location_RoomRequestsDeletion;
         }
     }
 
-    public void ExtendTo(ICell cell)
+    public void ExtendTo(IRoom room)
     {
-        _locations.Add(cell);
-        cell.CellRequestsDeletion -= Location_CellRequestsDeletion;
-        cell.CellRequestsDeletion += Location_CellRequestsDeletion;
+        _locations.Add(room);
+        room.RoomRequestsDeletion -= Location_RoomRequestsDeletion;
+        room.RoomRequestsDeletion += Location_RoomRequestsDeletion;
         Changed = true;
     }
 
-    public virtual void WithdrawFrom(ICell cell)
+    public virtual void WithdrawFrom(IRoom room)
     {
-        _locations.Remove(cell);
-        cell.CellRequestsDeletion -= Location_CellRequestsDeletion;
+        _locations.Remove(room);
+        room.RoomRequestsDeletion -= Location_RoomRequestsDeletion;
         Changed = true;
     }
 
     public virtual void LoadTimeInitialise()
     {
-        _locations.AddRange(_locationIds.Select(x => Gameworld.Cells.Get(x)));
+        _locations.AddRange(_locationIds.Select(x => Gameworld.Rooms.Get(x)));
         _locationIds.Clear();
-        foreach (ICell location in _locations)
+        foreach (IRoom location in _locations)
         {
-            location.CellRequestsDeletion -= Location_CellRequestsDeletion;
-            location.CellRequestsDeletion += Location_CellRequestsDeletion;
+            location.RoomRequestsDeletion -= Location_RoomRequestsDeletion;
+            location.RoomRequestsDeletion += Location_RoomRequestsDeletion;
         }
     }
 
-    private void Location_CellRequestsDeletion(object sender, EventArgs e)
+    private void Location_RoomRequestsDeletion(object sender, EventArgs e)
     {
-        ICell cell = (ICell)sender;
-        _locations.Remove(cell);
+        IRoom room = (IRoom)sender;
+        _locations.Remove(room);
         Changed = true;
-        cell.CellRequestsDeletion -= Location_CellRequestsDeletion;
+        room.RoomRequestsDeletion -= Location_RoomRequestsDeletion;
     }
 
     public void Delete()

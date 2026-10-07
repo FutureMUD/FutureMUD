@@ -150,7 +150,7 @@ The syntax is:
 	internal static void AppendActiveJourneyStatus(StringBuilder sb, ICharacter actor, IVehicleJourney journey)
 	{
 		var platforms = journey.CurrentStop?.PlatformBindings
-			.Select(x => x.PlatformCell.HowSeen(actor))
+			.Select(x => x.PlatformRoom.HowSeen(actor))
 			.ToList() ?? [];
 		sb.AppendLine($"Journey: {journey.State.DescribeEnum().ColourName()} on {journey.Service.Name.ColourName()}");
 		sb.AppendLine($"Timetable: scheduled {journey.ScheduledDeparture.ToString().ColourValue()}, expected {journey.ExpectedDeparture.ToString().ColourValue()}, delay {journey.Delay.Describe(actor).ColourValue()}");

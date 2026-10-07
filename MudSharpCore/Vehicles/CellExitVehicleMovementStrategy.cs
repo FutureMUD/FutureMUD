@@ -6,34 +6,34 @@ using MudSharp.PerceptionEngine.Outputs;
 
 namespace MudSharp.Vehicles;
 
-public class CellExitVehicleMovementStrategy : IVehicleMovementStrategy
+public class RoomExitVehicleMovementStrategy : IVehicleMovementStrategy
 {
 	private readonly IVehicleHitchGraphService _graphService;
 	private readonly IVehicleOperationalReadinessService _readinessService;
 
-	public CellExitVehicleMovementStrategy() : this(new VehicleTowService(), new VehicleHitchGraphService())
+	public RoomExitVehicleMovementStrategy() : this(new VehicleTowService(), new VehicleHitchGraphService())
 	{
 	}
 
-	public CellExitVehicleMovementStrategy(IVehicleTowService towService) : this(towService, new VehicleHitchGraphService())
+	public RoomExitVehicleMovementStrategy(IVehicleTowService towService) : this(towService, new VehicleHitchGraphService())
 	{
 	}
 
-	public CellExitVehicleMovementStrategy(IVehicleTowService towService, IVehicleHitchGraphService graphService)
+	public RoomExitVehicleMovementStrategy(IVehicleTowService towService, IVehicleHitchGraphService graphService)
 		: this(towService, graphService, new VehicleOperationalReadinessService(graphService))
 	{
 	}
 
-	public CellExitVehicleMovementStrategy(IVehicleTowService towService, IVehicleHitchGraphService graphService,
+	public RoomExitVehicleMovementStrategy(IVehicleTowService towService, IVehicleHitchGraphService graphService,
 		IVehicleOperationalReadinessService readinessService)
 	{
 		_graphService = graphService;
 		_readinessService = readinessService;
 	}
 
-	public VehicleMovementProfileType MovementType => VehicleMovementProfileType.CellExit;
+	public VehicleMovementProfileType MovementType => VehicleMovementProfileType.RoomExit;
 
-	public bool CanMove(IVehicle vehicle, ICharacter actor, ICellExit exit, out string reason)
+	public bool CanMove(IVehicle vehicle, ICharacter actor, IRoomExit exit, out string reason)
 	{
 		if (exit is null)
 		{
@@ -53,7 +53,7 @@ public class CellExitVehicleMovementStrategy : IVehicleMovementStrategy
 		return result.CanMove;
 	}
 
-	public bool Move(IVehicle vehicle, ICharacter actor, ICellExit exit)
+	public bool Move(IVehicle vehicle, ICharacter actor, IRoomExit exit)
 	{
 		if (!TryPrepareMove(vehicle, actor, exit, true, out var towTrain, out var transition, out var readiness,
 			    out _))
@@ -75,15 +75,15 @@ public class CellExitVehicleMovementStrategy : IVehicleMovementStrategy
 		return true;
 	}
 
-	public bool TryPrepareMove(IVehicle vehicle, ICharacter actor, ICellExit exit, out IReadOnlyList<IVehicle> towTrain,
-		out (CellMovementTransition TransitionType, RoomLayer TargetLayer) transition, out string reason)
+	public bool TryPrepareMove(IVehicle vehicle, ICharacter actor, IRoomExit exit, out IReadOnlyList<IVehicle> towTrain,
+		out (RoomMovementTransition TransitionType, RoomLayer TargetLayer) transition, out string reason)
 	{
 		return TryPrepareMove(vehicle, actor, exit, true, out towTrain, out transition, out _, out reason);
 	}
 
-	public bool TryPrepareMove(IVehicle vehicle, ICharacter actor, ICellExit exit, bool rollTowCatastrophe,
+	public bool TryPrepareMove(IVehicle vehicle, ICharacter actor, IRoomExit exit, bool rollTowCatastrophe,
 		out IReadOnlyList<IVehicle> towTrain,
-		out (CellMovementTransition TransitionType, RoomLayer TargetLayer) transition,
+		out (RoomMovementTransition TransitionType, RoomLayer TargetLayer) transition,
 		out VehicleMovementReadinessResult readiness, out string reason,
 		VehiclePropulsionMovePlan committedPropulsionPlan = null,
 		IReadOnlyCollection<ICharacter> externalPullers = null,
@@ -91,7 +91,7 @@ public class CellExitVehicleMovementStrategy : IVehicleMovementStrategy
 		bool automaticOperation = false)
 	{
 		towTrain = [];
-		transition = (CellMovementTransition.NoViableTransition, RoomLayer.GroundLevel);
+		transition = (RoomMovementTransition.NoViableTransition, RoomLayer.GroundLevel);
 		readiness = new VehicleMovementReadinessResult(false, "There is no such exit.", null, null, []);
 		if (exit is null)
 		{
@@ -159,7 +159,7 @@ public class CellExitVehicleMovementStrategy : IVehicleMovementStrategy
 		return _readinessService.TryCommitPropulsion(readiness.PropulsionReadiness, out plan, out reason);
 	}
 
-	public void EchoDeparture(IVehicle vehicle, ICharacter actor, ICellExit exit, IReadOnlyList<IVehicle> towTrain)
+	public void EchoDeparture(IVehicle vehicle, ICharacter actor, IRoomExit exit, IReadOnlyList<IVehicle> towTrain)
 	{
 		var exterior = vehicle.ExteriorItem;
 		if (exterior?.OutputHandler is { } outputHandler)
@@ -178,7 +178,7 @@ public class CellExitVehicleMovementStrategy : IVehicleMovementStrategy
 		EchoHostedInteriors(vehicle, "The vehicle shudders as it begins moving.");
 	}
 
-	public void EchoArrival(IVehicle vehicle, ICharacter actor, ICellExit exit, IReadOnlyList<IVehicle> towTrain,
+	public void EchoArrival(IVehicle vehicle, ICharacter actor, IRoomExit exit, IReadOnlyList<IVehicle> towTrain,
 		RoomLayer targetLayer)
 	{
 		var exterior = vehicle.ExteriorItem;
@@ -198,17 +198,17 @@ public class CellExitVehicleMovementStrategy : IVehicleMovementStrategy
 		EchoHostedInteriors(vehicle, "The vehicle settles as it arrives at its next location.");
 	}
 
-	public void BeginMove(IVehicle vehicle, ICellExit exit, IReadOnlyList<IVehicle> towTrain,
-		(CellMovementTransition TransitionType, RoomLayer TargetLayer) transition)
+	public void BeginMove(IVehicle vehicle, IRoomExit exit, IReadOnlyList<IVehicle> towTrain,
+		(RoomMovementTransition TransitionType, RoomLayer TargetLayer) transition)
 	{
 		foreach (var linkedVehicle in towTrain.DefaultIfEmpty(vehicle))
 		{
-			linkedVehicle.BeginMoveToCell(exit.Destination, transition.TargetLayer, exit);
+			linkedVehicle.BeginMoveToRoom(exit.Destination, transition.TargetLayer, exit);
 		}
 	}
 
-	public void CompleteMove(IVehicle vehicle, ICellExit exit,
-		(CellMovementTransition TransitionType, RoomLayer TargetLayer) transition,
+	public void CompleteMove(IVehicle vehicle, IRoomExit exit,
+		(RoomMovementTransition TransitionType, RoomLayer TargetLayer) transition,
 		VehicleMovementReadinessResult readiness, IMovement movement = null)
 	{
 		if (!readiness.CanMove || readiness.MovePlan is null)
@@ -245,12 +245,12 @@ public class CellExitVehicleMovementStrategy : IVehicleMovementStrategy
 			return;
 		}
 
-		foreach (var cell in vehicle.Compartments
-			         .Select(x => x.InteriorCell)
+		foreach (var room in vehicle.Compartments
+			         .Select(x => x.InteriorRoom)
 			         .Where(x => x is not null)
 			         .Distinct())
 		{
-			cell.Handle(message);
+			room.Handle(message);
 		}
 	}
 }

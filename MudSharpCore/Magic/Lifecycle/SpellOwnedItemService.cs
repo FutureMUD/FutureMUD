@@ -98,9 +98,9 @@ public sealed class SpellOwnedItemService(IFuturemud world) : ISpellOwnedItemSer
 					throw new InvalidOperationException("An external wound retains this item; release it before removal.");
 				var container = FMDB.Context.GameItems.AsNoTracking().Where(x => x.Id == item.Id).Select(x => x.ContainerId).SingleOrDefault();
 				var bodies = FMDB.Context.BodiesGameItems.AsNoTracking().Where(x => x.GameItemId == item.Id).Select(x => x.BodyId).ToArray();
-				var cells = FMDB.Context.CellsGameItems.AsNoTracking().Where(x => x.GameItemId == item.Id).Select(x => x.CellId).ToArray();
+				var rooms = FMDB.Context.RoomsGameItems.AsNoTracking().Where(x => x.GameItemId == item.Id).Select(x => x.RoomId).ToArray();
 				if (container is { } host && item.ContainedIn?.Id != host ||
-					bodies.Any(x => item.InInventoryOf?.Id != x) || cells.Any(x => item.Location?.Id != x))
+					bodies.Any(x => item.InInventoryOf?.Id != x) || rooms.Any(x => item.Location?.Id != x))
 					throw new InvalidOperationException("Persisted custody is not loaded or differs from live custody; load the custodian and save its current state before removal.");
 				if (FMDB.Context.BodiesImplants.Any(x => x.ImplantId == item.Id) || FMDB.Context.BodiesProsthetics.Any(x => x.ProstheticId == item.Id))
 					throw new InvalidOperationException("An installed body item needs its own detachment adapter; retain this item.");

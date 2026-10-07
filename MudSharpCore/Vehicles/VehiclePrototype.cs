@@ -197,7 +197,7 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 			return false;
 		}
 
-		if (!_movementProfiles.Any(x => x.MovementType is VehicleMovementProfileType.CellExit or
+		if (!_movementProfiles.Any(x => x.MovementType is VehicleMovementProfileType.RoomExit or
 			    VehicleMovementProfileType.Route))
 		{
 			reason = "This vehicle prototype does not define a cell-exit or RouteCell movement profile.";
@@ -249,14 +249,14 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 
 			var propulsionProfiles = movementProfile.PropulsionProfiles.ToList();
 			if (movementProfile.MovementEnvironment == VehicleMovementEnvironment.SurfaceWater &&
-			    movementProfile.MovementType != VehicleMovementProfileType.CellExit)
+			    movementProfile.MovementType != VehicleMovementProfileType.RoomExit)
 			{
 				reason = $"The {movementProfile.Name} movement profile uses surface water but is not a cell-exit profile.";
 				return false;
 			}
 
 			if (propulsionProfiles.Any() &&
-			    movementProfile.MovementType != VehicleMovementProfileType.CellExit)
+			    movementProfile.MovementType != VehicleMovementProfileType.RoomExit)
 			{
 				reason = $"The {movementProfile.Name} movement profile has propulsion modes but is not a cell-exit profile.";
 				return false;
@@ -1140,16 +1140,16 @@ Use #3hitch#0/#3unhitch#0 to create or remove live tow links, #3vehicle repair#0
 		}
 	}
 
-	public static bool TryParseInteriorOutdoorsType(string text, out CellOutdoorsType outdoorsType)
+	public static bool TryParseInteriorOutdoorsType(string text, out RoomOutdoorsType outdoorsType)
 	{
 		outdoorsType = text.ToLowerInvariant() switch
 		{
-			"indoors" or "indoor" => CellOutdoorsType.Indoors,
-			"windows" or "window" or "indoorswithwindows" => CellOutdoorsType.IndoorsWithWindows,
-			"outdoors" or "outdoor" => CellOutdoorsType.Outdoors,
-			"dark" or "nolight" or "indoorsnolight" => CellOutdoorsType.IndoorsNoLight,
-			"climateexposed" or "exposed" or "indoorsclimateexposed" => CellOutdoorsType.IndoorsClimateExposed,
-			_ => (CellOutdoorsType)(-1)
+			"indoors" or "indoor" => RoomOutdoorsType.Indoors,
+			"windows" or "window" or "indoorswithwindows" => RoomOutdoorsType.IndoorsWithWindows,
+			"outdoors" or "outdoor" => RoomOutdoorsType.Outdoors,
+			"dark" or "nolight" or "indoorsnolight" => RoomOutdoorsType.IndoorsNoLight,
+			"climateexposed" or "exposed" or "indoorsclimateexposed" => RoomOutdoorsType.IndoorsClimateExposed,
+			_ => (RoomOutdoorsType)(-1)
 		};
 		return Enum.IsDefined(outdoorsType);
 	}
@@ -1397,7 +1397,7 @@ Use #3hitch#0/#3unhitch#0 to create or remove live tow links, #3vehicle repair#0
 		{
 			case "cell":
 			case "cellexit":
-				if (_movementProfiles.Any(x => x.MovementType == VehicleMovementProfileType.CellExit))
+				if (_movementProfiles.Any(x => x.MovementType == VehicleMovementProfileType.RoomExit))
 				{
 					actor.OutputHandler.Send("This vehicle prototype already has a cell-exit movement profile.");
 					return false;
@@ -1410,7 +1410,7 @@ Use #3hitch#0/#3unhitch#0 to create or remove live tow links, #3vehicle repair#0
 						VehicleProtoId = Id,
 						VehicleProtoRevision = RevisionNumber,
 						Name = "Cell Exit Movement",
-						MovementType = (int)VehicleMovementProfileType.CellExit,
+						MovementType = (int)VehicleMovementProfileType.RoomExit,
 						IsDefault = !_movementProfiles.Any(),
 						RequiredInstalledRole = string.Empty
 					};
@@ -1888,7 +1888,7 @@ Use #3hitch#0/#3unhitch#0 to create or remove live tow links, #3vehicle repair#0
 				return false;
 			}
 
-			if ((VehicleMovementProfileType)movement.MovementType != VehicleMovementProfileType.CellExit)
+			if ((VehicleMovementProfileType)movement.MovementType != VehicleMovementProfileType.RoomExit)
 			{
 				actor.OutputHandler.Send("Propulsion modes can only be added to a cell-exit movement profile.");
 				return false;
@@ -2549,7 +2549,7 @@ Use #3hitch#0/#3unhitch#0 to create or remove live tow links, #3vehicle repair#0
 			}
 
 			if (environment == VehicleMovementEnvironment.SurfaceWater &&
-			    (VehicleMovementProfileType)dbitem.MovementType != VehicleMovementProfileType.CellExit)
+			    (VehicleMovementProfileType)dbitem.MovementType != VehicleMovementProfileType.RoomExit)
 			{
 				actor.OutputHandler.Send("Only a cell-exit movement profile can use the surface-water environment.");
 				return false;
@@ -3970,7 +3970,7 @@ public class VehicleCompartmentPrototype : FrameworkItem, IVehicleCompartmentPro
 		InteriorTerrain = dbitem.InteriorTerrainId is null
 			? null
 			: gameworld.Terrains.Get(dbitem.InteriorTerrainId.Value);
-		InteriorOutdoorsType = (CellOutdoorsType)dbitem.InteriorOutdoorsType;
+		InteriorOutdoorsType = (RoomOutdoorsType)dbitem.InteriorOutdoorsType;
 	}
 
 	public override string FrameworkItemType => "VehicleCompartmentPrototype";
@@ -3978,7 +3978,7 @@ public class VehicleCompartmentPrototype : FrameworkItem, IVehicleCompartmentPro
 	public int DisplayOrder { get; }
 	public long? InteriorTerrainId { get; }
 	public ITerrain InteriorTerrain { get; }
-	public CellOutdoorsType InteriorOutdoorsType { get; }
+	public RoomOutdoorsType InteriorOutdoorsType { get; }
 }
 
 public class VehicleCompartmentLinkPrototype : FrameworkItem, IVehicleCompartmentLinkPrototype

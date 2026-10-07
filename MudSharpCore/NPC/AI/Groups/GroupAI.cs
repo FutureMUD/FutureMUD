@@ -347,9 +347,9 @@ public class GroupAI : LateInitialisingItem, IGroupAI
 
     private GroupAlertness _alertness;
 
-    public bool AvoidCell(ICell cell, GroupAlertness alertness)
+    public bool AvoidRoom(IRoom room, GroupAlertness alertness)
     {
-        return Template.AvoidCell(cell, alertness);
+        return Template.AvoidRoom(room, alertness);
     }
 
     public virtual bool ConsidersThreat(ICharacter ch, GroupAlertness alertness)

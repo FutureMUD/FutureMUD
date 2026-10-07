@@ -446,7 +446,7 @@ public class VehicleHitchGraphService : IVehicleHitchGraphService
 		return true;
 	}
 
-	public bool CanMoveVehicleTrain(IFuturemud? gameworld, IVehicle root, ICellExit exit,
+	public bool CanMoveVehicleTrain(IFuturemud? gameworld, IVehicle root, IRoomExit exit,
 		out VehicleHitchGraphMovePlan movePlan, out string reason)
 	{
 		movePlan = EmptyMovePlan(root);
@@ -486,7 +486,7 @@ public class VehicleHitchGraphService : IVehicleHitchGraphService
 		return true;
 	}
 
-	public bool CanDragVehicleTrain(IFuturemud? gameworld, IVehicle root, ICellExit exit,
+	public bool CanDragVehicleTrain(IFuturemud? gameworld, IVehicle root, IRoomExit exit,
 		IEnumerable<ICharacter> allowedPullers, out VehicleHitchGraphMovePlan movePlan, out string reason)
 	{
 		movePlan = EmptyMovePlan(root);
@@ -554,8 +554,8 @@ public class VehicleHitchGraphService : IVehicleHitchGraphService
 			 (EndpointTowPointMatches(link.Target, vehicle, towPoint))));
 	}
 
-	public void CompleteVehicleTrainMove(VehicleHitchGraphMovePlan movePlan, ICell destination, RoomLayer layer,
-		ICellExit exit, IMovement? movement = null, IVehicle? alreadyMovedVehicle = null)
+	public void CompleteVehicleTrainMove(VehicleHitchGraphMovePlan movePlan, IRoom destination, RoomLayer layer,
+		IRoomExit exit, IMovement? movement = null, IVehicle? alreadyMovedVehicle = null)
 	{
 		if (movePlan is null)
 		{
@@ -564,13 +564,13 @@ public class VehicleHitchGraphService : IVehicleHitchGraphService
 
 		foreach (var vehicle in movePlan.Vehicles.Where(x => !SameVehicle(x, alreadyMovedVehicle)))
 		{
-			vehicle.MoveToCell(destination, layer, exit, movement);
+			vehicle.MoveToRoom(destination, layer, exit, movement);
 		}
 
 		MoveHitchItems(movePlan.HitchItems, destination, layer);
 	}
 
-	private bool ValidateTrain(IVehicle root, ICellExit exit, IReadOnlyList<VehicleHitchGraphTrainMember> members,
+	private bool ValidateTrain(IVehicle root, IRoomExit exit, IReadOnlyList<VehicleHitchGraphTrainMember> members,
 		IReadOnlyList<VehicleHitchGraphLink> links, IPerceiver? transitionPerceiver, out string reason,
 		bool allowRootIncoming = false)
 	{
@@ -1116,7 +1116,7 @@ public class VehicleHitchGraphService : IVehicleHitchGraphService
 		}
 	}
 
-	private static ICell? EndpointLocation(VehicleHitchGraphEndpoint endpoint)
+	private static IRoom? EndpointLocation(VehicleHitchGraphEndpoint endpoint)
 	{
 		return endpoint.NodeType switch
 		{
@@ -1184,7 +1184,7 @@ public class VehicleHitchGraphService : IVehicleHitchGraphService
 		};
 	}
 
-	private static bool HitchItemIsWithChain(VehicleHitchGraphLink link, IGameItem item, ICell sourceLocation,
+	private static bool HitchItemIsWithChain(VehicleHitchGraphLink link, IGameItem item, IRoom sourceLocation,
 		RoomLayer sourceLayer)
 	{
 		if (item.Location == sourceLocation && item.RoomLayer == sourceLayer && item.ContainedIn is null &&
@@ -1254,7 +1254,7 @@ public class VehicleHitchGraphService : IVehicleHitchGraphService
 		return false;
 	}
 
-	private static void MoveHitchItems(IEnumerable<IGameItem> hitchItems, ICell destination, RoomLayer layer)
+	private static void MoveHitchItems(IEnumerable<IGameItem> hitchItems, IRoom destination, RoomLayer layer)
 	{
 		foreach (var item in hitchItems.Where(x => x is not null).DistinctBy(x => x.Id).ToList())
 		{

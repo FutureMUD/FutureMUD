@@ -26,10 +26,10 @@ internal static class ForeignCustodyTransferContext
 		return scope;
 	}
 
-	internal static Scope Enter(IBody body, IEnumerable<IGameItem> items, ICell destination)
+	internal static Scope Enter(IBody body, IEnumerable<IGameItem> items, IRoom destination)
 		=> EnterRemoval(body, items, destination);
 
-	internal static Scope EnterRemoval(IBody? body, IEnumerable<IGameItem> items, ICell? destination)
+	internal static Scope EnterRemoval(IBody? body, IEnumerable<IGameItem> items, IRoom? destination)
 	{
 		if (Current.Value is not null) throw new InvalidOperationException("Nested foreign custody transfers require a separate adapter.");
 		var scope = new Scope(body, new HashSet<IGameItem>(items, ReferenceEqualityComparer.Instance), destination);
@@ -56,10 +56,10 @@ internal static class ForeignCustodyTransferContext
 		EnsureItem(parent); EnsureItem(child);
 	}
 
-	internal static void EnsureCell(ICell cell, IGameItem item)
+	internal static void EnsureRoom(IRoom room, IGameItem item)
 	{
 		EnsureItem(item);
-		if (Current.Value is { } scope && !ReferenceEquals(scope.Destination, cell))
+		if (Current.Value is { } scope && !ReferenceEquals(scope.Destination, room))
 			throw new InvalidOperationException("A native transfer callback attempted an uncaptured cell destination.");
 	}
 
@@ -103,12 +103,12 @@ internal static class ForeignCustodyTransferContext
 			throw new InvalidOperationException("A native custody transaction cannot flush unrelated save queues.");
 	}
 
-	internal sealed class Scope(IBody? body, HashSet<IGameItem> items, ICell? destination, bool freezeCustody = false) : IDisposable
+	internal sealed class Scope(IBody? body, HashSet<IGameItem> items, IRoom? destination, bool freezeCustody = false) : IDisposable
 	{
 		internal bool Frozen { get; } = freezeCustody;
 		internal IBody? Body { get; } = body;
 		internal HashSet<IGameItem> Items { get; } = items;
-		internal ICell? Destination { get; } = destination;
+		internal IRoom? Destination { get; } = destination;
 		internal List<Action> SaveRollbacks { get; } = [];
 		internal void RestorePendingSaves(Action<Action> recover)
 		{

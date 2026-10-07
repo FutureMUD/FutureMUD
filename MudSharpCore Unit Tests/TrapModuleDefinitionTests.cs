@@ -82,20 +82,20 @@ public class TrapModuleDefinitionTests
 	public void ExitBoundTrap_PersistsExitAndOriginIdentity()
 	{
 		var gameworld = new Mock<IFuturemud>();
-		var cell = new Mock<ICell>();
-		cell.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
-		cell.SetupGet(x => x.Id).Returns(100L);
+		var room = new Mock<IRoom>();
+		room.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		room.SetupGet(x => x.Id).Returns(100L);
 		var exit = new Mock<IExit>();
 		exit.SetupGet(x => x.Id).Returns(200L);
-		var cellExit = new Mock<ICellExit>();
+		var cellExit = new Mock<IRoomExit>();
 		cellExit.SetupGet(x => x.Exit).Returns(exit.Object);
-		cellExit.SetupGet(x => x.Origin).Returns(cell.Object);
+		cellExit.SetupGet(x => x.Origin).Returns(room.Object);
 		var template = new Mock<ITrapTemplate>();
 		template.SetupGet(x => x.Id).Returns(300L);
 		template.SetupGet(x => x.RevisionNumber).Returns(4);
 		template.SetupGet(x => x.Charges).Returns(1);
 
-		var trap = new TrapEffect(cell.Object, template.Object, null, cellExit.Object, power: SpellPower.Strong);
+		var trap = new TrapEffect(room.Object, template.Object, null, cellExit.Object, power: SpellPower.Strong);
 		var xml = trap.SaveToXml(new Dictionary<IEffect, TimeSpan>());
 
 		Assert.AreEqual(200L, trap.BoundExitId);
@@ -110,10 +110,10 @@ public class TrapModuleDefinitionTests
 	public void TransientExitBoundTrap_PersistsStableKeyAndMatchesRebuiltExit()
 	{
 		var gameworld = new Mock<IFuturemud>();
-		var origin = new Mock<ICell>();
+		var origin = new Mock<IRoom>();
 		origin.SetupGet(x => x.Id).Returns(100L);
 		origin.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
-		var destination = new Mock<ICell>();
+		var destination = new Mock<IRoom>();
 		destination.SetupGet(x => x.Id).Returns(101L);
 		var firstExit = new TransientExit(gameworld.Object, origin.Object, destination.Object, "enter", "portal",
 			"portal", "a portal", "a portal", "through", "through", 1.0,
@@ -126,13 +126,13 @@ public class TrapModuleDefinitionTests
 		template.SetupGet(x => x.RevisionNumber).Returns(4);
 		template.SetupGet(x => x.Charges).Returns(1);
 
-		var trap = new TrapEffect(origin.Object, template.Object, boundExit: firstExit.CellExitFor(origin.Object));
+		var trap = new TrapEffect(origin.Object, template.Object, boundExit: firstExit.RoomExitFor(origin.Object));
 		var xml = trap.SaveToXml(new Dictionary<IEffect, TimeSpan>());
 
 		Assert.AreNotEqual(firstExit.Id, rebuiltExit.Id);
 		Assert.AreEqual("test-portal:42", trap.BoundTransientExitKey);
 		Assert.AreEqual("test-portal:42", xml.Descendants("BoundTransientExitKey").Single().Value);
-		Assert.IsTrue(trap.MatchesExit(rebuiltExit.CellExitFor(origin.Object)!));
+		Assert.IsTrue(trap.MatchesExit(rebuiltExit.RoomExitFor(origin.Object)!));
 	}
 
 	[TestMethod]
@@ -143,11 +143,11 @@ public class TrapModuleDefinitionTests
 		gameworld.SetupGet(x => x.ExitManager).Returns(manager);
 		var templates = new RevisableAll<ITrapTemplate>();
 		gameworld.SetupGet(x => x.TrapTemplates).Returns(templates);
-		var origin = new Mock<ICell>();
+		var origin = new Mock<IRoom>();
 		origin.SetupGet(x => x.Id).Returns(100L);
 		origin.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
 		origin.SetupProperty(x => x.EffectsChanged);
-		var destination = new Mock<ICell>();
+		var destination = new Mock<IRoom>();
 		destination.SetupGet(x => x.Id).Returns(101L);
 		var component = new Mock<IGameItem>();
 		component.SetupGet(x => x.Id).Returns(500L);
@@ -167,7 +167,7 @@ public class TrapModuleDefinitionTests
 			"portal", "a portal", "a portal", "through", "through", 1.0,
 			stableKey: "test-portal:42");
 		manager.RegisterTransientExit(firstExit);
-		var trap = new TrapEffect(origin.Object, template.Object, boundExit: firstExit.CellExitFor(origin.Object),
+		var trap = new TrapEffect(origin.Object, template.Object, boundExit: firstExit.RoomExitFor(origin.Object),
 			components: [binding]);
 		origin.Setup(x => x.RemoveEffect(trap, true)).Callback(trap.RemovalEffect);
 		trap.InitialEffect();
@@ -196,11 +196,11 @@ public class TrapModuleDefinitionTests
 	{
 		var gameworld = new Mock<IFuturemud>();
 		var manager = new ExitManager(gameworld.Object);
-		var origin = new Mock<ICell>();
+		var origin = new Mock<IRoom>();
 		origin.SetupGet(x => x.Id).Returns(100L);
-		var destination = new Mock<ICell>();
+		var destination = new Mock<IRoom>();
 		destination.SetupGet(x => x.Id).Returns(101L);
-		var movedDestination = new Mock<ICell>();
+		var movedDestination = new Mock<IRoom>();
 		movedDestination.SetupGet(x => x.Id).Returns(102L);
 		var firstExit = new TransientExit(gameworld.Object, origin.Object, destination.Object, "enter", "portal",
 			"portal", "a portal", "a portal", "through", "through", 1.0,
@@ -221,12 +221,12 @@ public class TrapModuleDefinitionTests
 	public void LegacyNegativeExitBinding_IsDestructivelyRemovedDuringReconciliation()
 	{
 		var gameworld = new Mock<IFuturemud>();
-		var origin = new Mock<ICell>();
+		var origin = new Mock<IRoom>();
 		origin.SetupGet(x => x.Id).Returns(100L);
 		origin.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
 		var legacyExit = new Mock<IExit>();
 		legacyExit.SetupGet(x => x.Id).Returns(-1L);
-		var cellExit = new Mock<ICellExit>();
+		var cellExit = new Mock<IRoomExit>();
 		cellExit.SetupGet(x => x.Exit).Returns(legacyExit.Object);
 		cellExit.SetupGet(x => x.Origin).Returns(origin.Object);
 		var template = new Mock<ITrapTemplate>();
@@ -428,7 +428,7 @@ public class TrapModuleDefinitionTests
 	public void DirectDamagePayload_EvaluatesDamagePainAndStunFormulasAtResolution()
 	{
 		var gameworld = new Mock<IFuturemud>();
-		var owner = new Mock<ICell>();
+		var owner = new Mock<IRoom>();
 		owner.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
 		var template = new Mock<ITrapTemplate>();
 		template.SetupGet(x => x.Id).Returns(300L);
@@ -461,7 +461,7 @@ public class TrapModuleDefinitionTests
 	public void InvalidPayloadTargetSelector_FailsClosedAtRuntime()
 	{
 		var gameworld = new Mock<IFuturemud>();
-		var owner = new Mock<ICell>();
+		var owner = new Mock<IRoom>();
 		owner.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
 		var template = new Mock<ITrapTemplate>();
 		template.SetupGet(x => x.Id).Returns(300L);
@@ -488,7 +488,7 @@ public class TrapModuleDefinitionTests
 	public void InvalidManualTrigger_FailsClosedBeforeConsumingACharge()
 	{
 		var gameworld = new Mock<IFuturemud>();
-		var owner = new Mock<ICell>();
+		var owner = new Mock<IRoom>();
 		owner.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
 		var invalidManualTrigger = TrapTriggerDefinition.LoadFromXml(
 			XElement.Parse("<Trigger type=\"Manual\"><Parameter name=\"chance\">101</Parameter></Trigger>"));
@@ -513,7 +513,7 @@ public class TrapModuleDefinitionTests
 	public void ExplosiveDamagePayload_UsesStandardExplosionHandlingWithConfiguredPacket()
 	{
 		var gameworld = new Mock<IFuturemud>();
-		var owner = new Mock<ICell>();
+		var owner = new Mock<IRoom>();
 		owner.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
 		IExplosiveDamage? resolvedExplosion = null;
 		owner.Setup(x => x.ExplosionEmantingFromPerceivable(It.IsAny<IExplosiveDamage>()))
@@ -603,8 +603,8 @@ public class TrapModuleDefinitionTests
 	public void DeployedTrap_PersistsPhysicalComponentBindings()
 	{
 		var gameworld = new Mock<IFuturemud>();
-		var cell = new Mock<ICell>();
-		cell.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		var room = new Mock<IRoom>();
+		room.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
 		var item = new Mock<IGameItem>();
 		item.SetupGet(x => x.Id).Returns(123L);
 		var template = new Mock<ITrapTemplate>();
@@ -614,7 +614,7 @@ public class TrapModuleDefinitionTests
 		var binding = new TrapComponentBinding(gameworld.Object, item.Object,
 			TrapComponentRole.TriggerAndPayload, 80.0, 2.0);
 
-		var trap = new TrapEffect(cell.Object, template.Object, components: [binding]);
+		var trap = new TrapEffect(room.Object, template.Object, components: [binding]);
 		var xml = trap.SaveToXml(new Dictionary<IEffect, TimeSpan>());
 		var component = xml.Descendants("Component").Single();
 
@@ -628,12 +628,12 @@ public class TrapModuleDefinitionTests
 	public void ComponentBinding_PersistsInstalledLayerAndRoutePosition()
 	{
 		var gameworld = new Mock<IFuturemud>();
-		var cell = new Mock<ICell>();
+		var room = new Mock<IRoom>();
 		var item = new Mock<IGameItem>();
 		item.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
 		item.SetupGet(x => x.Id).Returns(123L);
 		item.SetupGet(x => x.LocationLevelPerceivable).Returns(item.Object);
-		item.SetupGet(x => x.SpatialLocation).Returns(new SpatialLocation(cell.Object, RoomLayer.InAir, 4_250.5));
+		item.SetupGet(x => x.SpatialLocation).Returns(new SpatialLocation(room.Object, RoomLayer.InAir, 4_250.5));
 		gameworld.Setup(x => x.TryGetItem(123L, true)).Returns(item.Object);
 		var binding = new TrapComponentBinding(gameworld.Object, item.Object,
 			TrapComponentRole.Payload, 25.0, 1.0);
@@ -645,13 +645,13 @@ public class TrapModuleDefinitionTests
 	}
 
 	[TestMethod]
-	public void CellTrapInitialisation_DefersItemResolutionUntilWorldItemsAreLoaded()
+	public void RoomTrapInitialisation_DefersItemResolutionUntilWorldItemsAreLoaded()
 	{
 		var templates = new RevisableAll<ITrapTemplate>();
 		var gameworld = new Mock<IFuturemud>();
 		gameworld.SetupGet(x => x.TrapTemplates).Returns(templates);
-		var cell = new Mock<ICell>();
-		cell.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		var room = new Mock<IRoom>();
+		room.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
 		var item = new Mock<IGameItem>();
 		item.SetupGet(x => x.Id).Returns(123L);
 		var template = new Mock<ITrapTemplate>();
@@ -661,7 +661,7 @@ public class TrapModuleDefinitionTests
 		template.SetupGet(x => x.Triggers).Returns([]);
 		var binding = new TrapComponentBinding(gameworld.Object, item.Object,
 			TrapComponentRole.TriggerAndPayload, 80.0, 2.0);
-		var trap = new TrapEffect(cell.Object, template.Object, components: [binding]);
+		var trap = new TrapEffect(room.Object, template.Object, components: [binding]);
 
 		trap.InitialEffect();
 		trap.Login();
@@ -724,19 +724,19 @@ public class TrapModuleDefinitionTests
 	}
 
 	[TestMethod]
-	public void CellArrivalTriggers_UseEntryWitnessInsteadOfOptionalCompletionWitness()
+	public void RoomArrivalTriggers_UseEntryWitnessInsteadOfOptionalCompletionWitness()
 	{
-		Assert.IsTrue(TrapEventRouting.IsCellArrivalWitness(EventType.CharacterEnterCellWitness));
-		Assert.IsFalse(TrapEventRouting.IsCellArrivalWitness(EventType.CharacterEnterCellFinishWitness));
+		Assert.IsTrue(TrapEventRouting.IsRoomArrivalWitness(EventType.CharacterEnterRoomWitness));
+		Assert.IsFalse(TrapEventRouting.IsRoomArrivalWitness(EventType.CharacterEnterRoomFinishWitness));
 	}
 
 	[TestMethod]
-	public void ProximityTriggers_RequireANonCellAnchorForNewDeployments()
+	public void ProximityTriggers_RequireANonRoomAnchorForNewDeployments()
 	{
 		var template = new Mock<ITrapTemplate>();
 		template.SetupGet(x => x.Triggers).Returns([new TrapTriggerDefinition(TrapTriggerType.Proximity)]);
 
-		Assert.IsFalse(TrapEffect.IsValidAnchor(template.Object, new Mock<ICell>().Object));
+		Assert.IsFalse(TrapEffect.IsValidAnchor(template.Object, new Mock<IRoom>().Object));
 		Assert.IsTrue(TrapEffect.IsValidAnchor(template.Object, new Mock<IGameItem>().Object));
 	}
 

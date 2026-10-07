@@ -12,11 +12,11 @@ namespace MudSharp.FutureProg.Functions.Magic;
 internal abstract class EnvironmentalMagicFunctionBase(IList<IFunction> parameterFunctions, IFuturemud gameworld)
 	: MagicBuiltInFunctionBase(parameterFunctions, gameworld)
 {
-	protected bool TryGetEnvironment(out ICell cell, out IEnvironmentalMagicService service)
+	protected bool TryGetEnvironment(out IRoom room, out IEnvironmentalMagicService service)
 	{
-		cell = (ParameterFunctions[0].Result?.GetObject as ICell)!;
+		room = (ParameterFunctions[0].Result?.GetObject as IRoom)!;
 		service = Gameworld.EnvironmentalMagic!;
-		if (cell == null)
+		if (room == null)
 		{
 			ErrorMessage = "The environmental location argument cannot be null.";
 			return false;
@@ -53,7 +53,7 @@ internal sealed class EnvironmentalMagicResourceFunction(IList<IFunction> parame
 
 	public override StatementResult Execute(IVariableSpace variables)
 	{
-		if (base.Execute(variables) == StatementResult.Error || !TryGetEnvironment(out var cell, out var service))
+		if (base.Execute(variables) == StatementResult.Error || !TryGetEnvironment(out var room, out var service))
 		{
 			return StatementResult.Error;
 		}
@@ -70,7 +70,7 @@ internal sealed class EnvironmentalMagicResourceFunction(IList<IFunction> parame
 			return StatementResult.Error;
 		}
 
-		if (!service.TryInspectResource(cell, resource!, out var output))
+		if (!service.TryInspectResource(room, resource!, out var output))
 		{
 			ErrorMessage = "That resource has no environmental output bound to the location.";
 			return StatementResult.Error;
@@ -128,12 +128,12 @@ internal sealed class EnvironmentalMagicStateFunction(IList<IFunction> parameter
 
 	public override StatementResult Execute(IVariableSpace variables)
 	{
-		if (base.Execute(variables) == StatementResult.Error || !TryGetEnvironment(out var cell, out var service))
+		if (base.Execute(variables) == StatementResult.Error || !TryGetEnvironment(out var room, out var service))
 		{
 			return StatementResult.Error;
 		}
 
-		var snapshot = service.InspectState(cell);
+		var snapshot = service.InspectState(room);
 		switch (query)
 		{
 			case Query.ScarDamage:
@@ -182,12 +182,12 @@ internal sealed class InvalidateEnvironmentFunction(IList<IFunction> parameterFu
 
 	public override StatementResult Execute(IVariableSpace variables)
 	{
-		if (base.Execute(variables) == StatementResult.Error || !TryGetEnvironment(out var cell, out var service))
+		if (base.Execute(variables) == StatementResult.Error || !TryGetEnvironment(out var room, out var service))
 		{
 			return StatementResult.Error;
 		}
 
-		service.MarkDirty(cell, EnvironmentalMagicDirtyReason.Policy);
+		service.MarkDirty(room, EnvironmentalMagicDirtyReason.Policy);
 		Result = new BooleanVariable(true);
 		return StatementResult.Normal;
 	}

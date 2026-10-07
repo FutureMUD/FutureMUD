@@ -12,7 +12,7 @@ namespace MudSharp.Character;
 
 public class GuestCharacter : Character
 {
-    private static ICell _guestLoungeCell;
+    private static IRoom _guestLoungeRoom;
 
     public GuestCharacter(ICharacterTemplate template, IFuturemud gameworld) : base(gameworld, template)
     {
@@ -27,21 +27,21 @@ public class GuestCharacter : Character
         SetPosition(PositionStanding.Instance, PositionModifier.None, null, null);
     }
 
-    public static ICell GuestLoungeCell
+    public static IRoom GuestLoungeRoom
     {
         get
         {
-            if (_guestLoungeCell == null)
+            if (_guestLoungeRoom == null)
             {
                 IFuturemud gameworld = Futuremud.Games.First();
                 try
                 {
-                    _guestLoungeCell =
-                        gameworld.Cells.Get(gameworld.GetStaticLong("GuestLoungeCell"));
-                    if (_guestLoungeCell is not null)
+                    _guestLoungeRoom =
+                        gameworld.Rooms.Get(gameworld.GetStaticLong("GuestLoungeCell"));
+                    if (_guestLoungeRoom is not null)
                     {
-                        _guestLoungeCell.CellProposedForDeletion -= GuestLoungeCell_CellProposedForDeletion;
-                        _guestLoungeCell.CellProposedForDeletion += GuestLoungeCell_CellProposedForDeletion;
+                        _guestLoungeRoom.RoomProposedForDeletion -= GuestLoungeRoom_RoomProposedForDeletion;
+                        _guestLoungeRoom.RoomProposedForDeletion += GuestLoungeRoom_RoomProposedForDeletion;
                     }
                 }
                 catch (Exception)
@@ -50,11 +50,11 @@ public class GuestCharacter : Character
                 }
             }
 
-            return _guestLoungeCell;
+            return _guestLoungeRoom;
         }
     }
 
-    private static void GuestLoungeCell_CellProposedForDeletion(ICell cell, ProposalRejectionResponse response)
+    private static void GuestLoungeRoom_RoomProposedForDeletion(IRoom room, ProposalRejectionResponse response)
     {
         response.RejectWithReason("That room is the guest lounge cell");
     }

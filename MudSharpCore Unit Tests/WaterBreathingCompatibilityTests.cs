@@ -34,7 +34,7 @@ public class WaterBreathingCompatibilityTests
 		f.Effects.Add(f.Scoped); Assert.IsTrue(f.Strategy.CanBreathe(f.Body.Object));
 		f.Terrain.SetupGet(x => x.WaterFluid).Returns(f.Unmapped); Assert.IsFalse(f.Strategy.CanBreathe(f.Body.Object));
 		f.Race.Setup(x => x.CanBreatheFluid(f.Unmapped)).Returns((true, 1.0)); Assert.IsTrue(f.Strategy.CanBreathe(f.Body.Object));
-		f.Cell.Setup(x => x.IsUnderwaterLayer(RoomLayer.Underwater)).Returns(false);
+		f.Room.Setup(x => x.IsUnderwaterLayer(RoomLayer.Underwater)).Returns(false);
 		Assert.IsFalse(f.Strategy.CanBreathe(f.Body.Object));
 		f.Race.Setup(x => x.CanBreatheFluid(f.Gas)).Returns((true, 1.0)); Assert.IsTrue(f.Strategy.CanBreathe(f.Body.Object));
 	}
@@ -60,7 +60,7 @@ public class WaterBreathingCompatibilityTests
 	{
 		var f = new Fixture(strategy); f.Effects.Add(new SpellWaterBreathingEffect(f.Actor.Object, f.Parent));
 		Assert.AreEqual(expected, f.Strategy.CanBreathe(f.Body.Object));
-		f.Cell.Setup(x => x.IsUnderwaterLayer(RoomLayer.Underwater)).Returns(false);
+		f.Room.Setup(x => x.IsUnderwaterLayer(RoomLayer.Underwater)).Returns(false);
 		Assert.AreEqual(expected, f.Strategy.CanBreathe(f.Body.Object));
 	}
 
@@ -98,7 +98,7 @@ public class WaterBreathingCompatibilityTests
 	private sealed class Fixture
 	{
 		public Mock<IBody> Body { get; } = new(); public Mock<ICharacter> Actor { get; } = new();
-		public Mock<IRace> Race { get; } = new(); public Mock<ICell> Cell { get; } = new();
+		public Mock<IRace> Race { get; } = new(); public Mock<IRoom> Room { get; } = new();
 		public Mock<ITerrain> Terrain { get; } = new(); public List<IEffect> Effects { get; } = [];
 		public ILiquid Water { get; } = Mock.Of<ILiquid>(x => x.Id == 71);
 		public ILiquid Unmapped { get; } = Mock.Of<ILiquid>(x => x.Id == 72);
@@ -113,10 +113,10 @@ public class WaterBreathingCompatibilityTests
 			world.SetupGet(x => x.FutureProgs).Returns(MagicCastingFixture.Collection(() => Array.Empty<MudSharp.FutureProg.IFutureProg>()));
 			Actor.SetupGet(x => x.Gameworld).Returns(world.Object); Actor.SetupGet(x => x.Body).Returns(Body.Object);
 			Body.SetupGet(x => x.Gameworld).Returns(world.Object); Body.SetupGet(x => x.Actor).Returns(Actor.Object);
-			Body.SetupGet(x => x.Race).Returns(Race.Object); Body.SetupGet(x => x.Location).Returns(Cell.Object);
+			Body.SetupGet(x => x.Race).Returns(Race.Object); Body.SetupGet(x => x.Location).Returns(Room.Object);
 			Body.SetupGet(x => x.RoomLayer).Returns(RoomLayer.Underwater); Body.SetupGet(x => x.BreathingStrategy).Returns(Strategy);
-			Cell.Setup(x => x.IsUnderwaterLayer(RoomLayer.Underwater)).Returns(true); Cell.Setup(x => x.Terrain(Actor.Object)).Returns(Terrain.Object);
-			Cell.SetupGet(x => x.Atmosphere).Returns(Gas); Terrain.SetupGet(x => x.WaterFluid).Returns(Water);
+			Room.Setup(x => x.IsUnderwaterLayer(RoomLayer.Underwater)).Returns(true); Room.Setup(x => x.Terrain(Actor.Object)).Returns(Terrain.Object);
+			Room.SetupGet(x => x.Atmosphere).Returns(Gas); Terrain.SetupGet(x => x.WaterFluid).Returns(Water);
 			Body.Setup(x => x.OrganFunction<HeartProto>()).Returns(1); Body.Setup(x => x.OrganFunction<LungProto>()).Returns(1);
 			Body.Setup(x => x.OrganFunction<TracheaProto>()).Returns(1);
 			Body.SetupGet(x => x.Bodyparts).Returns(new IBodypart[] {

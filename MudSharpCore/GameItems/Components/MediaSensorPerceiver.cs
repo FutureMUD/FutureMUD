@@ -17,7 +17,7 @@ internal sealed class MediaSensorPerceiver : DummyPerceiver
 	private readonly IPerceivable _owner;
 	private readonly double _minimumIllumination;
 
-	public MediaSensorPerceiver(IPerceivable owner, ICell location, double minimumIllumination)
+	public MediaSensorPerceiver(IPerceivable owner, IRoom location, double minimumIllumination)
 		: base("a media sensor", "it is a media sensor", location)
 	{
 		_owner = owner;

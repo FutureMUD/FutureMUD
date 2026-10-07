@@ -604,7 +604,7 @@ public abstract class FirearmBaseGameItemComponent : GameItemComponent, IFirearm
 
         if (shell is not null && !shell.Deleted && !shell.Destroyed && shell.Location is null && shell.InInventoryOf is null && shell.ContainedIn is null)
         {
-            originalLocation.Cell.Handle(new EmoteOutput(new Emote("@ tumble|tumbles to the ground.", shell), flags: OutputFlags.Insigificant));
+            originalLocation.Room.Handle(new EmoteOutput(new Emote("@ tumble|tumbles to the ground.", shell), flags: OutputFlags.Insigificant));
 			if (!shell.Deleted && !shell.Destroyed && shell.Location is null && shell.InInventoryOf is null && shell.ContainedIn is null) shell.InsertAtSpatialLocation(originalLocation);
         }
     }
@@ -816,7 +816,7 @@ public abstract class FirearmBaseGameItemComponent : GameItemComponent, IFirearm
         }
     }
 
-    public override bool HandleDieOrMorph(IGameItem newItem, ICell location)
+    public override bool HandleDieOrMorph(IGameItem newItem, IRoom location)
     {
         if (!InstalledAttachments.Any())
         {

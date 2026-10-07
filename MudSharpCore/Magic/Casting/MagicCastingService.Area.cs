@@ -13,7 +13,7 @@ public sealed partial class MagicCastingService
 {
 	private const int AreaInputBound = 512;
 	private sealed record AreaCandidate(ICharacter Target, IBody Body, SpellAreaTarget Receipt);
-	private sealed record AreaPlan(ControlledSpellArea Policy, ICell Location, IBody CasterBody,
+	private sealed record AreaPlan(ControlledSpellArea Policy, IRoom Location, IBody CasterBody,
 		long CasterInstance, RoomLayer CasterLayer, IReadOnlyList<AreaCandidate> Candidates)
 	{
 		public ResolvedMagicCastingArea Receipt => new(Policy.Scope, Policy.Selection, Policy.Identity,

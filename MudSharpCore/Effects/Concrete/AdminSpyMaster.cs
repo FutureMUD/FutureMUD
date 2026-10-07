@@ -4,7 +4,7 @@ namespace MudSharp.Effects.Concrete;
 
 public class AdminSpyMaster : Effect, IEffectSubtype
 {
-    public List<ICell> SpiedCells { get; } = new();
+    public List<IRoom> SpiedRooms { get; } = new();
     public List<AdminSpy> SpyEffects { get; } = new();
     public ICharacter CharacterOwner { get; }
 
@@ -19,11 +19,11 @@ public class AdminSpyMaster : Effect, IEffectSubtype
         CharacterOwner = owner;
         CharacterOwner.OnQuit += CharacterOwner_OnQuit;
 
-        foreach (ICell cell in other.SpiedCells)
+        foreach (IRoom room in other.SpiedRooms)
         {
-            SpiedCells.Add(cell);
-            AdminSpy childEffect = new(cell, CharacterOwner);
-            cell.AddEffect(childEffect);
+            SpiedRooms.Add(room);
+            AdminSpy childEffect = new(room, CharacterOwner);
+            room.AddEffect(childEffect);
             SpyEffects.Add(childEffect);
         }
     }
@@ -55,22 +55,22 @@ public class AdminSpyMaster : Effect, IEffectSubtype
         CharacterOwner.OnQuit += CharacterOwner_OnQuit;
         foreach (XElement spy in effect.Element("Effect").Elements("Spy"))
         {
-            ICell cell = Gameworld.Cells.Get(long.Parse(spy.Value));
-            if (cell != null)
+            IRoom room = Gameworld.Rooms.Get(long.Parse(spy.Value));
+            if (room != null)
             {
-                SpiedCells.Add(cell);
-                AdminSpy childEffect = new(cell, CharacterOwner);
-                cell.AddEffect(childEffect);
+                SpiedRooms.Add(room);
+                AdminSpy childEffect = new(room, CharacterOwner);
+                room.AddEffect(childEffect);
                 SpyEffects.Add(childEffect);
             }
         }
     }
 
-    public void RemoveSpiedCell(ICell cell)
+    public void RemoveSpiedRoom(IRoom room)
     {
-        SpiedCells.Remove(cell);
-        cell.RemoveEffect(SpyEffects.FirstOrDefault(x => x.Owner == cell), true);
-        if (!SpiedCells.Any())
+        SpiedRooms.Remove(room);
+        room.RemoveEffect(SpyEffects.FirstOrDefault(x => x.Owner == room), true);
+        if (!SpiedRooms.Any())
         {
             CharacterOwner.RemoveEffect(this);
         }
@@ -78,16 +78,16 @@ public class AdminSpyMaster : Effect, IEffectSubtype
         Changed = true;
     }
 
-    public void AddSpiedCell(ICell cell)
+    public void AddSpiedRoom(IRoom room)
     {
-        if (SpiedCells.Contains(cell))
+        if (SpiedRooms.Contains(room))
         {
             return;
         }
 
-        SpiedCells.Add(cell);
-        AdminSpy effect = new(cell, CharacterOwner);
-        cell.AddEffect(effect);
+        SpiedRooms.Add(room);
+        AdminSpy effect = new(room, CharacterOwner);
+        room.AddEffect(effect);
         SpyEffects.Add(effect);
         Changed = true;
     }
@@ -104,7 +104,7 @@ public class AdminSpyMaster : Effect, IEffectSubtype
     protected override XElement SaveDefinition()
     {
         return new XElement("Effect",
-            from spy in SpiedCells
+            from spy in SpiedRooms
             select new XElement("Spy", spy.Id)
         );
     }
@@ -119,10 +119,10 @@ public class AdminSpyMaster : Effect, IEffectSubtype
     public override void Login()
     {
         CharacterOwner.OnQuit += CharacterOwner_OnQuit;
-        foreach (ICell cell in SpiedCells)
+        foreach (IRoom room in SpiedRooms)
         {
-            AdminSpy child = new(cell, CharacterOwner);
-            cell.AddEffect(child);
+            AdminSpy child = new(room, CharacterOwner);
+            room.AddEffect(child);
             SpyEffects.Add(child);
         }
     }

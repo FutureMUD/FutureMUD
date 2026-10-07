@@ -58,7 +58,7 @@ internal class LoggedInMenu : Menu
 
         ICharacter guestAvatar = GuestCharacter.GetRandomGuestCharacter(Gameworld);
 
-        if (GuestCharacter.GuestLoungeCell == null)
+        if (GuestCharacter.GuestLoungeRoom == null)
         {
             OutputHandler.Send(
                 "Unfortunately we do not have a guest lounge for you to log in to! Try again some other time!");
@@ -68,9 +68,9 @@ internal class LoggedInMenu : Menu
         guestAvatar.Account = Account;
         guestAvatar.Register(OutputHandler);
         Gameworld.Add(guestAvatar, false);
-        guestAvatar.RoomLayer = GuestCharacter.GuestLoungeCell.Terrain(guestAvatar).TerrainLayers
+        guestAvatar.RoomLayer = GuestCharacter.GuestLoungeRoom.Terrain(guestAvatar).TerrainLayers
                                               .FirstMin(x => Math.Abs(x.LayerHeight()));
-        GuestCharacter.GuestLoungeCell.Login(guestAvatar);
+        GuestCharacter.GuestLoungeRoom.Login(guestAvatar);
         _nextContext = guestAvatar;
     }
 
@@ -666,7 +666,7 @@ internal class LoggedInMenu : Menu
             }
             else
             {
-                Gameworld.Cells.First().Login(loginCharacter);
+                Gameworld.Rooms.First().Login(loginCharacter);
             }
             Gameworld.Add(loginCharacter, false);
         }

@@ -8,7 +8,7 @@ using MudSharp.Character.Heritage;
 using MudSharp.Climate;
 using MudSharp.Combat;
 using MudSharp.Construction;
-using Cell = MudSharp.Construction.Cell;
+using Room = MudSharp.Construction.Room;
 using MudSharp.Construction.Boundary;
 using MudSharp.Effects;
 using MudSharp.Effects.Concrete;
@@ -34,7 +34,7 @@ public partial class Character
 {
     public double MaximumDragWeight => Race.GetMaximumDragWeight(this);
 
-    public void TransferTo(ICell target, RoomLayer layer)
+    public void TransferTo(IRoom target, RoomLayer layer)
 	{
 		TransferTo(new SpatialLocation(
 			target,
@@ -51,14 +51,14 @@ public partial class Character
         OutputHandler.Send(
             "You open a swirling vortex of magical energies, stepping through and emerging somewhere new.");
 
-        Teleport(target.Cell, target.Layer, true, false, routePositionMetres: target.RoutePositionMetres);
+        Teleport(target.Room, target.Layer, true, false, routePositionMetres: target.RoutePositionMetres);
 
         OutputHandler.Handle(
             new EmoteOutput(new Emote("A swirling vortex of energy opens up briefly, and @ steps through.", this),
                 flags: OutputFlags.SuppressObscured | OutputFlags.SuppressSource));
     }
 
-    public void Teleport(ICell target, RoomLayer layer, bool includeFollowers, bool echo,
+    public void Teleport(IRoom target, RoomLayer layer, bool includeFollowers, bool echo,
         string playerEchoLeave = "@ leaves the area.",
         string playerEchoArrive = "@ enters the area.",
         string playerEchoSelf = "",
@@ -81,7 +81,7 @@ public partial class Character
 	}
 
 	public void Teleport(
-		ICell target,
+		IRoom target,
 		RoomLayer layer,
 		bool includeFollowers,
 		bool echo,
@@ -108,8 +108,8 @@ public partial class Character
 		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(this)) return;
 		using var displacement = MudSharp.NPC.AI.CommandExecutionScope.BeginDisplacement(this, target, layer, spatialTarget.RoutePositionMetres);
 		if (MudSharp.NPC.AI.CommandExecutionScope.IsOrdered(this) && displacement is null) return;
-		if (displacement is not null && (target is not Cell || Location is not Cell)) return;
-        ICell sourceLocation = Location;
+		if (displacement is not null && (target is not Room || Location is not Room)) return;
+        IRoom sourceLocation = Location;
         Movement?.CancelForMoverOnly(this);
 		if (displacement is not null && !displacement.Continue()) return;
         RemoveAllEffects(x => x.IsEffectType<IActionEffect>(), true);
@@ -199,7 +199,7 @@ public partial class Character
 
 		if (displacement is not null)
 		{
-			if (!((Cell)sourceLocation).LeaveDisplaced(this, displacement)) return;
+			if (!((Room)sourceLocation).LeaveDisplaced(this, displacement)) return;
 		}
 		else sourceLocation?.Leave(this);
         foreach (IGameItem item in otherItems)
@@ -210,19 +210,19 @@ public partial class Character
         // Cell entry publishes the destination cell, layer and route position together.
         // Keep the captured source position intact while the membership receipt is leaving.
         if (displacement is null) RoomLayer = layer;
-        Dictionary<ICharacter, ICell> moverOrigins = new();
+        Dictionary<ICharacter, IRoom> moverOrigins = new();
 
         foreach (ICharacter mover in otherMovers)
         {
 			if (displacement is not null && !displacement.Continue()) return;
             mover.SetPosition(mover.PositionState, PositionModifier.None, null, null);
 			if (displacement is not null && !displacement.Continue()) return;
-            ICell moverSourceLocation = mover.Location;
+            IRoom moverSourceLocation = mover.Location;
             moverOrigins[mover] = moverSourceLocation;
 
 			if (displacement is not null)
 			{
-				if (moverSourceLocation is not Cell nativeSource || !nativeSource.LeaveDisplaced(mover, displacement)) return;
+				if (moverSourceLocation is not Room nativeSource || !nativeSource.LeaveDisplaced(mover, displacement)) return;
 			}
 			else moverSourceLocation?.Leave(mover);
             if (displacement is null) mover.RoomLayer = layer;
@@ -231,7 +231,7 @@ public partial class Character
 
 		if (displacement is not null)
 		{
-			if (!((Cell)target).EnterDisplaced(this, displacement)) return;
+			if (!((Room)target).EnterDisplaced(this, displacement)) return;
 		}
 		else target.Enter(this, roomLayer: layer);
         foreach (ICharacter mover in otherMovers)
@@ -239,7 +239,7 @@ public partial class Character
 
 			if (displacement is not null)
 			{
-				if (!((Cell)target).EnterDisplaced(mover, displacement)) return;
+				if (!((Room)target).EnterDisplaced(mover, displacement)) return;
 			}
 			else target.Enter(mover, roomLayer: layer);
         }
@@ -263,10 +263,10 @@ public partial class Character
 			item.SetRoutePosition(spatialTarget.RoutePositionMetres);
 		}
 
-        ReconcileTeleportCellMembership(this, target, sourceLocation);
+        ReconcileTeleportRoomMembership(this, target, sourceLocation);
         foreach (ICharacter mover in otherMovers)
         {
-            ReconcileTeleportCellMembership(mover, target, moverOrigins.GetValueOrDefault(mover));
+            ReconcileTeleportRoomMembership(mover, target, moverOrigins.GetValueOrDefault(mover));
         }
 
         if (echo)
@@ -288,19 +288,19 @@ public partial class Character
         }
     }
 
-    private static void ReconcileTeleportCellMembership(ICharacter character, ICell target, ICell source)
+    private static void ReconcileTeleportRoomMembership(ICharacter character, IRoom target, IRoom source)
     {
-        ICell canonicalCell = character.Location ?? target;
-        foreach (ICell duplicateCell in new[] { source, target }
-                 .Where(x => x is not null && !ReferenceEquals(x, canonicalCell))
+        IRoom canonicalRoom = character.Location ?? target;
+        foreach (IRoom duplicateRoom in new[] { source, target }
+                 .Where(x => x is not null && !ReferenceEquals(x, canonicalRoom))
                  .Distinct()
                  .Where(x => x.Characters.ContainsPhysicalInstance(character)))
         {
-            duplicateCell.Leave(character);
+            duplicateRoom.Leave(character);
         }
     }
 
-	public override (bool Success, IEmoteOutput FailureOutput) CanCross(ICellExit exit)
+	public override (bool Success, IEmoteOutput FailureOutput) CanCross(IRoomExit exit)
 	{
 		if (EffectHandler.AffectedBy<IImmwalkEffect>() || RidingMount?.AffectedBy<IImmwalkEffect>() == true)
 		{
@@ -360,7 +360,7 @@ public partial class Character
 
     public IEnumerable<IMoveSpeed> Speeds => Body.Speeds;
 
-    public bool CanSee(ICell thing, ICellExit exit, PerceiveIgnoreFlags flags = PerceiveIgnoreFlags.None)
+    public bool CanSee(IRoom thing, IRoomExit exit, PerceiveIgnoreFlags flags = PerceiveIgnoreFlags.None)
     {
         return Body.CanSee(thing, exit, flags);
     }
@@ -677,7 +677,7 @@ public partial class Character
         DoFallDamage(0.5);
     }
 
-    public bool Move(ICellExit exit, IEmote? emote = null, bool ignoreSafeMovement = false)
+    public bool Move(IRoomExit exit, IEmote? emote = null, bool ignoreSafeMovement = false)
     {
         if (Movement != null)
         {
@@ -749,7 +749,7 @@ public partial class Character
 
 
 
-    private IPositionState GetRequiredMovementPosition(ICellExit exit)
+    private IPositionState GetRequiredMovementPosition(IRoomExit exit)
     {
         if (exit is null)
         {
@@ -766,23 +766,23 @@ public partial class Character
             return PositionFlying.Instance;
         }
 
-        (CellMovementTransition transition, RoomLayer _) = exit.MovementTransition(this);
+        (RoomMovementTransition transition, RoomLayer _) = exit.MovementTransition(this);
         if (ZeroGravityMovementHelper.IsZeroGravity(Location, RoomLayer, this) &&
-            !transition.In(CellMovementTransition.SwimOnly, CellMovementTransition.SwimToLand, CellMovementTransition.FlyOnly))
+            !transition.In(RoomMovementTransition.SwimOnly, RoomMovementTransition.SwimToLand, RoomMovementTransition.FlyOnly))
         {
             return PositionFloatingInZeroGravity.Instance;
         }
 
         return transition switch
         {
-            CellMovementTransition.SwimOnly or CellMovementTransition.SwimToLand => PositionSwimming.Instance,
-            CellMovementTransition.FlyOnly => PositionFlying.Instance,
+            RoomMovementTransition.SwimOnly or RoomMovementTransition.SwimToLand => PositionSwimming.Instance,
+            RoomMovementTransition.FlyOnly => PositionFlying.Instance,
             _ => null
         };
     }
 
     private CanMoveResponse CanMoveInternal(CanMoveFlags flags, IPositionState movingPositionOverride,
-		ICellExit vehicleInteriorExit = null)
+		IRoomExit vehicleInteriorExit = null)
     {
         var vehicle = Gameworld.Vehicles.FirstOrDefault(x => x.IsOccupant(this));
         if (vehicle is not null && !IsPermittedVehicleInteriorExit(vehicle, Location, vehicleInteriorExit))
@@ -953,17 +953,17 @@ public partial class Character
         return CanMoveInternal(flags, null, null);
     }
 
-    public CanMoveResponse CanMove(ICellExit exit, CanMoveFlags flags)
+    public CanMoveResponse CanMove(IRoomExit exit, CanMoveFlags flags)
     {
 		return CanMoveThroughExit(exit, flags, requireCurrentOrigin: true);
     }
 
-	public CanMoveResponse CanMoveForPathPlanning(ICellExit exit, CanMoveFlags flags = CanMoveFlags.None)
+	public CanMoveResponse CanMoveForPathPlanning(IRoomExit exit, CanMoveFlags flags = CanMoveFlags.None)
 	{
 		return CanMoveThroughExit(exit, flags, requireCurrentOrigin: false);
 	}
 
-	private CanMoveResponse CanMoveThroughExit(ICellExit exit, CanMoveFlags flags, bool requireCurrentOrigin)
+	private CanMoveResponse CanMoveThroughExit(IRoomExit exit, CanMoveFlags flags, bool requireCurrentOrigin)
     {
         // Execution remains anchored to this cell, including for Immwalk. Planning may inspect
         // a later edge without relocating the character; all other current-state checks remain
@@ -973,7 +973,7 @@ public partial class Character
             exit.Destination is null ||
             Location is null ||
             requireCurrentOrigin && exit.Origin.Id != Location.Id ||
-            exit.MovementTransition(this).TransitionType == CellMovementTransition.NoViableTransition)
+            exit.MovementTransition(this).TransitionType == RoomMovementTransition.NoViableTransition)
         {
             return new CanMoveResponse
             {
@@ -1003,23 +1003,23 @@ public partial class Character
             return response;
         }
 
-        if (exit.Exit.MaximumSizeToEnter < Body.CurrentContextualSize(SizeContext.CellExit))
+        if (exit.Exit.MaximumSizeToEnter < Body.CurrentContextualSize(SizeContext.RoomExit))
         {
             return new CanMoveResponse
             {
                 Result = false,
-                ErrorMessage = $"Only something of size {exit.Exit.MaximumSizeToEnter.Describe().Colour(Telnet.Green)} or smaller can use that exit, and you are size {Body.CurrentContextualSize(SizeContext.CellExit).Describe().Colour(Telnet.Green)}."
+                ErrorMessage = $"Only something of size {exit.Exit.MaximumSizeToEnter.Describe().Colour(Telnet.Green)} or smaller can use that exit, and you are size {Body.CurrentContextualSize(SizeContext.RoomExit).Describe().Colour(Telnet.Green)}."
             };
         }
 
-        if (exit.Exit.MaximumSizeToEnterUpright < Body.CurrentContextualSize(SizeContext.CellExit) &&
+        if (exit.Exit.MaximumSizeToEnterUpright < Body.CurrentContextualSize(SizeContext.RoomExit) &&
             PositionState.Upright && PositionState != PositionFlying.Instance &&
             PositionState != PositionSwimming.Instance && PositionState != PositionClimbing.Instance)
         {
             return new CanMoveResponse
             {
                 Result = false,
-                ErrorMessage = $"Only something of size {exit.Exit.MaximumSizeToEnterUpright.Describe().Colour(Telnet.Green)} or smaller can use that exit while standing up, and you are size {Body.CurrentContextualSize(SizeContext.CellExit).Describe().Colour(Telnet.Green)}. Consider crawling."
+                ErrorMessage = $"Only something of size {exit.Exit.MaximumSizeToEnterUpright.Describe().Colour(Telnet.Green)} or smaller can use that exit while standing up, and you are size {Body.CurrentContextualSize(SizeContext.RoomExit).Describe().Colour(Telnet.Green)}. Consider crawling."
             };
         }
 
@@ -1058,12 +1058,12 @@ public partial class Character
         {
             switch (exit.MovementTransition(this).TransitionType)
             {
-                case CellMovementTransition.TreesToTrees:
+                case RoomMovementTransition.TreesToTrees:
                     break;
-                case CellMovementTransition.FlyOnly:
+                case RoomMovementTransition.FlyOnly:
                     break;
 
-                case CellMovementTransition.SwimOnly:
+                case RoomMovementTransition.SwimOnly:
                     if (PositionState != PositionSwimming.Instance)
                     {
                         return new CanMoveResponse
@@ -1076,9 +1076,9 @@ public partial class Character
                     }
 
                     break;
-                case CellMovementTransition.FallExit:
+                case RoomMovementTransition.FallExit:
                     break;
-                case CellMovementTransition.SwimToLand:
+                case RoomMovementTransition.SwimToLand:
                     break;
             }
         }
@@ -1257,13 +1257,13 @@ public partial class Character
         }
     }
 
-	internal static bool HasPermittedVehicleInteriorExit(IVehicle vehicle, ICell actorLocation)
+	internal static bool HasPermittedVehicleInteriorExit(IVehicle vehicle, IRoom actorLocation)
 	{
 		return actorLocation?.ExitsFor(null)
 		                    .Any(x => IsPermittedVehicleInteriorExit(vehicle, actorLocation, x)) == true;
 	}
 
-	internal static bool IsPermittedVehicleInteriorExit(IVehicle vehicle, ICell actorLocation, ICellExit exit)
+	internal static bool IsPermittedVehicleInteriorExit(IVehicle vehicle, IRoom actorLocation, IRoomExit exit)
 	{
 		if (vehicle?.Prototype.Scale != VehicleScale.RoomScale ||
 			actorLocation is null ||
@@ -1274,12 +1274,12 @@ public partial class Character
 			return false;
 		}
 
-		var hostedCellIds = vehicle.Compartments
-		                           .Select(x => x.InteriorCell?.Id)
+		var hostedRoomIds = vehicle.Compartments
+		                           .Select(x => x.InteriorRoom?.Id)
 		                           .Where(x => x.HasValue)
 		                           .Select(x => x!.Value)
 		                           .ToHashSet();
-		return hostedCellIds.Contains(actorLocation.Id) && hostedCellIds.Contains(exit.Destination.Id);
+		return hostedRoomIds.Contains(actorLocation.Id) && hostedRoomIds.Contains(exit.Destination.Id);
 	}
 
     private IMovement _movement;
@@ -1302,7 +1302,7 @@ public partial class Character
         }
     }
 
-    public double MoveSpeed(ICellExit exit)
+    public double MoveSpeed(IRoomExit exit)
     {
         IPositionState requiredPosition = GetRequiredMovementPosition(exit);
         IMoveSpeed speed;
@@ -1443,7 +1443,7 @@ public partial class Character
         if (!exitFound && Constants.CardinalDirectionStringToDirection.ContainsKey(direction))
         {
             CardinalDirection targetDirection = Constants.CardinalDirectionStringToDirection[direction];
-            ICellExit exit = Location.GetExit(targetDirection, this);
+            IRoomExit exit = Location.GetExit(targetDirection, this);
             if (exit != null && Body.CanSee(Location, exit))
             {
                 exitFound = true;
@@ -1469,7 +1469,7 @@ public partial class Character
 
     public bool Move(CardinalDirection direction, IEmote? emote = null, bool ignoreSafeMovement = false)
     {
-        ICellExit exit = Location.GetExit(direction, this);
+        IRoomExit exit = Location.GetExit(direction, this);
         if (exit == null || !Body.CanSee(Location, exit))
         {
             _cannotMoveReason = "You cannot move in that direction.";
@@ -1486,7 +1486,7 @@ public partial class Character
 
     private bool TryMove(string cmd, string target, IEmote emote, bool ignoreSafeMovement, out bool exitFound)
     {
-        ICellExit exit = Location.GetExit(cmd, target, this);
+        IRoomExit exit = Location.GetExit(cmd, target, this);
         if (exit == null || !Body.CanSee(Location, exit))
         {
             _cannotMoveReason = "You cannot move in that direction.";
@@ -1652,8 +1652,8 @@ public partial class Character
 
         movement?.Exit?.Origin?.Leave(this);
         RoomLayer originalLayer = RoomLayer;
-        (CellMovementTransition transition, RoomLayer targetLayer) = movement?.Exit?.MovementTransition(this) ??
-                                        (CellMovementTransition.NoViableTransition, RoomLayer.GroundLevel);
+        (RoomMovementTransition transition, RoomLayer targetLayer) = movement?.Exit?.MovementTransition(this) ??
+                                        (RoomMovementTransition.NoViableTransition, RoomLayer.GroundLevel);
         ITerrain destinationTerrain = movement?.Exit?.Destination.Terrain(this);
         if (destinationTerrain?.TerrainLayers.Contains(targetLayer) == false)
         {
@@ -1682,7 +1682,7 @@ public partial class Character
 
         switch (transition)
         {
-            case CellMovementTransition.TreesToTrees:
+            case RoomMovementTransition.TreesToTrees:
                 if (AffectedBy<Immwalk>())
                 {
                     break;
@@ -1701,7 +1701,7 @@ public partial class Character
                     Body.Look(true);
                 }
                 break;
-            case CellMovementTransition.FlyOnly:
+            case RoomMovementTransition.FlyOnly:
                 if (!PositionState.SafeFromFalling && CanFly().Truth)
                 {
                     MovePosition(PositionFlying.Instance, PositionModifier.None, null, null);
@@ -1709,14 +1709,14 @@ public partial class Character
                 }
 
                 break;
-            case CellMovementTransition.SwimOnly:
+            case RoomMovementTransition.SwimOnly:
                 if (PositionState != PositionSwimming.Instance && !EffectsOfType<IImmwalkEffect>().Any())
                 {
                     SetPosition(PositionSwimming.Instance, PositionModifier.None, null, null);
                 }
 
                 break;
-            case CellMovementTransition.FallExit:
+            case RoomMovementTransition.FallExit:
                 if (ZeroGravityMovementHelper.IsZeroGravity(Location, RoomLayer, this))
                 {
                     MovePosition(PositionFloatingInZeroGravity.Instance, PositionModifier.None, null, null);
@@ -1730,7 +1730,7 @@ public partial class Character
                 }
 
                 break;
-            case CellMovementTransition.SwimToLand:
+            case RoomMovementTransition.SwimToLand:
 				SetPosition(MostUprightLandMovementPosition() ?? PositionSprawled.Instance,
 					PositionModifier.None, null, null);
                 break;
@@ -2857,7 +2857,7 @@ public partial class Character
 
         ITerrain terrain = Location.Terrain(this);
         List<RoomLayer> higherLayers = terrain.TerrainLayers.Where(x => x.IsHigherThan(RoomLayer)).ToList();
-        ICellExit climbExit = Location.ExitsFor(this)
+        IRoomExit climbExit = Location.ExitsFor(this)
                                 .FirstOrDefault(x => x.OutboundDirection == CardinalDirection.Up && x.IsClimbExit);
         if (!higherLayers.Any())
         {
@@ -2908,7 +2908,7 @@ public partial class Character
         List<RoomLayer> lowerLayers = terrain.TerrainLayers
                                  .Where(x => x.IsLowerThan(RoomLayer) && !x.IsLowerThan(RoomLayer.GroundLevel))
                                  .ToList();
-        ICellExit climbExit = Location.ExitsFor(this)
+        IRoomExit climbExit = Location.ExitsFor(this)
                                 .FirstOrDefault(x => x.OutboundDirection == CardinalDirection.Down && x.IsClimbExit);
         if (!lowerLayers.Any())
         {
@@ -2955,7 +2955,7 @@ public partial class Character
 
         ITerrain terrain = Location.Terrain(this);
         List<RoomLayer> higherLayers = terrain.TerrainLayers.Where(x => x.IsHigherThan(RoomLayer)).ToList();
-        ICellExit climbExit = Location.ExitsFor(this)
+        IRoomExit climbExit = Location.ExitsFor(this)
                                 .FirstOrDefault(x => x.OutboundDirection == CardinalDirection.Up && x.IsClimbExit);
         if (!higherLayers.Any())
         {
@@ -3025,7 +3025,7 @@ public partial class Character
 
         ITerrain terrain = Location.Terrain(this);
         List<RoomLayer> lowerLayers = terrain.TerrainLayers.Where(x => x.IsLowerThan(RoomLayer)).ToList();
-        ICellExit climbExit = Location.ExitsFor(this)
+        IRoomExit climbExit = Location.ExitsFor(this)
                                 .FirstOrDefault(x => x.OutboundDirection == CardinalDirection.Down && x.IsClimbExit);
         if (!lowerLayers.Any())
         {

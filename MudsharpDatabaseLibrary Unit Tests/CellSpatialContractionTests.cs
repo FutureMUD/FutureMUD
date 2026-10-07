@@ -12,7 +12,7 @@ using MudSharp.Models;
 namespace MudSharp_Unit_Tests;
 
 [TestClass]
-public class CellSpatialContractionTests
+public class RoomSpatialContractionTests
 {
 	[TestMethod]
 	public void Contraction_AssertsFinalMappingBeforeDestructiveDdlAndKeepsInitialProvenance()
@@ -47,14 +47,14 @@ public class CellSpatialContractionTests
 			.UseMySql("server=127.0.0.1;database=unused;uid=unused;password=unused", ServerVersion.Parse("8.0.36-mysql")).Options;
 		using var context = new FuturemudDatabaseContext(options);
 		var model = context.GetService<IDesignTimeModel>().Model;
-		Assert.IsNull(model.FindEntityType("MudSharp.Models.Room"));
-		Assert.IsNull(model.FindEntityType("MudSharp.Models.AreasRooms"));
-		var cell = model.FindEntityType(typeof(Cell))!;
-		Assert.IsNull(cell.FindProperty("RoomId"));
-		foreach (var name in new[] { "ZoneId", "X", "Y", "Z" }) Assert.IsFalse(cell.FindProperty(name)!.IsNullable);
-		Assert.AreEqual(DeleteBehavior.Restrict, cell.GetForeignKeys().Single(x => x.Properties.Count == 1 && x.Properties[0].Name == "ZoneId").DeleteBehavior);
-		Assert.IsFalse(cell.GetIndexes().Any(x => x.IsUnique && x.Properties.Any(p => p.Name is "X" or "Y" or "Z")));
-		foreach (var type in new[] { typeof(CellRoomMigrationLedger), typeof(CellRoomAreaMigrationLedger), typeof(CellRoomContractionLedger), typeof(CellRoomAreaContractionLedger) })
+		Assert.IsNull(model.FindEntityType("MudSharp.Models.Cell"));
+		Assert.IsNull(model.FindEntityType("MudSharp.Models.AreasCells"));
+		var room = model.FindEntityType(typeof(Room))!;
+		Assert.IsNull(room.FindProperty("RoomId"));
+		foreach (var name in new[] { "ZoneId", "X", "Y", "Z" }) Assert.IsFalse(room.FindProperty(name)!.IsNullable);
+		Assert.AreEqual(DeleteBehavior.Restrict, room.GetForeignKeys().Single(x => x.Properties.Count == 1 && x.Properties[0].Name == "ZoneId").DeleteBehavior);
+		Assert.IsFalse(room.GetIndexes().Any(x => x.IsUnique && x.Properties.Any(p => p.Name is "X" or "Y" or "Z")));
+		foreach (var type in new[] { typeof(RoomSpatialMigrationLedger), typeof(RoomSpatialAreaMigrationLedger), typeof(RoomSpatialContractionLedger), typeof(RoomSpatialAreaContractionLedger) })
 			Assert.IsFalse(model.FindEntityType(type)!.GetForeignKeys().Any());
 	}
 }

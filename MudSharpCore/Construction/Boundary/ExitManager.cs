@@ -4,10 +4,10 @@ namespace MudSharp.Construction.Boundary;
 
 public class ExitManager : IExitManager, IHaveFuturemud
 {
-    protected readonly CollectionDictionary<(ICell Cell, ICellOverlay Overlay), IExit> CellExitDictionary =
+    protected readonly CollectionDictionary<(IRoom Room, IRoomOverlay Overlay), IExit> RoomExitDictionary =
         new();
 
-    protected readonly CollectionDictionary<ICell, IExit> TransientExitDictionary = new();
+    protected readonly CollectionDictionary<IRoom, IExit> TransientExitDictionary = new();
 
     protected readonly DictionaryWithDefault<long, IExit> MasterExitList = new();
 
@@ -32,19 +32,19 @@ public class ExitManager : IExitManager, IHaveFuturemud
     /// </summary>
     /// <param name="cell">The cell which is being initialised</param>
     /// <param name="overlay">The overlay which is being initialised (if not specified, initialise all overlays)</param>
-    public void InitialiseCell(ICell cell, ICellOverlay overlay)
+    public void InitialiseRoom(IRoom room, IRoomOverlay overlay)
     {
         if (overlay == null)
         {
-            foreach (ICellOverlay item in cell.Overlays)
+            foreach (IRoomOverlay item in room.Overlays)
             {
-                InitialiseCell(cell, item);
+                InitialiseRoom(room, item);
             }
 
             return;
         }
 
-        if (CellExitDictionary.ContainsKey((cell, overlay)))
+        if (RoomExitDictionary.ContainsKey((room, overlay)))
         {
             return;
         }
@@ -53,7 +53,7 @@ public class ExitManager : IExitManager, IHaveFuturemud
         {
             List<Models.Exit> exits =
                 FMDB.Context.Exits.Where(
-                        x => (x.CellId1 == cell.Id || x.CellId2 == cell.Id) && overlay.ExitIDs.Contains(x.Id))
+                        x => (x.RoomId1 == room.Id || x.RoomId2 == room.Id) && overlay.ExitIDs.Contains(x.Id))
                     .ToList();
             List<IExit> exitList = new();
             foreach (Models.Exit exit in exits)
@@ -73,69 +73,69 @@ public class ExitManager : IExitManager, IHaveFuturemud
                 exitList.Add(newExit);
             }
 
-            CellExitDictionary.AddRange((cell, overlay), exitList);
+            RoomExitDictionary.AddRange((room, overlay), exitList);
         }
 
-        cell.OnExitsInitialised();
+        room.OnExitsInitialised();
     }
 
     #region IExitManager Implementation
 
-    public ICellExit GetExit(ICell cell, CardinalDirection direction, IPerceiver voyeur)
+    public IRoomExit GetExit(IRoom room, CardinalDirection direction, IPerceiver voyeur)
     {
-        ICellOverlay overlay = cell.GetOverlayFor(voyeur);
+        IRoomOverlay overlay = room.GetOverlayFor(voyeur);
         if (overlay == null)
         {
-            overlay = cell.CurrentOverlay;
+            overlay = room.CurrentOverlay;
         }
 
-        InitialiseCell(cell, overlay);
+        InitialiseRoom(room, overlay);
 
         IExit exit =
-            CellExitDictionary[(cell, overlay)]
+            RoomExitDictionary[(room, overlay)]
                 .Where(x => overlay.ExitIDs.Contains(x.Id))
-                .Concat(TransientExitDictionary[cell])
-                .FirstOrDefault(x => x.CellExitFor(cell).OutboundDirection == direction);
-        ICellExit cellExit = exit?.CellExitFor(cell);
+                .Concat(TransientExitDictionary[room])
+                .FirstOrDefault(x => x.RoomExitFor(room).OutboundDirection == direction);
+        IRoomExit cellExit = exit?.RoomExitFor(room);
         if (cellExit?.MovementTransition(voyeur).TransitionType ==
-            CellMovementTransition.NoViableTransition)
+            RoomMovementTransition.NoViableTransition)
         {
             return null;
         }
 
-        return exit?.CellExitFor(cell);
+        return exit?.RoomExitFor(room);
     }
 
-    public ICellExit GetExit(ICell cell, string verb, string target, IPerceiver voyeur, ICellOverlay overlay = null)
+    public IRoomExit GetExit(IRoom room, string verb, string target, IPerceiver voyeur, IRoomOverlay overlay = null)
     {
         if (overlay == null)
         {
-            overlay = cell.CurrentOverlay;
+            overlay = room.CurrentOverlay;
         }
 
-        if (!CellExitDictionary.ContainsKey((cell, overlay)))
+        if (!RoomExitDictionary.ContainsKey((room, overlay)))
         {
-            InitialiseCell(cell, overlay);
+            InitialiseRoom(room, overlay);
         }
 
         List<IExit> exits =
-            CellExitDictionary[(cell, overlay)]
+            RoomExitDictionary[(room, overlay)]
                 .Where(x => overlay.ExitIDs.Contains(x.Id))
-                .Concat(TransientExitDictionary[cell])
-                .Where(x => x.IsExit(cell, verb) && voyeur.CanSee(x))
-                .OrderBy(x => x.CellExitFor(cell).OutboundDirection.ExitCommandPriority())
+                .Concat(TransientExitDictionary[room])
+                .Where(x => x.IsExit(room, verb) && voyeur.CanSee(x))
+                .OrderBy(x => x.RoomExitFor(room).OutboundDirection.ExitCommandPriority())
                 .ToList();
-        ICellExit exit = null;
+        IRoomExit exit = null;
         if (!string.IsNullOrEmpty(target))
         {
-            exit = exits.Select(x => x.CellExitFor(cell)).GetFromItemListByKeyword(target, voyeur);
+            exit = exits.Select(x => x.RoomExitFor(room)).GetFromItemListByKeyword(target, voyeur);
         }
         else
         {
-            exit = exits.Any() ? exits.First().CellExitFor(cell) : null;
+            exit = exits.Any() ? exits.First().RoomExitFor(room) : null;
         }
 
-        if (exit?.MovementTransition(voyeur).TransitionType == CellMovementTransition.NoViableTransition)
+        if (exit?.MovementTransition(voyeur).TransitionType == RoomMovementTransition.NoViableTransition)
         {
             return null;
         }
@@ -143,28 +143,28 @@ public class ExitManager : IExitManager, IHaveFuturemud
         return exit;
     }
 
-    public ICellExit GetExitKeyword(ICell cell, string keyword, IPerceiver voyeur, ICellOverlay overlay = null)
+    public IRoomExit GetExitKeyword(IRoom room, string keyword, IPerceiver voyeur, IRoomOverlay overlay = null)
     {
         if (overlay == null)
         {
-            overlay = cell.CurrentOverlay;
+            overlay = room.CurrentOverlay;
         }
 
-        if (!CellExitDictionary.ContainsKey((cell, overlay)))
+        if (!RoomExitDictionary.ContainsKey((room, overlay)))
         {
-            InitialiseCell(cell, overlay);
+            InitialiseRoom(room, overlay);
         }
 
         List<IExit> exits =
-            CellExitDictionary[(cell, overlay)]
+            RoomExitDictionary[(room, overlay)]
                 .Where(x => overlay.ExitIDs.Contains(x.Id))
-                .Concat(TransientExitDictionary[cell])
-                .Where(x => x.IsExitKeyword(cell, keyword) && voyeur.CanSee(x))
-                .OrderBy(x => x.CellExitFor(cell).OutboundDirection.ExitCommandPriority())
+                .Concat(TransientExitDictionary[room])
+                .Where(x => x.IsExitKeyword(room, keyword) && voyeur.CanSee(x))
+                .OrderBy(x => x.RoomExitFor(room).OutboundDirection.ExitCommandPriority())
                 .ToList();
-        ICellExit cellExit = exits.FirstOrDefault()?.CellExitFor(cell);
+        IRoomExit cellExit = exits.FirstOrDefault()?.RoomExitFor(room);
         if (cellExit?.MovementTransition(voyeur).TransitionType ==
-            CellMovementTransition.NoViableTransition)
+            RoomMovementTransition.NoViableTransition)
         {
             return null;
         }
@@ -172,20 +172,20 @@ public class ExitManager : IExitManager, IHaveFuturemud
         return cellExit;
     }
 
-    public IEnumerable<ICellExit> GetExitsFor(ICell cell, ICellOverlay overlay = null, RoomLayer? layer = null)
+    public IEnumerable<IRoomExit> GetExitsFor(IRoom room, IRoomOverlay overlay = null, RoomLayer? layer = null)
     {
         if (overlay == null)
         {
-            overlay = cell.CurrentOverlay;
+            overlay = room.CurrentOverlay;
         }
 
-        InitialiseCell(cell, overlay);
+        InitialiseRoom(room, overlay);
 
         return
-            CellExitDictionary[(cell, overlay)]
+            RoomExitDictionary[(room, overlay)]
                 .Where(x => overlay.ExitIDs.Contains(x.Id))
-                .Concat(TransientExitDictionary[cell])
-                .Select(x => x.CellExitFor(cell))
+                .Concat(TransientExitDictionary[room])
+                .Select(x => x.RoomExitFor(room))
                 .Where(x => layer == null || x.WhichLayersExitAppears().Contains(layer.Value))
                 .ToList();
     }
@@ -196,20 +196,20 @@ public class ExitManager : IExitManager, IHaveFuturemud
     /// <param name="cell">The cell for which to request the exit information</param>
     /// <param name="package">The overlay package for which you want to get exits</param>
     /// <returns>An IEnumerable of all the ICellExits for this cell and overlay package</returns>
-    public IEnumerable<ICellExit> GetExitsFor(ICell cell, ICellOverlayPackage package, RoomLayer? layer = null)
+    public IEnumerable<IRoomExit> GetExitsFor(IRoom room, IRoomOverlayPackage package, RoomLayer? layer = null)
     {
-        ICellOverlay overlay = cell.GetOverlay(package);
+        IRoomOverlay overlay = room.GetOverlay(package);
         if (overlay == null)
         {
-            return Enumerable.Empty<ICellExit>();
+            return Enumerable.Empty<IRoomExit>();
         }
 
-        InitialiseCell(cell, overlay);
+        InitialiseRoom(room, overlay);
 
         return
-            CellExitDictionary[(cell, overlay)].Where(x => overlay.ExitIDs.Contains(x.Id))
-                                                           .Concat(TransientExitDictionary[cell])
-                                                           .Select(x => x.CellExitFor(cell))
+            RoomExitDictionary[(room, overlay)].Where(x => overlay.ExitIDs.Contains(x.Id))
+                                                           .Concat(TransientExitDictionary[room])
+                                                           .Select(x => x.RoomExitFor(room))
                                                            .Where(x => layer == null || x.WhichLayersExitAppears()
                                                                .Contains(layer.Value))
                                                            .ToList();
@@ -219,28 +219,28 @@ public class ExitManager : IExitManager, IHaveFuturemud
     {
         using (new FMDB())
         {
-            foreach (Models.Exit exit in FMDB.Context.Exits.Where(x => x.DoorId.HasValue || x.FallCell.HasValue).ToList())
+            foreach (Models.Exit exit in FMDB.Context.Exits.Where(x => x.DoorId.HasValue || x.FallRoom.HasValue).ToList())
             {
-                InitialiseCell(Gameworld.Cells.Get(exit.CellId1), null);
-                InitialiseCell(Gameworld.Cells.Get(exit.CellId2), null);
+                InitialiseRoom(Gameworld.Rooms.Get(exit.RoomId1), null);
+                InitialiseRoom(Gameworld.Rooms.Get(exit.RoomId2), null);
             }
         }
     }
 
-    public IEnumerable<ICellExit> GetAllExits(ICell cell)
+    public IEnumerable<IRoomExit> GetAllExits(IRoom room)
     {
         // Initialise each of the overlays for the cell
-        foreach (ICellOverlay overlay in cell.Overlays)
+        foreach (IRoomOverlay overlay in room.Overlays)
         {
-            InitialiseCell(cell, overlay);
+            InitialiseRoom(room, overlay);
         }
 
         return
-            CellExitDictionary.Where(x => x.Key.Item1 == cell)
+            RoomExitDictionary.Where(x => x.Key.Item1 == room)
                               .SelectMany(x => x.Value)
-                              .Concat(TransientExitDictionary[cell])
+                              .Concat(TransientExitDictionary[room])
                               .Distinct()
-                              .Select(x => x.CellExitFor(cell));
+                              .Select(x => x.RoomExitFor(room));
     }
 
     public IExit GetExitByID(long id)
@@ -262,11 +262,11 @@ public class ExitManager : IExitManager, IHaveFuturemud
         }
 
 		var registered = false;
-        foreach (var cell in exit.Cells)
+        foreach (var room in exit.Rooms)
         {
-            if (!TransientExitDictionary[cell].Contains(exit))
+            if (!TransientExitDictionary[room].Contains(exit))
             {
-                TransientExitDictionary.Add(cell, exit);
+                TransientExitDictionary.Add(room, exit);
 				registered = true;
             }
         }
@@ -289,31 +289,31 @@ public class ExitManager : IExitManager, IHaveFuturemud
 		if (existingExit is not ITransientExit existingTransient ||
 		    replacementExit is not ITransientExit replacementTransient ||
 		    !existingTransient.StableKey.Equals(replacementTransient.StableKey, StringComparison.Ordinal) ||
-		    !existingExit.Cells.Select(x => x.Id).OrderBy(x => x)
-			    .SequenceEqual(replacementExit.Cells.Select(x => x.Id).OrderBy(x => x)))
+		    !existingExit.Rooms.Select(x => x.Id).OrderBy(x => x)
+			    .SequenceEqual(replacementExit.Rooms.Select(x => x.Id).OrderBy(x => x)))
 		{
 			UnregisterTransientExit(existingExit);
 			RegisterTransientExit(replacementExit);
 			return false;
 		}
 
-		var wasRegistered = existingExit.Cells.Any(cell => TransientExitDictionary[cell].Contains(existingExit));
+		var wasRegistered = existingExit.Rooms.Any(room => TransientExitDictionary[room].Contains(existingExit));
 		if (!wasRegistered)
 		{
 			RegisterTransientExit(replacementExit);
 			return false;
 		}
 
-		foreach (var cell in existingExit.Cells)
+		foreach (var room in existingExit.Rooms)
 		{
-			TransientExitDictionary.Remove(cell, existingExit);
+			TransientExitDictionary.Remove(room, existingExit);
 		}
 
-		foreach (var cell in replacementExit.Cells)
+		foreach (var room in replacementExit.Rooms)
 		{
-			if (!TransientExitDictionary[cell].Contains(replacementExit))
+			if (!TransientExitDictionary[room].Contains(replacementExit))
 			{
-				TransientExitDictionary.Add(cell, replacementExit);
+				TransientExitDictionary.Add(room, replacementExit);
 			}
 		}
 
@@ -330,15 +330,15 @@ public class ExitManager : IExitManager, IHaveFuturemud
             return;
         }
 
-		var wasRegistered = exit.Cells.Any(cell => TransientExitDictionary[cell].Contains(exit));
+		var wasRegistered = exit.Rooms.Any(room => TransientExitDictionary[room].Contains(exit));
 		if (!wasRegistered)
 		{
 			return;
 		}
 
-        foreach (var cell in exit.Cells)
+        foreach (var room in exit.Rooms)
         {
-            TransientExitDictionary.Remove(cell, exit);
+            TransientExitDictionary.Remove(room, exit);
         }
 
         PathfindingService.InvalidateTopology();
@@ -349,30 +349,30 @@ public class ExitManager : IExitManager, IHaveFuturemud
 		}
     }
 
-    public void UpdateCellOverlayExits(ICell cell, ICellOverlay overlay)
+    public void UpdateRoomOverlayExits(IRoom room, IRoomOverlay overlay)
     {
         // It is only necessary to update if it is a Cell / Cell Overlay combo that we have already loaded. Otherwise it can be caught later.
-        if (CellExitDictionary.ContainsKey((cell, overlay)))
+        if (RoomExitDictionary.ContainsKey((room, overlay)))
         {
-            CellExitDictionary.Remove((cell, overlay));
+            RoomExitDictionary.Remove((room, overlay));
         }
 
-        InitialiseCell(cell, overlay);
-        PathfindingService.InvalidateTopology(cell);
-		SpatialPathfinder.InvalidateTopology(cell);
+        InitialiseRoom(room, overlay);
+        PathfindingService.InvalidateTopology(room);
+		SpatialPathfinder.InvalidateTopology(room);
     }
 
-    public void DeleteCell(ICell cell)
+    public void DeleteRoom(IRoom room)
     {
-        PathfindingService.InvalidateTopology(cell);
+        PathfindingService.InvalidateTopology(room);
 		SpatialPathfinder.InvalidateTopology();
 
         // Initialise the cell so all exits are in memory
-        InitialiseCell(cell, null);
+        InitialiseRoom(room, null);
 
         // Get a list of all the exits that we're deleting
         HashSet<IExit> exitsToDelete = new();
-        foreach (ICellOverlay overlay in cell.Overlays)
+        foreach (IRoomOverlay overlay in room.Overlays)
         {
             foreach (long exit in overlay.ExitIDs)
             {
@@ -380,17 +380,17 @@ public class ExitManager : IExitManager, IHaveFuturemud
             }
 
             // Also remove the cell/overlay combo from the master list
-            CellExitDictionary.Remove((cell, overlay));
+            RoomExitDictionary.Remove((room, overlay));
         }
 
         // Remove the other end exit as well
-        List<ICell> otherCells = exitsToDelete.SelectMany(x => x.Cells).Distinct().Except(cell).ToList();
-        foreach (ICell other in otherCells)
+        List<IRoom> otherRooms = exitsToDelete.SelectMany(x => x.Rooms).Distinct().Except(room).ToList();
+        foreach (IRoom other in otherRooms)
         {
-            InitialiseCell(other, null);
-            foreach (ICellOverlay overlay in other.Overlays)
+            InitialiseRoom(other, null);
+            foreach (IRoomOverlay overlay in other.Overlays)
             {
-                CellExitDictionary.RemoveAll((other, overlay), x => x.Cells.Contains(cell));
+                RoomExitDictionary.RemoveAll((other, overlay), x => x.Rooms.Contains(room));
             }
         }
 
@@ -398,11 +398,11 @@ public class ExitManager : IExitManager, IHaveFuturemud
         foreach (IExit exit in exitsToDelete)
         {
             MasterExitList.Remove(exit.Id);
-            foreach (IEditableCellOverlay overlay in exit.Cells.First().Overlays)
+            foreach (IEditableRoomOverlay overlay in exit.Rooms.First().Overlays)
             {
                 overlay.RemoveExit(exit);
             }
-            foreach (IEditableCellOverlay overlay in exit.Cells.Last().Overlays)
+            foreach (IEditableRoomOverlay overlay in exit.Rooms.Last().Overlays)
             {
                 overlay.RemoveExit(exit);
             }

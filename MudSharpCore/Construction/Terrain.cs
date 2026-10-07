@@ -45,7 +45,7 @@ public partial class Terrain : SaveableItem, ITerrain
         InfectionMultiplier = terrain.InfectionMultiplier;
         InfectionVirulence = (Difficulty)terrain.InfectionVirulence;
         PrimaryInfection = (InfectionType)terrain.InfectionType;
-        DefaultCellOutdoorsType = (CellOutdoorsType)terrain.DefaultCellOutdoorsType;
+        DefaultRoomOutdoorsType = (RoomOutdoorsType)terrain.DefaultRoomOutdoorsType;
         TerrainEditorText = terrain.TerrainEditorText;
         TerrainEditorColour = terrain.TerrainEditorColour;
         TerrainANSIColour = terrain.TerrainANSIColour;
@@ -438,7 +438,7 @@ public partial class Terrain : SaveableItem, ITerrain
             dbitem.TerrainBehaviourMode = "Standard";
             dbitem.TerrainEditorColour = "#FF7CFC00";
             dbitem.TerrainEditorText = null;
-            dbitem.DefaultCellOutdoorsType = (int)CellOutdoorsType.Outdoors;
+            dbitem.DefaultRoomOutdoorsType = (int)RoomOutdoorsType.Outdoors;
             dbitem.TrackIntensityMultiplierOlfactory = 1.0;
             dbitem.TrackIntensityMultiplierVisual = 1.0;
             dbitem.CanHaveTracks = true;
@@ -478,7 +478,7 @@ public partial class Terrain : SaveableItem, ITerrain
 			dbitem.EnvironmentalMagicProfileId = rhs.EnvironmentalMagicProfileId;
             dbitem.TerrainBehaviourMode = rhsItem.TerrainBehaviourMode;
             dbitem.TerrainEditorColour = rhsItem.TerrainEditorColour;
-            dbitem.DefaultCellOutdoorsType = rhsItem.DefaultCellOutdoorsType;
+            dbitem.DefaultRoomOutdoorsType = rhsItem.DefaultRoomOutdoorsType;
             dbitem.TerrainEditorText = rhsItem.TerrainEditorText;
             dbitem.TerrainANSIColour = rhsItem.TerrainANSIColour;
             dbitem.TrackIntensityMultiplierOlfactory = rhsItem.TrackIntensityMultiplierOlfactory;
@@ -517,7 +517,7 @@ public partial class Terrain : SaveableItem, ITerrain
 		dbitem.EnvironmentalMagicProfileId = EnvironmentalMagicProfileId;
         dbitem.TerrainBehaviourMode = TerrainBehaviourString;
         dbitem.TerrainANSIColour = TerrainANSIColour;
-        dbitem.DefaultCellOutdoorsType = (int)DefaultCellOutdoorsType;
+        dbitem.DefaultRoomOutdoorsType = (int)DefaultRoomOutdoorsType;
         dbitem.CanHaveTracks = CanHaveTracks;
         dbitem.TrackIntensityMultiplierVisual = TrackIntensityMultiplierVisual;
         dbitem.TrackIntensityMultiplierOlfactory = TrackIntensityMultiplierOlfactory;
@@ -534,7 +534,7 @@ public partial class Terrain : SaveableItem, ITerrain
 
     public override string FrameworkItemType => "Terrain";
 
-    public CellOutdoorsType DefaultCellOutdoorsType { get; private set; }
+    public RoomOutdoorsType DefaultRoomOutdoorsType { get; private set; }
 
     public double MovementRate { get; private set; }
 
@@ -787,7 +787,7 @@ public partial class Terrain : SaveableItem, ITerrain
         sb.AppendLine($"Default: {DefaultTerrain.ToColouredString()}");
         sb.AppendLine($"Stamina: {StaminaCost.ToString("N2", actor).ColourValue()}");
         sb.AppendLine($"Movement: {MovementRate.ToString("P3", actor).ColourValue()}");
-        sb.AppendLine($"Default Outdoors: {DefaultCellOutdoorsType.Describe().ColourValue()}");
+        sb.AppendLine($"Default Outdoors: {DefaultRoomOutdoorsType.Describe().ColourValue()}");
         sb.AppendLine($"Hide Difficulty: {HideDifficulty.Describe().ColourValue()}");
         sb.AppendLine($"Spot Difficulty: {SpotDifficulty.Describe().ColourValue()}");
         sb.AppendLine($"Atmosphere: {Atmosphere?.Name.Colour(Atmosphere.DisplayColour) ?? "None".Colour(Telnet.Red)}");
@@ -884,22 +884,22 @@ public partial class Terrain : SaveableItem, ITerrain
             case "outdoor":
             case "outdoors":
             case "outside":
-                return BuildingCommandOutdoors(actor, CellOutdoorsType.Outdoors);
+                return BuildingCommandOutdoors(actor, RoomOutdoorsType.Outdoors);
             case "indoors":
             case "indoor":
             case "inside":
-                return BuildingCommandOutdoors(actor, CellOutdoorsType.Indoors);
+                return BuildingCommandOutdoors(actor, RoomOutdoorsType.Indoors);
             case "windows":
-                return BuildingCommandOutdoors(actor, CellOutdoorsType.IndoorsWithWindows);
+                return BuildingCommandOutdoors(actor, RoomOutdoorsType.IndoorsWithWindows);
             case "cave":
             case "nolight":
             case "no light":
-                return BuildingCommandOutdoors(actor, CellOutdoorsType.IndoorsNoLight);
+                return BuildingCommandOutdoors(actor, RoomOutdoorsType.IndoorsNoLight);
             case "shelter":
             case "climate":
             case "sheltered":
             case "exposed":
-                return BuildingCommandOutdoors(actor, CellOutdoorsType.IndoorsClimateExposed);
+                return BuildingCommandOutdoors(actor, RoomOutdoorsType.IndoorsClimateExposed);
             case "mapcolour":
             case "mapcolor":
                 return BuildingCommandMapColour(actor, command);
@@ -1270,28 +1270,28 @@ The following additional models require you to specify a liquid to go with them:
         return true;
     }
 
-    private bool BuildingCommandOutdoors(ICharacter actor, CellOutdoorsType outdoors)
+    private bool BuildingCommandOutdoors(ICharacter actor, RoomOutdoorsType outdoors)
     {
-        DefaultCellOutdoorsType = outdoors;
+        DefaultRoomOutdoorsType = outdoors;
         Changed = true;
         switch (outdoors)
         {
-            case CellOutdoorsType.Indoors:
+            case RoomOutdoorsType.Indoors:
                 actor.OutputHandler.Send($"This terrain is now indoors by default.");
                 break;
-            case CellOutdoorsType.IndoorsWithWindows:
+            case RoomOutdoorsType.IndoorsWithWindows:
                 actor.OutputHandler.Send(
                     $"This terrain is now indoors with windows by default. This means those inside will be able to see the weather and the position of the sun, even though sheltered.");
                 break;
-            case CellOutdoorsType.Outdoors:
+            case RoomOutdoorsType.Outdoors:
                 actor.OutputHandler.Send(
                     $"This terrain is now outdoors by default; exposed to the elements with full visibility.");
                 break;
-            case CellOutdoorsType.IndoorsNoLight:
+            case RoomOutdoorsType.IndoorsNoLight:
                 actor.OutputHandler.Send(
                     $"This terrain is now indoors with no light (i.e. cave) by default. They cannot see outside and there is no natural light from celestial objects.");
                 break;
-            case CellOutdoorsType.IndoorsClimateExposed:
+            case RoomOutdoorsType.IndoorsClimateExposed:
                 actor.OutputHandler.Send(
                     $"This terrain is now indoors but climate exposed (i.e. a shelter or a bluff). It is safe from the rain but not from the wind.");
                 break;
@@ -1446,8 +1446,8 @@ The following additional models require you to specify a liquid to go with them:
 
 	private void RefreshWeatherSubscriptions()
 	{
-		foreach (var cell in Gameworld.Cells.OfType<Cell>().Where(x => x.Overlays.Any(o => o.Terrain == this)))
-			cell.RefreshWeatherSubscriptions();
+		foreach (var room in Gameworld.Rooms.OfType<Room>().Where(x => x.Overlays.Any(o => o.Terrain == this)))
+			room.RefreshWeatherSubscriptions();
 	}
 
     private bool BuildingCommandForage(ICharacter actor, StringStack command)

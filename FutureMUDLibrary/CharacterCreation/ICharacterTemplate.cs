@@ -50,7 +50,7 @@ namespace MudSharp.CharacterCreation
         List<ITraitDefinition> SelectedSkills { get; }
         List<(ITraitDefinition, double)> SkillValues { get; }
         double SelectedWeight { get; }
-        ICell SelectedStartingLocation { get; }
+        IRoom SelectedStartingLocation { get; }
         List<IChargenRole> SelectedRoles { get; }
         IAccount Account { get; }
         List<ICharacterMerit> SelectedMerits { get; }

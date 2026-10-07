@@ -422,7 +422,7 @@ public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, IL
         return false;
     }
 
-    public override bool HandleDieOrMorph(IGameItem newItem, ICell location)
+    public override bool HandleDieOrMorph(IGameItem newItem, IRoom location)
     {
         IContainer newItemContainer = newItem?.GetItemType<IContainer>();
         if (newItemContainer != null)
@@ -941,7 +941,7 @@ public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, IL
             }
         }
 
-        ICell location = emptier?.Location ?? Parent.TrueLocations.FirstOrDefault();
+        IRoom location = emptier?.Location ?? Parent.TrueLocations.FirstOrDefault();
         List<IGameItem> contents = Contents.ToList();
         _contents.Clear();
         if (emptier is not null)

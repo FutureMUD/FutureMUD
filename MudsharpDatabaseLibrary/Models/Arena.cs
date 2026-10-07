@@ -8,7 +8,7 @@ public class Arena
     public Arena()
     {
         ArenaManagers = new HashSet<ArenaManager>();
-        ArenaCells = new HashSet<ArenaCell>();
+        ArenaRooms = new HashSet<ArenaRoom>();
         ArenaCombatantClasses = new HashSet<ArenaCombatantClass>();
         ArenaEventTypes = new HashSet<ArenaEventType>();
         ArenaEvents = new HashSet<ArenaEvent>();
@@ -32,7 +32,7 @@ public class Arena
     public virtual BankAccount BankAccount { get; set; }
     public virtual FutureProg OnArenaEventPhaseProg { get; set; }
     public virtual ICollection<ArenaManager> ArenaManagers { get; set; }
-    public virtual ICollection<ArenaCell> ArenaCells { get; set; }
+    public virtual ICollection<ArenaRoom> ArenaRooms { get; set; }
     public virtual ICollection<ArenaCombatantClass> ArenaCombatantClasses { get; set; }
     public virtual ICollection<ArenaEventType> ArenaEventTypes { get; set; }
     public virtual ICollection<ArenaEvent> ArenaEvents { get; set; }
@@ -51,15 +51,15 @@ public class ArenaManager
     public virtual Character Character { get; set; }
 }
 
-public class ArenaCell
+public class ArenaRoom
 {
     public long Id { get; set; }
     public long ArenaId { get; set; }
-    public long CellId { get; set; }
+    public long RoomId { get; set; }
     public int Role { get; set; }
 
     public virtual Arena Arena { get; set; }
-    public virtual Cell Cell { get; set; }
+    public virtual Room Room { get; set; }
 }
 
 public class ArenaRating

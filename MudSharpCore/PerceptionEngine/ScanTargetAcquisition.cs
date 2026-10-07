@@ -26,14 +26,14 @@ internal static class ScanTargetAcquisition
 		List<ICharacter> acquired = [];
 		foreach (ScanCandidate candidate in Candidates(observer, maximumRange))
 		{
-			if (candidate.Cell is null || ReferenceEquals(candidate.Target, observer) ||
+			if (candidate.Room is null || ReferenceEquals(candidate.Target, observer) ||
 				!candidate.Target.RoomLayer.CanBeSeenFromLayer(observer.RoomLayer) ||
 				!observer.CanSee(candidate.Target, PerceiveIgnoreFlags.IgnoreObscured))
 			{
 				continue;
 			}
 
-			Difficulty difficulty = candidate.Cell.SpotDifficulty(observer)
+			Difficulty difficulty = candidate.Room.SpotDifficulty(observer)
 				.StageUp(Math.Max(0, candidate.Distance - 1));
 			if (candidate.Target.CurrentContextualSize(SizeContext.Scan) < MinimumVisibleSize(observer, outcomes,
 				difficulty))
@@ -89,7 +89,7 @@ internal static class ScanTargetAcquisition
 
 		return observer.Location.RouteDefinition is null &&
 		       target.Location.RouteDefinition is null &&
-		       observer.CellsInVicinity(maximumRange, true, true).Contains(target.Location);
+		       observer.RoomsInVicinity(maximumRange, true, true).Contains(target.Location);
 	}
 
 	private static IEnumerable<ScanCandidate> Candidates(ICharacter observer, uint maximumRange)
@@ -105,11 +105,11 @@ internal static class ScanTargetAcquisition
 					target,
 					target.Location,
 					RouteDistance(observer, target, route.MetresPerRoomEquivalent)))
-				.Where(x => x.Cell is not null);
+				.Where(x => x.Room is not null);
 		}
 
-		return observer.CellsAndDistancesInVicinity(maximumRange, true, true)
-			.SelectMany(x => x.Cell.Characters.Select(character => new ScanCandidate(character, x.Cell, x.Distance)));
+		return observer.RoomsAndDistancesInVicinity(maximumRange, true, true)
+			.SelectMany(x => x.Room.Characters.Select(character => new ScanCandidate(character, x.Room, x.Distance)));
 	}
 
 	private static int RouteDistance(ICharacter observer, ICharacter target, double metresPerRoomEquivalent)
@@ -121,7 +121,7 @@ internal static class ScanTargetAcquisition
 		// separation deliberately requires the same layer. The route query has already limited
 		// candidates to this cell and radius, so retain their horizontal distance for scan size
 		// difficulty rather than overflowing to an artificial automatic check.
-		if (!separation.HasValue && ReferenceEquals(origin.Cell, destination.Cell) &&
+		if (!separation.HasValue && ReferenceEquals(origin.Room, destination.Room) &&
 			origin.RoutePositionMetres.HasValue && destination.RoutePositionMetres.HasValue)
 		{
 			separation = Math.Abs(origin.RoutePositionMetres.Value - destination.RoutePositionMetres.Value);
@@ -148,5 +148,5 @@ internal static class ScanTargetAcquisition
 		};
 	}
 
-	private sealed record ScanCandidate(ICharacter Target, ICell? Cell, int Distance);
+	private sealed record ScanCandidate(ICharacter Target, IRoom? Room, int Distance);
 }

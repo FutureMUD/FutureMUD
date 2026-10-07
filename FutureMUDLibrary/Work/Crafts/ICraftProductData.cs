@@ -12,8 +12,8 @@ public interface ICraftProductData
     IPerceivable Perceivable { get; }
     XElement SaveToXml();
     void FinaliseLoadTimeTasks();
-    void ReleaseProducts(ICell location, RoomLayer layer);
-    void ReleaseProducts(ILocateable source, ICell location, RoomLayer layer)
+    void ReleaseProducts(IRoom location, RoomLayer layer);
+    void ReleaseProducts(ILocateable source, IRoom location, RoomLayer layer)
     {
         ReleaseProducts(location, layer);
     }

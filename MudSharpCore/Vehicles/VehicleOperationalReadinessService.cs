@@ -251,7 +251,7 @@ public class VehicleOperationalReadinessService : IVehicleOperationalReadinessSe
 	}
 
 	private VehicleResourceReadinessPlan BuildRouteExitResourcePlan(IVehicle vehicle,
-		IVehicleMovementProfilePrototype profile, ICellExit? exit)
+		IVehicleMovementProfilePrototype profile, IRoomExit? exit)
 	{
 		var distance = exit?.Origin.RouteDefinition?.MetresPerRoomEquivalent ??
 		               exit?.Destination.RouteDefinition?.MetresPerRoomEquivalent ??
@@ -726,7 +726,7 @@ public class VehicleOperationalReadinessService : IVehicleOperationalReadinessSe
 			}
 
 			var transition = exit.MovementTransition(transitionPerceiver);
-			if (transition.TransitionType == CellMovementTransition.NoViableTransition)
+			if (transition.TransitionType == RoomMovementTransition.NoViableTransition)
 			{
 				return Fail("That exit is not a viable transition from your current position.", movePlan, resourcePlan);
 			}
@@ -850,7 +850,7 @@ public class VehicleOperationalReadinessService : IVehicleOperationalReadinessSe
 			foreach (var puller in externalPullers)
 			{
 				var pullerLocation = RouteSpatialService.Instance.GetEffectiveLocation(puller);
-				if (!ReferenceEquals(pullerLocation.Cell, vehicleLocation.Cell) ||
+				if (!ReferenceEquals(pullerLocation.Room, vehicleLocation.Room) ||
 				    pullerLocation.Layer != vehicleLocation.Layer ||
 				    !pullerLocation.RoutePositionMetres.HasValue || !vehicleLocation.RoutePositionMetres.HasValue ||
 				    Math.Abs(pullerLocation.RoutePositionMetres.Value - vehicleLocation.RoutePositionMetres.Value) >

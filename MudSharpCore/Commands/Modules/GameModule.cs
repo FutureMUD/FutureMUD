@@ -573,7 +573,7 @@ The syntax is:
 
         sb.AppendLine(string.Format(actor,
             "There are a total of {0} rooms, {1} items and {2} NPCs built.",
-            actor.Gameworld.Cells.Count().ToString("N0", actor).Colour(Telnet.Green),
+            actor.Gameworld.Rooms.Count().ToString("N0", actor).Colour(Telnet.Green),
             actor.Gameworld.ItemProtos.Select(x => x.Id).Distinct().Count().ToString("N0", actor).Colour(Telnet.Green),
             actor.Gameworld.NpcTemplates.Select(x => x.Id).Distinct().Count().ToString("N0", actor)
                  .Colour(Telnet.Green)));
@@ -622,7 +622,7 @@ The syntax is:
                 clan.Clan.FullName.Colour(Telnet.Green));
         }
 
-        List<LandmarkEffect> meetingPlaces = actor.Gameworld.Cells
+        List<LandmarkEffect> meetingPlaces = actor.Gameworld.Rooms
                                  .SelectNotNull(x => x.EffectsOfType<LandmarkEffect>().FirstOrDefault())
                                  .Where(x =>
                                      x.IsMeetingPlace &&
@@ -633,7 +633,7 @@ The syntax is:
                                  ;
         foreach (LandmarkEffect place in meetingPlaces)
         {
-            ICell cellPlace = (ICell)place.Owner;
+            IRoom cellPlace = (IRoom)place.Owner;
             int locationCount = whocharacters.Count(x => x.Location == cellPlace);
             if (locationCount == 0)
             {
@@ -870,7 +870,7 @@ You can use the #3landmarks#0 syntax to see all landmarks that you know, and #3l
     protected static void Landmarks(ICharacter actor, string input)
     {
         string sphere = actor.Gameworld.FutureProgs.Get(actor.Gameworld.GetStaticLong("CharacterSphereProgId"))?.ExecuteString(actor) ?? string.Empty;
-        List<LandmarkEffect> landmarks = actor.Gameworld.Cells
+        List<LandmarkEffect> landmarks = actor.Gameworld.Rooms
                                  .SelectNotNull(x => x.EffectsOfType<LandmarkEffect>().FirstOrDefault())
                                  .Where(x =>
                                      x.ApplicabilityProg?.ExecuteBool(false, x.Owner, actor) != false &&
@@ -888,14 +888,14 @@ You can use the #3landmarks#0 syntax to see all landmarks that you know, and #3l
             sb.AppendLine();
             sb.AppendLine(StringUtilities.GetTextTable(
                 from item in landmarks
-                let cell = (ICell)item.Owner
-                let distance = actor.Location == cell ? -1 : actor.DistanceBetween(cell, 50)
+                let room = (IRoom)item.Owner
+                let distance = actor.Location == room ? -1 : actor.DistanceBetween(room, 50)
                 select new List<string>
                 {
-                    cell.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreCanSee),
-                    cell.CurrentOverlay.Terrain.Name,
+                    room.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreCanSee),
+                    room.CurrentOverlay.Terrain.Name,
                     item.IsMeetingPlace.ToColouredString(),
-                    cell.SafeQuit.ToColouredString()
+                    room.SafeQuit.ToColouredString()
                 },
                 new List<string>
                 {
@@ -912,11 +912,11 @@ You can use the #3landmarks#0 syntax to see all landmarks that you know, and #3l
             return;
         }
 
-        List<ICell> cells = landmarks.Select(x => (ICell)x.Owner).ToList();
+        List<IRoom> rooms = landmarks.Select(x => (IRoom)x.Owner).ToList();
         string targetText = ss.SafeRemainingArgument;
-        ICell target = cells.FirstOrDefault(x => x.Name.EqualTo(targetText)) ??
-                     cells.FirstOrDefault(x => x.Name.StartsWith(targetText, StringComparison.InvariantCultureIgnoreCase)) ??
-                     cells.FirstOrDefault(x => x.Name.Contains(targetText, StringComparison.InvariantCultureIgnoreCase));
+        IRoom target = rooms.FirstOrDefault(x => x.Name.EqualTo(targetText)) ??
+                     rooms.FirstOrDefault(x => x.Name.StartsWith(targetText, StringComparison.InvariantCultureIgnoreCase)) ??
+                     rooms.FirstOrDefault(x => x.Name.Contains(targetText, StringComparison.InvariantCultureIgnoreCase));
         if (target is null)
         {
             actor.OutputHandler.Send($"You're not aware of any landmark with the keyword {ss.SafeRemainingArgument.ColourCommand()}.");
@@ -937,7 +937,7 @@ You can use the #3landmarks#0 syntax to see all landmarks that you know, and #3l
         sb.AppendLine($"Safe Quit: {target.SafeQuit.ToColouredString()}");
         sb.AppendLine();
 
-        List<ICellExit> path = actor.ExitsBetween(target, 100).ToList();
+        List<IRoomExit> path = actor.ExitsBetween(target, 100).ToList();
         string pathDescription = "";
         if (path.Count == 0)
         {
@@ -966,7 +966,7 @@ You can use the #3landmarks#0 syntax to see all landmarks that you know, and #3l
                                             return x.OutboundDirection.DescribeBrief();
                                         }
 
-                                        return x is NonCardinalCellExit nc ? $"'{nc.Verb} {nc.PrimaryKeyword}'".ToLowerInvariant() : "??";
+                                        return x is NonCardinalRoomExit nc ? $"'{nc.Verb} {nc.PrimaryKeyword}'".ToLowerInvariant() : "??";
                                     })
                                       .ListToString(separator: " ", conjunction: "");
             }

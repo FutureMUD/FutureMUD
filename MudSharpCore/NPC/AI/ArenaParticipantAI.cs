@@ -329,7 +329,7 @@ public class ArenaParticipantAI : PathingAIBase
             return false;
         }
 
-        ICharacter? rangedTarget = character.Location.CellsInVicinity((uint)rangedRange, true, true)
+        ICharacter? rangedTarget = character.Location.RoomsInVicinity((uint)rangedRange, true, true)
             .SelectMany(x => x.Characters)
             .OfType<ICharacter>()
             .Where(opponents.Contains)
@@ -392,13 +392,13 @@ public class ArenaParticipantAI : PathingAIBase
         return prepEffect is not null && ch.Combat is null;
     }
 
-    protected override (ICell? Target, IEnumerable<ICellExit>) GetPath(ICharacter ch)
+    protected override (IRoom? Target, IEnumerable<IRoomExit>) GetPath(ICharacter ch)
     {
         ArenaNpcPreparationEffect? prepEffect = ch.CombinedEffectsOfType<ArenaNpcPreparationEffect>()
             .FirstOrDefault(x => x.IsParticipating);
         if (prepEffect is null)
         {
-            return (null, Enumerable.Empty<ICellExit>());
+            return (null, Enumerable.Empty<IRoomExit>());
         }
 
         IArenaEvent? arenaEvent = Gameworld.CombatArenas
@@ -406,7 +406,7 @@ public class ArenaParticipantAI : PathingAIBase
             .FirstOrDefault(x => x.Id == prepEffect.EventId);
         if (arenaEvent is null)
         {
-            return (null, Enumerable.Empty<ICellExit>());
+            return (null, Enumerable.Empty<IRoomExit>());
         }
 
         List<ICharacter> opponents = GetOpponents(arenaEvent, ch)
@@ -415,21 +415,21 @@ public class ArenaParticipantAI : PathingAIBase
             .Cast<ICharacter>()
             .Where(x => !x.State.IsDead())
             .Where(x => !ReferenceEquals(x.Location, ch.Location))
-            .Where(x => x.Location is not null && arenaEvent.Arena.ArenaCells.Contains(x.Location))
+            .Where(x => x.Location is not null && arenaEvent.Arena.ArenaRooms.Contains(x.Location))
             .ToList();
         if (!opponents.Any())
         {
-            return (null, Enumerable.Empty<ICellExit>());
+            return (null, Enumerable.Empty<IRoomExit>());
         }
 
-        (ICharacter Opponent, List<ICellExit> Path) bestPath = opponents
+        (ICharacter Opponent, List<IRoomExit> Path) bestPath = opponents
             .Select(opponent => (Opponent: opponent, Path: ch.PathBetween(opponent.Location, 30, GetSuitabilityFunction(ch)).ToList()))
             .Where(x => x.Path.Any())
             .OrderBy(x => x.Path.Count)
             .FirstOrDefault();
 
         return bestPath.Path is null || bestPath.Path.Count == 0
-            ? (null, Enumerable.Empty<ICellExit>())
+            ? (null, Enumerable.Empty<IRoomExit>())
             : (bestPath.Opponent.Location, bestPath.Path);
     }
 }

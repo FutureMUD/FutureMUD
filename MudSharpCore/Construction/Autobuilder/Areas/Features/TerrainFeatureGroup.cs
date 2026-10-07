@@ -4,7 +4,7 @@ namespace MudSharp.Construction.Autobuilder.Areas.Features;
 public abstract class TerrainFeatureGroup
 {
     public string Name { get; set; }
-    public abstract void ApplyTerrainFeatures(ICell[,] cellMap, List<string>[,] featureMap);
+    public abstract void ApplyTerrainFeatures(IRoom[,] cellMap, List<string>[,] featureMap);
     public abstract string Show(ICharacter builder);
 
     public abstract bool BuildingCommand(ICharacter actor, AutobuilderAreaTerrainRectangleRandomFeatures parent,

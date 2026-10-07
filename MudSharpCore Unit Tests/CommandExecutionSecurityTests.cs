@@ -256,9 +256,9 @@ public class CommandExecutionSecurityTests
 		actor.SetupGet(x => x.OutputHandler).Returns(output.Object);
 		var sourceField = new Mock<IAgricultureField>();
 		var destinationField = new Mock<IAgricultureField>();
-		var sourceCell = new Mock<ICell>();
-		var destinationCell = new Mock<ICell>();
-		var exit = new Mock<ICellExit>();
+		var sourceRoom = new Mock<IRoom>();
+		var destinationRoom = new Mock<IRoom>();
+		var exit = new Mock<IRoomExit>();
 		var herd = new Mock<IAgricultureHerdDefinition>();
 		herd.SetupGet(x => x.Id).Returns(1L);
 		herd.SetupGet(x => x.Name).Returns("cattle");
@@ -267,11 +267,11 @@ public class CommandExecutionSecurityTests
 		var gameworld = new Mock<IFuturemud>();
 		gameworld.SetupGet(x => x.AgricultureHerdDefinitions).Returns(herds.Object);
 
-		sourceCell.SetupGet(x => x.AgricultureField).Returns(sourceField.Object);
-		sourceCell.Setup(x => x.GetExitKeyword("north", actor.Object)).Returns(exit.Object);
-		destinationCell.SetupGet(x => x.AgricultureField).Returns(destinationField.Object);
-		exit.SetupGet(x => x.Destination).Returns(destinationCell.Object);
-		actor.SetupGet(x => x.Location).Returns(sourceCell.Object);
+		sourceRoom.SetupGet(x => x.AgricultureField).Returns(sourceField.Object);
+		sourceRoom.Setup(x => x.GetExitKeyword("north", actor.Object)).Returns(exit.Object);
+		destinationRoom.SetupGet(x => x.AgricultureField).Returns(destinationField.Object);
+		exit.SetupGet(x => x.Destination).Returns(destinationRoom.Object);
+		actor.SetupGet(x => x.Location).Returns(sourceRoom.Object);
 		actor.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
 		actor.Setup(x => x.CanCross(exit.Object)).Returns((false, (IEmoteOutput)null!));
 
@@ -323,12 +323,12 @@ public class CommandExecutionSecurityTests
 	{
 		var actor = Character(PermissionLevel.Player);
 		var body = new Mock<IBody>();
-		var cell = new Mock<ICell>();
+		var room = new Mock<IRoom>();
 		actor.SetupGet(x => x.Body).Returns(body.Object);
-		actor.SetupGet(x => x.Location).Returns(cell.Object);
+		actor.SetupGet(x => x.Location).Returns(room.Object);
 		var item = new Mock<IGameItem>();
 		item.SetupGet(x => x.Id).Returns(1L);
-		item.SetupGet(x => x.Location).Returns(cell.Object);
+		item.SetupGet(x => x.Location).Returns(room.Object);
 		item.SetupGet(x => x.Effects).Returns([]);
 		actor.Setup(x => x.CanManipulateItem(item.Object)).Returns((false, "You cannot reach that."));
 
@@ -345,9 +345,9 @@ public class CommandExecutionSecurityTests
 	{
 		var actor = Character(PermissionLevel.Player);
 		var body = new Mock<IBody>();
-		var cell = new Mock<ICell>();
+		var room = new Mock<IRoom>();
 		actor.SetupGet(x => x.Body).Returns(body.Object);
-		actor.SetupGet(x => x.Location).Returns(cell.Object);
+		actor.SetupGet(x => x.Location).Returns(room.Object);
 		var item = new Mock<IGameItem>();
 		item.SetupGet(x => x.Id).Returns(1L);
 		item.SetupGet(x => x.InInventoryOf).Returns(body.Object);
@@ -370,9 +370,9 @@ public class CommandExecutionSecurityTests
 	{
 		var actor = Character(PermissionLevel.Player);
 		var body = new Mock<IBody>();
-		var cell = new Mock<ICell>();
+		var room = new Mock<IRoom>();
 		actor.SetupGet(x => x.Body).Returns(body.Object);
-		actor.SetupGet(x => x.Location).Returns(cell.Object);
+		actor.SetupGet(x => x.Location).Returns(room.Object);
 		var item = new Mock<IGameItem>();
 		item.SetupGet(x => x.Id).Returns(1L);
 		item.SetupGet(x => x.InInventoryOf).Returns(body.Object);
@@ -395,9 +395,9 @@ public class CommandExecutionSecurityTests
 	{
 		var actor = Character(PermissionLevel.Player);
 		var body = new Mock<IBody>();
-		var cell = new Mock<ICell>();
+		var room = new Mock<IRoom>();
 		actor.SetupGet(x => x.Body).Returns(body.Object);
-		actor.SetupGet(x => x.Location).Returns(cell.Object);
+		actor.SetupGet(x => x.Location).Returns(room.Object);
 		actor.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
 		var held = new Mock<IGameItem>();
 		held.SetupGet(x => x.Id).Returns(1L);
@@ -405,16 +405,16 @@ public class CommandExecutionSecurityTests
 		held.SetupGet(x => x.Effects).Returns([]);
 		var loose = new Mock<IGameItem>();
 		loose.SetupGet(x => x.Id).Returns(2L);
-		loose.SetupGet(x => x.Location).Returns(cell.Object);
+		loose.SetupGet(x => x.Location).Returns(room.Object);
 		loose.SetupGet(x => x.Effects).Returns([]);
 		body.SetupGet(x => x.ItemsInHands).Returns([held.Object]);
 		body.Setup(x => x.CanDrop(held.Object, 0)).Returns(true);
-		cell.Setup(x => x.LayerGameItems(RoomLayer.GroundLevel)).Returns([loose.Object]);
+		room.Setup(x => x.LayerGameItems(RoomLayer.GroundLevel)).Returns([loose.Object]);
 		actor.Setup(x => x.CanManipulateItem(held.Object)).Returns((true, string.Empty));
 		actor.Setup(x => x.CanManipulateItem(loose.Object)).Returns((true, string.Empty));
 
 		var candidates = InvokeStatic<List<IGameItem>>(typeof(TrapModule), "GetTrapComponentCandidates",
-			actor.Object, cell.Object, new List<IGameItem>());
+			actor.Object, room.Object, new List<IGameItem>());
 
 		CollectionAssert.AreEqual(new List<IGameItem> { held.Object, loose.Object }, candidates);
 	}
@@ -474,9 +474,9 @@ public class CommandExecutionSecurityTests
 		var actor = Character(PermissionLevel.Player);
 		var body = new Mock<IBody>();
 		var otherBody = new Mock<IBody>();
-		var cell = new Mock<ICell>();
+		var room = new Mock<IRoom>();
 		actor.SetupGet(x => x.Body).Returns(body.Object);
-		actor.SetupGet(x => x.Location).Returns(cell.Object);
+		actor.SetupGet(x => x.Location).Returns(room.Object);
 		var item = new Mock<IGameItem>();
 		item.SetupGet(x => x.Id).Returns(1L);
 		item.SetupGet(x => x.InInventoryOf).Returns(otherBody.Object);
@@ -494,12 +494,12 @@ public class CommandExecutionSecurityTests
 	public void TrapLay_ComponentParser_UsesHeldPreferredLocalResolver()
 	{
 		var actor = Character(PermissionLevel.Player);
-		var cell = new Mock<ICell>();
+		var room = new Mock<IRoom>();
 		var item = new Mock<IGameItem>();
 		actor.Setup(x => x.TargetLocalOrHeldItem("wire")).Returns(item.Object);
 
 		InvokeStatic(typeof(TrapModule), "ParseSuppliedComponents", actor.Object,
-			new StringStack("using wire"), cell.Object, null!);
+			new StringStack("using wire"), room.Object, null!);
 
 		actor.Verify(x => x.TargetLocalOrHeldItem("wire"), Times.Once);
 		actor.Verify(x => x.TargetItem(It.IsAny<string>()), Times.Never);
@@ -521,13 +521,13 @@ public class CommandExecutionSecurityTests
 	[TestMethod]
 	public void TrapLay_RoomComponent_IsExtractedWhenInstalled()
 	{
-		var cell = new Mock<ICell>();
+		var room = new Mock<IRoom>();
 		var item = new Mock<IGameItem>();
-		item.SetupGet(x => x.Location).Returns(cell.Object);
+		item.SetupGet(x => x.Location).Returns(room.Object);
 
 		TrapEffect.DetachInstalledComponent(item.Object);
 
-		cell.Verify(x => x.Extract(item.Object), Times.Once);
+		room.Verify(x => x.Extract(item.Object), Times.Once);
 		item.Verify(x => x.Get(null), Times.Once);
 	}
 
@@ -535,7 +535,7 @@ public class CommandExecutionSecurityTests
 	public void TrapComponentReservation_UsesTrapAnchorAsSpatialHost()
 	{
 		var item = new Mock<IGameItem>();
-		var anchor = new Mock<ICell>();
+		var anchor = new Mock<IRoom>();
 		var reservation = new TrapComponentReservationEffect(item.Object, Guid.NewGuid(), anchor.Object,
 			RoomLayer.InTrees, 4_500.0);
 
@@ -548,19 +548,19 @@ public class CommandExecutionSecurityTests
 	[TestMethod]
 	public void TrapComponentRecovery_RestoresCapturedSpatialLocation()
 	{
-		var routeDefinition = new Mock<IRouteCellDefinition>();
+		var routeDefinition = new Mock<IRouteRoomDefinition>();
 		routeDefinition.SetupGet(x => x.LengthMetres).Returns(10_000.0);
-		var cell = new Mock<ICell>();
-		cell.SetupGet(x => x.RouteDefinition).Returns(routeDefinition.Object);
+		var room = new Mock<IRoom>();
+		room.SetupGet(x => x.RouteDefinition).Returns(routeDefinition.Object);
 		var item = new Mock<IGameItem>();
 		item.SetupProperty(x => x.RoomLayer);
-		var location = new SpatialLocation(cell.Object, RoomLayer.InAir, 4_500.0);
+		var location = new SpatialLocation(room.Object, RoomLayer.InAir, 4_500.0);
 
 		TrapEffect.RestoreInstalledComponent(item.Object, location);
 
 		Assert.AreEqual(RoomLayer.InAir, item.Object.RoomLayer);
 		item.Verify(x => x.MoveTo(location, null, false), Times.Once);
-		cell.Verify(x => x.Insert(item.Object, true), Times.Once);
+		room.Verify(x => x.Insert(item.Object, true), Times.Once);
 	}
 
 	[TestMethod]
@@ -688,9 +688,9 @@ public class CommandExecutionSecurityTests
 	[TestMethod]
 	public void ExportCraftCsvCell_QuotesAndNeutralisesSpreadsheetFormulae()
 	{
-		Assert.AreEqual("\"'=1+1\"", SpreadsheetSafeCsv.EncodeCell("=1+1"));
-		Assert.AreEqual("\"text, with \"\"quotes\"\"\"", SpreadsheetSafeCsv.EncodeCell("text, with \"quotes\""));
-		Assert.AreEqual("\"\"", SpreadsheetSafeCsv.EncodeCell(null));
+		Assert.AreEqual("\"'=1+1\"", SpreadsheetSafeCsv.EncodeRoom("=1+1"));
+		Assert.AreEqual("\"text, with \"\"quotes\"\"\"", SpreadsheetSafeCsv.EncodeRoom("text, with \"quotes\""));
+		Assert.AreEqual("\"\"", SpreadsheetSafeCsv.EncodeRoom(null));
 	}
 
 	private static Mock<ICharacter> Character(PermissionLevel permissionLevel, bool isPlayerCharacter = true)

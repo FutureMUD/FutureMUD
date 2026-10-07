@@ -42,23 +42,23 @@ internal class NPCProduct : BaseProduct
         }
 
         /// <inheritdoc />
-        public void ReleaseProducts(ICell location, RoomLayer layer)
+        public void ReleaseProducts(IRoom location, RoomLayer layer)
 		{
 			ReleaseProductsCore(null, location, layer);
 		}
 
-		public void ReleaseProducts(ILocateable source, ICell location, RoomLayer layer)
+		public void ReleaseProducts(ILocateable source, IRoom location, RoomLayer layer)
 		{
 			ReleaseProductsCore(source, location, layer);
 		}
 
-        private void ReleaseProductsCore(ILocateable source, ICell location, RoomLayer layer)
+        private void ReleaseProductsCore(ILocateable source, IRoom location, RoomLayer layer)
         {
 			var spawnLocation = CharacterInstanceService.CreateDefaultSpawnLocation(location, layer);
 			if (source is not null)
 			{
 				var sourceLocation = RouteSpatialService.Instance.GetEffectiveLocation(source);
-				if (ReferenceEquals(sourceLocation.Cell, location))
+				if (ReferenceEquals(sourceLocation.Room, location))
 				{
 					spawnLocation = new SpatialLocation(location, layer, sourceLocation.RoutePositionMetres);
 				}

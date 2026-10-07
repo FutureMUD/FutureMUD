@@ -42,7 +42,7 @@ namespace MudSharp.Models
         public virtual Character? Accuser { get; set; }
         public virtual Character Criminal { get; set; } = null!;
         public virtual Law Law { get; set; } = null!;
-        public virtual Cell? Location { get; set; }
+        public virtual Room? Location { get; set; }
         public virtual Character? Victim { get; set; }
     }
 }

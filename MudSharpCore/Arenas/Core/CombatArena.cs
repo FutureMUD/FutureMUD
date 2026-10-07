@@ -11,7 +11,7 @@ using MudSharp.Models;
 
 namespace MudSharp.Arenas;
 
-internal enum ArenaCellRole
+internal enum ArenaRoomRole
 {
     Waiting = 0,
     ArenaFloor = 1,
@@ -24,7 +24,7 @@ internal enum ArenaCellRole
 public sealed partial class CombatArena : SaveableItem, ICombatArena
 {
     private readonly HashSet<long> _managerIds = new();
-    private readonly Dictionary<ArenaCellRole, List<ICell>> _cells = new();
+    private readonly Dictionary<ArenaRoomRole, List<IRoom>> _cells = new();
     private readonly List<ICombatantClass> _combatantClasses = new();
     private readonly List<IArenaEventType> _eventTypes = new();
     private readonly List<IArenaEvent> _events = new();
@@ -53,19 +53,19 @@ public sealed partial class CombatArena : SaveableItem, ICombatArena
             _managerIds.Add(manager.CharacterId);
         }
 
-        foreach (ArenaCellRole role in Enum.GetValues(typeof(ArenaCellRole)))
+        foreach (ArenaRoomRole role in Enum.GetValues(typeof(ArenaRoomRole)))
         {
-            _cells[role] = new List<ICell>();
+            _cells[role] = new List<IRoom>();
         }
 
-        foreach (ArenaCell? cell in arena.ArenaCells)
+        foreach (ArenaRoom? room in arena.ArenaRooms)
         {
-            if (!_cells.TryGetValue((ArenaCellRole)cell.Role, out List<ICell>? list))
+            if (!_cells.TryGetValue((ArenaRoomRole)room.Role, out List<IRoom>? list))
             {
                 continue;
             }
 
-            ICell? resolved = Gameworld.Cells.Get(cell.CellId);
+            IRoom? resolved = Gameworld.Rooms.Get(room.RoomId);
             if (resolved != null)
             {
                 list.Add(resolved);
@@ -168,12 +168,12 @@ public sealed partial class CombatArena : SaveableItem, ICombatArena
             .Select(x => x.Employee)
             .DistinctBy(CharacterInstanceIdentityComparer.IdentityId);
 
-    public IEnumerable<ICell> WaitingCells => _cells[ArenaCellRole.Waiting];
-    public IEnumerable<ICell> ArenaCells => _cells[ArenaCellRole.ArenaFloor];
-    public IEnumerable<ICell> ObservationCells => _cells[ArenaCellRole.Observation];
-    public IEnumerable<ICell> InfirmaryCells => _cells[ArenaCellRole.Infirmary];
-    public IEnumerable<ICell> NpcStablesCells => _cells[ArenaCellRole.NpcStables];
-    public IEnumerable<ICell> AfterFightCells => _cells[ArenaCellRole.AfterFight];
+    public IEnumerable<IRoom> WaitingRooms => _cells[ArenaRoomRole.Waiting];
+    public IEnumerable<IRoom> ArenaRooms => _cells[ArenaRoomRole.ArenaFloor];
+    public IEnumerable<IRoom> ObservationRooms => _cells[ArenaRoomRole.Observation];
+    public IEnumerable<IRoom> InfirmaryRooms => _cells[ArenaRoomRole.Infirmary];
+    public IEnumerable<IRoom> NpcStablesRooms => _cells[ArenaRoomRole.NpcStables];
+    public IEnumerable<IRoom> AfterFightRooms => _cells[ArenaRoomRole.AfterFight];
 
     public IEnumerable<IArenaEventType> EventTypes => _eventTypes;
     public IEnumerable<IArenaEvent> ActiveEvents =>
@@ -208,12 +208,12 @@ public sealed partial class CombatArena : SaveableItem, ICombatArena
 
     public (bool Truth, string Reason) IsReadyToHost(IArenaEventType eventType)
     {
-        if (!ArenaCells.Any())
+        if (!ArenaRooms.Any())
         {
             return (false, "The arena does not have any configured combat cells.");
         }
 
-        if (!WaitingCells.Any())
+        if (!WaitingRooms.Any())
         {
             return (false, "The arena does not have any waiting cells configured.");
         }
@@ -393,23 +393,23 @@ public sealed partial class CombatArena : SaveableItem, ICombatArena
         sb.AppendLine();
         sb.AppendLine("Cells:");
         sb.AppendLine();
-        List<(ICell cell, ArenaCellRole role)> unrolledCells = new();
-        foreach (KeyValuePair<ArenaCellRole, List<ICell>> group in _cells)
+        List<(IRoom room, ArenaRoomRole role)> unrolledRooms = new();
+        foreach (KeyValuePair<ArenaRoomRole, List<IRoom>> group in _cells)
         {
-            foreach (ICell? item in group.Value)
+            foreach (IRoom? item in group.Value)
             {
                 if (item is null)
                 {
                     continue;
                 }
-                unrolledCells.Add((item, group.Key));
+                unrolledRooms.Add((item, group.Key));
             }
         }
         sb.AppendLine(StringUtilities.GetTextTable(
-            from item in unrolledCells
+            from item in unrolledRooms
             select new List<string>
             {
-                item.cell.GetFriendlyReference(actor),
+                item.room.GetFriendlyReference(actor),
                 item.role.DescribeEnum()
             },
             ["Room", "Role"],
@@ -528,7 +528,7 @@ The valid phases are #6Draft#0, #6Scheduled#0, #6RegistrationOpen#0, #6Preparing
                 return BuildingCommandManager(actor, command);
             case "cell":
             case "cells":
-                return BuildingCommandCells(actor, command);
+                return BuildingCommandRooms(actor, command);
             default:
                 actor.OutputHandler.Send(BuildingHelpText.SubstituteANSIColour());
                 return false;
@@ -751,19 +751,19 @@ The valid phases are #6Draft#0, #6Scheduled#0, #6RegistrationOpen#0, #6Preparing
         }
     }
 
-    private bool BuildingCommandCells(ICharacter actor, StringStack command)
+    private bool BuildingCommandRooms(ICharacter actor, StringStack command)
     {
         if (command.IsFinished)
         {
             actor.OutputHandler.Send(
-                $"Which role do you want to modify? The valid roles are {Enum.GetValues<ArenaCellRole>().ListToColouredString()}.");
+                $"Which role do you want to modify? The valid roles are {Enum.GetValues<ArenaRoomRole>().ListToColouredString()}.");
             return false;
         }
 
-        if (!command.PopSpeech().TryParseEnum<ArenaCellRole>(out ArenaCellRole role))
+        if (!command.PopSpeech().TryParseEnum<ArenaRoomRole>(out ArenaRoomRole role))
         {
             actor.OutputHandler.Send(
-                $"That is not a valid role. The valid roles are {Enum.GetValues<ArenaCellRole>().ListToColouredString()}.");
+                $"That is not a valid role. The valid roles are {Enum.GetValues<ArenaRoomRole>().ListToColouredString()}.");
             return false;
         }
 
@@ -776,24 +776,24 @@ The valid phases are #6Draft#0, #6Scheduled#0, #6RegistrationOpen#0, #6Preparing
                     return false;
                 }
 
-                ICell? addCell = RoomBuilderModule.LookupCell(actor, command.SafeRemainingArgument);
-                if (addCell == null)
+                IRoom? addRoom = RoomBuilderModule.LookupRoom(actor, command.SafeRemainingArgument);
+                if (addRoom == null)
                 {
                     actor.OutputHandler.Send("There is no such cell.".ColourError());
                     return false;
                 }
 
-                if (_cells[role].Contains(addCell))
+                if (_cells[role].Contains(addRoom))
                 {
-                    actor.OutputHandler.Send($"{addCell.GetFriendlyReference(actor).ColourName()} is already in that role.");
+                    actor.OutputHandler.Send($"{addRoom.GetFriendlyReference(actor).ColourName()} is already in that role.");
                     return false;
                 }
 
-                _cells[role].Add(addCell);
+                _cells[role].Add(addRoom);
                 _cellsDirty = true;
                 Changed = true;
                 actor.OutputHandler.Send(
-                    $"{addCell.GetFriendlyReference(actor).ColourName()} is now configured as {role.DescribeEnum().ColourValue()}.");
+                    $"{addRoom.GetFriendlyReference(actor).ColourName()} is now configured as {role.DescribeEnum().ColourValue()}.");
                 return true;
             case "remove":
                 if (command.IsFinished)
@@ -802,24 +802,24 @@ The valid phases are #6Draft#0, #6Scheduled#0, #6RegistrationOpen#0, #6Preparing
                     return false;
                 }
 
-                ICell? removeCell = RoomBuilderModule.LookupCell(actor, command.SafeRemainingArgument);
-                if (removeCell == null)
+                IRoom? removeRoom = RoomBuilderModule.LookupRoom(actor, command.SafeRemainingArgument);
+                if (removeRoom == null)
                 {
                     actor.OutputHandler.Send("There is no such cell.".ColourError());
                     return false;
                 }
 
-                if (!_cells[role].Contains(removeCell))
+                if (!_cells[role].Contains(removeRoom))
                 {
                     actor.OutputHandler.Send("That cell is not configured in that role.".ColourError());
                     return false;
                 }
 
-                _cells[role].Remove(removeCell);
+                _cells[role].Remove(removeRoom);
                 _cellsDirty = true;
                 Changed = true;
                 actor.OutputHandler.Send(
-                    $"{removeCell.GetFriendlyReference(actor).ColourName()} is no longer configured as {role.DescribeEnum().ColourValue()}.");
+                    $"{removeRoom.GetFriendlyReference(actor).ColourName()} is no longer configured as {role.DescribeEnum().ColourValue()}.");
                 return true;
             default:
                 actor.OutputHandler.Send(
@@ -847,15 +847,15 @@ The valid phases are #6Draft#0, #6Scheduled#0, #6RegistrationOpen#0, #6Preparing
             dbArena.SignupEcho = _signupEcho;
             if (_cellsDirty)
             {
-                FMDB.Context.ArenaCells.RemoveRange(FMDB.Context.ArenaCells.Where(x => x.ArenaId == dbArena.Id));
-                foreach ((ArenaCellRole role, List<ICell>? cells) in _cells)
+                FMDB.Context.ArenaRooms.RemoveRange(FMDB.Context.ArenaRooms.Where(x => x.ArenaId == dbArena.Id));
+                foreach ((ArenaRoomRole role, List<IRoom>? rooms) in _cells)
                 {
-                    foreach (ICell cell in cells)
+                    foreach (IRoom room in rooms)
                     {
-                        FMDB.Context.ArenaCells.Add(new ArenaCell
+                        FMDB.Context.ArenaRooms.Add(new ArenaRoom
                         {
                             ArenaId = dbArena.Id,
-                            CellId = cell.Id,
+                            RoomId = room.Id,
                             Role = (int)role
                         });
                     }
@@ -908,9 +908,9 @@ The valid phases are #6Draft#0, #6Scheduled#0, #6RegistrationOpen#0, #6Preparing
         _events.Remove(arenaEvent);
     }
 
-    internal ICell? GetWaitingCell(int sideIndex)
+    internal IRoom? GetWaitingRoom(int sideIndex)
     {
-        List<ICell> waiting = WaitingCells?.ToList() ?? [];
+        List<IRoom> waiting = WaitingRooms?.ToList() ?? [];
         if (!waiting.Any())
         {
             return null;

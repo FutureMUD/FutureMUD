@@ -4,7 +4,7 @@ namespace MudSharp.Effects.Concrete;
 
 public class LandmarkEffect : Effect
 {
-    public LandmarkEffect(ICell owner, bool isMeetingPlace, string sphere, IFutureProg applicabilityProg = null) : base(owner, applicabilityProg)
+    public LandmarkEffect(IRoom owner, bool isMeetingPlace, string sphere, IFutureProg applicabilityProg = null) : base(owner, applicabilityProg)
     {
         Sphere = sphere;
         IsMeetingPlace = isMeetingPlace;

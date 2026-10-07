@@ -110,7 +110,7 @@ public partial class QueuedCommandAuthorityTests
 	{
 		using var d = new DisplacementFixture();
 		d.Reach("gap");
-		Assert.IsFalse(d.Receipt.BeginEnter(d.F.Actor.Object, Mock.Of<ICell>()));
+		Assert.IsFalse(d.Receipt.BeginEnter(d.F.Actor.Object, Mock.Of<IRoom>()));
 		Assert.IsTrue(d.Receipt.BeginEnter(d.F.Actor.Object, d.Destination.Object));
 		Assert.IsFalse(d.Receipt.BeginEnter(d.F.Actor.Object, d.Destination.Object));
 		d.DestinationCharacters.Add(d.F.Actor.Object);
@@ -149,9 +149,9 @@ public partial class QueuedCommandAuthorityTests
 	private sealed class DisplacementFixture : IDisposable
 	{
 		internal Fixture F { get; } = new();
-		internal Mock<ICell> Destination { get; } = new();
+		internal Mock<IRoom> Destination { get; } = new();
 		internal List<ICharacter> DestinationCharacters { get; } = [];
-		internal ICell Location { get; set; }
+		internal IRoom Location { get; set; }
 		internal ICombatMove Move { get; }
 		internal NativeDisplacementReceipt Receipt { get; }
 		private readonly IDisposable _execution;
@@ -179,8 +179,8 @@ public partial class QueuedCommandAuthorityTests
 		{
 			if (stage == "source") return;
 			Assert.IsTrue(Receipt.BeginLeave(F.Actor.Object));
-			F.CellCharacters.RemoveAll(x => ReferenceEquals(x, F.Actor.Object));
-			Assert.IsFalse(F.CellCharacters.Exists(x => ReferenceEquals(x, F.Actor.Object)), "The fixture must create a real membership gap.");
+			F.RoomCharacters.RemoveAll(x => ReferenceEquals(x, F.Actor.Object));
+			Assert.IsFalse(F.RoomCharacters.Exists(x => ReferenceEquals(x, F.Actor.Object)), "The fixture must create a real membership gap.");
 			Assert.IsTrue(Receipt.Continue());
 			if (stage == "arrival") Arrive();
 		}

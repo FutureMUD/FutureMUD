@@ -16,7 +16,7 @@ namespace MudSharp.Combat;
 
 public abstract partial class CombatBase : ICombat
 {
-    protected HashSet<ICell> CombatCells { get; } = new();
+    protected HashSet<IRoom> CombatRooms { get; } = new();
     protected static ITraitExpression RecoveryTimeExpression { get; set; }
     protected static ITraitExpression PowerMoveStaminaCost { get; set; }
     protected static ITraitExpression GraceMoveStaminaCost { get; set; }
@@ -105,9 +105,9 @@ public abstract partial class CombatBase : ICombat
     protected void EndCombatEvent()
     {
         CombatEnds?.Invoke(this, null);
-        foreach (ICell cell in CombatCells)
+        foreach (IRoom room in CombatRooms)
         {
-            cell.HandleEvent(EventType.CombatEndedHere, cell);
+            room.HandleEvent(EventType.CombatEndedHere, room);
         }
     }
 

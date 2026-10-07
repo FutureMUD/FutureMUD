@@ -15,8 +15,8 @@ public abstract class CreaturePursuitEffect : Effect, ICombatTacticEffect
 	private AnimalHuntPhase _phase;
 	public long AiId { get; }
 	public long TargetId { get; }
-	public long OriginCellId { get; }
-	public long LastCellId { get; private set; }
+	public long OriginRoomId { get; }
+	public long LastRoomId { get; private set; }
 	public long LastRaceId { get; private set; }
 	public RoomLayer LastLayer { get; private set; }
 	public double? LastRoutePosition { get; private set; }
@@ -32,7 +32,7 @@ public abstract class CreaturePursuitEffect : Effect, ICombatTacticEffect
 	{
 		AiId = ai.Id;
 		TargetId = target.Id;
-		OriginCellId = owner.Location.Id;
+		OriginRoomId = owner.Location.Id;
 		Deadline = RuntimeClock.UtcNow + ai.Hunting.PursuitTimeout;
 		Observe(target);
 	}
@@ -42,8 +42,8 @@ public abstract class CreaturePursuitEffect : Effect, ICombatTacticEffect
 		var xml = root.Element("Effect")!;
 		AiId = long.Parse(xml.Element("Ai")!.Value);
 		TargetId = long.Parse(xml.Element("Target")!.Value);
-		OriginCellId = long.Parse(xml.Element("Origin")!.Value);
-		LastCellId = long.Parse(xml.Element("LastCell")!.Value);
+		OriginRoomId = long.Parse(xml.Element("Origin")!.Value);
+		LastRoomId = long.Parse(xml.Element("LastCell")!.Value);
 		LastRaceId = long.TryParse(xml.Element("LastRace")?.Value, out var race) ? race : 0;
 		LastLayer = Enum.Parse<RoomLayer>(xml.Element("LastLayer")!.Value);
 		LastRoutePosition = double.TryParse(xml.Element("LastRoutePosition")?.Value, NumberStyles.Float,
@@ -57,15 +57,15 @@ public abstract class CreaturePursuitEffect : Effect, ICombatTacticEffect
 
 	public void RecordVenomDelivery() { VenomDelivered = true; Changed = true; }
 
-	public void FollowDetectedTrail(ICell destination)
+	public void FollowDetectedTrail(IRoom destination)
 	{
-		LastCellId = destination.Id;
+		LastRoomId = destination.Id;
 		Changed = true;
 	}
 
 	public void Observe(ICharacter target)
 	{
-		LastCellId = target.Location.Id;
+		LastRoomId = target.Location.Id;
 		LastRaceId = target.Race.Id;
 		LastLayer = target.RoomLayer;
 		LastRoutePosition = RouteSpatialService.Instance.GetEffectiveLocation(target).RoutePositionMetres;
@@ -102,7 +102,7 @@ public abstract class CreaturePursuitEffect : Effect, ICombatTacticEffect
 	}
 	public override string Describe(IPerceiver voyeur) => $"Hunting target #{TargetId.ToString("N0", voyeur)}: {Phase.DescribeEnum()}, until {Deadline:O}.";
 	protected override XElement SaveDefinition() => new("Effect", new XElement("Ai", AiId), new XElement("Target", TargetId),
-		new XElement("Origin", OriginCellId), new XElement("LastCell", LastCellId), new XElement("LastRace", LastRaceId), new XElement("LastLayer", LastLayer),
+		new XElement("Origin", OriginRoomId), new XElement("LastCell", LastRoomId), new XElement("LastRace", LastRaceId), new XElement("LastLayer", LastLayer),
 		new XElement("LastRoutePosition", LastRoutePosition),
 		new XElement("LastSeen", LastSeen.ToString("O")), new XElement("Deadline", Deadline.ToString("O")),
 		new XElement("Phase", Phase), new XElement("Trap", TrapId), new XElement("VenomDelivered", VenomDelivered));

@@ -422,9 +422,9 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 
         _surrenderedParticipantIds.Add(CharacterInstanceIdentityComparer.IdentityId(participant));
         participant.Combat?.LeaveCombat(participant);
-        foreach (ICell? cell in Arena.ArenaCells.Where(x => x != null).Distinct())
+        foreach (IRoom? room in Arena.ArenaRooms.Where(x => x != null).Distinct())
         {
-            cell.Handle(new EmoteOutput(new Emote("@ surrender|surrenders the bout!", participant)));
+            room.Handle(new EmoteOutput(new Emote("@ surrender|surrenders the bout!", participant)));
         }
 
         TryResolveFromElimination();
@@ -829,21 +829,21 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
             return;
         }
 
-        foreach (ICell cell in GetAnnouncementCells())
+        foreach (IRoom room in GetAnnouncementRooms())
         {
-            cell.Handle(message, OutputFlags.IgnoreWatchers);
+            room.Handle(message, OutputFlags.IgnoreWatchers);
         }
     }
 
-    private IEnumerable<ICell> GetAnnouncementCells()
+    private IEnumerable<IRoom> GetAnnouncementRooms()
     {
-        return Arena.WaitingCells
-                    .Concat(Arena.ArenaCells)
-                    .Concat(Arena.ObservationCells)
-                    .Concat(Arena.InfirmaryCells)
-                    .Concat(Arena.AfterFightCells)
-                    .Concat(Arena.NpcStablesCells)
-                    .Where(cell => cell != null)
+        return Arena.WaitingRooms
+                    .Concat(Arena.ArenaRooms)
+                    .Concat(Arena.ObservationRooms)
+                    .Concat(Arena.InfirmaryRooms)
+                    .Concat(Arena.AfterFightRooms)
+                    .Concat(Arena.NpcStablesRooms)
+                    .Where(room => room != null)
                     .Distinct();
     }
 
@@ -1229,11 +1229,11 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
             return;
         }
 
-        foreach (ICell? cell in Arena.ArenaCells
-            .Where(cell => cell != null)
+        foreach (IRoom? room in Arena.ArenaRooms
+            .Where(room => room != null)
             .Distinct())
         {
-            cell.Handle(announcement, OutputFlags.IgnoreWatchers);
+            room.Handle(announcement, OutputFlags.IgnoreWatchers);
         }
     }
 
@@ -1477,10 +1477,10 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
             }
 
             EnsureParticipantOutputHandler(character);
-            ICell? waitingCell = Arena.GetWaitingCell(participant.SideIndex);
-            if (waitingCell is not null && !ReferenceEquals(character.Location, waitingCell))
+            IRoom? waitingRoom = Arena.GetWaitingRoom(participant.SideIndex);
+            if (waitingRoom is not null && !ReferenceEquals(character.Location, waitingRoom))
             {
-                character.Teleport(waitingCell, RoomLayer.GroundLevel, false, false);
+                character.Teleport(waitingRoom, RoomLayer.GroundLevel, false, false);
             }
 
             if (BringYourOwn)
@@ -1530,7 +1530,7 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 			return false;
 		}
 
-		if (!Arena.ArenaCells.Contains(participant.Location))
+		if (!Arena.ArenaRooms.Contains(participant.Location))
 		{
 			return false;
 		}
@@ -1544,18 +1544,18 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 
 	private bool IsAtArenaVenue(ICharacter character)
 	{
-		ICell? location = character.Location;
+		IRoom? location = character.Location;
 		if (location is null)
 		{
 			return false;
 		}
 
-		return Arena.WaitingCells.Contains(location) ||
-		       Arena.ArenaCells.Contains(location) ||
-		       Arena.ObservationCells.Contains(location) ||
-		       Arena.InfirmaryCells.Contains(location) ||
-		       Arena.AfterFightCells.Contains(location) ||
-		       Arena.NpcStablesCells.Contains(location);
+		return Arena.WaitingRooms.Contains(location) ||
+		       Arena.ArenaRooms.Contains(location) ||
+		       Arena.ObservationRooms.Contains(location) ||
+		       Arena.InfirmaryRooms.Contains(location) ||
+		       Arena.AfterFightRooms.Contains(location) ||
+		       Arena.NpcStablesRooms.Contains(location);
 	}
 
     private void DisengageParticipantCombats()
@@ -1594,8 +1594,8 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 
     private void ReturnNpcParticipants()
     {
-        List<ICell> stableCells = Arena.NpcStablesCells.ToList();
-        List<ICell> afterFightCells = Arena.AfterFightCells.ToList();
+        List<IRoom> stableRooms = Arena.NpcStablesRooms.ToList();
+        List<IRoom> afterFightRooms = Arena.AfterFightRooms.ToList();
         HashSet<long> cleanupNpcIds = new();
 
         foreach (ArenaParticipant? participant in _participants.Where(x => x.IsNpc))
@@ -1606,9 +1606,9 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
                 continue;
             }
 
-            ICell? destination = stableCells.Count > 0
-                ? SelectIndexedCell(stableCells, participant.SideIndex)
-                : SelectIndexedCell(afterFightCells, participant.SideIndex);
+            IRoom? destination = stableRooms.Count > 0
+                ? SelectIndexedRoom(stableRooms, participant.SideIndex)
+                : SelectIndexedRoom(afterFightRooms, participant.SideIndex);
 
             ArenaNpcPreparationEffect? effect = npc.CombinedEffectsOfType<ArenaNpcPreparationEffect>()
                 .FirstOrDefault(x => x.EventId == Id);
@@ -1625,10 +1625,10 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
                                          !npc.State.IsDead();
                 if (npc.State.IsDead() && destination is not null)
                 {
-                    MoveCorpseToCell(npc, destination);
+                    MoveCorpseToRoom(npc, destination);
                 }
 
-                bool wasFullyRestored = TryApplyNpcStableRecovery(npc, participant, stableCells);
+                bool wasFullyRestored = TryApplyNpcStableRecovery(npc, participant, stableRooms);
                 if (wasAutoResurrected || wasFullyRestored)
                 {
                     cleanupNpcIds.Add(npc.Id);
@@ -1644,12 +1644,12 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 
             if (npc.State.IsDead())
             {
-                MoveCorpseToCell(npc, destination);
+                MoveCorpseToRoom(npc, destination);
                 continue;
             }
 
             npc.Teleport(destination, RoomLayer.GroundLevel, false, false);
-            if (TryApplyNpcStableRecovery(npc, participant, stableCells))
+            if (TryApplyNpcStableRecovery(npc, participant, stableRooms))
             {
                 cleanupNpcIds.Add(npc.Id);
             }
@@ -1685,7 +1685,7 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
         }
     }
 
-    private static void MoveCorpseToCell(ICharacter npc, ICell destination)
+    private static void MoveCorpseToRoom(ICharacter npc, IRoom destination)
     {
         IGameItem? corpse = npc.Corpse?.Parent;
         if (corpse is null || corpse.Deleted)
@@ -1701,14 +1701,14 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
     }
 
     private static bool TryApplyNpcStableRecovery(ICharacter npc, ArenaParticipant participant,
-        IReadOnlyCollection<ICell> stableCells)
+        IReadOnlyCollection<IRoom> stableRooms)
     {
         if (!participant.CombatantClass.FullyRestoreNpcOnCompletion)
         {
             return false;
         }
 
-        if (stableCells.Count == 0)
+        if (stableRooms.Count == 0)
         {
             return false;
         }
@@ -1718,7 +1718,7 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
             return false;
         }
 
-        if (npc.Location is not ICell location || !stableCells.Contains(location))
+        if (npc.Location is not IRoom location || !stableRooms.Contains(location))
         {
             return false;
         }
@@ -1906,18 +1906,18 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 
     private void MovePlayerParticipantsToAfterFight()
     {
-        List<ICell> afterFightCells = Arena.AfterFightCells.ToList();
-        if (afterFightCells.Count == 0)
+        List<IRoom> afterFightRooms = Arena.AfterFightRooms.ToList();
+        if (afterFightRooms.Count == 0)
         {
-            afterFightCells = Arena.WaitingCells.ToList();
+            afterFightRooms = Arena.WaitingRooms.ToList();
         }
 
-        if (afterFightCells.Count == 0)
+        if (afterFightRooms.Count == 0)
         {
-            afterFightCells = Arena.ArenaCells.ToList();
+            afterFightRooms = Arena.ArenaRooms.ToList();
         }
 
-        if (afterFightCells.Count == 0)
+        if (afterFightRooms.Count == 0)
         {
             return;
         }
@@ -1932,13 +1932,13 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 
             EnsureParticipantOutputHandler(character);
             if (character.Location is not null &&
-                !Arena.ArenaCells.Contains(character.Location) &&
-                !Arena.WaitingCells.Contains(character.Location))
+                !Arena.ArenaRooms.Contains(character.Location) &&
+                !Arena.WaitingRooms.Contains(character.Location))
             {
                 continue;
             }
 
-            ICell? destination = SelectIndexedCell(afterFightCells, participant.SideIndex);
+            IRoom? destination = SelectIndexedRoom(afterFightRooms, participant.SideIndex);
             if (destination is null)
             {
                 continue;
@@ -1950,20 +1950,20 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 
     private void MoveParticipantsToArena()
     {
-        List<ICell> arenaCells = Arena.ArenaCells.ToList();
-        if (arenaCells.Count == 0)
+        List<IRoom> arenaRooms = Arena.ArenaRooms.ToList();
+        if (arenaRooms.Count == 0)
         {
             return;
         }
 
-        IReadOnlyDictionary<int, int> sideStartIndices = ArenaSideIndexUtilities.ResolveEvenlySpacedStartCells(
+        IReadOnlyDictionary<int, int> sideStartIndices = ArenaSideIndexUtilities.ResolveEvenlySpacedStartRooms(
             _participants
                 .Select(x => x.SideIndex)
                 .Distinct()
                 .OrderBy(_ => Constants.Random.Next())
                 .ToList(),
-            arenaCells.Count,
-            Constants.Random.Next(arenaCells.Count));
+            arenaRooms.Count,
+            Constants.Random.Next(arenaRooms.Count));
 
         Dictionary<int, int> sideOffsets = new();
         foreach (ArenaParticipant participant in _participants)
@@ -1975,19 +1975,19 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
             }
 
             EnsureParticipantOutputHandler(character);
-            if (character.Location is not null && arenaCells.Contains(character.Location))
+            if (character.Location is not null && arenaRooms.Contains(character.Location))
             {
                 continue;
             }
 
             int startIndex = sideStartIndices.TryGetValue(participant.SideIndex, out int sideStartIndex)
                 ? sideStartIndex
-                : Constants.Random.Next(arenaCells.Count);
+                : Constants.Random.Next(arenaRooms.Count);
             int offset = sideOffsets.TryGetValue(participant.SideIndex, out int value) ? value : 0;
-            int index = (startIndex + offset) % arenaCells.Count;
+            int index = (startIndex + offset) % arenaRooms.Count;
             sideOffsets[participant.SideIndex] = offset + 1;
 
-            character.Teleport(arenaCells[index], RoomLayer.GroundLevel, false, false);
+            character.Teleport(arenaRooms[index], RoomLayer.GroundLevel, false, false);
         }
     }
 
@@ -2055,7 +2055,7 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 
     private static void DropCapturedItems(ICharacter participant, ArenaParticipantPreparationEffect effect)
     {
-        ICell? location = participant.Location;
+        IRoom? location = participant.Location;
         if (location is null)
         {
             return;
@@ -2140,19 +2140,19 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
         return InventoryState.Held;
     }
 
-    private static ICell? SelectIndexedCell(IReadOnlyList<ICell> cells, int index)
+    private static IRoom? SelectIndexedRoom(IReadOnlyList<IRoom> rooms, int index)
     {
-        if (cells.Count == 0)
+        if (rooms.Count == 0)
         {
             return null;
         }
 
-        if (index >= 0 && index < cells.Count)
+        if (index >= 0 && index < rooms.Count)
         {
-            return cells[index];
+            return rooms[index];
         }
 
-        return cells[0];
+        return rooms[0];
     }
 
     private bool BuildingCommandName(ICharacter actor, StringStack command)
@@ -2311,24 +2311,24 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
             return;
         }
 
-        ICell? waitingCell = Arena.GetWaitingCell(sideIndex);
-        if (waitingCell is null)
+        IRoom? waitingRoom = Arena.GetWaitingRoom(sideIndex);
+        if (waitingRoom is null)
         {
             return;
         }
 
         string signupEcho = Arena.SignupEcho;
-        ICell? originCell = character.Location;
-        if (!string.IsNullOrWhiteSpace(signupEcho) && originCell is not null)
+        IRoom? originRoom = character.Location;
+        if (!string.IsNullOrWhiteSpace(signupEcho) && originRoom is not null)
         {
-            originCell.Handle(new EmoteOutput(new Emote(signupEcho, character)));
+            originRoom.Handle(new EmoteOutput(new Emote(signupEcho, character)));
         }
 
-        character.Teleport(waitingCell, RoomLayer.GroundLevel, false, false);
+        character.Teleport(waitingRoom, RoomLayer.GroundLevel, false, false);
 
-        if (!string.IsNullOrWhiteSpace(signupEcho) && !ReferenceEquals(originCell, waitingCell))
+        if (!string.IsNullOrWhiteSpace(signupEcho) && !ReferenceEquals(originRoom, waitingRoom))
         {
-            waitingCell.Handle(new EmoteOutput(new Emote(signupEcho, character)));
+            waitingRoom.Handle(new EmoteOutput(new Emote(signupEcho, character)));
         }
 
         if (!character.IsPlayerCharacter)
@@ -2539,15 +2539,15 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 
     private void ClearObservationEffects()
     {
-        foreach (ICell cell in Arena.ArenaCells)
+        foreach (IRoom room in Arena.ArenaRooms)
         {
-            List<ArenaWatcherEffect> effects = cell.EffectsOfType<ArenaWatcherEffect>()
+            List<ArenaWatcherEffect> effects = room.EffectsOfType<ArenaWatcherEffect>()
                 .Where(x => ReferenceEquals(x.ArenaEvent, this))
                 .ToList();
 
             foreach (ArenaWatcherEffect? effect in effects)
             {
-                cell.RemoveEffect(effect, true);
+                room.RemoveEffect(effect, true);
             }
         }
     }

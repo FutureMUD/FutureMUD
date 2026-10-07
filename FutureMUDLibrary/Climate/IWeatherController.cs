@@ -15,7 +15,7 @@ namespace MudSharp.Climate
 {
     public delegate void WeatherEchoDelegate(IWeatherController sender, string echo);
     public delegate void WeatherChangedDelegate(IWeatherController sender, IWeatherEvent oldWeather, IWeatherEvent newWeather);
-    public delegate void WeatherRoomTickDelegate(IWeatherController sender, Action<ICell> visitor);
+    public delegate void WeatherRoomTickDelegate(IWeatherController sender, Action<IRoom> visitor);
 
     public interface IWeatherController : IEditableItem
     {

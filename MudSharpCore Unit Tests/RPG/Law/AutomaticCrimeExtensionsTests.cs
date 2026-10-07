@@ -29,7 +29,7 @@ public class AutomaticCrimeExtensionsTests
 	public void CheckMurderForDeath_ResponsibleWound_ReportsMurderAtDeathLocation()
 	{
 		Mock<IFuturemud> gameworld = CreateGameworld(out Mock<ILegalAuthority> authority, out _, out _);
-		Mock<ICell> deathLocation = CreateCell(1L, CreateZone(10L).Object);
+		Mock<IRoom> deathLocation = CreateRoom(1L, CreateZone(10L).Object);
 		Mock<ICharacter> attacker = CreateCharacter(20L, gameworld.Object, deathLocation.Object);
 		Mock<ICharacter> victim = CreateCharacter(30L, gameworld.Object, deathLocation.Object);
 		Mock<IGameItem> weapon = CreateItem(40L, "knife");
@@ -55,7 +55,7 @@ public class AutomaticCrimeExtensionsTests
 	public void CheckMurderForDeath_FriendlyWound_DoesNotReportMurderByDefault()
 	{
 		Mock<IFuturemud> gameworld = CreateGameworld(out Mock<ILegalAuthority> authority, out _, out _);
-		Mock<ICell> deathLocation = CreateCell(1L, CreateZone(10L).Object);
+		Mock<IRoom> deathLocation = CreateRoom(1L, CreateZone(10L).Object);
 		Mock<ICharacter> attacker = CreateCharacter(20L, gameworld.Object, deathLocation.Object);
 		Mock<ICharacter> victim = CreateCharacter(30L, gameworld.Object, deathLocation.Object);
 		Mock<IWound> wound = CreateMurderWound(attacker.Object, null!, WoundSeverity.Horrifying,
@@ -68,14 +68,14 @@ public class AutomaticCrimeExtensionsTests
 
 		authority.Verify(x => x.CheckPossibleCrime(It.IsAny<ICharacter>(), CrimeTypes.Murder,
 			It.IsAny<ICharacter>(), It.IsAny<IGameItem>(), It.IsAny<string>(),
-			It.IsAny<IEnumerable<ICharacter>>(), It.IsAny<bool>(), It.IsAny<ICell>()), Times.Never);
+			It.IsAny<IEnumerable<ICharacter>>(), It.IsAny<bool>(), It.IsAny<IRoom>()), Times.Never);
 	}
 
 	[TestMethod]
 	public void CheckMurderForDeath_OldWound_DoesNotReportMurder()
 	{
 		Mock<IFuturemud> gameworld = CreateGameworld(out Mock<ILegalAuthority> authority, out _, out _);
-		Mock<ICell> deathLocation = CreateCell(1L, CreateZone(10L).Object);
+		Mock<IRoom> deathLocation = CreateRoom(1L, CreateZone(10L).Object);
 		Mock<ICharacter> attacker = CreateCharacter(20L, gameworld.Object, deathLocation.Object);
 		Mock<ICharacter> victim = CreateCharacter(30L, gameworld.Object, deathLocation.Object);
 		Mock<IWound> wound = CreateMurderWound(attacker.Object, null!, WoundSeverity.Horrifying,
@@ -88,14 +88,14 @@ public class AutomaticCrimeExtensionsTests
 
 		authority.Verify(x => x.CheckPossibleCrime(It.IsAny<ICharacter>(), CrimeTypes.Murder,
 			It.IsAny<ICharacter>(), It.IsAny<IGameItem>(), It.IsAny<string>(),
-			It.IsAny<IEnumerable<ICharacter>>(), It.IsAny<bool>(), It.IsAny<ICell>()), Times.Never);
+			It.IsAny<IEnumerable<ICharacter>>(), It.IsAny<bool>(), It.IsAny<IRoom>()), Times.Never);
 	}
 
 	[TestMethod]
 	public void CheckMurderForDeath_UnknownWoundTime_DoesNotReportMurder()
 	{
 		Mock<IFuturemud> gameworld = CreateGameworld(out Mock<ILegalAuthority> authority, out _, out _);
-		Mock<ICell> deathLocation = CreateCell(1L, CreateZone(10L).Object);
+		Mock<IRoom> deathLocation = CreateRoom(1L, CreateZone(10L).Object);
 		Mock<ICharacter> attacker = CreateCharacter(20L, gameworld.Object, deathLocation.Object);
 		Mock<ICharacter> victim = CreateCharacter(30L, gameworld.Object, deathLocation.Object);
 		Mock<IWound> wound = CreateMurderWound(attacker.Object, null!, WoundSeverity.Horrifying, null, false);
@@ -107,14 +107,14 @@ public class AutomaticCrimeExtensionsTests
 
 		authority.Verify(x => x.CheckPossibleCrime(It.IsAny<ICharacter>(), CrimeTypes.Murder,
 			It.IsAny<ICharacter>(), It.IsAny<IGameItem>(), It.IsAny<string>(),
-			It.IsAny<IEnumerable<ICharacter>>(), It.IsAny<bool>(), It.IsAny<ICell>()), Times.Never);
+			It.IsAny<IEnumerable<ICharacter>>(), It.IsAny<bool>(), It.IsAny<IRoom>()), Times.Never);
 	}
 
 	[TestMethod]
 	public void CheckMurderForDeath_BelowConfiguredSeverity_DoesNotReportMurder()
 	{
 		Mock<IFuturemud> gameworld = CreateGameworld(out Mock<ILegalAuthority> authority, out _, out _);
-		Mock<ICell> deathLocation = CreateCell(1L, CreateZone(10L).Object);
+		Mock<IRoom> deathLocation = CreateRoom(1L, CreateZone(10L).Object);
 		Mock<ICharacter> attacker = CreateCharacter(20L, gameworld.Object, deathLocation.Object);
 		Mock<ICharacter> victim = CreateCharacter(30L, gameworld.Object, deathLocation.Object);
 		Mock<IWound> wound = CreateMurderWound(attacker.Object, null!, WoundSeverity.Moderate,
@@ -127,14 +127,14 @@ public class AutomaticCrimeExtensionsTests
 
 		authority.Verify(x => x.CheckPossibleCrime(It.IsAny<ICharacter>(), CrimeTypes.Murder,
 			It.IsAny<ICharacter>(), It.IsAny<IGameItem>(), It.IsAny<string>(),
-			It.IsAny<IEnumerable<ICharacter>>(), It.IsAny<bool>(), It.IsAny<ICell>()), Times.Never);
+			It.IsAny<IEnumerable<ICharacter>>(), It.IsAny<bool>(), It.IsAny<IRoom>()), Times.Never);
 	}
 
 	[TestMethod]
 	public void CheckMurderForDeath_AttackerAbsent_DoesNotPassDeathWitnesses()
 	{
 		Mock<IFuturemud> gameworld = CreateGameworld(out Mock<ILegalAuthority> authority, out _, out _);
-		Mock<ICell> deathLocation = CreateCell(1L, CreateZone(10L).Object);
+		Mock<IRoom> deathLocation = CreateRoom(1L, CreateZone(10L).Object);
 		Mock<ICharacter> attacker = CreateCharacter(20L, gameworld.Object, deathLocation.Object);
 		Mock<ICharacter> victim = CreateCharacter(30L, gameworld.Object, deathLocation.Object);
 		Mock<ICharacter> witness = CreateCharacter(40L, gameworld.Object, deathLocation.Object);
@@ -207,7 +207,7 @@ public class AutomaticCrimeExtensionsTests
 		Mock<IFuturemud> gameworld = CreateGameworld(out Mock<ILegalAuthority> authority, out _, out _);
 		gameworld.Setup(x => x.GetStaticConfiguration(AutomaticCrimeExtensions.GreviousBodilyHarmMinimumSeveritySetting))
 		         .Returns("Grievous");
-		Mock<ICell> location = CreateCell(1L, CreateZone(10L).Object);
+		Mock<IRoom> location = CreateRoom(1L, CreateZone(10L).Object);
 		Mock<ICharacter> attacker = CreateCharacter(20L, gameworld.Object, location.Object);
 		Mock<ICharacter> victim = CreateCharacter(30L, gameworld.Object, location.Object);
 		Mock<IGameItem> weapon = CreateItem(40L, "club");
@@ -229,7 +229,7 @@ public class AutomaticCrimeExtensionsTests
 	public void IsLawfulEnforcementActionAgainst_ActiveArrestTarget_AllowsAssaultButNotMurder()
 	{
 		Mock<IFuturemud> gameworld = CreateGameworld(out _, out _, out _);
-		Mock<ICell> location = CreateCell(1L, CreateZone(10L).Object);
+		Mock<IRoom> location = CreateRoom(1L, CreateZone(10L).Object);
 		Mock<ICharacter> enforcer = CreateCharacter(20L, gameworld.Object, location.Object);
 		Mock<ICharacter> suspect = CreateCharacter(30L, gameworld.Object, location.Object);
 		Mock<IPatrol> patrol = CreatePatrol(enforcer.Object, suspect.Object, EnforcementStrategy.ArrestAndDetain);
@@ -246,7 +246,7 @@ public class AutomaticCrimeExtensionsTests
 	public void CheckGreviousBodilyHarmForWound_LawfulArrestEnforcement_DoesNotReportCrime()
 	{
 		Mock<IFuturemud> gameworld = CreateGameworld(out Mock<ILegalAuthority> authority, out _, out _);
-		Mock<ICell> location = CreateCell(1L, CreateZone(10L).Object);
+		Mock<IRoom> location = CreateRoom(1L, CreateZone(10L).Object);
 		Mock<ICharacter> enforcer = CreateCharacter(20L, gameworld.Object, location.Object);
 		Mock<ICharacter> suspect = CreateCharacter(30L, gameworld.Object, location.Object);
 		Mock<IPatrol> patrol = CreatePatrol(enforcer.Object, suspect.Object, EnforcementStrategy.ArrestAndDetain);
@@ -264,14 +264,14 @@ public class AutomaticCrimeExtensionsTests
 
 		authority.Verify(x => x.CheckPossibleCrime(It.IsAny<ICharacter>(), CrimeTypes.GreviousBodilyHarm,
 			It.IsAny<ICharacter>(), It.IsAny<IGameItem>(), It.IsAny<string>(),
-			It.IsAny<IEnumerable<ICharacter>>(), It.IsAny<bool>(), It.IsAny<ICell>()), Times.Never);
+			It.IsAny<IEnumerable<ICharacter>>(), It.IsAny<bool>(), It.IsAny<IRoom>()), Times.Never);
 	}
 
 	[TestMethod]
 	public void CheckMurderForDeath_LawfulLethalEnforcement_DoesNotReportCrime()
 	{
 		Mock<IFuturemud> gameworld = CreateGameworld(out Mock<ILegalAuthority> authority, out _, out _);
-		Mock<ICell> deathLocation = CreateCell(1L, CreateZone(10L).Object);
+		Mock<IRoom> deathLocation = CreateRoom(1L, CreateZone(10L).Object);
 		Mock<ICharacter> enforcer = CreateCharacter(20L, gameworld.Object, deathLocation.Object);
 		Mock<ICharacter> suspect = CreateCharacter(30L, gameworld.Object, deathLocation.Object);
 		Mock<IPatrol> patrol = CreatePatrol(enforcer.Object, suspect.Object, EnforcementStrategy.LethalForceArrestAndDetain);
@@ -289,7 +289,7 @@ public class AutomaticCrimeExtensionsTests
 
 		authority.Verify(x => x.CheckPossibleCrime(It.IsAny<ICharacter>(), CrimeTypes.Murder,
 			It.IsAny<ICharacter>(), It.IsAny<IGameItem>(), It.IsAny<string>(),
-			It.IsAny<IEnumerable<ICharacter>>(), It.IsAny<bool>(), It.IsAny<ICell>()), Times.Never);
+			It.IsAny<IEnumerable<ICharacter>>(), It.IsAny<bool>(), It.IsAny<IRoom>()), Times.Never);
 	}
 
 	[TestMethod]
@@ -298,9 +298,9 @@ public class AutomaticCrimeExtensionsTests
 		Mock<IFuturemud> gameworld = CreateGameworld(out Mock<ILegalAuthority> authority, out All<IProperty> properties,
 			out _);
 		Mock<IZone> zone = CreateZone(10L);
-		Mock<ICell> origin = CreateCell(1L, zone.Object);
-		Mock<ICell> destination = CreateCell(2L, zone.Object);
-		Mock<ICellExit> exit = CreateExit(origin.Object, destination.Object);
+		Mock<IRoom> origin = CreateRoom(1L, zone.Object);
+		Mock<IRoom> destination = CreateRoom(2L, zone.Object);
+		Mock<IRoomExit> exit = CreateExit(origin.Object, destination.Object);
 		Mock<IProperty> property = CreateProperty(50L, "Warehouse", destination.Object);
 		properties.Add(property.Object);
 		Mock<IAccount> account = new();
@@ -325,10 +325,10 @@ public class AutomaticCrimeExtensionsTests
 	{
 		Mock<IFuturemud> gameworld = CreateGameworld(out Mock<ILegalAuthority> authority, out _, out _);
 		Mock<IZone> zone = CreateZone(10L);
-		Mock<ICell> origin = CreateCell(1L, zone.Object);
-		Mock<ICell> destination = CreateCell(2L, zone.Object);
+		Mock<IRoom> origin = CreateRoom(1L, zone.Object);
+		Mock<IRoom> destination = CreateRoom(2L, zone.Object);
 		destination.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
-		Mock<ICellExit> exit = CreateExit(origin.Object, destination.Object);
+		Mock<IRoomExit> exit = CreateExit(origin.Object, destination.Object);
 		Mock<IProperty> property = CreateProperty(50L, "Warehouse", destination.Object);
 		property.SetupGet(x => x.ApplyCriminalCodeInProperty).Returns(false);
 		property.SetupGet(x => x.PropertyOwners).Returns(Array.Empty<IPropertyOwner>());
@@ -356,9 +356,9 @@ public class AutomaticCrimeExtensionsTests
 		Mock<IFuturemud> gameworld = CreateGameworld(out Mock<ILegalAuthority> authority, out All<IProperty> properties,
 			out _);
 		Mock<IZone> zone = CreateZone(10L);
-		Mock<ICell> origin = CreateCell(1L, zone.Object);
-		Mock<ICell> destination = CreateCell(2L, zone.Object);
-		Mock<ICellExit> exit = CreateExit(origin.Object, destination.Object);
+		Mock<IRoom> origin = CreateRoom(1L, zone.Object);
+		Mock<IRoom> destination = CreateRoom(2L, zone.Object);
+		Mock<IRoomExit> exit = CreateExit(origin.Object, destination.Object);
 		Mock<IProperty> property = CreateProperty(50L, "Warehouse", destination.Object);
 		properties.Add(property.Object);
 		Mock<IAccount> followerAccount = new();
@@ -392,9 +392,9 @@ public class AutomaticCrimeExtensionsTests
 		Mock<IFuturemud> gameworld = CreateGameworld(out Mock<ILegalAuthority> authority, out _, out _);
 		Mock<IZone> originZone = CreateZone(10L);
 		Mock<IZone> destinationZone = CreateZone(11L);
-		Mock<ICell> origin = CreateCell(1L, originZone.Object);
-		Mock<ICell> destination = CreateCell(2L, destinationZone.Object);
-		Mock<ICellExit> exit = CreateExit(origin.Object, destination.Object);
+		Mock<IRoom> origin = CreateRoom(1L, originZone.Object);
+		Mock<IRoom> destination = CreateRoom(2L, destinationZone.Object);
+		Mock<IRoomExit> exit = CreateExit(origin.Object, destination.Object);
 		authority.SetupGet(x => x.EnforcementZones).Returns(new[] { destinationZone.Object });
 		Mock<ICharacter> actor = CreateCharacter(20L, gameworld.Object, destination.Object);
 		Mock<IGameItem> contraband = CreateItem(40L, "contraband");
@@ -416,9 +416,9 @@ public class AutomaticCrimeExtensionsTests
 		Mock<IFuturemud> gameworld = CreateGameworld(out Mock<ILegalAuthority> authority, out All<IProperty> properties,
 			out _);
 		Mock<IZone> zone = CreateZone(10L);
-		Mock<ICell> origin = CreateCell(1L, zone.Object);
-		Mock<ICell> destination = CreateCell(2L, zone.Object);
-		Mock<ICellExit> exit = CreateExit(origin.Object, destination.Object);
+		Mock<IRoom> origin = CreateRoom(1L, zone.Object);
+		Mock<IRoom> destination = CreateRoom(2L, zone.Object);
+		Mock<IRoomExit> exit = CreateExit(origin.Object, destination.Object);
 		Mock<IProperty> property = CreateProperty(50L, "Warehouse", destination.Object);
 		properties.Add(property.Object);
 		Mock<ICharacter> actor = CreateCharacter(20L, gameworld.Object, destination.Object);
@@ -427,9 +427,9 @@ public class AutomaticCrimeExtensionsTests
 
 		authority.Verify(x => x.CheckPossibleCrime(It.IsAny<ICharacter>(), It.IsAny<CrimeTypes>(),
 			It.IsAny<ICharacter>(), It.IsAny<IGameItem>(), It.IsAny<string>(), It.IsAny<IEnumerable<ICharacter>>(),
-			It.IsAny<bool>(), It.IsAny<ICell>()), Times.Never);
+			It.IsAny<bool>(), It.IsAny<IRoom>()), Times.Never);
 		authority.Verify(x => x.WouldBeACrimeAtLocation(It.IsAny<ICharacter>(), It.IsAny<CrimeTypes>(),
-			It.IsAny<ICharacter>(), It.IsAny<IGameItem>(), It.IsAny<string>(), It.IsAny<ICell>()), Times.Never);
+			It.IsAny<ICharacter>(), It.IsAny<IGameItem>(), It.IsAny<string>(), It.IsAny<IRoom>()), Times.Never);
 	}
 
 	private static Mock<IFuturemud> CreateGameworld(out Mock<ILegalAuthority> authority,
@@ -442,7 +442,7 @@ public class AutomaticCrimeExtensionsTests
 		authority.SetupGet(x => x.EnforcementZones).Returns(Array.Empty<IZone>());
 		authority.Setup(x => x.CheckPossibleCrime(It.IsAny<ICharacter>(), It.IsAny<CrimeTypes>(),
 				It.IsAny<ICharacter>(), It.IsAny<IGameItem>(), It.IsAny<string>(), It.IsAny<IEnumerable<ICharacter>>(),
-				It.IsAny<bool>(), It.IsAny<ICell>()))
+				It.IsAny<bool>(), It.IsAny<IRoom>()))
 			.Returns(Array.Empty<ICrime>());
 		authorities = new All<ILegalAuthority>();
 		authorities.Add(authority.Object);
@@ -474,7 +474,7 @@ public class AutomaticCrimeExtensionsTests
 		return wound;
 	}
 
-	private static Mock<ICharacter> CreateCharacter(long id, IFuturemud gameworld, ICell location)
+	private static Mock<ICharacter> CreateCharacter(long id, IFuturemud gameworld, IRoom location)
 	{
 		Mock<ICharacter> character = new();
 		character.SetupGet(x => x.Id).Returns(id);
@@ -488,15 +488,15 @@ public class AutomaticCrimeExtensionsTests
 		return character;
 	}
 
-	private static Mock<ICell> CreateCell(long id, IZone zone)
+	private static Mock<IRoom> CreateRoom(long id, IZone zone)
 	{
-		Mock<ICell> cell = new();
-		cell.SetupGet(x => x.Id).Returns(id);
-		cell.SetupGet(x => x.Name).Returns($"Cell {id}");
-		cell.SetupGet(x => x.FrameworkItemType).Returns("Cell");
-		cell.SetupGet(x => x.Zone).Returns(zone);
-		cell.Setup(x => x.LayerCharacters(It.IsAny<RoomLayer>())).Returns(Array.Empty<ICharacter>());
-		return cell;
+		Mock<IRoom> room = new();
+		room.SetupGet(x => x.Id).Returns(id);
+		room.SetupGet(x => x.Name).Returns($"Cell {id}");
+		room.SetupGet(x => x.FrameworkItemType).Returns("Cell");
+		room.SetupGet(x => x.Zone).Returns(zone);
+		room.Setup(x => x.LayerCharacters(It.IsAny<RoomLayer>())).Returns(Array.Empty<ICharacter>());
+		return room;
 	}
 
 	private static Mock<IZone> CreateZone(long id)
@@ -508,15 +508,15 @@ public class AutomaticCrimeExtensionsTests
 		return zone;
 	}
 
-	private static Mock<ICellExit> CreateExit(ICell origin, ICell destination)
+	private static Mock<IRoomExit> CreateExit(IRoom origin, IRoom destination)
 	{
-		Mock<ICellExit> exit = new();
+		Mock<IRoomExit> exit = new();
 		exit.SetupGet(x => x.Origin).Returns(origin);
 		exit.SetupGet(x => x.Destination).Returns(destination);
 		return exit;
 	}
 
-	private static Mock<IProperty> CreateProperty(long id, string name, ICell location)
+	private static Mock<IProperty> CreateProperty(long id, string name, IRoom location)
 	{
 		Mock<IProperty> property = new();
 		property.SetupGet(x => x.Id).Returns(id);
@@ -524,7 +524,7 @@ public class AutomaticCrimeExtensionsTests
 		property.SetupGet(x => x.FrameworkItemType).Returns("Property");
 		property.SetupGet(x => x.ApplyCriminalCodeInProperty).Returns(true);
 		property.SetupGet(x => x.PropertyLocations).Returns(new[] { location });
-		property.Setup(x => x.HotelRoomForCell(It.IsAny<ICell>())).Returns((IHotelRoom)null!);
+		property.Setup(x => x.HotelRoomForRoom(It.IsAny<IRoom>())).Returns((IHotelRoom)null!);
 		return property;
 	}
 

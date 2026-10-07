@@ -20,16 +20,16 @@ public class RouteAndJourneyFutureProgEventTests
 	[TestMethod]
 	public void RouteMovementEvents_PublishStablePayloadsOncePerHookTarget()
 	{
-		var cell = new Mock<ICell>();
+		var room = new Mock<IRoom>();
 		var mover = new Mock<IPerceivable>();
 		var calls = CaptureEvents(mover);
 		var operationId = Guid.Parse("488ec6c6-3244-482e-a7f5-58f21f02ecab");
 		var context = new RouteMovementHookContext(
 			operationId,
-			cell.Object,
+			room.Object,
 			100.0,
 			500.0,
-			RouteCellDirection.Positive,
+			RouteRoomDirection.Positive,
 			20.0);
 
 		var duplicatedTargets = new[] { mover.Object, mover.Object };
@@ -49,7 +49,7 @@ public class RouteAndJourneyFutureProgEventTests
 			},
 			calls.Select(x => x.EventType).ToArray());
 		Assert.AreSame(mover.Object, calls[0].Arguments[0]);
-		Assert.AreSame(cell.Object, calls[0].Arguments[1]);
+		Assert.AreSame(room.Object, calls[0].Arguments[1]);
 		Assert.AreEqual(100.0, calls[0].Arguments[2]);
 		Assert.AreEqual(500.0, calls[0].Arguments[3]);
 		Assert.AreEqual("Positive", calls[0].Arguments[4]);
@@ -63,15 +63,15 @@ public class RouteAndJourneyFutureProgEventTests
 	[TestMethod]
 	public void RouteMovementProgress_DoesNotPublishWhenCoordinateDidNotChange()
 	{
-		var cell = new Mock<ICell>();
+		var room = new Mock<IRoom>();
 		var mover = new Mock<IPerceivable>();
 		var calls = CaptureEvents(mover);
 		var context = new RouteMovementHookContext(
 			Guid.NewGuid(),
-			cell.Object,
+			room.Object,
 			100.0,
 			500.0,
-			RouteCellDirection.Positive,
+			RouteRoomDirection.Positive,
 			20.0);
 
 		RouteMovementFutureProgEvents.Progress([mover.Object], context, 100.0, 100.0001);
@@ -91,10 +91,10 @@ public class RouteAndJourneyFutureProgEventTests
 		route.SetupGet(x => x.Id).Returns(22L);
 		var service = new Mock<IVehicleService>();
 		service.SetupGet(x => x.Id).Returns(33L);
-		var cell = new Mock<ICell>();
+		var room = new Mock<IRoom>();
 		var stop = new Mock<IVehicleRouteStop>();
 		stop.SetupGet(x => x.Location)
-			.Returns(new SpatialLocation(cell.Object, RoomLayer.GroundLevel, 7_150.0));
+			.Returns(new SpatialLocation(room.Object, RoomLayer.GroundLevel, 7_150.0));
 		var journey = new Mock<IVehicleJourney>();
 		journey.SetupGet(x => x.Id).Returns(11L);
 		journey.SetupGet(x => x.Route).Returns(route.Object);
@@ -127,7 +127,7 @@ public class RouteAndJourneyFutureProgEventTests
 			Assert.AreEqual(33L, call.Arguments[3]);
 			Assert.AreEqual(44L, call.Arguments[4]);
 		}
-		Assert.AreSame(cell.Object, calls[0].Arguments[5]);
+		Assert.AreSame(room.Object, calls[0].Arguments[5]);
 		Assert.AreEqual(7_150.0, calls[0].Arguments[6]);
 		Assert.AreEqual(TimeSpan.FromMinutes(4), calls[2].Arguments[5]);
 		Assert.AreEqual("signal delay", calls[2].Arguments[6]);

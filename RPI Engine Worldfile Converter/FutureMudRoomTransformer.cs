@@ -193,8 +193,8 @@ public sealed class FutureMudRoomTransformer
 				EffectiveWeather = room.Weather,
 				XeroxResolved = room.XeroxSourceVnum is null,
 				TerrainName = "Hall",
-				OutdoorsTypeValue = (int)CellOutdoorsType.Outdoors,
-				OutdoorsTypeName = CellOutdoorsType.Outdoors.Describe(),
+				OutdoorsTypeValue = (int)RoomOutdoorsType.Outdoors,
+				OutdoorsTypeName = RoomOutdoorsType.Outdoors.Describe(),
 				SafeQuit = room.RoomFlags.HasFlag(RpiRoomFlags.SafeQuit),
 				Warnings = [],
 			};
@@ -233,14 +233,14 @@ public sealed class FutureMudRoomTransformer
 	{
 		foreach (var state in roomStates)
 		{
-			if (state.EffectiveDescription.Length <= FutureMudRoomImportLimits.CellDescriptionMaxLength)
+			if (state.EffectiveDescription.Length <= FutureMudRoomImportLimits.RoomDescriptionMaxLength)
 			{
 				continue;
 			}
 
 			state.Warnings.Add(new RoomConversionWarning(
 				"cell-description-truncated",
-				$"Room #{state.Source.Vnum} has an effective description of {state.EffectiveDescription.Length.ToString("N0", CultureInfo.InvariantCulture)} characters; FutureMUD CellDescription is limited to {FutureMudRoomImportLimits.CellDescriptionMaxLength.ToString("N0", CultureInfo.InvariantCulture)}, so apply-rooms will truncate it."));
+				$"Room #{state.Source.Vnum} has an effective description of {state.EffectiveDescription.Length.ToString("N0", CultureInfo.InvariantCulture)} characters; FutureMUD CellDescription is limited to {FutureMudRoomImportLimits.RoomDescriptionMaxLength.ToString("N0", CultureInfo.InvariantCulture)}, so apply-rooms will truncate it."));
 		}
 	}
 
@@ -250,7 +250,7 @@ public sealed class FutureMudRoomTransformer
 		{
 			state.TerrainName = DetermineTerrain(state.Source, state.EffectiveDescription, roomByVnum);
 			state.OutdoorsTypeValue = DetermineOutdoorsTypeValue(state.Source, state.TerrainName, state.EffectiveDescription);
-			state.OutdoorsTypeName = ((CellOutdoorsType)state.OutdoorsTypeValue).Describe();
+			state.OutdoorsTypeName = ((RoomOutdoorsType)state.OutdoorsTypeValue).Describe();
 			state.SafeQuit = state.Source.RoomFlags.HasFlag(RpiRoomFlags.SafeQuit);
 		}
 	}
@@ -759,17 +759,17 @@ public sealed class FutureMudRoomTransformer
 	{
 		var defaultType = terrainName switch
 		{
-			"Hall" or "Dungeon" or "Cave" => CellOutdoorsType.Indoors,
-			"Rooftop" or "Gatehouse" or "Battlement" or "Cave Entrance" => CellOutdoorsType.IndoorsClimateExposed,
-			_ => CellOutdoorsType.Outdoors,
+			"Hall" or "Dungeon" or "Cave" => RoomOutdoorsType.Indoors,
+			"Rooftop" or "Gatehouse" or "Battlement" or "Cave Entrance" => RoomOutdoorsType.IndoorsClimateExposed,
+			_ => RoomOutdoorsType.Outdoors,
 		};
 
 		if (room.RoomFlags.HasFlag(RpiRoomFlags.Indoors))
 		{
 			var text = $"{room.Name} {effectiveDescription}";
 			return (int)(ContainsAny(text, "rooftop", "gatehouse", "battlement", "open-walled", "open walled", "balcony")
-				? CellOutdoorsType.IndoorsClimateExposed
-				: CellOutdoorsType.Indoors);
+				? RoomOutdoorsType.IndoorsClimateExposed
+				: RoomOutdoorsType.Indoors);
 		}
 
 		return (int)defaultType;

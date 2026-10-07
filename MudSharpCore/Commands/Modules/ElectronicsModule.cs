@@ -1294,7 +1294,7 @@ If more than one terminal could be used, specify one explicitly or connect first
 			return;
 		}
 
-		var destinationCell = exit.Destination;
+		var destinationRoom = exit.Destination;
 		IGameItem? housingItem = null;
 		IAutomationHousing? destinationHousing = null;
 		IContainer? destinationContainer = null;
@@ -1302,7 +1302,7 @@ If more than one terminal could be used, specify one explicitly or connect first
 		{
 			var housingIdentifier = ss.SafeRemainingArgument;
 			var (target, path) = actor.TargetDistantItem(housingIdentifier, exit, 1, true, false);
-			if (target is null || target.TrueLocations.All(x => x != destinationCell) || path.All(x => x != exit))
+			if (target is null || target.TrueLocations.All(x => x != destinationRoom) || path.All(x => x != exit))
 			{
 				actor.Send("You do not see any such adjacent-room housing or junction there.");
 				return;
@@ -1370,7 +1370,7 @@ If more than one terminal could be used, specify one explicitly or connect first
 			"ElectricalInstallActionFailureEmote",
 			outcome =>
 			{
-				if (!RelocateLooseItem(cableItem, destinationCell, destinationContainer, out var error))
+				if (!RelocateLooseItem(cableItem, destinationRoom, destinationContainer, out var error))
 				{
 					actor.Send(error);
 					return false;
@@ -5399,15 +5399,15 @@ If more than one terminal could be used, specify one explicitly or connect first
 	{
 		var items = new List<IGameItem> { anchorItem };
 		items.AddRange(anchorItem.AttachedAndConnectedItems);
-		var anchorCells = anchorItem.TrueLocations.OfType<ICell>().Distinct().ToList();
-		if (!anchorCells.Any() && actor.Location is not null)
+		var anchorRooms = anchorItem.TrueLocations.OfType<IRoom>().Distinct().ToList();
+		if (!anchorRooms.Any() && actor.Location is not null)
 		{
-			anchorCells.Add(actor.Location);
+			anchorRooms.Add(actor.Location);
 		}
 
-		foreach (var cell in anchorCells)
+		foreach (var room in anchorRooms)
 		{
-			items.AddRange(cell.LayerGameItems(anchorItem.RoomLayer));
+			items.AddRange(room.LayerGameItems(anchorItem.RoomLayer));
 		}
 
 		var rootItems = items
@@ -5682,7 +5682,7 @@ If more than one terminal could be used, specify one explicitly or connect first
 		return true;
 	}
 
-	private static bool RelocateLooseItem(IGameItem item, ICell destinationCell, IContainer? destinationContainer, out string error)
+	private static bool RelocateLooseItem(IGameItem item, IRoom destinationRoom, IContainer? destinationContainer, out string error)
 	{
 		ReleaseItemFromCurrentState(item);
 		if (destinationContainer is not null)
@@ -5698,7 +5698,7 @@ If more than one terminal could be used, specify one explicitly or connect first
 			return true;
 		}
 
-		item.Drop(destinationCell);
+		item.Drop(destinationRoom);
 		error = string.Empty;
 		return true;
 	}

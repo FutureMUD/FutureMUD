@@ -949,7 +949,7 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
 
         if (hasRoomScope)
         {
-            ICell? room = Gameworld.Cells.Get(parsedRoomId);
+            IRoom? room = Gameworld.Rooms.Get(parsedRoomId);
             if (room is null)
             {
                 error = $"No room with id {parsedRoomId:N0} exists.";
@@ -1339,16 +1339,16 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
 
     private ToolExecutionResult HandleLandmarks()
     {
-        List<Dictionary<string, object>> landmarks = Gameworld.Cells
+        List<Dictionary<string, object>> landmarks = Gameworld.Rooms
             .SelectMany(x => x.EffectsOfType<LandmarkEffect>())
             .Select(x =>
             {
-                ICell cell = (ICell)x.Owner!;
+                IRoom room = (IRoom)x.Owner!;
                 return new Dictionary<string, object>
                 {
                     ["Id"] = x.Name,
-                    ["RoomId"] = cell.Id,
-                    ["RoomName"] = cell.HowSeen(null, colour: false)
+                    ["RoomId"] = room.Id,
+                    ["RoomName"] = room.HowSeen(null, colour: false)
                 };
             })
             .ToList();
@@ -1366,7 +1366,7 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
             return ErrorResult(error);
         }
 
-        LandmarkEffect? landmark = Gameworld.Cells
+        LandmarkEffect? landmark = Gameworld.Rooms
             .SelectMany(x => x.EffectsOfType<LandmarkEffect>())
             .FirstOrDefault(x => x.Name.EqualTo(landmarkId));
         if (landmark is null)
@@ -1374,8 +1374,8 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
             return ErrorResult($"No landmark with id '{landmarkId}' exists.");
         }
 
-        ICell cell = (ICell)landmark.Owner;
-        List<Dictionary<string, object>> occupants = cell.Characters.Select(x => new Dictionary<string, object>
+        IRoom room = (IRoom)landmark.Owner;
+        List<Dictionary<string, object>> occupants = room.Characters.Select(x => new Dictionary<string, object>
         {
             ["Id"] = x.Id,
             ["Name"] = x.PersonalName.GetName(NameStyle.FullName),
@@ -1386,10 +1386,10 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
         return SuccessResult(new Dictionary<string, object>
         {
             ["Id"] = landmark.Name,
-            ["RoomId"] = cell.Id,
-            ["RoomName"] = cell.HowSeen(null, colour: false),
+            ["RoomId"] = room.Id,
+            ["RoomName"] = room.HowSeen(null, colour: false),
             ["RoomDescription"] =
-                cell.ProcessedFullDescription(null, PerceiveIgnoreFlags.TrueDescription, cell.CurrentOverlay),
+                room.ProcessedFullDescription(null, PerceiveIgnoreFlags.TrueDescription, room.CurrentOverlay),
             ["Details"] = landmark.LandmarkDescriptionTexts.Select(x => x.Text).ToList(),
             ["Occupants"] = occupants
         });
@@ -1446,7 +1446,7 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
     }
 
     private static bool TryResolvePathSearchFunction(string pathSearchFunction, ICharacter? contextCharacter,
-        out Func<ICellExit, bool> function, out string resolvedFunctionName, out string error)
+        out Func<IRoomExit, bool> function, out string resolvedFunctionName, out string error)
     {
         function = PathSearch.IgnorePresenceOfDoors;
         resolvedFunctionName = pathSearchFunction;
@@ -1529,10 +1529,10 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
         return false;
     }
 
-    private static List<string> ConvertPathToDirectionCommands(IEnumerable<ICellExit> path)
+    private static List<string> ConvertPathToDirectionCommands(IEnumerable<IRoomExit> path)
     {
         return path.Select(x =>
-            x is NonCardinalCellExit nonCardinalExit
+            x is NonCardinalRoomExit nonCardinalExit
                 ? $"{nonCardinalExit.Verb} {nonCardinalExit.PrimaryKeyword}".ToLowerInvariant()
                 : x.OutboundDirection.DescribeBrief()).ToList();
     }
@@ -1554,25 +1554,25 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
             return ErrorResult(error);
         }
 
-        ICell? origin = Gameworld.Cells.Get(originRoomId);
+        IRoom? origin = Gameworld.Rooms.Get(originRoomId);
         if (origin is null)
         {
             return ErrorResult($"No room with id {originRoomId:N0} exists.");
         }
 
-        ICell? destination = Gameworld.Cells.Get(destinationRoomId);
+        IRoom? destination = Gameworld.Rooms.Get(destinationRoomId);
         if (destination is null)
         {
             return ErrorResult($"No room with id {destinationRoomId:N0} exists.");
         }
 
-        if (!TryResolvePathSearchFunction(pathSearchFunction, null, out Func<ICellExit, bool> pathFunction, out string resolvedPathFunction,
+        if (!TryResolvePathSearchFunction(pathSearchFunction, null, out Func<IRoomExit, bool> pathFunction, out string resolvedPathFunction,
                 out error))
         {
             return ErrorResult(error);
         }
 
-        List<ICellExit> path = origin.PathBetween(destination, 50, pathFunction).ToList();
+        List<IRoomExit> path = origin.PathBetween(destination, 50, pathFunction).ToList();
         bool sameRoom = origin == destination;
 
         return SuccessResult(new Dictionary<string, object>
@@ -1613,19 +1613,19 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
             return ErrorResult($"Character {originCharacterId:N0} has no location.");
         }
 
-        ICell? destination = Gameworld.Cells.Get(destinationRoomId);
+        IRoom? destination = Gameworld.Rooms.Get(destinationRoomId);
         if (destination is null)
         {
             return ErrorResult($"No room with id {destinationRoomId:N0} exists.");
         }
 
-        if (!TryResolvePathSearchFunction(pathSearchFunction, originCharacter, out Func<ICellExit, bool> pathFunction,
+        if (!TryResolvePathSearchFunction(pathSearchFunction, originCharacter, out Func<IRoomExit, bool> pathFunction,
                 out string resolvedPathFunction, out error))
         {
             return ErrorResult(error);
         }
 
-        List<ICellExit> path = originCharacter.PathBetween(destination, 50, pathFunction).ToList();
+        List<IRoomExit> path = originCharacter.PathBetween(destination, 50, pathFunction).ToList();
         bool sameRoom = originCharacter.Location == destination;
 
         return SuccessResult(new Dictionary<string, object>
@@ -1678,13 +1678,13 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
             return ErrorResult($"Character {destinationCharacterId:N0} has no location.");
         }
 
-        if (!TryResolvePathSearchFunction(pathSearchFunction, originCharacter, out Func<ICellExit, bool> pathFunction,
+        if (!TryResolvePathSearchFunction(pathSearchFunction, originCharacter, out Func<IRoomExit, bool> pathFunction,
                 out string resolvedPathFunction, out error))
         {
             return ErrorResult(error);
         }
 
-        List<ICellExit> path = originCharacter.PathBetween(destinationCharacter, 50, pathFunction).ToList();
+        List<IRoomExit> path = originCharacter.PathBetween(destinationCharacter, 50, pathFunction).ToList();
         bool sameRoom = originCharacter.Location == destinationCharacter.Location;
 
         return SuccessResult(new Dictionary<string, object>
@@ -1762,20 +1762,20 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
         });
     }
 
-    private List<ICell> GetStorytellerMonitoredCells()
+    private List<IRoom> GetStorytellerMonitoredRooms()
     {
-        List<ICell> monitoredCells = SurveillanceStrategy.GetCells(Gameworld)
+        List<IRoom> monitoredRooms = SurveillanceStrategy.GetRooms(Gameworld)
             .Distinct()
             .ToList();
-        return monitoredCells.Any() ? monitoredCells : Gameworld.Cells.ToList();
+        return monitoredRooms.Any() ? monitoredRooms : Gameworld.Rooms.ToList();
     }
 
-    private List<(ICalendar Calendar, IClock Clock, IMudTimeZone TimeZone, ICell? ContextCell)> GetDateTimeContexts()
+    private List<(ICalendar Calendar, IClock Clock, IMudTimeZone TimeZone, IRoom? ContextRoom)> GetDateTimeContexts()
     {
-        return GetStorytellerMonitoredCells()
-            .SelectMany(cell =>
-                cell.Calendars.Select(calendar =>
-                    (Calendar: calendar, Clock: calendar.FeedClock, TimeZone: cell.TimeZone(calendar.FeedClock), ContextCell: (ICell?)cell)))
+        return GetStorytellerMonitoredRooms()
+            .SelectMany(room =>
+                room.Calendars.Select(calendar =>
+                    (Calendar: calendar, Clock: calendar.FeedClock, TimeZone: room.TimeZone(calendar.FeedClock), ContextRoom: (IRoom?)room)))
             .GroupBy(x => (x.Calendar.Id, x.Clock.Id, x.TimeZone.Id))
             .Select(x => x.First())
             .ToList();
@@ -1807,7 +1807,7 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
 
     private ToolExecutionResult HandleCurrentDateTime()
     {
-        List<(ICalendar Calendar, IClock Clock, IMudTimeZone TimeZone, ICell? ContextCell)> contexts = GetDateTimeContexts();
+        List<(ICalendar Calendar, IClock Clock, IMudTimeZone TimeZone, IRoom? ContextRoom)> contexts = GetDateTimeContexts();
         if (!contexts.Any())
         {
             return ErrorResult("There are no monitored rooms to evaluate date and time for.");
@@ -1819,13 +1819,13 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
                 "Multiple calendar/clock/timezone contexts are in use. Use DateTimeForTarget with CharacterId or RoomId.");
         }
 
-        (ICalendar Calendar, IClock Clock, IMudTimeZone TimeZone, ICell? ContextCell) context = contexts[0];
-        if (context.ContextCell is null)
+        (ICalendar Calendar, IClock Clock, IMudTimeZone TimeZone, IRoom? ContextRoom) context = contexts[0];
+        if (context.ContextRoom is null)
         {
             return ErrorResult("Unable to resolve a monitored room context for current date and time.");
         }
 
-        return SuccessResult(BuildDateTimeResult(context.ContextCell, context.Calendar));
+        return SuccessResult(BuildDateTimeResult(context.ContextRoom, context.Calendar));
     }
 
     private ToolExecutionResult HandleDateTimeForTarget(JsonElement arguments)
@@ -1869,7 +1869,7 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
             return SuccessResult(result);
         }
 
-        ICell? room = Gameworld.Cells.Get(roomId);
+        IRoom? room = Gameworld.Rooms.Get(roomId);
         if (room is null)
         {
             return ErrorResult($"No room with id {roomId:N0} exists.");

@@ -122,7 +122,7 @@ internal static partial class GNHProgram
 			using var caller = outer ? new FMDB() : null;
 			var callerContext = outer ? FMDB.Context : null;
 			var callerRow = outer ? callerContext!.GameItems.Find(callerItem!.Id) : null;
-			if (outer) { var tracked = callerContext!.GameItems.Include(x => x.GameItemComponents).Include(x => x.BodiesGameItems).Include(x => x.CellsGameItems).Single(x => x.Id == source.Id); Require(tracked.GameItemComponents.Count == 3, "Pretrack the exact native ammo source graph."); }
+			if (outer) { var tracked = callerContext!.GameItems.Include(x => x.GameItemComponents).Include(x => x.BodiesGameItems).Include(x => x.RoomsGameItems).Single(x => x.Id == source.Id); Require(tracked.GameItemComponents.Count == 3, "Pretrack the exact native ammo source graph."); }
 			Exception? providerFailure = null;
 			if (provider) { using var db = NewIndependentContext(database.ConnectionString); db.Database.ExecuteSqlRaw($"CREATE TRIGGER arm_ammo_delete_refusal BEFORE DELETE ON GameItems FOR EACH ROW BEGIN IF OLD.Id = {source.Id} THEN SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'owned ammo deletion fixture refusal'; END IF; END"); }
 			var deleted = 0; var events = 0; var operating = false; IGameItem? eventItem = null; IGameItem[]? returned = null;

@@ -32,14 +32,14 @@ public interface ITrack : IFrameworkItem, ISaveable
     ICharacter? Character { get; }
     IBodyPrototype? BodyProtoType { get; }
     IVehicle? Vehicle { get; }
-    ICell Cell { get; }
+    IRoom Room { get; }
     RoomLayer RoomLayer { get; }
 	double? RoutePositionMetres => null;
-	RouteCellDirection? RouteDirection => null;
+	RouteRoomDirection? RouteDirection => null;
     IExit? FromExit { get; }
     IExit? ToExit { get; }
-    ICellExit? FromCellExit { get; }
-    ICellExit? ToCellExit { get; }
+    IRoomExit? FromRoomExit { get; }
+    IRoomExit? ToRoomExit { get; }
     IMoveSpeed? FromSpeed { get; }
     IMoveSpeed? ToSpeed { get; }
     TrackCircumstances TrackCircumstances { get; }

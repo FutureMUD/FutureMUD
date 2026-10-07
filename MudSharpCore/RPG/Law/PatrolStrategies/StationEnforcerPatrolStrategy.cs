@@ -55,7 +55,7 @@ public class StationEnforcerPatrolStrategy : PatrolStrategyBase
                 return;
             }
 
-            List<ICellExit> path = patrol.PatrolLeader
+            List<IRoomExit> path = patrol.PatrolLeader
                              .PathBetween(patrol.NextMajorNode, 20,
                                  PathSearch.PathIncludeUnlockableDoors(patrol.PatrolLeader))
                              .ToList();
@@ -85,7 +85,7 @@ public class StationEnforcerPatrolStrategy : PatrolStrategyBase
     public override IEnumerable<ICharacter> SelectEnforcers(IPatrolRoute patrol, IEnumerable<ICharacter> pool,
         int numberToPick)
     {
-        ICell node = patrol.PatrolNodes.First();
+        IRoom node = patrol.PatrolNodes.First();
         List<ICharacter> selected = new();
         selected.AddRange(pool.Where(x => x.Location == node).PickUpToRandom(numberToPick));
         if (selected.Count >= numberToPick)

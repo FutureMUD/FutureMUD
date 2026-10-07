@@ -25,13 +25,13 @@ internal static class RouteCommandUtilities
 
 	public static bool TryResolveRoutePosition(
 		ICharacter actor,
-		ICell cell,
+		IRoom room,
 		string text,
 		out double positionMetres,
 		out string error)
 	{
 		positionMetres = 0.0;
-		if (cell.RouteDefinition is not { } route)
+		if (room.RouteDefinition is not { } route)
 		{
 			error = "That destination is an ordinary cell and does not accept a route coordinate.";
 			return false;

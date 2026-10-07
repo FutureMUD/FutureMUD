@@ -138,25 +138,25 @@ namespace MudSharp.Events
         ///     Hooks the character who moved, as they enter the room. Parameters are mover, cell, exit
         /// </summary>
         [EventInfo("Hooks to a character when they move into a room", new[] { "character", "location", "exit" }, new[] { "mover", "destination", "exit" }, new[] { ProgVariableTypeCode.Character, ProgVariableTypeCode.Location, ProgVariableTypeCode.Exit })]
-        CharacterEnterCell = 16,
+        CharacterEnterRoom = 16,
 
         /// <summary>
         ///     Hooks any witness to the character who moved, as they enter the room. Parameters are mover, cell, exit, witness
         /// </summary>
         [EventInfo("Hooks to a perceiver witnessing someone move into a room", new[] { "character", "location", "exit", "perceivable" }, new[] { "mover", "destination", "exit", "witness" }, new[] { ProgVariableTypeCode.Character, ProgVariableTypeCode.Location, ProgVariableTypeCode.Exit, ProgVariableTypeCode.Perceivable })]
-        CharacterEnterCellWitness = 17,
+        CharacterEnterRoomWitness = 17,
 
         /// <summary>
         ///     Hooks the character who moved, after movement is complete. Parameters are mover, cell, exit
         /// </summary>
         [EventInfo("Hooks to a character when they have moved into a room and their movement finishes", new[] { "character", "location", "exit" }, new[] { "mover", "destination", "exit" }, new[] { ProgVariableTypeCode.Character, ProgVariableTypeCode.Location, ProgVariableTypeCode.Exit })]
-        CharacterEnterCellFinish = 18,
+        CharacterEnterRoomFinish = 18,
 
         /// <summary>
         ///     Hooks any witness to the character who moved, after movement is complete. Parameters are mover, cell, exit, witness
         /// </summary>
         [EventInfo("Hooks to a perceiver witnessing someone finish move into a room", new[] { "character", "location", "exit", "perceivable" }, new[] { "mover", "destination", "exit", "witness" }, new[] { ProgVariableTypeCode.Character, ProgVariableTypeCode.Location, ProgVariableTypeCode.Exit, ProgVariableTypeCode.Perceivable })]
-        CharacterEnterCellFinishWitness = 19,
+        CharacterEnterRoomFinishWitness = 19,
 
         /// <summary>
         ///     Hooks the character who begun to move. Parameters are mover, cell, exit
@@ -174,13 +174,13 @@ namespace MudSharp.Events
         ///     Hooks the character who moved, as they leave the room. Parameters are mover, cell, exit
         /// </summary>
         [EventInfo("Hooks to a character when they leave the room they started in", new[] { "character", "location", "exit" }, new[] { "mover", "origin", "exit" }, new[] { ProgVariableTypeCode.Character, ProgVariableTypeCode.Location, ProgVariableTypeCode.Exit })]
-        CharacterLeaveCell = 23,
+        CharacterLeaveRoom = 23,
 
         /// <summary>
         ///     Hooks any witness to the character who moved, as they leave the room. Parameters are mover, cell, exit, witness
         /// </summary>
         [EventInfo("Hooks to a perceiver witnessing someone move out of a room", new[] { "character", "location", "exit", "perceivable" }, new[] { "mover", "origin", "exit", "witness" }, new[] { ProgVariableTypeCode.Character, ProgVariableTypeCode.Location, ProgVariableTypeCode.Exit, ProgVariableTypeCode.Perceivable })]
-        CharacterLeaveCellWitness = 24,
+        CharacterLeaveRoomWitness = 24,
 
         /// <summary>
         ///     Hooks a character when they stop moving from the STOP command. Parameters are mover, cell, exit
@@ -566,7 +566,7 @@ namespace MudSharp.Events
         ///     Hooks to a character when they leave the room they started in, but fires on their inventory items. Parameters are mover, cell, exit, item
         /// </summary>
         [EventInfo("Hooks to a character when they leave the room they started in, but fires on their inventory items", new[] { "character", "location", "exit", "item" }, new[] { "mover", "origin", "exit", "item" }, new[] { ProgVariableTypeCode.Character, ProgVariableTypeCode.Location, ProgVariableTypeCode.Exit, ProgVariableTypeCode.Item })]
-        CharacterLeaveCellItems = 89,
+        CharacterLeaveRoomItems = 89,
 
         /// <summary>
         ///     Hooks the character who begun to move, but fires on their inventory items. Parameters are mover, cell, exit, item
@@ -579,7 +579,7 @@ namespace MudSharp.Events
         ///     Hooks the character who moved, as they enter the room, but fires on their inventory items. Parameters are mover, cell, exit, item
         /// </summary>
         [EventInfo("Hooks to a character when they move into a room, but fires on their inventory items", new[] { "character", "location", "exit", "item" }, new[] { "mover", "destination", "exit", "item" }, new[] { ProgVariableTypeCode.Character, ProgVariableTypeCode.Location, ProgVariableTypeCode.Exit, ProgVariableTypeCode.Item })]
-        CharacterEnterCellItems = 91,
+        CharacterEnterRoomItems = 91,
 
         /// <summary>
         ///     Hooks to being invited to join a spar. Parameters are inviter, invitee

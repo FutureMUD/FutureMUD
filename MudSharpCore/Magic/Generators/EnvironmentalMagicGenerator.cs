@@ -138,7 +138,7 @@ public sealed partial class EnvironmentalMagicGenerator : BaseMagicResourceGener
 
 	protected override void ValidateMinuteDelegateHolder(IHaveMagicResource thing)
 	{
-		throw new InvalidOperationException(thing is ICell
+		throw new InvalidOperationException(thing is IRoom
 			? $"Environmental regenerator #{Id} ({Name}) is centrally coordinated and cannot register a per-cell minute delegate."
 			: $"Environmental regenerator #{Id} ({Name}) supports physical cells only; character and item holders are unsupported.");
 	}

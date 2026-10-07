@@ -61,7 +61,7 @@ public sealed record EnvironmentalMagicStateSnapshot(EnvironmentalMagicState Sta
 public sealed record EnvironmentalOrganicProfileSnapshot(long? ProfileId, long Revision,
 	bool HasOrganicConfiguration, bool HasPendingOperation, IReadOnlyList<string> Errors);
 
-public sealed record EnvironmentalMagicSnapshot(long CellId, EnvironmentalMagicBindingMode BindingMode,
+public sealed record EnvironmentalMagicSnapshot(long RoomId, EnvironmentalMagicBindingMode BindingMode,
 	long? ProfileId, string? ProfileName, EnvironmentalMagicState State, double Pressure,
 	IReadOnlyDictionary<string, double> Inputs, IReadOnlyList<EnvironmentalResourceSnapshot> Outputs,
 	IReadOnlyList<string> Errors)
@@ -82,29 +82,29 @@ public sealed record EnvironmentalMagicOperationResult(Guid OperationId, bool Su
 public interface IEnvironmentalMagicService : IDisposable
 {
 	DateTimeOffset UtcNow { get; }
-	EnvironmentalMagicStateSnapshot InspectState(ICell cell);
-	LandRejuvenationPolicy InspectRepairPolicy(ICell cell);
-	IReadOnlyList<LandRejuvenationProgress> InspectTreatments(ICell cell);
-	LandRejuvenationProgress? InspectTreatment(ICell cell, Guid treatmentId);
-	bool CanInstallTreatment(ICell cell, out string? error);
+	EnvironmentalMagicStateSnapshot InspectState(IRoom room);
+	LandRejuvenationPolicy InspectRepairPolicy(IRoom room);
+	IReadOnlyList<LandRejuvenationProgress> InspectTreatments(IRoom room);
+	LandRejuvenationProgress? InspectTreatment(IRoom room, Guid treatmentId);
+	bool CanInstallTreatment(IRoom room, out string? error);
 	bool ActivateTreatment(ILandRejuvenationEffect effect, LandRejuvenationProgress? initial, out string? error);
 	void RegisterLoadedTreatment(ILandRejuvenationEffect effect);
 	/// <summary>Persists earned online work and lifetime without applying repair, for parent serialization.</summary>
-	void CheckpointTreatment(ICell cell, Guid treatmentId);
-	void CancelTreatment(ICell cell, Guid treatmentId, string reason);
-	void ExpireTreatment(ICell cell, Guid treatmentId);
-	bool ConfirmTreatment(ICell cell, Guid treatmentId, out string? error);
-	bool EvaluateRepairPolicy(ICell cell, MudSharp.Character.ICharacter caster, MudSharp.FutureProg.IFutureProg prog, out string? error);
-	void ScarStateChanged(ICell cell);
-	EnvironmentalOrganicProfileSnapshot InspectOrganicProfile(ICell cell);
-	EnvironmentalMagicSnapshot Inspect(ICell cell);
+	void CheckpointTreatment(IRoom room, Guid treatmentId);
+	void CancelTreatment(IRoom room, Guid treatmentId, string reason);
+	void ExpireTreatment(IRoom room, Guid treatmentId);
+	bool ConfirmTreatment(IRoom room, Guid treatmentId, out string? error);
+	bool EvaluateRepairPolicy(IRoom room, MudSharp.Character.ICharacter caster, MudSharp.FutureProg.IFutureProg prog, out string? error);
+	void ScarStateChanged(IRoom room);
+	EnvironmentalOrganicProfileSnapshot InspectOrganicProfile(IRoom room);
+	EnvironmentalMagicSnapshot Inspect(IRoom room);
 	/// <summary>
 	/// Returns whether the pair is managed. A managed invalid result has IsValid false; it is not an
 	/// unbound fallback or a zero cap. Available recorded stock is min(Balance, Maximum) when valid.
 	/// </summary>
-	bool TryInspectResource(ICell cell, IMagicResource resource, out EnvironmentalResourceSnapshot result);
+	bool TryInspectResource(IRoom room, IMagicResource resource, out EnvironmentalResourceSnapshot result);
 	/// <summary>Purely evaluates one Land-funded output without evaluating unrelated output formulas.</summary>
-	bool TryInspectLandResource(ICell cell, IMagicResource resource, out EnvironmentalResourceSnapshot result);
+	bool TryInspectLandResource(IRoom room, IMagicResource resource, out EnvironmentalResourceSnapshot result);
 	/// <summary>
 	/// Resolves a managed output from one already-taken pure inspection snapshot. This avoids re-evaluating
 	/// profile formulae simply to identify a displayed or quoted output; callers must still reject an invalid
@@ -130,46 +130,46 @@ public interface IEnvironmentalMagicService : IDisposable
 	/// mutation succeeded. Validates one current input snapshot and accepts the previous online segment.
 	/// A failed exact debit never partially consumes stock; valid downward cap reconciliation can still occur.
 	/// </summary>
-	bool TryMutateResource(ICell cell, IMagicResource resource, EnvironmentalResourceMutation mutation,
+	bool TryMutateResource(IRoom room, IMagicResource resource, EnvironmentalResourceMutation mutation,
 		double amount, out bool success);
 	/// <summary>Debits only the complete requested recorded amount after current validation; never spends unrecorded accrual.</summary>
-	bool TryDebit(ICell cell, IMagicResource resource, double amount, out string? error);
+	bool TryDebit(IRoom room, IMagicResource resource, double amount, out string? error);
 	/// <summary>Purely resolves all declarations on the cell's effective environmental profile.</summary>
-	IReadOnlyList<NativeOrganicSourceSnapshot> InspectOrganicSources(ICell cell);
+	IReadOnlyList<NativeOrganicSourceSnapshot> InspectOrganicSources(IRoom room);
 	/// <summary>Purely resolves one canonical selector, including explicit unauthorised/error states.</summary>
-	NativeOrganicSourceSnapshot InspectOrganicSource(ICell cell, string selector);
+	NativeOrganicSourceSnapshot InspectOrganicSource(IRoom room, string selector);
 	/// <summary>Creates a short-lived exact native-owner plan without reserving or mutating stock.</summary>
-	bool TryPlanOrganicDebit(ICell cell, string selector, double amount, out NativeOrganicDebitPlan plan,
+	bool TryPlanOrganicDebit(IRoom room, string selector, double amount, out NativeOrganicDebitPlan plan,
 		out string? error);
 	/// <summary>Revalidates and applies one owner mutation. It grants no magic resource and creates no receipt.</summary>
-	bool TryApplyOrganicDebit(ICell cell, NativeOrganicDebitPlan plan, out NativeOrganicSourceSnapshot result,
+	bool TryApplyOrganicDebit(IRoom room, NativeOrganicDebitPlan plan, out NativeOrganicSourceSnapshot result,
 		out string? error);
 	/// <summary>Validates a bounded group against one precommit state, then applies its own sequential owner changes.</summary>
-	bool TryApplyOrganicDebitBatch(ICell cell, IReadOnlyList<NativeOrganicDebitPlan> plans,
+	bool TryApplyOrganicDebitBatch(IRoom room, IReadOnlyList<NativeOrganicDebitPlan> plans,
 		out IReadOnlyList<NativeOrganicDebitPlan> applied, out string? error);
 	/// <summary>Validates all Land funding against the current environment before paying ambient then native owners.</summary>
-	bool TryApplyLandDebitGroup(ICell cell, IReadOnlyList<EnvironmentalLandAmbientDebit> ambient,
+	bool TryApplyLandDebitGroup(IRoom room, IReadOnlyList<EnvironmentalLandAmbientDebit> ambient,
 		IReadOnlyList<NativeOrganicDebitPlan> native, out IReadOnlyList<long> appliedAmbient,
 		out IReadOnlyList<NativeOrganicDebitPlan> appliedNative, out string? error);
 	/// <summary>Evaluates only the requested native suppression channel and its declared dependencies.</summary>
-	NativeOrganicPenaltyEvaluation EvaluateOrganicPenalty(ICell cell, NativeOrganicPenaltyChannel channel,
+	NativeOrganicPenaltyEvaluation EvaluateOrganicPenalty(IRoom room, NativeOrganicPenaltyChannel channel,
 		NativeOrganicPenaltyContext context);
 	/// <summary>Clears malformed field accounting only; never adds stock, removes scars or grants mana.</summary>
-	bool RepairNativeOrganicAccounting(ICell cell, NativeOrganicSourceKind? kind, out string result);
+	bool RepairNativeOrganicAccounting(IRoom room, NativeOrganicSourceKind? kind, out string result);
 	/// <summary>Atomically persists quantified ecological changes and a caller-supplied unique receipt; retries reuse that exact request.</summary>
-	EnvironmentalMagicOperationResult ApplyOperation(ICell cell, EnvironmentalMagicOperationRequest request);
-	void SetBinding(ICell cell, EnvironmentalMagicBindingMode mode, long? profileId);
-	void Register(ICell cell);
-	void Unregister(ICell cell);
-	void CellTerrainChanged(ICell cell);
+	EnvironmentalMagicOperationResult ApplyOperation(IRoom room, EnvironmentalMagicOperationRequest request);
+	void SetBinding(IRoom room, EnvironmentalMagicBindingMode mode, long? profileId);
+	void Register(IRoom room);
+	void Unregister(IRoom room);
+	void RoomTerrainChanged(IRoom room);
 	void TerrainDefaultChanged(ITerrain terrain);
 	/// <summary>Coalesces a source change for bounded later evaluation; never grants production or adds a per-cell callback.</summary>
-	void MarkDirty(ICell cell, EnvironmentalMagicDirtyReason reason);
+	void MarkDirty(IRoom room, EnvironmentalMagicDirtyReason reason);
 	void BeforeProfileChange(IEnvironmentalMagicProfile profile);
 	void ProfileChanged(IEnvironmentalMagicProfile profile);
 	void SourceDefinitionChanged();
 	void FieldChanged(IAgricultureField field, bool removed = false);
-	IAgricultureField? FieldFor(ICell cell);
+	IAgricultureField? FieldFor(IRoom room);
 	/// <summary>Indexed apiary candidates for native pollination; null only for services without this index.</summary>
 	IEnumerable<IAgricultureField>? PollinationCandidates();
 	void RefreshPollinationCandidate(IAgricultureField field);

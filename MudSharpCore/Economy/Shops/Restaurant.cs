@@ -18,7 +18,7 @@ using MudSharp.RPG.Law;
 using MudSharp.Work.Crafts;
 using System.Text;
 using DbRestaurant = MudSharp.Models.Restaurant;
-using DbRestaurantCell = MudSharp.Models.RestaurantCell;
+using DbRestaurantRoom = MudSharp.Models.RestaurantRoom;
 using DbRestaurantStorageContainer = MudSharp.Models.RestaurantStorageContainer;
 using DbRestaurantTable = MudSharp.Models.RestaurantTable;
 
@@ -33,7 +33,7 @@ namespace MudSharp.Economy.Shops;
 /// </summary>
 public sealed class Restaurant : PermanentShop, IRestaurant
 {
-	private sealed record RestaurantCellAssignment(ICell Cell, RestaurantCellRole Role);
+	private sealed record RestaurantRoomAssignment(IRoom Room, RestaurantRoomRole Role);
 
 	private sealed class PendingJoinRequest
 	{
@@ -60,7 +60,7 @@ public sealed class Restaurant : PermanentShop, IRestaurant
 	/// </summary>
 	private sealed record KitchenContainerAllocation(IGameItem Item, IContainer? SourceStorage);
 
-	private readonly List<RestaurantCellAssignment> _cells = new();
+	private readonly List<RestaurantRoomAssignment> _cells = new();
 	private readonly HashSet<long> _tableIds = new();
 	private readonly List<IRestaurantMenuItem> _menuItems = new();
 	private readonly List<IRestaurantTableSession> _tableSessions = new();
@@ -105,26 +105,26 @@ public sealed class Restaurant : PermanentShop, IRestaurant
 		_takeawayBagPrototypeId = config.TakeawayBagPrototypeId;
 		_takeawayBagPrototypeRevisionNumber = config.TakeawayBagPrototypeRevisionNumber;
 
-		foreach (var assignment in config.Cells)
+		foreach (var assignment in config.Rooms)
 		{
-			var cell = gameworld.Cells.Get(assignment.CellId);
-			if (cell is null)
+			var room = gameworld.Rooms.Get(assignment.RoomId);
+			if (room is null)
 			{
 				continue;
 			}
 
-			_cells.Add(new RestaurantCellAssignment(cell, (RestaurantCellRole)assignment.Role));
-			if (!ShopfrontCells.Contains(cell))
+			_cells.Add(new RestaurantRoomAssignment(room, (RestaurantRoomRole)assignment.Role));
+			if (!ShopfrontRooms.Contains(room))
 			{
-				AddShopfrontCell(cell);
+				AddShopfrontRoom(room);
 			}
 		}
 
 		if (!_cells.Any())
 		{
-			foreach (var cell in ShopfrontCells)
+			foreach (var room in ShopfrontRooms)
 			{
-				_cells.Add(new RestaurantCellAssignment(cell, RestaurantCellRole.Service));
+				_cells.Add(new RestaurantRoomAssignment(room, RestaurantRoomRole.Service));
 			}
 		}
 
@@ -171,7 +171,7 @@ public sealed class Restaurant : PermanentShop, IRestaurant
 		Changed = false;
 	}
 
-	public Restaurant(IEconomicZone zone, ICell originalShopFront, string name)
+	public Restaurant(IEconomicZone zone, IRoom originalShopFront, string name)
 		: base(zone, originalShopFront, name, "Restaurant")
 	{
 		_automatedService = false;
@@ -179,7 +179,7 @@ public sealed class Restaurant : PermanentShop, IRestaurant
 		_handlingTime = TimeSpan.FromSeconds(15);
 		_maximumBatchWait = TimeSpan.FromSeconds(90);
 		_tableCleanupInterval = TimeSpan.FromMinutes(2);
-		_cells.Add(new RestaurantCellAssignment(originalShopFront, RestaurantCellRole.Service));
+		_cells.Add(new RestaurantRoomAssignment(originalShopFront, RestaurantRoomRole.Service));
 
 		using (new FMDB())
 		{
@@ -199,11 +199,11 @@ public sealed class Restaurant : PermanentShop, IRestaurant
 				ServerClearEmote = RestaurantServiceEmotes.DefaultServerClear,
 				ServerReturnEmote = RestaurantServiceEmotes.DefaultServerReturn
 			};
-			config.Cells.Add(new DbRestaurantCell
+			config.Rooms.Add(new DbRestaurantRoom
 			{
 				RestaurantShopId = Id,
-				CellId = originalShopFront.Id,
-				Role = (int)RestaurantCellRole.Service
+				RoomId = originalShopFront.Id,
+				Role = (int)RestaurantRoomRole.Service
 			});
 			FMDB.Context.Restaurants.Add(config);
 			FMDB.Context.SaveChanges();
@@ -365,17 +365,17 @@ public sealed class Restaurant : PermanentShop, IRestaurant
 		Changed = true;
 	}
 
-	public IEnumerable<ICell> ServiceCells => _cells
-		.Where(x => x.Role == RestaurantCellRole.Service)
-		.Select(x => x.Cell)
+	public IEnumerable<IRoom> ServiceRooms => _cells
+		.Where(x => x.Role == RestaurantRoomRole.Service)
+		.Select(x => x.Room)
 		.Distinct();
-	public IEnumerable<ICell> InternalCells => _cells
-		.Where(x => x.Role == RestaurantCellRole.Internal)
-		.Select(x => x.Cell)
+	public IEnumerable<IRoom> InternalRooms => _cells
+		.Where(x => x.Role == RestaurantRoomRole.Internal)
+		.Select(x => x.Room)
 		.Distinct();
-	public IEnumerable<ICell> KitchenCells => _cells
-		.Where(x => x.Role == RestaurantCellRole.Kitchen)
-		.Select(x => x.Cell)
+	public IEnumerable<IRoom> KitchenRooms => _cells
+		.Where(x => x.Role == RestaurantRoomRole.Kitchen)
+		.Select(x => x.Room)
 		.Distinct();
 	public IEnumerable<IGameItem> RestaurantTables => _tableIds
 		.Select(FindRestaurantItem)
@@ -427,14 +427,14 @@ public sealed class Restaurant : PermanentShop, IRestaurant
 		_heartbeatAttached = false;
 	}
 
-	public bool IsWithinRestaurant(ICell? cell)
+	public bool IsWithinRestaurant(IRoom? room)
 	{
-		return cell is not null && _cells.Any(x => x.Cell.Id == cell.Id);
+		return room is not null && _cells.Any(x => x.Room.Id == room.Id);
 	}
 
-	private bool IsWithinTableServiceBoundary(ICell? cell)
+	private bool IsWithinTableServiceBoundary(IRoom? room)
 	{
-		return IsWithinRestaurant(cell);
+		return IsWithinRestaurant(room);
 	}
 
 	public IRestaurantTableSession? TableSessionFor(IGameItem table)
@@ -519,7 +519,7 @@ Use #3order takeaway <item> [quantity]#0 to pay in advance and order for takeawa
 
 	public RestaurantOperationResult TryJoinTable(ICharacter requester, IGameItem table)
 	{
-		if (!IsWithinRestaurant(requester.Location) || !ServiceCells.Any(x => x.Id == requester.Location?.Id))
+		if (!IsWithinRestaurant(requester.Location) || !ServiceRooms.Any(x => x.Id == requester.Location?.Id))
 		{
 			return RestaurantOperationResult.Fail("You must be in one of this restaurant's table-service areas to use a table.");
 		}
@@ -966,7 +966,7 @@ Use #3order takeaway <item> [quantity]#0 to pay in advance and order for takeawa
 
 		if (!IsAtTable(server, table))
 		{
-			return TryMoveTowardsCell(server, table.TrueLocations.FirstOrDefault())
+			return TryMoveTowardsRoom(server, table.TrueLocations.FirstOrDefault())
 				? RestaurantOperationResult.Succeed("You make your way to the table to clear it.")
 				: RestaurantOperationResult.Fail("You cannot reach that table to clear it.");
 		}
@@ -1042,10 +1042,10 @@ Use #3order takeaway <item> [quantity]#0 to pay in advance and order for takeawa
 				.Where(x => x.MenuItem.FulfilmentMode is not (RestaurantFulfilmentMode.CraftAndBring or RestaurantFulfilmentMode.CraftAndPlate))
 				.OrderBy(x => x.CreatedAtUtc)
 				.FirstOrDefault();
-			var kitchen = KitchenCells.FirstOrDefault() ?? StockroomCell;
-			if (nextPreparation is not null && kitchen is not null && !IsAtCell(employee, kitchen))
+			var kitchen = KitchenRooms.FirstOrDefault() ?? StockroomRoom;
+			if (nextPreparation is not null && kitchen is not null && !IsAtRoom(employee, kitchen))
 			{
-				return TryMoveTowardsCell(employee, kitchen);
+				return TryMoveTowardsRoom(employee, kitchen);
 			}
 
 			if (nextPreparation is not null && TryPrepareOrder(employee, nextPreparation).Success)
@@ -1169,17 +1169,17 @@ Use #3order takeaway <item> [quantity]#0 to pay in advance and order for takeawa
 		return RestaurantOperationResult.Succeed($"You refund {Currency.Describe(amount, CurrencyDescriptionPatternType.Short).ColourValue()}.");
 	}
 
-	public RestaurantOperationResult AddRestaurantCell(ICell cell, RestaurantCellRole role)
+	public RestaurantOperationResult AddRestaurantRoom(IRoom room, RestaurantRoomRole role)
 	{
-		if (_cells.Any(x => x.Cell.Id == cell.Id && x.Role == role))
+		if (_cells.Any(x => x.Room.Id == room.Id && x.Role == role))
 		{
 			return RestaurantOperationResult.Fail("That cell already has that restaurant role.");
 		}
 
-		_cells.Add(new RestaurantCellAssignment(cell, role));
-		AddShopfrontCell(cell);
+		_cells.Add(new RestaurantRoomAssignment(room, role));
+		AddShopfrontRoom(room);
 		Changed = true;
-		return RestaurantOperationResult.Succeed($"Cell #{cell.Id:N0} is now a {role.DescribeEnum()} cell for this restaurant.");
+		return RestaurantOperationResult.Succeed($"Cell #{room.Id:N0} is now a {role.DescribeEnum()} cell for this restaurant.");
 	}
 
 	public RestaurantOperationResult SetStorageRole(IGameItem item, RestaurantStorageRole role, bool add)
@@ -1194,7 +1194,7 @@ Use #3order takeaway <item> [quantity]#0 to pay in advance and order for takeawa
 			return RestaurantOperationResult.Fail("That item is not a container.");
 		}
 
-		if (!item.TrueLocations.Any(x => KitchenCells.Any(y => y.Id == x.Id)))
+		if (!item.TrueLocations.Any(x => KitchenRooms.Any(y => y.Id == x.Id)))
 		{
 			return RestaurantOperationResult.Fail("Restaurant storage containers must be physically located in a configured kitchen cell.");
 		}
@@ -1230,30 +1230,30 @@ Use #3order takeaway <item> [quantity]#0 to pay in advance and order for takeawa
 		return RestaurantOperationResult.Succeed($"{item.HowSeen(null)} {(add ? "now has" : "no longer has")} the {role.DescribeEnum()} storage role.");
 	}
 
-	public RestaurantOperationResult RemoveRestaurantCell(ICell cell, RestaurantCellRole role)
+	public RestaurantOperationResult RemoveRestaurantRoom(IRoom room, RestaurantRoomRole role)
 	{
-		var assignment = _cells.FirstOrDefault(x => x.Cell.Id == cell.Id && x.Role == role);
+		var assignment = _cells.FirstOrDefault(x => x.Room.Id == room.Id && x.Role == role);
 		if (assignment is null)
 		{
 			return RestaurantOperationResult.Fail("That cell does not have that restaurant role.");
 		}
 
-		if (role == RestaurantCellRole.Service && ServiceCells.Count() <= 1)
+		if (role == RestaurantRoomRole.Service && ServiceRooms.Count() <= 1)
 		{
 			return RestaurantOperationResult.Fail("A restaurant must retain at least one table-service cell.");
 		}
 
-		if (role == RestaurantCellRole.Kitchen && _storageContainers
+		if (role == RestaurantRoomRole.Kitchen && _storageContainers
 			.OfType<RestaurantStorageContainer>()
-			.Any(x => Gameworld.TryGetItem(x.GameItemId, true)?.TrueLocations.Any(y => y.Id == cell.Id) == true))
+			.Any(x => Gameworld.TryGetItem(x.GameItemId, true)?.TrueLocations.Any(y => y.Id == room.Id) == true))
 		{
 			return RestaurantOperationResult.Fail("Remove or relocate the restaurant storage containers in that kitchen cell before removing its kitchen role.");
 		}
 
 		_cells.Remove(assignment);
-		if (!_cells.Any(x => x.Cell.Id == cell.Id))
+		if (!_cells.Any(x => x.Room.Id == room.Id))
 		{
-			RemoveShopfrontCell(cell);
+			RemoveShopfrontRoom(room);
 		}
 
 		Changed = true;
@@ -1356,14 +1356,14 @@ Use #3order takeaway <item> [quantity]#0 to pay in advance and order for takeawa
 		config.TakeawayBagPrototypeId = TakeawayBagPrototype?.Id ?? _takeawayBagPrototypeId;
 		config.TakeawayBagPrototypeRevisionNumber = TakeawayBagPrototype?.RevisionNumber ?? _takeawayBagPrototypeRevisionNumber;
 
-		var existingCells = context.RestaurantCells.Where(x => x.RestaurantShopId == Id).ToList();
-		context.RestaurantCells.RemoveRange(existingCells);
-		foreach (var assignment in _cells.DistinctBy(x => (x.Cell.Id, x.Role)))
+		var existingRooms = context.RestaurantRooms.Where(x => x.RestaurantShopId == Id).ToList();
+		context.RestaurantRooms.RemoveRange(existingRooms);
+		foreach (var assignment in _cells.DistinctBy(x => (x.Room.Id, x.Role)))
 		{
-			context.RestaurantCells.Add(new DbRestaurantCell
+			context.RestaurantRooms.Add(new DbRestaurantRoom
 			{
 				RestaurantShopId = Id,
-				CellId = assignment.Cell.Id,
+				RoomId = assignment.Room.Id,
 				Role = (int)assignment.Role
 			});
 		}
@@ -1494,7 +1494,7 @@ Use #3order takeaway <item> [quantity]#0 to pay in advance and order for takeawa
 			return false;
 		}
 
-		if (paymentMethod is ShopCashPayment && !TillItems.Any() && StockroomCell is null)
+		if (paymentMethod is ShopCashPayment && !TillItems.Any() && StockroomRoom is null)
 		{
 			reason = "This restaurant is currently missing its till, and so cannot do cash transactions.";
 			return false;
@@ -1733,7 +1733,7 @@ Use #3order takeaway <item> [quantity]#0 to pay in advance and order for takeawa
 		item.InInventoryOf?.Take(item);
 		item.ContainedIn?.Take(item);
 		item.Location?.Extract(item);
-		(KitchenCells.FirstOrDefault() ?? StockroomCell ?? ServiceCells.First()).Insert(item, newStack: true);
+		(KitchenRooms.FirstOrDefault() ?? StockroomRoom ?? ServiceRooms.First()).Insert(item, newStack: true);
 	}
 
 	private bool TryHandleNpcCraft(ICharacter chef)
@@ -1760,10 +1760,10 @@ Use #3order takeaway <item> [quantity]#0 to pay in advance and order for takeawa
 			return false;
 		}
 
-		var kitchen = KitchenCells.FirstOrDefault();
-		if (kitchen is not null && !IsAtCell(chef, kitchen))
+		var kitchen = KitchenRooms.FirstOrDefault();
+		if (kitchen is not null && !IsAtRoom(chef, kitchen))
 		{
-			return TryMoveTowardsCell(chef, kitchen);
+			return TryMoveTowardsRoom(chef, kitchen);
 		}
 
 		if (!craft.AppearInCraftsList(chef))
@@ -1894,7 +1894,7 @@ Use #3order takeaway <item> [quantity]#0 to pay in advance and order for takeawa
 	/// products through normal cell insertion, which can merge a new stack into pre-existing stock;
 	/// restaurant queue ownership must therefore keep the newly produced serving as a distinct item.
 	/// </summary>
-	private static IGameItem? IsolateCraftedOutput(ICell kitchen, IGameItem output, int newlyProducedQuantity,
+	private static IGameItem? IsolateCraftedOutput(IRoom kitchen, IGameItem output, int newlyProducedQuantity,
 		int orderQuantity)
 	{
 		if (newlyProducedQuantity < orderQuantity || output.Quantity < orderQuantity)
@@ -1960,15 +1960,15 @@ Use #3order takeaway <item> [quantity]#0 to pay in advance and order for takeawa
 			return false;
 		}
 
-		var kitchen = KitchenCells.FirstOrDefault() ?? StockroomCell;
+		var kitchen = KitchenRooms.FirstOrDefault() ?? StockroomRoom;
 		if (kitchen is null)
 		{
 			return false;
 		}
 
-		if (!IsAtCell(server, kitchen))
+		if (!IsAtRoom(server, kitchen))
 		{
-			return TryMoveTowardsCell(server, kitchen);
+			return TryMoveTowardsRoom(server, kitchen);
 		}
 
 		if (!server.Body.HeldOrWieldedItems.Contains(returnItem))
@@ -2022,7 +2022,7 @@ Use #3order takeaway <item> [quantity]#0 to pay in advance and order for takeawa
 	private KitchenContainerAllocation? TakeStoredKitchenContainer(IGameItemProto prototype,
 		RestaurantStorageRole role, ICharacter? employee)
 	{
-		if (employee is null || !KitchenCells.Any(x => x.Id == employee.Location?.Id))
+		if (employee is null || !KitchenRooms.Any(x => x.Id == employee.Location?.Id))
 		{
 			return null;
 		}
@@ -2064,7 +2064,7 @@ Use #3order takeaway <item> [quantity]#0 to pay in advance and order for takeawa
 
 	private void StowCraftTools(ICharacter employee, ICraft craft)
 	{
-		if (!KitchenCells.Any(x => x.Id == employee.Location?.Id))
+		if (!KitchenRooms.Any(x => x.Id == employee.Location?.Id))
 		{
 			return;
 		}
@@ -2103,15 +2103,15 @@ Use #3order takeaway <item> [quantity]#0 to pay in advance and order for takeawa
 			return false;
 		}
 
-		var sourceCell = item.TrueLocations.FirstOrDefault();
-		if (sourceCell is null)
+		var sourceRoom = item.TrueLocations.FirstOrDefault();
+		if (sourceRoom is null)
 		{
 			return false;
 		}
 
-		if (!IsAtCell(server, sourceCell))
+		if (!IsAtRoom(server, sourceRoom))
 		{
-			return TryMoveTowardsCell(server, sourceCell);
+			return TryMoveTowardsRoom(server, sourceRoom);
 		}
 
 		if (!server.Body.CanGet(item, 0))
@@ -2123,9 +2123,9 @@ Use #3order takeaway <item> [quantity]#0 to pay in advance and order for takeawa
 		return ServerHasItem(server, item);
 	}
 
-	private static bool IsAtCell(ICharacter character, ICell? cell)
+	private static bool IsAtRoom(ICharacter character, IRoom? room)
 	{
-		return cell is not null && character.Location?.Id == cell.Id;
+		return room is not null && character.Location?.Id == room.Id;
 	}
 
 	private static bool IsAtTable(ICharacter character, IGameItem table)
@@ -2133,14 +2133,14 @@ Use #3order takeaway <item> [quantity]#0 to pay in advance and order for takeawa
 		return table.TrueLocations.Any(x => x.Id == character.Location?.Id);
 	}
 
-	private static bool TryMoveTowardsCell(ICharacter character, ICell? destination)
+	private static bool TryMoveTowardsRoom(ICharacter character, IRoom? destination)
 	{
 		if (destination is null)
 		{
 			return false;
 		}
 
-		if (IsAtCell(character, destination))
+		if (IsAtRoom(character, destination))
 		{
 			return true;
 		}
@@ -2252,7 +2252,7 @@ Use #3order takeaway <item> [quantity]#0 to pay in advance and order for takeawa
 
 			if (!IsAtTable(server, table))
 			{
-				return TryMoveTowardsCell(server, table.TrueLocations.FirstOrDefault());
+				return TryMoveTowardsRoom(server, table.TrueLocations.FirstOrDefault());
 			}
 
 			if (!server.Body.HeldOrWieldedItems.Contains(root))
@@ -2285,9 +2285,9 @@ Use #3order takeaway <item> [quantity]#0 to pay in advance and order for takeawa
 				return true;
 			}
 
-			if (!IsAtCell(server, recipient.Location))
+			if (!IsAtRoom(server, recipient.Location))
 			{
-				return TryMoveTowardsCell(server, recipient.Location);
+				return TryMoveTowardsRoom(server, recipient.Location);
 			}
 
 			if (!server.Body.CanGive(root, recipient.Body, 0))
@@ -2353,10 +2353,10 @@ Use #3order takeaway <item> [quantity]#0 to pay in advance and order for takeawa
 			.ToHashSet();
 		if (TakeawayBagPrototype is not null && !roots.All(x => existingBagRoots.Contains(x.Id)))
 		{
-			var kitchen = KitchenCells.FirstOrDefault() ?? StockroomCell;
-			if (server is not null && kitchen is not null && !IsAtCell(server, kitchen))
+			var kitchen = KitchenRooms.FirstOrDefault() ?? StockroomRoom;
+			if (server is not null && kitchen is not null && !IsAtRoom(server, kitchen))
 			{
-				return TryMoveTowardsCell(server, kitchen);
+				return TryMoveTowardsRoom(server, kitchen);
 			}
 
 			if (!TryPackageTakeawayRoots(cohort, roots, server, out var bagReason))
@@ -2392,9 +2392,9 @@ Use #3order takeaway <item> [quantity]#0 to pay in advance and order for takeawa
 					return TryRetrieveForService(server, root);
 				}
 
-				if (!IsAtCell(server, recipient.Location))
+				if (!IsAtRoom(server, recipient.Location))
 				{
-					return TryMoveTowardsCell(server, recipient.Location);
+					return TryMoveTowardsRoom(server, recipient.Location);
 				}
 
 				if (!server.Body.CanGive(root, recipient.Body, 0))
@@ -2680,7 +2680,7 @@ Use #3order takeaway <item> [quantity]#0 to pay in advance and order for takeawa
 				continue;
 			}
 
-			var crimeLocation = FindRestaurantItem(session.TableGameItemId)?.TrueLocations.FirstOrDefault() ?? ServiceCells.FirstOrDefault();
+			var crimeLocation = FindRestaurantItem(session.TableGameItemId)?.TrueLocations.FirstOrDefault() ?? ServiceRooms.FirstOrDefault();
 			foreach (var debt in unpaid.GroupBy(x => x.OrdererCharacterId))
 			{
 				var debtor = Gameworld.TryGetCharacter(debt.Key, true);
@@ -2816,7 +2816,7 @@ Use #3order takeaway <item> [quantity]#0 to pay in advance and order for takeawa
 			return false;
 		}
 
-		if (!table.TrueLocations.Any(cell => ServiceCells.Any(service => service.Id == cell.Id)))
+		if (!table.TrueLocations.Any(room => ServiceRooms.Any(service => service.Id == room.Id)))
 		{
 			reason = "A restaurant table must be located in one of the restaurant's table-service cells.";
 			return false;
@@ -2846,18 +2846,18 @@ Use #3order takeaway <item> [quantity]#0 to pay in advance and order for takeawa
 		// the global actor collection. Restaurant participants may be NPCs, so include the current
 		// restaurant occupants as well as online actors when resolving a persisted participant ID.
 		return Gameworld.Actors
-			.Concat(AllShopCells.SelectMany(x => x.Characters))
+			.Concat(AllShopRooms.SelectMany(x => x.Characters))
 			.DistinctBy(CharacterInstanceIdentityComparer.IdentityId)
 			.FirstOrDefault(x => CharacterInstanceIdentityComparer.IdentityId(x) == identityId && x.Location is not null);
 	}
 
 	private IGameItem? FindRestaurantItem(long id)
 	{
-		var restaurantCells = AllShopCells
-			.Concat(_cells.Select(x => x.Cell))
+		var restaurantRooms = AllShopRooms
+			.Concat(_cells.Select(x => x.Room))
 			.DistinctBy(x => x.Id)
 			.ToList();
-		return restaurantCells
+		return restaurantRooms
 			.SelectMany(x => x.GameItems.SelectMany(y => y.DeepItems)
 				.Concat(x.Characters.SelectMany(y => y.Body.HeldOrWieldedItems.SelectMany(z => z.DeepItems))))
 			.FirstOrDefault(x => x.Id == id && !x.Deleted);

@@ -220,7 +220,7 @@ public class ProjectWorkerAITests
 	}
 
 	[TestMethod]
-	public void ActiveLocalProject_DatabaseInsertPersistsCreatorAndCell()
+	public void ActiveLocalProject_DatabaseInsertPersistsCreatorAndRoom()
 	{
 		var currency = Currency(1, "crowns");
 		var gameworld = Gameworld(currency.Object);
@@ -234,17 +234,17 @@ public class ProjectWorkerAITests
 		definition.SetupGet(x => x.Name).Returns("Paid Wall");
 		definition.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
 		definition.SetupGet(x => x.Phases).Returns([phase.Object]);
-		var cell = new Mock<ICell>();
-		cell.SetupGet(x => x.Id).Returns(300);
+		var room = new Mock<IRoom>();
+		room.SetupGet(x => x.Id).Returns(300);
 		var owner = Character(10, "Owner", gameworld.Object);
-		owner.SetupGet(x => x.Location).Returns(cell.Object);
+		owner.SetupGet(x => x.Location).Returns(room.Object);
 		var active = new TestActiveLocalProject(definition.Object, owner.Object);
 		var model = new ActiveProjectModel();
 
 		active.PopulateDatabaseModel(model);
 
 		Assert.AreEqual(10, model.CharacterId);
-		Assert.AreEqual(300, model.CellId);
+		Assert.AreEqual(300, model.RoomId);
 	}
 
 	[TestMethod]

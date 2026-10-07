@@ -345,8 +345,8 @@ namespace MudSharp.Database
 
             modelBuilder.Entity<ActiveProject>(entity =>
             {
-                entity.HasIndex(e => e.CellId)
-                    .HasDatabaseName("FK_ActiveProjects_Cells_idx");
+                entity.HasIndex(e => e.RoomId)
+                    .HasDatabaseName("FK_ActiveProjects_Rooms_idx");
 
                 entity.HasIndex(e => e.CharacterId)
                     .HasDatabaseName("FK_ActiveProjects_Characters_idx");
@@ -359,7 +359,7 @@ namespace MudSharp.Database
 
                 entity.Property(e => e.Id).HasColumnType("bigint(20)");
 
-                entity.Property(e => e.CellId).HasColumnType("bigint(20)");
+                entity.Property(e => e.RoomId).HasColumnType("bigint(20)");
 
                 entity.Property(e => e.CharacterId).HasColumnType("bigint(20)");
 
@@ -375,10 +375,10 @@ namespace MudSharp.Database
 
                 entity.Property(e => e.PaymentCurrencyId).HasColumnType("bigint(20)");
 
-                entity.HasOne(d => d.Cell)
+                entity.HasOne(d => d.Room)
                     .WithMany(p => p.ActiveProjects)
-                    .HasForeignKey(d => d.CellId)
-                    .HasConstraintName("FK_ActiveProjects_Cells");
+                    .HasForeignKey(d => d.RoomId)
+                    .HasConstraintName("FK_ActiveProjects_Rooms");
 
                 entity.HasOne(d => d.Character)
                     .WithMany(p => p.ActiveProjects)
@@ -871,7 +871,7 @@ namespace MudSharp.Database
                 entity.ToTable("AuctionHouses");
                 entity.Property(e => e.Id).HasColumnType("bigint(20)");
                 entity.Property(e => e.EconomicZoneId).HasColumnType("bigint(20)");
-                entity.Property(e => e.AuctionHouseCellId).HasColumnType("bigint(20)");
+                entity.Property(e => e.AuctionHouseRoomId).HasColumnType("bigint(20)");
                 entity.Property(e => e.ProfitsBankAccountId).IsRequired(false).HasColumnType("bigint(20)");
                 entity.Property(e => e.DefaultListingTime).HasColumnType("double");
                 entity.Property(e => e.AuctionListingFeeFlat).HasColumnType("decimal(58,29)");
@@ -892,11 +892,11 @@ namespace MudSharp.Database
                     .HasForeignKey(d => d.EconomicZoneId)
                     .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_AuctionHouses_EconomicZones");
-                entity.HasOne(d => d.AuctionHouseCell)
+                entity.HasOne(d => d.AuctionHouseRoom)
                     .WithMany()
-                    .HasForeignKey(d => d.AuctionHouseCellId)
+                    .HasForeignKey(d => d.AuctionHouseRoomId)
                     .OnDelete(DeleteBehavior.Cascade)
-                    .HasConstraintName("FK_AuctionHouses_Cells");
+                    .HasConstraintName("FK_AuctionHouses_Rooms");
                 entity.HasOne(d => d.ProfitsBankAccount)
                     .WithMany()
                     .HasForeignKey(d => d.ProfitsBankAccountId)
@@ -2246,13 +2246,13 @@ namespace MudSharp.Database
                 entity.Property(e => e.Minutes).HasColumnType("int(11)");
             });
 
-            modelBuilder.Entity<CellOverlayPackage>(entity =>
+            modelBuilder.Entity<RoomOverlayPackage>(entity =>
             {
                 entity.HasKey(e => new { e.Id, e.RevisionNumber })
                     .HasName("PRIMARY");
 
                 entity.HasIndex(e => e.EditableItemId)
-                    .HasDatabaseName("FK_CellOverlayPackages_EditableItems");
+                    .HasDatabaseName("FK_RoomOverlayPackages_EditableItems");
 
                 entity.Property(e => e.Id).HasColumnType("bigint(20)");
 
@@ -2267,25 +2267,25 @@ namespace MudSharp.Database
                     .UseCollation("utf8_general_ci");
 
                 entity.HasOne(d => d.EditableItem)
-                    .WithMany(p => p.CellOverlayPackages)
+                    .WithMany(p => p.RoomOverlayPackages)
                     .HasForeignKey(d => d.EditableItemId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_CellOverlayPackages_EditableItems");
+                    .HasConstraintName("FK_RoomOverlayPackages_EditableItems");
             });
 
-            modelBuilder.Entity<CellOverlay>(entity =>
+            modelBuilder.Entity<RoomOverlay>(entity =>
             {
-                entity.HasIndex(e => e.CellId)
-                    .HasDatabaseName("FK_CellOverlays_Cells");
+                entity.HasIndex(e => e.RoomId)
+                    .HasDatabaseName("FK_RoomOverlays_Rooms");
 
                 entity.HasIndex(e => e.HearingProfileId)
-                    .HasDatabaseName("FK_CellOverlays_HearingProfiles");
+                    .HasDatabaseName("FK_RoomOverlays_HearingProfiles");
 
                 entity.HasIndex(e => e.TerrainId)
-                    .HasDatabaseName("FK_CellOverlays_Terrains");
+                    .HasDatabaseName("FK_RoomOverlays_Terrains");
 
-                entity.HasIndex(e => new { e.CellOverlayPackageId, e.CellOverlayPackageRevisionNumber })
-                    .HasDatabaseName("FK_CellOverlays_CellOverlayPackages");
+                entity.HasIndex(e => new { e.RoomOverlayPackageId, e.RoomOverlayPackageRevisionNumber })
+                    .HasDatabaseName("FK_RoomOverlays_RoomOverlayPackages");
 
                 entity.Property(e => e.Id).HasColumnType("bigint(20)");
 
@@ -2300,23 +2300,23 @@ namespace MudSharp.Database
                     .HasCharSet("utf8")
                     .UseCollation("utf8_general_ci");
 
-                entity.Property(e => e.CellDescription)
+                entity.Property(e => e.RoomDescription)
                     .IsRequired()
                     .HasColumnType("varchar(4000)")
                     .HasCharSet("utf8")
                     .UseCollation("utf8_general_ci");
 
-                entity.Property(e => e.CellId).HasColumnType("bigint(20)");
+                entity.Property(e => e.RoomId).HasColumnType("bigint(20)");
 
-                entity.Property(e => e.CellName)
+                entity.Property(e => e.RoomName)
                     .IsRequired()
                     .HasColumnType("varchar(4000)")
                     .HasCharSet("utf8")
                     .UseCollation("utf8_general_ci");
 
-                entity.Property(e => e.CellOverlayPackageId).HasColumnType("bigint(20)");
+                entity.Property(e => e.RoomOverlayPackageId).HasColumnType("bigint(20)");
 
-                entity.Property(e => e.CellOverlayPackageRevisionNumber).HasColumnType("int(11)");
+                entity.Property(e => e.RoomOverlayPackageRevisionNumber).HasColumnType("int(11)");
 
                 entity.Property(e => e.HearingProfileId).HasColumnType("bigint(20)");
 
@@ -2332,69 +2332,69 @@ namespace MudSharp.Database
 
                 entity.Property(e => e.TerrainId).HasColumnType("bigint(20)");
 
-                entity.HasOne(d => d.Cell)
-                    .WithMany(p => p.CellOverlays)
-                    .HasForeignKey(d => d.CellId)
+                entity.HasOne(d => d.Room)
+                    .WithMany(p => p.RoomOverlays)
+                    .HasForeignKey(d => d.RoomId)
                     .OnDelete(DeleteBehavior.Cascade)
-                    .HasConstraintName("FK_CellOverlays_Cells");
+                    .HasConstraintName("FK_RoomOverlays_Rooms");
 
                 entity.HasOne(d => d.HearingProfile)
-                    .WithMany(p => p.CellOverlays)
+                    .WithMany(p => p.RoomOverlays)
                     .HasForeignKey(d => d.HearingProfileId)
                     .OnDelete(DeleteBehavior.SetNull)
-                    .HasConstraintName("FK_CellOverlays_HearingProfiles");
+                    .HasConstraintName("FK_RoomOverlays_HearingProfiles");
 
                 entity.HasOne(d => d.Terrain)
-                    .WithMany(p => p.CellOverlays)
+                    .WithMany(p => p.RoomOverlays)
                     .HasForeignKey(d => d.TerrainId)
                     .OnDelete(DeleteBehavior.Restrict)
-                    .HasConstraintName("FK_CellOverlays_Terrains");
+                    .HasConstraintName("FK_RoomOverlays_Terrains");
 
-                entity.HasOne(d => d.CellOverlayPackage)
-                    .WithMany(p => p.CellOverlays)
-                    .HasForeignKey(d => new { d.CellOverlayPackageId, d.CellOverlayPackageRevisionNumber })
+                entity.HasOne(d => d.RoomOverlayPackage)
+                    .WithMany(p => p.RoomOverlays)
+                    .HasForeignKey(d => new { d.RoomOverlayPackageId, d.RoomOverlayPackageRevisionNumber })
                     .OnDelete(DeleteBehavior.Cascade)
-                    .HasConstraintName("FK_CellOverlays_CellOverlayPackages");
+                    .HasConstraintName("FK_RoomOverlays_RoomOverlayPackages");
             });
 
-            modelBuilder.Entity<CellOverlayExit>(entity =>
+            modelBuilder.Entity<RoomOverlayExit>(entity =>
             {
-                entity.HasKey(e => new { e.CellOverlayId, e.ExitId })
+                entity.HasKey(e => new { e.RoomOverlayId, e.ExitId })
                     .HasName("PRIMARY");
 
-                entity.ToTable("CellOverlays_Exits");
+                entity.ToTable("RoomOverlays_Exits");
 
                 entity.HasIndex(e => e.ExitId)
-                    .HasDatabaseName("FK_CellOverlays_Exits_Exits");
+                    .HasDatabaseName("FK_RoomOverlays_Exits_Exits");
 
-                entity.Property(e => e.CellOverlayId).HasColumnType("bigint(20)");
+                entity.Property(e => e.RoomOverlayId).HasColumnType("bigint(20)");
 
                 entity.Property(e => e.ExitId).HasColumnType("bigint(20)");
 
-                entity.HasOne(d => d.CellOverlay)
-                    .WithMany(p => p.CellOverlaysExits)
-                    .HasForeignKey(d => d.CellOverlayId)
+                entity.HasOne(d => d.RoomOverlay)
+                    .WithMany(p => p.RoomOverlaysExits)
+                    .HasForeignKey(d => d.RoomOverlayId)
                     .OnDelete(DeleteBehavior.Cascade)
-                    .HasConstraintName("FK_CellOverlays_Exits_CellOverlays");
+                    .HasConstraintName("FK_RoomOverlays_Exits_RoomOverlays");
 
                 entity.HasOne(d => d.Exit)
-                    .WithMany(p => p.CellOverlaysExits)
+                    .WithMany(p => p.RoomOverlaysExits)
                     .HasForeignKey(d => d.ExitId)
                     .OnDelete(DeleteBehavior.Cascade)
-                    .HasConstraintName("FK_CellOverlays_Exits_Exits");
+                    .HasConstraintName("FK_RoomOverlays_Exits_Exits");
             });
 
-            modelBuilder.Entity<Cell>(entity =>
+            modelBuilder.Entity<Room>(entity =>
             {
 				// Application equality follows prototype identifiers; MySQL collation is not identical.
-				entity.HasIndex(e => e.UniqueName).HasDatabaseName("IX_Cells_UniqueName");
+				entity.HasIndex(e => e.UniqueName).HasDatabaseName("IX_Rooms_UniqueName");
 				entity.Property(e => e.UniqueName)
 					.HasColumnType("varchar(255)")
 					.HasCharSet("utf8mb4")
 					.UseCollation("utf8mb4_general_ci");
 
                 entity.HasIndex(e => e.CurrentOverlayId)
-                    .HasDatabaseName("FK_Cells_CellOverlays");
+                    .HasDatabaseName("FK_Rooms_RoomOverlays");
 
 
                 entity.Property(e => e.Id).HasColumnType("bigint(20)");
@@ -2420,140 +2420,140 @@ namespace MudSharp.Database
                     .HasDefaultValueSql("b'0'");
 
                 entity.HasOne(d => d.CurrentOverlay)
-                    .WithMany(p => p.Cells)
+                    .WithMany(p => p.Rooms)
                     .HasForeignKey(d => d.CurrentOverlayId)
                     .OnDelete(DeleteBehavior.SetNull)
-                    .HasConstraintName("FK_Cells_CellOverlays");
+                    .HasConstraintName("FK_Rooms_RoomOverlays");
 
             });
 
-            modelBuilder.Entity<CellsForagableYield>(entity =>
+            modelBuilder.Entity<RoomsForagableYield>(entity =>
             {
-                entity.HasKey(e => new { e.CellId, e.ForagableType })
+                entity.HasKey(e => new { e.RoomId, e.ForagableType })
                     .HasName("PRIMARY");
 
-                entity.ToTable("Cells_ForagableYields");
+                entity.ToTable("Rooms_ForagableYields");
 
-                entity.Property(e => e.CellId).HasColumnType("bigint(20)");
+                entity.Property(e => e.RoomId).HasColumnType("bigint(20)");
 
                 entity.Property(e => e.ForagableType)
                     .HasColumnType("varchar(100)")
                     .HasCharSet("utf8mb4")
                     .UseCollation("utf8mb4_unicode_ci");
 
-                entity.HasOne(d => d.Cell)
-                    .WithMany(p => p.CellsForagableYields)
-                    .HasForeignKey(d => d.CellId)
+                entity.HasOne(d => d.Room)
+                    .WithMany(p => p.RoomsForagableYields)
+                    .HasForeignKey(d => d.RoomId)
                     .OnDelete(DeleteBehavior.Cascade)
-                    .HasConstraintName("FK_Cells_ForagableYields_Cells");
+                    .HasConstraintName("FK_Rooms_ForagableYields_Rooms");
             });
 
-            modelBuilder.Entity<CellsGameItems>(entity =>
+            modelBuilder.Entity<RoomsGameItems>(entity =>
             {
-                entity.HasKey(e => new { e.CellId, e.GameItemId })
+                entity.HasKey(e => new { e.RoomId, e.GameItemId })
                     .HasName("PRIMARY");
 
-                entity.ToTable("Cells_GameItems");
+                entity.ToTable("Rooms_GameItems");
 
                 entity.HasIndex(e => e.GameItemId)
-                    .HasDatabaseName("FK_Cells_GameItems_GameItems");
+                    .HasDatabaseName("FK_Rooms_GameItems_GameItems");
 
-                entity.Property(e => e.CellId).HasColumnType("bigint(20)");
+                entity.Property(e => e.RoomId).HasColumnType("bigint(20)");
 
                 entity.Property(e => e.GameItemId).HasColumnType("bigint(20)");
 
-                entity.HasOne(d => d.Cell)
-                    .WithMany(p => p.CellsGameItems)
-                    .HasForeignKey(d => d.CellId)
+                entity.HasOne(d => d.Room)
+                    .WithMany(p => p.RoomsGameItems)
+                    .HasForeignKey(d => d.RoomId)
                     .OnDelete(DeleteBehavior.Cascade)
-                    .HasConstraintName("FK_Cells_GameItems_Cells");
+                    .HasConstraintName("FK_Rooms_GameItems_Rooms");
 
                 entity.HasOne(d => d.GameItem)
-                    .WithMany(p => p.CellsGameItems)
+                    .WithMany(p => p.RoomsGameItems)
                     .HasForeignKey(d => d.GameItemId)
                     .OnDelete(DeleteBehavior.Cascade)
-                    .HasConstraintName("FK_Cells_GameItems_GameItems");
+                    .HasConstraintName("FK_Rooms_GameItems_GameItems");
             });
 
-            modelBuilder.Entity<CellMagicResource>(entity =>
+            modelBuilder.Entity<RoomMagicResource>(entity =>
             {
-                entity.HasKey(e => new { e.CellId, e.MagicResourceId })
+                entity.HasKey(e => new { e.RoomId, e.MagicResourceId })
                     .HasName("PRIMARY");
 
-                entity.ToTable("Cells_MagicResources");
+                entity.ToTable("Rooms_MagicResources");
 
                 entity.HasIndex(e => e.MagicResourceId)
-                    .HasDatabaseName("FK_Cells_MagicResources_MagicResources_idx");
+                    .HasDatabaseName("FK_Rooms_MagicResources_MagicResources_idx");
 
-                entity.Property(e => e.CellId).HasColumnType("bigint(20)");
+                entity.Property(e => e.RoomId).HasColumnType("bigint(20)");
 
                 entity.Property(e => e.MagicResourceId).HasColumnType("bigint(20)");
 
-                entity.HasOne(d => d.Cell)
-                    .WithMany(p => p.CellsMagicResources)
-                    .HasForeignKey(d => d.CellId)
+                entity.HasOne(d => d.Room)
+                    .WithMany(p => p.RoomsMagicResources)
+                    .HasForeignKey(d => d.RoomId)
                     .OnDelete(DeleteBehavior.Cascade)
-                    .HasConstraintName("FK_Cells_MagicResources_Cells");
+                    .HasConstraintName("FK_Rooms_MagicResources_Rooms");
 
                 entity.HasOne(d => d.MagicResource)
-                    .WithMany(p => p.CellsMagicResources)
+                    .WithMany(p => p.RoomsMagicResources)
                     .HasForeignKey(d => d.MagicResourceId)
                     .OnDelete(DeleteBehavior.Cascade)
-                    .HasConstraintName("FK_Cells_MagicResources_MagicResources");
+                    .HasConstraintName("FK_Rooms_MagicResources_MagicResources");
             });
 
-            modelBuilder.Entity<CellsRangedCovers>(entity =>
+            modelBuilder.Entity<RoomsRangedCovers>(entity =>
             {
-                entity.HasKey(e => new { e.CellId, e.RangedCoverId })
+                entity.HasKey(e => new { e.RoomId, e.RangedCoverId })
                     .HasName("PRIMARY");
 
-                entity.ToTable("Cells_RangedCovers");
+                entity.ToTable("Rooms_RangedCovers");
 
                 entity.HasIndex(e => e.RangedCoverId)
-                    .HasDatabaseName("FK_Cells_RangedCovers_RangedCovers_idx");
+                    .HasDatabaseName("FK_Rooms_RangedCovers_RangedCovers_idx");
 
-                entity.Property(e => e.CellId).HasColumnType("bigint(20)");
+                entity.Property(e => e.RoomId).HasColumnType("bigint(20)");
 
                 entity.Property(e => e.RangedCoverId).HasColumnType("bigint(20)");
 
-                entity.HasOne(d => d.Cell)
-                    .WithMany(p => p.CellsRangedCovers)
-                    .HasForeignKey(d => d.CellId)
+                entity.HasOne(d => d.Room)
+                    .WithMany(p => p.RoomsRangedCovers)
+                    .HasForeignKey(d => d.RoomId)
                     .OnDelete(DeleteBehavior.Cascade)
-                    .HasConstraintName("FK_Cells_RangedCovers_Cells");
+                    .HasConstraintName("FK_Rooms_RangedCovers_Rooms");
 
                 entity.HasOne(d => d.RangedCover)
-                    .WithMany(p => p.CellsRangedCovers)
+                    .WithMany(p => p.RoomsRangedCovers)
                     .HasForeignKey(d => d.RangedCoverId)
                     .OnDelete(DeleteBehavior.Cascade)
-                    .HasConstraintName("FK_Cells_RangedCovers_RangedCovers");
+                    .HasConstraintName("FK_Rooms_RangedCovers_RangedCovers");
             });
 
-            modelBuilder.Entity<CellsTags>(entity =>
+            modelBuilder.Entity<RoomsTags>(entity =>
             {
-                entity.HasKey(e => new { e.CellId, e.TagId })
+                entity.HasKey(e => new { e.RoomId, e.TagId })
                     .HasName("PRIMARY");
 
-                entity.ToTable("Cells_Tags");
+                entity.ToTable("Rooms_Tags");
 
                 entity.HasIndex(e => e.TagId)
-                    .HasDatabaseName("FK_Cells_Tags_Tags_idx");
+                    .HasDatabaseName("FK_Rooms_Tags_Tags_idx");
 
-                entity.Property(e => e.CellId).HasColumnType("bigint(20)");
+                entity.Property(e => e.RoomId).HasColumnType("bigint(20)");
 
                 entity.Property(e => e.TagId).HasColumnType("bigint(20)");
 
-                entity.HasOne(d => d.Cell)
-                    .WithMany(p => p.CellsTags)
-                    .HasForeignKey(d => d.CellId)
+                entity.HasOne(d => d.Room)
+                    .WithMany(p => p.RoomsTags)
+                    .HasForeignKey(d => d.RoomId)
                     .OnDelete(DeleteBehavior.Cascade)
-                    .HasConstraintName("FK_Cells_Tags_Cells");
+                    .HasConstraintName("FK_Rooms_Tags_Rooms");
 
                 entity.HasOne(d => d.Tag)
-                    .WithMany(p => p.CellsTags)
+                    .WithMany(p => p.RoomsTags)
                     .HasForeignKey(d => d.TagId)
                     .OnDelete(DeleteBehavior.Cascade)
-                    .HasConstraintName("FK_Cells_Tags_Tags");
+                    .HasConstraintName("FK_Rooms_Tags_Tags");
             });
 
             modelBuilder.Entity<ChannelCommandWord>(entity =>
@@ -2903,8 +2903,8 @@ namespace MudSharp.Database
                 entity.HasIndex(e => e.AccountId)
                     .HasDatabaseName("FK_CharacterLog_Accounts_idx");
 
-                entity.HasIndex(e => e.CellId)
-                    .HasDatabaseName("FK_CharacterLog_Cells_idx");
+                entity.HasIndex(e => e.RoomId)
+                    .HasDatabaseName("FK_CharacterLog_Rooms_idx");
 
                 entity.HasIndex(e => e.CharacterId)
                     .HasDatabaseName("FK_CharacterLog_Characters_idx");
@@ -2913,7 +2913,7 @@ namespace MudSharp.Database
 
                 entity.Property(e => e.AccountId).HasColumnType("bigint(20)");
 
-                entity.Property(e => e.CellId).HasColumnType("bigint(20)");
+                entity.Property(e => e.RoomId).HasColumnType("bigint(20)");
 
                 entity.Property(e => e.CharacterId).HasColumnType("bigint(20)");
 
@@ -2933,11 +2933,11 @@ namespace MudSharp.Database
                     .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_CharacterLog_Accounts");
 
-                entity.HasOne(d => d.Cell)
+                entity.HasOne(d => d.Room)
                     .WithMany(p => p.CharacterLog)
-                    .HasForeignKey(d => d.CellId)
+                    .HasForeignKey(d => d.RoomId)
                     .OnDelete(DeleteBehavior.Cascade)
-                    .HasConstraintName("FK_CharacterLog_Cells");
+                    .HasConstraintName("FK_CharacterLog_Rooms");
 
                 entity.HasOne(d => d.Character)
                     .WithMany(p => p.CharacterLog)
@@ -3151,7 +3151,7 @@ namespace MudSharp.Database
                     .HasDatabaseName("FK_Characters_Languages_Written_idx");
 
                 entity.HasIndex(e => e.Location)
-                    .HasDatabaseName("FK_Characters_Cells");
+                    .HasDatabaseName("FK_Characters_Rooms");
 
                 entity.Property(e => e.Id).HasColumnType("bigint(20)");
 
@@ -3386,7 +3386,7 @@ namespace MudSharp.Database
                     .WithMany(p => p.Characters)
                     .HasForeignKey(d => d.Location)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_Characters_Cells");
+                    .HasConstraintName("FK_Characters_Rooms");
             });
 
             modelBuilder.Entity<CharacterAccent>(entity =>

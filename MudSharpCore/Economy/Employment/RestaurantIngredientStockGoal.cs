@@ -357,10 +357,10 @@ internal static class RestaurantIngredientStockGoalPlanner
 		return true;
 	}
 
-	private static IEnumerable<(IGameItem Item, IContainer Container, ICell Location)> IngredientStorageContainers(
+	private static IEnumerable<(IGameItem Item, IContainer Container, IRoom Location)> IngredientStorageContainers(
 		Restaurant restaurant)
 	{
-		var kitchenIds = restaurant.KitchenCells.Select(x => x.Id).ToHashSet();
+		var kitchenIds = restaurant.KitchenRooms.Select(x => x.Id).ToHashSet();
 		foreach (var storage in restaurant.StorageContainers
 			.Where(x => x.Roles.HasFlag(RestaurantStorageRole.Ingredients))
 			.OrderBy(x => x.GameItemId))

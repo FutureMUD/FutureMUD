@@ -976,10 +976,10 @@ public partial class AIStoryteller
             case "room":
             case "cell":
                 {
-                    ICell room;
+                    IRoom room;
                     if (!command.IsFinished && command.SafeRemainingArgument.EqualTo("here"))
                     {
-                        if (actor.Location is not ICell actorRoom)
+                        if (actor.Location is not IRoom actorRoom)
                         {
                             actor.OutputHandler.Send("You are not currently in a room.");
                             return false;
@@ -995,7 +995,7 @@ public partial class AIStoryteller
                             return false;
                         }
 
-                        room = Gameworld.Cells.Get(roomId);
+                        room = Gameworld.Rooms.Get(roomId);
                         if (room is null)
                         {
                             actor.OutputHandler.Send($"There is no room with id {roomId.ToStringN0(actor)}.");

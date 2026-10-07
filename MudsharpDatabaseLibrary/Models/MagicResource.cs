@@ -7,7 +7,7 @@ namespace MudSharp.Models
     {
         public MagicResource()
         {
-            CellsMagicResources = new HashSet<CellMagicResource>();
+            RoomsMagicResources = new HashSet<RoomMagicResource>();
             CharactersMagicResources = new HashSet<CharactersMagicResources>();
             GameItemsMagicResources = new HashSet<GameItemMagicResource>();
         }
@@ -22,7 +22,7 @@ namespace MudSharp.Models
         public string MidColour { get; set; }
         public string TopColour { get; set; }
 
-        public virtual ICollection<CellMagicResource> CellsMagicResources { get; set; }
+        public virtual ICollection<RoomMagicResource> RoomsMagicResources { get; set; }
         public virtual ICollection<CharactersMagicResources> CharactersMagicResources { get; set; }
         public virtual ICollection<GameItemMagicResource> GameItemsMagicResources { get; set; }
     }

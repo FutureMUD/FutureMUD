@@ -157,7 +157,7 @@ public class SpellOwnedNpcRetirementTests
 		var world = new Mock<IFuturemud> { DefaultValue = DefaultValue.Mock };
 		var item = new GameItem(Mock.Of<IGameItemProto>(x => x.Gameworld == world.Object));
 		var calls = 0; item.OnDeleted += _ => calls++;
-		using (ForeignCustodyTransferContext.Enter(Mock.Of<IBody>(), [item], Mock.Of<MudSharp.Construction.ICell>()))
+		using (ForeignCustodyTransferContext.Enter(Mock.Of<IBody>(), [item], Mock.Of<MudSharp.Construction.IRoom>()))
 			Assert.ThrowsException<InvalidOperationException>(item.Delete);
 		Assert.IsFalse(item.Deleted); Assert.AreEqual(0, calls);
 		world.Verify(x => x.Destroy(item), Times.Never); world.Verify(x => x.SaveManager.Abort(item), Times.Never);

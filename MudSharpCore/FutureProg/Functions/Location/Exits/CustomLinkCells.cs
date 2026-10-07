@@ -5,7 +5,7 @@ using MudSharp.FutureProg.Variables;
 
 namespace MudSharp.FutureProg.Functions.Location.Exits;
 
-internal class CustomLinkCells : BuiltInFunction
+internal class CustomLinkRooms : BuiltInFunction
 {
     public IFuturemud Gameworld { get; set; }
 
@@ -23,7 +23,7 @@ internal class CustomLinkCells : BuiltInFunction
                     ProgVariableTypes.Text, ProgVariableTypes.Text, ProgVariableTypes.Text,
                     ProgVariableTypes.Text
                 },
-                (pars, gameworld) => new CustomLinkCells(pars, gameworld),
+                (pars, gameworld) => new CustomLinkRooms(pars, gameworld),
                 new List<string> { "origin", "destination", "overlay", "template", "outboundKeyword", "outboundTarget", "inboundKeyword", "inboundTarget" },
                 new List<string> { "The origin room for the new exit.", "The destination room for the new exit.", "The editable overlay package where the exit should be created or copied.", "The non-cardinal exit template ID to use.", "The primary keyword for the origin-to-destination side.", "The target/sdesc displayed for the origin-to-destination side.", "The primary keyword for the destination-to-origin side.", "The target/sdesc displayed for the destination-to-origin side." },
                 "Creates a custom non-cardinal exit between two rooms in an overlay package, using explicit keywords and targets for both directions. This is equivalent to creating a non-cardinal builder exit from a template. Returns the created exit or null if the rooms, editable package, template, or target text are invalid, or if a conflicting exit already exists.",
@@ -41,7 +41,7 @@ internal class CustomLinkCells : BuiltInFunction
                     ProgVariableTypes.OverlayPackage, ProgVariableTypes.Text, ProgVariableTypes.Text,
                     ProgVariableTypes.Text, ProgVariableTypes.Text, ProgVariableTypes.Text
                 },
-                (pars, gameworld) => new CustomLinkCells(pars, gameworld),
+                (pars, gameworld) => new CustomLinkRooms(pars, gameworld),
                 new List<string> { "origin", "destination", "overlay", "template", "outboundKeyword", "outboundTarget", "inboundKeyword", "inboundTarget" },
                 new List<string> { "The origin room for the new exit.", "The destination room for the new exit.", "The editable overlay package where the exit should be created or copied.", "The non-cardinal exit template name to use.", "The primary keyword for the origin-to-destination side.", "The target/sdesc displayed for the origin-to-destination side.", "The primary keyword for the destination-to-origin side.", "The target/sdesc displayed for the destination-to-origin side." },
                 "Creates a custom non-cardinal exit between two rooms in an overlay package, using explicit keywords and targets for both directions. This is equivalent to creating a non-cardinal builder exit from a template. Returns the created exit or null if the rooms, editable package, template, or target text are invalid, or if a conflicting exit already exists.",
@@ -55,7 +55,7 @@ internal class CustomLinkCells : BuiltInFunction
 
     #region Constructors
 
-    protected CustomLinkCells(IList<IFunction> parameterFunctions, IFuturemud gameworld) : base(parameterFunctions)
+    protected CustomLinkRooms(IList<IFunction> parameterFunctions, IFuturemud gameworld) : base(parameterFunctions)
     {
         Gameworld = gameworld;
     }
@@ -75,21 +75,21 @@ internal class CustomLinkCells : BuiltInFunction
             return StatementResult.Error;
         }
 
-        ICell origin = (ICell)ParameterFunctions[0].Result?.GetObject;
+        IRoom origin = (IRoom)ParameterFunctions[0].Result?.GetObject;
         if (origin == null)
         {
             Result = null;
             return StatementResult.Normal;
         }
 
-        ICell destination = (ICell)ParameterFunctions[1].Result?.GetObject;
+        IRoom destination = (IRoom)ParameterFunctions[1].Result?.GetObject;
         if (destination == null)
         {
             Result = null;
             return StatementResult.Normal;
         }
 
-        ICellOverlayPackage package = (ICellOverlayPackage)ParameterFunctions[2].Result?.GetObject;
+        IRoomOverlayPackage package = (IRoomOverlayPackage)ParameterFunctions[2].Result?.GetObject;
         if (package == null)
         {
             Result = null;
@@ -137,14 +137,14 @@ internal class CustomLinkCells : BuiltInFunction
             return StatementResult.Normal;
         }
 
-        IEditableCellOverlay overlay = origin.GetOrCreateOverlay(package);
+        IEditableRoomOverlay overlay = origin.GetOrCreateOverlay(package);
         if (Gameworld.ExitManager.GetExitsFor(origin, overlay).Any(x => x.Destination == destination))
         {
             Result = null;
             return StatementResult.Normal;
         }
 
-        IEditableCellOverlay otherOverlay = destination.GetOrCreateOverlay(package);
+        IEditableRoomOverlay otherOverlay = destination.GetOrCreateOverlay(package);
         if (Gameworld.ExitManager.GetExitsFor(destination, otherOverlay)
                      .Any(x => x.Destination == origin))
         {
@@ -156,9 +156,9 @@ internal class CustomLinkCells : BuiltInFunction
             inboundName);
         overlay.AddExit(newExit);
         otherOverlay.AddExit(newExit);
-        Gameworld.ExitManager.UpdateCellOverlayExits(origin, overlay);
-        Gameworld.ExitManager.UpdateCellOverlayExits(destination, otherOverlay);
-        Result = newExit.CellExitFor(origin);
+        Gameworld.ExitManager.UpdateRoomOverlayExits(origin, overlay);
+        Gameworld.ExitManager.UpdateRoomOverlayExits(destination, otherOverlay);
+        Result = newExit.RoomExitFor(origin);
         return StatementResult.Normal;
     }
 }

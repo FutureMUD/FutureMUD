@@ -220,7 +220,8 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
 
     public T GetPerceivable<T>(long id) where T : class, IPerceivable
     {
-        return (T)_perceivableTypeDictionary[typeof(T).Name](id);
+        var type = typeof(T).Name == "Room" ? PersistedFrameworkItemReference.RoomType : typeof(T).Name;
+        return (T)_perceivableTypeDictionary[type](id);
     }
 
     public void RegisterPerceivableType(string type, Func<long, IPerceivable> func)
@@ -1341,13 +1342,13 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
         _outfitTemplates.Add(template);
     }
 
-    public void Add(ICell cell)
+    public void Add(IRoom room)
     {
-		var conflict = _cells.GetUniqueNameConflict(cell.UniqueName, cell.Id);
+		var conflict = _cells.GetUniqueNameConflict(room.UniqueName, room.Id);
 		if (conflict is not null)
-			throw new InvalidOperationException($"Cannot register cell #{cell.Id}: unique name '{cell.UniqueName}' is already used by cell #{conflict.Id}.");
-        _cells.Add(cell);
-		EnvironmentalMagic?.Register(cell);
+			throw new InvalidOperationException($"Cannot register cell #{room.Id}: unique name '{room.UniqueName}' is already used by cell #{conflict.Id}.");
+        _cells.Add(room);
+		EnvironmentalMagic?.Register(room);
     }
 
 
@@ -1459,7 +1460,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
 		MudSharp.Form.Material.EnvironmentalExposureService.TrackExisting(this, item);
     }
 
-    public void Add(ICellOverlayPackage package)
+    public void Add(IRoomOverlayPackage package)
     {
         _cellOverlayPackages.Add(package);
     }
@@ -2453,7 +2454,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
         _nonCardinalExitTemplates.Remove(template);
     }
 
-    public void Destroy(ICellOverlayPackage package)
+    public void Destroy(IRoomOverlayPackage package)
     {
         _cellOverlayPackages.Remove(package);
     }
@@ -2559,12 +2560,12 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
         _accounts.Remove(account);
     }
 
-    public void Destroy(ICell cell)
+    public void Destroy(IRoom room)
     {
-		EnvironmentalMagic?.Unregister(cell);
-        cell.OwningZone.Unregister(cell);
-        _cells.Remove(cell);
-        DestroyListeners(cell);
+		EnvironmentalMagic?.Unregister(room);
+        room.OwningZone.Unregister(room);
+        _cells.Remove(room);
+        DestroyListeners(room);
     }
 
 

@@ -329,7 +329,7 @@ public partial class Chargen : FrameworkItem, IChargen
 
     public List<IAccent> SelectedAccents { get; set; }
 
-    public ICell SelectedStartingLocation => StartingLocation?.Location;
+    public IRoom SelectedStartingLocation => StartingLocation?.Location;
 
     public List<IChargenRole> SelectedRoles { get; set; }
 

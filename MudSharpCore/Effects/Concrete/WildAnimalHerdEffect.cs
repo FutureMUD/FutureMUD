@@ -10,8 +10,8 @@ public class WildAnimalHerdEffect : Effect, IEffectSubtype
     private WildAnimalHerdRole _role;
     private WildAnimalHerdState _state;
     private WildAnimalHerdPriority _priority;
-    private readonly List<ICell> _avoidedLocations = new();
-    private readonly List<ICell> _knownWater = new();
+    private readonly List<IRoom> _avoidedLocations = new();
+    private readonly List<IRoom> _knownWater = new();
 
     public WildAnimalHerdRole Role
     {
@@ -48,9 +48,9 @@ public class WildAnimalHerdEffect : Effect, IEffectSubtype
 
     public DateTime EntryReactionCooldown { get; set; } = DateTime.MinValue;
 
-    public List<ICell> AvoidedLocations => HerdLeaderEffect?.AvoidedLocations ?? _avoidedLocations;
+    public List<IRoom> AvoidedLocations => HerdLeaderEffect?.AvoidedLocations ?? _avoidedLocations;
 
-    public List<ICell> KnownWater => HerdLeaderEffect?.KnownWater ?? _knownWater;
+    public List<IRoom> KnownWater => HerdLeaderEffect?.KnownWater ?? _knownWater;
 
     public ICharacter HerdLeader { get; set; }
 
@@ -60,7 +60,7 @@ public class WildAnimalHerdEffect : Effect, IEffectSubtype
 
     public List<WildAnimalHerdEffect> SubordinateEffects { get; } = new();
 
-    public List<ICellExit> DesignatedExits { get; } = new();
+    public List<IRoomExit> DesignatedExits { get; } = new();
     public DateTime LastAlphaMinuteTick { get; set; } = DateTime.MinValue;
 
     public List<(INPC Animal, WildAnimalHerdRole Role)> GetHerdMembers()

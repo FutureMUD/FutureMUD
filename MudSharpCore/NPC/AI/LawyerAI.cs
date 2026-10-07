@@ -120,18 +120,18 @@ public class LawyerAI : PathingAIBase
     }
 
     /// <inheritdoc />
-    protected override (ICell? Target, IEnumerable<ICellExit>) GetPath(ICharacter ch)
+    protected override (IRoom? Target, IEnumerable<IRoomExit>) GetPath(ICharacter ch)
     {
         Lawyering? lawyering = ch.EffectsOfType<Lawyering>().FirstOrDefault();
         if (lawyering is null)
         {
-            ICell? home = HomeBaseProg?.Execute(ch) as ICell;
+            IRoom? home = HomeBaseProg?.Execute(ch) as IRoom;
             if (home is null)
             {
                 return (null, []);
             }
 
-            List<ICellExit> path = ch.PathBetween(home, 50, GetSuitabilityFunction(ch)).ToList();
+            List<IRoomExit> path = ch.PathBetween(home, 50, GetSuitabilityFunction(ch)).ToList();
             return path.Count == 0 ? (null, []) : (home, path);
         }
 
@@ -143,19 +143,19 @@ public class LawyerAI : PathingAIBase
         ICharacter? defendant = TrialDefendant(lawyering);
         if (defendant is not null)
         {
-            List<ICellExit> path = ch.PathBetween(defendant.Location, 50, GetSuitabilityFunction(ch)).ToList();
+            List<IRoomExit> path = ch.PathBetween(defendant.Location, 50, GetSuitabilityFunction(ch)).ToList();
             return path.Count == 0 ? (null, []) : (defendant.Location, path);
         }
 
         return (null, []);
     }
 
-    protected override (ICell? Target, ISpatialPath? Path) GetSpatialPath(ICharacter ch)
+    protected override (IRoom? Target, ISpatialPath? Path) GetSpatialPath(ICharacter ch)
     {
         Lawyering? lawyering = ch.EffectsOfType<Lawyering>().FirstOrDefault();
         if (lawyering is null)
         {
-            ICell? home = HomeBaseProg?.Execute(ch) as ICell;
+            IRoom? home = HomeBaseProg?.Execute(ch) as IRoom;
             return home is not null &&
                    TryFindSpatialPath(ch, home, 50.0, GetSuitabilityFunction(ch), out ISpatialPath? homePath)
                 ? (home, homePath)
@@ -175,7 +175,7 @@ public class LawyerAI : PathingAIBase
             50.0,
             GetSuitabilityFunction(ch),
             out ISpatialPath? path)
-            ? (destination.Cell, path)
+            ? (destination.Room, path)
             : (null, null);
     }
 

@@ -113,9 +113,9 @@ public class SaveManager : ISaveManager
                 return $"GameItem {g.Id} - {g.HowSeen(g, colour: false, flags: PerceiveIgnoreFlags.IgnoreSelf)}";
             }
 
-            if (thing is ICell cell)
+            if (thing is IRoom room)
             {
-                return $"Cell {cell.Id} - {cell.Name}";
+                return $"Cell {room.Id} - {room.Name}";
             }
 
             if (thing is IGameItemComponent component)

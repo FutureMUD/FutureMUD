@@ -20,13 +20,13 @@ namespace MudSharp_Unit_Tests;
 public class VehicleEnvironmentRulesTests
 {
 	[TestMethod]
-	public void IsSurfaceWater_GroundLevelSwimmingCell_ReturnsTrue()
+	public void IsSurfaceWater_GroundLevelSwimmingRoom_ReturnsTrue()
 	{
-		var cell = new Mock<ICell>();
-		cell.Setup(x => x.IsSwimmingLayer(RoomLayer.GroundLevel)).Returns(true);
+		var room = new Mock<IRoom>();
+		room.Setup(x => x.IsSwimmingLayer(RoomLayer.GroundLevel)).Returns(true);
 
-		Assert.IsTrue(cell.Object.IsSurfaceWater(RoomLayer.GroundLevel));
-		Assert.IsFalse(cell.Object.IsSurfaceWater(RoomLayer.Underwater));
+		Assert.IsTrue(room.Object.IsSurfaceWater(RoomLayer.GroundLevel));
+		Assert.IsFalse(room.Object.IsSurfaceWater(RoomLayer.Underwater));
 	}
 
 	[TestMethod]
@@ -77,7 +77,7 @@ public class VehicleEnvironmentRulesTests
 		{
 			Id = 42,
 			Name = "Paddle",
-			MovementType = (int)VehicleMovementProfileType.CellExit,
+			MovementType = (int)VehicleMovementProfileType.RoomExit,
 			MovementEnvironment = (int)VehicleMovementEnvironment.SurfaceWater,
 			ExposesOccupantsToWater = true,
 			RouteSpeedMetresPerSecond = 12.5,
@@ -120,11 +120,11 @@ public class VehicleEnvironmentRulesTests
 	}
 
 	[TestMethod]
-	public void MovementProfile_WhenPersistedSelectionIsMissing_FallsBackToCellExitProfile()
+	public void MovementProfile_WhenPersistedSelectionIsMissing_FallsBackToRoomExitProfile()
 	{
 		var profile = new Mock<IVehicleMovementProfilePrototype>();
 		profile.SetupGet(x => x.Id).Returns(42);
-		profile.SetupGet(x => x.MovementType).Returns(VehicleMovementProfileType.CellExit);
+		profile.SetupGet(x => x.MovementType).Returns(VehicleMovementProfileType.RoomExit);
 		profile.SetupGet(x => x.IsDefault).Returns(true);
 		var prototype = new Mock<IVehiclePrototype>();
 		prototype.SetupGet(x => x.MovementProfiles).Returns([profile.Object]);
@@ -153,7 +153,7 @@ public class VehicleEnvironmentRulesTests
 		propulsion.SetupGet(x => x.PropulsionType).Returns(VehiclePropulsionType.Sail);
 		var movement = new Mock<IVehicleMovementProfilePrototype>();
 		movement.SetupGet(x => x.Id).Returns(42);
-		movement.SetupGet(x => x.MovementType).Returns(VehicleMovementProfileType.CellExit);
+		movement.SetupGet(x => x.MovementType).Returns(VehicleMovementProfileType.RoomExit);
 		movement.SetupGet(x => x.IsDefault).Returns(true);
 		movement.SetupGet(x => x.PropulsionProfiles).Returns([propulsion.Object]);
 		var prototype = new Mock<IVehiclePrototype>();
@@ -278,7 +278,7 @@ public class VehicleEnvironmentRulesTests
 		var profile = new Mock<IVehicleMovementProfilePrototype>();
 		profile.SetupGet(x => x.Id).Returns(42);
 		profile.SetupGet(x => x.Name).Returns("Surfboard");
-		profile.SetupGet(x => x.MovementType).Returns(VehicleMovementProfileType.CellExit);
+		profile.SetupGet(x => x.MovementType).Returns(VehicleMovementProfileType.RoomExit);
 		profile.SetupGet(x => x.MovementEnvironment).Returns(VehicleMovementEnvironment.SurfaceWater);
 		profile.SetupGet(x => x.ExposesOccupantsToWater).Returns(true);
 		var actor = new Mock<ICharacter>();
@@ -305,7 +305,7 @@ public class VehicleEnvironmentRulesTests
 		var profile = new Mock<IVehicleMovementProfilePrototype>();
 		profile.SetupGet(x => x.Id).Returns(42);
 		profile.SetupGet(x => x.Name).Returns("Bicycle");
-		profile.SetupGet(x => x.MovementType).Returns(VehicleMovementProfileType.CellExit);
+		profile.SetupGet(x => x.MovementType).Returns(VehicleMovementProfileType.RoomExit);
 		profile.SetupGet(x => x.MovementEnvironment).Returns(VehicleMovementEnvironment.Unrestricted);
 		profile.SetupGet(x => x.PropulsionProfiles).Returns([propulsion.Object]);
 		var actor = new Mock<ICharacter>();
@@ -319,10 +319,10 @@ public class VehicleEnvironmentRulesTests
 	[TestMethod]
 	public void DisembarkingIntoSurfaceWater_SetsSwimmingPostureOnce()
 	{
-		var location = new Mock<ICell>();
+		var location = new Mock<IRoom>();
 		location.Setup(x => x.IsSwimmingLayer(RoomLayer.GroundLevel)).Returns(true);
 		var profile = new Mock<IVehicleMovementProfilePrototype>();
-		profile.SetupGet(x => x.MovementType).Returns(VehicleMovementProfileType.CellExit);
+		profile.SetupGet(x => x.MovementType).Returns(VehicleMovementProfileType.RoomExit);
 		profile.SetupGet(x => x.MovementEnvironment).Returns(VehicleMovementEnvironment.SurfaceWater);
 		var prototype = new Mock<IVehiclePrototype>();
 		prototype.SetupGet(x => x.MovementProfiles).Returns([profile.Object]);
@@ -380,7 +380,7 @@ public class VehicleEnvironmentRulesTests
 	private static EnvironmentHarness CreateHarness(bool exposesOccupants, bool destroyed = false,
 		bool exteriorDestroyed = false)
 	{
-		var location = new Mock<ICell>();
+		var location = new Mock<IRoom>();
 		location.Setup(x => x.IsSwimmingLayer(RoomLayer.GroundLevel)).Returns(true);
 		var profile = new Mock<IVehicleMovementProfilePrototype>();
 		profile.SetupGet(x => x.MovementEnvironment).Returns(VehicleMovementEnvironment.SurfaceWater);

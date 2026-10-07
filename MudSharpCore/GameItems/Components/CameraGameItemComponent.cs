@@ -109,12 +109,12 @@ public class CameraGameItemComponent : MediaEndpointPoweredComponentBase, IMedia
 			return false;
 		}
 
-		if (location is not ICell cell)
+		if (location is not IRoom room)
 		{
 			return false;
 		}
 
-		var sensor = new MediaSensorPerceiver(Parent, cell, _prototype.SensorSensitivity);
+		var sensor = new MediaSensorPerceiver(Parent, room, _prototype.SensorSensitivity);
 		if (!output.ShouldSee(sensor))
 		{
 			return false;
@@ -153,7 +153,7 @@ public class CameraGameItemComponent : MediaEndpointPoweredComponentBase, IMedia
 		}
 
 		if (MediaComponentUtilities.GetAudioVolume(output) is { } volume && source is not null &&
-		    cell.LocalAudioDifficulty(sensor, volume, Parent.GetProximity(source)) == Difficulty.Impossible)
+		    room.LocalAudioDifficulty(sensor, volume, Parent.GetProximity(source)) == Difficulty.Impossible)
 		{
 			return false;
 		}
@@ -225,14 +225,14 @@ public class CameraGameItemComponent : MediaEndpointPoweredComponentBase, IMedia
 			return null;
 		}
 
-		var cell = Parent.TrueLocations.FirstOrDefault();
-		if (cell is null)
+		var room = Parent.TrueLocations.FirstOrDefault();
+		if (room is null)
 		{
 			return null;
 		}
 
-		var sensor = new MediaSensorPerceiver(Parent, cell, _prototype.SensorSensitivity);
-		return cell.HowSeen(sensor, type: DescriptionType.Full, colour: false,
+		var sensor = new MediaSensorPerceiver(Parent, room, _prototype.SensorSensitivity);
+		return room.HowSeen(sensor, type: DescriptionType.Full, colour: false,
 			flags: PerceiveIgnoreFlags.IgnoreNamesSetting | PerceiveIgnoreFlags.IgnoreLiquidsAndFlags)
 			.NormaliseSpacing();
 	}

@@ -72,7 +72,7 @@ internal static partial class GNHProgram
 			var offline = CopyCharacter("Maintenance temporary offline PC");
 			offline.Status = (int)CharacterStatus.Active; offline.State = (int)CharacterState.Awake; offline.DeathTime = null;
 			db.SaveChanges(); ordinaryId = ordinary.Id; ordinaryBody = ordinary.BodyId!.Value; offlineId = offline.Id;
-			var history = new Db.CharacterLog { CharacterId = ordinaryId, CellId = fixture.CellId, Command = "maintenance history sentinel", Time = now };
+			var history = new Db.CharacterLog { CharacterId = ordinaryId, RoomId = fixture.RoomId, Command = "maintenance history sentinel", Time = now };
 			db.Set<Db.CharacterLog>().Add(history); db.Wounds.Find(fixture.ExistingWoundId)!.ActorOriginId = ordinaryId;
 			var item = NewLifecycleItem(); db.GameItems.Add(item); db.SaveChanges(); heldItem = item.Id; historyId = history.Id;
 			db.GameItemComponents.Add(new() { GameItemId = heldItem, Definition = $"<Definition><OriginalBody>{heldNpc.Body.Id}</OriginalBody></Definition>" }); db.SaveChanges();

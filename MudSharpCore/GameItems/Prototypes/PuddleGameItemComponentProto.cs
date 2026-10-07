@@ -215,7 +215,7 @@ namespace MudSharp.GameItems.Prototypes
             return newItem;
         }
 
-        public static void CreateNewPuddle(LiquidMixture mixture, ICell location, RoomLayer layer,
+        public static void CreateNewPuddle(LiquidMixture mixture, IRoom location, RoomLayer layer,
             IPerceivable referenceItem)
         {
             if (location is null || location.IsSwimmingLayer(layer))
@@ -235,7 +235,7 @@ namespace MudSharp.GameItems.Prototypes
             newItem.HandleEvent(EventType.ItemFinishedLoading, newItem);
         }
 
-        public static void TopUpOrCreateNewPuddle(LiquidMixture mixture, ICell location, RoomLayer layer,
+        public static void TopUpOrCreateNewPuddle(LiquidMixture mixture, IRoom location, RoomLayer layer,
             IPerceivable referenceItem)
         {
             location?.AddLiquidToSurface(mixture, layer, referenceItem);

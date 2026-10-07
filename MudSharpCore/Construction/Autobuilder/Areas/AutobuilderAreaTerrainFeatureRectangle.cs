@@ -53,9 +53,9 @@ public class AutobuilderAreaTerrainFeatureRectangle : AutobuilderAreaTerrainRect
         });
     }
 
-    public override IEnumerable<ICell> ExecuteTemplate(ICharacter builder, IEnumerable<object> arguments)
+    public override IEnumerable<IRoom> ExecuteTemplate(ICharacter builder, IEnumerable<object> arguments)
     {
-        ICellOverlayPackage package = builder.CurrentOverlayPackage;
+        IRoomOverlayPackage package = builder.CurrentOverlayPackage;
         List<object> argList = arguments.ToList();
         int height = (int)argList.ElementAt(0);
         int width = (int)argList.ElementAt(1);
@@ -77,7 +77,7 @@ public class AutobuilderAreaTerrainFeatureRectangle : AutobuilderAreaTerrainRect
             }
         }
 
-        ICell[,] cells = new ICell[width, height];
+        IRoom[,] rooms = new IRoom[width, height];
         for (int i = 0; i < width; i++)
         {
             for (int j = 0; j < height; j++)
@@ -88,32 +88,32 @@ public class AutobuilderAreaTerrainFeatureRectangle : AutobuilderAreaTerrainRect
                 }
 
                 ITag[] tags = features[i, j];
-                ICell cell = roomTemplate.CreateRoom(builder, terrains[i, j], false, tags,
+                IRoom room = roomTemplate.CreateRoom(builder, terrains[i, j], false, tags,
                     tags.Select(x => x.Name).ToArray());
-                cells[i, j] = cell;
+                rooms[i, j] = room;
 
             }
         }
 
-		AutobuilderRectangleTopology.ConnectCells(builder, package, cells, ConnectCellsWithDiagonalExits);
+		AutobuilderRectangleTopology.ConnectRooms(builder, package, rooms, ConnectRoomsWithDiagonalExits);
 
-        foreach (ICell cell in cells)
+        foreach (IRoom room in rooms)
         {
-            if (cell == null)
+            if (room == null)
             {
                 continue;
             }
 
-            builder.Gameworld.ExitManager.UpdateCellOverlayExits(cell, cell.CurrentOverlay);
+            builder.Gameworld.ExitManager.UpdateRoomOverlayExits(room, room.CurrentOverlay);
         }
 
-        return cells.OfType<ICell>().ToList();
+        return rooms.OfType<IRoom>().ToList();
     }
 
     public override string Show(ICharacter builder)
     {
         return
-            $"{$"Autobuilder Area Template #{Id} ({Name})".Colour(Telnet.Cyan)}\n\n{$"This autobuilder template will return a rectangular area of cells with height, width, terrain, room features and room template supplied by the builder. It also requires the builder to specify a matching mask of tag IDs to be applied to the generated rooms. This template {(ConnectCellsWithDiagonalExits ? "does" : "does not")} connect rooms diagonally.".Wrap(builder.InnerLineFormatLength)}";
+            $"{$"Autobuilder Area Template #{Id} ({Name})".Colour(Telnet.Cyan)}\n\n{$"This autobuilder template will return a rectangular area of cells with height, width, terrain, room features and room template supplied by the builder. It also requires the builder to specify a matching mask of tag IDs to be applied to the generated rooms. This template {(ConnectRoomsWithDiagonalExits ? "does" : "does not")} connect rooms diagonally.".Wrap(builder.InnerLineFormatLength)}";
     }
 
     public override IAutobuilderArea Clone(string newName)
@@ -135,12 +135,12 @@ public class AutobuilderAreaTerrainFeatureRectangle : AutobuilderAreaTerrainRect
 
 public static class AutobuilderFeatureMask
 {
-	public static bool TryParse(string mask, int expectedCellCount, IEnumerable<ITag> tags,
+	public static bool TryParse(string mask, int expectedRoomCount, IEnumerable<ITag> tags,
 		out ITag[][] result, out string error)
 	{
 		try
 		{
-			result = Parse(mask, expectedCellCount, tags);
+			result = Parse(mask, expectedRoomCount, tags);
 			error = string.Empty;
 			return true;
 		}
@@ -158,15 +158,15 @@ public static class AutobuilderFeatureMask
 		return Parse(entries, entries.Length, tags);
 	}
 
-	public static ITag[][] Parse(string mask, int expectedCellCount, IEnumerable<ITag> tags)
+	public static ITag[][] Parse(string mask, int expectedRoomCount, IEnumerable<ITag> tags)
 	{
-		return Parse(SplitEntries(mask), expectedCellCount, tags);
+		return Parse(SplitEntries(mask), expectedRoomCount, tags);
 	}
 
-	private static ITag[][] Parse(IReadOnlyList<string> entries, int expectedCellCount, IEnumerable<ITag> tags)
+	private static ITag[][] Parse(IReadOnlyList<string> entries, int expectedRoomCount, IEnumerable<ITag> tags)
 	{
 		ArgumentNullException.ThrowIfNull(tags);
-		if (entries.Count != expectedCellCount)
+		if (entries.Count != expectedRoomCount)
 		{
 			throw new InvalidDataException("The feature mask must exactly match the size of the grid.");
 		}

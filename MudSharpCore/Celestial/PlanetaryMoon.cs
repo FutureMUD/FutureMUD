@@ -448,7 +448,7 @@ public class PlanetaryMoon : PerceivedItem, ICelestialObject, ILunarEphemeris, I
                 continue;
             }
 
-            if (ch.Location.OutdoorsType(ch).In(CellOutdoorsType.Outdoors))
+            if (ch.Location.OutdoorsType(ch).In(RoomOutdoorsType.Outdoors))
             {
                 ch.OutputHandler.Send(echo);
                 continue;

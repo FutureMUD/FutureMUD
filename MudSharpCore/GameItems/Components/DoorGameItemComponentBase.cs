@@ -19,8 +19,8 @@ public abstract class DoorGameItemComponentBase : GameItemComponent, IDoor
 	protected readonly List<ILock> _locks = new();
 	private DoorState _state;
 	private IExit? _installedExit;
-	private ICell? _hingeCell;
-	private ICell? _openDirectionCell;
+	private IRoom? _hingeRoom;
+	private IRoom? _openDirectionRoom;
 
 	protected DoorGameItemComponentBase(DoorGameItemComponentProtoBase proto, IGameItem parent, bool temporary = false)
 		: base(parent, proto, temporary)
@@ -98,7 +98,7 @@ public abstract class DoorGameItemComponentBase : GameItemComponent, IDoor
 		sb.AppendLine(description);
 		if (InstalledExit is not null)
 		{
-			if (voyeur.Location == HingeCell)
+			if (voyeur.Location == HingeRoom)
 			{
 				sb.AppendLine();
 				sb.AppendLine(
@@ -217,7 +217,7 @@ public abstract class DoorGameItemComponentBase : GameItemComponent, IDoor
 		return Locks.Sum(x => x.Parent.Buoyancy(fluidDensity));
 	}
 
-	public override bool HandleDieOrMorph(IGameItem newItem, ICell location)
+	public override bool HandleDieOrMorph(IGameItem newItem, IRoom location)
 	{
 		var newItemLockable = newItem?.GetItemType<ILockable>();
 		if (newItemLockable is not null)
@@ -256,8 +256,8 @@ public abstract class DoorGameItemComponentBase : GameItemComponent, IDoor
 		{
 			newItemDoor.State = State;
 			newItemDoor.InstalledExit = InstalledExit;
-			newItemDoor.HingeCell = HingeCell;
-			newItemDoor.OpenDirectionCell = OpenDirectionCell;
+			newItemDoor.HingeRoom = HingeRoom;
+			newItemDoor.OpenDirectionRoom = OpenDirectionRoom;
 			if (InstalledExit is not null)
 			{
 				InstalledExit.Door = newItemDoor;
@@ -328,22 +328,22 @@ public abstract class DoorGameItemComponentBase : GameItemComponent, IDoor
 	public ITraitDefinition? UninstallTrait => _prototype.UninstallTrait;
 	public bool CanFireThrough => _prototype.CanFireThrough;
 
-	public ICell? HingeCell
+	public IRoom? HingeRoom
 	{
-		get => _hingeCell;
+		get => _hingeRoom;
 		set
 		{
-			_hingeCell = value;
+			_hingeRoom = value;
 			Changed = true;
 		}
 	}
 
-	public ICell? OpenDirectionCell
+	public IRoom? OpenDirectionRoom
 	{
-		get => _openDirectionCell;
+		get => _openDirectionRoom;
 		set
 		{
-			_openDirectionCell = value;
+			_openDirectionRoom = value;
 			Changed = true;
 		}
 	}
@@ -356,7 +356,7 @@ public abstract class DoorGameItemComponentBase : GameItemComponent, IDoor
 			return;
 		}
 
-		var targetExit = InstalledExit?.CellExitFor(actor.Location);
+		var targetExit = InstalledExit?.RoomExitFor(actor.Location);
 		if (targetExit is null)
 		{
 			return;
@@ -364,7 +364,7 @@ public abstract class DoorGameItemComponentBase : GameItemComponent, IDoor
 
 		actor.OutputHandler.Handle(
 			new MixedEmoteOutput(new Emote("@ knock|knocks upon $0", actor, Parent)).Append(playerEmote));
-		var oppositeExit = targetExit.Exit.CellExitFor(targetExit.Destination);
+		var oppositeExit = targetExit.Exit.RoomExitFor(targetExit.Destination);
 		var otherSideOutput = new EmoteOutput(new Emote(
 			$"You hear a knocking coming from the other side of $0 to {oppositeExit.OutboundDirectionDescription}.",
 			actor, Parent), flags: OutputFlags.PurelyAudible);
@@ -399,16 +399,16 @@ public abstract class DoorGameItemComponentBase : GameItemComponent, IDoor
 		Parent.HandleEvent(EventType.DoorKnocked, actor, actor.Location, targetExit, Parent);
 	}
 
-	private static IEnumerable<IHandleEvents> ExitSideEventHandlers(ICell cell, ICellExit exit, ICharacter actor)
+	private static IEnumerable<IHandleEvents> ExitSideEventHandlers(IRoom room, IRoomExit exit, ICharacter actor)
 	{
-		if (cell.RouteDefinition is null)
+		if (room.RouteDefinition is null)
 		{
-			return cell.EventHandlers;
+			return room.EventHandlers;
 		}
 
-		if (!RouteSpatialService.Instance.TryGetExitAnchor(exit, cell, out var anchor))
+		if (!RouteSpatialService.Instance.TryGetExitAnchor(exit, room, out var anchor))
 		{
-			return new IHandleEvents[] { cell };
+			return new IHandleEvents[] { room };
 		}
 
 		var maximumDistance = actor.Gameworld.GetStaticDouble("RouteCellVeryDistantDistanceMetres");
@@ -417,11 +417,11 @@ public abstract class DoorGameItemComponentBase : GameItemComponent, IDoor
 			maximumDistance = RouteSpatialConfiguration.Default.VeryDistantDistanceMetres;
 		}
 
-		var origin = new SpatialLocation(cell, actor.RoomLayer, anchor!.ArrivalPositionMetres);
+		var origin = new SpatialLocation(room, actor.RoomLayer, anchor!.ArrivalPositionMetres);
 		return RouteSpatialService.Instance
 			.GetPerceivablesWithinAcrossLayers(origin, maximumDistance)
 			.OfType<IHandleEvents>()
-			.Concat(new IHandleEvents[] { cell })
+			.Concat(new IHandleEvents[] { room })
 			.Distinct();
 	}
 
@@ -449,7 +449,7 @@ public abstract class DoorGameItemComponentBase : GameItemComponent, IDoor
 			theLock.Parent.ContainedIn = Parent;
 		}
 
-		var installSide = actor?.Location ?? HingeCell;
+		var installSide = actor?.Location ?? HingeRoom;
 		theLock.InstallLock(this, InstalledExit, installSide);
 		Changed = true;
 		return true;
@@ -501,13 +501,13 @@ public abstract class DoorGameItemComponentBase : GameItemComponent, IDoor
 		var element = root.Element("HingeCell");
 		if (element is not null)
 		{
-			HingeCell = Gameworld.Cells.Get(long.Parse(element.Value));
+			HingeRoom = Gameworld.Rooms.Get(long.Parse(element.Value));
 		}
 
 		element = root.Element("OpenDirectionCell");
 		if (element is not null)
 		{
-			OpenDirectionCell = Gameworld.Cells.Get(long.Parse(element.Value));
+			OpenDirectionRoom = Gameworld.Rooms.Get(long.Parse(element.Value));
 		}
 
 		foreach (var sub in root.Elements("Lock"))
@@ -537,14 +537,14 @@ public abstract class DoorGameItemComponentBase : GameItemComponent, IDoor
 			from theLock in _locks
 			select new XElement("Lock", theLock.Parent.Id));
 
-		if (HingeCell is not null)
+		if (HingeRoom is not null)
 		{
-			definition.Add(new XElement("HingeCell", HingeCell.Id));
+			definition.Add(new XElement("HingeCell", HingeRoom.Id));
 		}
 
-		if (OpenDirectionCell is not null)
+		if (OpenDirectionRoom is not null)
 		{
-			definition.Add(new XElement("OpenDirectionCell", OpenDirectionCell.Id));
+			definition.Add(new XElement("OpenDirectionCell", OpenDirectionRoom.Id));
 		}
 
 		SaveAdditionalToXml(definition);

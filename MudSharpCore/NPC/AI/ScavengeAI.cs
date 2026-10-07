@@ -233,7 +233,7 @@ public class ScavengeAI : ArtificialIntelligenceBase
         switch (type)
         {
             case EventType.CharacterEntersGame:
-            case EventType.CharacterEnterCellFinish:
+            case EventType.CharacterEnterRoomFinish:
             case EventType.CharacterStopMovement:
             case EventType.CharacterStopMovementClosedDoor:
             case EventType.MinuteTick:
@@ -256,7 +256,7 @@ public class ScavengeAI : ArtificialIntelligenceBase
             switch (type)
             {
                 case EventType.CharacterEntersGame:
-                case EventType.CharacterEnterCellFinish:
+                case EventType.CharacterEnterRoomFinish:
                 case EventType.CharacterStopMovement:
                 case EventType.CharacterStopMovementClosedDoor:
                 case EventType.CharacterBeginMovement:

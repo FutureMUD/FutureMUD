@@ -11,8 +11,8 @@ namespace MudSharp.Effects.Interfaces;
 public interface IMagicPortalExit
 {
 	IExit Exit { get; }
-	ICell Source { get; }
-	ICell Destination { get; }
+	IRoom Source { get; }
+	IRoom Destination { get; }
 	ICharacter? Caster { get; }
 	IMagicSpell? Spell { get; }
 	IEffect? SourceEffect { get; }

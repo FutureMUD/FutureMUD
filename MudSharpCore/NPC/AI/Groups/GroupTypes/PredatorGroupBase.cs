@@ -157,12 +157,12 @@ public abstract class PredatorGroupBase : GroupAIType
             return;
         }
 
-        CollectionDictionary<(ICell Location, RoomLayer Layer), ILiquidContainer> lcons = new();
-        ICell mainLocation = leader.Location;
+        CollectionDictionary<(IRoom Location, RoomLayer Layer), ILiquidContainer> lcons = new();
+        IRoom mainLocation = leader.Location;
 
         lcons.AddRange((leader.Location, leader.RoomLayer), LocalLiquids(leader.Location, leader.RoomLayer));
 
-        foreach (KeyValuePair<(ICell Location, RoomLayer Layer), List<ILiquidContainer>> location in lcons)
+        foreach (KeyValuePair<(IRoom Location, RoomLayer Layer), List<ILiquidContainer>> location in lcons)
         {
             if (location.Value.Any() && !data.KnownWaterLocations.Contains(location.Key.Location))
             {
@@ -182,9 +182,9 @@ public abstract class PredatorGroupBase : GroupAIType
             return;
         }
 
-        foreach (ICell water in data.KnownWaterLocations)
+        foreach (IRoom water in data.KnownWaterLocations)
         {
-            List<ICellExit> path = mainLocation.PathBetween(water, 20, CanMoveExitFunctionFor(leader, group)).ToList();
+            List<IRoomExit> path = mainLocation.PathBetween(water, 20, CanMoveExitFunctionFor(leader, group)).ToList();
             if (!path.Any())
             {
                 continue;
@@ -200,7 +200,7 @@ public abstract class PredatorGroupBase : GroupAIType
         if (leader.CouldMove(false, null).Success)
         {
             AdjacentToExit recent = leader.EffectsOfType<AdjacentToExit>().FirstOrDefault();
-            ICellExit random = mainLocation.ExitsFor(leader)
+            IRoomExit random = mainLocation.ExitsFor(leader)
                                      .Where(x => CanMoveExitFunctionFor(leader, group).Invoke(x))
                                      .GetWeightedRandom(x => recent?.Exit == x ? 1.0 : 100.0);
             if (random != null && leader.CanMove(random))
@@ -215,13 +215,13 @@ public abstract class PredatorGroupBase : GroupAIType
     protected virtual void HandleGraze(IGroupAI group, PredatorGroupData data)
     {
         IEnumerable<IRace> races = group.GroupMembers.Select(x => x.Race).Distinct();
-        IEnumerable<(ICell Location, RoomLayer Layer)> locations = group.GroupMembers.Select(x => (Location: x.Location, Layer: x.RoomLayer)).Distinct();
-        CollectionDictionary<(ICell Location, RoomLayer Layer), ILiquidContainer> lcons = new();
-        CollectionDictionary<(ICell Location, RoomLayer Layer), ICorpse> corpses = new();
-        CollectionDictionary<(ICell Location, RoomLayer Layer), ISeveredBodypart> bodyparts = new();
-        CollectionDictionary<(ICell Location, RoomLayer Layer), IEdible> foodItems = new();
+        IEnumerable<(IRoom Location, RoomLayer Layer)> locations = group.GroupMembers.Select(x => (Location: x.Location, Layer: x.RoomLayer)).Distinct();
+        CollectionDictionary<(IRoom Location, RoomLayer Layer), ILiquidContainer> lcons = new();
+        CollectionDictionary<(IRoom Location, RoomLayer Layer), ICorpse> corpses = new();
+        CollectionDictionary<(IRoom Location, RoomLayer Layer), ISeveredBodypart> bodyparts = new();
+        CollectionDictionary<(IRoom Location, RoomLayer Layer), IEdible> foodItems = new();
 
-        foreach ((ICell Location, RoomLayer Layer) location in locations)
+        foreach ((IRoom Location, RoomLayer Layer) location in locations)
         {
             List<IGameItem> edibleCorpsesAndBodyparts = new();
             List<IGameItem> items = location.Location.LayerGameItems(location.Layer)
@@ -274,7 +274,7 @@ public abstract class PredatorGroupBase : GroupAIType
             lcons.AddRange((location.Location, location.Layer), LocalLiquids(location.Location, location.Layer));
         }
 
-        foreach (KeyValuePair<(ICell Location, RoomLayer Layer), List<ILiquidContainer>> location in lcons)
+        foreach (KeyValuePair<(IRoom Location, RoomLayer Layer), List<ILiquidContainer>> location in lcons)
         {
             if (location.Value.Any() && !data.KnownWaterLocations.Contains(location.Key.Location))
             {
@@ -453,7 +453,7 @@ public abstract class PredatorGroupBase : GroupAIType
             return (main, stragglers, vulnerable);
         }
 
-        (ICell Location, RoomLayer Layer) mainLocation = group.GroupMembers.GroupBy(x => (Location: x.Location, Layer: x.RoomLayer))
+        (IRoom Location, RoomLayer Layer) mainLocation = group.GroupMembers.GroupBy(x => (Location: x.Location, Layer: x.RoomLayer))
                                 .Select(x => (x.Key, Count: x.Count())).FirstMax(x => x.Count).Key;
         if (mainLocation.Location == null)
         {
@@ -549,7 +549,7 @@ public abstract class PredatorGroupBase : GroupAIType
 
     protected void PruneStaleThreatLocations(IGroupAI group, PredatorGroupData data)
     {
-        foreach (KeyValuePair<ICell, DateTime> location in data.KnownThreatLocations.ToList())
+        foreach (KeyValuePair<IRoom, DateTime> location in data.KnownThreatLocations.ToList())
         {
             if (RuntimeClock.UtcNow - location.Value > TimeSpan.FromHours(12))
             {
@@ -598,7 +598,7 @@ public abstract class PredatorGroupBase : GroupAIType
 
         if (threats.Any() && group.Alertness > GroupAlertness.Agitated)
         {
-            foreach (ICell location in threats.Select(x => x.Location).Distinct())
+            foreach (IRoom location in threats.Select(x => x.Location).Distinct())
             {
                 data.KnownThreatLocations[location] = RuntimeClock.UtcNow;
                 group.Changed = true;
@@ -681,7 +681,7 @@ public abstract class PredatorGroupBase : GroupAIType
 
     protected class PredatorGroupData : BaseGroupTypeData
     {
-        public List<ICell> Territory { get; } = new();
+        public List<IRoom> Territory { get; } = new();
 
         public PredatorGroupData(IFuturemud gameworld) : base(gameworld)
         {
@@ -691,7 +691,7 @@ public abstract class PredatorGroupBase : GroupAIType
         {
             foreach (XElement item in root.Element("Territory").Elements())
             {
-                ICell location = gameworld.Cells.Get(long.Parse(item.Value));
+                IRoom location = gameworld.Rooms.Get(long.Parse(item.Value));
                 if (location is not null)
                 {
                     Territory.Add(location);
@@ -702,7 +702,7 @@ public abstract class PredatorGroupBase : GroupAIType
         public override XElement SaveToXml()
         {
             XElement item = base.SaveToXml();
-            item.Add(new XElement("Territory", from cell in Territory select new XElement("Cell", cell.Id)));
+            item.Add(new XElement("Territory", from room in Territory select new XElement("Cell", room.Id)));
             return item;
         }
 
@@ -718,9 +718,9 @@ public abstract class PredatorGroupBase : GroupAIType
 
             sb.AppendLine($"Territory:");
             sb.AppendLine();
-            foreach (ICell cell in Territory)
+            foreach (IRoom room in Territory)
             {
-                sb.AppendLine($"\t{cell.GetFriendlyReference(voyeur).ColourName()}");
+                sb.AppendLine($"\t{room.GetFriendlyReference(voyeur).ColourName()}");
             }
 
             return sb.ToString();

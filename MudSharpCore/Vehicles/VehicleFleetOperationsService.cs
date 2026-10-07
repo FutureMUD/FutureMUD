@@ -350,13 +350,13 @@ public class VehicleFleetOperationsService : IVehicleFleetOperationsService
 		{
 			foreach (var compartment in vehicle.Compartments)
 			{
-				if (compartment.InteriorCell is null)
+				if (compartment.InteriorRoom is null)
 				{
 					var occupied = concreteVehicle.IsInteriorOccupied(compartment);
 					var action = VehicleRecoveryAction.Warning;
-					var reason = compartment.InteriorCellId is null
+					var reason = compartment.InteriorRoomId is null
 						? $"{compartment.Name} has no hosted interior cell assigned."
-						: $"{compartment.Name} points to missing hosted cell #{compartment.InteriorCellId:N0}.";
+						: $"{compartment.Name} points to missing hosted cell #{compartment.InteriorRoomId:N0}.";
 					var hint = occupied
 						? "restore the missing cell from backup before moving its recorded occupants"
 						: "vehicle recover <vehicle> interior fix";
@@ -367,7 +367,7 @@ public class VehicleFleetOperationsService : IVehicleFleetOperationsService
 					{
 						action = VehicleRecoveryAction.Repaired;
 						reason = recoveryAction == RoomScaleVehicleInteriorService.RecoveryAction.Relinked
-							? $"{compartment.Name} was relinked to persisted hosted cell #{compartment.InteriorCellId:N0}."
+							? $"{compartment.Name} was relinked to persisted hosted cell #{compartment.InteriorRoomId:N0}."
 							: $"{compartment.Name} was assigned a new hosted interior cell.";
 						hint = string.Empty;
 					}
@@ -382,9 +382,9 @@ public class VehicleFleetOperationsService : IVehicleFleetOperationsService
 					continue;
 				}
 
-				if (compartment.InteriorCell is Cell hostedCell &&
-				    (hostedCell.HostedVehicleId != vehicle.Id ||
-				     hostedCell.HostedVehicleCompartmentId != compartment.Id))
+				if (compartment.InteriorRoom is Room hostedRoom &&
+				    (hostedRoom.HostedVehicleId != vehicle.Id ||
+				     hostedRoom.HostedVehicleCompartmentId != compartment.Id))
 				{
 					var action = VehicleRecoveryAction.Warning;
 					if (apply && compartment is VehicleCompartment runtime)
@@ -395,7 +395,7 @@ public class VehicleFleetOperationsService : IVehicleFleetOperationsService
 
 					findings.Add(new VehicleRecoveryFinding(vehicle, VehicleOperationalSubsystem.Interior,
 						VehicleOperationalSeverity.Warning,
-						$"{compartment.Name} cell #{hostedCell.Id:N0} has incorrect hosted-vehicle ownership metadata.",
+						$"{compartment.Name} cell #{hostedRoom.Id:N0} has incorrect hosted-vehicle ownership metadata.",
 						apply ? string.Empty : "vehicle recover <vehicle> interior fix", action));
 				}
 			}
@@ -433,7 +433,7 @@ public class VehicleFleetOperationsService : IVehicleFleetOperationsService
 							.Cast<IVehicleAccessPoint>() ?? []
 						: []
 					: vehicle.AccessPoints)
-				.Where(x => dockingVehicle.CompartmentFor(x.Prototype.Compartment)?.InteriorCell is not null)
+				.Where(x => dockingVehicle.CompartmentFor(x.Prototype.Compartment)?.InteriorRoom is not null)
 				.ToList();
 			var faults = expectedAccess.Where(x =>
 				vehicle.Dockings.All(docking => docking.AccessPoint.Id != x.Id) ||
@@ -447,7 +447,7 @@ public class VehicleFleetOperationsService : IVehicleFleetOperationsService
 					var staleLocation = docking is VehicleDocking routeDocking &&
 					                    vehicle.Location?.RouteDefinition is not null
 						? !VehicleDockingService.IsAtBoundRouteStop(vehicle, routeDocking)
-						: docking.ExteriorCell != vehicle.Location || docking.ExteriorLayer != vehicle.RoomLayer;
+						: docking.ExteriorRoom != vehicle.Location || docking.ExteriorLayer != vehicle.RoomLayer;
 					return staleLocation || x.IsOpen && !x.IsDisabled && !x.IsLocked &&
 						docking is VehicleDocking runtime && !runtime.IsRegistered;
 				}))

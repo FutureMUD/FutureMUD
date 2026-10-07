@@ -114,7 +114,7 @@ namespace MudSharp.Framework
                 }
             }
 
-            string FormatCell(string value, int columnIndex, int columnWidth)
+            string FormatRoom(string value, int columnIndex, int columnWidth)
             {
                 if ((truncateLength != -1) && (columnIndex == truncatableColumnIndex) &&
                     (value.RawTextLength() > truncateLength))
@@ -153,7 +153,7 @@ namespace MudSharp.Framework
                 midseparator.Append(colIndex == columnWidths.Count - 1 ? rmsep : midsep);
                 bottomseparator.Append(new string(horizontal, columnWidth + paddingWidth));
                 bottomseparator.Append(colIndex == columnWidths.Count - 1 ? lrsep : bottomsep);
-                headertext.Append(FormatCell(headerList[colIndex], colIndex, columnWidth));
+                headertext.Append(FormatRoom(headerList[colIndex], colIndex, columnWidth));
                 headertext.Append(vertical);
             }
 
@@ -174,7 +174,7 @@ namespace MudSharp.Framework
                 for (var colIndex = 0; colIndex < columnWidths.Count; colIndex++)
                 {
                     string value = row.Count > colIndex ? row[colIndex] : "";
-                    line.Append(FormatCell(value, colIndex, columnWidths[colIndex]));
+                    line.Append(FormatRoom(value, colIndex, columnWidths[colIndex]));
                     line.Append(vertical);
                 }
 
@@ -186,7 +186,7 @@ namespace MudSharp.Framework
                 StringBuilder line = new(vertical.NoWrap());
                 for (var colIndex = 0; colIndex < columnWidths.Count; colIndex++)
                 {
-                    line.Append(FormatCell("", colIndex, columnWidths[colIndex]));
+                    line.Append(FormatRoom("", colIndex, columnWidths[colIndex]));
                     line.Append(vertical);
                 }
                 sb.AppendLine(line.ToString());
@@ -484,7 +484,7 @@ namespace MudSharp.Framework
             return text.SubstituteSignedLanguage(voyeur, gameworld);
         }
 
-        public static string DrawMap(IPerceiver actor, int maxX, int maxY, ICell[,] cells, bool[,] hasNonCompass, bool[,] hasCartesianClashes, bool[,] hasBank, bool[,] hasShop, bool[,] hasAuctionHouse, bool[,] hasPlayers, bool[,] hasHostiles)
+        public static string DrawMap(IPerceiver actor, int maxX, int maxY, IRoom[,] rooms, bool[,] hasNonCompass, bool[,] hasCartesianClashes, bool[,] hasBank, bool[,] hasShop, bool[,] hasAuctionHouse, bool[,] hasPlayers, bool[,] hasHostiles)
         {
             StringBuilder sb = new();
             sb.AppendLine($"Map of the surrounds of {actor.Location.GetFriendlyReference(actor)}");
@@ -492,13 +492,13 @@ namespace MudSharp.Framework
             bool unicode = actor.Account.UseUnicode;
             void DrawTopLine(int x, int y)
             {
-                ICell cell = (x < maxX && y < maxY) ? cells[x, y] : default;
+                IRoom room = (x < maxX && y < maxY) ? rooms[x, y] : default;
 
-                bool westernBorder = x == 0 || y >= maxY || cells[x - 1, y] is null;
-                bool northernBorder = y == 0 || x >= maxX || cells[x, y - 1] is null;
-                bool northwestBorder = (y == 0 || x == 0 || cells[x - 1, y - 1] is null);
+                bool westernBorder = x == 0 || y >= maxY || rooms[x - 1, y] is null;
+                bool northernBorder = y == 0 || x >= maxX || rooms[x, y - 1] is null;
+                bool northwestBorder = (y == 0 || x == 0 || rooms[x - 1, y - 1] is null);
 
-                if (cell is null)
+                if (room is null)
                 {
                     if (westernBorder && northernBorder && northwestBorder)
                     {
@@ -568,7 +568,7 @@ namespace MudSharp.Framework
                     }
                 }
 
-                if (cell is null)
+                if (room is null)
                 {
                     if (northernBorder)
                     {
@@ -598,7 +598,7 @@ namespace MudSharp.Framework
                     sb.Append("---");
                 }
 
-                ICellExit northExit = cell.ExitsFor(actor, true)
+                IRoomExit northExit = room.ExitsFor(actor, true)
                     .FirstOrDefault(exit => exit.OutboundDirection == CardinalDirection.North);
                 if (northExit is null)
                 {
@@ -694,10 +694,10 @@ namespace MudSharp.Framework
 
             void Draw2ndLine(int x, int y)
             {
-                ICell cell = (x < maxX && y < maxY) ? cells[x, y] : default;
+                IRoom room = (x < maxX && y < maxY) ? rooms[x, y] : default;
                 bool drawWest =
-                    (cell is not null) ||
-                    (x > 0 && y < maxY && cells[x - 1, y] is not null);
+                    (room is not null) ||
+                    (x > 0 && y < maxY && rooms[x - 1, y] is not null);
                 sb.Append(Telnet.BoldWhite.Colour);
                 if (drawWest)
                 {
@@ -715,7 +715,7 @@ namespace MudSharp.Framework
                     sb.Append(" ");
                 }
 
-                if (cell is null)
+                if (room is null)
                 {
                     sb.Append("         ");
                     return;
@@ -754,16 +754,16 @@ namespace MudSharp.Framework
 
             void Draw3rdLine(int x, int y)
             {
-                ICell cell = (x < maxX && y < maxY) ? cells[x, y] : default;
+                IRoom room = (x < maxX && y < maxY) ? rooms[x, y] : default;
                 bool drawWest =
-                    (cell is not null) ||
-                    (x > 0 && y < maxY && cells[x - 1, y] is not null);
+                    (room is not null) ||
+                    (x > 0 && y < maxY && rooms[x - 1, y] is not null);
                 sb.Append(Telnet.BoldWhite.Colour);
                 if (drawWest)
                 {
-                    ICellExit westExit = cell is not null ?
-                        cell.ExitsFor(actor, true).FirstOrDefault(exit => exit.OutboundDirection == CardinalDirection.West) :
-                        cells[x - 1, y].ExitsFor(actor, true).FirstOrDefault(x => x.OutboundDirection == CardinalDirection.East);
+                    IRoomExit westExit = room is not null ?
+                        room.ExitsFor(actor, true).FirstOrDefault(exit => exit.OutboundDirection == CardinalDirection.West) :
+                        rooms[x - 1, y].ExitsFor(actor, true).FirstOrDefault(x => x.OutboundDirection == CardinalDirection.East);
 
                     if (westExit is null)
                     {
@@ -822,25 +822,25 @@ namespace MudSharp.Framework
                     sb.Append(" ");
                 }
 
-                if (cell is null)
+                if (room is null)
                 {
                     sb.Append("         ");
                     return;
                 }
 
                 sb.Append("  ");
-                ITerrain terrain = cell.Terrain(actor);
-                sb.Append(cell.Id.ToString("00000").ColourForegroundCustom(terrain.TerrainANSIColour));
+                ITerrain terrain = room.Terrain(actor);
+                sb.Append(room.Id.ToString("00000").ColourForegroundCustom(terrain.TerrainANSIColour));
                 sb.Append("  ");
                 sb.Append(Telnet.BoldWhite.Colour);
             }
 
             void Draw4thLine(int x, int y)
             {
-                ICell cell = (x < maxX && y < maxY) ? cells[x, y] : default;
+                IRoom room = (x < maxX && y < maxY) ? rooms[x, y] : default;
                 bool drawWest =
-                    (cell is not null) ||
-                    (x > 0 && y < maxY && cells[x - 1, y] is not null);
+                    (room is not null) ||
+                    (x > 0 && y < maxY && rooms[x - 1, y] is not null);
                 sb.Append(Telnet.BoldWhite.Colour);
                 if (drawWest)
                 {
@@ -858,7 +858,7 @@ namespace MudSharp.Framework
                     sb.Append(" ");
                 }
 
-                if (cell is null)
+                if (room is null)
                 {
                     sb.Append("         ");
                     return;

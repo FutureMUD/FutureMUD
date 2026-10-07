@@ -33,10 +33,10 @@ internal static class NpcSurvivalAIHelpers
 		return amount > 0.0 ? amount : character.Gameworld.GetStaticDouble("DefaultSipAmount");
 	}
 
-	public static List<ILiquidContainer> LocalDrinkableLiquids(ICharacter character, ICell cell, bool requireCanDrink = true)
+	public static List<ILiquidContainer> LocalDrinkableLiquids(ICharacter character, IRoom room, bool requireCanDrink = true)
 	{
 		double amount = DrinkAmount(character);
-		IEnumerable<ILiquidContainer> liquids = cell.LayerGameItems(character.RoomLayer)
+		IEnumerable<ILiquidContainer> liquids = room.LayerGameItems(character.RoomLayer)
 		                                           .SelectNotNull(x => x!.GetItemType<ILiquidContainer>())
 		                                           .Where(x => (x.LiquidMixture?.Instances.Sum(y =>
 			                                                       y.Liquid.DrinkSatiatedHoursPerLitre) ?? 0.0) >
@@ -54,16 +54,16 @@ internal static class NpcSurvivalAIHelpers
 		return LocalDrinkableLiquids(character, character.Location).Any();
 	}
 
-	public static bool HasWaterSource(ICharacter character, ICell cell)
+	public static bool HasWaterSource(ICharacter character, IRoom room)
 	{
-		return LocalDrinkableLiquids(character, cell, false).Any();
+		return LocalDrinkableLiquids(character, room, false).Any();
 	}
 
-	public static bool HasAquaticWaterSource(ICharacter character, ICell cell, bool requireSurface)
+	public static bool HasAquaticWaterSource(ICharacter character, IRoom room, bool requireSurface)
 	{
 		return requireSurface
-			? AnimalAI.CellSupportsSurfaceWater(character, cell)
-			: AnimalAI.CellSupportsSwimming(character, cell);
+			? AnimalAI.RoomSupportsSurfaceWater(character, room)
+			: AnimalAI.RoomSupportsSwimming(character, room);
 	}
 
 	public static bool TryDrinkIfThirsty(ICharacter character)
@@ -135,60 +135,60 @@ internal static class NpcSurvivalAIHelpers
 		}
 	}
 
-	public static (ICell? Target, IEnumerable<ICellExit> Path) GetPathToWater(
+	public static (IRoom? Target, IEnumerable<IRoomExit> Path) GetPathToWater(
 		ICharacter character,
-		Func<ICellExit, bool> suitabilityFunction,
+		Func<IRoomExit, bool> suitabilityFunction,
 		int range = DefaultWaterSearchRange)
 	{
 		NpcKnownWaterLocationsEffect? knownWater = NpcKnownWaterLocationsEffect.Get(character);
 		if (knownWater is not null)
 		{
-			foreach (ICell cell in knownWater.KnownWaterLocations.Where(x => !ReferenceEquals(x, character.Location)))
+			foreach (IRoom room in knownWater.KnownWaterLocations.Where(x => !ReferenceEquals(x, character.Location)))
 			{
-				List<ICellExit> path = character.PathBetween(cell, (uint)range, suitabilityFunction).ToList();
+				List<IRoomExit> path = character.PathBetween(room, (uint)range, suitabilityFunction).ToList();
 				if (path.Any())
 				{
-					return (cell, path);
+					return (room, path);
 				}
 			}
 		}
 
-		Tuple<IPerceivable, IEnumerable<ICellExit>> targetPath = character.AcquireTargetAndPath(
-			x => x is ICell cell && HasWaterSource(character, cell),
+		Tuple<IPerceivable, IEnumerable<IRoomExit>> targetPath = character.AcquireTargetAndPath(
+			x => x is IRoom room && HasWaterSource(character, room),
 			(uint)range,
 			suitabilityFunction);
-		return targetPath.Item1 is ICell target && targetPath.Item2.Any()
+		return targetPath.Item1 is IRoom target && targetPath.Item2.Any()
 			? (target, targetPath.Item2)
-			: (null, Enumerable.Empty<ICellExit>());
+			: (null, Enumerable.Empty<IRoomExit>());
 	}
 
-	public static (ICell? Target, IEnumerable<ICellExit> Path) GetPathToAquaticWater(
+	public static (IRoom? Target, IEnumerable<IRoomExit> Path) GetPathToAquaticWater(
 		ICharacter character,
-		Func<ICellExit, bool> suitabilityFunction,
+		Func<IRoomExit, bool> suitabilityFunction,
 		int range = DefaultWaterSearchRange,
 		bool requireSurface = false)
 	{
 		NpcKnownWaterLocationsEffect? knownWater = NpcKnownWaterLocationsEffect.Get(character);
 		if (knownWater is not null)
 		{
-			foreach (ICell cell in knownWater.KnownWaterLocations.Where(x =>
+			foreach (IRoom room in knownWater.KnownWaterLocations.Where(x =>
 				         !ReferenceEquals(x, character.Location) &&
 				         HasAquaticWaterSource(character, x, requireSurface)))
 			{
-				List<ICellExit> path = character.PathBetween(cell, (uint)range, suitabilityFunction).ToList();
+				List<IRoomExit> path = character.PathBetween(room, (uint)range, suitabilityFunction).ToList();
 				if (path.Any())
 				{
-					return (cell, path);
+					return (room, path);
 				}
 			}
 		}
 
-		Tuple<IPerceivable, IEnumerable<ICellExit>> targetPath = character.AcquireTargetAndPath(
-			x => x is ICell cell && HasAquaticWaterSource(character, cell, requireSurface),
+		Tuple<IPerceivable, IEnumerable<IRoomExit>> targetPath = character.AcquireTargetAndPath(
+			x => x is IRoom room && HasAquaticWaterSource(character, room, requireSurface),
 			(uint)range,
 			suitabilityFunction);
-		return targetPath.Item1 is ICell target && targetPath.Item2.Any()
+		return targetPath.Item1 is IRoom target && targetPath.Item2.Any()
 			? (target, targetPath.Item2)
-			: (null, Enumerable.Empty<ICellExit>());
+			: (null, Enumerable.Empty<IRoomExit>());
 	}
 }

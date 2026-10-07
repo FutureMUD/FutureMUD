@@ -102,7 +102,7 @@ public class TelecommunicationsGridCreatorGameItemComponent : GameItemComponent
         );
     }
 
-    private ITelecommunicationsGrid CreateGrid(ICell? initialLocation, bool temporary = false)
+    private ITelecommunicationsGrid CreateGrid(IRoom? initialLocation, bool temporary = false)
     {
         TelecommunicationsGrid grid = new(Gameworld, initialLocation, _prototype.Prefix, _prototype.NumberLength,
             _prototype.HostedVoicemailEnabled, _prototype.HostedVoicemailAccessCode);

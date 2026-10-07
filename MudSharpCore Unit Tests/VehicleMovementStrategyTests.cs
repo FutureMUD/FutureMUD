@@ -24,7 +24,7 @@ public class VehicleMovementStrategyTests
 	[TestMethod]
 	public void CanMove_WhenActorIsNotController_Fails()
 	{
-		var strategy = new CellExitVehicleMovementStrategy();
+		var strategy = new RoomExitVehicleMovementStrategy();
 		var controller = new Mock<ICharacter>();
 		var actor = new Mock<ICharacter>();
 		var vehicle = CreateVehicle(controller.Object, [], SizeCategory.Normal);
@@ -37,9 +37,9 @@ public class VehicleMovementStrategyTests
 	}
 
 	[TestMethod]
-	public void CanMove_WhenVehicleHasNoCellExitProfile_Fails()
+	public void CanMove_WhenVehicleHasNoRoomExitProfile_Fails()
 	{
-		var strategy = new CellExitVehicleMovementStrategy();
+		var strategy = new RoomExitVehicleMovementStrategy();
 		var controller = new Mock<ICharacter>();
 		var vehicle = CreateVehicle(controller.Object, [], SizeCategory.Normal);
 		var exit = CreateExit(vehicle.Location, SizeCategory.Normal);
@@ -53,10 +53,10 @@ public class VehicleMovementStrategyTests
 	[TestMethod]
 	public void CanMove_WhenActorIsInDifferentLocation_Fails()
 	{
-		var strategy = new CellExitVehicleMovementStrategy();
+		var strategy = new RoomExitVehicleMovementStrategy();
 		var controller = new Mock<ICharacter>();
-		var vehicle = CreateVehicle(controller.Object, [VehicleMovementProfileType.CellExit], SizeCategory.Large);
-		var actorLocation = new Mock<ICell>();
+		var vehicle = CreateVehicle(controller.Object, [VehicleMovementProfileType.RoomExit], SizeCategory.Large);
+		var actorLocation = new Mock<IRoom>();
 		controller.SetupGet(x => x.Location).Returns(actorLocation.Object);
 		var exit = CreateExit(vehicle.Location, SizeCategory.Huge);
 
@@ -69,9 +69,9 @@ public class VehicleMovementStrategyTests
 	[TestMethod]
 	public void CanMove_WhenActorIsOnDifferentRoomLayer_Fails()
 	{
-		var strategy = new CellExitVehicleMovementStrategy();
+		var strategy = new RoomExitVehicleMovementStrategy();
 		var controller = new Mock<ICharacter>();
-		var vehicle = CreateVehicle(controller.Object, [VehicleMovementProfileType.CellExit], SizeCategory.Large);
+		var vehicle = CreateVehicle(controller.Object, [VehicleMovementProfileType.RoomExit], SizeCategory.Large);
 		controller.SetupGet(x => x.RoomLayer).Returns(RoomLayer.InTrees);
 		var exit = CreateExit(vehicle.Location, SizeCategory.Huge);
 
@@ -84,9 +84,9 @@ public class VehicleMovementStrategyTests
 	[TestMethod]
 	public void CanMove_WhenExitIsTooSmall_Fails()
 	{
-		var strategy = new CellExitVehicleMovementStrategy();
+		var strategy = new RoomExitVehicleMovementStrategy();
 		var controller = new Mock<ICharacter>();
-		var vehicle = CreateVehicle(controller.Object, [VehicleMovementProfileType.CellExit], SizeCategory.Huge);
+		var vehicle = CreateVehicle(controller.Object, [VehicleMovementProfileType.RoomExit], SizeCategory.Huge);
 		var exit = CreateExit(vehicle.Location, SizeCategory.Normal);
 
 		var result = strategy.CanMove(vehicle, controller.Object, exit, out var reason);
@@ -98,9 +98,9 @@ public class VehicleMovementStrategyTests
 	[TestMethod]
 	public void CanMove_WhenExitIsValid_Succeeds()
 	{
-		var strategy = new CellExitVehicleMovementStrategy();
+		var strategy = new RoomExitVehicleMovementStrategy();
 		var controller = new Mock<ICharacter>();
-		var vehicle = CreateVehicle(controller.Object, [VehicleMovementProfileType.CellExit], SizeCategory.Large);
+		var vehicle = CreateVehicle(controller.Object, [VehicleMovementProfileType.RoomExit], SizeCategory.Large);
 		var exit = CreateExit(vehicle.Location, SizeCategory.Huge);
 
 		var result = strategy.CanMove(vehicle, controller.Object, exit, out var reason);
@@ -113,10 +113,10 @@ public class VehicleMovementStrategyTests
 	public void CanMove_WhenExitDoorIsClosed_FailsBeforeReadiness()
 	{
 		var readiness = new Mock<IVehicleOperationalReadinessService>();
-		var strategy = new CellExitVehicleMovementStrategy(new Mock<IVehicleTowService>().Object,
+		var strategy = new RoomExitVehicleMovementStrategy(new Mock<IVehicleTowService>().Object,
 			new Mock<IVehicleHitchGraphService>().Object, readiness.Object);
 		var controller = new Mock<ICharacter>();
-		var vehicle = CreateVehicle(controller.Object, [VehicleMovementProfileType.CellExit], SizeCategory.Normal);
+		var vehicle = CreateVehicle(controller.Object, [VehicleMovementProfileType.RoomExit], SizeCategory.Normal);
 		var exit = CreateExit(vehicle.Location, SizeCategory.Normal);
 		var door = new Mock<IDoor>();
 		door.SetupGet(x => x.IsOpen).Returns(false);
@@ -130,7 +130,7 @@ public class VehicleMovementStrategyTests
 	}
 
 	[TestMethod]
-	public void CellExitEchoes_SeparateExteriorAndHostedInteriorAudiences()
+	public void RoomExitEchoes_SeparateExteriorAndHostedInteriorAudiences()
 	{
 		var originObserverOutput = new Mock<IOutputHandler>();
 		var originObserver = new Mock<ICharacter>();
@@ -140,18 +140,18 @@ public class VehicleMovementStrategyTests
 		var destinationObserver = new Mock<ICharacter>();
 		destinationObserver.SetupGet(x => x.OutputHandler).Returns(destinationObserverOutput.Object);
 		destinationObserver.SetupGet(x => x.Effects).Returns([]);
-		var origin = new Mock<ICell>();
-		origin.SetupGet(x => x.Cells).Returns([origin.Object]);
+		var origin = new Mock<IRoom>();
+		origin.SetupGet(x => x.Rooms).Returns([origin.Object]);
 		origin.SetupGet(x => x.Characters).Returns([originObserver.Object]);
 		origin.Setup(x => x.LayerCharacters(RoomLayer.GroundLevel)).Returns([originObserver.Object]);
 		origin.SetupGet(x => x.Effects).Returns([]);
-		var destination = new Mock<ICell>();
-		destination.SetupGet(x => x.Cells).Returns([destination.Object]);
+		var destination = new Mock<IRoom>();
+		destination.SetupGet(x => x.Rooms).Returns([destination.Object]);
 		destination.SetupGet(x => x.Characters).Returns([destinationObserver.Object]);
 		destination.Setup(x => x.LayerCharacters(RoomLayer.GroundLevel)).Returns([destinationObserver.Object]);
 		destination.SetupGet(x => x.Effects).Returns([]);
 
-		ICell exteriorLocation = origin.Object;
+		IRoom exteriorLocation = origin.Object;
 		var exteriorOutput = new Mock<IOutputHandler>();
 		var exterior = new Mock<IGameItem>();
 		exterior.SetupGet(x => x.Location).Returns(() => exteriorLocation);
@@ -165,12 +165,12 @@ public class VehicleMovementStrategyTests
 		var interiorOccupant = new Mock<ICharacter>();
 		interiorOccupant.SetupGet(x => x.OutputHandler).Returns(interiorOutput.Object);
 		interiorOccupant.SetupGet(x => x.Effects).Returns([]);
-		var interior = new Mock<ICell>();
-		interior.SetupGet(x => x.Cells).Returns([interior.Object]);
+		var interior = new Mock<IRoom>();
+		interior.SetupGet(x => x.Rooms).Returns([interior.Object]);
 		interior.SetupGet(x => x.Characters).Returns([interiorOccupant.Object]);
 		interior.SetupGet(x => x.Effects).Returns([]);
 		var compartment = new Mock<IVehicleCompartment>();
-		compartment.SetupGet(x => x.InteriorCell).Returns(interior.Object);
+		compartment.SetupGet(x => x.InteriorRoom).Returns(interior.Object);
 		var prototype = new Mock<IVehiclePrototype>();
 		prototype.SetupGet(x => x.Scale).Returns(VehicleScale.RoomScale);
 		var vehicle = new Mock<IVehicle>();
@@ -179,14 +179,14 @@ public class VehicleMovementStrategyTests
 		vehicle.SetupGet(x => x.Prototype).Returns(prototype.Object);
 		vehicle.SetupGet(x => x.Compartments).Returns([compartment.Object]);
 		var exitModel = new Mock<IExit>();
-		var exit = new Mock<ICellExit>();
+		var exit = new Mock<IRoomExit>();
 		exit.SetupGet(x => x.Exit).Returns(exitModel.Object);
 		exit.SetupGet(x => x.Origin).Returns(origin.Object);
 		exit.SetupGet(x => x.Destination).Returns(destination.Object);
 		exit.SetupGet(x => x.OutboundMovementSuffix).Returns("east");
 		exit.SetupGet(x => x.InboundMovementSuffix).Returns("from the west");
 		var actor = new Mock<ICharacter>();
-		var strategy = new CellExitVehicleMovementStrategy(new Mock<IVehicleTowService>().Object,
+		var strategy = new RoomExitVehicleMovementStrategy(new Mock<IVehicleTowService>().Object,
 			new Mock<IVehicleHitchGraphService>().Object, new Mock<IVehicleOperationalReadinessService>().Object);
 
 		strategy.EchoDeparture(vehicle.Object, actor.Object, exit.Object, [vehicle.Object]);
@@ -202,10 +202,10 @@ public class VehicleMovementStrategyTests
 	}
 
 	[TestMethod]
-	public void CanMove_SurfaceWaterProfileBetweenSurfaceWaterCells_Succeeds()
+	public void CanMove_SurfaceWaterProfileBetweenSurfaceWaterRooms_Succeeds()
 	{
 		var controller = new Mock<ICharacter>();
-		var vehicle = CreateVehicle(controller.Object, [VehicleMovementProfileType.CellExit], SizeCategory.Large,
+		var vehicle = CreateVehicle(controller.Object, [VehicleMovementProfileType.RoomExit], SizeCategory.Large,
 			VehicleMovementEnvironment.SurfaceWater);
 		Mock.Get(vehicle.Location)
 		    .Setup(x => x.IsSwimmingLayer(RoomLayer.GroundLevel))
@@ -215,7 +215,7 @@ public class VehicleMovementStrategyTests
 		    .Setup(x => x.IsSwimmingLayer(RoomLayer.GroundLevel))
 		    .Returns(true);
 
-		var result = new CellExitVehicleMovementStrategy().CanMove(vehicle, controller.Object, exit, out var reason);
+		var result = new RoomExitVehicleMovementStrategy().CanMove(vehicle, controller.Object, exit, out var reason);
 
 		Assert.IsTrue(result, reason);
 		Assert.AreEqual(string.Empty, reason);
@@ -225,14 +225,14 @@ public class VehicleMovementStrategyTests
 	public void CanMove_SurfaceWaterProfileFromLand_Fails()
 	{
 		var controller = new Mock<ICharacter>();
-		var vehicle = CreateVehicle(controller.Object, [VehicleMovementProfileType.CellExit], SizeCategory.Large,
+		var vehicle = CreateVehicle(controller.Object, [VehicleMovementProfileType.RoomExit], SizeCategory.Large,
 			VehicleMovementEnvironment.SurfaceWater);
 		var exit = CreateExit(vehicle.Location, SizeCategory.Huge);
 		Mock.Get(exit.Destination)
 		    .Setup(x => x.IsSwimmingLayer(RoomLayer.GroundLevel))
 		    .Returns(true);
 
-		var result = new CellExitVehicleMovementStrategy().CanMove(vehicle, controller.Object, exit, out var reason);
+		var result = new RoomExitVehicleMovementStrategy().CanMove(vehicle, controller.Object, exit, out var reason);
 
 		Assert.IsFalse(result);
 		StringAssert.Contains(reason, "not at the surface of a water location");
@@ -242,14 +242,14 @@ public class VehicleMovementStrategyTests
 	public void CanMove_SurfaceWaterProfileToLand_Fails()
 	{
 		var controller = new Mock<ICharacter>();
-		var vehicle = CreateVehicle(controller.Object, [VehicleMovementProfileType.CellExit], SizeCategory.Large,
+		var vehicle = CreateVehicle(controller.Object, [VehicleMovementProfileType.RoomExit], SizeCategory.Large,
 			VehicleMovementEnvironment.SurfaceWater);
 		Mock.Get(vehicle.Location)
 		    .Setup(x => x.IsSwimmingLayer(RoomLayer.GroundLevel))
 		    .Returns(true);
 		var exit = CreateExit(vehicle.Location, SizeCategory.Huge);
 
-		var result = new CellExitVehicleMovementStrategy().CanMove(vehicle, controller.Object, exit, out var reason);
+		var result = new RoomExitVehicleMovementStrategy().CanMove(vehicle, controller.Object, exit, out var reason);
 
 		Assert.IsFalse(result);
 		StringAssert.Contains(reason, "only move to another surface-water location");
@@ -259,7 +259,7 @@ public class VehicleMovementStrategyTests
 	public void CanMove_SurfaceWaterProfileToUnderwaterLayer_Fails()
 	{
 		var controller = new Mock<ICharacter>();
-		var vehicle = CreateVehicle(controller.Object, [VehicleMovementProfileType.CellExit], SizeCategory.Large,
+		var vehicle = CreateVehicle(controller.Object, [VehicleMovementProfileType.RoomExit], SizeCategory.Large,
 			VehicleMovementEnvironment.SurfaceWater);
 		Mock.Get(vehicle.Location)
 		    .Setup(x => x.IsSwimmingLayer(RoomLayer.GroundLevel))
@@ -270,9 +270,9 @@ public class VehicleMovementStrategyTests
 		    .Returns(true);
 		Mock.Get(exit)
 		    .Setup(x => x.MovementTransition(controller.Object))
-		    .Returns((CellMovementTransition.SwimOnly, RoomLayer.Underwater));
+		    .Returns((RoomMovementTransition.SwimOnly, RoomLayer.Underwater));
 
-		var result = new CellExitVehicleMovementStrategy().CanMove(vehicle, controller.Object, exit, out var reason);
+		var result = new RoomExitVehicleMovementStrategy().CanMove(vehicle, controller.Object, exit, out var reason);
 
 		Assert.IsFalse(result);
 		StringAssert.Contains(reason, "only move to another surface-water location");
@@ -281,9 +281,9 @@ public class VehicleMovementStrategyTests
 	[TestMethod]
 	public void CanMove_WhenExteriorItemPreventsMovement_Fails()
 	{
-		var strategy = new CellExitVehicleMovementStrategy();
+		var strategy = new RoomExitVehicleMovementStrategy();
 		var controller = new Mock<ICharacter>();
-		var vehicle = CreateVehicle(controller.Object, [VehicleMovementProfileType.CellExit], SizeCategory.Large);
+		var vehicle = CreateVehicle(controller.Object, [VehicleMovementProfileType.RoomExit], SizeCategory.Large);
 		Mock.Get(vehicle.ExteriorItem).Setup(x => x.PreventsMovement()).Returns(true);
 		Mock.Get(vehicle.ExteriorItem).Setup(x => x.WhyPreventsMovement(controller.Object))
 		    .Returns("the charging lead is still connected");
@@ -299,11 +299,11 @@ public class VehicleMovementStrategyTests
 	public void CanMove_WhenExteriorProjectionIsMissing_FailsClosed()
 	{
 		var controller = new Mock<ICharacter>();
-		var vehicle = CreateVehicle(controller.Object, [VehicleMovementProfileType.CellExit], SizeCategory.Large);
+		var vehicle = CreateVehicle(controller.Object, [VehicleMovementProfileType.RoomExit], SizeCategory.Large);
 		Mock.Get(vehicle).SetupGet(x => x.ExteriorItem).Returns((IGameItem)null!);
 		var exit = CreateExit(vehicle.Location, SizeCategory.Huge);
 
-		var result = new CellExitVehicleMovementStrategy().CanMove(vehicle, controller.Object, exit, out var reason);
+		var result = new RoomExitVehicleMovementStrategy().CanMove(vehicle, controller.Object, exit, out var reason);
 
 		Assert.IsFalse(result);
 		StringAssert.Contains(reason, "intact linked exterior");
@@ -314,10 +314,10 @@ public class VehicleMovementStrategyTests
 	{
 		var controller = new Mock<ICharacter>();
 		controller.SetupGet(x => x.Combat).Returns(new Mock<ICombat>().Object);
-		var vehicle = CreateVehicle(controller.Object, [VehicleMovementProfileType.CellExit], SizeCategory.Large);
+		var vehicle = CreateVehicle(controller.Object, [VehicleMovementProfileType.RoomExit], SizeCategory.Large);
 		var exit = CreateExit(vehicle.Location, SizeCategory.Huge);
 
-		var result = new CellExitVehicleMovementStrategy().CanMove(vehicle, controller.Object, exit, out var reason);
+		var result = new RoomExitVehicleMovementStrategy().CanMove(vehicle, controller.Object, exit, out var reason);
 
 		Assert.IsFalse(result);
 		StringAssert.Contains(reason, "combat");
@@ -327,7 +327,7 @@ public class VehicleMovementStrategyTests
 	public void CanMove_WhenRequiredCrewSlotIsEmpty_Fails()
 	{
 		var controller = new Mock<ICharacter>();
-		var vehicle = CreateVehicle(controller.Object, [VehicleMovementProfileType.CellExit], SizeCategory.Large);
+		var vehicle = CreateVehicle(controller.Object, [VehicleMovementProfileType.RoomExit], SizeCategory.Large);
 		var requiredSlot = new Mock<IVehicleOccupantSlotPrototype>();
 		requiredSlot.SetupGet(x => x.Id).Returns(42L);
 		requiredSlot.SetupGet(x => x.Name).Returns("brake operator");
@@ -336,7 +336,7 @@ public class VehicleMovementStrategyTests
 		Mock.Get(vehicle).SetupGet(x => x.Occupancies).Returns([]);
 		var exit = CreateExit(vehicle.Location, SizeCategory.Huge);
 
-		var result = new CellExitVehicleMovementStrategy().CanMove(vehicle, controller.Object, exit, out var reason);
+		var result = new RoomExitVehicleMovementStrategy().CanMove(vehicle, controller.Object, exit, out var reason);
 
 		Assert.IsFalse(result);
 		StringAssert.Contains(reason, "brake operator");
@@ -346,7 +346,7 @@ public class VehicleMovementStrategyTests
 	public void TryPrepareMove_DelayedPreflightRollsTowCatastropheOnlyAtCommit()
 	{
 		var controller = new Mock<ICharacter>();
-		var vehicle = CreateVehicle(controller.Object, [VehicleMovementProfileType.CellExit], SizeCategory.Large);
+		var vehicle = CreateVehicle(controller.Object, [VehicleMovementProfileType.RoomExit], SizeCategory.Large);
 		var exit = CreateExit(vehicle.Location, SizeCategory.Huge);
 		var plan = new VehicleHitchGraphMovePlan(vehicle,
 			[new VehicleHitchGraphTrainMember(vehicle, 0, null)], [], [], 0.0);
@@ -356,7 +356,7 @@ public class VehicleMovementStrategyTests
 		                .Returns(readiness);
 		readinessService.Setup(x => x.RollTowCatastrophe(plan, controller.Object))
 		                .Returns(new VehicleTowCatastropheResult(false, null, string.Empty, [], []));
-		var strategy = new CellExitVehicleMovementStrategy(new Mock<IVehicleTowService>().Object,
+		var strategy = new RoomExitVehicleMovementStrategy(new Mock<IVehicleTowService>().Object,
 			new Mock<IVehicleHitchGraphService>().Object, readinessService.Object);
 
 		var initial = strategy.TryPrepareMove(vehicle, controller.Object, exit, false, out _, out _, out _, out _);
@@ -370,9 +370,9 @@ public class VehicleMovementStrategyTests
 	[TestMethod]
 	public void CanMove_WhenMovementProfileDisabledByDamage_Fails()
 	{
-		var strategy = new CellExitVehicleMovementStrategy();
+		var strategy = new RoomExitVehicleMovementStrategy();
 		var controller = new Mock<ICharacter>();
-		var vehicle = CreateVehicle(controller.Object, [VehicleMovementProfileType.CellExit], SizeCategory.Large);
+		var vehicle = CreateVehicle(controller.Object, [VehicleMovementProfileType.RoomExit], SizeCategory.Large);
 		var profile = vehicle.Prototype.MovementProfiles.Single();
 		Mock.Get(vehicle)
 		    .Setup(x => x.IsDisabledByDamage(VehicleDamageEffectTargetType.MovementProfile, profile.Id))
@@ -391,10 +391,10 @@ public class VehicleMovementStrategyTests
 	[TestMethod]
 	public void CanMove_WhenTowPointDisabledByDamage_Fails()
 	{
-		var strategy = new CellExitVehicleMovementStrategy();
+		var strategy = new RoomExitVehicleMovementStrategy();
 		var controller = new Mock<ICharacter>();
-		var vehicle = CreateVehicle(controller.Object, [VehicleMovementProfileType.CellExit], SizeCategory.Large);
-		var target = CreateVehicle(new Mock<ICharacter>().Object, [VehicleMovementProfileType.CellExit], SizeCategory.Large);
+		var vehicle = CreateVehicle(controller.Object, [VehicleMovementProfileType.RoomExit], SizeCategory.Large);
+		var target = CreateVehicle(new Mock<ICharacter>().Object, [VehicleMovementProfileType.RoomExit], SizeCategory.Large);
 		Mock.Get(target).SetupGet(x => x.Location).Returns(vehicle.Location);
 		Mock.Get(target).SetupGet(x => x.RoomLayer).Returns(vehicle.RoomLayer);
 		var sourcePoint = new Mock<IVehicleTowPointPrototype>();
@@ -580,7 +580,7 @@ public class VehicleMovementStrategyTests
 	[TestMethod]
 	public void CanBoard_WhenActorIsAlreadyOccupyingAnotherVehicle_Fails()
 	{
-		var location = new Mock<ICell>();
+		var location = new Mock<IRoom>();
 		location.SetupGet(x => x.Id).Returns(42L);
 
 		var slot = new Mock<IVehicleOccupantSlotPrototype>();
@@ -593,8 +593,8 @@ public class VehicleMovementStrategyTests
 		var prototypes = new Mock<IUneditableRevisableAll<IVehiclePrototype>>();
 		prototypes.Setup(x => x.Get(10L, 0)).Returns(prototype.Object);
 
-		var cells = new Mock<IUneditableAll<ICell>>();
-		cells.Setup(x => x.Get(42L)).Returns(location.Object);
+		var rooms = new Mock<IUneditableAll<IRoom>>();
+		rooms.Setup(x => x.Get(42L)).Returns(location.Object);
 
 		var actor = new Mock<ICharacter>();
 		actor.SetupGet(x => x.Location).Returns(location.Object);
@@ -607,7 +607,7 @@ public class VehicleMovementStrategyTests
 		vehicles.Setup(x => x.GetEnumerator()).Returns(() => vehicleList.GetEnumerator());
 
 		var gameworld = new Mock<IFuturemud>();
-		gameworld.SetupGet(x => x.Cells).Returns(cells.Object);
+		gameworld.SetupGet(x => x.Rooms).Returns(rooms.Object);
 		gameworld.SetupGet(x => x.VehiclePrototypes).Returns(prototypes.Object);
 		gameworld.SetupGet(x => x.Vehicles).Returns(vehicles.Object);
 		actor.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
@@ -618,8 +618,8 @@ public class VehicleMovementStrategyTests
 			Name = "Test Vehicle",
 			VehicleProtoId = 10L,
 			VehicleProtoRevision = 0,
-			LocationType = (int)VehicleLocationType.Cell,
-			CurrentCellId = 42L,
+			LocationType = (int)VehicleLocationType.Room,
+			CurrentRoomId = 42L,
 			CurrentRoomLayer = (int)RoomLayer.GroundLevel,
 			MovementStatus = (int)VehicleMovementStatus.Stationary
 		}, gameworld.Object);
@@ -633,14 +633,14 @@ public class VehicleMovementStrategyTests
 	[TestMethod]
 	public void RecoverInterruptedMovement_ClearsMovingTransitState()
 	{
-		var location = new Mock<ICell>();
+		var location = new Mock<IRoom>();
 		location.SetupGet(x => x.Id).Returns(42);
 
-		var cells = new Mock<IUneditableAll<ICell>>();
-		cells.Setup(x => x.Get(42)).Returns(location.Object);
+		var rooms = new Mock<IUneditableAll<IRoom>>();
+		rooms.Setup(x => x.Get(42)).Returns(location.Object);
 
 		var gameworld = new Mock<IFuturemud>();
-		gameworld.SetupGet(x => x.Cells).Returns(cells.Object);
+		gameworld.SetupGet(x => x.Rooms).Returns(rooms.Object);
 		gameworld.SetupGet(x => x.SaveManager).Returns(new Mock<ISaveManager>().Object);
 
 		var vehicle = new Vehicle(new DB.Vehicle
@@ -649,20 +649,20 @@ public class VehicleMovementStrategyTests
 			Name = "Test Vehicle",
 			VehicleProtoId = 10,
 			VehicleProtoRevision = 0,
-			LocationType = (int)VehicleLocationType.CellExitTransit,
-			CurrentCellId = 42,
+			LocationType = (int)VehicleLocationType.RoomExitTransit,
+			CurrentRoomId = 42,
 			CurrentRoomLayer = (int)RoomLayer.GroundLevel,
 			MovementStatus = (int)VehicleMovementStatus.Moving,
 			CurrentExitId = 99,
-			DestinationCellId = 100
+			DestinationRoomId = 100
 		}, gameworld.Object);
 
 		vehicle.RecoverInterruptedMovement();
 
-		Assert.AreEqual(VehicleLocationType.Cell, vehicle.MovementState.LocationType);
+		Assert.AreEqual(VehicleLocationType.Room, vehicle.MovementState.LocationType);
 		Assert.AreEqual(VehicleMovementStatus.Stationary, vehicle.MovementState.MovementStatus);
 		Assert.IsNull(vehicle.MovementState.CurrentExitId);
-		Assert.IsNull(vehicle.MovementState.DestinationCellId);
+		Assert.IsNull(vehicle.MovementState.DestinationRoomId);
 		Assert.IsTrue(vehicle.Changed);
 	}
 
@@ -670,7 +670,7 @@ public class VehicleMovementStrategyTests
 		SizeCategory exteriorSize, VehicleMovementEnvironment environment = VehicleMovementEnvironment.Unrestricted)
 	{
 		PhysicalManipulationTestHelper.SetUpUsableHands(Mock.Get(controller));
-		var location = new Mock<ICell>();
+		var location = new Mock<IRoom>();
 		var item = new Mock<IGameItem>();
 		item.SetupGet(x => x.Size).Returns(exteriorSize);
 		item.SetupGet(x => x.Location).Returns(location.Object);
@@ -698,23 +698,23 @@ public class VehicleMovementStrategyTests
 		vehicle.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
 		vehicle.SetupGet(x => x.Prototype).Returns(prototype.Object);
 		vehicle.SetupGet(x => x.MovementProfile)
-		       .Returns(profiles.FirstOrDefault(x => x.MovementType == VehicleMovementProfileType.CellExit)!);
+		       .Returns(profiles.FirstOrDefault(x => x.MovementType == VehicleMovementProfileType.RoomExit)!);
 		vehicle.SetupGet(x => x.ExteriorItem).Returns(item.Object);
 		return vehicle.Object;
 	}
 
-	private static ICellExit CreateExit(ICell origin, SizeCategory maximumSize)
+	private static IRoomExit CreateExit(IRoom origin, SizeCategory maximumSize)
 	{
-		var destination = new Mock<ICell>();
+		var destination = new Mock<IRoom>();
 		var exit = new Mock<IExit>();
 		exit.SetupGet(x => x.MaximumSizeToEnter).Returns(maximumSize);
 
-		var cellExit = new Mock<ICellExit>();
+		var cellExit = new Mock<IRoomExit>();
 		cellExit.SetupGet(x => x.Origin).Returns(origin);
 		cellExit.SetupGet(x => x.Destination).Returns(destination.Object);
 		cellExit.SetupGet(x => x.Exit).Returns(exit.Object);
 		cellExit.Setup(x => x.MovementTransition(It.IsAny<IPerceiver>()))
-		        .Returns((CellMovementTransition.GroundToGround, RoomLayer.GroundLevel));
+		        .Returns((RoomMovementTransition.GroundToGround, RoomLayer.GroundLevel));
 		return cellExit.Object;
 	}
 }

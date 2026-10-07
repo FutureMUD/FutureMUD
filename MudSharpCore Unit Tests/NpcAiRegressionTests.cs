@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -131,17 +131,17 @@ public class NpcAiRegressionTests
 			<Refuge type="Home" /></Definition>
 			""", prog => prog.Setup(x => x.ExecuteBool(false, It.IsAny<object[]>())).Returns(true));
 		var character = new Mock<ICharacter>();
-		var origin = new Mock<ICell>();
-		var destination = new Mock<ICell>();
+		var origin = new Mock<IRoom>();
+		var destination = new Mock<IRoom>();
 		destination.SetupGet(x => x.Id).Returns(2);
 		destination.SetupGet(x => x.Location).Returns(destination.Object);
-		var cells = new All<ICell>();
-		cells.Add(destination.Object);
+		var rooms = new All<IRoom>();
+		rooms.Add(destination.Object);
 		var world = new Mock<IFuturemud>();
-		world.SetupGet(x => x.Cells).Returns(cells);
+		world.SetupGet(x => x.Rooms).Returns(rooms);
 		character.SetupGet(x => x.Gameworld).Returns(world.Object);
 		character.SetupGet(x => x.Location).Returns(origin.Object);
-		var exit = new Mock<ICellExit>();
+		var exit = new Mock<IRoomExit>();
 		exit.SetupGet(x => x.Origin).Returns(origin.Object);
 		exit.SetupGet(x => x.Destination).Returns(destination.Object);
 		origin.Setup(x => x.ExitsFor(null, true)).Returns([exit.Object]);
@@ -149,7 +149,7 @@ public class NpcAiRegressionTests
 		character.Setup(x => x.CanMove(exit.Object, It.IsAny<CanMoveFlags>())).Returns(CanMoveResponse.True);
 		character.Setup(x => x.CanMoveForPathPlanning(exit.Object, It.IsAny<CanMoveFlags>())).Returns(CanMoveResponse.True);
 		var home = new NpcHomeBaseEffect(character.Object);
-		home.SetHomeCell(destination.Object);
+		home.SetHomeRoom(destination.Object);
 		character.Setup(x => x.CombinedEffectsOfType<NpcHomeBaseEffect>()).Returns([home]);
 		FollowingPath? created = null;
 		character.Setup(x => x.AddEffect(It.IsAny<IEffect>())).Callback<IEffect>(effect =>
@@ -178,9 +178,9 @@ public class NpcAiRegressionTests
 		var character = new Mock<ICharacter>();
 		var terrain = new Mock<ITerrain>();
 		terrain.SetupGet(x => x.GravityModel).Returns(GravityModel.Normal);
-		var cell = new Mock<ICell>();
-		cell.Setup(x => x.Terrain(character.Object)).Returns(terrain.Object);
-		character.SetupGet(x => x.Location).Returns(cell.Object);
+		var room = new Mock<IRoom>();
+		room.Setup(x => x.Terrain(character.Object)).Returns(terrain.Object);
+		character.SetupGet(x => x.Location).Returns(room.Object);
 		character.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
 		character.Setup(x => x.CanFly()).Returns((true, string.Empty));
 		FollowingMultiLayerPath? created = null;
@@ -220,7 +220,7 @@ public class NpcAiRegressionTests
     }
 
     [TestMethod]
-    public void ArborealWandererAI_CellSupportsTreeLayers_DetectsTreeCapableTerrain()
+    public void ArborealWandererAI_RoomSupportsTreeLayers_DetectsTreeCapableTerrain()
     {
         Mock<ICharacter> character = new();
         Mock<ITerrain> treeTerrain = new();
@@ -228,13 +228,13 @@ public class NpcAiRegressionTests
         Mock<ITerrain> groundTerrain = new();
         groundTerrain.SetupGet(x => x.TerrainLayers).Returns(new[] { RoomLayer.GroundLevel });
 
-        Mock<ICell> treeCell = new();
-        treeCell.Setup(x => x.Terrain(character.Object)).Returns(treeTerrain.Object);
-        Mock<ICell> groundCell = new();
-        groundCell.Setup(x => x.Terrain(character.Object)).Returns(groundTerrain.Object);
+        Mock<IRoom> treeRoom = new();
+        treeRoom.Setup(x => x.Terrain(character.Object)).Returns(treeTerrain.Object);
+        Mock<IRoom> groundRoom = new();
+        groundRoom.Setup(x => x.Terrain(character.Object)).Returns(groundTerrain.Object);
 
-        Assert.IsTrue(ArborealWandererAI.CellSupportsTreeLayers(character.Object, treeCell.Object));
-        Assert.IsFalse(ArborealWandererAI.CellSupportsTreeLayers(character.Object, groundCell.Object));
+        Assert.IsTrue(ArborealWandererAI.RoomSupportsTreeLayers(character.Object, treeRoom.Object));
+        Assert.IsFalse(ArborealWandererAI.RoomSupportsTreeLayers(character.Object, groundRoom.Object));
     }
 
     [TestMethod]
@@ -275,7 +275,7 @@ public class NpcAiRegressionTests
         Mock<IGameItem> anchorItem = new();
         anchorItem.Setup(x => x.GetItemType<IActiveCraftGameItemComponent>()).Returns(() => null!);
 
-        Mock<ICell> location = new();
+        Mock<IRoom> location = new();
         location.Setup(x => x.LayerGameItems(roomLayer)).Returns(new[] { activeCraftItem.Object, anchorItem.Object });
         Mock<ICharacter> character = new();
         character.SetupGet(x => x.Location).Returns(location.Object);
@@ -318,15 +318,15 @@ public class NpcAiRegressionTests
     }
 
     [TestMethod]
-    public void AggressiveAiTypes_HandleCharacterEnterCellWitnessEvent()
+    public void AggressiveAiTypes_HandleCharacterEnterRoomWitnessEvent()
     {
         AggressivePatherAI aggressivePather = CreatePrivateParameterless<AggressivePatherAI>();
         TrackingAggressorAI trackingAggressor = CreatePrivateParameterless<TrackingAggressorAI>();
         AnimalAI animal = CreatePrivateParameterless<AnimalAI>();
 
-        Assert.IsTrue(aggressivePather.HandlesEvent(EventType.CharacterEnterCellWitness));
-        Assert.IsTrue(trackingAggressor.HandlesEvent(EventType.CharacterEnterCellWitness));
-        Assert.IsTrue(animal.HandlesEvent(EventType.CharacterEnterCellWitness));
+        Assert.IsTrue(aggressivePather.HandlesEvent(EventType.CharacterEnterRoomWitness));
+        Assert.IsTrue(trackingAggressor.HandlesEvent(EventType.CharacterEnterRoomWitness));
+        Assert.IsTrue(animal.HandlesEvent(EventType.CharacterEnterRoomWitness));
         Assert.IsTrue(animal.HandlesEvent(EventType.CharacterDiesWitness));
         Assert.IsTrue(animal.HandlesEvent(EventType.TenSecondTick));
     }
@@ -336,7 +336,7 @@ public class NpcAiRegressionTests
     {
         AnimalAI animal = CreatePrivateParameterless<AnimalAI>();
 
-        Assert.IsTrue(animal.HandlesEvent(EventType.CharacterEnterCellFinish));
+        Assert.IsTrue(animal.HandlesEvent(EventType.CharacterEnterRoomFinish));
         Assert.IsTrue(animal.HandlesEvent(EventType.LeaveCombat));
         Assert.IsTrue(animal.HandlesEvent(EventType.MinuteTick));
         Assert.IsTrue(animal.HandlesEvent(EventType.NPCOnGameLoadFinished));
@@ -354,7 +354,7 @@ public class NpcAiRegressionTests
 			  </Activity>
 			</Definition>
 			""");
-		Mock<ICell> location = new();
+		Mock<IRoom> location = new();
 		location.SetupGet(x => x.CurrentTimeOfDay).Returns(TimeOfDay.Night);
 		Mock<ICharacter> character = new();
 		character.SetupGet(x => x.Location).Returns(location.Object);
@@ -713,7 +713,7 @@ public class NpcAiRegressionTests
 	public void AnimalAI_TerritoryHabitatPolicy_AcceptsCharacterFirstAndLegacyLocationFirstProgs()
 	{
 		Mock<ICharacter> character = new();
-		Mock<ICell> cell = new();
+		Mock<IRoom> room = new();
 		MethodInfo? isSuitableTerritory = typeof(AnimalAI).GetMethod("IsSuitableTerritory",
 			BindingFlags.Instance | BindingFlags.NonPublic);
 		Assert.IsNotNull(isSuitableTerritory);
@@ -725,7 +725,7 @@ public class NpcAiRegressionTests
 			prog.Setup(x => x.MatchesParameters(It.Is<IEnumerable<ProgVariableTypes>>(types =>
 				types.SequenceEqual(new[] { ProgVariableTypes.Character, ProgVariableTypes.Location })))).Returns(true);
 			prog.Setup(x => x.ExecuteBool(false, It.Is<object[]>(values => values.Length == 2 &&
-				ReferenceEquals(values[0], character.Object) && ReferenceEquals(values[1], cell.Object))))
+				ReferenceEquals(values[0], character.Object) && ReferenceEquals(values[1], room.Object))))
 				.Returns(true);
 		});
 		AnimalAI legacyLocationFirst = LoadAnimalAIFromDefinition("""
@@ -734,13 +734,13 @@ public class NpcAiRegressionTests
 		{
 			prog.Setup(x => x.MatchesParameters(It.IsAny<IEnumerable<ProgVariableTypes>>())).Returns(false);
 			prog.Setup(x => x.ExecuteBool(false, It.Is<object[]>(values => values.Length == 2 &&
-				ReferenceEquals(values[0], cell.Object) && ReferenceEquals(values[1], character.Object))))
+				ReferenceEquals(values[0], room.Object) && ReferenceEquals(values[1], character.Object))))
 				.Returns(true);
 		});
 
-		Assert.IsTrue(isSuitableTerritory.Invoke(characterFirst, [character.Object, cell.Object]) is true,
+		Assert.IsTrue(isSuitableTerritory.Invoke(characterFirst, [character.Object, room.Object]) is true,
 			"Finished wildlife profiles reuse character-first habitat progs for territory selection.");
-		Assert.IsTrue(isSuitableTerritory.Invoke(legacyLocationFirst, [character.Object, cell.Object]) is true,
+		Assert.IsTrue(isSuitableTerritory.Invoke(legacyLocationFirst, [character.Object, room.Object]) is true,
 			"Older location-first territory progs remain loadable and functional.");
 	}
 
@@ -918,18 +918,18 @@ public class NpcAiRegressionTests
         Mock<IUneditableAll<IFutureProg>> futureProgs = new();
         futureProgs.Setup(x => x.Get(It.IsAny<long>())).Returns(applicabilityProg.Object);
 
-        Mock<ICell> oldCell = new();
-        oldCell.SetupGet(x => x.Id).Returns(11L);
-        Mock<ICell> recentCell = new();
-        recentCell.SetupGet(x => x.Id).Returns(22L);
+        Mock<IRoom> oldRoom = new();
+        oldRoom.SetupGet(x => x.Id).Returns(11L);
+        Mock<IRoom> recentRoom = new();
+        recentRoom.SetupGet(x => x.Id).Returns(22L);
 
-        Mock<IUneditableAll<ICell>> cells = new();
-        cells.Setup(x => x.Get(11L)).Returns(oldCell.Object);
-        cells.Setup(x => x.Get(22L)).Returns(recentCell.Object);
+        Mock<IUneditableAll<IRoom>> rooms = new();
+        rooms.Setup(x => x.Get(11L)).Returns(oldRoom.Object);
+        rooms.Setup(x => x.Get(22L)).Returns(recentRoom.Object);
 
         Mock<IFuturemud> gameworld = new();
         gameworld.SetupGet(x => x.FutureProgs).Returns(futureProgs.Object);
-        gameworld.SetupGet(x => x.Cells).Returns(cells.Object);
+        gameworld.SetupGet(x => x.Rooms).Returns(rooms.Object);
 
         Mock<ICharacter> owner = new();
         owner.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
@@ -946,11 +946,11 @@ public class NpcAiRegressionTests
             """);
 
         NpcKnownThreatLocationsEffect effect = new(root, owner.Object);
-        List<ICell> known = effect.KnownThreatLocations(TimeSpan.FromMinutes(10)).ToList();
+        List<IRoom> known = effect.KnownThreatLocations(TimeSpan.FromMinutes(10)).ToList();
 
-        CollectionAssert.AreEqual(new[] { recentCell.Object }, known);
-        Assert.IsTrue(effect.Knows(recentCell.Object, TimeSpan.FromMinutes(10)));
-        Assert.IsFalse(effect.Knows(oldCell.Object, TimeSpan.FromMinutes(10)));
+        CollectionAssert.AreEqual(new[] { recentRoom.Object }, known);
+        Assert.IsTrue(effect.Knows(recentRoom.Object, TimeSpan.FromMinutes(10)));
+        Assert.IsFalse(effect.Knows(oldRoom.Object, TimeSpan.FromMinutes(10)));
 
         string xml = effect.SaveToXml(new Dictionary<IEffect, TimeSpan>()).ToString();
         StringAssert.Contains(xml, "id=\"22\"");
@@ -982,7 +982,7 @@ public class NpcAiRegressionTests
 		Mock<IRace> race = new();
 		race.SetupGet(x => x.CanEatCorpses).Returns(true);
 		race.SetupGet(x => x.BiteWeight).Returns(1.0);
-		Mock<ICell> location = new();
+		Mock<IRoom> location = new();
 		Mock<ICharacter> predator = new();
 		predator.SetupGet(x => x.State).Returns(CharacterState.Awake);
 		predator.SetupGet(x => x.NeedsModel).Returns(needs.Object);
@@ -1019,7 +1019,7 @@ public class NpcAiRegressionTests
 		wolfRace.Setup(x => x.SameRace(salmonRace.Object)).Returns(false);
 		Mock<ICharacter> wolf = new();
 		wolf.SetupGet(x => x.Race).Returns(wolfRace.Object);
-		Mock<ICell> water = new();
+		Mock<IRoom> water = new();
 		Mock<ICharacter> salmon = new();
 		salmon.SetupGet(x => x.Race).Returns(salmonRace.Object);
 		salmon.SetupGet(x => x.Location).Returns(water.Object);
@@ -1067,49 +1067,49 @@ public class NpcAiRegressionTests
 			StringComparison.Ordinal);
 		int visibleAwarenessThreats = creatureSource.IndexOf("protected IEnumerable<ICharacter> VisibleAwarenessThreats",
 			StringComparison.Ordinal);
-		int shouldAvoidCell = creatureSource.IndexOf("protected bool ShouldAvoidCell", StringComparison.Ordinal);
+		int shouldAvoidRoom = creatureSource.IndexOf("protected bool ShouldAvoidRoom", StringComparison.Ordinal);
 		int visibleEcologyCharacters = animalSource.IndexOf("private IEnumerable<ICharacter> VisibleEcologyCharacters",
 			StringComparison.Ordinal);
 		int trySleepAtRefuge = animalSource.IndexOf("private bool TrySleepAtRefuge", StringComparison.Ordinal);
 		int contextualThreatCandidates = animalSource.IndexOf("private IEnumerable<ICharacter> ContextualThreatCandidates",
 			StringComparison.Ordinal);
 		int hasProtectedYoung = animalSource.IndexOf("private bool HasProtectedYoung", StringComparison.Ordinal);
-		Assert.IsTrue(observedCharacters >= 0 && visibleAwarenessThreats >= 0 && shouldAvoidCell > visibleAwarenessThreats &&
+		Assert.IsTrue(observedCharacters >= 0 && visibleAwarenessThreats >= 0 && shouldAvoidRoom > visibleAwarenessThreats &&
 			visibleEcologyCharacters >= 0 && trySleepAtRefuge > visibleEcologyCharacters &&
 			contextualThreatCandidates >= 0 && hasProtectedYoung > contextualThreatCandidates);
-		string awarenessBlock = creatureSource[visibleAwarenessThreats..shouldAvoidCell];
+		string awarenessBlock = creatureSource[visibleAwarenessThreats..shouldAvoidRoom];
 		string ecologyBlock = animalSource[visibleEcologyCharacters..trySleepAtRefuge];
 		string contextualBlock = animalSource[contextualThreatCandidates..hasProtectedYoung];
 		StringAssert.Contains(awarenessBlock, "ObservedCharacters(character)");
 		StringAssert.Contains(ecologyBlock, "ObservedCharacters(character)");
 		StringAssert.Contains(contextualBlock, "ObservedCharacters(character)");
-		Assert.IsFalse(awarenessBlock.Contains("CellsInVicinity", StringComparison.Ordinal));
-		Assert.IsFalse(ecologyBlock.Contains("CellsInVicinity", StringComparison.Ordinal));
-		Assert.IsFalse(contextualBlock.Contains("CellsInVicinity", StringComparison.Ordinal));
+		Assert.IsFalse(awarenessBlock.Contains("RoomsInVicinity", StringComparison.Ordinal));
+		Assert.IsFalse(ecologyBlock.Contains("RoomsInVicinity", StringComparison.Ordinal));
+		Assert.IsFalse(contextualBlock.Contains("RoomsInVicinity", StringComparison.Ordinal));
 		StringAssert.Contains(groupSource, "AnimalAI.CanGroupObserveTarget(member, target)");
 		StringAssert.Contains(groupSource, "AnimalAI.CanGroupObserveTarget(x, y)");
 	}
 
     [TestMethod]
-    public void AnimalAI_CellSupportsSurfaceWater_RequiresWaterAndSurfaceLayer()
+    public void AnimalAI_RoomSupportsSurfaceWater_RequiresWaterAndSurfaceLayer()
     {
         Mock<ICharacter> character = new();
         character.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
 
         Mock<ITerrain> surfaceTerrain = new();
         surfaceTerrain.SetupGet(x => x.TerrainLayers).Returns(new[] { RoomLayer.GroundLevel, RoomLayer.Underwater });
-        Mock<ICell> surfaceWater = new();
+        Mock<IRoom> surfaceWater = new();
         surfaceWater.Setup(x => x.IsSwimmingLayer(RoomLayer.GroundLevel)).Returns(true);
         surfaceWater.Setup(x => x.Terrain(character.Object)).Returns(surfaceTerrain.Object);
 
         Mock<ITerrain> deepTerrain = new();
         deepTerrain.SetupGet(x => x.TerrainLayers).Returns(new[] { RoomLayer.Underwater, RoomLayer.DeepUnderwater });
-        Mock<ICell> deepWater = new();
+        Mock<IRoom> deepWater = new();
         deepWater.Setup(x => x.IsSwimmingLayer(RoomLayer.GroundLevel)).Returns(true);
         deepWater.Setup(x => x.Terrain(character.Object)).Returns(deepTerrain.Object);
 
-        Assert.IsTrue(AnimalAI.CellSupportsSurfaceWater(character.Object, surfaceWater.Object));
-        Assert.IsFalse(AnimalAI.CellSupportsSurfaceWater(character.Object, deepWater.Object));
+        Assert.IsTrue(AnimalAI.RoomSupportsSurfaceWater(character.Object, surfaceWater.Object));
+        Assert.IsFalse(AnimalAI.RoomSupportsSurfaceWater(character.Object, deepWater.Object));
     }
 
     [TestMethod]
@@ -1126,7 +1126,7 @@ public class NpcAiRegressionTests
         terrain.SetupGet(x => x.TerrainLayers).Returns(new[] { RoomLayer.GroundLevel, RoomLayer.Underwater });
         terrain.SetupGet(x => x.WaterFluid).Returns(water.Object);
 
-        Mock<ICell> location = new();
+        Mock<IRoom> location = new();
         location.SetupGet(x => x.Id).Returns(100L);
         location.Setup(x => x.IsSwimmingLayer(RoomLayer.GroundLevel)).Returns(true);
         location.Setup(x => x.Terrain(It.IsAny<IPerceiver>())).Returns(terrain.Object);
@@ -1272,27 +1272,27 @@ public class NpcAiRegressionTests
     }
 
     [TestMethod]
-    public void SelfCareAI_CellHasHostileNpcs_IgnoresPausedAggressiveNpcs()
+    public void SelfCareAI_RoomHasHostileNpcs_IgnoresPausedAggressiveNpcs()
     {
         Mock<ICharacter> self = new();
         Mock<INPC> pausedAggressiveNpc = CreateAggressiveNpc(paused: true);
-        Mock<ICell> cell = new();
-        cell.SetupGet(x => x.Characters).Returns(new ICharacter[] { self.Object, pausedAggressiveNpc.Object });
+        Mock<IRoom> room = new();
+        room.SetupGet(x => x.Characters).Returns(new ICharacter[] { self.Object, pausedAggressiveNpc.Object });
 
-        bool hasHostiles = SelfCareAI.CellHasHostileNpcs(cell.Object, self.Object);
+        bool hasHostiles = SelfCareAI.RoomHasHostileNpcs(room.Object, self.Object);
 
         Assert.IsFalse(hasHostiles);
     }
 
     [TestMethod]
-    public void SelfCareAI_CellHasHostileNpcs_DetectsActiveAggressiveNpcs()
+    public void SelfCareAI_RoomHasHostileNpcs_DetectsActiveAggressiveNpcs()
     {
         Mock<ICharacter> self = new();
         Mock<INPC> aggressiveNpc = CreateAggressiveNpc(paused: false);
-        Mock<ICell> cell = new();
-        cell.SetupGet(x => x.Characters).Returns(new ICharacter[] { self.Object, aggressiveNpc.Object });
+        Mock<IRoom> room = new();
+        room.SetupGet(x => x.Characters).Returns(new ICharacter[] { self.Object, aggressiveNpc.Object });
 
-        bool hasHostiles = SelfCareAI.CellHasHostileNpcs(cell.Object, self.Object);
+        bool hasHostiles = SelfCareAI.RoomHasHostileNpcs(room.Object, self.Object);
 
         Assert.IsTrue(hasHostiles);
     }
@@ -1301,11 +1301,11 @@ public class NpcAiRegressionTests
     public void SelfCareAI_GetSafeExitForSelfCare_SelectsSafeReachableDestination()
     {
         Mock<ICharacter> self = new();
-        Mock<ICell> currentCell = new();
-        Mock<ICell> hostileDestination = new();
-        Mock<ICell> safeDestination = new();
-        Mock<ICellExit> hostileExit = new();
-        Mock<ICellExit> safeExit = new();
+        Mock<IRoom> currentRoom = new();
+        Mock<IRoom> hostileDestination = new();
+        Mock<IRoom> safeDestination = new();
+        Mock<IRoomExit> hostileExit = new();
+        Mock<IRoomExit> safeExit = new();
 
         Mock<INPC> hostileNpc = CreateAggressiveNpc(paused: false);
 
@@ -1315,8 +1315,8 @@ public class NpcAiRegressionTests
         hostileExit.SetupGet(x => x.Destination).Returns(hostileDestination.Object);
         safeExit.SetupGet(x => x.Destination).Returns(safeDestination.Object);
 
-        currentCell.Setup(x => x.ExitsFor(self.Object, true)).Returns(new[] { hostileExit.Object, safeExit.Object });
-        self.SetupGet(x => x.Location).Returns(currentCell.Object);
+        currentRoom.Setup(x => x.ExitsFor(self.Object, true)).Returns(new[] { hostileExit.Object, safeExit.Object });
+        self.SetupGet(x => x.Location).Returns(currentRoom.Object);
         self.Setup(x => x.CanMove(hostileExit.Object, It.IsAny<CanMoveFlags>())).Returns(new CanMoveResponse
         {
             Result = false,
@@ -1327,7 +1327,7 @@ public class NpcAiRegressionTests
         });
         self.Setup(x => x.CanMove(safeExit.Object, It.IsAny<CanMoveFlags>())).Returns(CanMoveResponse.True);
 
-        ICellExit? chosenExit = SelfCareAI.GetSafeExitForSelfCare(self.Object);
+        IRoomExit? chosenExit = SelfCareAI.GetSafeExitForSelfCare(self.Object);
 
         Assert.AreSame(safeExit.Object, chosenExit);
     }

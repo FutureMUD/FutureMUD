@@ -549,11 +549,11 @@ public sealed partial class EconomyAnalyticsService : IEconomyAnalyticsService
 					bodyItems[row.GameItemId] = row.BodyId;
 				}
 
-				foreach (var row in FMDB.Context.CellsGameItems.AsNoTracking()
+				foreach (var row in FMDB.Context.RoomsGameItems.AsNoTracking()
 					         .Where(x => ids.Contains(x.GameItemId))
-					         .Select(x => new { x.GameItemId, x.CellId }))
+					         .Select(x => new { x.GameItemId, x.RoomId }))
 				{
-					cellItems[row.GameItemId] = row.CellId;
+					cellItems[row.GameItemId] = row.RoomId;
 				}
 
 				foreach (var row in FMDB.Context.ShopsTills.AsNoTracking()
@@ -564,7 +564,7 @@ public sealed partial class EconomyAnalyticsService : IEconomyAnalyticsService
 				}
 			}
 
-			var bodyCustodians = new Dictionary<long, (long CharacterId, long? CellId)>();
+			var bodyCustodians = new Dictionary<long, (long CharacterId, long? RoomId)>();
 			var bodyIds = bodyItems.Values.ToHashSet();
 			foreach (var batch in bodyIds.Chunk(1000))
 			{
@@ -591,33 +591,33 @@ public sealed partial class EconomyAnalyticsService : IEconomyAnalyticsService
 			}
 
 			PreloadCharacterControls(bodyCustodians.Values.Select(x => x.CharacterId), characterControlCache);
-			var relevantCellIds = cellItems.Values.ToHashSet();
-			var treasuryCells = new Dictionary<long, List<long>>();
-			var propertyCells = new Dictionary<long, List<long>>();
-			foreach (var batch in relevantCellIds.Chunk(1000))
+			var relevantRoomIds = cellItems.Values.ToHashSet();
+			var treasuryRooms = new Dictionary<long, List<long>>();
+			var propertyRooms = new Dictionary<long, List<long>>();
+			foreach (var batch in relevantRoomIds.Chunk(1000))
 			{
 				var ids = batch.ToList();
-				foreach (var row in FMDB.Context.ClansTreasuryCells.AsNoTracking()
-					         .Where(x => ids.Contains(x.CellId))
-					         .Select(x => new { x.CellId, x.ClanId }))
+				foreach (var row in FMDB.Context.ClansTreasuryRooms.AsNoTracking()
+					         .Where(x => ids.Contains(x.RoomId))
+					         .Select(x => new { x.RoomId, x.ClanId }))
 				{
-					if (!treasuryCells.TryGetValue(row.CellId, out var clanIds))
+					if (!treasuryRooms.TryGetValue(row.RoomId, out var clanIds))
 					{
 						clanIds = [];
-						treasuryCells[row.CellId] = clanIds;
+						treasuryRooms[row.RoomId] = clanIds;
 					}
 
 					clanIds.Add(row.ClanId);
 				}
 
 				foreach (var row in FMDB.Context.PropertyLocations.AsNoTracking()
-					         .Where(x => ids.Contains(x.CellId))
-					         .Select(x => new { x.CellId, x.PropertyId }))
+					         .Where(x => ids.Contains(x.RoomId))
+					         .Select(x => new { x.RoomId, x.PropertyId }))
 				{
-					if (!propertyCells.TryGetValue(row.CellId, out var propertyIds))
+					if (!propertyRooms.TryGetValue(row.RoomId, out var propertyIds))
 					{
 						propertyIds = [];
-						propertyCells[row.CellId] = propertyIds;
+						propertyRooms[row.RoomId] = propertyIds;
 					}
 
 					propertyIds.Add(row.PropertyId);
@@ -631,7 +631,7 @@ public sealed partial class EconomyAnalyticsService : IEconomyAnalyticsService
 				var (ownerType, ownerId, bucket, zoneId, description) = ResolvePhysicalCustody(
 					rootOwner.OwnerType ?? component.OwnerType, rootOwner.OwnerId ?? component.OwnerId,
 					rootId, bodyItems, bodyCustodians, cellItems, tillItems,
-					treasuryCells, propertyCells, characterControlCache);
+					treasuryRooms, propertyRooms, characterControlCache);
 				var loaded = _gameworld.Items.Get(component.GameItemId)
 					?.GetItemType<ICurrencyPile>();
 				if (loaded is not null)
@@ -678,10 +678,10 @@ public sealed partial class EconomyAnalyticsService : IEconomyAnalyticsService
 	private (string? OwnerType, long? OwnerId, EconomicControlBucket Bucket, long? ZoneId, string Description)
 		ResolvePhysicalCustody(string? explicitOwnerType, long? explicitOwnerId, long rootItemId,
 			IReadOnlyDictionary<long, long> bodyItems,
-			IReadOnlyDictionary<long, (long CharacterId, long? CellId)> bodyCustodians,
+			IReadOnlyDictionary<long, (long CharacterId, long? RoomId)> bodyCustodians,
 			IReadOnlyDictionary<long, long> cellItems,
-			IReadOnlyDictionary<long, long> tillItems, IReadOnlyDictionary<long, List<long>> treasuryCells,
-			IReadOnlyDictionary<long, List<long>> propertyCells,
+			IReadOnlyDictionary<long, long> tillItems, IReadOnlyDictionary<long, List<long>> treasuryRooms,
+			IReadOnlyDictionary<long, List<long>> propertyRooms,
 			Dictionary<long, EconomicControlBucket> characterControlCache)
 	{
 		if (!string.IsNullOrWhiteSpace(explicitOwnerType) && explicitOwnerId.HasValue)
@@ -696,7 +696,7 @@ public sealed partial class EconomyAnalyticsService : IEconomyAnalyticsService
 		{
 			return ("Character", custodian.CharacterId,
 				ResolveCharacterControl(custodian.CharacterId, characterControlCache),
-				custodian.CellId.HasValue ? ResolveCellZone(custodian.CellId.Value) : null, "body custody");
+				custodian.RoomId.HasValue ? ResolveRoomZone(custodian.RoomId.Value) : null, "body custody");
 		}
 
 		if (tillItems.TryGetValue(rootItemId, out var shopId))
@@ -712,19 +712,19 @@ public sealed partial class EconomyAnalyticsService : IEconomyAnalyticsService
 		}
 
 		var claims = new List<(string Type, long Id)>();
-		if (treasuryCells.TryGetValue(cellId, out var clans))
+		if (treasuryRooms.TryGetValue(cellId, out var clans))
 		{
 			claims.AddRange(clans.Select(x => ("Clan", x)));
 		}
 
-		if (propertyCells.TryGetValue(cellId, out var properties))
+		if (propertyRooms.TryGetValue(cellId, out var properties))
 		{
 			claims.AddRange(properties.Select(x => ("Property", x)));
 		}
 
 		if (claims.Count > 1)
 		{
-			return (null, null, EconomicControlBucket.Ambiguous, ResolveCellZone(cellId),
+			return (null, null, EconomicControlBucket.Ambiguous, ResolveRoomZone(cellId),
 				"conflicting treasury or property custody");
 		}
 
@@ -735,7 +735,7 @@ public sealed partial class EconomyAnalyticsService : IEconomyAnalyticsService
 				ResolveEconomicZone(claim.Type, claim.Id), $"{claim.Type.ToLowerInvariant()} custody");
 		}
 
-		return (null, null, EconomicControlBucket.Unclaimed, ResolveCellZone(cellId), "unclaimed cell cash");
+		return (null, null, EconomicControlBucket.Unclaimed, ResolveRoomZone(cellId), "unclaimed cell cash");
 	}
 
 	private long? ResolveEconomicZone(string ownerType, long ownerId)
@@ -771,16 +771,16 @@ public sealed partial class EconomyAnalyticsService : IEconomyAnalyticsService
 				.Where(x => x.Id == characterId)
 				.Select(x => (long?)x.Location)
 				.FirstOrDefault();
-			return cellId.HasValue ? ResolveCellZone(cellId.Value) : null;
+			return cellId.HasValue ? ResolveRoomZone(cellId.Value) : null;
 		}
 	}
 
-	private long? ResolveCellZone(long cellId)
+	private long? ResolveRoomZone(long cellId)
 	{
-		var cell = _gameworld.Cells.Get(cellId);
-		return cell is null
+		var room = _gameworld.Rooms.Get(cellId);
+		return room is null
 			? null
-			: _gameworld.EconomicZones.FirstOrDefault(x => x.ZoneForTimePurposes == cell.Zone)?.Id;
+			: _gameworld.EconomicZones.FirstOrDefault(x => x.ZoneForTimePurposes == room.Zone)?.Id;
 	}
 
 	public EconomyVolumeResult GetVolume(EconomyQueryWindowKind window, long? economicZoneId = null,

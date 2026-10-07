@@ -42,7 +42,7 @@ internal sealed class LoadLootTableFunction : BuiltInFunction
 		var materialiser = new LootTableMaterialiser(_gameworld);
 		var target = ParameterFunctions[2].Result?.GetObject;
 		LootMaterialisationResult result;
-		if (_targetType == ProgVariableTypes.Location && target is ICell cell) result = materialiser.Materialise(table, variant, seed, cell);
+		if (_targetType == ProgVariableTypes.Location && target is IRoom room) result = materialiser.Materialise(table, variant, seed, room);
 		else if (_targetType == ProgVariableTypes.Item && target is IGameItem item) result = materialiser.Materialise(table, variant, seed, item);
 		else if (_targetType == ProgVariableTypes.Character && target is ICharacter character) result = materialiser.Materialise(table, variant, seed, character);
 		else return Receipt("ERROR code=NULL_TARGET message=The LootTable target was null or invalid.");

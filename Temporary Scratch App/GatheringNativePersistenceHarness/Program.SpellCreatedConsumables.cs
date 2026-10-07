@@ -276,7 +276,7 @@ internal static partial class GNHProgram
 		using (var db = NewIndependentContext(database.ConnectionString))
 		{
 			foreach (var item in host.Items.Where(x => x.InInventoryOf is null && x.ContainedIn is null))
-				if (!db.CellsGameItems.Any(x => x.GameItemId == item.Id)) db.CellsGameItems.Add(new() { CellId = fixture.CellId, GameItemId = item.Id });
+				if (!db.RoomsGameItems.Any(x => x.GameItemId == item.Id)) db.RoomsGameItems.Add(new() { RoomId = fixture.RoomId, GameItemId = item.Id });
 			db.SaveChanges();
 		}
 		var state = new ConsumableReader(database.Name, fixture, RuntimeClock.UtcNow, partial.Id, exhausted.Id, permanent.Id, light.Id, vessel.Id, transferVessel.Id, gear.Id, origins.ToArray(),
@@ -298,7 +298,7 @@ internal static partial class GNHProgram
 		using (var db = NewIndependentContext(database.ConnectionString)) native.Body.LoadInventory(db.Bodies.Include(x => x.BodiesGameItems).Single(x => x.Id == native.Body.Id));
 		using (var db = NewIndependentContext(database.ConnectionString))
 		{
-			foreach (var id in db.CellsGameItems.Where(x => x.CellId == input.Fixture.CellId).Select(x => x.GameItemId).ToArray())
+			foreach (var id in db.RoomsGameItems.Where(x => x.RoomId == input.Fixture.RoomId).Select(x => x.GameItemId).ToArray())
 			{
 				var item = world.TryGetItem(id, true)!;
 				Require(item.InInventoryOf is null && item.ContainedIn is null, "Persisted room membership conflicts with another native custodian.");

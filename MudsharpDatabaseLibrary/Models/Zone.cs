@@ -9,7 +9,7 @@ namespace MudSharp.Models
         {
             HooksPerceivables = new HashSet<HooksPerceivable>();
             LegalAuthoritiesZones = new HashSet<LegalAuthoritiesZones>();
-            OwnedCells = new HashSet<Cell>();
+            OwnedRooms = new HashSet<Room>();
             ZonesTimezones = new HashSet<ZonesTimezones>();
         }
 
@@ -19,17 +19,17 @@ namespace MudSharp.Models
         public double Latitude { get; set; }
         public double Longitude { get; set; }
         public double Elevation { get; set; }
-        public long? DefaultCellId { get; set; }
+        public long? DefaultRoomId { get; set; }
         public double AmbientLightPollution { get; set; }
         public long? ForagableProfileId { get; set; }
         public long? WeatherControllerId { get; set; }
 
-        public virtual Cell DefaultCell { get; set; }
+        public virtual Room DefaultRoom { get; set; }
         public virtual Shard Shard { get; set; }
         public virtual WeatherController WeatherController { get; set; }
         public virtual ICollection<HooksPerceivable> HooksPerceivables { get; set; }
         public virtual ICollection<LegalAuthoritiesZones> LegalAuthoritiesZones { get; set; }
-        public virtual ICollection<Cell> OwnedCells { get; set; }
+        public virtual ICollection<Room> OwnedRooms { get; set; }
         public virtual ICollection<ZonesTimezones> ZonesTimezones { get; set; }
     }
 }

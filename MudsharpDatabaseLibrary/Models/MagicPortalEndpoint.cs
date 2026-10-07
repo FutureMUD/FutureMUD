@@ -16,7 +16,7 @@ public class MagicPortalEndpoint
 	public string Key { get; set; }
 	public string Name { get; set; }
 	public int AnchorType { get; set; }
-	public long? CellId { get; set; }
+	public long? RoomId { get; set; }
 	public long? GameItemId { get; set; }
 	public bool IsActive { get; set; }
 	public long? CreatedByCharacterId { get; set; }
@@ -24,7 +24,7 @@ public class MagicPortalEndpoint
 	public DateTime CreatedDateTime { get; set; }
 
 	public virtual MagicPortalNetwork MagicPortalNetwork { get; set; }
-	public virtual Cell Cell { get; set; }
+	public virtual Room Room { get; set; }
 	public virtual GameItem GameItem { get; set; }
 	public virtual Character CreatedByCharacter { get; set; }
 	public virtual MagicSpell CreatedBySpell { get; set; }

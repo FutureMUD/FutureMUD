@@ -4,7 +4,7 @@ namespace MudSharp.Effects.Concrete;
 
 public class DoorguardOpeningDoor : Effect, IDoorguardOpeningDoorEffect
 {
-    public DoorguardOpeningDoor(IPerceivable owner, ICellExit exit)
+    public DoorguardOpeningDoor(IPerceivable owner, IRoomExit exit)
         : base(owner)
     {
         Exit = exit;
@@ -12,7 +12,7 @@ public class DoorguardOpeningDoor : Effect, IDoorguardOpeningDoorEffect
 
     public DoorguardOpeningDoor(IPerceivable owner, XElement element) : base(owner)
     {
-        Exit = Gameworld.ExitManager.GetExitByID(long.Parse(element.Element("Exit").Value))?.CellExitFor(owner.Location);
+        Exit = Gameworld.ExitManager.GetExitByID(long.Parse(element.Element("Exit").Value))?.RoomExitFor(owner.Location);
     }
 
     #region Overrides of Effect
@@ -26,7 +26,7 @@ public class DoorguardOpeningDoor : Effect, IDoorguardOpeningDoorEffect
     /// <inheritdoc />
     public override bool Applies(object target)
     {
-        if (target is ICellExit ce)
+        if (target is IRoomExit ce)
         {
             return ce == Exit;
         }
@@ -38,7 +38,7 @@ public class DoorguardOpeningDoor : Effect, IDoorguardOpeningDoorEffect
 
     protected override string SpecificEffectType => "DoorguardOpeningDoor";
 
-    public ICellExit Exit { get; }
+    public IRoomExit Exit { get; }
 
     public override string Describe(IPerceiver voyeur)
     {

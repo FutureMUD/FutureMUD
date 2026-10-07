@@ -53,15 +53,15 @@ public abstract class RoomSpellEffectTemplateBase : IMagicSpellEffectTemplate
 	public IMagicSpellEffect? GetOrApplyEffect(ICharacter caster, IPerceivable? target, OpposedOutcomeDegree outcome,
 		SpellPower power, IMagicSpellEffectParent parent, SpellAdditionalParameter[] additionalParameters)
 	{
-		if (target is not ICell cell)
+		if (target is not IRoom room)
 		{
 			return null;
 		}
 
-		return CreateEffect(caster, cell, outcome, power, parent, additionalParameters);
+		return CreateEffect(caster, room, outcome, power, parent, additionalParameters);
 	}
 
-	protected abstract IMagicSpellEffect? CreateEffect(ICharacter caster, ICell target, OpposedOutcomeDegree outcome,
+	protected abstract IMagicSpellEffect? CreateEffect(ICharacter caster, IRoom target, OpposedOutcomeDegree outcome,
 		SpellPower power, IMagicSpellEffectParent parent, SpellAdditionalParameter[] additionalParameters);
 
 	public abstract bool BuildingCommand(ICharacter actor, StringStack command);
@@ -135,7 +135,7 @@ public class RoomFlagEffect : RoomSpellEffectTemplateBase
 		root.Add(new XElement("WardTag", new XCData(WardTag)));
 	}
 
-	protected override IMagicSpellEffect? CreateEffect(ICharacter caster, ICell target, OpposedOutcomeDegree outcome,
+	protected override IMagicSpellEffect? CreateEffect(ICharacter caster, IRoom target, OpposedOutcomeDegree outcome,
 		SpellPower power, IMagicSpellEffectParent parent, SpellAdditionalParameter[] additionalParameters)
 	{
 		return FlagType switch
@@ -348,7 +348,7 @@ public class RemoveRoomFlagEffect : RoomSpellEffectTemplateBase
 		root.Add(new XElement("WardTag", new XCData(WardTag)));
 	}
 
-	protected override IMagicSpellEffect? CreateEffect(ICharacter caster, ICell target, OpposedOutcomeDegree outcome,
+	protected override IMagicSpellEffect? CreateEffect(ICharacter caster, IRoom target, OpposedOutcomeDegree outcome,
 		SpellPower power, IMagicSpellEffectParent parent, SpellAdditionalParameter[] additionalParameters)
 	{
 		switch (FlagType)

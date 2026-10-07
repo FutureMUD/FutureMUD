@@ -430,7 +430,7 @@ public class VariableNPCTemplate : NPCTemplateBase
         return errors.Select(x => x.ColourIncludingReset(Telnet.Red)).ListToLines(true);
     }
 
-    protected override ICharacterTemplate CharacterTemplate(ICell location)
+    protected override ICharacterTemplate CharacterTemplate(IRoom location)
     {
         Gender rolledGender = _genderChances.GetWeightedRandom();
         (double, double) rolledHeightWeight = _heightWeightModels[rolledGender].GetRandomHeightWeight();

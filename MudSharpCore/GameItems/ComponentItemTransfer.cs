@@ -22,7 +22,7 @@ internal static class ComponentItemTransfer
 		if (ReferenceEquals(item.ContainedIn, weapon)) item.ContainedIn = null;
 		return IsDetached(item);
 	}
-	internal static ICell? DirectLocationOf(IGameItem item) => item is GameItem native ? native.DirectLocation : item.Location;
+	internal static IRoom? DirectLocationOf(IGameItem item) => item is GameItem native ? native.DirectLocation : item.Location;
 	internal static bool HasDirectBodyCustody(IGameItem item) =>
 		item.GetItemType<IHoldable>()?.HeldBy is not null || item.GetItemType<IWearable>()?.WornBy is not null ||
 		item.GetItemType<IProsthetic>()?.InstalledBody is not null || item.GetItemType<IImplant>()?.InstalledBody is not null;

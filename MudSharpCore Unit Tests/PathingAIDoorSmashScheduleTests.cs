@@ -55,37 +55,37 @@ public class PathingAIDoorSmashScheduleTests
 		public bool RunCheckSmash(ICharacter character) => CheckSmash(character);
 		public bool RunFiveSecondTick(ICharacter character) => FiveSecondTick(character);
 		public void RunFollowPathAction(ICharacter character, FollowingPath path) => FollowPathAction(character, path);
-		public bool RunSuitability(ICharacter character, ICellExit exit) => GetSuitabilityFunction(character)(exit);
-		public void RunCheckCloseDoor(ICharacter character, ICellExit exit) => CheckCloseDoor(character, exit);
+		public bool RunSuitability(ICharacter character, IRoomExit exit) => GetSuitabilityFunction(character)(exit);
+		public void RunCheckCloseDoor(ICharacter character, IRoomExit exit) => CheckCloseDoor(character, exit);
         public string SavedDefinition => PrepareDefinitionForSave(SaveToXml());
 
         protected override DateTime UtcNow => Clock;
-        protected override bool Smash(ICharacter ch, ICellExit exit)
+        protected override bool Smash(ICharacter ch, IRoomExit exit)
         {
             SmashCount++;
             return true;
         }
 
         protected override bool IsPathingEnabled(ICharacter character) => Enabled;
-        protected override (ICell? Target, IEnumerable<ICellExit>) GetPath(ICharacter ch) =>
-            (null, Enumerable.Empty<ICellExit>());
+        protected override (IRoom? Target, IEnumerable<IRoomExit>) GetPath(ICharacter ch) =>
+            (null, Enumerable.Empty<IRoomExit>());
         protected override string SaveToXml() => "<Definition><OpenDoors>false</OpenDoors></Definition>";
     }
 
     private sealed record SmashFixture(
 		Mock<ICharacter> Character,
-		Mock<ICell> Origin,
+		Mock<IRoom> Origin,
 		Mock<IDoor> Door,
 		Mock<IGameItem> DoorItem,
 		Mock<IExit> Exit,
-        Mock<ICellExit> CellExit,
+        Mock<IRoomExit> RoomExit,
         BreakDownDoor Focus,
 		List<IEffect> Effects,
 		List<INaturalAttack> NaturalAttacks);
 
     private static SmashFixture CreateFixture()
     {
-        var origin = new Mock<ICell>();
+        var origin = new Mock<IRoom>();
         var door = new Mock<IDoor>();
         door.SetupGet(x => x.IsOpen).Returns(false);
 		door.SetupGet(x => x.CanPlayersSmash).Returns(true);
@@ -95,7 +95,7 @@ public class PathingAIDoorSmashScheduleTests
 		door.SetupGet(x => x.Parent).Returns(doorItem.Object);
         var exit = new Mock<IExit>();
         exit.SetupGet(x => x.Door).Returns(door.Object);
-        var cellExit = new Mock<ICellExit>();
+        var cellExit = new Mock<IRoomExit>();
         cellExit.SetupGet(x => x.Origin).Returns(origin.Object);
         cellExit.SetupGet(x => x.Exit).Returns(exit.Object);
 
@@ -137,18 +137,18 @@ public class PathingAIDoorSmashScheduleTests
 
 	private sealed class TestFollowingPath : FollowingPath
 	{
-		public TestFollowingPath(ICharacter owner, IEnumerable<ICellExit> exits) : base(owner, exits)
+		public TestFollowingPath(ICharacter owner, IEnumerable<IRoomExit> exits) : base(owner, exits)
 		{
 		}
 
-		public MovementStrategyResult RunTryMoveThroughExit(ICharacter character, ICellExit exit) =>
+		public MovementStrategyResult RunTryMoveThroughExit(ICharacter character, IRoomExit exit) =>
 			TryMoveThroughExit(character, exit);
 	}
 
 	private static void Bind(SmashFixture fixture, TestPathingAI ai)
 	{
 		var path = fixture.Effects.OfType<FollowingPath>().FirstOrDefault() ??
-		           new FollowingPath(fixture.Character.Object, Array.Empty<ICellExit>());
+		           new FollowingPath(fixture.Character.Object, Array.Empty<IRoomExit>());
 		path.PathingOwner = ai;
 		fixture.Focus.PathingEpisode = path;
 		if (!fixture.Effects.Contains(path))
@@ -157,13 +157,13 @@ public class PathingAIDoorSmashScheduleTests
 		}
 	}
 
-    private static Mock<IFutureProg> DelayProg(long id, Func<ICharacter, ICellExit, decimal> delay)
+    private static Mock<IFutureProg> DelayProg(long id, Func<ICharacter, IRoomExit, decimal> delay)
     {
         var prog = new Mock<IFutureProg>();
         prog.SetupGet(x => x.Id).Returns(id);
         prog.SetupGet(x => x.Name).Returns($"Delay {id}");
         prog.Setup(x => x.ExecuteDecimal(It.IsAny<object[]>()))
-            .Returns((object[] args) => delay((ICharacter)args[0], (ICellExit)args[1]));
+            .Returns((object[] args) => delay((ICharacter)args[0], (IRoomExit)args[1]));
         return prog;
     }
 
@@ -174,7 +174,7 @@ public class PathingAIDoorSmashScheduleTests
 		fixture.Origin.Setup(x => x.Terrain(It.IsAny<IPerceiver>())).Returns(terrain.Object);
 		fixture.Character.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
 		fixture.Character.Setup(x => x.CanMove(It.IsAny<CanMoveFlags>())).Returns(CanMoveResponse.True);
-		fixture.Character.Setup(x => x.CanMove(fixture.CellExit.Object, It.IsAny<CanMoveFlags>()))
+		fixture.Character.Setup(x => x.CanMove(fixture.RoomExit.Object, It.IsAny<CanMoveFlags>()))
 		       .Returns(CanMoveResponse.True);
 		fixture.Character.Setup(x => x.AddEffect(It.IsAny<IEffect>()))
 		       .Callback((IEffect effect) => fixture.Effects.Add(effect));
@@ -261,7 +261,7 @@ public class PathingAIDoorSmashScheduleTests
 		var prog = DelayProg(77, (_, _) => 30_000M);
 		var ai = new TestPathingAI { Clock = now };
 		ai.SetDelayProg(prog.Object);
-		var path = new TestFollowingPath(fixture.Character.Object, new[] { fixture.CellExit.Object })
+		var path = new TestFollowingPath(fixture.Character.Object, new[] { fixture.RoomExit.Object })
 		{
 			PathingOwner = ai,
 			SmashLockedDoors = true
@@ -270,7 +270,7 @@ public class PathingAIDoorSmashScheduleTests
 			"general", string.Empty);
 
 		Assert.AreEqual(MovementStrategyResult.Waiting,
-			path.RunTryMoveThroughExit(fixture.Character.Object, fixture.CellExit.Object));
+			path.RunTryMoveThroughExit(fixture.Character.Object, fixture.RoomExit.Object));
 		var focus = fixture.Effects.OfType<BreakDownDoor>().Single();
 		fixture.Effects.Add(blocker);
 		Assert.IsFalse(ai.RunCheckSmash(fixture.Character.Object));
@@ -279,7 +279,7 @@ public class PathingAIDoorSmashScheduleTests
 		for (var i = 0; i < 3; i++)
 		{
 			Assert.AreEqual(MovementStrategyResult.Waiting,
-				path.RunTryMoveThroughExit(fixture.Character.Object, fixture.CellExit.Object));
+				path.RunTryMoveThroughExit(fixture.Character.Object, fixture.RoomExit.Object));
 		}
 
 		Assert.AreSame(focus, fixture.Effects.OfType<BreakDownDoor>().Single());
@@ -302,32 +302,32 @@ public class PathingAIDoorSmashScheduleTests
 		var fixture = CreateFixture();
 		fixture.Effects.Remove(fixture.Focus);
 		EnableDoorMovement(fixture);
-		var otherExit = new Mock<ICellExit>();
+		var otherExit = new Mock<IRoomExit>();
 		otherExit.SetupGet(x => x.Origin).Returns(fixture.Origin.Object);
-		otherExit.SetupGet(x => x.Exit).Returns(fixture.CellExit.Object.Exit);
+		otherExit.SetupGet(x => x.Exit).Returns(fixture.RoomExit.Object.Exit);
 		fixture.Character.Setup(x => x.CanMove(otherExit.Object, It.IsAny<CanMoveFlags>()))
 		       .Returns(CanMoveResponse.True);
-		var first = new TestFollowingPath(fixture.Character.Object, new[] { fixture.CellExit.Object })
+		var first = new TestFollowingPath(fixture.Character.Object, new[] { fixture.RoomExit.Object })
 		{
 			SmashLockedDoors = true
 		};
-		var second = new TestFollowingPath(fixture.Character.Object, new[] { fixture.CellExit.Object })
+		var second = new TestFollowingPath(fixture.Character.Object, new[] { fixture.RoomExit.Object })
 		{
 			SmashLockedDoors = true
 		};
 
-		first.RunTryMoveThroughExit(fixture.Character.Object, fixture.CellExit.Object);
+		first.RunTryMoveThroughExit(fixture.Character.Object, fixture.RoomExit.Object);
 		first.RunTryMoveThroughExit(fixture.Character.Object, otherExit.Object);
-		second.RunTryMoveThroughExit(fixture.Character.Object, fixture.CellExit.Object);
-		first.RunTryMoveThroughExit(fixture.Character.Object, fixture.CellExit.Object);
+		second.RunTryMoveThroughExit(fixture.Character.Object, fixture.RoomExit.Object);
+		first.RunTryMoveThroughExit(fixture.Character.Object, fixture.RoomExit.Object);
 		first.RunTryMoveThroughExit(fixture.Character.Object, otherExit.Object);
-		second.RunTryMoveThroughExit(fixture.Character.Object, fixture.CellExit.Object);
+		second.RunTryMoveThroughExit(fixture.Character.Object, fixture.RoomExit.Object);
 
 		var foci = fixture.Effects.OfType<BreakDownDoor>().ToList();
 		Assert.AreEqual(3, foci.Count);
 		Assert.AreEqual(2, foci.Count(x => ReferenceEquals(x.PathingEpisode, first)));
 		Assert.AreEqual(1, foci.Count(x => ReferenceEquals(x.PathingEpisode, second)));
-		Assert.AreEqual(2, foci.Count(x => ReferenceEquals(x.Exit, fixture.CellExit.Object)));
+		Assert.AreEqual(2, foci.Count(x => ReferenceEquals(x.Exit, fixture.RoomExit.Object)));
 		Assert.AreEqual(1, foci.Count(x => ReferenceEquals(x.Exit, otherExit.Object)));
 	}
 
@@ -354,7 +354,7 @@ public class PathingAIDoorSmashScheduleTests
 		var ai = new TestPathingAI();
 		ai.EnableDoorSmashing();
 
-		Assert.AreEqual(expected, ai.RunSuitability(fixture.Character.Object, fixture.CellExit.Object));
+		Assert.AreEqual(expected, ai.RunSuitability(fixture.Character.Object, fixture.RoomExit.Object));
 	}
 
 	[TestMethod]
@@ -364,9 +364,9 @@ public class PathingAIDoorSmashScheduleTests
 		var ai = new TestPathingAI();
 		ai.EnableDoorSmashing();
 
-		Assert.IsTrue(ai.RunSuitability(fixture.Character.Object, fixture.CellExit.Object));
+		Assert.IsTrue(ai.RunSuitability(fixture.Character.Object, fixture.RoomExit.Object));
 		fixture.NaturalAttacks[0] = new Mock<INaturalAttack>().Object;
-		Assert.IsTrue(ai.RunSuitability(fixture.Character.Object, fixture.CellExit.Object));
+		Assert.IsTrue(ai.RunSuitability(fixture.Character.Object, fixture.RoomExit.Object));
 	}
 
 	[TestMethod]
@@ -397,7 +397,7 @@ public class PathingAIDoorSmashScheduleTests
 		var prog = DelayProg(77, (_, _) => 20_000M);
 		var ai = new TestPathingAI { Clock = now };
 		ai.SetDelayProg(prog.Object);
-		var path = new TestFollowingPath(fixture.Character.Object, new[] { fixture.CellExit.Object })
+		var path = new TestFollowingPath(fixture.Character.Object, new[] { fixture.RoomExit.Object })
 		{
 			PathingOwner = ai,
 			SmashLockedDoors = true
@@ -413,7 +413,7 @@ public class PathingAIDoorSmashScheduleTests
 		Assert.IsFalse(ai.RunCheckSmash(fixture.Character.Object));
 		for (var i = 0; i < 3; i++)
 		{
-			path.RunTryMoveThroughExit(fixture.Character.Object, fixture.CellExit.Object);
+			path.RunTryMoveThroughExit(fixture.Character.Object, fixture.RoomExit.Object);
 		}
 
 		Assert.AreSame(fixture.Focus, fixture.Effects.OfType<BreakDownDoor>().Single());
@@ -537,7 +537,7 @@ public class PathingAIDoorSmashScheduleTests
 		var owner = new TestPathingAI();
 		var sibling = new TestPathingAI();
 		owner.EnableCloseDoorsBehind();
-		var siblingPath = new FollowingPath(fixture.Character.Object, Array.Empty<ICellExit>())
+		var siblingPath = new FollowingPath(fixture.Character.Object, Array.Empty<IRoomExit>())
 		{
 			PathingOwner = sibling,
 			CloseDoorsBehind = true
@@ -546,12 +546,12 @@ public class PathingAIDoorSmashScheduleTests
 		var body = new Mock<IBody>();
 		fixture.Character.SetupGet(x => x.Body).Returns(body.Object);
 		fixture.Door.SetupGet(x => x.IsOpen).Returns(true);
-		var destination = new Mock<ICell>();
-		fixture.CellExit.SetupGet(x => x.Destination).Returns(destination.Object);
+		var destination = new Mock<IRoom>();
+		fixture.RoomExit.SetupGet(x => x.Destination).Returns(destination.Object);
 		fixture.Origin.SetupGet(x => x.Characters).Returns(Array.Empty<ICharacter>());
 		destination.SetupGet(x => x.Characters).Returns(Array.Empty<ICharacter>());
 
-		owner.RunCheckCloseDoor(fixture.Character.Object, fixture.CellExit.Object);
+		owner.RunCheckCloseDoor(fixture.Character.Object, fixture.RoomExit.Object);
 
 		body.Verify(x => x.Close(fixture.Door.Object, null!, null!), Times.Never);
 	}
@@ -564,11 +564,11 @@ public class PathingAIDoorSmashScheduleTests
 		Bind(fixture, disabledOwner);
 		var disabledPath = fixture.Focus.PathingEpisode!;
 		var sibling = new TestPathingAI();
-		var siblingPath = new FollowingPath(fixture.Character.Object, Array.Empty<ICellExit>())
+		var siblingPath = new FollowingPath(fixture.Character.Object, Array.Empty<IRoomExit>())
 		{
 			PathingOwner = sibling
 		};
-		var siblingFocus = new BreakDownDoor(fixture.Character.Object, fixture.CellExit.Object)
+		var siblingFocus = new BreakDownDoor(fixture.Character.Object, fixture.RoomExit.Object)
 		{
 			PathingEpisode = siblingPath
 		};
@@ -593,11 +593,11 @@ public class PathingAIDoorSmashScheduleTests
 		Bind(fixture, owner);
 		var ownerPath = fixture.Focus.PathingEpisode!;
 		var sibling = new TestPathingAI();
-		var siblingPath = new FollowingPath(fixture.Character.Object, Array.Empty<ICellExit>())
+		var siblingPath = new FollowingPath(fixture.Character.Object, Array.Empty<IRoomExit>())
 		{
 			PathingOwner = sibling
 		};
-		var siblingFocus = new BreakDownDoor(fixture.Character.Object, fixture.CellExit.Object)
+		var siblingFocus = new BreakDownDoor(fixture.Character.Object, fixture.RoomExit.Object)
 		{
 			PathingEpisode = siblingPath
 		};
@@ -609,7 +609,7 @@ public class PathingAIDoorSmashScheduleTests
 		}
 		else
 		{
-			fixture.Character.SetupGet(x => x.Location).Returns(new Mock<ICell>().Object);
+			fixture.Character.SetupGet(x => x.Location).Returns(new Mock<IRoom>().Object);
 		}
 
 		Assert.IsTrue(owner.RunCheckSmash(fixture.Character.Object));
@@ -627,8 +627,8 @@ public class PathingAIDoorSmashScheduleTests
 		var owner = new TestPathingAI();
 		Bind(fixture, owner);
 		var completedPath = fixture.Focus.PathingEpisode!;
-		var siblingPath = new FollowingPath(fixture.Character.Object, Array.Empty<ICellExit>());
-		var siblingFocus = new BreakDownDoor(fixture.Character.Object, fixture.CellExit.Object)
+		var siblingPath = new FollowingPath(fixture.Character.Object, Array.Empty<IRoomExit>());
+		var siblingFocus = new BreakDownDoor(fixture.Character.Object, fixture.RoomExit.Object)
 		{
 			PathingEpisode = siblingPath
 		};
@@ -649,12 +649,12 @@ public class PathingAIDoorSmashScheduleTests
 		var fixture = CreateFixture();
 		fixture.Effects.Remove(fixture.Focus);
 		EnableDoorMovement(fixture);
-		var path = new TestFollowingPath(fixture.Character.Object, new[] { fixture.CellExit.Object })
+		var path = new TestFollowingPath(fixture.Character.Object, new[] { fixture.RoomExit.Object })
 		{
 			SmashLockedDoors = true
 		};
 
-		var result = path.RunTryMoveThroughExit(fixture.Character.Object, fixture.CellExit.Object);
+		var result = path.RunTryMoveThroughExit(fixture.Character.Object, fixture.RoomExit.Object);
 		var focus = fixture.Effects.OfType<BreakDownDoor>().Single();
 
 		Assert.AreEqual(MovementStrategyResult.Waiting, result);
@@ -665,7 +665,7 @@ public class PathingAIDoorSmashScheduleTests
 	public void OwnerlessPathStillSupportsItsDirectConsumer()
 	{
 		var fixture = CreateFixture();
-		var path = new FollowingPath(fixture.Character.Object, Array.Empty<ICellExit>());
+		var path = new FollowingPath(fixture.Character.Object, Array.Empty<IRoomExit>());
 		fixture.Effects.Add(path);
 
 		path.FollowPathAction();
@@ -739,7 +739,7 @@ public class PathingAIDoorSmashScheduleTests
     public void ConfiguredCallback_InitialisesOnceWhileMovementIsBlockedAndHonoursDueTimeAfterUnblock()
     {
         var fixture = CreateFixture();
-        var followingPath = new FollowingPath(fixture.Character.Object, new[] { fixture.CellExit.Object });
+        var followingPath = new FollowingPath(fixture.Character.Object, new[] { fixture.RoomExit.Object });
         var blocker = new BlockingDelayedAction(fixture.Character.Object, _ => { }, "waiting to move",
             "general", string.Empty);
         fixture.Effects.Add(followingPath);
@@ -773,7 +773,7 @@ public class PathingAIDoorSmashScheduleTests
     public void InvalidOriginOrOpenDoor_RemovesFocusWithoutCallingCallbackOrSmashing()
     {
         var fixture = CreateFixture();
-        fixture.Character.SetupGet(x => x.Location).Returns(new Mock<ICell>().Object);
+        fixture.Character.SetupGet(x => x.Location).Returns(new Mock<IRoom>().Object);
         var prog = DelayProg(77, (_, _) => 1M);
         var ai = new TestPathingAI { Clock = DateTime.UtcNow };
         ai.SetDelayProg(prog.Object);

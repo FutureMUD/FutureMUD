@@ -41,7 +41,7 @@ public class Social : ISocial
         return _command;
     }
 
-    public void Execute(ICharacter actor, List<IPerceivable> targetList, ICellExit targetExit, IEmote playerEmote)
+    public void Execute(ICharacter actor, List<IPerceivable> targetList, IRoomExit targetExit, IEmote playerEmote)
     {
         MixedEmoteOutput output = null;
         if (targetExit != null)
@@ -101,7 +101,7 @@ public class Social : ISocial
         StringStack ss = new(command.RemoveFirstWord());
         List<IPerceivable> targetList = new()
         { actor };
-        ICellExit targetExit = null;
+        IRoomExit targetExit = null;
 
         if (!CharacterState.Able.HasFlag(actor.State))
         {

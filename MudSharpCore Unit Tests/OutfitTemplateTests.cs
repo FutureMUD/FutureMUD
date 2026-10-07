@@ -596,9 +596,9 @@ public class OutfitTemplateTests
 		return item;
 	}
 
-	private static Mock<ICharacter> Target(IEnumerable<IOutfit> outfits, out Mock<ICell> location, out Mock<IBody> body, out List<IOutfit> added)
+	private static Mock<ICharacter> Target(IEnumerable<IOutfit> outfits, out Mock<IRoom> location, out Mock<IBody> body, out List<IOutfit> added)
 	{
-		location = new Mock<ICell>();
+		location = new Mock<IRoom>();
 		body = new Mock<IBody>();
 		var addedList = new List<IOutfit>();
 		added = addedList;
@@ -612,7 +612,7 @@ public class OutfitTemplateTests
 		return target;
 	}
 
-	private static Mock<ICharacter> BuilderTarget(ICell location, List<IOutfit> added)
+	private static Mock<ICharacter> BuilderTarget(IRoom location, List<IOutfit> added)
 	{
 		var target = new Mock<ICharacter>();
 		target.Setup(x => x.Location).Returns(location);

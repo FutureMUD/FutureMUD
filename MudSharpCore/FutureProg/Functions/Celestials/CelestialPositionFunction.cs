@@ -23,9 +23,9 @@ internal class CelestialPositionFunction : BuiltInFunction
 
         object obj = ParameterFunctions[0].Result?.GetObject;
         IZone? zone = obj as IZone;
-        if (zone == null && obj is ICell cell)
+        if (zone == null && obj is IRoom room)
         {
-            zone = cell.Zone;
+            zone = room.Zone;
         }
 
         if (zone == null)

@@ -25,18 +25,19 @@ public class SpatialAreaPackageLegacyTests
 		Assert.IsTrue(result.Success, string.Join("; ", result.Diagnostics.Select(x => x.Message)));
 		Assert.AreEqual(version, result.SourceVersion);
 		Assert.AreEqual(checksum, result.SourceIntegritySha256);
-		Assert.AreEqual(4, result.Package!.Version);
-		Assert.AreEqual(200L, result.Package.Cells[0].SourceId, "Retain Cell ID, never Room ID.");
-		Assert.AreEqual(17, result.Package.Cells[0].X);
-		Assert.AreEqual(result.Package.Cells[0].X, result.Package.Cells[1].X, "Duplicate coordinates survive.");
-		if (version >= 2) Assert.AreEqual(7L, result.Package.Cells[0].RouteCell!.TopologyVersion);
+		Assert.AreEqual(5, result.Package!.Version);
+		Assert.AreEqual(200L, result.Package.Rooms[0].SourceId, "Retain Cell ID, never Room ID.");
+		Assert.AreEqual(17, result.Package.Rooms[0].X);
+		Assert.AreEqual(result.Package.Rooms[0].X, result.Package.Rooms[1].X, "Duplicate coordinates survive.");
+		if (version >= 2) Assert.AreEqual(7L, result.Package.Rooms[0].RouteRoom!.TopologyVersion);
 		if (version == 3)
 		{
 			Assert.AreEqual(2, result.Package.Areas.Count);
-			Assert.IsTrue(result.Package.Areas.All(x => x.CellKeys.Contains("c1")));
+			Assert.IsTrue(result.Package.Areas.All(x => x.RoomKeys.Contains("c1")));
 		}
 		var currentJson = SpatialAreaPackageSerializer.Serialize(result.Package);
-		Assert.IsFalse(currentJson.Contains("\"Rooms\"", StringComparison.Ordinal));
+		Assert.IsTrue(currentJson.Contains("\"Rooms\"", StringComparison.Ordinal));
+		Assert.IsFalse(currentJson.Contains("\"Cells\"", StringComparison.Ordinal));
 		Assert.IsFalse(currentJson.Contains("\"RoomKey\"", StringComparison.Ordinal));
 		Assert.IsTrue(SpatialAreaPackageSerializer.Deserialize(currentJson).Success);
 	}
@@ -51,14 +52,13 @@ public class SpatialAreaPackageLegacyTests
 	}
 
 	[TestMethod]
-	public void LegacyAmbiguityAndReferencedEmptyRoom_RefuseBeforeImport()
+	public void LegacyMultipleChildren_RefusesBeforeImport()
 	{
 		var legacy = Legacy.SpatialAreaPackageSerializer.Deserialize(Fixture(3)).Package!;
 		legacy.Cells[1].RoomKey = legacy.Cells[0].RoomKey;
 		var result = SpatialAreaPackageSerializer.Deserialize(Legacy.SpatialAreaPackageSerializer.Serialize(legacy));
 		Assert.IsFalse(result.Success);
 		Assert.IsTrue(result.Diagnostics.Any(x => x.Code == "multi-cell-room"));
-		Assert.IsTrue(result.Diagnostics.Any(x => x.Code == "referenced-empty-room"));
 	}
 
 	[TestMethod]
@@ -68,7 +68,22 @@ public class SpatialAreaPackageLegacyTests
 		legacy.Rooms.Add(new Legacy.SpatialRoomDefinition { Key = "empty", SourceId = 999, X = 99 });
 		var result = SpatialAreaPackageSerializer.Deserialize(Legacy.SpatialAreaPackageSerializer.Serialize(legacy));
 		Assert.IsTrue(result.Success);
-		Assert.AreEqual(2, result.Package!.Cells.Count);
+		Assert.AreEqual(2, result.Package!.Rooms.Count);
 		Assert.IsTrue(result.Diagnostics.Any(x => x.Code == "empty-room-skipped"));
+	}
+
+	[TestMethod]
+	public void LegacyEmptyParentAreaMembership_WarnsAndRetainsTheArea()
+	{
+		var legacy=Legacy.SpatialAreaPackageSerializer.Deserialize(Fixture(3)).Package!;
+		legacy.Rooms.Add(new Legacy.SpatialRoomDefinition {Key="empty",SourceId=999,X=99,ZoneKey=legacy.Rooms[0].ZoneKey});
+		legacy.Areas.Add(new Legacy.SpatialAreaDefinition {Key="empty-area",SourceId=777,Name="Retained empty area",RoomKeys=["empty"]});
+		var result=SpatialAreaPackageSerializer.Deserialize(Legacy.SpatialAreaPackageSerializer.Serialize(legacy));
+		Assert.IsTrue(result.Success,string.Join("; ",result.Diagnostics.Select(x=>x.Message)));
+		var area=result.Package!.Areas.Single(x=>x.Key=="empty-area");
+		Assert.AreEqual(777L,area.SourceId);
+		Assert.AreEqual(0,area.RoomKeys.Count);
+		Assert.IsTrue(result.Diagnostics.Any(x=>x.Code=="empty-room-area-membership-skipped" && x.Message.Contains("999")));
+		Assert.IsTrue(SpatialAreaPackageSerializer.Deserialize(SpatialAreaPackageSerializer.Serialize(result.Package)).Success);
 	}
 }

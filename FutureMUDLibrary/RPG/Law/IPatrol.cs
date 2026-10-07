@@ -25,9 +25,9 @@ namespace MudSharp.RPG.Law
         IEnumerable<ICharacter> PatrolMembers { get; }
         ICharacter PatrolLeader { get; set; }
         PatrolPhase PatrolPhase { get; set; }
-        ICell OriginLocation { get; }
-        ICell LastMajorNode { get; set; }
-        ICell NextMajorNode { get; set; }
+        IRoom OriginLocation { get; }
+        IRoom LastMajorNode { get; set; }
+        IRoom NextMajorNode { get; set; }
         DateTime PatrolStartTime { get; }
         DateTime LastArrivedTime { get; set; }
         ICharacter ActiveEnforcementTarget { get; set; }

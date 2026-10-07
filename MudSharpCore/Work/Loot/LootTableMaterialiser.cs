@@ -27,7 +27,7 @@ public sealed class LootTableMaterialiser
 
 	public LootTablePlanResult Preview(ILootTable table, string variant, long seed) => Planner().CreatePlan(Source(table), variant, seed);
 
-	public LootMaterialisationResult Materialise(ILootTable table, string variant, long seed, ICell target) =>
+	public LootMaterialisationResult Materialise(ILootTable table, string variant, long seed, IRoom target) =>
 		Materialise(table, variant, seed, new Destination(target, null, null));
 
 	public LootMaterialisationResult Materialise(ILootTable table, string variant, long seed, IGameItem target) =>
@@ -191,10 +191,10 @@ public sealed class LootTableMaterialiser
 
 	private static void PlaceRoot(Destination target, IGameItem item)
 	{
-		if (target.Cell is not null)
+		if (target.Room is not null)
 		{
-			target.Cell.Insert(item, newStack: true);
-			if (!ReferenceEquals(item.Location, target.Cell)) throw new LootMaterialisationException("PLACEMENT_FAILED", "A planned item was not inserted into the target location.");
+			target.Room.Insert(item, newStack: true);
+			if (!ReferenceEquals(item.Location, target.Room)) throw new LootMaterialisationException("PLACEMENT_FAILED", "A planned item was not inserted into the target location.");
 		}
 		else if (target.Item is not null)
 		{
@@ -274,6 +274,6 @@ public sealed class LootTableMaterialiser
 
 	private static LootTablePlanSource Source(ILootTable table) => new(table.Id, table.RevisionNumber, table.DefinitionHash, table.Definition);
 	private static LootMaterialisationResult Error(string code, string message) => new(false, $"ERROR code={code} message={message}");
-	private sealed record Destination(ICell? Cell, IGameItem? Item, ICharacter? Character);
+	private sealed record Destination(IRoom? Room, IGameItem? Item, ICharacter? Character);
 	private sealed class LootMaterialisationException(string code, string message) : Exception(message) { public string Code { get; } = code; }
 }

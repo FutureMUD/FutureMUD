@@ -21,7 +21,7 @@ public class SignedCommunicationEventTests
 		var actor = new Mock<ICharacter>();
 		var target = new Mock<IPerceivable>();
 		var body = new Mock<IBody>();
-		var location = new Mock<ICell>();
+		var location = new Mock<IRoom>();
 		var language = new Mock<ISignedLanguage>();
 		var variety = new Mock<ISignedLanguageVariety>();
 		location.SetupGet(x => x.EventHandlers).Returns([]);

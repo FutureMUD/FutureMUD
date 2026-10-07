@@ -333,14 +333,14 @@ namespace MudSharp.Construction
             return (northness, southness, westness, eastness, upness, downness, unknownness);
         }
 
-        public static string DescribeExitDirection<T>(this T directions) where T : IEnumerable<ICellExit>
+        public static string DescribeExitDirection<T>(this T directions) where T : IEnumerable<IRoomExit>
         {
             if (!directions.Any())
             {
                 return "Nowhere";
             }
 
-            if (directions.First() is INonCardinalCellExit nce)
+            if (directions.First() is INonCardinalRoomExit nce)
             {
                 return nce.OutboundTarget;
             }
@@ -369,7 +369,7 @@ namespace MudSharp.Construction
                                               Math.Pow(counts.Upness, 2)), 0) + counts.Unknownness;
         }
 
-        public static int PythagoreanDistance<T>(this T exits, RoundingMode rounding = RoundingMode.Truncate) where T : IEnumerable<ICellExit>
+        public static int PythagoreanDistance<T>(this T exits, RoundingMode rounding = RoundingMode.Truncate) where T : IEnumerable<IRoomExit>
         {
             IEnumerable<CardinalDirection> directions = exits.Select(x => x.OutboundDirection);
             (int Northness, int Southness, int Westness, int Eastness, int Upness, int Downness, int Unknownness) counts = directions.CountDirections();
@@ -386,7 +386,7 @@ namespace MudSharp.Construction
             }
         }
 
-        public static int MaximumAxialDistance<T>(this T exits) where T : IEnumerable<ICellExit>
+        public static int MaximumAxialDistance<T>(this T exits) where T : IEnumerable<IRoomExit>
         {
             IEnumerable<CardinalDirection> directions = exits.Select(x => x.OutboundDirection);
             (int Northness, int Southness, int Westness, int Eastness, int Upness, int Downness, int Unknownness) counts = directions.CountDirections();

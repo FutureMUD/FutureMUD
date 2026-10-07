@@ -45,10 +45,10 @@ public class EmptyPatrolRouteTests
 	public void DoorDutiesSelectEnforcers_ValidRoute_PreservesLocalPreferenceAndFallback(int requested, int expected)
 	{
 		var fixture = new StatusFixture();
-		var node = Mock.Of<ICell>();
+		var node = Mock.Of<IRoom>();
 		fixture.Route.SetupGet(x => x.PatrolNodes).Returns([node]);
 		var local = Mock.Of<ICharacter>(x => x.Location == node);
-		var remote = Mock.Of<ICharacter>(x => x.Location == Mock.Of<ICell>());
+		var remote = Mock.Of<ICharacter>(x => x.Location == Mock.Of<IRoom>());
 		var pool = new[] { remote, local };
 		var strategy = TestObjectFactory.CreateUninitialized<DoorDutiesPatrolStrategy>();
 
@@ -192,7 +192,7 @@ public class EmptyPatrolRouteTests
 			Route.SetupGet(x => x.Id).Returns(42);
 			Route.SetupGet(x => x.Name).Returns("Door Post");
 			Route.SetupGet(x => x.IsReady).Returns(true);
-			Route.SetupGet(x => x.PatrolNodes).Returns([Mock.Of<ICell>()]);
+			Route.SetupGet(x => x.PatrolNodes).Returns([Mock.Of<IRoom>()]);
 			Route.SetupGet(x => x.PatrollerNumbers).Returns(Numbers);
 			Route.SetupGet(x => x.PatrolStrategy).Returns(Strategy.Object);
 			Strategy.SetupGet(x => x.Name).Returns("ArmedPatrol");
@@ -205,7 +205,7 @@ public class EmptyPatrolRouteTests
 			var route = TestObjectFactory.CreateUninitialized<PatrolRoute>();
 			route.Id = 42;
 			typeof(FrameworkItem).GetField("_name", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(route, "Door Post");
-			typeof(PatrolRoute).GetField("_patrolNodes", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(route, new List<ICell>());
+			typeof(PatrolRoute).GetField("_patrolNodes", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(route, new List<IRoom>());
 			typeof(PatrolRoute).GetField("<PatrollerNumbers>k__BackingField", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(route, Numbers);
 			typeof(PatrolRoute).GetProperty(nameof(PatrolRoute.IsReady))!.SetValue(route, true);
 			typeof(PatrolRoute).GetProperty(nameof(PatrolRoute.PatrolStrategy))!.SetValue(route, TestObjectFactory.CreateUninitialized<DoorDutiesPatrolStrategy>());

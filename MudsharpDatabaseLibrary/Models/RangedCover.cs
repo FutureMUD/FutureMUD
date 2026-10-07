@@ -7,7 +7,7 @@ namespace MudSharp.Models
     {
         public RangedCover()
         {
-            CellsRangedCovers = new HashSet<CellsRangedCovers>();
+            RoomsRangedCovers = new HashSet<RoomsRangedCovers>();
             TerrainsRangedCovers = new HashSet<TerrainsRangedCovers>();
         }
 
@@ -21,7 +21,7 @@ namespace MudSharp.Models
         public int MaximumSimultaneousCovers { get; set; }
         public bool CoverStaysWhileMoving { get; set; }
 
-        public virtual ICollection<CellsRangedCovers> CellsRangedCovers { get; set; }
+        public virtual ICollection<RoomsRangedCovers> RoomsRangedCovers { get; set; }
         public virtual ICollection<TerrainsRangedCovers> TerrainsRangedCovers { get; set; }
     }
 }

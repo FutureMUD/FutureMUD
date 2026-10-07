@@ -66,7 +66,7 @@ public abstract class NaturalRangedAttackMoveBase : WeaponAttackMove, IRangedAtt
 			return false;
 		}
 
-		List<ICellExit> path = assailant
+		List<IRoomExit> path = assailant
 			.PathBetween(target, (uint)rangeInRooms, false, false, true)?
 			.ToList() ?? [];
 		return path.Count > 0 && path.Count <= rangeInRooms;
@@ -89,8 +89,8 @@ public abstract class NaturalRangedAttackMoveBase : WeaponAttackMove, IRangedAtt
     protected virtual CombatMoveResult HandleMiss(IPerceiver originalTarget, CheckOutcome attackOutcome)
     {
         List<IWound> wounds = new();
-        List<ICellExit> path = Assailant.PathBetween(originalTarget, (uint)RangedAttack.RangeInRooms, false, false, true)?.ToList() ??
-                   new List<ICellExit>();
+        List<IRoomExit> path = Assailant.PathBetween(originalTarget, (uint)RangedAttack.RangeInRooms, false, false, true)?.ToList() ??
+                   new List<IRoomExit>();
         RangedScatterResult scatter = RangedScatterStrategyFactory.GetStrategy(RangedAttack.ScatterType)
                                                  .GetScatterTarget(Assailant, originalTarget, path);
         if (scatter?.Target is not null)

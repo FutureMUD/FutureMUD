@@ -58,12 +58,12 @@ namespace MudSharp.Framework
         /// <returns></returns>
         bool IsSelf(IPerceivable other);
 
-        void MoveTo(ICell location, RoomLayer layer, ICellExit exit = null, bool noSave = false);
+        void MoveTo(IRoom location, RoomLayer layer, IRoomExit exit = null, bool noSave = false);
 
 #nullable enable annotations
-        void MoveTo(SpatialLocation location, ICellExit? exit = null, bool noSave = false)
+        void MoveTo(SpatialLocation location, IRoomExit? exit = null, bool noSave = false)
         {
-            MoveTo(location.Cell, location.Layer, exit, noSave);
+            MoveTo(location.Room, location.Layer, exit, noSave);
             SetRoutePosition(location.RoutePositionMetres);
         }
 #nullable restore annotations

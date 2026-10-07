@@ -16,9 +16,9 @@ public sealed class ArenaWatcherEffect : Effect, IRemoteObservationEffect
     private const int AdditionalNoticeStages = 2;
 
     private readonly IArenaEvent _arenaEvent;
-    private readonly Dictionary<ICharacter, ICell> _watchers = new();
+    private readonly Dictionary<ICharacter, IRoom> _watchers = new();
 
-    public ArenaWatcherEffect(ICell owner, IArenaEvent arenaEvent) : base(owner)
+    public ArenaWatcherEffect(IRoom owner, IArenaEvent arenaEvent) : base(owner)
     {
         _arenaEvent = arenaEvent ?? throw new ArgumentNullException(nameof(arenaEvent));
     }
@@ -32,32 +32,32 @@ public sealed class ArenaWatcherEffect : Effect, IRemoteObservationEffect
         return $"Mirroring arena event {_arenaEvent.Name.ColourName()} to observation rooms.";
     }
 
-    public void AddWatcher(ICharacter watcher, ICell observationCell)
+    public void AddWatcher(ICharacter watcher, IRoom observationRoom)
     {
         if (watcher is null)
         {
             return;
         }
 
-        if (observationCell is null)
+        if (observationRoom is null)
         {
-            throw new ArgumentNullException(nameof(observationCell));
+            throw new ArgumentNullException(nameof(observationRoom));
         }
 
-        ICell effectiveCell = observationCell;
-        if (watcher.Location is ICell currentCell &&
-                _arenaEvent.Arena.ObservationCells.Contains(currentCell))
+        IRoom effectiveRoom = observationRoom;
+        if (watcher.Location is IRoom currentRoom &&
+                _arenaEvent.Arena.ObservationRooms.Contains(currentRoom))
         {
-            effectiveCell = currentCell;
+            effectiveRoom = currentRoom;
         }
 
         if (_watchers.ContainsKey(watcher))
         {
-            _watchers[watcher] = effectiveCell;
+            _watchers[watcher] = effectiveRoom;
             return;
         }
 
-        _watchers.Add(watcher, effectiveCell);
+        _watchers.Add(watcher, effectiveRoom);
         RegisterWatcher(watcher);
     }
 
@@ -157,9 +157,9 @@ public sealed class ArenaWatcherEffect : Effect, IRemoteObservationEffect
     private void PruneInvalidWatchers()
     {
         bool removed = false;
-        foreach ((ICharacter? watcher, ICell? observationCell) in _watchers.ToList())
+        foreach ((ICharacter? watcher, IRoom? observationRoom) in _watchers.ToList())
         {
-            if (!IsWatcherValid(watcher, observationCell))
+            if (!IsWatcherValid(watcher, observationRoom))
             {
                 _watchers.Remove(watcher);
                 UnregisterWatcher(watcher);
@@ -173,26 +173,26 @@ public sealed class ArenaWatcherEffect : Effect, IRemoteObservationEffect
         }
     }
 
-    private bool IsWatcherValid(ICharacter watcher, ICell observationCell)
+    private bool IsWatcherValid(ICharacter watcher, IRoom observationRoom)
     {
         if (!watcher.State.IsConscious())
         {
             return false;
         }
 
-        if (watcher.Location is not ICell currentCell)
+        if (watcher.Location is not IRoom currentRoom)
         {
             return false;
         }
 
-        if (!_arenaEvent.Arena.ObservationCells.Contains(currentCell))
+        if (!_arenaEvent.Arena.ObservationRooms.Contains(currentRoom))
         {
             return false;
         }
 
-        if (!ReferenceEquals(currentCell, observationCell))
+        if (!ReferenceEquals(currentRoom, observationRoom))
         {
-            _watchers[watcher] = currentCell;
+            _watchers[watcher] = currentRoom;
         }
 
         return true;
@@ -250,10 +250,10 @@ public sealed class ArenaWatcherEffect : Effect, IRemoteObservationEffect
             return;
         }
 
-        if (watcher.Location is ICell currentCell &&
-                _arenaEvent.Arena.ObservationCells.Contains(currentCell))
+        if (watcher.Location is IRoom currentRoom &&
+                _arenaEvent.Arena.ObservationRooms.Contains(currentRoom))
         {
-            _watchers[watcher] = currentCell;
+            _watchers[watcher] = currentRoom;
             return;
         }
 

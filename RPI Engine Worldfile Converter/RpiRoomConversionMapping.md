@@ -1,4 +1,4 @@
-# RPI Room Conversion Mapping
+﻿# RPI Room Conversion Mapping
 
 ## Scope
 
@@ -217,6 +217,6 @@ Coordinates are generated deterministically per zone group:
 
 This produces stable overlay layouts without requiring hand-authored maps.
 
-## Direct cell target schema
+## Direct Room target schema
 
-The importer targets the contracted cell schema. It allocates no Room row or Room ID. ID reservations check occupied Cell IDs; legacy RPI room vnums remain source vocabulary. New room audit entries retain the historical nullable RoomId field as null and record the actual target CellId. Existing audit files remain readable. Imported cells have no global unique name until a builder assigns one.
+The importer targets the final direct Room schema, whose IDs are the former Cell IDs. It allocates no removed legacy parent. ID reservations check occupied Room IDs; RPI room vnums remain source vocabulary. New audit entries use LegacyRoomId (null because no legacy parent is created) and RoomId (the actual direct target). Older audit files keep their original RoomId (parent) and CellId (child) meanings; they must not be reinterpreted as the new output format. The converter emits these reports and does not import them as world data. Imported Rooms have no global unique name until a builder assigns one.

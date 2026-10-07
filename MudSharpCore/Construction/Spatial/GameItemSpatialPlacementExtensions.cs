@@ -28,12 +28,12 @@ public static class GameItemSpatialPlacementExtensions
 		}
 
 		item.RoomLayer = location.Layer;
-		if (location.Cell.RouteDefinition is not null)
+		if (location.Room.RouteDefinition is not null)
 		{
 			item.MoveTo(location);
 		}
 
-		location.Cell.Insert(item, newStack);
+		location.Room.Insert(item, newStack);
 	}
 
 	/// <summary>
@@ -52,28 +52,28 @@ public static class GameItemSpatialPlacementExtensions
 		// Keep the legacy ordinary-cell path completely independent of the optional spatial
 		// contract. This is important for older ILocateable implementations (and test doubles)
 		// that expose Location/RoomLayer but rely on the default spatial members.
-		var sourceCell = source.Location;
-		if (sourceCell is not null && sourceCell.RouteDefinition is null)
+		var sourceRoom = source.Location;
+		if (sourceRoom is not null && sourceRoom.RouteDefinition is null)
 		{
-			sourceCell.Insert(item, newStack);
+			sourceRoom.Insert(item, newStack);
 			return;
 		}
 
 		var service = spatialService ?? RouteSpatialService.Instance;
 		var effectiveLocation = service.GetEffectiveLocation(source);
-		if (effectiveLocation.Cell is null)
+		if (effectiveLocation.Room is null)
 		{
 			throw new InvalidOperationException("The placement source does not have a valid cell.");
 		}
 
-		if (sourceCell is not null && !ReferenceEquals(sourceCell, effectiveLocation.Cell))
+		if (sourceRoom is not null && !ReferenceEquals(sourceRoom, effectiveLocation.Room))
 		{
 			throw new InvalidOperationException(
 				"The placement source's effective spatial cell does not match its reported location.");
 		}
 
 		item.InsertAtSpatialLocation(new SpatialLocation(
-			effectiveLocation.Cell,
+			effectiveLocation.Room,
 			item.RoomLayer,
 			effectiveLocation.RoutePositionMetres), newStack, service);
 	}

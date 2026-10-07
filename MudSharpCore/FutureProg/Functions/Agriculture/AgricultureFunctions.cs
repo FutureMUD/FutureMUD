@@ -88,10 +88,10 @@ internal class FieldAtFunction : BuiltInFunction
 			return StatementResult.Error;
 		}
 
-		var cell = (ICell)ParameterFunctions[0].Result?.GetObject;
-		Result = cell?.AgricultureField == null
+		var room = (IRoom)ParameterFunctions[0].Result?.GetObject;
+		Result = room?.AgricultureField == null
 			? new NullVariable(ProgVariableTypes.AgricultureField)
-			: cell.AgricultureField;
+			: room.AgricultureField;
 		return StatementResult.Normal;
 	}
 
@@ -131,15 +131,15 @@ internal class CreateFieldFunction : BuiltInFunction
 			return StatementResult.Error;
 		}
 
-		var cell = (ICell)ParameterFunctions[0].Result?.GetObject;
-		if (cell == null || cell.AgricultureField != null)
+		var room = (IRoom)ParameterFunctions[0].Result?.GetObject;
+		if (room == null || room.AgricultureField != null)
 		{
 			Result = new NullVariable(ProgVariableTypes.AgricultureField);
 			return StatementResult.Normal;
 		}
 
 		var profile = ParameterFunctions.Count == 1
-			? cell.Terrain(null).DefaultAgricultureFieldProfile
+			? room.Terrain(null).DefaultAgricultureFieldProfile
 			: ResolveProfile();
 		if (profile == null)
 		{
@@ -147,7 +147,7 @@ internal class CreateFieldFunction : BuiltInFunction
 			return StatementResult.Normal;
 		}
 
-		var field = new AgricultureField(cell, profile);
+		var field = new AgricultureField(room, profile);
 		_gameworld.Add(field);
 		Result = field;
 		return StatementResult.Normal;

@@ -426,18 +426,18 @@ public class ProjectWorkerAI : PathingAIBase
 		return ResolvePathTarget(character) is not null;
 	}
 
-	protected override (ICell? Target, IEnumerable<ICellExit>) GetPath(ICharacter ch)
+	protected override (IRoom? Target, IEnumerable<IRoomExit>) GetPath(ICharacter ch)
 	{
 		var target = ResolvePathTarget(ch);
 		if (target is null || ReferenceEquals(target, ch.Location))
 		{
-			return (null, Enumerable.Empty<ICellExit>());
+			return (null, Enumerable.Empty<IRoomExit>());
 		}
 
 		return (target, ch.PathBetween(target, MaxPathRange, GetSuitabilityFunction(ch)).ToList());
 	}
 
-	private ICell? ResolvePathTarget(ICharacter worker)
+	private IRoom? ResolvePathTarget(ICharacter worker)
 	{
 		if (worker.CurrentProject.Project is { } currentProject)
 		{
@@ -525,15 +525,15 @@ public class ProjectWorkerAI : PathingAIBase
 		return amount * currency.BaseCurrencyToGlobalBaseCurrencyConversion;
 	}
 
-	private int CommuteDistance(ICharacter worker, ICell? cell)
+	private int CommuteDistance(ICharacter worker, IRoom? room)
 	{
-		if (cell is null || ReferenceEquals(worker.Location, cell))
+		if (room is null || ReferenceEquals(worker.Location, room))
 		{
 			return 0;
 		}
 
-		var path = worker.PathBetween(cell, MaxPathRange, GetSuitabilityFunction(worker))?.ToList() ??
-		           new List<ICellExit>();
+		var path = worker.PathBetween(room, MaxPathRange, GetSuitabilityFunction(worker))?.ToList() ??
+		           new List<IRoomExit>();
 		return path.Any() ? path.Count : int.MaxValue;
 	}
 

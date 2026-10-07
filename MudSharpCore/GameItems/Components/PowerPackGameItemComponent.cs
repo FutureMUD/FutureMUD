@@ -92,7 +92,7 @@ public class PowerPackGameItemComponent : GameItemComponent, ILaserPowerPack
     }
 
     private IPerceiver CheckFriendlyFire(ICharacter actor, IPerceiver target, Outcome shotOutcome,
-        IRangedWeaponType weaponType, double painMultiplier, double stunMultiplier, IEnumerable<ICell> path)
+        IRangedWeaponType weaponType, double painMultiplier, double stunMultiplier, IEnumerable<IRoom> path)
     {
         // TODO
         if (Dice.Roll(1, 100) > 10 * (8 - (int)shotOutcome))
@@ -178,34 +178,34 @@ public class PowerPackGameItemComponent : GameItemComponent, ILaserPowerPack
         throw new NotImplementedException("Unknown target type in Fire.");
     }
 
-    private void HandleBeamScatterToCell(RangedScatterResult scatterResult)
+    private void HandleBeamScatterToRoom(RangedScatterResult scatterResult)
     {
-        DummyPerceiver dummy = new(location: scatterResult.Cell)
+        DummyPerceiver dummy = new(location: scatterResult.Room)
         {
             RoomLayer = scatterResult.RoomLayer
         };
 
         string directionText = ScatterStrategyUtilities.DescribeFromDirection(scatterResult.DirectionFromTarget);
         Emote emote = new($"A stray beam of energy flashes{directionText} and scorches the surroundings.", dummy);
-        scatterResult.Cell.Handle(new EmoteOutput(emote, style: OutputStyle.CombatMessage,
+        scatterResult.Room.Handle(new EmoteOutput(emote, style: OutputStyle.CombatMessage,
             flags: OutputFlags.InnerWrap));
     }
 
     private void BroadcastBeamFlight(ICharacter actor, IPerceivable destination,
-        IReadOnlyList<ICellExit> precomputedPath = null)
+        IReadOnlyList<IRoomExit> precomputedPath = null)
     {
         if (actor?.Location == null || destination?.Location == null)
         {
             return;
         }
 
-        IReadOnlyList<ICellExit> path = precomputedPath ?? actor.PathBetween(destination, 10, false, false, true)?.ToList() ??
-                   new List<ICellExit>();
+        IReadOnlyList<IRoomExit> path = precomputedPath ?? actor.PathBetween(destination, 10, false, false, true)?.ToList() ??
+                   new List<IRoomExit>();
         string dirDesc = path.Select(x => x.OutboundDirection).DescribeDirection();
         string oppDirDesc = path.Select(x => x.OutboundDirection).DescribeOppositeDirection();
-        foreach (ICell cell in actor.CellsUnderneathFlight(destination, 10))
+        foreach (IRoom room in actor.RoomsUnderneathFlight(destination, 10))
         {
-            cell.Handle(new EmoteOutput(
+            room.Handle(new EmoteOutput(
                 new Emote($"A laser beam flashes through the area from the {oppDirDesc} towards the {dirDesc}", actor)));
         }
 
@@ -253,10 +253,10 @@ public class PowerPackGameItemComponent : GameItemComponent, ILaserPowerPack
     }
 
     private bool TryResolveScatter(ICharacter actor, IPerceiver originalTarget, IRangedWeaponType weaponType,
-        double painMultiplier, double stunMultiplier, IReadOnlyList<ICellExit> path, string context)
+        double painMultiplier, double stunMultiplier, IReadOnlyList<IRoomExit> path, string context)
     {
         RangedScatterResult scatterResult = RangedScatterStrategyFactory.GetStrategy(weaponType)
-            .GetScatterTarget(actor, originalTarget, path ?? Array.Empty<ICellExit>());
+            .GetScatterTarget(actor, originalTarget, path ?? Array.Empty<IRoomExit>());
 
         if (scatterResult == null)
         {
@@ -274,8 +274,8 @@ public class PowerPackGameItemComponent : GameItemComponent, ILaserPowerPack
     {
         if (scatterResult.Target != null)
         {
-            List<ICellExit> scatterPath = actor.PathBetween(scatterResult.Target, 10, false, false, true)?.ToList() ??
-                              new List<ICellExit>();
+            List<IRoomExit> scatterPath = actor.PathBetween(scatterResult.Target, 10, false, false, true)?.ToList() ??
+                              new List<IRoomExit>();
             BroadcastBeamFlight(actor, scatterResult.Target, scatterPath);
             IBodypart bodypart = (scatterResult.Target as IHaveABody)?.Body?.RandomBodyPartGeometry(Orientation.Centre,
                 Alignment.Front, Facing.Front);
@@ -283,24 +283,24 @@ public class PowerPackGameItemComponent : GameItemComponent, ILaserPowerPack
                 new OpposedOutcome(OpposedOutcomeDirection.Proponent, OpposedOutcomeDegree.Marginal), painMultiplier,
                 stunMultiplier, null);
             Gameworld.DebugMessage(
-                $"[Scatter:{context}] Ricochet beam struck {scatterResult.Target.HowSeen(actor)} in {scatterResult.Cell.HowSeen(actor)} after deviating{ScatterStrategyUtilities.DescribeFromDirection(scatterResult.DirectionFromTarget)} (distance {scatterResult.DistanceFromTarget:N0}).");
+                $"[Scatter:{context}] Ricochet beam struck {scatterResult.Target.HowSeen(actor)} in {scatterResult.Room.HowSeen(actor)} after deviating{ScatterStrategyUtilities.DescribeFromDirection(scatterResult.DirectionFromTarget)} (distance {scatterResult.DistanceFromTarget:N0}).");
             return;
         }
 
-        DummyPerceiver dummy = new(location: scatterResult.Cell)
+        DummyPerceiver dummy = new(location: scatterResult.Room)
         {
             RoomLayer = scatterResult.RoomLayer
         };
-        List<ICellExit> scatterCellPath = actor.PathBetween(dummy, 10, false, false, true)?.ToList() ?? new List<ICellExit>();
-        BroadcastBeamFlight(actor, dummy, scatterCellPath);
-        HandleBeamScatterToCell(scatterResult);
+        List<IRoomExit> scatterRoomPath = actor.PathBetween(dummy, 10, false, false, true)?.ToList() ?? new List<IRoomExit>();
+        BroadcastBeamFlight(actor, dummy, scatterRoomPath);
+        HandleBeamScatterToRoom(scatterResult);
         Gameworld.DebugMessage(
-            $"[Scatter:{context}] Ricochet beam impacted {scatterResult.Cell.HowSeen(actor)}{ScatterStrategyUtilities.DescribeFromDirection(scatterResult.DirectionFromTarget)} without striking a new target.");
+            $"[Scatter:{context}] Ricochet beam impacted {scatterResult.Room.HowSeen(actor)}{ScatterStrategyUtilities.DescribeFromDirection(scatterResult.DirectionFromTarget)} without striking a new target.");
     }
 
     private bool TryResolveCoverInterception(ICharacter actor, IPerceiver target, Outcome shotOutcome,
         Outcome coverOutcome, IRangedWeaponType weaponType, IBodypart bodypart, OpposedOutcome defenseOutcome,
-        double painMultiplier, double stunMultiplier, IReadOnlyList<ICellExit> path)
+        double painMultiplier, double stunMultiplier, IReadOnlyList<IRoomExit> path)
     {
 		var effectiveCover = target is ICharacter targetCharacter
 			? VehicleCombatService.Instance.ResolveEffectiveRangedCover(actor, targetCharacter)
@@ -350,7 +350,7 @@ public class PowerPackGameItemComponent : GameItemComponent, ILaserPowerPack
 
     private bool TryResolveMiss(ICharacter actor, IPerceiver target, Outcome shotOutcome, Outcome coverOutcome,
         OpposedOutcome defenseOutcome, IRangedWeaponType weaponType, double painMultiplier, double stunMultiplier,
-        IEmoteOutput defenseEmote, IReadOnlyList<ICellExit> path)
+        IEmoteOutput defenseEmote, IReadOnlyList<IRoomExit> path)
     {
         if (shotOutcome.IsPass() && defenseOutcome.Outcome != OpposedOutcomeDirection.Opponent)
         {
@@ -395,7 +395,7 @@ public class PowerPackGameItemComponent : GameItemComponent, ILaserPowerPack
 
     private bool TryResolveObstruction(ICharacter actor, IPerceiver target, IRangedWeaponType weaponType,
         OpposedOutcome defenseOutcome, IBodypart bodypart, double painMultiplier, double stunMultiplier,
-        IReadOnlyList<ICellExit> path)
+        IReadOnlyList<IRoomExit> path)
     {
         IRangedObstructionEffect obstructionEffect = target.EffectsOfType<IRangedObstructionEffect>().Where(x => x.Applies(actor)).Shuffle(Constants.Random)
                                          .FirstOrDefault();
@@ -413,8 +413,8 @@ public class PowerPackGameItemComponent : GameItemComponent, ILaserPowerPack
             $"[Ranged] Obstruction: {actorText}'s beam at {targetText} intercepted by {obstructionText}.");
         if (obstructionPerceiver != null)
         {
-            List<ICellExit> obstructionPath = actor.PathBetween(obstructionPerceiver, 10, false, false, true)?.ToList() ??
-                                  new List<ICellExit>();
+            List<IRoomExit> obstructionPath = actor.PathBetween(obstructionPerceiver, 10, false, false, true)?.ToList() ??
+                                  new List<IRoomExit>();
             BroadcastBeamFlight(actor, obstructionPerceiver, obstructionPath);
         }
         else
@@ -456,7 +456,7 @@ public class PowerPackGameItemComponent : GameItemComponent, ILaserPowerPack
         // Fired at sky
         if (target == null)
         {
-            if (actor.Location.CurrentOverlay.OutdoorsType != CellOutdoorsType.Outdoors)
+            if (actor.Location.CurrentOverlay.OutdoorsType != RoomOutdoorsType.Outdoors)
             {
                 actor.OutputHandler.Handle(new EmoteOutput(new Emote("The laser beam hits the ceiling!", actor)));
             }
@@ -464,7 +464,7 @@ public class PowerPackGameItemComponent : GameItemComponent, ILaserPowerPack
             return;
         }
 
-        List<ICellExit> pathToTarget = actor.PathBetween(target, 10, false, false, true)?.ToList() ?? new List<ICellExit>();
+        List<IRoomExit> pathToTarget = actor.PathBetween(target, 10, false, false, true)?.ToList() ?? new List<IRoomExit>();
 
         // Resolve cover interactions before anything else so ricochets happen from the correct origin.
         if (TryResolveCoverInterception(actor, target, shotOutcome, coverOutcome, weaponType, bodypart, defenseOutcome,

@@ -326,7 +326,7 @@ public class InternalMagazineGunGameItemComponent : FirearmBaseGameItemComponent
         var gunComponent = Parent.GetItemType<InternalMagazineGunGameItemComponent>();
         var gunBody = Parent.InInventoryOf;
         var gunContainer = Parent.ContainedIn;
-        var gunCell = Parent.Location;
+        var gunRoom = Parent.Location;
         var gunLayer = Parent.RoomLayer;
         var gunPosition = Parent.RoutePositionMetres;
         var gunTitle = Parent.OwnershipReference;
@@ -338,7 +338,7 @@ public class InternalMagazineGunGameItemComponent : FirearmBaseGameItemComponent
         bool MagazineUnchanged() => !Parent.Deleted && !Parent.Destroyed && ReferenceEquals(_prototype, prototype) &&
             prototype.InternalMagazineCapacity == capacity && ReferenceEquals(Parent.GetItemType<InternalMagazineGunGameItemComponent>(), gunComponent) &&
             ReferenceEquals(Parent.InInventoryOf, gunBody) && ReferenceEquals(Parent.ContainedIn, gunContainer) &&
-            ReferenceEquals(Parent.Location, gunCell) && Parent.RoomLayer == gunLayer &&
+            ReferenceEquals(Parent.Location, gunRoom) && Parent.RoomLayer == gunLayer &&
             Parent.RoutePositionMetres == gunPosition && Parent.OwnershipReference == gunTitle &&
             ReferenceEquals(loader.Body, receiver) && ReferenceEquals(receiver.Actor, receiverActor) && ReferenceEquals(ChamberedRound, chamber) &&
             ReferenceEquals(ChamberedCasing, casing) && _roundsInMagazine.Count == magazine.Length &&
@@ -484,7 +484,7 @@ public class InternalMagazineGunGameItemComponent : FirearmBaseGameItemComponent
 		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader)) return [];
 		var gunBody = Parent.InInventoryOf;
 		var gunContainer = Parent.ContainedIn;
-		var gunCell = ComponentItemTransfer.DirectLocationOf(Parent);
+		var gunRoom = ComponentItemTransfer.DirectLocationOf(Parent);
 		var gunLayer = Parent.RoomLayer;
 		var gunPosition = Parent.RoutePositionMetres;
 		var gunTitle = Parent.OwnershipReference;
@@ -493,7 +493,7 @@ public class InternalMagazineGunGameItemComponent : FirearmBaseGameItemComponent
 		bool GunUnchanged() => !Parent.Deleted && !Parent.Destroyed && ReferenceEquals(_prototype, prototype) &&
 			prototype.InternalMagazineCapacity == capacity && ReferenceEquals(Parent.GetItemType<InternalMagazineGunGameItemComponent>(), this) &&
 			ReferenceEquals(Parent.InInventoryOf, gunBody) && ReferenceEquals(Parent.ContainedIn, gunContainer) &&
-			ReferenceEquals(ComponentItemTransfer.DirectLocationOf(Parent), gunCell) && Parent.RoomLayer == gunLayer &&
+			ReferenceEquals(ComponentItemTransfer.DirectLocationOf(Parent), gunRoom) && Parent.RoomLayer == gunLayer &&
 			Parent.RoutePositionMetres == gunPosition && Parent.OwnershipReference == gunTitle;
 		var canUnload = CanUnload(loader);
 		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(loader) || !GunUnchanged()) return [];
@@ -579,11 +579,11 @@ public class InternalMagazineGunGameItemComponent : FirearmBaseGameItemComponent
 	{
 		var receiver = actor.Body;
 		var receiverActor = receiver.Actor;
-		var actorCell = actor.Location; var actorLayer = actor.RoomLayer; var actorPosition = actor.RoutePositionMetres;
+		var actorRoom = actor.Location; var actorLayer = actor.RoomLayer; var actorPosition = actor.RoutePositionMetres;
 		var gunComponent = Parent.GetItemType<InternalMagazineGunGameItemComponent>();
 		var gunBody = Parent.InInventoryOf;
 		var gunContainer = Parent.ContainedIn;
-		var gunCell = ComponentItemTransfer.DirectLocationOf(Parent);
+		var gunRoom = ComponentItemTransfer.DirectLocationOf(Parent);
 		var gunLayer = Parent.RoomLayer;
 		var gunPosition = Parent.RoutePositionMetres;
 		var gunTitle = Parent.OwnershipReference;
@@ -592,11 +592,11 @@ public class InternalMagazineGunGameItemComponent : FirearmBaseGameItemComponent
 		var eject = prototype.EjectOnFire; var capacity = prototype.InternalMagazineCapacity; var cycle = prototype.CycleType;
 		return () => !Parent.Deleted && !Parent.Destroyed && ReferenceEquals(_prototype, prototype) &&
 			prototype.EjectOnFire == eject && prototype.InternalMagazineCapacity == capacity && prototype.CycleType == cycle &&
-			ReferenceEquals(actor.Location, actorCell) && actor.RoomLayer == actorLayer && actor.RoutePositionMetres == actorPosition && ReferenceEquals(Parent.Prototype, itemPrototype) &&
+			ReferenceEquals(actor.Location, actorRoom) && actor.RoomLayer == actorLayer && actor.RoutePositionMetres == actorPosition && ReferenceEquals(Parent.Prototype, itemPrototype) &&
 			ReferenceEquals(Parent.GetItemType<InternalMagazineGunGameItemComponent>(), gunComponent) &&
 			ReferenceEquals(actor.Body, receiver) && ReferenceEquals(receiver.Actor, receiverActor) &&
 			ReferenceEquals(Parent.InInventoryOf, gunBody) && ReferenceEquals(Parent.ContainedIn, gunContainer) &&
-			ReferenceEquals(ComponentItemTransfer.DirectLocationOf(Parent), gunCell) && Parent.RoomLayer == gunLayer &&
+			ReferenceEquals(ComponentItemTransfer.DirectLocationOf(Parent), gunRoom) && Parent.RoomLayer == gunLayer &&
 			Parent.RoutePositionMetres == gunPosition && Parent.OwnershipReference == gunTitle;
 	}
 
@@ -636,7 +636,7 @@ public class InternalMagazineGunGameItemComponent : FirearmBaseGameItemComponent
 					if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor) || !GunUnchanged() || !ExactCasing() || !completion.IsUnclaimed) return;
 					if (eject)
 					{
-						originalLocation.Cell.Handle(new EmoteOutput(new Emote("@ tumble|tumbles to the ground.", casing), flags: OutputFlags.Insigificant));
+						originalLocation.Room.Handle(new EmoteOutput(new Emote("@ tumble|tumbles to the ground.", casing), flags: OutputFlags.Insigificant));
 						if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor) || !GunUnchanged() || !ExactCasing()) return;
 						completion.PlaceAt(originalLocation);
 					}

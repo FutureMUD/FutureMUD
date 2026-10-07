@@ -32,7 +32,7 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 	private readonly Dictionary<string, decimal> _accountBalances = new(StringComparer.InvariantCultureIgnoreCase);
 	private readonly HashSet<IEmploymentActionStep> _paymentAuthorisations = new();
 	private readonly HashSet<string> _allowedCommands = new(StringComparer.InvariantCultureIgnoreCase);
-	private readonly HashSet<long> _unreachableCellIds = new();
+	private readonly HashSet<long> _unreachableRoomIds = new();
 	private readonly Dictionary<long, List<IGameItem>> _locationItems = new();
 	private readonly HashSet<long> _configuredLocationItems = new();
 	private readonly Dictionary<long, List<IGameItem>> _carriedTaskItems = new();
@@ -49,7 +49,7 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 	private int _currentStepIndex;
 
 	public EmploymentTaskContext(IEmploymentHost employer, bool usePhysicalItemMovement = false,
-		IEnumerable<ICell>? additionalLogisticsLocations = null)
+		IEnumerable<IRoom>? additionalLogisticsLocations = null)
 	{
 		Employer = employer;
 		_usePhysicalItemMovement = usePhysicalItemMovement;
@@ -117,19 +117,19 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 		return _allowedCommands.Contains(commandName);
 	}
 
-	public void SetPathBlocked(ICell cell)
+	public void SetPathBlocked(IRoom room)
 	{
-		_unreachableCellIds.Add(cell.Id);
+		_unreachableRoomIds.Add(room.Id);
 	}
 
-	public bool CanPath(ICharacter actor, ICell? destination)
+	public bool CanPath(ICharacter actor, IRoom? destination)
 	{
-		return destination is null || !_unreachableCellIds.Contains(destination.Id);
+		return destination is null || !_unreachableRoomIds.Contains(destination.Id);
 	}
 
 	private bool HasHostLogisticsBoundary => _usePhysicalItemMovement && Employer.EmploymentHostLocations().Any();
 
-	private bool IsHostLogisticsLocation(ICell? location)
+	private bool IsHostLogisticsLocation(IRoom? location)
 	{
 		return !HasHostLogisticsBoundary ||
 		       location is null ||
@@ -137,7 +137,7 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 		       _additionalLogisticsLocationIds.Contains(location.Id);
 	}
 
-	private bool TryRequireHostLogisticsLocation(ICell? location, string action, out string reason)
+	private bool TryRequireHostLogisticsLocation(IRoom? location, string action, out string reason)
 	{
 		if (IsHostLogisticsLocation(location))
 		{
@@ -149,13 +149,13 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 		return false;
 	}
 
-	public void SetAvailableItems(ICell location, IEnumerable<IGameItem> items)
+	public void SetAvailableItems(IRoom location, IEnumerable<IGameItem> items)
 	{
 		_locationItems[location.Id] = items.ToList();
 		_configuredLocationItems.Add(location.Id);
 	}
 
-	public IReadOnlyCollection<IGameItem> AvailableItems(ICell location)
+	public IReadOnlyCollection<IGameItem> AvailableItems(IRoom location)
 	{
 		if (_usePhysicalItemMovement && !_configuredLocationItems.Contains(location.Id))
 		{
@@ -672,12 +672,12 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 		return commodity.Weight;
 	}
 
-	public bool TryCollectTaskItem(ICharacter actor, IGameItem item, ICell source, out string reason)
+	public bool TryCollectTaskItem(ICharacter actor, IGameItem item, IRoom source, out string reason)
 	{
 		return TryCollectTaskItems(actor, [(item, source)], out reason);
 	}
 
-	public bool TryCollectTaskItems(ICharacter actor, IReadOnlyCollection<(IGameItem Item, ICell Source)> items,
+	public bool TryCollectTaskItems(ICharacter actor, IReadOnlyCollection<(IGameItem Item, IRoom Source)> items,
 		out string reason)
 	{
 		if (!items.Any())
@@ -700,7 +700,7 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 			}
 		}
 
-		var resolvedItems = new List<(ICell Source, IGameItem Item)>();
+		var resolvedItems = new List<(IRoom Source, IGameItem Item)>();
 		foreach (var (item, source) in items)
 		{
 			var sourceItems = LocationItems(source);
@@ -774,7 +774,7 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 		return true;
 	}
 
-	public bool TryDeliverTaskItems(ICharacter actor, ICell destination, IGameItem? container, string? containerTag,
+	public bool TryDeliverTaskItems(ICharacter actor, IRoom destination, IGameItem? container, string? containerTag,
 		out string reason)
 	{
 		if (!TryRequireHostLogisticsLocation(destination, "deliver task items", out reason))
@@ -970,7 +970,7 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 		return true;
 	}
 
-	public bool TryReturnContainer(ICharacter actor, IGameItem container, ICell destination, IGameItem? destinationContainer,
+	public bool TryReturnContainer(ICharacter actor, IGameItem container, IRoom destination, IGameItem? destinationContainer,
 		string? destinationContainerTag, out string reason,
 		out EmploymentActionStepOperationalState operationalState)
 	{
@@ -1077,7 +1077,7 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 		return true;
 	}
 
-	private bool TryDeliverPhysicalTaskItems(ICharacter actor, ICell destination, IGameItem? targetContainer,
+	private bool TryDeliverPhysicalTaskItems(ICharacter actor, IRoom destination, IGameItem? targetContainer,
 		List<IGameItem> destinationItems, List<IGameItem> carried, out string reason)
 	{
 		if (actor.Location?.Id != destination.Id)
@@ -1185,7 +1185,7 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 		return [item];
 	}
 
-	private bool TryBundleAndCollectTaskItems(ICharacter actor, ICell source, IReadOnlyCollection<IGameItem> items,
+	private bool TryBundleAndCollectTaskItems(ICharacter actor, IRoom source, IReadOnlyCollection<IGameItem> items,
 		out string reason)
 	{
 		var bundle = PileGameItemComponentProto.CreateNewBundle(items);
@@ -1591,7 +1591,7 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 		Employer.BusinessLedger.Record(entryType, actor, amount, description, correlationId);
 	}
 
-	private List<IGameItem> LocationItems(ICell location)
+	private List<IGameItem> LocationItems(IRoom location)
 	{
 		if (!_locationItems.TryGetValue(location.Id, out var items))
 		{
@@ -1964,7 +1964,7 @@ public sealed record ItemThresholdCondition(string ItemKey, int Threshold, bool 
 		};
 	}
 
-	internal static IEnumerable<IGameItem> ItemsForCondition(IEmploymentTaskContext context, ICell location,
+	internal static IEnumerable<IGameItem> ItemsForCondition(IEmploymentTaskContext context, IRoom location,
 		EmploymentItemSelector? containerSelector, out string reason)
 	{
 		reason = string.Empty;
@@ -2023,10 +2023,10 @@ public sealed record ItemThresholdCondition(string ItemKey, int Threshold, bool 
 		return deepItems?.Any() == true ? deepItems : [item];
 	}
 
-	internal static ICell? ResolveLocation(IEmploymentHost host, long locationId)
+	internal static IRoom? ResolveLocation(IEmploymentHost host, long locationId)
 	{
 		return host.EmploymentHostLocations().FirstOrDefault(x => x.Id == locationId) ??
-		       (host as IHaveFuturemud)?.Gameworld.Cells.Get(locationId);
+		       (host as IHaveFuturemud)?.Gameworld.Rooms.Get(locationId);
 	}
 
 	private static Dictionary<string, string>? ParseKeyValues(string key, string prefix)
@@ -4186,7 +4186,7 @@ public sealed class EmploymentTaskBoard : IEmploymentTaskBoard
 	private static bool TryValidateLogisticsDestination(IFuturemud gameworld, long destinationId, out string reason)
 	{
 		reason = string.Empty;
-		if (gameworld.Cells?.Get(destinationId) is not null)
+		if (gameworld.Rooms?.Get(destinationId) is not null)
 		{
 			return true;
 		}

@@ -1407,8 +1407,8 @@ public class FutureProg : SaveableItem, IFutureProg
                 return
                     $"Character #{ch.Id.ToString("N0", voyeur)} ({ch.PersonalName.GetName(NameStyle.FullWithNickname)}) - {ch.HowSeen(voyeur)}";
             case ProgVariableTypeCode.Location:
-                ICell cell = (ICell)variable;
-                return $"Cell #{cell.Id.ToString("N0", voyeur)}: {cell.CurrentOverlay.CellName}";
+                IRoom room = (IRoom)variable;
+                return $"Cell #{room.Id.ToString("N0", voyeur)}: {room.CurrentOverlay.RoomName}";
             case ProgVariableTypeCode.Item:
                 IGameItem item = (IGameItem)variable;
                 return
@@ -1440,9 +1440,9 @@ public class FutureProg : SaveableItem, IFutureProg
             case ProgVariableTypeCode.Currency:
                 return $"Currency #{thing.Id} - {thing.Name}";
             case ProgVariableTypeCode.Exit:
-                ICellExit exit = (ICellExit)variable.GetObject;
+                IRoomExit exit = (IRoomExit)variable.GetObject;
                 return
-                    $"Exit #{exit.Exit.Id} - {exit.OutboundMovementSuffix} from {exit.Origin.CurrentOverlay.CellName} to {exit.Destination.CurrentOverlay.CellName}";
+                    $"Exit #{exit.Exit.Id} - {exit.OutboundMovementSuffix} from {exit.Origin.CurrentOverlay.RoomName} to {exit.Destination.CurrentOverlay.RoomName}";
             case ProgVariableTypeCode.DateTime:
                 return ((DateTime)variable.GetObject).GetLocalDateString(voyeur?.Account ?? DummyAccount.Instance);
             case ProgVariableTypeCode.TimeSpan:

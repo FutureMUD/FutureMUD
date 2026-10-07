@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 
 using System;
 using System.Collections.Generic;
@@ -32,20 +32,20 @@ public partial class QueuedCommandAuthorityTests
 		other.SetupGet(x => x.Id).Returns(50);
 		other.SetupGet(x => x.InstanceId).Returns(12);
 		other.Setup(x => x.Equals(moved.Object)).Returns(true);
-		var source = new Mock<ICell>();
-		var target = new Mock<ICell>();
+		var source = new Mock<IRoom>();
+		var target = new Mock<IRoom>();
 		source.SetupGet(x => x.Characters).Returns([other.Object]);
 		target.SetupGet(x => x.Characters).Returns([moved.Object]);
 		moved.SetupGet(x => x.Location).Returns(target.Object);
 		Assert.IsTrue(source.Object.Characters.Contains(moved.Object), "Reproduce canonical equality across separate physical instances.");
-		typeof(MudSharp.Character.Character).GetMethod("ReconcileTeleportCellMembership", BindingFlags.NonPublic | BindingFlags.Static)!
+		typeof(MudSharp.Character.Character).GetMethod("ReconcileTeleportRoomMembership", BindingFlags.NonPublic | BindingFlags.Static)!
 			.Invoke(null, [moved.Object, target.Object, source.Object]);
 		source.Verify(x => x.Leave(It.IsAny<MudSharp.Character.ICharacter>()), Times.Never);
 		Assert.AreSame(other.Object, source.Object.Characters.Single());
 	}
 
 	[TestMethod]
-	public void OrderedDisplacement_SourceCellWithDestinationLayerRemainsInvalid()
+	public void OrderedDisplacement_SourceRoomWithDestinationLayerRemainsInvalid()
 	{
 		using var d = new DisplacementFixture();
 		d.Reach("gap");
@@ -87,13 +87,13 @@ public partial class QueuedCommandAuthorityTests
 		survivor.SetupGet(x => x.OwnershipReference).Returns(() => survivorOwner);
 		string? description = null;
 		survivor.SetupGet(x => x.OverrideSdesc).Returns(() => description!);
-		var other = Mock.Of<ICell>();
-		ICell? sourceLocation = null;
+		var other = Mock.Of<IRoom>();
+		IRoom? sourceLocation = null;
 		source.SetupGet(x => x.Location).Returns(() => sourceLocation!);
-		source.Setup(x => x.Drop(It.IsAny<ICell>())).Callback<ICell>(cell =>
+		source.Setup(x => x.Drop(It.IsAny<IRoom>())).Callback<IRoom>(room =>
 		{
 			sourceHold.Object.HeldBy = null;
-			sourceLocation = cell;
+			sourceLocation = room;
 		}).Returns(source.Object);
 		void RelocateSurvivor()
 		{
@@ -148,13 +148,13 @@ public partial class QueuedCommandAuthorityTests
 		survivor.SetupGet(x => x.OwnershipReference).Returns(() => survivorOwner);
 		string? description = null;
 		survivor.SetupGet(x => x.OverrideSdesc).Returns(() => description!);
-		var other = Mock.Of<ICell>();
-		ICell? sourceLocation = null;
+		var other = Mock.Of<IRoom>();
+		IRoom? sourceLocation = null;
 		source.SetupGet(x => x.Location).Returns(() => sourceLocation!);
-		source.Setup(x => x.Drop(It.IsAny<ICell>())).Callback<ICell>(cell =>
+		source.Setup(x => x.Drop(It.IsAny<IRoom>())).Callback<IRoom>(room =>
 		{
 			sourceHold.Object.HeldBy = null;
-			sourceLocation = cell;
+			sourceLocation = room;
 		}).Returns(source.Object);
 		var sourceComponent = new Mock<IGameItemComponent>(); var survivorComponent = new Mock<IGameItemComponent>();
 		IGameItemComponentProto sourceProto = Mock.Of<IGameItemComponentProto>(), survivorProto = Mock.Of<IGameItemComponentProto>();
@@ -209,8 +209,8 @@ public partial class QueuedCommandAuthorityTests
 			var oldAmmo = new Mock<IAmmo>();
 			oldAmmo.SetupGet(x => x.Parent).Returns(ejected.Object);
 			ejected.SetupProperty(x => x.ContainedIn, f.Item.Object);
-			ICell? ejectedCell = null; ejected.SetupGet(x => x.Location).Returns(() => ejectedCell!);
-			ejected.Setup(x => x.Drop(f.Actor.Object.Location)).Callback(() => ejectedCell = f.Actor.Object.Location).Returns(ejected.Object);
+			IRoom? ejectedRoom = null; ejected.SetupGet(x => x.Location).Returns(() => ejectedRoom!);
+			ejected.Setup(x => x.Drop(f.Actor.Object.Location)).Callback(() => ejectedRoom = f.Actor.Object.Location).Returns(ejected.Object);
 			gun.ChamberedRound = oldAmmo.Object;
 			Mock.Get(f.Actor.Object.Location).Setup(x => x.Insert(ejected.Object, It.IsAny<bool>())).Callback(() =>
 			{
@@ -281,8 +281,8 @@ public partial class QueuedCommandAuthorityTests
 		var casing = new Mock<IGameItem>(); var casingHold = new Mock<IHoldable>(); casingHold.SetupProperty(x => x.HeldBy);
 		casing.SetupGet(x => x.InInventoryOf).Returns(() => casingHold.Object.HeldBy!);
 		casing.Setup(x => x.GetItemType<IHoldable>()).Returns(casingHold.Object); casing.SetupGet(x => x.Quantity).Returns(1); casing.SetupGet(x => x.Components).Returns(Array.Empty<IGameItemComponent>());
-		ICell? casingCell = null; casing.SetupGet(x => x.Location).Returns(() => casingCell!);
-		Mock.Get(f.Actor.Object.Location).Setup(x => x.Insert(casing.Object, It.IsAny<bool>())).Callback(() => casingCell = f.Actor.Object.Location);
+		IRoom? casingRoom = null; casing.SetupGet(x => x.Location).Returns(() => casingRoom!);
+		Mock.Get(f.Actor.Object.Location).Setup(x => x.Insert(casing.Object, It.IsAny<bool>())).Callback(() => casingRoom = f.Actor.Object.Location);
 		ammo.SetupGet(x => x.GetFiredWasteItem).Returns(casing.Object);
 		var failure = new InvalidOperationException("exact shot observer failure");
 		ammo.Setup(x => x.Fire(It.IsAny<MudSharp.Character.ICharacter>(), It.IsAny<MudSharp.Framework.IPerceiver>(), It.IsAny<MudSharp.RPG.Checks.Outcome>(), It.IsAny<MudSharp.RPG.Checks.Outcome>(), It.IsAny<MudSharp.RPG.Checks.OpposedOutcome>(), It.IsAny<IBodypart>(), It.IsAny<IGameItem>(), It.IsAny<IRangedWeaponType>(), It.IsAny<MudSharp.PerceptionEngine.IEmoteOutput>(), It.IsAny<RangedFireContext>()))
@@ -309,8 +309,8 @@ public partial class QueuedCommandAuthorityTests
 		{
 			Assert.AreSame(failure, Assert.ThrowsException<InvalidOperationException>(Fire));
 			Assert.IsNull(gun.ChamberedCasing); Assert.IsNull(casing.Object.ContainedIn);
-			if (scenario == "throw") Assert.AreSame(f.Actor.Object.Location, casingCell);
-			else { Assert.AreSame(f.Body.Object, casingHold.Object.HeldBy); Assert.IsNull(casingCell); }
+			if (scenario == "throw") Assert.AreSame(f.Actor.Object.Location, casingRoom);
+			else { Assert.AreSame(f.Body.Object, casingHold.Object.HeldBy); Assert.IsNull(casingRoom); }
 		}
 		else
 		{
@@ -323,16 +323,16 @@ public partial class QueuedCommandAuthorityTests
 	[TestMethod]
 	public void PreparedComponentFloor_PreservesExactParticipantWithoutSecondMerge()
 	{
-		var f = new Fixture(); var item = new Mock<IGameItem>(); ICell? cell = null;
-		item.SetupGet(x => x.Location).Returns(() => cell!); item.SetupProperty(x => x.RoomLayer, RoomLayer.GroundLevel);
-		item.Setup(x => x.Drop(f.Actor.Object.Location)).Callback(() => cell = f.Actor.Object.Location).Returns(item.Object);
+		var f = new Fixture(); var item = new Mock<IGameItem>(); IRoom? room = null;
+		item.SetupGet(x => x.Location).Returns(() => room!); item.SetupProperty(x => x.RoomLayer, RoomLayer.GroundLevel);
+		item.Setup(x => x.Drop(f.Actor.Object.Location)).Callback(() => room = f.Actor.Object.Location).Returns(item.Object);
 		var destination = Mock.Get(f.Actor.Object.Location);
 		destination.Setup(x => x.Insert(item.Object, It.IsAny<bool>())).Callback<IGameItem,bool>((_,newStack) => Assert.IsTrue(newStack, "An exact captured receipt cannot merge into a different floor identity."));
 		using var execution = CommandExecutionScope.EnterDispatch(CommandExecutionAuthority.Prepare(f.Actor.Object, f.Commander.Object, "get firearm", () => true),f.Actor.Object);
 		var complete = ComponentUnloadCompletion.PrepareFloor(f.Actor.Object,item.Object,f.Actor.Object);
 		Assert.IsNotNull(complete); complete();
 		destination.Verify(x => x.Insert(item.Object,true),Times.Once); destination.Verify(x => x.Insert(item.Object,false),Times.Never);
-		Assert.AreSame(f.Actor.Object.Location,cell);
+		Assert.AreSame(f.Actor.Object.Location,room);
 	}
 
 }

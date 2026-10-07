@@ -804,7 +804,7 @@ public partial class AgricultureField
 		var evaluation = NativeOrganicPenaltyEvaluation.Neutral;
 		try
 		{
-			evaluation = Gameworld.EnvironmentalMagic?.EvaluateOrganicPenalty(Cell, channel, input.Context!) ??
+			evaluation = Gameworld.EnvironmentalMagic?.EvaluateOrganicPenalty(Room, channel, input.Context!) ??
 			             NativeOrganicPenaltyEvaluation.Neutral;
 		}
 		catch

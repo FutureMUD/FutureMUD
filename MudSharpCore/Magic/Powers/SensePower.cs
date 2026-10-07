@@ -286,7 +286,7 @@ public class SensePower : MagicPowerBase
             actor.OutputHandler.Send(new EmoteOutput(new Emote(EmoteText, actor, actor)));
         }
 
-        List<(IPerceivable Target, ICell Location, RoomLayer Layer)> targets = new();
+        List<(IPerceivable Target, IRoom Location, RoomLayer Layer)> targets = new();
 
         switch (SenseType.LegacyCode)
         {
@@ -441,7 +441,7 @@ public class SensePower : MagicPowerBase
         ICheck check = Gameworld.GetCheck(CheckType.MagicSensePower);
         Dictionary<Difficulty, CheckOutcome> results = check.CheckAgainstAllDifficulties(actor, Difficulty.Normal, SkillCheckTrait);
 
-		List<(IPerceivable Target, ICell Location, RoomLayer Layer)> final = targets
+		List<(IPerceivable Target, IRoom Location, RoomLayer Layer)> final = targets
 		            .Distinct()
 		            .Where(x => SenseTargetFilterProg.Execute<bool?>(x.Target) == true)
 		            .Where(x => MagicInterdictionHelper.GetInterdiction(actor, x.Target, School, false) is null)
@@ -456,7 +456,7 @@ public class SensePower : MagicPowerBase
 
         StringBuilder sb = new();
         sb.AppendLine(EchoHeader);
-        foreach (IGrouping<ICell, (IPerceivable Target, ICell Location, RoomLayer Layer)> grouping in final.GroupBy(x => x.Location))
+        foreach (IGrouping<IRoom, (IPerceivable Target, IRoom Location, RoomLayer Layer)> grouping in final.GroupBy(x => x.Location))
         {
             sb.AppendLine();
             if (grouping.Key == actor.Location)
@@ -465,7 +465,7 @@ public class SensePower : MagicPowerBase
             }
             else
             {
-                List<ICellExit> directions = actor.Location.PathBetween(grouping.Key, 50, exit => true).ToList();
+                List<IRoomExit> directions = actor.Location.PathBetween(grouping.Key, 50, exit => true).ToList();
                 if (!directions.Any())
                 {
                     sb.AppendLine(grouping.Key.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreCanSee));
@@ -477,7 +477,7 @@ public class SensePower : MagicPowerBase
                 }
             }
 
-            foreach ((IPerceivable Target, ICell Location, RoomLayer Layer) item in grouping.OrderByDescending(x => x.Layer))
+            foreach ((IPerceivable Target, IRoom Location, RoomLayer Layer) item in grouping.OrderByDescending(x => x.Layer))
             {
                 sb.AppendLine(
                     $"\t{item.Target.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreCanSee)} [{item.Layer.PositionalDescription()}]");

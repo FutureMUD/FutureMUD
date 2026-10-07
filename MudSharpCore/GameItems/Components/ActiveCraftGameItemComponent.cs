@@ -214,7 +214,7 @@ public class ActiveCraftGameItemComponent : GameItemComponent, IActiveCraftGameI
         // Probably do nothing for now
     }
 
-    public void ReleaseItems(ICell location, RoomLayer layer)
+    public void ReleaseItems(IRoom location, RoomLayer layer)
     {
         foreach (KeyValuePair<ICraftProduct, ICraftProductData> item in ProducedProducts.ToList())
         {

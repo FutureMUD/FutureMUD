@@ -44,7 +44,7 @@ public class AuthoredCelestialFutureProgTests
 		zone.SetupGet(x => x.Geography).Returns(ctx.ZeroGeography);
 		zone.Setup(x => x.TimeZone(ctx.Clock)).Returns(ctx.Clock.PrimaryTimezone);
 		zone.Setup(x => x.GetInfo(sun)).Returns(() => sun.CurrentPosition(ctx.ZeroGeography));
-		var cell = new Mock<ICell>(); cell.SetupGet(x => x.GetObject).Returns(cell.Object); cell.SetupGet(x => x.Zone).Returns(zone.Object);
+		var room = new Mock<IRoom>(); room.SetupGet(x => x.GetObject).Returns(room.Object); room.SetupGet(x => x.Zone).Returns(zone.Object);
 		var functions = new Dictionary<string, AstronomicalEventType?>
 		{
 			["nextsunrise"] = AstronomicalEventType.Sunrise, ["nextsunset"] = AstronomicalEventType.Sunset,
@@ -65,7 +65,7 @@ public class AuthoredCelestialFutureProgTests
 			{
 				IProgVariable value = i switch
 				{
-					0 => types[0] == ProgVariableTypes.Zone ? zone.Object : cell.Object,
+					0 => types[0] == ProgVariableTypes.Zone ? zone.Object : room.Object,
 					1 => types[1] == ProgVariableTypes.Number ? new NumberVariable(primary.Id) : primary,
 					2 when type == AstronomicalEventType.VisibleCrescent => types[2] == ProgVariableTypes.Number ? new NumberVariable(moon.Id) : moon,
 					_ when types[i] == ProgVariableTypes.Calendar => ctx.Calendar,
@@ -99,7 +99,7 @@ public class AuthoredCelestialFutureProgTests
 			foreach (var info in FutureProg.GetFunctionCompilerInformations().Where(x => x.FunctionName == name))
 			{
 				var types = info.Parameters.ToArray();
-				var args = new List<IFunction> { new Constant(types[0] == ProgVariableTypes.Zone ? zone.Object : cell.Object) };
+				var args = new List<IFunction> { new Constant(types[0] == ProgVariableTypes.Zone ? zone.Object : room.Object) };
 				if (args.Count < types.Length) args.Add(new Constant(types[1] == ProgVariableTypes.Number ? new NumberVariable(sun.Id) : sun));
 				var f = info.CompilerFunction(args, ctx.Gameworld); Assert.AreEqual(StatementResult.Normal, f.Execute(null!));
 				if (name == "moonphase") Assert.AreEqual(MoonPhase.Full.Describe(), f.Result.GetObject);

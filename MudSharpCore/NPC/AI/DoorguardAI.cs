@@ -42,7 +42,7 @@ public class DoorguardAI : ArtificialIntelligenceBase
     protected IFutureProg WillOpenDoorForProg;
     protected IFutureProg WontOpenDoorForActionProg;
 
-	private bool WillOpenDoorFor(ICharacter doorguard, ICharacter target, ICellExit direction)
+	private bool WillOpenDoorFor(ICharacter doorguard, ICharacter target, IRoomExit direction)
 	{
 		foreach (var mode in doorguard.EffectsOfType<IDoorguardModeEffect>())
 		{
@@ -56,7 +56,7 @@ public class DoorguardAI : ArtificialIntelligenceBase
 		return WillOpenDoorForProg?.ExecuteBool(doorguard, target, direction) ?? false;
 	}
 
-    public WouldOpenResponse WouldOpen(ICharacter doorguard, ICharacter target, ICellExit direction)
+    public WouldOpenResponse WouldOpen(ICharacter doorguard, ICharacter target, IRoomExit direction)
     {
         if (doorguard.State.HasFlag(CharacterState.Dead))
         {
@@ -644,7 +644,7 @@ public class DoorguardAI : ArtificialIntelligenceBase
         return true;
     }
 
-    protected virtual bool OnWitnessMove(ICharacter doorguard, ICharacter mover, ICellExit exit)
+    protected virtual bool OnWitnessMove(ICharacter doorguard, ICharacter mover, IRoomExit exit)
     {
         if (doorguard.State.HasFlag(CharacterState.Dead))
         {
@@ -689,7 +689,7 @@ public class DoorguardAI : ArtificialIntelligenceBase
     }
 
     protected virtual bool OnWitnessSocial(ICharacter doorguard, ICharacter socialite, string social,
-        bool socialTarget, ICellExit socialDirection)
+        bool socialTarget, IRoomExit socialDirection)
     {
         if (doorguard.State.HasFlag(CharacterState.Dead))
         {
@@ -718,10 +718,10 @@ public class DoorguardAI : ArtificialIntelligenceBase
             return false;
         }
 
-        ICellExit exit = RespondToSocialDirection ? socialDirection : null;
+        IRoomExit exit = RespondToSocialDirection ? socialDirection : null;
         if (exit == null)
         {
-            foreach (ICellExit direction in doorguard.Location.ExitsFor(doorguard))
+            foreach (IRoomExit direction in doorguard.Location.ExitsFor(doorguard))
             {
                 if (direction.Exit.Door?.IsOpen == false &&
                     WillOpenDoorFor(doorguard, socialite, direction))
@@ -757,7 +757,7 @@ public class DoorguardAI : ArtificialIntelligenceBase
         return true;
     }
 
-    protected virtual void CloseDoorIfStillOpen(ICharacter doorguard, ICharacter mover, ICellExit exit)
+    protected virtual void CloseDoorIfStillOpen(ICharacter doorguard, ICharacter mover, IRoomExit exit)
     {
         if (doorguard.State.HasFlag(CharacterState.Dead) || doorguard.Location == null || exit == null)
         {
@@ -781,7 +781,7 @@ public class DoorguardAI : ArtificialIntelligenceBase
         doorguard.RemoveAllEffects(x => x.IsEffectType<IDoorguardOpeningDoorEffect>(exit) || x.IsEffectType<DoorguardCloseDoor>(exit));
     }
 
-    protected virtual bool OnWitnessLeave(ICharacter doorguard, ICharacter mover, ICellExit exit)
+    protected virtual bool OnWitnessLeave(ICharacter doorguard, ICharacter mover, IRoomExit exit)
     {
         if (doorguard.State.HasFlag(CharacterState.Dead))
         {
@@ -797,7 +797,7 @@ public class DoorguardAI : ArtificialIntelligenceBase
         return true;
     }
 
-    protected virtual bool OnStopMovementWitness(ICharacter doorguard, ICharacter mover, ICellExit exit)
+    protected virtual bool OnStopMovementWitness(ICharacter doorguard, ICharacter mover, IRoomExit exit)
     {
         if (doorguard.State.HasFlag(CharacterState.Dead))
         {
@@ -813,7 +813,7 @@ public class DoorguardAI : ArtificialIntelligenceBase
         return true;
     }
 
-    protected virtual bool OnStopMovementClosedDoorWitness(ICharacter doorguard, ICharacter mover, ICellExit exit)
+    protected virtual bool OnStopMovementClosedDoorWitness(ICharacter doorguard, ICharacter mover, IRoomExit exit)
     {
         if (doorguard.State.HasFlag(CharacterState.Dead))
         {
@@ -834,7 +834,7 @@ public class DoorguardAI : ArtificialIntelligenceBase
         return false;
     }
 
-    protected virtual bool OnDoorKnock(ICharacter doorguard, ICharacter knocker, ICellExit exit)
+    protected virtual bool OnDoorKnock(ICharacter doorguard, ICharacter knocker, IRoomExit exit)
     {
         if (doorguard.State.HasFlag(CharacterState.Dead))
         {
@@ -891,7 +891,7 @@ public class DoorguardAI : ArtificialIntelligenceBase
             case EventType.CharacterStopMovementWitness:
             case EventType.CharacterStopMovementClosedDoorWitness:
             case EventType.CharacterBeginMovementWitness:
-            case EventType.CharacterLeaveCellWitness:
+            case EventType.CharacterLeaveRoomWitness:
             case EventType.CharacterDoorKnockedOtherSide:
                 ch = (ICharacter)arguments[3];
                 break;
@@ -920,7 +920,7 @@ public class DoorguardAI : ArtificialIntelligenceBase
                 return OnStopMovementClosedDoorWitness(arguments[3], arguments[0], arguments[2]);
             case EventType.CharacterBeginMovementWitness:
                 return OnWitnessMove(arguments[3], arguments[0], arguments[2]);
-            case EventType.CharacterLeaveCellWitness:
+            case EventType.CharacterLeaveRoomWitness:
                 return OnWitnessLeave(arguments[3], arguments[0], arguments[2]);
             case EventType.CharacterSocialTarget:
                 return OnWitnessSocial(arguments[2], arguments[0], arguments[1].Name, true, arguments[3]);
@@ -947,7 +947,7 @@ public class DoorguardAI : ArtificialIntelligenceBase
             return false;
         }
 
-        foreach (ICellExit exit in ch.Location.ExitsFor(ch))
+        foreach (IRoomExit exit in ch.Location.ExitsFor(ch))
         {
             if (exit.Exit.Door is not null && exit.Exit.Door.IsOpen)
             {
@@ -967,7 +967,7 @@ public class DoorguardAI : ArtificialIntelligenceBase
                 case EventType.CharacterStopMovementWitness:
                 case EventType.CharacterStopMovementClosedDoorWitness:
                 case EventType.CharacterBeginMovementWitness:
-                case EventType.CharacterLeaveCellWitness:
+                case EventType.CharacterLeaveRoomWitness:
                 case EventType.CharacterSocialTarget:
                 case EventType.CharacterSocialWitness:
                 case EventType.CharacterDoorKnockedOtherSide:

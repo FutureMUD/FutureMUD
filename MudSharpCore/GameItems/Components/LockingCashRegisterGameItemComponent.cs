@@ -224,7 +224,7 @@ public class LockingCashRegisterGameItemComponent : CashRegisterGameItemComponen
 			containingPerceivable);
 	}
 
-	public void InstallLock(ILockable lockable, IExit exit, ICell installLocation)
+	public void InstallLock(ILockable lockable, IExit exit, IRoom installLocation)
 	{
 	}
 

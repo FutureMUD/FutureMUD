@@ -108,7 +108,7 @@ public class SheathGameItemComponent : GameItemComponent, IMultiSlotSheath, ICon
         return false;
     }
 
-    public override bool HandleDieOrMorph(IGameItem newItem, ICell location)
+    public override bool HandleDieOrMorph(IGameItem newItem, IRoom location)
     {
         if (_contents.Count == 0)
         {
@@ -429,7 +429,7 @@ public class SheathGameItemComponent : GameItemComponent, IMultiSlotSheath, ICon
             }
         }
 
-        ICell location = emptier?.Location ?? Parent.TrueLocations.FirstOrDefault();
+        IRoom location = emptier?.Location ?? Parent.TrueLocations.FirstOrDefault();
         List<IGameItem> contents = Contents.ToList();
         foreach (var content in _contents.ToList())
         {

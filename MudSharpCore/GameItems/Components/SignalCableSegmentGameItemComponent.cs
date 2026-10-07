@@ -37,8 +37,8 @@ public class SignalCableSegmentGameItemComponent : GameItemComponent, ISignalCab
 	{
 		_prototype = rhs._prototype;
 		_binding = rhs._binding;
-		SourceCellId = rhs.SourceCellId;
-		DestinationCellId = rhs.DestinationCellId;
+		SourceRoomId = rhs.SourceRoomId;
+		DestinationRoomId = rhs.DestinationRoomId;
 		RouteDescription = rhs.RouteDescription;
 		_currentSignal = rhs._currentSignal;
 	}
@@ -53,9 +53,9 @@ public class SignalCableSegmentGameItemComponent : GameItemComponent, ISignalCab
 	public TimeSpan? PulseInterval => _currentSignal.PulseInterval;
 	public LocalSignalBinding CurrentBinding => _binding ?? new LocalSignalBinding(0L, string.Empty, 0L, string.Empty, EndpointKey);
 	public long RoutedExitId { get; private set; }
-	public bool IsRouted => _binding is not null && SourceCellId > 0 && DestinationCellId > 0;
-	public long SourceCellId { get; private set; }
-	public long DestinationCellId { get; private set; }
+	public bool IsRouted => _binding is not null && SourceRoomId > 0 && DestinationRoomId > 0;
+	public long SourceRoomId { get; private set; }
+	public long DestinationRoomId { get; private set; }
 	public string RouteDescription { get; private set; } = string.Empty;
 
 	public override IGameItemComponent Copy(IGameItem newParent, bool temporary = false)
@@ -97,8 +97,8 @@ public class SignalCableSegmentGameItemComponent : GameItemComponent, ISignalCab
 					new XAttribute("sourceid", _binding.SourceComponentId),
 					new XAttribute("source", _binding.SourceComponentName),
 					new XAttribute("endpoint", _binding.SourceEndpointKey)),
-			new XElement("SourceCellId", SourceCellId),
-			new XElement("DestinationCellId", DestinationCellId),
+			new XElement("SourceCellId", SourceRoomId),
+			new XElement("DestinationCellId", DestinationRoomId),
 			new XElement("RoutedExitId", RoutedExitId),
 			new XElement("RouteDescription", new XCData(RouteDescription))
 		).ToString();
@@ -130,21 +130,21 @@ public class SignalCableSegmentGameItemComponent : GameItemComponent, ISignalCab
 
 	public bool ConfigureRoute(ISignalSourceComponent source, long exitId, out string error)
 	{
-		if (Parent.TrueLocations.FirstOrDefault() is not ICell destinationCell)
+		if (Parent.TrueLocations.FirstOrDefault() is not IRoom destinationRoom)
 		{
 			error = "That cable must be located in a room before it can be routed.";
 			return false;
 		}
 
-		var sourceCell = source.Parent.TrueLocations.FirstOrDefault();
-		if (sourceCell is null)
+		var sourceRoom = source.Parent.TrueLocations.FirstOrDefault();
+		if (sourceRoom is null)
 		{
 			error = "That source is not currently in a valid location.";
 			return false;
 		}
 
-		var routeExit = sourceCell.ExitsFor(source.Parent)
-			.FirstOrDefault(x => x.Exit.Id == exitId && x.Destination == destinationCell);
+		var routeExit = sourceRoom.ExitsFor(source.Parent)
+			.FirstOrDefault(x => x.Exit.Id == exitId && x.Destination == destinationRoom);
 		if (routeExit is null)
 		{
 			error = "That source is not connected to this cable by the specified one-room exit hop.";
@@ -152,8 +152,8 @@ public class SignalCableSegmentGameItemComponent : GameItemComponent, ISignalCab
 		}
 
 		_binding = SignalComponentUtilities.CreateBinding(source);
-		SourceCellId = sourceCell.Id;
-		DestinationCellId = destinationCell.Id;
+		SourceRoomId = sourceRoom.Id;
+		DestinationRoomId = destinationRoom.Id;
 		RoutedExitId = exitId;
 		RouteDescription = routeExit.OutboundDirectionDescription;
 		Changed = true;
@@ -165,8 +165,8 @@ public class SignalCableSegmentGameItemComponent : GameItemComponent, ISignalCab
 	public void ClearRoute()
 	{
 		_binding = null;
-		SourceCellId = 0L;
-		DestinationCellId = 0L;
+		SourceRoomId = 0L;
+		DestinationRoomId = 0L;
 		RoutedExitId = 0L;
 		RouteDescription = string.Empty;
 		Changed = true;
@@ -192,9 +192,9 @@ public class SignalCableSegmentGameItemComponent : GameItemComponent, ISignalCab
 				SignalComponentUtilities.NormaliseSignalEndpointKey(binding.Attribute("endpoint")?.Value));
 		}
 
-		SourceCellId = long.TryParse(root.Element("SourceCellId")?.Value, out var sourceCellId) ? sourceCellId : 0L;
-		DestinationCellId = long.TryParse(root.Element("DestinationCellId")?.Value, out var destinationCellId)
-			? destinationCellId
+		SourceRoomId = long.TryParse(root.Element("SourceCellId")?.Value, out var sourceRoomId) ? sourceRoomId : 0L;
+		DestinationRoomId = long.TryParse(root.Element("DestinationCellId")?.Value, out var destinationRoomId)
+			? destinationRoomId
 			: 0L;
 		RoutedExitId = long.TryParse(root.Element("RoutedExitId")?.Value, out var routedExitId) ? routedExitId : 0L;
 		RouteDescription = root.Element("RouteDescription")?.Value ?? string.Empty;
@@ -202,7 +202,7 @@ public class SignalCableSegmentGameItemComponent : GameItemComponent, ISignalCab
 
 	private void RefreshRoute()
 	{
-		if (_binding is null || SourceCellId <= 0 || DestinationCellId <= 0)
+		if (_binding is null || SourceRoomId <= 0 || DestinationRoomId <= 0)
 		{
 			DetachSource();
 			SetSignal(default);
@@ -210,18 +210,18 @@ public class SignalCableSegmentGameItemComponent : GameItemComponent, ISignalCab
 		}
 
 		var sourceItem = Gameworld.TryGetItem(_binding.SourceItemId, true);
-		if (sourceItem is null || !sourceItem.TrueLocations.Any(x => x.Id == SourceCellId) ||
-		    !Parent.TrueLocations.Any(x => x.Id == DestinationCellId))
+		if (sourceItem is null || !sourceItem.TrueLocations.Any(x => x.Id == SourceRoomId) ||
+		    !Parent.TrueLocations.Any(x => x.Id == DestinationRoomId))
 		{
 			DetachSource();
 			SetSignal(default);
 			return;
 		}
 
-		var sourceCell = sourceItem.TrueLocations.First(x => x.Id == SourceCellId);
-		var destinationCell = Parent.TrueLocations.First(x => x.Id == DestinationCellId);
-		var routeExit = sourceCell.ExitsFor(sourceItem)
-			.FirstOrDefault(x => x.Exit.Id == RoutedExitId && x.Destination == destinationCell);
+		var sourceRoom = sourceItem.TrueLocations.First(x => x.Id == SourceRoomId);
+		var destinationRoom = Parent.TrueLocations.First(x => x.Id == DestinationRoomId);
+		var routeExit = sourceRoom.ExitsFor(sourceItem)
+			.FirstOrDefault(x => x.Exit.Id == RoutedExitId && x.Destination == destinationRoom);
 		if (routeExit is null)
 		{
 			DetachSource();

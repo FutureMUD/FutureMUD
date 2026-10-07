@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MudSharp.Communication;
@@ -60,7 +60,7 @@ public class AlertCommandSourceIntegrationTests
 		StringAssert.Contains(source, "actor.Body.Communications.CanVocalise(actor.Body, AlertVolume)");
 		StringAssert.Contains(source, "AudioPerception.CanHear(witness, actor, volume, proximity)");
 		StringAssert.Contains(source, "witness.HandleEvent(EventType.CharacterAlertHeard");
-		StringAssert.Contains(source, "actor.Location.CellsInVicinity(AlertRoomRange");
+		StringAssert.Contains(source, "actor.Location.RoomsInVicinity(AlertRoomRange");
 		StringAssert.Contains(source, "npc.AIs.OfType<IOverrideAlertEmote>()");
 	}
 

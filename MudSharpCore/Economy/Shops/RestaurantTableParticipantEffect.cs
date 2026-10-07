@@ -57,7 +57,7 @@ public sealed class RestaurantTableParticipantEffect : Effect
 		}
 	}
 
-	private void CharacterOnLocationChanged(ILocateable locatable, ICellExit exit)
+	private void CharacterOnLocationChanged(ILocateable locatable, IRoomExit exit)
 	{
 		if (Owner is ICharacter character)
 		{

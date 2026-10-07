@@ -47,7 +47,7 @@ public class CorpseRecoveryPatrolStrategy : PatrolStrategyBase
     protected override void PatrolTickPreparationPhase(IPatrol patrol)
     {
         base.PatrolTickPreparationPhase(patrol);
-        patrol.NextMajorNode = patrol.ActiveCorpseRecoveryReport?.SourceCell;
+        patrol.NextMajorNode = patrol.ActiveCorpseRecoveryReport?.SourceRoom;
     }
 
     private void HandleDeployment(IPatrol patrol)
@@ -60,7 +60,7 @@ public class CorpseRecoveryPatrolStrategy : PatrolStrategyBase
         }
 
         ICorpse corpse = report.Corpse?.GetItemType<ICorpse>();
-        if (corpse == null || report.Corpse.Location == null || report.Corpse.Location != report.SourceCell)
+        if (corpse == null || report.Corpse.Location == null || report.Corpse.Location != report.SourceRoom)
         {
             report.MarkFailed();
             patrol.ActiveCorpseRecoveryReport = null;
@@ -124,7 +124,7 @@ public class CorpseRecoveryPatrolStrategy : PatrolStrategyBase
             return;
         }
 
-        if (corpseItem.Location != report.SourceCell)
+        if (corpseItem.Location != report.SourceRoom)
         {
             report.MarkFailed();
             patrol.ActiveCorpseRecoveryReport = null;

@@ -175,7 +175,7 @@ public static class VehicleRouteRecoveryRules
 
 	private static bool LocationsMatch(SpatialLocation first, SpatialLocation second)
 	{
-		if (!ReferenceEquals(first.Cell, second.Cell) || first.Layer != second.Layer)
+		if (!ReferenceEquals(first.Room, second.Room) || first.Layer != second.Layer)
 		{
 			return false;
 		}
@@ -192,7 +192,7 @@ public static class VehicleRouteRecoveryRules
 
 	private static bool IsStrictlyInside(SpatialLocation current, IVehicleRouteLinearStep step)
 	{
-		if (!ReferenceEquals(current.Cell, step.Origin.Cell) || current.Layer != step.Origin.Layer ||
+		if (!ReferenceEquals(current.Room, step.Origin.Room) || current.Layer != step.Origin.Layer ||
 		    !current.RoutePositionMetres.HasValue || !step.Origin.RoutePositionMetres.HasValue ||
 		    !step.Destination.RoutePositionMetres.HasValue)
 		{

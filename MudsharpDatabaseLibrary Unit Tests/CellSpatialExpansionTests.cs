@@ -11,7 +11,7 @@ using MudSharp.Models;
 namespace MudSharp_Unit_Tests;
 
 [TestClass]
-public class CellSpatialExpansionTests
+public class RoomSpatialExpansionTests
 {
 	[TestMethod]
 	public void Expansion_GuardsBeforeSchemaChangesAndRetainsEveryLegacyStructure()
@@ -36,11 +36,11 @@ public class CellSpatialExpansionTests
 	{
 		// Historical migration model remains nullable even after the current runtime contracts.
 		var model = new CellSpatialExpansion().TargetModel;
-		var cell = model.FindEntityType("MudSharp.Models.Cell")!;
-		foreach (var name in new[] { "ZoneId", "X", "Y", "Z" }) Assert.IsTrue(cell.FindProperty(name)!.IsNullable);
-		Assert.AreEqual(DeleteBehavior.Restrict, cell.GetForeignKeys().Single(x => x.Properties.Single().Name == "ZoneId").DeleteBehavior);
-		Assert.IsTrue(cell.GetForeignKeys().Any(x => x.PrincipalEntityType.Name == "MudSharp.Models.Room"));
-		Assert.IsFalse(cell.GetIndexes().Any(x => x.IsUnique && x.Properties.Any(p => p.Name is "X" or "Y" or "Z")));
+		var room = model.FindEntityType("MudSharp.Models.Cell")!;
+		foreach (var name in new[] { "ZoneId", "X", "Y", "Z" }) Assert.IsTrue(room.FindProperty(name)!.IsNullable);
+		Assert.AreEqual(DeleteBehavior.Restrict, room.GetForeignKeys().Single(x => x.Properties.Single().Name == "ZoneId").DeleteBehavior);
+		Assert.IsTrue(room.GetForeignKeys().Any(x => x.PrincipalEntityType.Name == "MudSharp.Models.Room"));
+		Assert.IsFalse(room.GetIndexes().Any(x => x.IsUnique && x.Properties.Any(p => p.Name is "X" or "Y" or "Z")));
 		var areas = model.FindEntityType("MudSharp.Models.AreasCells")!;
 		CollectionAssert.AreEqual(new[] { "AreaId", "CellId" }, areas.FindPrimaryKey()!.Properties.Select(x => x.Name).ToArray());
 		Assert.IsFalse(model.FindEntityType("MudSharp.Models.CellRoomMigrationLedger")!.GetForeignKeys().Any());

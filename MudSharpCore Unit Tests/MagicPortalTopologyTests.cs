@@ -74,17 +74,17 @@ public class MagicPortalTopologyTests
 		var gameworld = CreateGameworld();
 		var manager = new ExitManager(gameworld.Object);
 		gameworld.SetupGet(x => x.ExitManager).Returns(manager);
-		var source = CreateCell(1, "Source", gameworld.Object, zone);
+		var source = CreateRoom(1, "Source", gameworld.Object, zone);
 		var item = new Mock<IGameItem>();
 		item.SetupGet(x => x.Id).Returns(99);
 		item.SetupGet(x => x.Name).Returns("Rune Stone");
 		item.SetupGet(x => x.FrameworkItemType).Returns("GameItem");
 		item.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
-		item.SetupGet(x => x.Location).Returns((ICell)null!);
+		item.SetupGet(x => x.Location).Returns((IRoom)null!);
 		gameworld.Setup(x => x.TryGetItem(99, true)).Returns(item.Object);
-		var cells = new All<ICell>();
-		cells.Add(source.Object);
-		gameworld.SetupGet(x => x.Cells).Returns(cells);
+		var rooms = new All<IRoom>();
+		rooms.Add(source.Object);
+		gameworld.SetupGet(x => x.Rooms).Returns(rooms);
 
 		var network = BuildNetwork(gameworld.Object, source.Object, itemId: 99);
 		var networks = new All<IMagicPortalNetwork>();
@@ -104,8 +104,8 @@ public class MagicPortalTopologyTests
 		var gameworld = CreateGameworld();
 		var manager = new ExitManager(gameworld.Object);
 		gameworld.SetupGet(x => x.ExitManager).Returns(manager);
-		var source = CreateCell(1, "Source", gameworld.Object, zone);
-		var destination = CreateCell(2, "Destination", gameworld.Object, zone);
+		var source = CreateRoom(1, "Source", gameworld.Object, zone);
+		var destination = CreateRoom(2, "Destination", gameworld.Object, zone);
 		var item = new Mock<IGameItem>();
 		item.SetupGet(x => x.Id).Returns(99);
 		item.SetupGet(x => x.Name).Returns("Rune Stone");
@@ -115,10 +115,10 @@ public class MagicPortalTopologyTests
 		item.SetupGet(x => x.ContainedIn).Returns((IGameItem)null!);
 		item.SetupGet(x => x.InInventoryOf).Returns(new Mock<IBody>().Object);
 		gameworld.Setup(x => x.TryGetItem(99, true)).Returns(item.Object);
-		var cells = new All<ICell>();
-		cells.Add(source.Object);
-		cells.Add(destination.Object);
-		gameworld.SetupGet(x => x.Cells).Returns(cells);
+		var rooms = new All<IRoom>();
+		rooms.Add(source.Object);
+		rooms.Add(destination.Object);
+		gameworld.SetupGet(x => x.Rooms).Returns(rooms);
 
 		var network = BuildNetwork(gameworld.Object, source.Object, itemId: 99);
 		var networks = new All<IMagicPortalNetwork>();
@@ -138,11 +138,11 @@ public class MagicPortalTopologyTests
 		var gameworld = CreateGameworld();
 		var manager = new ExitManager(gameworld.Object);
 		gameworld.SetupGet(x => x.ExitManager).Returns(manager);
-		var source = CreateCell(1, "Source", gameworld.Object, zone);
-		var destination = CreateCell(2, "Destination", gameworld.Object, zone);
+		var source = CreateRoom(1, "Source", gameworld.Object, zone);
+		var destination = CreateRoom(2, "Destination", gameworld.Object, zone);
 		var destinationItems = new List<IGameItem>();
 		destination.SetupGet(x => x.GameItems).Returns(destinationItems);
-		ICell? itemLocation = destination.Object;
+		IRoom? itemLocation = destination.Object;
 		var item = new Mock<IGameItem>();
 		item.SetupGet(x => x.Id).Returns(99);
 		item.SetupGet(x => x.Name).Returns("Rune Stone");
@@ -153,10 +153,10 @@ public class MagicPortalTopologyTests
 		item.SetupGet(x => x.InInventoryOf).Returns((IBody)null!);
 		destinationItems.Add(item.Object);
 		gameworld.Setup(x => x.TryGetItem(99, true)).Returns(item.Object);
-		var cells = new All<ICell>();
-		cells.Add(source.Object);
-		cells.Add(destination.Object);
-		gameworld.SetupGet(x => x.Cells).Returns(cells);
+		var rooms = new All<IRoom>();
+		rooms.Add(source.Object);
+		rooms.Add(destination.Object);
+		gameworld.SetupGet(x => x.Rooms).Returns(rooms);
 		var network = BuildNetwork(gameworld.Object, source.Object, itemId: 99);
 		var networks = new All<IMagicPortalNetwork>();
 		networks.Add(network);
@@ -184,20 +184,20 @@ public class MagicPortalTopologyTests
 			var gameworld = CreateGameworld();
 			var manager = new ExitManager(gameworld.Object);
 			gameworld.SetupGet(x => x.ExitManager).Returns(manager);
-			var source = CreateCell(1, "Source", gameworld.Object, zone);
-			var destination = CreateCell(2, "Destination", gameworld.Object, zone);
-			var cells = new All<ICell>();
-			cells.Add(source.Object);
-			cells.Add(destination.Object);
-			gameworld.SetupGet(x => x.Cells).Returns(cells);
+			var source = CreateRoom(1, "Source", gameworld.Object, zone);
+			var destination = CreateRoom(2, "Destination", gameworld.Object, zone);
+			var rooms = new All<IRoom>();
+			rooms.Add(source.Object);
+			rooms.Add(destination.Object);
+			gameworld.SetupGet(x => x.Rooms).Returns(rooms);
 			var persistedEndpoint = new DB.MagicPortalEndpoint
 			{
 				Id = 11,
 				MagicPortalNetworkId = 10,
 				Key = "north",
 				Name = "North",
-				AnchorType = (int)MagicPortalEndpointType.Cell,
-				CellId = source.Object.Id,
+				AnchorType = (int)MagicPortalEndpointType.Room,
+				RoomId = source.Object.Id,
 				IsActive = true,
 				CreatedDateTime = DateTime.UtcNow
 			};
@@ -227,7 +227,7 @@ public class MagicPortalTopologyTests
 						Key = persistedEndpoint.Key,
 						Name = persistedEndpoint.Name,
 						AnchorType = persistedEndpoint.AnchorType,
-						CellId = persistedEndpoint.CellId,
+						RoomId = persistedEndpoint.RoomId,
 						IsActive = persistedEndpoint.IsActive,
 						CreatedDateTime = persistedEndpoint.CreatedDateTime
 					}
@@ -256,8 +256,8 @@ public class MagicPortalTopologyTests
 				SpellPower.Insignificant, new Mock<IMagicSpellEffectParent>().Object, []);
 
 			Assert.IsNull(result);
-			Assert.AreEqual(source.Object.Id, context.MagicPortalEndpoints.Single().CellId);
-			Assert.AreEqual(source.Object.Id, network.Endpoints.Single().CellId);
+			Assert.AreEqual(source.Object.Id, context.MagicPortalEndpoints.Single().RoomId);
+			Assert.AreEqual(source.Object.Id, network.Endpoints.Single().RoomId);
 		}
 		finally
 		{
@@ -265,18 +265,18 @@ public class MagicPortalTopologyTests
 		}
 	}
 
-	private static (Mock<IFuturemud> Gameworld, ExitManager Manager, Mock<ICell> Source, Mock<ICell> Destination,
+	private static (Mock<IFuturemud> Gameworld, ExitManager Manager, Mock<IRoom> Source, Mock<IRoom> Destination,
 		MagicPortalNetwork Network) BuildTopology()
 	{
 		var zone = new Mock<IZone>().Object;
 		var gameworld = CreateGameworld();
 		var manager = new ExitManager(gameworld.Object);
-		var source = CreateCell(1, "Source", gameworld.Object, zone);
-		var destination = CreateCell(2, "Destination", gameworld.Object, zone);
-		var cells = new All<ICell>();
-		cells.Add(source.Object);
-		cells.Add(destination.Object);
-		gameworld.SetupGet(x => x.Cells).Returns(cells);
+		var source = CreateRoom(1, "Source", gameworld.Object, zone);
+		var destination = CreateRoom(2, "Destination", gameworld.Object, zone);
+		var rooms = new All<IRoom>();
+		rooms.Add(source.Object);
+		rooms.Add(destination.Object);
+		gameworld.SetupGet(x => x.Rooms).Returns(rooms);
 		var network = BuildNetwork(gameworld.Object, source.Object, destination.Object);
 		var networks = new All<IMagicPortalNetwork>();
 		networks.Add(network);
@@ -300,22 +300,22 @@ public class MagicPortalTopologyTests
 		return gameworld;
 	}
 
-	private static Mock<ICell> CreateCell(long id, string name, IFuturemud gameworld, IZone zone)
+	private static Mock<IRoom> CreateRoom(long id, string name, IFuturemud gameworld, IZone zone)
 	{
-		var cell = new Mock<ICell>();
-		cell.SetupGet(x => x.Id).Returns(id);
-		cell.SetupGet(x => x.Name).Returns(name);
-		cell.SetupGet(x => x.FrameworkItemType).Returns("Cell");
-		cell.SetupGet(x => x.Gameworld).Returns(gameworld);
-		cell.SetupGet(x => x.Zone).Returns(zone);
+		var room = new Mock<IRoom>();
+		room.SetupGet(x => x.Id).Returns(id);
+		room.SetupGet(x => x.Name).Returns(name);
+		room.SetupGet(x => x.FrameworkItemType).Returns("Cell");
+		room.SetupGet(x => x.Gameworld).Returns(gameworld);
+		room.SetupGet(x => x.Zone).Returns(zone);
 		var gameItems = new List<IGameItem>();
-		cell.SetupGet(x => x.GameItems).Returns(gameItems);
-		cell.Setup(x => x.EffectsOfType<IPlanarOverlayEffect>(It.IsAny<Predicate<IPlanarOverlayEffect>>()))
+		room.SetupGet(x => x.GameItems).Returns(gameItems);
+		room.Setup(x => x.EffectsOfType<IPlanarOverlayEffect>(It.IsAny<Predicate<IPlanarOverlayEffect>>()))
 		    .Returns([]);
-		return cell;
+		return room;
 	}
 
-	private static MagicPortalNetwork BuildNetwork(IFuturemud gameworld, ICell source, ICell? destination = null,
+	private static MagicPortalNetwork BuildNetwork(IFuturemud gameworld, IRoom source, IRoom? destination = null,
 		long? itemId = null)
 	{
 		var dbNetwork = new DB.MagicPortalNetwork
@@ -341,8 +341,8 @@ public class MagicPortalTopologyTests
 					MagicPortalNetworkId = 10,
 					Key = "north",
 					Name = "North",
-					AnchorType = (int)MagicPortalEndpointType.Cell,
-					CellId = source.Id,
+					AnchorType = (int)MagicPortalEndpointType.Room,
+					RoomId = source.Id,
 					IsActive = true,
 					CreatedDateTime = DateTime.UtcNow
 				},
@@ -352,8 +352,8 @@ public class MagicPortalTopologyTests
 					MagicPortalNetworkId = 10,
 					Key = "south",
 					Name = "South",
-					AnchorType = itemId.HasValue ? (int)MagicPortalEndpointType.Item : (int)MagicPortalEndpointType.Cell,
-					CellId = destination?.Id,
+					AnchorType = itemId.HasValue ? (int)MagicPortalEndpointType.Item : (int)MagicPortalEndpointType.Room,
+					RoomId = destination?.Id,
 					GameItemId = itemId,
 					IsActive = true,
 					CreatedDateTime = DateTime.UtcNow

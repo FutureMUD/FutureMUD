@@ -21,7 +21,7 @@ public partial class DetectEtherealEffect : IMagicSpellEffectPreparedSelection, 
 	}
 
 	private sealed record ComponentState(IGameItem Item, long Id, IGameItemProto Prototype, IStackable? Stack,
-		int Quantity, IBody? Custodian, IGameItem? Container, ICell? Location, RoomLayer Layer, ITag[] Tags,
+		int Quantity, IBody? Custodian, IGameItem? Container, IRoom? Location, RoomLayer Layer, ITag[] Tags,
 		ITag[] PrototypeTags, TagState[] Hierarchy)
 	{
 		public static ComponentState Capture(IGameItem item)
@@ -51,8 +51,8 @@ public partial class DetectEtherealEffect : IMagicSpellEffectPreparedSelection, 
 
 	private sealed record SourceEtherealSelection(MagicSpell Source, IInventoryPlanTemplate AuthoredPlan,
 		string AuthoredXml, InventoryPlanOptions Options, ActionState[] Actions, string SourceDefinition,
-		string EffectXml, SourceEtherealScope Scope, int Grade, ICharacter Caster, IBody Body, ICell Cell,
-		ICellOverlay Overlay, RoomLayer Layer, TerrainState Silt, TerrainState Shadow, TerrainState Terrain,
+		string EffectXml, SourceEtherealScope Scope, int Grade, ICharacter Caster, IBody Body, IRoom Room,
+		IRoomOverlay Overlay, RoomLayer Layer, TerrainState Silt, TerrainState Shadow, TerrainState Terrain,
 		bool Exempt, TagState[] Tags, ITag Family, ITag MinimumRank, ComponentState? Component)
 		: IMagicSpellEffectPreparedSelectionToken;
 
@@ -69,7 +69,7 @@ public partial class DetectEtherealEffect : IMagicSpellEffectPreparedSelection, 
 			LifetimePolicy is null || caster.Body is null || caster.Location?.CurrentOverlay?.Terrain is null)
 			throw new InvalidOperationException("Source ethereal detection needs self, explicit grade, lifetime and current native terrain.");
 		ValidateScope(_sourceScope);
-		var cell = caster.Location; var terrain = cell.CurrentOverlay.Terrain;
+		var room = caster.Location; var terrain = room.CurrentOverlay.Terrain;
 		// Overlapping mappings are intentional and fail Silt first, never exempt it.
 		if (terrain.Id == _sourceScope.Silt) throw new InvalidOperationException("Source ethereal detection refuses Silt.");
 		var authored = source.InventoryPlanTemplate;
@@ -104,7 +104,7 @@ public partial class DetectEtherealEffect : IMagicSpellEffectPreparedSelection, 
 		}
 		var token = new SourceEtherealSelection(source, authored, authored.SaveToXml().ToString(SaveOptions.DisableFormatting),
 			authored.Options, states, source.SnapshotModel().Definition, SaveToXml().ToString(SaveOptions.DisableFormatting),
-			_sourceScope, grade, caster, caster.Body, cell, cell.CurrentOverlay, caster.RoomLayer,
+			_sourceScope, grade, caster, caster.Body, room, room.CurrentOverlay, caster.RoomLayer,
 			TerrainState.Capture(Gameworld.Terrains.Get(_sourceScope.Silt)!), TerrainState.Capture(Gameworld.Terrains.Get(_sourceScope.Shadow)!),
 			TerrainState.Capture(terrain), terrain.Id == _sourceScope.Shadow,
 			allTags.Select(x => new TagState(x, x.Id, x.Name, x.Parent)).ToArray(), consume.DesiredTag, rankTags[Math.Max(grade - 3, 0)], null);
@@ -172,8 +172,8 @@ public partial class DetectEtherealEffect : IMagicSpellEffectPreparedSelection, 
 	{
 		if (_sourceScopeError is not null || _sourceScope != token.Scope || Spell is not MagicSpell invocation ||
 			invocation.InvocationGrade != token.Grade || !ReferenceEquals(caster, recipient) || !ReferenceEquals(caster, token.Caster) ||
-			!ReferenceEquals(caster.Body, token.Body) || !ReferenceEquals(caster.Location, token.Cell) || caster.RoomLayer != token.Layer ||
-			!ReferenceEquals(token.Cell.CurrentOverlay, token.Overlay) || !ReferenceEquals(token.Overlay.Terrain, token.Terrain.Terrain) ||
+			!ReferenceEquals(caster.Body, token.Body) || !ReferenceEquals(caster.Location, token.Room) || caster.RoomLayer != token.Layer ||
+			!ReferenceEquals(token.Room.CurrentOverlay, token.Overlay) || !ReferenceEquals(token.Overlay.Terrain, token.Terrain.Terrain) ||
 			token.Terrain.Id == token.Scope.Silt || token.Exempt != (token.Terrain.Id == token.Scope.Shadow) ||
 			!token.Silt.Current(Gameworld) || !token.Shadow.Current(Gameworld) || !token.Terrain.Current(Gameworld) ||
 			token.Tags.Any(x => !x.Current(Gameworld)) || !ReferenceEquals(Gameworld.MagicSpells.Get(token.Source.Id), token.Source) ||

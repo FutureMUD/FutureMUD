@@ -20,7 +20,7 @@ public class BeingMagicChoked : Effect, IStopBreathing, INoQuitEffect
     }
 
     private void CharacterOwner_OnLocationChanged(Form.Shape.ILocateable locatable,
-        Construction.Boundary.ICellExit exit)
+        Construction.Boundary.IRoomExit exit)
     {
         OriginatorEffect.CharacterOwner_OnLocationChanged(locatable, exit);
     }

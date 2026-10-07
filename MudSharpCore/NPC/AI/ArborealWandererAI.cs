@@ -10,7 +10,7 @@ namespace MudSharp.NPC.AI;
 public class ArborealWandererAI : PathingAIBase
 {
     protected string WanderTimeDiceExpression = "1d180+180";
-    protected IFutureProg WillWanderIntoCellProg = null!;
+    protected IFutureProg WillWanderIntoRoomProg = null!;
     protected IFutureProg IsWanderingProg = null!;
     protected IFutureProg AllowDescentProg = null!;
     protected string EmoteText = string.Empty;
@@ -27,7 +27,7 @@ public class ArborealWandererAI : PathingAIBase
 
     private ArborealWandererAI(IFuturemud gameworld, string name) : base(gameworld, name, "ArborealWanderer")
     {
-        WillWanderIntoCellProg = Gameworld.AlwaysTrueProg;
+        WillWanderIntoRoomProg = Gameworld.AlwaysTrueProg;
         IsWanderingProg = Gameworld.AlwaysTrueProg;
         AllowDescentProg = Gameworld.AlwaysFalseProg;
         OpenDoors = false;
@@ -50,7 +50,7 @@ public class ArborealWandererAI : PathingAIBase
     protected override void LoadFromXML(XElement root)
     {
         base.LoadFromXML(root);
-        WillWanderIntoCellProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("WillWanderIntoCellProg")?.Value ?? "0")) ?? Gameworld.AlwaysTrueProg;
+        WillWanderIntoRoomProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("WillWanderIntoCellProg")?.Value ?? "0")) ?? Gameworld.AlwaysTrueProg;
         IsWanderingProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("IsWanderingProg")?.Value ?? "0")) ?? Gameworld.AlwaysTrueProg;
         AllowDescentProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("AllowDescentProg")?.Value ?? "0")) ?? Gameworld.AlwaysFalseProg;
         WanderTimeDiceExpression = root.Element("WanderTimeDiceExpression")?.Value ?? "1d180+180";
@@ -62,7 +62,7 @@ public class ArborealWandererAI : PathingAIBase
     protected override string SaveToXml()
     {
         return new XElement("Definition",
-            new XElement("WillWanderIntoCellProg", WillWanderIntoCellProg?.Id ?? 0),
+            new XElement("WillWanderIntoCellProg", WillWanderIntoRoomProg?.Id ?? 0),
             new XElement("IsWanderingProg", IsWanderingProg?.Id ?? 0),
             new XElement("AllowDescentProg", AllowDescentProg?.Id ?? 0),
             new XElement("WanderTimeDiceExpression", new XCData(WanderTimeDiceExpression)),
@@ -82,7 +82,7 @@ public class ArborealWandererAI : PathingAIBase
     {
         StringBuilder sb = new(base.Show(actor));
         sb.AppendLine($"Enabled Prog: {IsWanderingProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
-        sb.AppendLine($"Wander Cell Prog: {WillWanderIntoCellProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+        sb.AppendLine($"Wander Cell Prog: {WillWanderIntoRoomProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
         sb.AppendLine($"Allow Descent Prog: {AllowDescentProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
         sb.AppendLine($"Preferred Tree Layer: {PreferredTreeLayer.DescribeEnum().ColourValue()}");
         sb.AppendLine($"Secondary Tree Layer: {SecondaryTreeLayer.DescribeEnum().ColourValue()}");
@@ -170,7 +170,7 @@ public class ArborealWandererAI : PathingAIBase
             return false;
         }
 
-        WillWanderIntoCellProg = prog;
+        WillWanderIntoRoomProg = prog;
         Changed = true;
         actor.OutputHandler.Send($"This AI will now use {prog.MXPClickableFunctionName()} to evaluate wander cells.");
         return true;
@@ -278,7 +278,7 @@ public class ArborealWandererAI : PathingAIBase
 
         switch (type)
         {
-            case EventType.CharacterEnterCellFinish:
+            case EventType.CharacterEnterRoomFinish:
             case EventType.CharacterStopMovement:
             case EventType.CharacterStopMovementClosedDoor:
             case EventType.CharacterCannotMove:
@@ -308,7 +308,7 @@ public class ArborealWandererAI : PathingAIBase
         {
             switch (type)
             {
-                case EventType.CharacterEnterCellFinish:
+                case EventType.CharacterEnterRoomFinish:
                 case EventType.CharacterStopMovement:
                 case EventType.CharacterStopMovementClosedDoor:
                 case EventType.CharacterCannotMove:
@@ -326,9 +326,9 @@ public class ArborealWandererAI : PathingAIBase
         return base.HandlesEvent(types);
     }
 
-    internal static bool CellSupportsTreeLayers(ICharacter character, ICell cell)
+    internal static bool RoomSupportsTreeLayers(ICharacter character, IRoom room)
     {
-        ITerrain terrain = cell.Terrain(character);
+        ITerrain terrain = room.Terrain(character);
         return terrain?.TerrainLayers.Any(x => x.In(RoomLayer.InTrees, RoomLayer.HighInTrees)) == true;
     }
 
@@ -377,14 +377,14 @@ public class ArborealWandererAI : PathingAIBase
         }
     }
 
-    private bool CellMatchesProg(ICharacter character, ICell cell)
+    private bool RoomMatchesProg(ICharacter character, IRoom room)
     {
-        return WillWanderIntoCellProg?.ExecuteBool(false, character, cell, character.Location) ?? true;
+        return WillWanderIntoRoomProg?.ExecuteBool(false, character, room, character.Location) ?? true;
     }
 
-    private RoomLayer ChooseTreeLayer(ICharacter character, ICell cell)
+    private RoomLayer ChooseTreeLayer(ICharacter character, IRoom room)
     {
-        List<RoomLayer> layers = cell.Terrain(character)?.TerrainLayers.ToList() ?? new List<RoomLayer>();
+        List<RoomLayer> layers = room.Terrain(character)?.TerrainLayers.ToList() ?? new List<RoomLayer>();
         if (layers.Contains(PreferredTreeLayer))
         {
             return PreferredTreeLayer;
@@ -408,45 +408,45 @@ public class ArborealWandererAI : PathingAIBase
         return RoomLayer.GroundLevel;
     }
 
-    protected override FollowingPath CreatePathingEffect(ICharacter ch, IEnumerable<ICellExit> path)
+    protected override FollowingPath CreatePathingEffect(ICharacter ch, IEnumerable<IRoomExit> path)
     {
-        ICell destination = path.Last().Destination;
+        IRoom destination = path.Last().Destination;
         RoomLayer targetLayer = ChooseTreeLayer(ch, destination);
         return new FollowingMultiLayerPath(ch, path, targetLayer, targetLayer);
     }
 
-    protected override (ICell? Target, IEnumerable<ICellExit>) GetPath(ICharacter ch)
+    protected override (IRoom? Target, IEnumerable<IRoomExit>) GetPath(ICharacter ch)
     {
-        List<(ICell Cell, int Distance)> treeTargets = ch.CellsAndDistancesInVicinity(10,
+        List<(IRoom Room, int Distance)> treeTargets = ch.RoomsAndDistancesInVicinity(10,
             GetSuitabilityFunction(ch, true),
-            cell => CellMatchesProg(ch, cell) && CellSupportsTreeLayers(ch, cell))
+            room => RoomMatchesProg(ch, room) && RoomSupportsTreeLayers(ch, room))
             .ToList();
 
-        ICell? target = treeTargets.GetWeightedRandom(x => Math.Sqrt(x.Distance)).Cell;
+        IRoom? target = treeTargets.GetWeightedRandom(x => Math.Sqrt(x.Distance)).Room;
         if (target is not null)
         {
-            List<ICellExit> path = ch.PathBetween(target, 10, GetSuitabilityFunction(ch, true)).ToList();
+            List<IRoomExit> path = ch.PathBetween(target, 10, GetSuitabilityFunction(ch, true)).ToList();
             if (path.Any())
             {
                 return (target, path);
             }
         }
 
-        List<(ICell Cell, int Distance)> descentTargets = ch.CellsAndDistancesInVicinity(10,
+        List<(IRoom Room, int Distance)> descentTargets = ch.RoomsAndDistancesInVicinity(10,
             GetSuitabilityFunction(ch, true),
-            cell => CellMatchesProg(ch, cell) &&
-                    !CellSupportsTreeLayers(ch, cell) &&
-                    (AllowDescentProg?.ExecuteBool(false, ch, cell) ?? false))
+            room => RoomMatchesProg(ch, room) &&
+                    !RoomSupportsTreeLayers(ch, room) &&
+                    (AllowDescentProg?.ExecuteBool(false, ch, room) ?? false))
             .ToList();
-        target = descentTargets.GetWeightedRandom(x => Math.Sqrt(x.Distance)).Cell;
+        target = descentTargets.GetWeightedRandom(x => Math.Sqrt(x.Distance)).Room;
         if (target is null)
         {
-            return (null, Enumerable.Empty<ICellExit>());
+            return (null, Enumerable.Empty<IRoomExit>());
         }
 
-        List<ICellExit> descentPath = ch.PathBetween(target, 10, GetSuitabilityFunction(ch, true)).ToList();
+        List<IRoomExit> descentPath = ch.PathBetween(target, 10, GetSuitabilityFunction(ch, true)).ToList();
         return descentPath.Any()
             ? (target, descentPath)
-            : (null, Enumerable.Empty<ICellExit>());
+            : (null, Enumerable.Empty<IRoomExit>());
     }
 }

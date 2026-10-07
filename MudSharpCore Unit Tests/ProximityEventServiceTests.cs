@@ -19,11 +19,11 @@ namespace MudSharp_Unit_Tests;
 public class ProximityEventServiceTests
 {
 	[TestMethod]
-	public void MovementIntoRegisteredOrdinaryCell_EmitsDirectionalChangeOnce()
+	public void MovementIntoRegisteredOrdinaryRoom_EmitsDirectionalChangeOnce()
 	{
 		var service = new ProximityEventService();
-		var origin = CreateCell(1);
-		var destination = CreateCell(2);
+		var origin = CreateRoom(1);
+		var destination = CreateRoom(2);
 		var receiver = CreatePerceivable(destination.Object);
 		var subjectLocation = origin.Object;
 		var subject = CreatePerceivable(() => subjectLocation);
@@ -51,9 +51,9 @@ public class ProximityEventServiceTests
 	public void SameSpatialValueUpdate_DoesNotEmitAProximityEvent()
 	{
 		var service = new ProximityEventService();
-		var cell = CreateCell(3);
-		var receiver = CreatePerceivable(cell.Object);
-		var subject = CreatePerceivable(cell.Object);
+		var room = CreateRoom(3);
+		var receiver = CreatePerceivable(room.Object);
+		var subject = CreatePerceivable(room.Object);
 		var events = CaptureProximityEvents(receiver);
 		receiver.Setup(x => x.GetProximity(subject.Object)).Returns(Proximity.Distant);
 
@@ -70,8 +70,8 @@ public class ProximityEventServiceTests
 	public void DisposedRegistration_IsNotConsideredByLaterMovement()
 	{
 		var service = new ProximityEventService();
-		var origin = CreateCell(4);
-		var destination = CreateCell(5);
+		var origin = CreateRoom(4);
+		var destination = CreateRoom(5);
 		var receiver = CreatePerceivable(destination.Object);
 		var subjectLocation = origin.Object;
 		var subject = CreatePerceivable(() => subjectLocation);
@@ -90,11 +90,11 @@ public class ProximityEventServiceTests
 	}
 
 	[TestMethod]
-	public void UnregisteredCellPopulation_IsNotSentTheEvent()
+	public void UnregisteredRoomPopulation_IsNotSentTheEvent()
 	{
 		var service = new ProximityEventService();
-		var origin = CreateCell(6);
-		var destination = CreateCell(7);
+		var origin = CreateRoom(6);
+		var destination = CreateRoom(7);
 		var receiver = CreatePerceivable(destination.Object);
 		var subjectLocation = origin.Object;
 		var subject = CreatePerceivable(() => subjectLocation);
@@ -143,21 +143,21 @@ public class ProximityEventServiceTests
 		target.Verify(x => x.HandleEvent(EventType.PerceivableProximityChanged, It.IsAny<object[]>()), Times.Never);
 	}
 
-	private static Mock<ICell> CreateCell(long id)
+	private static Mock<IRoom> CreateRoom(long id)
 	{
-		var cell = new Mock<ICell>();
-		cell.SetupGet(x => x.Id).Returns(id);
-		cell.SetupGet(x => x.RouteDefinition).Returns((IRouteCellDefinition?)null);
-		cell.SetupGet(x => x.Perceivables).Returns([]);
-		return cell;
+		var room = new Mock<IRoom>();
+		room.SetupGet(x => x.Id).Returns(id);
+		room.SetupGet(x => x.RouteDefinition).Returns((IRouteRoomDefinition?)null);
+		room.SetupGet(x => x.Perceivables).Returns([]);
+		return room;
 	}
 
-	private static Mock<IPerceivable> CreatePerceivable(ICell location)
+	private static Mock<IPerceivable> CreatePerceivable(IRoom location)
 	{
 		return CreatePerceivable(() => location);
 	}
 
-	private static Mock<IPerceivable> CreatePerceivable(Func<ICell> location)
+	private static Mock<IPerceivable> CreatePerceivable(Func<IRoom> location)
 	{
 		var perceivable = new Mock<IPerceivable>();
 		perceivable.SetupGet(x => x.Location).Returns(location);

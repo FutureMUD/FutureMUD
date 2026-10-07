@@ -29,7 +29,7 @@ public class EnvironmentalMagicOptionsTests
 		var original = new EnvironmentalMagicOptions();
 		var changed = original.WithSetting("EnvironmentalMagicBudgetMilliseconds", "7.5");
 		Assert.AreEqual(7.5, changed.SoftBudgetMilliseconds);
-		Assert.AreEqual(original.MaximumCellVisits, changed.MaximumCellVisits);
+		Assert.AreEqual(original.MaximumRoomVisits, changed.MaximumRoomVisits);
 		Assert.AreEqual(original.ActiveCadenceSeconds, changed.ActiveCadenceSeconds);
 		Assert.AreEqual(original.ReconciliationSeconds, changed.ReconciliationSeconds);
 		Assert.AreEqual(5.0, original.SoftBudgetMilliseconds);

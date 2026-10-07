@@ -17,7 +17,7 @@ public class CharacterInstanceDiagnosticsTests
 	[TestMethod]
 	public void AuditPrimaryInstance_CompatiblePrimaryInstance_ReturnsNoDiagnostics()
 	{
-		var location = new Mock<ICell>();
+		var location = new Mock<IRoom>();
 		var body = new Mock<IBody>();
 		var form = new Mock<ICharacterForm>();
 		var character = new Mock<ICharacter>();
@@ -304,7 +304,7 @@ public class CharacterInstanceDiagnosticsTests
 	{
 		var body = new Mock<IBody>();
 		body.SetupGet(x => x.Id).Returns(bodyId);
-		var location = new Mock<ICell>();
+		var location = new Mock<IRoom>();
 		location.SetupGet(x => x.Id).Returns(30 + instanceId);
 		var instance = new Mock<ICharacterInstance>();
 		instance.SetupGet(x => x.Identity).Returns(identity);
@@ -336,7 +336,7 @@ public class CharacterInstanceDiagnosticsTests
 	{
 		var body = new Mock<IBody>();
 		body.SetupGet(x => x.Id).Returns(bodyId);
-		var location = new Mock<ICell>();
+		var location = new Mock<IRoom>();
 		location.SetupGet(x => x.Id).Returns(30 + instanceId);
 		var character = new Mock<ICharacter>();
 		character.SetupGet(x => x.Id).Returns(characterId);

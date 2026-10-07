@@ -151,18 +151,18 @@ public class TemperatureSensorGameItemComponent : PoweredMachineBaseGameItemComp
 	private double ResolveCurrentTemperatureCelsius()
 	{
 		var anchorItem = SignalComponentUtilities.ResolveSignalSearchAnchorItem(Parent);
-		var cell = anchorItem.TrueLocations
-			           .OfType<ICell>()
+		var room = anchorItem.TrueLocations
+			           .OfType<IRoom>()
 			           .FirstOrDefault() ??
 		           Parent.TrueLocations
-			           .OfType<ICell>()
+			           .OfType<IRoom>()
 			           .FirstOrDefault();
-		if (cell is null)
+		if (room is null)
 		{
 			return 0.0;
 		}
 
-		return cell.CurrentTemperature(anchorItem) * Gameworld.UnitManager.BaseTemperatureToCelcius;
+		return room.CurrentTemperature(anchorItem) * Gameworld.UnitManager.BaseTemperatureToCelcius;
 	}
 
 	private void SetCurrentSignal(ComputerSignal signal, bool markChanged)

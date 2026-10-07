@@ -68,7 +68,7 @@ internal class CountCurrencyFunction : BuiltInFunction
             return StatementResult.Normal;
         }
 
-        if (parameter1 is ICell location)
+        if (parameter1 is IRoom location)
         {
             Result = new NumberVariable(location.GameItems.Sum(x => CountItem(x, currency, RespectGetRules)));
             return StatementResult.Normal;

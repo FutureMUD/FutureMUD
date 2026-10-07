@@ -50,7 +50,7 @@ public abstract partial class CreatureAIBase : PathingAIBase
 			case "roomprog":
 			case "cell":
 			case "cellprog":
-				return BuildingCommandMovementCellProg(actor, command);
+				return BuildingCommandMovementRoomProg(actor, command);
 			case "preferredhabitat":
 			case "preferhabitat":
 				return BuildingCommandMovementHabitatProg(actor, command, x => PreferredHabitatProg = x,
@@ -62,10 +62,10 @@ public abstract partial class CreatureAIBase : PathingAIBase
 					"tolerated transit habitat");
 			case "landprog":
 			case "land":
-				return BuildingCommandAmphibiousCellProg(actor, command, x => AmphibiousLandCellProg = x, "land");
+				return BuildingCommandAmphibiousRoomProg(actor, command, x => AmphibiousLandRoomProg = x, "land");
 			case "waterprog":
 			case "watercell":
-				return BuildingCommandAmphibiousCellProg(actor, command, x => AmphibiousWaterCellProg = x, "water");
+				return BuildingCommandAmphibiousRoomProg(actor, command, x => AmphibiousWaterRoomProg = x, "water");
 			case "flying":
 			case "flyinglayer":
 				return BuildingCommandLayer(actor, command, x => TargetFlyingLayer = x, "flying travel");
@@ -163,7 +163,7 @@ public abstract partial class CreatureAIBase : PathingAIBase
 		return true;
 	}
 
-	protected bool BuildingCommandAmphibiousCellProg(ICharacter actor, StringStack command, Action<IFutureProg> setter, string label)
+	protected bool BuildingCommandAmphibiousRoomProg(ICharacter actor, StringStack command, Action<IFutureProg> setter, string label)
 	{
 		if (command.IsFinished)
 		{
@@ -190,7 +190,7 @@ public abstract partial class CreatureAIBase : PathingAIBase
 		return true;
 	}
 
-	protected bool BuildingCommandMovementCellProg(ICharacter actor, StringStack command)
+	protected bool BuildingCommandMovementRoomProg(ICharacter actor, StringStack command)
 	{
 		if (command.IsFinished)
 		{
@@ -210,7 +210,7 @@ public abstract partial class CreatureAIBase : PathingAIBase
 			return false;
 		}
 
-		MovementCellProg = prog;
+		MovementRoomProg = prog;
 		Changed = true;
 		actor.OutputHandler.Send($"This creature AI will now use {prog.MXPClickableFunctionName()} for ambient movement targets.");
 		return true;
@@ -691,7 +691,7 @@ public abstract partial class CreatureAIBase : PathingAIBase
 			return false;
 		}
 
-		AwarenessAvoidCellProg = prog;
+		AwarenessAvoidRoomProg = prog;
 		Changed = true;
 		actor.OutputHandler.Send($"This creature AI will now use {prog.MXPClickableFunctionName()} to avoid cells.");
 		return true;
@@ -750,7 +750,7 @@ public abstract partial class CreatureAIBase : PathingAIBase
 				return BuildingCommandLayer(actor, command, x => RefugeLayer = x, "refuge");
 			case "cell":
 			case "cellprog":
-				return BuildingCommandRefugeCellProg(actor, command);
+				return BuildingCommandRefugeRoomProg(actor, command);
 			case "return":
 			case "returndelay":
 				return BuildingCommandRefugeReturn(actor, command);
@@ -783,7 +783,7 @@ public abstract partial class CreatureAIBase : PathingAIBase
 		return true;
 	}
 
-	protected bool BuildingCommandRefugeCellProg(ICharacter actor, StringStack command)
+	protected bool BuildingCommandRefugeRoomProg(ICharacter actor, StringStack command)
 	{
 		if (command.IsFinished)
 		{
@@ -804,7 +804,7 @@ public abstract partial class CreatureAIBase : PathingAIBase
 			return false;
 		}
 
-		RefugeCellProg = prog;
+		RefugeRoomProg = prog;
 		Changed = true;
 		actor.OutputHandler.Send($"This creature AI will now use {prog.MXPClickableFunctionName()} to identify refuge cells.");
 		return true;

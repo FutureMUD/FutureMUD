@@ -65,7 +65,7 @@ public class FireAndAdvanceStrategy : RangeBaseStrategy
 
             if (ch.Aim == null)
             {
-                List<ICellExit> shootpath = ch.PathBetween(ch.CombatTarget, 10, false, false, true).ToList();
+                List<IRoomExit> shootpath = ch.PathBetween(ch.CombatTarget, 10, false, false, true).ToList();
                 if ((shootpath.Any() ||
 					 (ch.SharesLongitudinalVicinityWith(ch.CombatTarget) &&
 					  ch.RoomLayer != ch.CombatTarget.RoomLayer)) &&
@@ -95,7 +95,7 @@ public class FireAndAdvanceStrategy : RangeBaseStrategy
                 {
                     if (ch.CombatSettings.AutomaticallyMoveTowardsTarget)
                     {
-                        List<ICellExit> path = ch.PathBetween(ch.CombatTarget, 10, GetPathFunction(ch)).ToList();
+                        List<IRoomExit> path = ch.PathBetween(ch.CombatTarget, 10, GetPathFunction(ch)).ToList();
                         if (path.Any() && ch.CanMove(path.First()))
                         {
                             return new CombatMoveRoom { Assailant = ch, Direction = path.First() };

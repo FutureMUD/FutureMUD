@@ -64,7 +64,7 @@ public class OutOfCombatAim : Effect, IRemoveOnCombatStart, ILDescSuffixEffect
 
     protected override string SpecificEffectType => "OutOfCombatAim";
 
-    public OutOfCombatAim(ICharacter owner, IPerceiver target, IRangedWeapon weapon, IEnumerable<ICellExit> path)
+    public OutOfCombatAim(ICharacter owner, IPerceiver target, IRangedWeapon weapon, IEnumerable<IRoomExit> path)
         : base(owner)
     {
         CharacterOwner = owner;

@@ -98,7 +98,7 @@ public abstract partial class CreatureAIBase
 		var restraints = target.EffectsOfType<TrapRestraintEffect>().ToList();
 		// A one-use trap can be spent and removed before its (possibly delayed) payload fires.
 		if (target.Location == actor.Location && restraints.Any(x => x.CreatorId == actor.Id &&
-		    x.OriginCellId == actor.Location.Id)) return true;
+		    x.OriginRoomId == actor.Location.Id)) return true;
 		// Old saved restraints have no creator receipt; require the original local trap for those.
 		var legacyIds = restraints.Where(x => x.CreatorId == 0).Select(x => x.TrapInstanceId).ToHashSet();
 		return LocalOwnedTraps(actor).Any(x => legacyIds.Contains(x.InstanceId));

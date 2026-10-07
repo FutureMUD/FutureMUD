@@ -123,7 +123,7 @@ public class ImplantTelephoneGameItemComponent : ImplantBaseGameItemComponent, I
                 zones.Add(Actor.Location.Zone);
             }
 
-            IEnumerable<ICell> trueLocations = Parent.TrueLocations ?? Enumerable.Empty<ICell>();
+            IEnumerable<IRoom> trueLocations = Parent.TrueLocations ?? Enumerable.Empty<IRoom>();
             zones.AddRange(trueLocations
                 .Where(x => x?.Zone != null)
                 .Select(x => x!.Zone));

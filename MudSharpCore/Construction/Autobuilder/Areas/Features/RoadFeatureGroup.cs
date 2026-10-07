@@ -85,7 +85,7 @@ public class RoadFeatureGroup : TerrainFeatureGroup
 
     public override List<Feature> Features => new();
 
-    public override void ApplyTerrainFeatures(ICell[,] cellMap, List<string>[,] featureMap)
+    public override void ApplyTerrainFeatures(IRoom[,] cellMap, List<string>[,] featureMap)
     {
         int width = cellMap.GetLength(0);
         int height = cellMap.GetLength(1);
@@ -94,13 +94,13 @@ public class RoadFeatureGroup : TerrainFeatureGroup
 		{
 			for (int y = 0; y < height; y++)
 			{
-				ICell cell = cellMap[x, y];
-				if (cell == null)
+				IRoom room = cellMap[x, y];
+				if (room == null)
 				{
 					continue;
 				}
 
-				if (Terrains.Any() && !Terrains.Contains(cell.Terrain(null)))
+				if (Terrains.Any() && !Terrains.Contains(room.Terrain(null)))
 				{
 					continue;
 				}
@@ -113,7 +113,7 @@ public class RoadFeatureGroup : TerrainFeatureGroup
                         return false;
                     }
 
-                    if (adj.ExitsFor(null).All(exit => exit.Destination != cell))
+                    if (adj.ExitsFor(null).All(exit => exit.Destination != room))
                     {
                         return false;
                     }

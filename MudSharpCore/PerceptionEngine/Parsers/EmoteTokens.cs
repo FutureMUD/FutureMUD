@@ -1,4 +1,4 @@
-﻿using MudSharp.Communication.Language;
+using MudSharp.Communication.Language;
 using MudSharp.Form.Audio;
 using MudSharp.RPG.Checks;
 using System.Text.RegularExpressions;
@@ -629,6 +629,8 @@ public partial class Emote
                     return new PronounNumberToken(root, gameworld);
                 case "NonSelf":
                     return new NonSelfToken(root, gameworld);
+                case "OptionalItself":
+                    return new OptionalItselfToken(root, gameworld);
                 default:
                     throw new NotSupportedException();
             }
@@ -638,7 +640,7 @@ public partial class Emote
         {
             return new XElement("Token", new XAttribute("Proper", Proper.ToString()),
                 new XAttribute("Pronouned", Pronouned.ToString()), new XAttribute("Coloured", Coloured.ToString()),
-                new XAttribute("StripAAn", StripAAn.ToString()), new XAttribute("TargetType", Target.FrameworkItemType),
+                new XAttribute("StripAAn", StripAAn.ToString()), new XAttribute("TargetType", Target.GetPersistedReferenceType()),
                 new XAttribute("TargetId", Target.Id));
         }
 
@@ -1328,7 +1330,7 @@ public partial class Emote
         {
             XElement xml = base.SaveToXml();
             xml.Add(new XAttribute("OtherId", Other.Id));
-            xml.Add(new XAttribute("OtherType", Other.FrameworkItemType));
+            xml.Add(new XAttribute("OtherType", Other.GetPersistedReferenceType()));
             xml.Add(new XAttribute("Type", "OptionalItself"));
             xml.Add(new XAttribute("possessive", _possessive));
             return xml;

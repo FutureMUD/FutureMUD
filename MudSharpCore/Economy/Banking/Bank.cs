@@ -105,7 +105,7 @@ public partial class Bank : SaveableItem, IBank, ILazyLoadDuringIdleTime
 
         foreach (BankBranch branch in bank.BankBranches)
         {
-            _branchIds.Add(branch.CellId);
+            _branchIds.Add(branch.RoomId);
         }
 
         Gameworld.SaveManager.AddLazyLoad(this);
@@ -185,7 +185,7 @@ public partial class Bank : SaveableItem, IBank, ILazyLoadDuringIdleTime
             dbitem.BankBranches.Add(new BankBranch
             {
                 Bank = dbitem,
-                CellId = item
+                RoomId = item
             });
         }
 
@@ -239,7 +239,7 @@ public partial class Bank : SaveableItem, IBank, ILazyLoadDuringIdleTime
         {
             _branchLocations.Remove(actor.Location);
             _branchIds.Remove(actor.Location.Id);
-            actor.Location.CellRequestsDeletion -= Branch_CellRequestsDeletion;
+            actor.Location.RoomRequestsDeletion -= Branch_RoomRequestsDeletion;
             Changed = true;
             actor.OutputHandler.Send($"Your current location is no longer a branch for {Name.ColourName()}.");
             return true;
@@ -247,8 +247,8 @@ public partial class Bank : SaveableItem, IBank, ILazyLoadDuringIdleTime
 
         _branchLocations.Add(actor.Location);
         _branchIds.Add(actor.Location.Id);
-        actor.Location.CellRequestsDeletion -= Branch_CellRequestsDeletion;
-        actor.Location.CellRequestsDeletion += Branch_CellRequestsDeletion;
+        actor.Location.RoomRequestsDeletion -= Branch_RoomRequestsDeletion;
+        actor.Location.RoomRequestsDeletion += Branch_RoomRequestsDeletion;
         Changed = true;
         actor.OutputHandler.Send($"Your current location is now a branch for {Name.ColourName()}.");
         return true;
@@ -1187,19 +1187,19 @@ public partial class Bank : SaveableItem, IBank, ILazyLoadDuringIdleTime
     public IEnumerable<IBankAccountType> BankAccountTypes => _bankAccountTypes;
 
     private readonly List<long> _branchIds = new();
-    private List<ICell> _branchLocations;
+    private List<IRoom> _branchLocations;
 
-    public IEnumerable<ICell> BranchLocations
+    public IEnumerable<IRoom> BranchLocations
     {
         get
         {
             if (_branchLocations == null)
             {
-                _branchLocations = _branchIds.SelectNotNull(x => Gameworld.Cells.Get(x)).ToList();
-                foreach (ICell branch in _branchLocations)
+                _branchLocations = _branchIds.SelectNotNull(x => Gameworld.Rooms.Get(x)).ToList();
+                foreach (IRoom branch in _branchLocations)
                 {
-                    branch.CellRequestsDeletion -= Branch_CellRequestsDeletion;
-                    branch.CellRequestsDeletion += Branch_CellRequestsDeletion;
+                    branch.RoomRequestsDeletion -= Branch_RoomRequestsDeletion;
+                    branch.RoomRequestsDeletion += Branch_RoomRequestsDeletion;
                 }
             }
 
@@ -1207,11 +1207,11 @@ public partial class Bank : SaveableItem, IBank, ILazyLoadDuringIdleTime
         }
     }
 
-    private void Branch_CellRequestsDeletion(object sender, EventArgs e)
+    private void Branch_RoomRequestsDeletion(object sender, EventArgs e)
     {
-        ICell cell = (ICell)sender;
-        _branchLocations.Remove(cell);
-        _branchIds.Remove(cell.Id);
+        IRoom room = (IRoom)sender;
+        _branchLocations.Remove(room);
+        _branchIds.Remove(room.Id);
         Changed = true;
     }
 

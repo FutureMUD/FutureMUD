@@ -17,6 +17,6 @@ namespace MudSharp.Commands.Socials
         string MultiTargetEcho { get; set; }
         bool Applies(object actor, string command, bool abbreviations);
         IExecutable<ICharacter> GetCommand();
-        void Execute(ICharacter actor, List<IPerceivable> targetList, ICellExit targetExit, IEmote playerEmote);
+        void Execute(ICharacter actor, List<IPerceivable> targetList, IRoomExit targetExit, IEmote playerEmote);
     }
 }

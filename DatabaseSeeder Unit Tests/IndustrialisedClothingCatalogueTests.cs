@@ -42,8 +42,8 @@ public class IndustrialisedClothingCatalogueTests
 	public void UnskinnedDefaults_AreValidOutfitAndCraftProducts()
 	{
 		var sources = Fixture();
-		ReplaceCell(sources, "outfit-entries.tsv", 4, string.Empty);
-		ReplaceCell(sources, "craft-products.tsv", 5, string.Empty);
+		ReplaceRoom(sources, "outfit-entries.tsv", 4, string.Empty);
+		ReplaceRoom(sources, "craft-products.tsv", 5, string.Empty);
 		var d = Load(sources);
 		Assert.AreEqual(string.Empty, d.OutfitEntries.Single().SkinReference);
 		Assert.AreEqual(string.Empty, d.CraftProducts.First().SkinReference);
@@ -78,7 +78,7 @@ public class IndustrialisedClothingCatalogueTests
 	public void InvalidGraphs_FailWithSourceLocations(string file, int column, string value, string diagnostic)
 	{
 		var sources = Fixture();
-		ReplaceCell(sources, file, column, value);
+		ReplaceRoom(sources, file, column, value);
 		var ex = Assert.ThrowsException<InvalidDataException>(() => Load(sources));
 		StringAssert.Contains(ex.Message, "Clothing/");
 		StringAssert.Contains(ex.Message, diagnostic);
@@ -130,7 +130,7 @@ public class IndustrialisedClothingCatalogueTests
 		return sources;
 	}
 
-	internal static void ReplaceCell(Dictionary<string, string> sources, string name, int column, string value)
+	internal static void ReplaceRoom(Dictionary<string, string> sources, string name, int column, string value)
 	{
 		var lines = sources[name].Split('\n');
 		var fields = lines[1].Split('\t');

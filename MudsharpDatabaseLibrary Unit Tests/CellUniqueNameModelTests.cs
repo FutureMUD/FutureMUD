@@ -11,7 +11,7 @@ using MudSharp.Models;
 namespace MudSharp_Unit_Tests;
 
 [TestClass]
-public class CellUniqueNameModelTests
+public class RoomUniqueNameModelTests
 {
 	[TestMethod]
 	public void Migration_IsOnlyNullableColumnAndNonuniqueIndexWithNoBackfill()
@@ -37,16 +37,16 @@ public class CellUniqueNameModelTests
 			.UseMySql("server=127.0.0.1;database=unused;uid=unused;password=unused", ServerVersion.Parse("8.0.36-mysql")).Options;
 		using var context = new FuturemudDatabaseContext(options);
 		var model = context.GetService<IDesignTimeModel>().Model;
-		var cell = model.FindEntityType(typeof(Cell))!;
-		var key = cell.FindProperty(nameof(Cell.UniqueName))!;
+		var room = model.FindEntityType(typeof(Room))!;
+		var key = room.FindProperty(nameof(Room.UniqueName))!;
 		Assert.IsTrue(key.IsNullable);
 		Assert.AreEqual("varchar(255)", key.GetColumnType());
 		Assert.AreEqual("utf8mb4_general_ci", key.GetCollation());
-		Assert.IsFalse(cell.GetIndexes().Single(x => x.Properties.Contains(key)).IsUnique);
-		var zone = cell.GetForeignKeys().Single(x => x.PrincipalEntityType.ClrType == typeof(Zone));
+		Assert.IsFalse(room.GetIndexes().Single(x => x.Properties.Contains(key)).IsUnique);
+		var zone = room.GetForeignKeys().Single(x => x.PrincipalEntityType.ClrType == typeof(Zone));
 		Assert.IsTrue(zone.IsRequired);
 		Assert.IsFalse(zone.IsUnique);
 		Assert.AreEqual(DeleteBehavior.Restrict, zone.DeleteBehavior);
-		Assert.IsNull(new Cell().UniqueName);
+		Assert.IsNull(new Room().UniqueName);
 	}
 }

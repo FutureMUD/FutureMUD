@@ -82,14 +82,14 @@ The syntax is:
 	#3exits#0", AutoHelp.HelpArg)]
     protected static void Exits(ICharacter actor, string input)
     {
-        List<ICellExit> exits = actor
+        List<IRoomExit> exits = actor
                     .Location
                     .ExitsFor(actor)
                     .Where(x => actor.CanSee(actor.Location, x))
                     .ToList();
         StringBuilder sb = new();
         sb.AppendLine($"Exits for {actor.Location.HowSeen(actor)}:");
-        foreach (ICellExit exit in exits)
+        foreach (IRoomExit exit in exits)
         {
             if (exit.Exit.Door?.IsOpen == false && !exit.Exit.Door.CanFireThrough && !actor.IsAdministrator())
             {
@@ -252,7 +252,7 @@ The syntax is simply #3survey#0.", AutoHelp.HelpArg)]
             sb.AppendLine($"This location is a branch of {bank.Name.ColourName()}.");
         }
 
-        IAuctionHouse auctionHouse = actor.Gameworld.AuctionHouses.FirstOrDefault(x => x.AuctionHouseCell == actor.Location);
+        IAuctionHouse auctionHouse = actor.Gameworld.AuctionHouses.FirstOrDefault(x => x.AuctionHouseRoom == actor.Location);
         if (auctionHouse != null)
         {
             sb.AppendLine($"This location is an auction house called {auctionHouse.Name.ColourName()}.");
@@ -264,7 +264,7 @@ The syntax is simply #3survey#0.", AutoHelp.HelpArg)]
             sb.AppendLine($"This location is a stable called {stable.Name.ColourName()}.");
         }
 
-        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingCells.Contains(actor.Location));
+        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingRooms.Contains(actor.Location));
         if (ez != null)
         {
             sb.AppendLine($"This location can be used to manage property in the {ez.Name.ColourName()} economic zone.");
@@ -278,7 +278,7 @@ The syntax is simply #3survey#0.", AutoHelp.HelpArg)]
         sb.AppendLine(actor.Location.HearingProfile(actor) != null
             ? actor.Location.HearingProfile(actor).SurveyDescription
             : "There is nothing remarkable about the noise levels here.".Colour(Telnet.Yellow));
-        if (actor.Location.OutdoorsType(actor) == CellOutdoorsType.Outdoors)
+        if (actor.Location.OutdoorsType(actor) == RoomOutdoorsType.Outdoors)
         {
             sb.AppendLine();
             if (actor.Location.CurrentWeather(actor)?.ObscuresViewOfSky == true)
@@ -320,7 +320,7 @@ The syntax is simply #3survey#0.", AutoHelp.HelpArg)]
                 $"Infections caught here will be of type {terrain.PrimaryInfection.Describe().ColourValue()}, difficulty {terrain.InfectionVirulence.DescribeColoured()} with virulence {terrain.InfectionMultiplier.ToString("P3", actor).ColourValue()}.");
             sb.AppendLine();
             List<ICharacter> territoryOwners = actor.Gameworld.NPCs.Where(x =>
-                x.CombinedEffectsOfType<Territory>().Any(y => y.Cells.Contains(actor.Location))).ToList();
+                x.CombinedEffectsOfType<Territory>().Any(y => y.Rooms.Contains(actor.Location))).ToList();
             sb.AppendLine("Territory Claimed By:");
             if (!territoryOwners.Any())
             {
@@ -494,7 +494,7 @@ See also: HELP EVALUATE, HELP SEARCH, HELP SCAN",
         if (arg.EqualTo("sky") && ss.IsFinished)
         {
             var celestials = actor.Location.Celestials.ToArray();
-            if (actor.Location.OutdoorsType(actor) is not (CellOutdoorsType.Outdoors or CellOutdoorsType.IndoorsWithWindows) ||
+            if (actor.Location.OutdoorsType(actor) is not (RoomOutdoorsType.Outdoors or RoomOutdoorsType.IndoorsWithWindows) ||
                 !(celestials.Any(x => actor.CanSee(x)) || celestials.Length == 0 && actor.CanSee(actor.Location)))
             {
                 actor.OutputHandler.Send("You cannot see the sky from here.");
@@ -727,9 +727,9 @@ See also: HELP EVALUATE, HELP SEARCH, HELP SCAN",
 	private static bool TryRouteDirection(
 		ICharacter actor,
 		string argument,
-		out RouteCellDirection direction)
+		out RouteRoomDirection direction)
 	{
-		direction = RouteCellDirection.Positive;
+		direction = RouteRoomDirection.Positive;
 		if (actor.Location.RouteDefinition is not { } route || string.IsNullOrWhiteSpace(argument))
 		{
 			return false;
@@ -739,14 +739,14 @@ See also: HELP EVALUATE, HELP SEARCH, HELP SCAN",
 		if (text.EqualToAny("forward", "forwards", "positive") ||
 			text.EqualTo(route.PositiveDirectionName))
 		{
-			direction = RouteCellDirection.Positive;
+			direction = RouteRoomDirection.Positive;
 			return true;
 		}
 
 		if (text.EqualToAny("backward", "backwards", "negative") ||
 			text.EqualTo(route.NegativeDirectionName))
 		{
-			direction = RouteCellDirection.Negative;
+			direction = RouteRoomDirection.Negative;
 			return true;
 		}
 
@@ -755,7 +755,7 @@ See also: HELP EVALUATE, HELP SEARCH, HELP SCAN",
 
 	private static void ShowRouteDirection(
 		ICharacter actor,
-		RouteCellDirection direction,
+		RouteRoomDirection direction,
 		double maximumDistanceMetres,
 		string action)
 	{
@@ -767,7 +767,7 @@ See also: HELP EVALUATE, HELP SEARCH, HELP SCAN",
 			return;
 		}
 
-		var positive = direction == RouteCellDirection.Positive;
+		var positive = direction == RouteRoomDirection.Positive;
 		var originPosition = origin.RoutePositionMetres.Value;
 		var candidates = RouteSpatialService.Instance.GetPerceivablesWithin(
 				origin,
@@ -829,9 +829,9 @@ See also: HELP EVALUATE, HELP SEARCH, HELP SCAN",
 		actor.OutputHandler.Send(sb.ToString());
 	}
 
-	private static string DirectionLabel(IRouteCellDefinition route, RouteCellDirection direction)
+	private static string DirectionLabel(IRouteRoomDefinition route, RouteRoomDirection direction)
 	{
-		return direction == RouteCellDirection.Positive
+		return direction == RouteRoomDirection.Positive
 			? route.PositiveDirectionName
 			: route.NegativeDirectionName;
 	}
@@ -959,7 +959,7 @@ See also the #3scan#0, #3longscan#0 and #3search#0 commands.", AutoHelp.HelpArg)
 			return;
 		}
 
-        List<ICellExit> exits = null;
+        List<IRoomExit> exits = null;
         SizeCategory userSetSize = SizeCategory.Nanoscopic;
         List<RoomLayer> layers = actor.Location.Terrain(actor).TerrainLayers.ToList();
         string exitArg = string.Empty;
@@ -985,7 +985,7 @@ See also the #3scan#0, #3longscan#0 and #3search#0 commands.", AutoHelp.HelpArg)
 
             if (!exitArg.Equals(string.Empty))
             {
-                ICellExit exit = actor.Location.GetExitKeyword(exitArg, actor);
+                IRoomExit exit = actor.Location.GetExitKeyword(exitArg, actor);
                 if (exit is null)
                 {
                     actor.OutputHandler.Send($"There is no exit identified by the keyword {exitArg.ColourCommand()}.");
@@ -1036,25 +1036,25 @@ See also the #3scan#0, #3longscan#0 and #3search#0 commands.", AutoHelp.HelpArg)
         StringBuilder sb = new();
         var quickScanRange = RouteRange(actor, "RouteCellVeryDistantDistanceMetres",
             RouteSpatialConfiguration.Default.VeryDistantDistanceMetres);
-        List<IGameItem> sameCellItems = PerceivablesWithinRouteRange<IGameItem>(actor, quickScanRange, true).Where(x =>
+        List<IGameItem> sameRoomItems = PerceivablesWithinRouteRange<IGameItem>(actor, quickScanRange, true).Where(x =>
             x.RoomLayer != actor.RoomLayer &&
             x.Size >= minSize &&
             actor.CanSee(x, PerceiveIgnoreFlags.IgnoreObscured)
         ).ToList();
-        List<ICharacter> sameCellCharacters = PerceivablesWithinRouteRange<ICharacter>(actor, quickScanRange, true).Where(x =>
+        List<ICharacter> sameRoomCharacters = PerceivablesWithinRouteRange<ICharacter>(actor, quickScanRange, true).Where(x =>
             x.RoomLayer != actor.RoomLayer &&
             x.CurrentContextualSize(SizeContext.Scan) >= minSize &&
             actor.CanSee(x, PerceiveIgnoreFlags.IgnoreObscured)
         ).ToList();
 
-        if (sameCellCharacters.Any() || sameCellItems.Any())
+        if (sameRoomCharacters.Any() || sameRoomItems.Any())
         {
             sb.AppendLine($"In the same location as you, you see:");
-            DisplayForScan(actor, sameCellCharacters, sb, true);
-            DisplayForScan(actor, sameCellItems, sb, true);
+            DisplayForScan(actor, sameRoomCharacters, sb, true);
+            DisplayForScan(actor, sameRoomItems, sb, true);
         }
 
-        foreach (ICellExit exit in exits)
+        foreach (IRoomExit exit in exits)
         {
             if (sb.Length > 0)
             {
@@ -1112,7 +1112,7 @@ See also the #3scan#0, #3longscan#0 and #3search#0 commands.", AutoHelp.HelpArg)
                 minSize = userSetSize;
             }
 
-            ICell location = exit.Destination;
+            IRoom location = exit.Destination;
             List<ICharacter> characters = location.Characters.Where(x =>
                 x.RoomLayer.CanBeSeenFromLayer(actor.RoomLayer) &&
                 x.CurrentContextualSize(SizeContext.Scan) >= minSize &&
@@ -1158,7 +1158,7 @@ See also the #3quickscan#0, #3longscan#0 and #3search#0 commands.", AutoHelp.Hel
 			return;
 		}
 
-        List<ICellExit> exits = null;
+        List<IRoomExit> exits = null;
         List<RoomLayer> layers = actor.Location.Terrain(actor).TerrainLayers.ToList();
         SizeCategory userSetSize = SizeCategory.Nanoscopic;
         string exitArg = string.Empty;
@@ -1184,7 +1184,7 @@ See also the #3quickscan#0, #3longscan#0 and #3search#0 commands.", AutoHelp.Hel
 
             if (!exitArg.Equals(string.Empty))
             {
-                ICellExit exit = actor.Location.GetExitKeyword(exitArg, actor);
+                IRoomExit exit = actor.Location.GetExitKeyword(exitArg, actor);
                 if (exit is null)
                 {
                     actor.OutputHandler.Send($"There is no exit identified by the keyword {exitArg.ColourCommand()}.");
@@ -1237,26 +1237,26 @@ See also the #3quickscan#0, #3longscan#0 and #3search#0 commands.", AutoHelp.Hel
 
         var scanRange = RouteRange(actor, "RouteCellVeryDistantDistanceMetres",
             RouteSpatialConfiguration.Default.VeryDistantDistanceMetres);
-        List<IGameItem> sameCellItems = PerceivablesWithinRouteRange<IGameItem>(actor, scanRange, true).Where(x =>
+        List<IGameItem> sameRoomItems = PerceivablesWithinRouteRange<IGameItem>(actor, scanRange, true).Where(x =>
             x.RoomLayer != actor.RoomLayer &&
             x.RoomLayer.CanBeSeenFromLayer(actor.RoomLayer) &&
             x.Size >= minSize &&
             actor.CanSee(x, PerceiveIgnoreFlags.IgnoreObscured)
         ).ToList();
-        List<ICharacter> sameCellCharacters = PerceivablesWithinRouteRange<ICharacter>(actor, scanRange, true).Where(x =>
+        List<ICharacter> sameRoomCharacters = PerceivablesWithinRouteRange<ICharacter>(actor, scanRange, true).Where(x =>
             x.RoomLayer != actor.RoomLayer &&
             x.RoomLayer.CanBeSeenFromLayer(actor.RoomLayer) &&
             x.CurrentContextualSize(SizeContext.Scan) >= minSize &&
             actor.CanSee(x, PerceiveIgnoreFlags.IgnoreObscured)
         ).ToList();
 
-        if (sameCellCharacters.Any() || sameCellItems.Any())
+        if (sameRoomCharacters.Any() || sameRoomItems.Any())
         {
             StringBuilder isb = new();
             isb.AppendLine($"In the same location as you, you see:");
             isb.AppendLine();
-            DisplayForScan(actor, sameCellCharacters, isb, true);
-            DisplayForScan(actor, sameCellItems, isb, true);
+            DisplayForScan(actor, sameRoomCharacters, isb, true);
+            DisplayForScan(actor, sameRoomItems, isb, true);
             actor.OutputHandler.Send(isb.ToString());
         }
 
@@ -1268,7 +1268,7 @@ See also the #3quickscan#0, #3longscan#0 and #3search#0 commands.", AutoHelp.Hel
         actor.AddEffect(new Scanning(actor, from exit in exits
                                             select new Action<IPerceivable>(perc =>
                                             {
-                                                ICellExit cexit = exit;
+                                                IRoomExit cexit = exit;
                                                 if (cexit.Exit.Door?.IsOpen == false &&
                                                     !cexit.Exit.Door.CanSeeThrough(actor.Body))
                                                 {
@@ -1283,24 +1283,24 @@ See also the #3quickscan#0, #3longscan#0 and #3search#0 commands.", AutoHelp.Hel
                                                             $"@ scan|scans the distance towards {cexit.OutboundDirectionDescription}.",
                                                             actor)));
 
-                                                List<(ICell Cell, IEnumerable<ICellExit> Path)> cells =
-                                                    cexit.Destination.CellsInVicinity(2, true, true,
+                                                List<(IRoom Room, IEnumerable<IRoomExit> Path)> rooms =
+                                                    cexit.Destination.RoomsInVicinity(2, true, true,
                                                              Constants.CardinalDirections.Where(x =>
                                                                           !x.IsOpposingDirection(
                                                                               cexit.OutboundDirection))
                                                                       .ToList(), cexit.OutboundDirection)
                                                          .Except(actor.Location)
-                                                         .Select(x => (Cell: x,
+                                                         .Select(x => (Room: x,
                                                              Path: actor.PathBetween(x, 5, false, true, true)))
                                                          .Where(x => x.Path.Count() > 0)
                                                          .OrderBy(x => x.Path.Count())
                                                          .ToList();
                                                 StringBuilder sb = new();
-                                                foreach ((ICell Cell, IEnumerable<ICellExit> Path) cell in cells)
+                                                foreach ((IRoom Room, IEnumerable<IRoomExit> Path) room in rooms)
                                                 {
-                                                    int distance = cell.Path.Select(x => x.OutboundDirection)
+                                                    int distance = room.Path.Select(x => x.OutboundDirection)
                                                                        .DistanceAsCrowFlies();
-                                                    difficulty = cell.Cell.SpotDifficulty(actor).StageUp(distance - 1);
+                                                    difficulty = room.Room.SpotDifficulty(actor).StageUp(distance - 1);
                                                     outcome = allOutcomes[difficulty];
                                                     minSize = actor.CurrentContextualSize(SizeContext.None);
                                                     switch (outcome.Outcome)
@@ -1328,9 +1328,9 @@ See also the #3quickscan#0, #3longscan#0 and #3search#0 commands.", AutoHelp.Hel
                                                     }
 
                                                     string majorDirection =
-                                                        cell.Path.DescribeDirection().ToLowerInvariant();
+                                                        room.Path.DescribeDirection().ToLowerInvariant();
 
-                                                    List<IGameItem> visibleItems = cell.Cell.GameItems.Where(
+                                                    List<IGameItem> visibleItems = room.Room.GameItems.Where(
                                                                                x => x.RoomLayer.CanBeSeenFromLayer(
                                                                                        actor.RoomLayer) &&
                                                                                    x.Size >= minSize &&
@@ -1338,7 +1338,7 @@ See also the #3quickscan#0, #3longscan#0 and #3search#0 commands.", AutoHelp.Hel
                                                                                        PerceiveIgnoreFlags
                                                                                            .IgnoreObscured))
                                                                            .ToList();
-                                                    List<ICharacter> visibleCharacters = cell.Cell.Characters.Where(
+                                                    List<ICharacter> visibleCharacters = room.Room.Characters.Where(
                                                             x => x.RoomLayer.CanBeSeenFromLayer(actor.RoomLayer) &&
                                                                  x.CurrentContextualSize(SizeContext.Scan) >= minSize &&
                                                                  actor.CanSee(x, PerceiveIgnoreFlags.IgnoreObscured))
@@ -1350,28 +1350,28 @@ See also the #3quickscan#0, #3longscan#0 and #3search#0 commands.", AutoHelp.Hel
                                                         {
                                                             sb.AppendLine();
                                                         }
-                                                        switch (cell.Path.Select(x => x.OutboundDirection)
+                                                        switch (room.Path.Select(x => x.OutboundDirection)
                                                                     .DistanceAsCrowFlies())
                                                         {
                                                             case 1:
                                                                 sb.AppendLine(
-                                                                    $"Immediately to {majorDirection} in {cell.Cell.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreLayers)} you can see:");
+                                                                    $"Immediately to {majorDirection} in {room.Room.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreLayers)} you can see:");
                                                                 break;
                                                             case 2:
                                                                 sb.AppendLine(
-                                                                    $"Close by to {majorDirection} in {cell.Cell.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreLayers)} you can see:");
+                                                                    $"Close by to {majorDirection} in {room.Room.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreLayers)} you can see:");
                                                                 break;
                                                             case 3:
                                                                 sb.AppendLine(
-                                                                    $"Far to {majorDirection} in {cell.Cell.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreLayers)} you can see:");
+                                                                    $"Far to {majorDirection} in {room.Room.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreLayers)} you can see:");
                                                                 break;
                                                             case 4:
                                                                 sb.AppendLine(
-                                                                    $"Very far to {majorDirection} in {cell.Cell.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreLayers)} you can see:");
+                                                                    $"Very far to {majorDirection} in {room.Room.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreLayers)} you can see:");
                                                                 break;
                                                             default:
                                                                 sb.AppendLine(
-                                                                    $"Extremely far to {majorDirection} in {cell.Cell.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreLayers)} you can see:");
+                                                                    $"Extremely far to {majorDirection} in {room.Room.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreLayers)} you can see:");
                                                                 break;
                                                         }
 
@@ -1430,7 +1430,7 @@ See also the #3quickscan#0, #3scan#0 and #3search#0 commands.",
 			return;
 		}
 
-        List<ICellExit> exits = null;
+        List<IRoomExit> exits = null;
         List<RoomLayer> layers = actor.Location.Terrain(actor).TerrainLayers.ToList();
         SizeCategory userSetSize = SizeCategory.Nanoscopic;
         string exitArg = string.Empty;
@@ -1456,7 +1456,7 @@ See also the #3quickscan#0, #3scan#0 and #3search#0 commands.",
 
             if (!exitArg.Equals(string.Empty))
             {
-                ICellExit exit = actor.Location.GetExitKeyword(exitArg, actor);
+                IRoomExit exit = actor.Location.GetExitKeyword(exitArg, actor);
                 if (exit is null)
                 {
                     actor.OutputHandler.Send($"There is no exit identified by the keyword {exitArg.ColourCommand()}.");
@@ -1512,26 +1512,26 @@ See also the #3quickscan#0, #3scan#0 and #3search#0 commands.",
 
         var longScanRange = RouteRange(actor, "RouteCellVeryDistantDistanceMetres",
             RouteSpatialConfiguration.Default.VeryDistantDistanceMetres);
-        List<IGameItem> sameCellItems = PerceivablesWithinRouteRange<IGameItem>(actor, longScanRange, true).Where(x =>
+        List<IGameItem> sameRoomItems = PerceivablesWithinRouteRange<IGameItem>(actor, longScanRange, true).Where(x =>
             x.RoomLayer != actor.RoomLayer &&
             x.RoomLayer.CanBeSeenFromLayer(actor.RoomLayer) &&
             x.Size >= minSize &&
             actor.CanSee(x, PerceiveIgnoreFlags.IgnoreObscured)
         ).ToList();
-        List<ICharacter> sameCellCharacters = PerceivablesWithinRouteRange<ICharacter>(actor, longScanRange, true).Where(x =>
+        List<ICharacter> sameRoomCharacters = PerceivablesWithinRouteRange<ICharacter>(actor, longScanRange, true).Where(x =>
             x.RoomLayer != actor.RoomLayer &&
             x.RoomLayer.CanBeSeenFromLayer(actor.RoomLayer) &&
             x.CurrentContextualSize(SizeContext.Scan) >= minSize &&
             actor.CanSee(x, PerceiveIgnoreFlags.IgnoreObscured)
         ).ToList();
 
-        if (sameCellCharacters.Any() || sameCellItems.Any())
+        if (sameRoomCharacters.Any() || sameRoomItems.Any())
         {
             StringBuilder isb = new();
             isb.AppendLine($"In the same location as you, you see:");
             isb.AppendLine();
-            DisplayForScan(actor, sameCellCharacters, isb, true);
-            DisplayForScan(actor, sameCellItems, isb, true);
+            DisplayForScan(actor, sameRoomCharacters, isb, true);
+            DisplayForScan(actor, sameRoomItems, isb, true);
             actor.OutputHandler.Send(isb.ToString());
         }
 
@@ -1543,7 +1543,7 @@ See also the #3quickscan#0, #3scan#0 and #3search#0 commands.",
         actor.AddEffect(new Scanning(actor, from exit in exits
                                             select new Action<IPerceivable>(perc =>
                                             {
-                                                ICellExit cexit = exit;
+                                                IRoomExit cexit = exit;
                                                 if (cexit.Exit.Door?.IsOpen == false &&
                                                     !cexit.Exit.Door.CanSeeThrough(actor.Body))
                                                 {
@@ -1559,24 +1559,24 @@ See also the #3quickscan#0, #3scan#0 and #3search#0 commands.",
                                                             actor)));
 
                                                 uint range = actor.MaximumPerceptionRange;
-                                                List<(ICell Cell, IEnumerable<ICellExit> Path)> cells =
-                                                    cexit.Destination.CellsInVicinity(range, true, true,
+                                                List<(IRoom Room, IEnumerable<IRoomExit> Path)> rooms =
+                                                    cexit.Destination.RoomsInVicinity(range, true, true,
                                                              Constants.CardinalDirections.Where(x =>
                                                                           !x.IsOpposingDirection(
                                                                               cexit.OutboundDirection))
                                                                       .ToList(), cexit.OutboundDirection)
                                                          .Except(actor.Location)
-                                                         .Select(x => (Cell: x,
+                                                         .Select(x => (Room: x,
                                                              Path: actor.PathBetween(x, range, false, true, true)))
                                                          .Where(x => x.Path.Count() > 0)
                                                          .OrderBy(x => x.Path.Count())
                                                          .ToList();
                                                 StringBuilder sb = new();
-                                                foreach ((ICell Cell, IEnumerable<ICellExit> Path) cell in cells)
+                                                foreach ((IRoom Room, IEnumerable<IRoomExit> Path) room in rooms)
                                                 {
-                                                    int distance = cell.Path.Select(x => x.OutboundDirection)
+                                                    int distance = room.Path.Select(x => x.OutboundDirection)
                                                                        .DistanceAsCrowFlies();
-                                                    difficulty = cell.Cell.SpotDifficulty(actor).StageUp(distance - 1);
+                                                    difficulty = room.Room.SpotDifficulty(actor).StageUp(distance - 1);
                                                     outcome = allOutcomes[difficulty];
                                                     minSize = actor.CurrentContextualSize(SizeContext.None);
                                                     switch (outcome.Outcome)
@@ -1604,8 +1604,8 @@ See also the #3quickscan#0, #3scan#0 and #3search#0 commands.",
                                                     }
 
                                                     string majorDirection =
-                                                        cell.Path.DescribeDirection().ToLowerInvariant();
-                                                    List<IGameItem> visibleItems = cell.Cell.GameItems.Where(
+                                                        room.Path.DescribeDirection().ToLowerInvariant();
+                                                    List<IGameItem> visibleItems = room.Room.GameItems.Where(
                                                                                x =>
                                                                                    x.RoomLayer
                                                                                        .CanBeSeenFromLayerForLongscan(
@@ -1615,7 +1615,7 @@ See also the #3quickscan#0, #3scan#0 and #3search#0 commands.",
                                                                                        PerceiveIgnoreFlags
                                                                                            .IgnoreObscured))
                                                                            .ToList();
-                                                    List<ICharacter> visibleCharacters = cell.Cell.Characters.Where(
+                                                    List<ICharacter> visibleCharacters = room.Room.Characters.Where(
                                                             x =>
                                                                 x.RoomLayer.CanBeSeenFromLayerForLongscan(
                                                                     actor.RoomLayer) &&
@@ -1629,28 +1629,28 @@ See also the #3quickscan#0, #3scan#0 and #3search#0 commands.",
                                                         {
                                                             sb.AppendLine();
                                                         }
-                                                        switch (cell.Path.Select(x => x.OutboundDirection)
+                                                        switch (room.Path.Select(x => x.OutboundDirection)
                                                                     .DistanceAsCrowFlies())
                                                         {
                                                             case 1:
                                                                 sb.AppendLine(
-                                                                    $"Immediately to {majorDirection} in {cell.Cell.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreLayers)} you can see:");
+                                                                    $"Immediately to {majorDirection} in {room.Room.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreLayers)} you can see:");
                                                                 break;
                                                             case 2:
                                                                 sb.AppendLine(
-                                                                    $"Close by to {majorDirection} in {cell.Cell.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreLayers)} you can see:");
+                                                                    $"Close by to {majorDirection} in {room.Room.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreLayers)} you can see:");
                                                                 break;
                                                             case 3:
                                                                 sb.AppendLine(
-                                                                    $"Far to {majorDirection} in {cell.Cell.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreLayers)} you can see:");
+                                                                    $"Far to {majorDirection} in {room.Room.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreLayers)} you can see:");
                                                                 break;
                                                             case 4:
                                                                 sb.AppendLine(
-                                                                    $"Very far to {majorDirection} in {cell.Cell.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreLayers)} you can see:");
+                                                                    $"Very far to {majorDirection} in {room.Room.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreLayers)} you can see:");
                                                                 break;
                                                             default:
                                                                 sb.AppendLine(
-                                                                    $"Extremely far to {majorDirection} in {cell.Cell.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreLayers)} you can see:");
+                                                                    $"Extremely far to {majorDirection} in {room.Room.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreLayers)} you can see:");
                                                                 break;
                                                         }
 
@@ -1714,7 +1714,7 @@ The syntax is as follows:
             return;
         }
 
-        List<ICellExit> exits = new();
+        List<IRoomExit> exits = new();
         if (ss.Peek().EqualTo("all"))
         {
             exits.AddRange(actor.Location.ExitsFor(actor));
@@ -1723,7 +1723,7 @@ The syntax is as follows:
         {
             while (!ss.IsFinished)
             {
-                ICellExit exit = actor.Location.GetExitKeyword(ss.PopSpeech(), actor);
+                IRoomExit exit = actor.Location.GetExitKeyword(ss.PopSpeech(), actor);
                 if (exit == null)
                 {
                     actor.OutputHandler.Send($"There is no exit with a keyword of {ss.Last.Colour(Telnet.Yellow)}.");
@@ -1753,9 +1753,9 @@ The syntax is as follows:
         actor.RemoveAllEffects(x => x.IsEffectType<WatchMaster>());
         WatchMaster effect = new(actor);
         actor.AddEffect(effect);
-        foreach (ICellExit exit in exits)
+        foreach (IRoomExit exit in exits)
         {
-            effect.AddSpiedCell(exit.Destination);
+            effect.AddSpiedRoom(exit.Destination);
         }
 
         actor.OutputHandler.Send(
@@ -1852,7 +1852,7 @@ Note: The targets are ordered in the same order that they appear in the #3target
         }
         else
         {
-            List<ICellExit> path = actor.PathBetween(target, 10, PathSearch.IncludeFireableDoors).ToList();
+            List<IRoomExit> path = actor.PathBetween(target, 10, PathSearch.IncludeFireableDoors).ToList();
             if (!path.Any())
             {
                 actor.OutputHandler.Send("You can no longer see that target.");

@@ -25,7 +25,7 @@ namespace FutureMUD.GatheringNativePersistenceHarness;
 
 internal static partial class GNHProgram
 {
-	private static int RunCellSpatialExpansion(bool contract = false)
+	private static int RunRoomSpatialExpansion(bool contract = false)
 	{
 		using var database = TestDatabase.CreateFresh(historicalExpanded: true);
 		ConfigureNativeDatabase(database.ConnectionString);
@@ -38,17 +38,17 @@ internal static partial class GNHProgram
 		var fixture = FixtureSeed.Create(database, "cell_spatial", existingWound: true);
 		void Sql(string text) { using var c = database.OpenOwnedConnection(); using var command = new MySqlCommand(text, c); command.ExecuteNonQuery(); }
 		long Scalar(string text) { using var c = database.OpenOwnedConnection(); using var command = new MySqlCommand(text, c); return Convert.ToInt64(command.ExecuteScalar()); }
-		var sourceRoom = Scalar($"SELECT RoomId FROM cells WHERE Id={fixture.CellId}");
+		var sourceRoom = Scalar($"SELECT RoomId FROM cells WHERE Id={fixture.RoomId}");
 		var zone = Scalar($"SELECT ZoneId FROM rooms WHERE Id={sourceRoom}");
 		Sql($"INSERT INTO rooms(Id,ZoneId,X,Y,Z) VALUES(9000,{zone},17,-2,4),(9001,{zone},99,88,77),(9002,{zone},17,-2,4);");
 		Sql("INSERT INTO cells(Id,RoomId,EffectData,Temporary,UniqueName) VALUES(8101,9000,'<Effects/>',0,'Mirandola:Gate'),(8102,9002,'<Effects/>',0,NULL);");
 		Sql("INSERT INTO areas(Id,Name) VALUES(9000,'First area'),(9001,'Overlapping area'),(9002,'Unrelated empty area'); INSERT INTO areas_rooms(AreaId,RoomId) VALUES(9000,9000),(9001,9000),(9001,9002);");
 		Sql("INSERT INTO editableitems(Id,RevisionNumber,RevisionStatus,BuilderAccountId,BuilderDate) VALUES(9000,0,0,0,'2026-01-01'); INSERT INTO celloverlaypackages(Id,RevisionNumber,Name,EditableItemId) VALUES(9000,0,'Spatial fixture package',9000);");
 		Sql("INSERT INTO terrains(Id,Name,MovementRate,TerrainBehaviourMode,HideDifficulty,SpotDifficulty,StaminaCost,ForagableProfileId,InfectionType) VALUES(9000,'Test terrain',1,'outdoors',0,0,1,0,0);");
-		foreach (var id in new[] { fixture.CellId, 8101L, 8102L })
+		foreach (var id in new[] { fixture.RoomId, 8101L, 8102L })
 			Sql($"INSERT INTO celloverlays(Id,Name,CellName,CellDescription,CellOverlayPackageId,CellOverlayPackageRevisionNumber,CellId,TerrainId,OutdoorsType,AddedLight,SafeQuit) VALUES({id},'Fixture overlay','Fixture cell {id}','Preserved description',9000,0,{id},9000,0,0,1); UPDATE cells SET CurrentOverlayId={id} WHERE Id={id};");
 		Sql("INSERT INTO exits(Id,CellId1,CellId2,Direction1,Direction2,TimeMultiplier,AcceptsDoor) VALUES(9000,8101,8102,1,3,1,0); INSERT INTO celloverlays_exits(CellOverlayId,ExitId) VALUES(8101,9000),(8102,9000);");
-		Sql($"UPDATE zones SET DefaultCellId={fixture.CellId} WHERE Id={zone};");
+		Sql($"UPDATE zones SET DefaultCellId={fixture.RoomId} WHERE Id={zone};");
 		// Existing dependent graphs, not just empty tables: independent physical instance,
 		// vehicle interior/occupancy, item containment/body custody, route geometry, track and environment state.
 		Sql("INSERT INTO materials(Id,Name,MaterialDescription,Density,Organic,Type,ThermalConductivity,ElectricalConductivity,SpecificHeatCapacity) VALUES(9000,'Fixture solid','Fixture material',1000,0,0,1,1,1);");
@@ -58,15 +58,15 @@ internal static partial class GNHProgram
 		Sql("INSERT INTO routecells(CellId,LengthMetres,DefaultPositionMetres,PositiveDirectionName,NegativeDirectionName,MetresPerRoomEquivalent,TopologyVersion) VALUES(8101,100,50,'north','south',10,7);");
 		Sql($"INSERT INTO characterinstances(Id,CharacterId,BodyId,InstanceName,InstanceKind,ControlPolicy,DeathPolicy,PerceptionPolicy,PersistencePolicy,LocationId,RoomLayer,PositionId,PositionModifier,State,Status,IsPrimary,IsEmbodied,IsControllable,CreatedDateTime,EffectData) VALUES(9000,{fixture.CharacterId},{fixture.BodyId},'Fixture physical instance',0,0,0,0,0,8102,0,1,0,1,0,1,1,1,'2026-01-01','<Effects/>'); UPDATE characters SET Location=8102 WHERE Id={fixture.CharacterId};");
 		Sql("INSERT INTO vehicleprotos(Id,RevisionNumber,EditableItemId,Name,Description,VehicleScale) VALUES(9000,0,9000,'Fixture vehicle','Fixture vehicle',2); INSERT INTO vehiclecompartmentprotos(Id,VehicleProtoId,VehicleProtoRevision,Name,Description,DisplayOrder,InteriorTerrainId) VALUES(9000,9000,0,'Cabin','Fixture cabin',0,9000); INSERT INTO vehicleoccupantslotprotos(Id,VehicleProtoId,VehicleProtoRevision,VehicleCompartmentProtoId,Name,SlotType,Capacity,RequiredForMovement) VALUES(9000,9000,0,9000,'Passenger',0,1,0);");
-		Sql($"INSERT INTO vehicles(Id,VehicleProtoId,VehicleProtoRevision,Name,LocationType,CurrentCellId,CurrentRoomLayer,MovementStatus,CreatedDateTime) VALUES(9000,9000,0,'Fixture vehicle',1,{fixture.CellId},0,0,'2026-01-01'); INSERT INTO vehiclecompartments(Id,VehicleId,VehicleCompartmentProtoId,Name,InteriorCellId) VALUES(9000,9000,9000,'Cabin',8102); UPDATE cells SET HostedVehicleId=9000,HostedVehicleCompartmentId=9000 WHERE Id=8102; INSERT INTO vehicleoccupancies(Id,VehicleId,CharacterId,CharacterInstanceId,VehicleOccupantSlotProtoId,IsController) VALUES(9000,9000,{fixture.CharacterId},9000,9000,0);");
+		Sql($"INSERT INTO vehicles(Id,VehicleProtoId,VehicleProtoRevision,Name,LocationType,CurrentCellId,CurrentRoomLayer,MovementStatus,CreatedDateTime) VALUES(9000,9000,0,'Fixture vehicle',1,{fixture.RoomId},0,0,'2026-01-01'); INSERT INTO vehiclecompartments(Id,VehicleId,VehicleCompartmentProtoId,Name,InteriorCellId) VALUES(9000,9000,9000,'Cabin',8102); UPDATE cells SET HostedVehicleId=9000,HostedVehicleCompartmentId=9000 WHERE Id=8102; INSERT INTO vehicleoccupancies(Id,VehicleId,CharacterId,CharacterInstanceId,VehicleOccupantSlotProtoId,IsController) VALUES(9000,9000,{fixture.CharacterId},9000,9000,0);");
 		var bodyPrototype = Scalar($"SELECT BodyPrototypeID FROM bodies WHERE Id={fixture.BodyId}");
 		Sql($"INSERT INTO tracks(Id,CharacterId,BodyPrototypeId,CellId,RoomLayer,FromDirectionExitId,TrackCircumstances,ExertionLevel,TrackIntensityVisual,TrackIntensityOlfactory,TurnedAround,RoutePosition,RouteDirection) VALUES(9000,{fixture.CharacterId},{bodyPrototype},8101,0,9000,0,0,0.75,0.5,0,42.125,1);");
 		Sql($"INSERT INTO cells_magicresources(CellId,MagicResourceId,Amount) VALUES(8102,{fixture.ResourceId},12.5); INSERT INTO cellenvironmentalstates(CellId,SchemaVersion,Revision,ScarDamage,RecentPressure,PressureHalfLifeSeconds) VALUES(8102,1,7,2.5,4.25,3600);");
 		using var beforeConnection = database.OpenOwnedConnection();
 		var schema = CaptureSpatialSchema(beforeConnection);
 		var before = CaptureSpatialValues(beforeConnection, schema);
-		var retainedCellSchema = new Dictionary<string,string[]> { ["cells"] = schema["cells"].Where(x => x != "RoomId").ToArray() };
-		var retainedCellValues = CaptureSpatialValues(beforeConnection, retainedCellSchema);
+		var retainedRoomSchema = new Dictionary<string,string[]> { ["cells"] = schema["cells"].Where(x => x != "RoomId").ToArray() };
+		var retainedRoomValues = CaptureSpatialValues(beforeConnection, retainedRoomSchema);
 		var definitions = CaptureSpatialTableDefinitions(beforeConnection, schema);
 		var historySchema = new Dictionary<string,string[]> { ["__efmigrationshistory"] = ["MigrationId", "ProductVersion"] };
 		var originalHistory = CaptureSpatialValues(beforeConnection, historySchema);
@@ -97,7 +97,7 @@ internal static partial class GNHProgram
 		}
 		void Migrate(bool optIn = true, bool fault = false, bool afterCopyFault = false)
 		{
-			using var db = NewIndependentContext(database.ConnectionString, fault || afterCopyFault ? new CellSpatialCopyFault(afterCopyFault) : null);
+			using var db = NewIndependentContext(database.ConnectionString, fault || afterCopyFault ? new RoomSpatialCopyFault(afterCopyFault) : null);
 			db.Database.OpenConnection();
 			if (optIn) db.Database.ExecuteSqlRaw("SET @FutureMUD_CellSpatialMaintenance=1;");
 			db.GetService<IMigrator>().Migrate(db.Database.GetMigrations().Single(x => x.EndsWith("_CellSpatialExpansion")));
@@ -173,13 +173,13 @@ internal static partial class GNHProgram
 		Console.WriteLine($"CellSpatialExpansion-upgrade=PASS oldTables={before.Count} all-original-keys-values unequal-IDs duplicate-XYZ overlaps empty-ledger first-load cold-process");
 		if (contract)
 		{
-			QualifyCellSpatialContraction(database, schema, before, retainedCellValues, zone);
+			QualifyRoomSpatialContraction(database, schema, before, retainedRoomValues, zone);
 			var cold = new ProcessStartInfo("dotnet") { UseShellExecute=false, RedirectStandardOutput=true, RedirectStandardError=true, CreateNoWindow=true };
 			cold.ArgumentList.Add(Assembly.GetExecutingAssembly().Location); cold.ArgumentList.Add("--cell-spatial-contraction-reader"); cold.ArgumentList.Add(database.Name);
 			using var child = Process.Start(cold)!; var stdout = child.StandardOutput.ReadToEndAsync(); var stderr = child.StandardError.ReadToEndAsync();
 			if (!child.WaitForExit(60000)) { child.Kill(true); throw new TimeoutException("Contracted reader exceeded 60 seconds."); }
 			Console.Write(stdout.GetAwaiter().GetResult()); Require(child.ExitCode==0, stderr.GetAwaiter().GetResult());
-			QualifyContractedCellLifecycle(database, zone);
+			QualifyContractedRoomLifecycle(database, zone);
 		}
 		// Full restore recovers the original historical world and matching migration history.
 		Restore();
@@ -189,7 +189,7 @@ internal static partial class GNHProgram
 		return 0;
 	}
 
-	private static int ReadCellSpatialExpansion(string name, bool contracted = false)
+	private static int ReadRoomSpatialExpansion(string name, bool contracted = false)
 	{
 		using var database = TestDatabase.OpenExistingOwned(name);
 		ConfigureNativeDatabase(database.ConnectionString);
@@ -201,28 +201,28 @@ internal static partial class GNHProgram
 	private static void ValidateExpandedSpatialRuntime(TestDatabase database, bool finalCoordinates = false)
 	{
 		using var db = NewIndependentContext(database.ConnectionString);
-		var model = db.Cells.Include(x => x.CellOverlays).AsNoTracking().Single(x => x.Id == 8101);
-		var ledger = db.CellRoomMigrationLedgers.AsNoTracking().Single(x => x.RoomId == 9000);
-		Require(model.Id==ledger.CellId && model.ZoneId==ledger.ZoneId && model.X==(finalCoordinates ? 18 : 17) && model.Y==-2 && model.Z==4 && model.UniqueName=="Mirandola:Gate", "Fresh model must hydrate copied metadata and stable identity.");
+		var model = db.Rooms.Include(x => x.RoomOverlays).AsNoTracking().Single(x => x.Id == 8101);
+		var ledger = db.RoomSpatialMigrationLedgers.AsNoTracking().Single(x => x.LegacyRoomId == 9000);
+		Require(model.Id==ledger.RoomId && model.ZoneId==ledger.ZoneId && model.X==(finalCoordinates ? 18 : 17) && model.Y==-2 && model.Z==4 && model.UniqueName=="Mirandola:Gate", "Fresh model must hydrate copied metadata and stable identity.");
 		var world = new Mock<IFuturemud> { DefaultValue=DefaultValue.Mock };
 		world.SetupGet(x => x.SaveManager).Returns(new SaveManager()); world.SetupGet(x => x.DefaultHooks).Returns(Array.Empty<IDefaultHook>());
 		world.SetupGet(x => x.HearingProfiles).Returns(new All<IHearingProfile>());
 		world.SetupGet(x => x.WeatherControllers).Returns(new All<MudSharp.Climate.IWeatherController>());
 		world.SetupGet(x => x.Vehicles).Returns(new All<MudSharp.Vehicles.IVehicle>());
-		var package = new Mock<ICellOverlayPackage>(); package.SetupGet(x=>x.Id).Returns(9000); package.SetupGet(x=>x.Name).Returns("Spatial fixture package"); package.SetupGet(x=>x.RevisionNumber).Returns(0); package.SetupGet(x=>x.Status).Returns(RevisionStatus.Current);
-		world.Setup(x=>x.CellOverlayPackages.Get(9000,0)).Returns(package.Object);
+		var package = new Mock<IRoomOverlayPackage>(); package.SetupGet(x=>x.Id).Returns(9000); package.SetupGet(x=>x.Name).Returns("Spatial fixture package"); package.SetupGet(x=>x.RevisionNumber).Returns(0); package.SetupGet(x=>x.Status).Returns(RevisionStatus.Current);
+		world.Setup(x=>x.RoomOverlayPackages.Get(9000,0)).Returns(package.Object);
 		var terrain = new Mock<ITerrain>(); terrain.SetupGet(x=>x.Id).Returns(9000); world.Setup(x=>x.Terrains.Get(9000)).Returns(terrain.Object);
 		var zone = new Mock<IZone> { DefaultValue=DefaultValue.Mock }; zone.SetupGet(x=>x.Id).Returns(ledger.ZoneId); zone.SetupGet(x=>x.Gameworld).Returns(world.Object);
-		var cell = new Cell(model,zone.Object);
-		var cells = new All<ICell>(); cells.Add(cell);
-		var secondModel = db.Cells.Include(x => x.CellOverlays).AsNoTracking().Single(x => x.Id == 8102);
-		var second = new Cell(secondModel, zone.Object); cells.Add(second);
-		world.SetupGet(x => x.Cells).Returns(cells);
-		var areas = db.Areas.Include(x => x.AreasCells).AsNoTracking().Where(x => x.Id >= 9000).ToList()
+		var room = new Room(model,zone.Object);
+		var rooms = new All<IRoom>(); rooms.Add(room);
+		var secondModel = db.Rooms.Include(x => x.RoomOverlays).AsNoTracking().Single(x => x.Id == 8102);
+		var second = new Room(secondModel, zone.Object); rooms.Add(second);
+		world.SetupGet(x => x.Rooms).Returns(rooms);
+		var areas = db.Areas.Include(x => x.AreasRooms).AsNoTracking().Where(x => x.Id >= 9000).ToList()
 			.Select(x => new Area(x, world.Object)).ToArray();
-		Require(cell.OwningAreas.Count() == (finalCoordinates ? 1 : 2) && second.OwningAreas.Count() == (finalCoordinates ? 2 : 1), "Native Area hydration preserves exact final memberships.");
-		Require(!areas.Single(x => x.Id == 9002).Cells.Any(), "Native hydration retains the empty Area object.");
-		Require(cell.Id==8101 && cell.UniqueName=="Mirandola:Gate" && cell.Zone.Id==ledger.ZoneId && cell.X==(finalCoordinates ? 18 : 17) && cell.Y==-2 && cell.Z==4, "Direct runtime hydrates copied metadata without a Room owner.");
+		Require(room.OwningAreas.Count() == (finalCoordinates ? 1 : 2) && second.OwningAreas.Count() == (finalCoordinates ? 2 : 1), "Native Area hydration preserves exact final memberships.");
+		Require(!areas.Single(x => x.Id == 9002).Rooms.Any(), "Native hydration retains the empty Area object.");
+		Require(room.Id==8101 && room.UniqueName=="Mirandola:Gate" && room.Zone.Id==ledger.ZoneId && room.X==(finalCoordinates ? 18 : 17) && room.Y==-2 && room.Z==4, "Direct runtime hydrates copied metadata without a Room owner.");
 	}
 
 	private static Dictionary<string,string[]> CaptureSpatialSchema(MySqlConnection connection)
@@ -265,7 +265,7 @@ internal static partial class GNHProgram
 	}
 	private static bool SpatialValuesEqual(IReadOnlyDictionary<string,string> before,IReadOnlyDictionary<string,string> after) => before.Count==after.Count && before.All(x=>after.TryGetValue(x.Key,out var value)&&value==x.Value);
 
-	private sealed class CellSpatialCopyFault(bool afterCopy) : DbCommandInterceptor
+	private sealed class RoomSpatialCopyFault(bool afterCopy) : DbCommandInterceptor
 	{
 		public override InterceptionResult<int> NonQueryExecuting(DbCommand command,CommandEventData eventData,InterceptionResult<int> result)
 		{

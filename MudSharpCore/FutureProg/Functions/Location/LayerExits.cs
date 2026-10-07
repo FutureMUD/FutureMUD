@@ -88,9 +88,9 @@ internal class LayerExits : BuiltInFunction
             return StatementResult.Error;
         }
 
-        if (ParameterFunctions[0].Result is not ICell location)
+        if (ParameterFunctions[0].Result is not IRoom location)
         {
-            Result = new CollectionVariable(new List<ICellExit>(), ProgVariableTypes.Exit);
+            Result = new CollectionVariable(new List<IRoomExit>(), ProgVariableTypes.Exit);
             return StatementResult.Normal;
         }
 
@@ -103,13 +103,13 @@ internal class LayerExits : BuiltInFunction
         string layerText = ParameterFunctions[1].Result?.GetObject?.ToString();
         if (string.IsNullOrEmpty(layerText))
         {
-            Result = new CollectionVariable(new List<ICellExit>(), ProgVariableTypes.Exit);
+            Result = new CollectionVariable(new List<IRoomExit>(), ProgVariableTypes.Exit);
             return StatementResult.Normal;
         }
 
         if (!Utilities.TryParseEnum<RoomLayer>(layerText, out RoomLayer layer))
         {
-            Result = new CollectionVariable(new List<ICellExit>(), ProgVariableTypes.Exit);
+            Result = new CollectionVariable(new List<IRoomExit>(), ProgVariableTypes.Exit);
             return StatementResult.Normal;
         }
 

@@ -46,7 +46,7 @@ public partial class FuturemudDatabaseContext
 			entity.ToTable("MagicPortalEndpoints");
 			entity.HasKey(e => e.Id).HasName("PRIMARY");
 			entity.HasIndex(e => new { e.MagicPortalNetworkId, e.Key }).IsUnique().HasDatabaseName("IX_MagicPortalEndpoints_Network_Key");
-			entity.HasIndex(e => e.CellId).HasDatabaseName("FK_MagicPortalEndpoints_Cells_idx");
+			entity.HasIndex(e => e.RoomId).HasDatabaseName("FK_MagicPortalEndpoints_Rooms_idx");
 			entity.HasIndex(e => e.GameItemId).HasDatabaseName("FK_MagicPortalEndpoints_GameItems_idx");
 			entity.HasIndex(e => e.CreatedByCharacterId).HasDatabaseName("FK_MagicPortalEndpoints_Characters_idx");
 			entity.HasIndex(e => e.CreatedBySpellId).HasDatabaseName("FK_MagicPortalEndpoints_MagicSpells_idx");
@@ -56,7 +56,7 @@ public partial class FuturemudDatabaseContext
 			entity.Property(e => e.Key).IsRequired().HasColumnType("varchar(100)").HasCharSet("utf8").UseCollation("utf8_general_ci");
 			entity.Property(e => e.Name).IsRequired().HasColumnType("varchar(200)").HasCharSet("utf8").UseCollation("utf8_general_ci");
 			entity.Property(e => e.AnchorType).HasColumnType("int(11)");
-			entity.Property(e => e.CellId).HasColumnType("bigint(20)");
+			entity.Property(e => e.RoomId).HasColumnType("bigint(20)");
 			entity.Property(e => e.GameItemId).HasColumnType("bigint(20)");
 			entity.Property(e => e.IsActive).HasColumnType("bit(1)").HasDefaultValue(true);
 			entity.Property(e => e.CreatedByCharacterId).HasColumnType("bigint(20)");
@@ -64,7 +64,7 @@ public partial class FuturemudDatabaseContext
 			entity.Property(e => e.CreatedDateTime).HasColumnType("datetime");
 
 			entity.HasOne(e => e.MagicPortalNetwork).WithMany(e => e.MagicPortalEndpoints).HasForeignKey(e => e.MagicPortalNetworkId).HasConstraintName("FK_MagicPortalEndpoints_MagicPortalNetworks");
-			entity.HasOne(e => e.Cell).WithMany().HasForeignKey(e => e.CellId).OnDelete(DeleteBehavior.SetNull).HasConstraintName("FK_MagicPortalEndpoints_Cells");
+			entity.HasOne(e => e.Room).WithMany().HasForeignKey(e => e.RoomId).OnDelete(DeleteBehavior.SetNull).HasConstraintName("FK_MagicPortalEndpoints_Rooms");
 			entity.HasOne(e => e.GameItem).WithMany().HasForeignKey(e => e.GameItemId).OnDelete(DeleteBehavior.SetNull).HasConstraintName("FK_MagicPortalEndpoints_GameItems");
 			entity.HasOne(e => e.CreatedByCharacter).WithMany().HasForeignKey(e => e.CreatedByCharacterId).OnDelete(DeleteBehavior.SetNull).HasConstraintName("FK_MagicPortalEndpoints_Characters");
 			entity.HasOne(e => e.CreatedBySpell).WithMany().HasForeignKey(e => e.CreatedBySpellId).OnDelete(DeleteBehavior.SetNull).HasConstraintName("FK_MagicPortalEndpoints_MagicSpells");

@@ -16,7 +16,7 @@ public interface ISpatialPathfinder
 	bool TryFindPath(
 		SpatialLocation origin,
 		SpatialLocation destination,
-		Func<ICellExit, bool>? suitabilityFunction,
+		Func<IRoomExit, bool>? suitabilityFunction,
 		bool ignoreLayers,
 		double maximumRoomEquivalentCost,
 		out ISpatialPath? path);
@@ -28,10 +28,10 @@ public interface ISpatialPathfinder
 	bool TryFindExitOnlyPath(
 		SpatialLocation origin,
 		SpatialLocation destination,
-		Func<ICellExit, bool>? suitabilityFunction,
+		Func<IRoomExit, bool>? suitabilityFunction,
 		bool ignoreLayers,
 		double maximumRoomEquivalentCost,
-		out IReadOnlyList<ICellExit> exits);
+		out IReadOnlyList<IRoomExit> exits);
 
-	void InvalidateTopology(ICell? changedCell = null);
+	void InvalidateTopology(IRoom? changedRoom = null);
 }

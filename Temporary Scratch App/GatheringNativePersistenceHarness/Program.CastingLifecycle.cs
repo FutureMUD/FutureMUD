@@ -62,7 +62,7 @@ internal static partial class GNHProgram
 				CharacterId = earth.Actor.Id, BodyId = secondBody.BodyId, EmbodiedBodyId = secondBody.BodyId,
 				InstanceName = "ARM02 Second Body", InstanceKind = (int)CharacterInstanceKind.PhysicalClone,
 				ControlPolicy = (int)CharacterInstanceControlPolicy.PlayerFocusable, PersistencePolicy = (int)CharacterInstancePersistencePolicy.Persistent,
-				IsEmbodied = true, IsControllable = true, LocationId = secondBody.CellId, State = (int)CharacterState.Awake,
+				IsEmbodied = true, IsControllable = true, LocationId = secondBody.RoomId, State = (int)CharacterState.Awake,
 				PositionId = (int)MudSharp.Body.Position.PositionStates.PositionStanding.Instance.Id,
 				PositionTargetType = "", PositionEmote = "", CreatedBySourceKey = "ARM02 isolated acceptance",
 				CreatedDateTime = now, EffectData = "<Effects/>"
@@ -101,7 +101,7 @@ internal static partial class GNHProgram
 		SetPrivateMember(secondary.Actor, "Gameworld", runtime.World);
 		SetPrivateMember(secondary.Body, "Gameworld", runtime.World);
 		Mock.Get(secondary.Actor.Location).SetupGet(x => x.Gameworld).Returns(runtime.World);
-		((All<MudSharp.Construction.ICell>)runtime.World.Cells).Add(secondary.Actor.Location);
+		((All<MudSharp.Construction.IRoom>)runtime.World.Rooms).Add(secondary.Actor.Location);
 		secondary.Actor.HarnessIdentity = actor;
 		SetPrivateField(secondary.Actor, "_instanceId", input.SecondInstance!.Value);
 		Require(secondary.Actor.InstanceId != actor.InstanceId && secondary.Body.Id != runtime.Body.Id,

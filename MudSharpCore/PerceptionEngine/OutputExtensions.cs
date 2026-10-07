@@ -38,17 +38,17 @@ public static class OutputExtensions
 		IPerceiver source,
 		RoomLayer layer)
 	{
-		if (location is not ICell { RouteDefinition: not null } cell)
+		if (location is not IRoom { RouteDefinition: not null } room)
 		{
 			return null;
 		}
 
-		if (!TryResolveRouteOutputOrigin(cell, source, layer, out var origin))
+		if (!TryResolveRouteOutputOrigin(room, source, layer, out var origin))
 		{
 			return new RouteLocalRecipientSet(false, null, Array.Empty<ICharacter>());
 		}
 
-		var gameworld = source.Gameworld ?? cell.Gameworld;
+		var gameworld = source.Gameworld ?? room.Gameworld;
 		var maximumDistance = gameworld?.GetStaticDouble("RouteCellVeryDistantDistanceMetres") ?? 0.0;
 		if (!double.IsFinite(maximumDistance) || maximumDistance <= 0.0)
 		{
@@ -65,7 +65,7 @@ public static class OutputExtensions
 	}
 
 	private static bool TryResolveRouteOutputOrigin(
-		ICell cell,
+		IRoom room,
 		IPerceiver source,
 		RoomLayer layer,
 		out SpatialLocation origin)
@@ -78,9 +78,9 @@ public static class OutputExtensions
 
 		var spatial = RouteSpatialService.Instance;
 		var effective = spatial.GetEffectiveLocation(source);
-		if (ReferenceEquals(effective.Cell, cell))
+		if (ReferenceEquals(effective.Room, room))
 		{
-			origin = new SpatialLocation(cell, layer, effective.RoutePositionMetres);
+			origin = new SpatialLocation(room, layer, effective.RoutePositionMetres);
 			if (spatial.TryValidateLocation(origin, out _))
 			{
 				return true;
@@ -93,7 +93,7 @@ public static class OutputExtensions
 			var inheritedPosition = spatial.GetInheritedRoutePosition(item, owner);
 			if (inheritedPosition.HasValue)
 			{
-				origin = new SpatialLocation(cell, layer, inheritedPosition);
+				origin = new SpatialLocation(room, layer, inheritedPosition);
 				return spatial.TryValidateLocation(origin, out _);
 			}
 		}
@@ -220,7 +220,7 @@ public static class OutputExtensions
             return Enumerable.Empty<IRemoteObservationEffect>();
         }
 
-        return location.Cells
+        return location.Rooms
                        .SelectMany(x => x.EffectsOfType<IRemoteObservationEffect>())
                        .Concat(location.Characters.SelectMany(x => x.EffectsOfType<IRemoteObservationEffect>()))
                        .Distinct()
@@ -319,7 +319,7 @@ public static class OutputExtensions
 
     public static void Handle(this ILocation location, string text)
     {
-		if (location is ICell { RouteDefinition: not null })
+		if (location is IRoom { RouteDefinition: not null })
 		{
 			// Source-less local output cannot be mapped to a longitudinal coordinate. Fail closed;
 			// callers that intend a whole RouteCell broadcast must request OutputRange.Room.
@@ -353,7 +353,7 @@ public static class OutputExtensions
 	public static void Handle(this ILocation location, IOutput output)
 	{
 		var source = OutputSource(output);
-		if (location is ICell { RouteDefinition: not null })
+		if (location is IRoom { RouteDefinition: not null })
 		{
 			location.HandleLocal(source, source?.RoomLayer ?? RoomLayer.GroundLevel, output);
 			return;
@@ -387,7 +387,7 @@ public static class OutputExtensions
 
     public static void Handle(this ILocation location, RoomLayer layer, string text)
     {
-		if (location is ICell { RouteDefinition: not null })
+		if (location is IRoom { RouteDefinition: not null })
 		{
 			return;
 		}
@@ -418,7 +418,7 @@ public static class OutputExtensions
 
 	public static void Handle(this ILocation location, RoomLayer layer, IOutput output)
 	{
-		if (location is ICell { RouteDefinition: not null })
+		if (location is IRoom { RouteDefinition: not null })
 		{
 			location.HandleLocal(OutputSource(output), layer, output);
 			return;
@@ -463,7 +463,7 @@ public static class OutputExtensions
 
     public static void Handle(this IOutputHandler handler, string text, OutputRange range = OutputRange.Personal)
     {
-        ICell location =
+        IRoom location =
             (handler.Perceiver as ICharacter)?.Corpse?.Parent.Location ??
             handler.Perceiver?.Location ??
             (handler.Perceiver as IGameItem)?.TrueLocations.FirstOrDefault();
@@ -482,7 +482,7 @@ public static class OutputExtensions
 
             case OutputRange.Surrounds:
                 foreach (
-                    ICell room in location?.Surrounds ?? [])
+                    IRoom room in location?.Surrounds ?? [])
                 {
                     room.Handle(text);
                 }
@@ -497,7 +497,7 @@ public static class OutputExtensions
                 break;
 
             case OutputRange.Zone:
-                foreach (ICell room in location?.Zone.Cells ?? [])
+                foreach (IRoom room in location?.Zone.Rooms ?? [])
                 {
                     room.Handle(text);
                 }
@@ -505,7 +505,7 @@ public static class OutputExtensions
                 break;
 
             case OutputRange.Shard:
-                foreach (ICell room in location?.Shard.Cells ?? [])
+                foreach (IRoom room in location?.Shard.Rooms ?? [])
                 {
                     room.Handle(text);
                 }
@@ -540,12 +540,12 @@ public static class OutputExtensions
         bool newline = !output.Style.HasFlag(OutputStyle.NoNewLine);
         bool nopage = output.Style.HasFlag(OutputStyle.NoPage);
 
-        ICell location = (handler.Perceiver as ICharacter)?.Corpse?.Parent.Location ??
+        IRoom location = (handler.Perceiver as ICharacter)?.Corpse?.Parent.Location ??
                        handler.Perceiver?.Location ??
                        (handler.Perceiver as IGameItem)?.TrueLocations.FirstOrDefault() ??
 					   (output as IEmoteOutput)?.DefaultSource?.Location; ;
-        IEnumerable<ICell> vicinity = location?.CellsInVicinity(maxRange, false, false).Except(location) ?? [];
-        foreach (ICell loc in vicinity)
+        IEnumerable<IRoom> vicinity = location?.RoomsInVicinity(maxRange, false, false).Except(location) ?? [];
+        foreach (IRoom loc in vicinity)
         {
             loc.Handle(output);
         }
@@ -561,7 +561,7 @@ public static class OutputExtensions
             return;
         }
 
-        ICell location = (handler.Perceiver as ICharacter)?.Corpse?.Parent.Location ??
+        IRoom location = (handler.Perceiver as ICharacter)?.Corpse?.Parent.Location ??
                        handler.Perceiver?.Location ??
                        (handler.Perceiver as IGameItem)?.TrueLocations.FirstOrDefault() ??
                        (output as IEmoteOutput)?.DefaultSource?.Location;
@@ -575,8 +575,8 @@ public static class OutputExtensions
                 break;
 
             case OutputRange.Local:
-                IEnumerable<ICell> locations = (handler.Perceiver as IGameItem)?.TrueLocations ?? [location];
-                foreach (ICell loc in locations)
+                IEnumerable<IRoom> locations = (handler.Perceiver as IGameItem)?.TrueLocations ?? [location];
+                foreach (IRoom loc in locations)
                 {
 					if (loc is not null && handler.Perceiver is not null)
 					{
@@ -587,7 +587,7 @@ public static class OutputExtensions
                 break;
 
             case OutputRange.Surrounds:
-                foreach (ICell loc in location?.Surrounds ?? [])
+                foreach (IRoom loc in location?.Surrounds ?? [])
                 {
                     loc.Handle(output);
                 }
@@ -602,17 +602,17 @@ public static class OutputExtensions
                 break;
 
             case OutputRange.Zone:
-                foreach (ICell cell in location?.Zone.Cells ?? [])
+                foreach (IRoom room in location?.Zone.Rooms ?? [])
                 {
-                    cell.Handle(output);
+                    room.Handle(output);
                 }
 
                 break;
 
             case OutputRange.Shard:
-                foreach (ICell cell in location?.Shard.Cells ?? [])
+                foreach (IRoom room in location?.Shard.Rooms ?? [])
                 {
-                    cell.Handle(output);
+                    room.Handle(output);
                 }
 
                 break;

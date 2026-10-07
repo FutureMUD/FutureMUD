@@ -43,12 +43,12 @@ internal static class EraMedicalRepairCatalogue
 			{
 				line++;
 				if (string.IsNullOrWhiteSpace(value)) continue;
-				var cells = value.Split('\t');
-				if (cells.Length != 13) throw new InvalidDataException($"{resource} line {line} has {cells.Length} cells.");
-				entries.Add(new EraMedicalRepairCatalogueEntry(cells[0], cells[1], cells[2], cells[3],
-					Enum.Parse<SizeCategory>(cells[4], true), Enum.Parse<ItemQuality>(cells[5], true),
-					double.Parse(cells[6], CultureInfo.InvariantCulture), decimal.Parse(cells[7], CultureInfo.InvariantCulture), cells[8],
-					Split(cells[9]), Split(cells[10]), cells[11], cells[12]));
+				var rooms = value.Split('\t');
+				if (rooms.Length != 13) throw new InvalidDataException($"{resource} line {line} has {rooms.Length} cells.");
+				entries.Add(new EraMedicalRepairCatalogueEntry(rooms[0], rooms[1], rooms[2], rooms[3],
+					Enum.Parse<SizeCategory>(rooms[4], true), Enum.Parse<ItemQuality>(rooms[5], true),
+					double.Parse(rooms[6], CultureInfo.InvariantCulture), decimal.Parse(rooms[7], CultureInfo.InvariantCulture), rooms[8],
+					Split(rooms[9]), Split(rooms[10]), rooms[11], rooms[12]));
 			}
 		}
 		Validate(entries);

@@ -54,7 +54,7 @@ internal class LayerItems : BuiltInFunction
             return StatementResult.Error;
         }
 
-        if (ParameterFunctions[0].Result is not ICell location)
+        if (ParameterFunctions[0].Result is not IRoom location)
         {
             Result = new CollectionVariable(new List<IGameItem>(), ProgVariableTypes.Item);
             return StatementResult.Normal;

@@ -27,22 +27,22 @@ public partial class LegalAuthority
             return null;
         }
 
-        ICell sourceCell = corpse.Location ?? corpse.TrueLocations.FirstOrDefault();
-        if (sourceCell == null)
+        IRoom sourceRoom = corpse.Location ?? corpse.TrueLocations.FirstOrDefault();
+        if (sourceRoom == null)
         {
             errorMessage = "That corpse is not currently in a reportable location.";
             return null;
         }
 
-        ILegalAuthority authority = gameworld.LegalAuthorities.FirstOrDefault(x => x.EnforcementZones.Contains(sourceCell.Zone));
+        ILegalAuthority authority = gameworld.LegalAuthorities.FirstOrDefault(x => x.EnforcementZones.Contains(sourceRoom.Zone));
         if (authority == null)
         {
             errorMessage = "There is no local legal authority that can respond to this corpse.";
             return null;
         }
 
-        IEconomicZone zone = Estate.DetermineZone(gameworld, sourceCell);
-        if (zone == null || zone.MorgueOfficeCell == null || zone.MorgueStorageCell == null)
+        IEconomicZone zone = Estate.DetermineZone(gameworld, sourceRoom);
+        if (zone == null || zone.MorgueOfficeRoom == null || zone.MorgueStorageRoom == null)
         {
             errorMessage = "There is no configured morgue for the economic zone that covers this corpse.";
             return null;

@@ -58,7 +58,7 @@ public class SimpleGameItemGroupForm : GameItemGroupForm
         {
             foreach (XElement item in element.Elements("Cell"))
             {
-                Cells.Add(Gameworld.Cells.Get(long.Parse(item.Value)));
+                Rooms.Add(Gameworld.Rooms.Get(long.Parse(item.Value)));
             }
         }
     }
@@ -149,12 +149,12 @@ public class SimpleGameItemGroupForm : GameItemGroupForm
             RoomDescription != null
                 ? RoomDescription.ProperSentences().Fullstop().Colour(Telnet.Green)
                 : "not set".Colour(Telnet.Red));
-        if (Cells.Any())
+        if (Rooms.Any())
         {
             sb.AppendLine("This form only activates in the following cells:");
-            foreach (ICell cell in Cells)
+            foreach (IRoom room in Rooms)
             {
-                sb.AppendLineFormat("\tId {0}\t{1}", cell.Id, cell.HowSeen(voyeur));
+                sb.AppendLineFormat("\tId {0}\t{1}", room.Id, room.HowSeen(voyeur));
             }
         }
         else
@@ -209,7 +209,7 @@ public class SimpleGameItemGroupForm : GameItemGroupForm
             new XElement("Description", new XText(Description ?? "")),
             new XElement("RoomDescription", new XText(RoomDescription ?? "")),
             new XElement("ItemName", new XText(ItemName ?? "")),
-            new XElement("Cells", from cell in Cells select new XElement("Cell", cell.Id))
+            new XElement("Cells", from room in Rooms select new XElement("Cell", room.Id))
         ).ToString();
     }
 

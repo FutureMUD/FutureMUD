@@ -87,13 +87,13 @@ public sealed class VehicleJourneyCoordinator : IVehicleJourneyCoordinator, IVeh
 			reason = "The journey has no current stop at which to open boarding.";
 			return false;
 		}
-		if (journey.Vehicle.Location != stop.Location.Cell || journey.Vehicle.RoomLayer != stop.Location.Layer)
+		if (journey.Vehicle.Location != stop.Location.Room || journey.Vehicle.RoomLayer != stop.Location.Layer)
 		{
 			reason = "The room-scale vehicle is not at the authored stop location and layer.";
 			return false;
 		}
 
-		var routeStop = stop.Location.Cell.RouteDefinition is not null;
+		var routeStop = stop.Location.Room.RouteDefinition is not null;
 		if (routeStop &&
 			(!journey.Vehicle.RoutePositionMetres.HasValue || !stop.Location.RoutePositionMetres.HasValue))
 		{
@@ -139,7 +139,7 @@ public sealed class VehicleJourneyCoordinator : IVehicleJourneyCoordinator, IVeh
 					: $"The {accessPoint.Name} access point must be opened by the onboard operator before boarding can begin.");
 				continue;
 			}
-			if (!_dockingService.CanDock(journey.Vehicle, accessPoint, binding.PlatformCell,
+			if (!_dockingService.CanDock(journey.Vehicle, accessPoint, binding.PlatformRoom,
 				    journey.Vehicle.RoomLayer, stop, out var dockingReason))
 			{
 				failures.Add(dockingReason);
@@ -147,7 +147,7 @@ public sealed class VehicleJourneyCoordinator : IVehicleJourneyCoordinator, IVeh
 			}
 			var docking = journey.Vehicle.Dockings
 				.FirstOrDefault(x => x.AccessPoint.Id == accessPoint.Id && x.Stop?.Id == stop.Id) ??
-				_dockingService.Dock(journey.Vehicle, accessPoint, binding.PlatformCell,
+				_dockingService.Dock(journey.Vehicle, accessPoint, binding.PlatformRoom,
 					journey.Vehicle.RoomLayer, stop);
 			_dockingService.SetBoardingOpen(docking, true);
 			opened = true;

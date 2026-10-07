@@ -134,7 +134,7 @@ public class SpellAnimationSchedulerTests
 			World.Setup(x => x.TryGetCharacter(7, true)).Returns(actor.Object);
 			if (throwingEcho)
 			{
-				actor.SetupGet(x => x.Location).Returns(Mock.Of<ICell>(x => x.Gameworld == World.Object));
+				actor.SetupGet(x => x.Location).Returns(Mock.Of<IRoom>(x => x.Gameworld == World.Object));
 				World.Setup(x => x.MediaChannelService.CaptureOutput(It.IsAny<ILocation>(), It.IsAny<IOutput>()))
 					.Throws(new InvalidOperationException("Injected room-output callback failure."));
 			}

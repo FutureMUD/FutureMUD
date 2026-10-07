@@ -36,7 +36,7 @@ public class AutobuilderFeatureMaskTests
 	}
 
 	[TestMethod]
-	public void TryParse_RejectsIncorrectCellCount()
+	public void TryParse_RejectsIncorrectRoomCount()
 	{
 		var parsed = AutobuilderFeatureMask.TryParse("41,", 1, [Tag(41, "Road")], out _, out var error);
 

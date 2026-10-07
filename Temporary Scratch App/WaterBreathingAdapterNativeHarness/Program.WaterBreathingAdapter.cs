@@ -52,14 +52,14 @@ internal static partial class GNHProgram
 	private static void VerifyWaterAdapterBreathing(NativeRuntime native, ILiquid water, ILiquid unmapped, bool granted)
 	{
 		var actor = native.Actor; var body = native.Body;
-		var race = Mock.Get(body.Race); var cell = Mock.Get(actor.Location); var terrain = Mock.Get(actor.Location.CurrentOverlay.Terrain);
-		cell.Setup(x => x.Terrain(actor)).Returns(terrain.Object);
+		var race = Mock.Get(body.Race); var room = Mock.Get(actor.Location); var terrain = Mock.Get(actor.Location.CurrentOverlay.Terrain);
+		room.Setup(x => x.Terrain(actor)).Returns(terrain.Object);
 		var strategy = new PartlessBreather(); race.SetupGet(x => x.BreathingStrategy).Returns(strategy);
 		// The reused body fixture has already logged in with NonBreather. Select the
 		// authored test strategy in its native cache without restarting unrelated health ticks.
 		SetPrivateField(body, "_breathingStrategy", strategy);
 		race.Setup(x => x.CanBreatheFluid(It.IsAny<IFluid>())).Returns((false, 0.0));
-		cell.Setup(x => x.IsUnderwaterLayer(It.IsAny<RoomLayer>())).Returns(true);
+		room.Setup(x => x.IsUnderwaterLayer(It.IsAny<RoomLayer>())).Returns(true);
 		terrain.SetupGet(x => x.WaterFluid).Returns(water);
 		Require(body.BreathingStrategy.CanBreathe(body) == granted, "Actual native body/character scoped water compatibility");
 		terrain.SetupGet(x => x.WaterFluid).Returns(unmapped);

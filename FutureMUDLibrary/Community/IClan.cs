@@ -26,15 +26,15 @@ namespace MudSharp.Community
         bool ShowFamousMembersInNotables { get; set; }
         ulong? DiscordChannelId { get; set; }
 
-        IEnumerable<ICell> TreasuryCells { get; }
-        IEnumerable<ICell> AdministrationCells { get; }
-        IEnumerable<ICell> ClanHallCells { get; }
-        void AddTreasuryCell(ICell cell);
-        void RemoveTreasuryCell(ICell cell);
-        void AddAdministrationCell(ICell cell);
-        void RemoveAdministrationCell(ICell cell);
-        void AddClanHallCell(ICell cell);
-        void RemoveClanHallCell(ICell cell);
+        IEnumerable<IRoom> TreasuryRooms { get; }
+        IEnumerable<IRoom> AdministrationRooms { get; }
+        IEnumerable<IRoom> ClanHallRooms { get; }
+        void AddTreasuryRoom(IRoom room);
+        void RemoveTreasuryRoom(IRoom room);
+        void AddAdministrationRoom(IRoom room);
+        void RemoveAdministrationRoom(IRoom room);
+        void AddClanHallRoom(IRoom room);
+        void RemoveClanHallRoom(IRoom room);
 
         IBankAccount ClanBankAccount { get; set; }
 

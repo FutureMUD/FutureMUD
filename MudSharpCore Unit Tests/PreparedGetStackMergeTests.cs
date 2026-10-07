@@ -49,7 +49,7 @@ public class PreparedGetStackMergeTests
 			Assert.AreEqual(8, a.Quantity);
 			Assert.AreEqual(0, b.Quantity);
 			if (scenario == "refill") b.Quantity = 2;
-			if (scenario == "relocate") typeof(GameItem).GetProperty(nameof(GameItem.Location))!.SetValue(source, Mock.Of<ICell>());
+			if (scenario == "relocate") typeof(GameItem).GetProperty(nameof(GameItem.Location))!.SetValue(source, Mock.Of<IRoom>());
 			if (scenario == "owner") source.SetOwner(Mock.Of<IFrameworkItem>(x => x.Id == 91 && x.FrameworkItemType == "Organisation"));
 			if (scenario == "throw") throw new InvalidOperationException("fixture observer");
 		};

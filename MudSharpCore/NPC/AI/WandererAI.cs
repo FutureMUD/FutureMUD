@@ -21,7 +21,7 @@ public class WandererAI : ArtificialIntelligenceBase
     protected IBodyPrototype TargetBodyPrototype;
     protected IMoveSpeed TargetMoveSpeed;
     protected string WanderTimeDiceExpression;
-    protected IFutureProg WillWanderIntoCellProg;
+    protected IFutureProg WillWanderIntoRoomProg;
     protected IFutureProg IsWanderingProg;
 
     protected WandererAI(ArtificialIntelligence ai, IFuturemud gameworld)
@@ -35,7 +35,7 @@ public class WandererAI : ArtificialIntelligenceBase
         EmoteText = string.Empty;
         OpenDoors = false;
         WanderTimeDiceExpression = "1d40+100";
-        WillWanderIntoCellProg = Gameworld.AlwaysTrueProg;
+        WillWanderIntoRoomProg = Gameworld.AlwaysTrueProg;
         TargetBodyPrototype = null;
         IsWanderingProg = Gameworld.AlwaysTrueProg;
         TargetMoveSpeed = TargetBodyPrototype?.Speeds.FirstOrDefault(x => x.Position == PositionStanding.Instance);
@@ -55,7 +55,7 @@ public class WandererAI : ArtificialIntelligenceBase
 
     private void LoadFromXml(XElement root)
     {
-        WillWanderIntoCellProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("FutureProg")?.Value ?? "0"));
+        WillWanderIntoRoomProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("FutureProg")?.Value ?? "0"));
         IsWanderingProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("IsWanderingProg")?.Value ?? "0")) ?? Gameworld.AlwaysTrueProg;
         WanderTimeDiceExpression = root.Element("WanderTimeDiceExpression")?.Value ?? "1d40+100";
         TargetBodyPrototype = Gameworld.BodyPrototypes.Get(long.Parse(root.Element("TargetBody")?.Value ?? "0"));
@@ -68,7 +68,7 @@ public class WandererAI : ArtificialIntelligenceBase
     protected override string SaveToXml()
     {
         return new XElement("Definition",
-            new XElement("FutureProg", WillWanderIntoCellProg?.Id ?? 0),
+            new XElement("FutureProg", WillWanderIntoRoomProg?.Id ?? 0),
             new XElement("WanderTimeDiceExpression", new XCData(WanderTimeDiceExpression)),
             new XElement("TargetBody", TargetBodyPrototype?.Id ?? 0),
             new XElement("TargetSpeed", TargetMoveSpeed?.Id ?? 0),
@@ -141,10 +141,10 @@ public class WandererAI : ArtificialIntelligenceBase
             return;
         }
 
-        IEnumerable<ICellExit> options =
+        IEnumerable<IRoomExit> options =
             character.Location.ExitsFor(character)
                      .Where(
-                         x => WillWanderIntoCellProg?.ExecuteBool(character, x.Destination, character.Location) !=
+                         x => WillWanderIntoRoomProg?.ExecuteBool(character, x.Destination, character.Location) !=
                               false)
                      .Where(
                          x =>
@@ -177,7 +177,7 @@ public class WandererAI : ArtificialIntelligenceBase
             character.MovePosition(upright, null, null);
         }
 
-        ICellExit choice = options.GetRandomElement();
+        IRoomExit choice = options.GetRandomElement();
         if (!character.Move(choice, !string.IsNullOrEmpty(EmoteText) ? new Emote(EmoteText, character) : null))
         {
             CreateEvaluateAffect(character);
@@ -202,7 +202,7 @@ public class WandererAI : ArtificialIntelligenceBase
 
         switch (type)
         {
-            case EventType.CharacterEnterCellFinish:
+            case EventType.CharacterEnterRoomFinish:
             case EventType.CharacterStopMovement:
             case EventType.CharacterStopMovementClosedDoor:
             case EventType.CharacterCannotMove:
@@ -241,7 +241,7 @@ public class WandererAI : ArtificialIntelligenceBase
         {
             switch (type)
             {
-                case EventType.CharacterEnterCellFinish:
+                case EventType.CharacterEnterRoomFinish:
                 case EventType.CharacterStopMovement:
                 case EventType.CharacterStopMovementClosedDoor:
                 case EventType.CharacterCannotMove:
@@ -268,7 +268,7 @@ public class WandererAI : ArtificialIntelligenceBase
         sb.AppendLine($"Target Body: {TargetBodyPrototype?.Name.ColourValue() ?? "None".ColourError()}");
         sb.AppendLine($"Target Move Speed: {TargetMoveSpeed?.Name.ColourValue() ?? "None".ColourError()}");
         sb.AppendLine($"Is Enabled: {IsWanderingProg.MXPClickableFunctionName()}");
-        sb.AppendLine($"Will Wander Room: {WillWanderIntoCellProg.MXPClickableFunctionName()}");
+        sb.AppendLine($"Will Wander Room: {WillWanderIntoRoomProg.MXPClickableFunctionName()}");
         sb.AppendLine($"Wander Time Dice: {WanderTimeDiceExpression.ColourValue()} seconds");
         sb.AppendLine($"Open Doors: {OpenDoors.ToColouredString()}");
         sb.AppendLine($"Travel String: {EmoteText?.ColourCommand() ?? ""}");
@@ -369,7 +369,7 @@ public class WandererAI : ArtificialIntelligenceBase
             return false;
         }
 
-        WillWanderIntoCellProg = prog;
+        WillWanderIntoRoomProg = prog;
         Changed = true;
         actor.OutputHandler.Send($"This AI will now use the prog {prog.MXPClickableFunctionName()} to determine whether rooms are suitable for wandering.");
         return true;

@@ -20,12 +20,12 @@ public interface ICraftInputData
 public interface ICraftInputDataWithItems : ICraftInputData
 {
     IEnumerable<IGameItem> ConsumedItems { get; }
-    void ReleaseItemsAtCraftCompletion(ICell location, RoomLayer layer)
+    void ReleaseItemsAtCraftCompletion(IRoom location, RoomLayer layer)
     {
         // Do nothing
     }
 
-    void ReleaseItemsAtCraftCompletion(ILocateable source, ICell location, RoomLayer layer)
+    void ReleaseItemsAtCraftCompletion(ILocateable source, IRoom location, RoomLayer layer)
     {
         ReleaseItemsAtCraftCompletion(location, layer);
     }

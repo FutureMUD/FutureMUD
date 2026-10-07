@@ -49,7 +49,7 @@ internal class RemoveDoor : BuiltInFunction
             return StatementResult.Error;
         }
 
-        ICellExit exit = (ICellExit)ParameterFunctions[0].Result?.GetObject;
+        IRoomExit exit = (IRoomExit)ParameterFunctions[0].Result?.GetObject;
         if (exit == null)
         {
             Result = null;
@@ -65,8 +65,8 @@ internal class RemoveDoor : BuiltInFunction
         IDoor door = exit.Exit.Door;
         exit.Exit.Door = null;
         exit.Exit.Changed = true;
-        door.OpenDirectionCell = null;
-        door.HingeCell = null;
+        door.OpenDirectionRoom = null;
+        door.HingeRoom = null;
         door.State = DoorState.Uninstalled;
         door.InstalledExit = null;
 

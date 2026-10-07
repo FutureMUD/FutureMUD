@@ -32,11 +32,11 @@ public sealed class SpellOwnedCorpseAnimationService(IFuturemud world) : ISpellO
 	internal static bool CanPersistPresentation(string source) =>
 		new Borrow(long.MaxValue, long.MaxValue, long.MaxValue, long.MaxValue, int.MinValue).Encode(source).Length <= 2048;
 
-	private sealed record Borrow(long Corpse, long Owner, long Body, long Cell, int Layer)
+	private sealed record Borrow(long Corpse, long Owner, long Body, long Room, int Layer)
 	{
 		public string Encode(string source) => new XElement("CorpseAnimation", new XAttribute("version", 1),
 			new XAttribute("corpse", Corpse), new XAttribute("owner", Owner), new XAttribute("body", Body),
-			new XAttribute("cell", Cell), new XAttribute("layer", Layer), new XElement("Source", source)).ToString(SaveOptions.DisableFormatting);
+			new XAttribute("cell", Room), new XAttribute("layer", Layer), new XElement("Source", source)).ToString(SaveOptions.DisableFormatting);
 		public static Borrow Read(SpellOwnedLifecycle life)
 		{
 			var root = XElement.Parse(life.Origin.Provenance);
@@ -53,7 +53,7 @@ public sealed class SpellOwnedCorpseAnimationService(IFuturemud world) : ISpellO
 	{
 		if (item is not GameItem || !ReferenceEquals(item.Gameworld, world) || item.Deleted || item.GetItemType<ICorpse>() is not { } corpse ||
 			corpse.OriginalCharacter?.Identity is not Character.Character || corpse.OriginalBody is not { } body ||
-			item.Location is not { } cell || item.InInventoryOf is not null || item.ContainedIn is not null)
+			item.Location is not { } room || item.InInventoryOf is not null || item.ContainedIn is not null)
 			return "An available native corpse must be directly present in a cell.";
 		if (!corpse.RepresentsFinalCharacterDeath)
 			return "Durable animation currently requires final-death remains; abandoned bodies need a cold-load adapter.";
@@ -69,7 +69,7 @@ public sealed class SpellOwnedCorpseAnimationService(IFuturemud world) : ISpellO
 			return "Route-position corpse animation needs a topology adapter.";
 		using var isolated = FMDB.BeginIndependentScope(); using var db = new FMDB();
 		return SpellOwnedCreation.PersistedCorpseError(FMDB.Context, item.Id,
-			CharacterInstanceIdentityComparer.IdentityId(corpse.OriginalCharacter), body.Id, cell.Id);
+			CharacterInstanceIdentityComparer.IdentityId(corpse.OriginalCharacter), body.Id, room.Id);
 	}
 
 	public ICharacter Create(IGameItem item, ICharacter caster, IReadOnlyCollection<IArtificialIntelligence> ais, SpellLifecycleOrigin origin)
@@ -90,7 +90,7 @@ public sealed class SpellOwnedCorpseAnimationService(IFuturemud world) : ISpellO
 				CharacterId = identity.Id, BodyId = borrow.Body, InstanceName = "animated corpse", IsPrimary = false,
 				InstanceKind = (int)CharacterInstanceKind.AnimatedCorpse, ControlPolicy = (int)CharacterInstanceControlPolicy.ScriptOnly,
 				DeathPolicy = (int)CharacterInstanceDeathPolicy.CollapseToAnchor, PerceptionPolicy = (int)CharacterInstancePerceptionPolicy.OrdinaryEmbodied,
-				PersistencePolicy = (int)CharacterInstancePersistencePolicy.DespawnOnReboot, LocationId = borrow.Cell, RoomLayer = borrow.Layer,
+				PersistencePolicy = (int)CharacterInstancePersistencePolicy.DespawnOnReboot, LocationId = borrow.Room, RoomLayer = borrow.Layer,
 				PositionId = (int)PositionStanding.Instance.Id, PositionModifier = (int)PositionModifier.None, PositionEmote = "",
 				State = (int)CharacterState.Awake, Status = (int)CharacterStatus.Active, IsEmbodied = true, IsControllable = true,
 				CreatedDateTime = origin.CreatedUtc,
@@ -98,7 +98,7 @@ public sealed class SpellOwnedCorpseAnimationService(IFuturemud world) : ISpellO
 					borrow.Corpse, borrow.Owner, borrow.Body, origin.SpellId, ais.Select(x => x.Id), CharacterInstancePersistencePolicy.DespawnOnReboot)
 			};
 			creation.Context.CharacterInstances.Add(inserted);
-			creation.ClaimBorrowedCorpseAnimation(inserted, borrow.Corpse, borrow.Cell);
+			creation.ClaimBorrowedCorpseAnimation(inserted, borrow.Corpse, borrow.Room);
 		});
 		try
 		{
@@ -183,23 +183,23 @@ public sealed class SpellOwnedCorpseAnimationService(IFuturemud world) : ISpellO
 				else life = _store.BeginRetirement(life.Origin.Id, life.Version, reason, Now(life));
 			}
 			if (actor is ScriptedAiCharacterInstance controlled) controlled.SuspendForSpellRetirement();
-			long savedCell = borrow.Cell; var savedLayer = borrow.Layer;
+			long savedRoom = borrow.Room; var savedLayer = borrow.Layer;
 			using (var isolated = FMDB.BeginIndependentScope())
 			using (var db = new FMDB())
 			{
-				var placed = FMDB.Context.CellsGameItems.AsNoTracking().Where(x => x.GameItemId == borrow.Corpse).Select(x => (long?)x.CellId).SingleOrDefault();
+				var placed = FMDB.Context.RoomsGameItems.AsNoTracking().Where(x => x.GameItemId == borrow.Corpse).Select(x => (long?)x.RoomId).SingleOrDefault();
 				var saved = FMDB.Context.CharacterInstances.AsNoTracking().SingleOrDefault(x => x.Id == instanceId);
-				if (placed is { } placedCell)
-				{ savedCell = placedCell; savedLayer = FMDB.Context.GameItems.Where(x => x.Id == borrow.Corpse).Select(x => x.RoomLayer).Single(); }
-				else if (saved?.LocationId is { } previousCell)
-				{ savedCell = previousCell; savedLayer = saved.RoomLayer; }
+				if (placed is { } placedRoom)
+				{ savedRoom = placedRoom; savedLayer = FMDB.Context.GameItems.Where(x => x.Id == borrow.Corpse).Select(x => x.RoomLayer).Single(); }
+				else if (saved?.LocationId is { } previousRoom)
+				{ savedRoom = previousRoom; savedLayer = saved.RoomLayer; }
 				if (saved?.RoutePosition is not null || actor?.RoutePositionMetres is not null)
 					throw new InvalidOperationException("Route-position restoration requires a topology adapter; retain the body and corpse.");
 			}
 			if (alreadyCommitted)
 			{
 				var restored = XElement.Parse(life.Diagnostic.Split('\n')[0]);
-				savedCell = (long)restored.Attribute("cell")!; savedLayer = (int)restored.Attribute("layer")!;
+				savedRoom = (long)restored.Attribute("cell")!; savedLayer = (int)restored.Attribute("layer")!;
 			}
 			var corpse = world.TryGetItem(borrow.Corpse, true) ?? throw new InvalidOperationException("The borrowed corpse is unavailable; preserve its body and inventory.");
 			if (corpse.GetItemType<ICorpse>() is not { } component || component.OriginalBody?.Id != borrow.Body ||
@@ -208,7 +208,7 @@ public sealed class SpellOwnedCorpseAnimationService(IFuturemud world) : ISpellO
 			if (actor is not null && (actor.CurrentProject.Project is not null || actor.RidingMount is not null || actor.Riders.Any() ||
 				world.Vehicles.Any(x => x.IsOccupant(actor)) || new MudSharp.Vehicles.VehicleHitchService().LinksInvolving(world, actor).Any()))
 				throw new InvalidOperationException("An occupied vehicle, riding or project binding needs release before restoration.");
-			var destination = alreadyCommitted ? world.Cells.Get(savedCell) : actor?.Location ?? corpse.Location ?? world.Cells.Get(savedCell) ?? world.Cells.Get(borrow.Cell);
+			var destination = alreadyCommitted ? world.Rooms.Get(savedRoom) : actor?.Location ?? corpse.Location ?? world.Rooms.Get(savedRoom) ?? world.Rooms.Get(borrow.Room);
 			if (destination is null) throw new InvalidOperationException("No loaded safe cell exists; retain this recoverable animation.");
 			var layer = alreadyCommitted ? (RoomLayer)savedLayer : actor?.RoomLayer ?? (RoomLayer)savedLayer;
 			CommitRestoration(life, borrow, destination.Id, layer);
@@ -265,16 +265,16 @@ public sealed class SpellOwnedCorpseAnimationService(IFuturemud world) : ISpellO
 			.AsEnumerable().Any(x => !((CharacterState)x.State).IsDead() && !((CharacterState)x.State).HasFlag(CharacterState.Stasis)))
 			throw new InvalidOperationException("Another live instance has acquired the borrowed body; retain recovery state.");
 		var corpse = FMDB.Context.GameItems.SingleOrDefault(x => x.Id == borrow.Corpse);
-		if (corpse is null || !FMDB.Context.Cells.Any(x => x.Id == cellId) ||
+		if (corpse is null || !FMDB.Context.Rooms.Any(x => x.Id == cellId) ||
 			!FMDB.Context.Characters.Any(x => x.Id == borrow.Owner) || !FMDB.Context.Bodies.Any(x => x.Id == borrow.Body) ||
 			!FMDB.Context.GameItemComponents.Where(x => x.GameItemId == borrow.Corpse).Select(x => x.Definition)
 				.AsEnumerable().Any(x => SpellOwnedCreation.IsExactCorpseDefinition(x, borrow.Owner, borrow.Body)))
 			throw new InvalidOperationException("The borrowed corpse, canonical identity, body or destination is missing.");
 		if (corpse.ContainerId is not null || FMDB.Context.BodiesGameItems.Any(x => x.GameItemId == borrow.Corpse))
 			throw new InvalidOperationException("The corpse acquired a foreign custodian; release it before restoration.");
-		var links = FMDB.Context.CellsGameItems.Where(x => x.GameItemId == borrow.Corpse).ToArray();
-		if (links.Any(x => x.CellId != cellId)) throw new InvalidOperationException("The corpse is already placed in another cell.");
-		if (links.Length == 0) FMDB.Context.CellsGameItems.Add(new() { GameItemId = borrow.Corpse, CellId = cellId });
+		var links = FMDB.Context.RoomsGameItems.Where(x => x.GameItemId == borrow.Corpse).ToArray();
+		if (links.Any(x => x.RoomId != cellId)) throw new InvalidOperationException("The corpse is already placed in another cell.");
+		if (links.Length == 0) FMDB.Context.RoomsGameItems.Add(new() { GameItemId = borrow.Corpse, RoomId = cellId });
 		corpse.RoomLayer = (int)layer; corpse.RoutePosition = null;
 		if (row is not null) FMDB.Context.CharacterInstances.Remove(row);
 		// Preserve the committed destination independently of deferred cell saves and runtime callbacks.

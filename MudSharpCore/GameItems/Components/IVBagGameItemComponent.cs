@@ -364,7 +364,7 @@ public class IVBagGameItemComponent : GameItemComponent, ILiquidContainer, ISwit
             LiquidMixture?.Instances.Sum(x => (fluidDensity - x.Liquid.Density) * x.Amount * x.Liquid.Density) ?? 0.0;
     }
 
-    public override bool HandleDieOrMorph(IGameItem newItem, ICell location)
+    public override bool HandleDieOrMorph(IGameItem newItem, IRoom location)
     {
         ILockable newItemLockable = newItem?.GetItemType<ILockable>();
         if (newItemLockable != null)

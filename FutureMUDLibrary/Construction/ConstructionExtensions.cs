@@ -20,7 +20,7 @@ namespace MudSharp.Construction
         OnRooftops = 8
     }
 
-    public enum CellOutdoorsType
+    public enum RoomOutdoorsType
     {
         Indoors,
         IndoorsWithWindows,
@@ -66,21 +66,21 @@ namespace MudSharp.Construction
         Unapproximable
     }
 
-    public static class CellOutdoorsTypeExtension
+    public static class RoomOutdoorsTypeExtension
     {
-        public static string Describe(this CellOutdoorsType type)
+        public static string Describe(this RoomOutdoorsType type)
         {
             switch (type)
             {
-                case CellOutdoorsType.Indoors:
+                case RoomOutdoorsType.Indoors:
                     return "Indoors";
-                case CellOutdoorsType.IndoorsWithWindows:
+                case RoomOutdoorsType.IndoorsWithWindows:
                     return "Indoors (With View of Outside)";
-                case CellOutdoorsType.Outdoors:
+                case RoomOutdoorsType.Outdoors:
                     return "Outdoors";
-                case CellOutdoorsType.IndoorsNoLight:
+                case RoomOutdoorsType.IndoorsNoLight:
                     return "Indoors (With No Natural Light)";
-                case CellOutdoorsType.IndoorsClimateExposed:
+                case RoomOutdoorsType.IndoorsClimateExposed:
                     return "Indoors (Exposed to Climate)";
                 default:
                     throw new NotSupportedException("Invalid CellOutdoorsType in CellOutdoorsTypeExtension.Describe");

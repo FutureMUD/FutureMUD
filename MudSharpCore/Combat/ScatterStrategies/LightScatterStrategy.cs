@@ -22,7 +22,7 @@ public class LightScatterStrategy : IRangedScatterStrategy
     }
 
     public RangedScatterResult? GetScatterTarget(ICharacter shooter, IPerceiver originalTarget,
-        IEnumerable<ICellExit> path)
+        IEnumerable<IRoomExit> path)
     {
         // Up to 5 cells away
         if (originalTarget.Location == null)
@@ -30,7 +30,7 @@ public class LightScatterStrategy : IRangedScatterStrategy
             return null;
         }
 
-        List<ICellExit> pathList = path?.ToList() ?? new List<ICellExit>();
+        List<IRoomExit> pathList = path?.ToList() ?? new List<IRoomExit>();
         (int Northness, int Southness, int Westness, int Eastness, int Upness, int Downness) counts = pathList.CountDirections();
         HashSet<CardinalDirection> directionSet = new(
             (counts.Northness, counts.Southness, counts.Westness, counts.Eastness, counts.Upness, counts.Downness)
@@ -42,17 +42,17 @@ public class LightScatterStrategy : IRangedScatterStrategy
             directionSet.Add(lastDirection);
         }
 
-        List<(CellScatterInfo Info, double Weight)> cells = ScatterStrategyUtilities.GetCellInfos(originalTarget, 5, true)
-            .Select(info => (Info: info, Weight: CellWeight(info, directionSet, lastDirection)))
+        List<(RoomScatterInfo Info, double Weight)> rooms = ScatterStrategyUtilities.GetRoomInfos(originalTarget, 5, true)
+            .Select(info => (Info: info, Weight: RoomWeight(info, directionSet, lastDirection)))
             .Where(x => x.Weight > 0)
             .ToList();
 
-        if (!cells.Any())
+        if (!rooms.Any())
         {
             return null;
         }
 
-        (CellScatterInfo Info, double Weight) chosen = cells.GetWeightedRandom(x => x.Weight);
+        (RoomScatterInfo Info, double Weight) chosen = rooms.GetWeightedRandom(x => x.Weight);
 		List<IPerceiver> candidates = ScatterStrategyUtilities
 			.GetCandidatesAtImpact(chosen.Info, originalTarget, true)
 			.Where(x => !x.Equals(shooter) && !x.Equals(originalTarget))
@@ -62,7 +62,7 @@ public class LightScatterStrategy : IRangedScatterStrategy
 		return ScatterStrategyUtilities.CreateResult(chosen.Info, originalTarget, target);
     }
 
-    private static double CellWeight(CellScatterInfo info, HashSet<CardinalDirection> preferredDirections,
+    private static double RoomWeight(RoomScatterInfo info, HashSet<CardinalDirection> preferredDirections,
         CardinalDirection lastDirection)
     {
         double weight = 1.0 / (info.Distance + 0.5);

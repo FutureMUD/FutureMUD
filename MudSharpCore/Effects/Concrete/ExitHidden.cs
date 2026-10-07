@@ -32,8 +32,8 @@ public class ExitHidden : Effect, IExitHiddenEffect
 
     public override string Describe(IPerceiver voyeur)
     {
-        ICell cellOwner = (ICell)Owner;
-        ICellExit cellExit = Exit.CellExitFor(cellOwner);
+        IRoom cellOwner = (IRoom)Owner;
+        IRoomExit cellExit = Exit.RoomExitFor(cellOwner);
         return $"Exit {Exit.Id.ToString("N0", voyeur)} ({cellExit.OutboundDirectionDescription})";
     }
 
@@ -47,7 +47,7 @@ public class ExitHidden : Effect, IExitHiddenEffect
         {
             if (_exit == null)
             {
-                Gameworld.ExitManager.InitialiseCell((ICell)Owner, null);
+                Gameworld.ExitManager.InitialiseRoom((IRoom)Owner, null);
                 _exit = Gameworld.ExitManager.GetExitByID(_exitId);
             }
 

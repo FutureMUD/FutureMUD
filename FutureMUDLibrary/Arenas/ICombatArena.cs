@@ -28,12 +28,12 @@ public interface ICombatArena : IEditableItem, IEmploymentHost
     decimal CashBalance { get; }
     decimal BankBalance { get; }
 
-    IEnumerable<ICell> WaitingCells { get; }
-    IEnumerable<ICell> ArenaCells { get; }
-    IEnumerable<ICell> ObservationCells { get; }
-    IEnumerable<ICell> InfirmaryCells { get; }
-    IEnumerable<ICell> NpcStablesCells { get; }
-    IEnumerable<ICell> AfterFightCells { get; }
+    IEnumerable<IRoom> WaitingRooms { get; }
+    IEnumerable<IRoom> ArenaRooms { get; }
+    IEnumerable<IRoom> ObservationRooms { get; }
+    IEnumerable<IRoom> InfirmaryRooms { get; }
+    IEnumerable<IRoom> NpcStablesRooms { get; }
+    IEnumerable<IRoom> AfterFightRooms { get; }
 
     IEnumerable<ICombatantClass> CombatantClasses { get; }
     IEnumerable<IArenaEventType> EventTypes { get; }

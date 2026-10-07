@@ -346,10 +346,10 @@ public class CharacterInstanceIdentityComparerTests
 		var character = CreateCharacter(20, 10, 200, CharacterInstanceKind.PhysicalClone);
 		var body = new Mock<IBody>();
 		body.SetupGet(x => x.Id).Returns(30);
-		var cell = new Mock<ICell>();
-		cell.SetupGet(x => x.Id).Returns(40);
+		var room = new Mock<IRoom>();
+		room.SetupGet(x => x.Id).Returns(40);
 		character.SetupGet(x => x.Body).Returns(body.Object);
-		character.SetupGet(x => x.Location).Returns(cell.Object);
+		character.SetupGet(x => x.Location).Returns(room.Object);
 		character.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
 		character.Setup(x => x.HowSeen(character.Object, false, DescriptionType.Short, false,
 				PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreSelf))

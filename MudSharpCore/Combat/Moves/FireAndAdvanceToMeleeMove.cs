@@ -186,7 +186,7 @@ public class FireAndAdvanceToMeleeMove : CombatMoveBase
         if (target.CombatSettings.SkirmishToOtherLocations && target.Movement == null && targetMover.Movement == null &&
             speed <= targetspeed * 1.25)
         {
-            ICellExit exit = target.Location.ExitsFor(target).Where(x => target.CanCross(x).Success).GetRandomElement();
+            IRoomExit exit = target.Location.ExitsFor(target).Where(x => target.CanCross(x).Success).GetRandomElement();
             if (exit != null)
             {
                 target.Move(exit, new Emote("fleeing from $0", target, Assailant));

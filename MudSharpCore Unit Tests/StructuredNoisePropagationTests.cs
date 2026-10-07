@@ -21,10 +21,10 @@ public class StructuredNoisePropagationTests
 	public void Find_TopologicalMode_UsesExitCountAndNeverCoordinateAdjacency()
 	{
 		var fixture = new NoiseGraphFixture();
-		var a = fixture.Cell();
-		var b = fixture.Cell();
-		var c = fixture.Cell();
-		var disconnected = fixture.Cell();
+		var a = fixture.Room();
+		var b = fixture.Room();
+		var c = fixture.Room();
+		var disconnected = fixture.Room();
 		fixture.Exit(a, b, 1.0);
 		fixture.Exit(b, c, 5.0);
 		var bListener = fixture.Listener(b);
@@ -45,9 +45,9 @@ public class StructuredNoisePropagationTests
 	public void Find_CoordinateMode_AccumulatesOneAndFiveOnlyAlongExits()
 	{
 		var fixture = new NoiseGraphFixture();
-		var a = fixture.Cell();
-		var b = fixture.Cell();
-		var c = fixture.Cell();
+		var a = fixture.Room();
+		var b = fixture.Room();
+		var c = fixture.Room();
 		fixture.Exit(a, b, 1.0);
 		fixture.Exit(b, c, 5.0);
 		var bListener = fixture.Listener(b);
@@ -71,10 +71,10 @@ public class StructuredNoisePropagationTests
 	public void Find_CyclesAndCompetingRoutes_DeliverListenerOnceByCheapestRoute()
 	{
 		var fixture = new NoiseGraphFixture();
-		var a = fixture.Cell();
-		var expensive = fixture.Cell();
-		var cheap = fixture.Cell();
-		var destination = fixture.Cell();
+		var a = fixture.Room();
+		var expensive = fixture.Room();
+		var cheap = fixture.Room();
+		var destination = fixture.Room();
 		fixture.Exit(a, expensive, 5.0);
 		fixture.Exit(expensive, destination, 5.0);
 		fixture.Exit(a, cheap, 1.0);
@@ -97,7 +97,7 @@ public class StructuredNoisePropagationTests
 	public void Find_OriginAndLayers_DeliversSameLayerNonSourceOnly()
 	{
 		var fixture = new NoiseGraphFixture();
-		var origin = fixture.Cell();
+		var origin = fixture.Room();
 		var sameLayer = fixture.Listener(origin, RoomLayer.GroundLevel);
 		var otherLayer = fixture.Listener(origin, RoomLayer.InAir);
 
@@ -114,9 +114,9 @@ public class StructuredNoisePropagationTests
 	public void Find_TraversalCeiling_StopsExpansionConservatively()
 	{
 		var fixture = new NoiseGraphFixture(traversalCeiling: 2);
-		var a = fixture.Cell();
-		var b = fixture.Cell();
-		var c = fixture.Cell();
+		var a = fixture.Room();
+		var b = fixture.Room();
+		var c = fixture.Room();
 		fixture.Exit(a, b, 1.0);
 		fixture.Exit(b, c, 1.0);
 		var bListener = fixture.Listener(b);
@@ -132,10 +132,10 @@ public class StructuredNoisePropagationTests
 	}
 
 	[TestMethod]
-	public void Find_RouteCell_UsesExactCoordinateAndLayer()
+	public void Find_RouteRoom_UsesExactCoordinateAndLayer()
 	{
 		var fixture = new NoiseGraphFixture();
-		var route = fixture.Cell(routeLength: 100.0);
+		var route = fixture.Room(routeLength: 100.0);
 		var near = fixture.Listener(route, position: 1.0);
 		var far = fixture.Listener(route, position: 6.0);
 		var otherLayer = fixture.Listener(route, RoomLayer.InAir, 1.0);
@@ -154,9 +154,9 @@ public class StructuredNoisePropagationTests
 	public void Find_ReportsInitialExitDirectionRatherThanTheRouteAggregate()
 	{
 		var fixture = new NoiseGraphFixture();
-		var a = fixture.Cell();
-		var b = fixture.Cell();
-		var c = fixture.Cell();
+		var a = fixture.Room();
+		var b = fixture.Room();
+		var c = fixture.Room();
 		fixture.Exit(a, b, 1.0, CardinalDirection.East, CardinalDirection.West);
 		fixture.Exit(b, c, 1.0, CardinalDirection.North, CardinalDirection.South);
 		var listener = fixture.Listener(c);
@@ -172,11 +172,11 @@ public class StructuredNoisePropagationTests
 	}
 
 	[TestMethod]
-	public void Find_PrioritisesTheListenerRouteCellLongitudinalDirection()
+	public void Find_PrioritisesTheListenerRouteRoomLongitudinalDirection()
 	{
 		var fixture = new NoiseGraphFixture();
-		var origin = fixture.Cell();
-		var route = fixture.Cell(routeLength: 100.0, positiveDirection: "upstream", negativeDirection: "downstream");
+		var origin = fixture.Room();
+		var route = fixture.Room(routeLength: 100.0, positiveDirection: "upstream", negativeDirection: "downstream");
 		var entry = fixture.Exit(origin, route, 1.0, CardinalDirection.North, CardinalDirection.South);
 		fixture.SetArrivalAnchor(entry, route, 0.0);
 		var listener = fixture.Listener(route, position: 10.0);
@@ -194,7 +194,7 @@ public class StructuredNoisePropagationTests
 	public void Find_RejectsUndefinedPropagationModes()
 	{
 		var fixture = new NoiseGraphFixture();
-		var origin = fixture.Cell();
+		var origin = fixture.Room();
 
 		Assert.ThrowsException<ArgumentOutOfRangeException>(() => fixture.Subject.Find(
 			fixture.Location(origin),
@@ -216,8 +216,8 @@ public class StructuredNoisePropagationTests
 	private sealed class NoiseGraphFixture
 	{
 		private readonly Mock<IRouteSpatialService> _spatial = new();
-		private readonly Dictionary<ICell, List<ICellExit>> _exits = new(ReferenceEqualityComparer.Instance);
-		private readonly Dictionary<ICell, List<ICharacter>> _characters = new(ReferenceEqualityComparer.Instance);
+		private readonly Dictionary<IRoom, List<IRoomExit>> _exits = new(ReferenceEqualityComparer.Instance);
+		private readonly Dictionary<IRoom, List<ICharacter>> _characters = new(ReferenceEqualityComparer.Instance);
 		private long _nextCharacterId = 1;
 
 		public NoiseGraphFixture(int traversalCeiling = StructuredNoisePropagation.DefaultTraversalCeiling)
@@ -233,71 +233,71 @@ public class StructuredNoisePropagationTests
 
 		public StructuredNoisePropagation Subject { get; }
 
-		public Mock<ICell> Cell(
+		public Mock<IRoom> Room(
 			double? routeLength = null,
 			string positiveDirection = "positive",
 			string negativeDirection = "negative")
 		{
-			var cell = new Mock<ICell>();
-			var exits = new List<ICellExit>();
+			var room = new Mock<IRoom>();
+			var exits = new List<IRoomExit>();
 			var characters = new List<ICharacter>();
-			_exits[cell.Object] = exits;
-			_characters[cell.Object] = characters;
+			_exits[room.Object] = exits;
+			_characters[room.Object] = characters;
 			if (routeLength.HasValue)
 			{
-				var route = new Mock<IRouteCellDefinition>();
-				route.SetupGet(x => x.Cell).Returns(cell.Object);
+				var route = new Mock<IRouteRoomDefinition>();
+				route.SetupGet(x => x.Room).Returns(room.Object);
 				route.SetupGet(x => x.LengthMetres).Returns(routeLength.Value);
 				route.SetupGet(x => x.MetresPerRoomEquivalent).Returns(1.0);
 				route.SetupGet(x => x.PositiveDirectionName).Returns(positiveDirection);
 				route.SetupGet(x => x.NegativeDirectionName).Returns(negativeDirection);
 				route.SetupGet(x => x.ExitAnchors).Returns(Array.Empty<IRouteExitAnchor>());
-				cell.SetupGet(x => x.RouteDefinition).Returns(route.Object);
+				room.SetupGet(x => x.RouteDefinition).Returns(route.Object);
 			}
 			else
 			{
-				cell.SetupGet(x => x.RouteDefinition).Returns((IRouteCellDefinition?)null);
+				room.SetupGet(x => x.RouteDefinition).Returns((IRouteRoomDefinition?)null);
 			}
-			cell.SetupGet(x => x.Characters).Returns(characters);
-			cell.Setup(x => x.ExitsFor(It.IsAny<IPerceiver?>(), It.IsAny<bool>())).Returns(exits);
-			cell.Setup(x => x.EstimatedDirectDistanceTo(It.IsAny<ICell>())).Returns(1.0);
-			return cell;
+			room.SetupGet(x => x.Characters).Returns(characters);
+			room.Setup(x => x.ExitsFor(It.IsAny<IPerceiver?>(), It.IsAny<bool>())).Returns(exits);
+			room.Setup(x => x.EstimatedDirectDistanceTo(It.IsAny<IRoom>())).Returns(1.0);
+			return room;
 		}
 
-		public Mock<ICellExit> Exit(
-			Mock<ICell> origin,
-			Mock<ICell> destination,
+		public Mock<IRoomExit> Exit(
+			Mock<IRoom> origin,
+			Mock<IRoom> destination,
 			double coordinateCost,
 			CardinalDirection outboundDirection = CardinalDirection.Unknown,
 			CardinalDirection inboundDirection = CardinalDirection.Unknown)
 		{
 			var underlying = new Mock<IExit>();
 			underlying.SetupProperty(x => x.TimeMultiplier, 1.0);
-			var exit = new Mock<ICellExit>();
+			var exit = new Mock<IRoomExit>();
 			exit.SetupGet(x => x.Exit).Returns(underlying.Object);
 			exit.SetupGet(x => x.Origin).Returns(origin.Object);
 			exit.SetupGet(x => x.Destination).Returns(destination.Object);
 			exit.SetupGet(x => x.OutboundDirection).Returns(outboundDirection);
-			var opposite = new Mock<ICellExit>();
+			var opposite = new Mock<IRoomExit>();
 			opposite.SetupGet(x => x.OutboundDirection).Returns(inboundDirection);
 			exit.SetupGet(x => x.Opposite).Returns(opposite.Object);
 			exit.Setup(x => x.WhichLayersExitAppears()).Returns([RoomLayer.GroundLevel]);
 			exit.Setup(x => x.MovementTransition(It.IsAny<IPerceiver>()))
-				.Returns((CellMovementTransition.GroundToGround, RoomLayer.GroundLevel));
+				.Returns((RoomMovementTransition.GroundToGround, RoomLayer.GroundLevel));
 			_exits[origin.Object].Add(exit.Object);
 			origin.Setup(x => x.EstimatedDirectDistanceTo(destination.Object)).Returns(coordinateCost);
 			return exit;
 		}
 
-		public void SetArrivalAnchor(Mock<ICellExit> exit, Mock<ICell> routeCell, double arrivalPosition)
+		public void SetArrivalAnchor(Mock<IRoomExit> exit, Mock<IRoom> routeRoom, double arrivalPosition)
 		{
 			var anchor = new Mock<IRouteExitAnchor>();
 			anchor.SetupGet(x => x.ArrivalPositionMetres).Returns(arrivalPosition);
 			_spatial.Setup(x => x.TryGetExitAnchor(
 					exit.Object,
-					routeCell.Object,
+					routeRoom.Object,
 					out It.Ref<IRouteExitAnchor?>.IsAny))
-				.Returns((ICellExit _, ICell _, out IRouteExitAnchor? resolved) =>
+				.Returns((IRoomExit _, IRoom _, out IRouteExitAnchor? resolved) =>
 				{
 					resolved = anchor.Object;
 					return true;
@@ -305,24 +305,24 @@ public class StructuredNoisePropagationTests
 		}
 
 		public Mock<ICharacter> Listener(
-			Mock<ICell> cell,
+			Mock<IRoom> room,
 			RoomLayer layer = RoomLayer.GroundLevel,
 			double? position = null)
 		{
 			var listener = new Mock<ICharacter>();
 			listener.SetupGet(x => x.Id).Returns(_nextCharacterId++);
-			listener.SetupGet(x => x.Location).Returns(cell.Object);
+			listener.SetupGet(x => x.Location).Returns(room.Object);
 			listener.SetupGet(x => x.RoomLayer).Returns(layer);
 			listener.SetupGet(x => x.RoutePositionMetres).Returns(position);
-			listener.SetupGet(x => x.SpatialLocation).Returns(Location(cell, layer, position));
-			_characters[cell.Object].Add(listener.Object);
-			_spatial.Setup(x => x.GetEffectiveLocation(listener.Object)).Returns(Location(cell, layer, position));
+			listener.SetupGet(x => x.SpatialLocation).Returns(Location(room, layer, position));
+			_characters[room.Object].Add(listener.Object);
+			_spatial.Setup(x => x.GetEffectiveLocation(listener.Object)).Returns(Location(room, layer, position));
 			return listener;
 		}
 
 		public SpatialLocation Location(
-			Mock<ICell> cell,
+			Mock<IRoom> room,
 			RoomLayer layer = RoomLayer.GroundLevel,
-			double? position = null) => new(cell.Object, layer, position);
+			double? position = null) => new(room.Object, layer, position);
 	}
 }

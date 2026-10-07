@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -36,7 +36,7 @@ public class MagicGatheringOperationModelTests
 			nameof(MagicGatheringOperation.Id), nameof(MagicGatheringOperation.OwnerId), nameof(MagicGatheringOperation.ActorId),
 			nameof(MagicGatheringOperation.BodyId), nameof(MagicGatheringOperation.MagicCapabilityId),
 			nameof(MagicGatheringOperation.MethodKey), nameof(MagicGatheringOperation.MethodVersion),
-			nameof(MagicGatheringOperation.CellId), nameof(MagicGatheringOperation.SourceProfileId),
+			"CellId", nameof(MagicGatheringOperation.SourceProfileId),
 			nameof(MagicGatheringOperation.SourceProfileRevision), nameof(MagicGatheringOperation.SourceResourceId),
 			nameof(MagicGatheringOperation.DestinationResourceId), nameof(MagicGatheringOperation.Kind),
 			nameof(MagicGatheringOperation.RequestedAmount), nameof(MagicGatheringOperation.SourceDebit),
@@ -71,7 +71,7 @@ public class MagicGatheringOperationModelTests
 		CollectionAssert.AreEquivalent(new[]
 		{
 			"IX_MagicGatheringOperations_OwnerId_Status",
-			"IX_MagicGatheringOperations_Cell_Source_Status",
+			"IX_MagicGatheringOperations_Room_Source_Status",
 			"IX_MagicGatheringOperations_Capability_Method"
 		}, receipt.GetIndexes().Select(x => x.GetDatabaseName()).ToArray());
 	}
@@ -107,7 +107,7 @@ public class MagicGatheringOperationModelTests
 	}
 
 	[TestMethod]
-	public void LandGatheringParticipants_HaveBoundedCellAndSourceLookupIdentity()
+	public void LandGatheringParticipants_HaveBoundedRoomAndSourceLookupIdentity()
 	{
 		using FuturemudDatabaseContext context = CreateContext();
 		IEntityType participant = context.GetService<IDesignTimeModel>().Model
@@ -115,7 +115,7 @@ public class MagicGatheringOperationModelTests
 		CollectionAssert.AreEqual(new[] { "OperationId", "SourceKey" },
 			participant.FindPrimaryKey()!.Properties.Select(x => x.Name).ToArray());
 		Assert.AreEqual(150, participant.FindProperty("SourceKey")!.GetMaxLength());
-		CollectionAssert.AreEqual(new[] { "CellId", "SourceKey" },
+		CollectionAssert.AreEqual(new[] { "RoomId", "SourceKey" },
 			participant.GetIndexes().Single().Properties.Select(x => x.Name).ToArray());
 	}
 }

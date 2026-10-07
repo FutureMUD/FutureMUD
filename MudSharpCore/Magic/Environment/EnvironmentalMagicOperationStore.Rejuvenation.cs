@@ -13,7 +13,7 @@ public sealed partial class DatabaseEnvironmentalMagicOperationStore
 	{
 		var value = JsonSerializer.Deserialize<LandRejuvenationProgress>(row.Checkpoint)
 			?? throw new InvalidOperationException($"Treatment {row.Id} has no checkpoint.");
-		if (value.Id != row.Id || value.CellId != row.CellId || value.Revision != row.Revision ||
+		if (value.Id != row.Id || value.RoomId != row.RoomId || value.Revision != row.Revision ||
 			value.Status.ToString() != row.Status)
 			throw new InvalidOperationException($"Treatment {row.Id} has inconsistent checkpoint identity.");
 		return value;
@@ -22,7 +22,7 @@ public sealed partial class DatabaseEnvironmentalMagicOperationStore
 	private static void WriteTreatment(LandRejuvenationProgress value, Models.LandRejuvenationTreatment row)
 	{
 		row.Id = value.Id;
-		row.CellId = value.CellId;
+		row.RoomId = value.RoomId;
 		row.Revision = value.Revision;
 		row.Status = value.Status.ToString();
 		row.Checkpoint = JsonSerializer.Serialize(value);
@@ -48,7 +48,7 @@ public sealed partial class DatabaseEnvironmentalMagicOperationStore
 		using var isolated = FMDB.BeginIsolatedScope();
 		using (new FMDB())
 		{
-			return FMDB.Context.LandRejuvenationTreatments.AsNoTracking().Where(x => x.CellId == cellId)
+			return FMDB.Context.LandRejuvenationTreatments.AsNoTracking().Where(x => x.RoomId == cellId)
 				.AsEnumerable().Select(ReadTreatment).ToArray();
 		}
 	}

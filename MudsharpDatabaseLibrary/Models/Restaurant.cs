@@ -13,7 +13,7 @@ public class Restaurant
 {
 	public Restaurant()
 	{
-		Cells = new HashSet<RestaurantCell>();
+		Rooms = new HashSet<RestaurantRoom>();
 		Tables = new HashSet<RestaurantTable>();
 		MenuItems = new HashSet<RestaurantMenuItem>();
 		StorageContainers = new HashSet<RestaurantStorageContainer>();
@@ -38,7 +38,7 @@ public class Restaurant
 	public int? TakeawayBagPrototypeRevisionNumber { get; set; }
 
 	public virtual Shop Shop { get; set; } = null!;
-	public virtual ICollection<RestaurantCell> Cells { get; set; }
+	public virtual ICollection<RestaurantRoom> Rooms { get; set; }
 	public virtual ICollection<RestaurantTable> Tables { get; set; }
 	public virtual ICollection<RestaurantMenuItem> MenuItems { get; set; }
 	public virtual ICollection<RestaurantStorageContainer> StorageContainers { get; set; }
@@ -55,10 +55,10 @@ public class RestaurantStorageContainer
 	public virtual Restaurant Restaurant { get; set; } = null!;
 }
 
-public class RestaurantCell
+public class RestaurantRoom
 {
 	public long RestaurantShopId { get; set; }
-	public long CellId { get; set; }
+	public long RoomId { get; set; }
 	public int Role { get; set; }
 
 	public virtual Restaurant Restaurant { get; set; } = null!;

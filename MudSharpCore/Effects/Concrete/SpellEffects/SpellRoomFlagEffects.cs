@@ -141,21 +141,21 @@ public class SpellRoomAlarmEffect : SimpleSpellStatusEffectBase, IHandleEventsEf
 
 	public bool HandleEvent(EventType type, params dynamic[] arguments)
 	{
-		if (type != EventType.CharacterEnterCellFinish || Owner is not ICell cell)
+		if (type != EventType.CharacterEnterRoomFinish || Owner is not IRoom room)
 		{
 			return false;
 		}
 
 		ICharacter mover = (ICharacter)arguments[0];
-		ICell enteredCell = (ICell)arguments[1];
-		if (!ReferenceEquals(cell, enteredCell))
+		IRoom enteredRoom = (IRoom)arguments[1];
+		if (!ReferenceEquals(room, enteredRoom))
 		{
 			return false;
 		}
 
 		if (!string.IsNullOrWhiteSpace(AlarmEcho))
 		{
-			cell.HandleRoomEcho(new EmoteOutput(new Emote(AlarmEcho, mover, mover)));
+			room.HandleRoomEcho(new EmoteOutput(new Emote(AlarmEcho, mover, mover)));
 		}
 
 		if (AlarmProg is not null)
@@ -163,7 +163,7 @@ public class SpellRoomAlarmEffect : SimpleSpellStatusEffectBase, IHandleEventsEf
 			if (AlarmProg.MatchesParameters(new List<ProgVariableTypes>
 			    { ProgVariableTypes.Character, ProgVariableTypes.Location }))
 			{
-				AlarmProg.Execute(mover, cell);
+				AlarmProg.Execute(mover, room);
 			}
 			else if (AlarmProg.MatchesParameters(new List<ProgVariableTypes> { ProgVariableTypes.Character }))
 			{
@@ -176,7 +176,7 @@ public class SpellRoomAlarmEffect : SimpleSpellStatusEffectBase, IHandleEventsEf
 
 	public bool HandlesEvent(params EventType[] types)
 	{
-		return types.Contains(EventType.CharacterEnterCellFinish);
+		return types.Contains(EventType.CharacterEnterRoomFinish);
 	}
 }
 

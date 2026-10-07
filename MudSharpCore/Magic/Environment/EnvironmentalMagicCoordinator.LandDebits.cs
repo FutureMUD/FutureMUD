@@ -10,37 +10,37 @@ public sealed partial class EnvironmentalMagicCoordinator
 	/// Keeps a Land payment's validated input state together until all of its own source changes finish.
 	/// Ordinary single-source mutations still use their independent current-policy checks.
 	/// </summary>
-	public bool TryApplyLandDebitGroup(ICell cell, IReadOnlyList<EnvironmentalLandAmbientDebit> ambient,
+	public bool TryApplyLandDebitGroup(IRoom room, IReadOnlyList<EnvironmentalLandAmbientDebit> ambient,
 		IReadOnlyList<NativeOrganicDebitPlan> native, out IReadOnlyList<long> appliedAmbient,
 		out IReadOnlyList<NativeOrganicDebitPlan> appliedNative, out string? error)
 	{
-		if (!_ecologicalMutations.Add(cell.Id))
+		if (!_ecologicalMutations.Add(room.Id))
 		{
 			appliedAmbient = [];
 			appliedNative = [];
 			error = "This cell already has an ecological mutation in progress.";
 			return false;
 		}
-		try { return TryApplyLandDebitGroupCore(cell, ambient, native, out appliedAmbient, out appliedNative, out error); }
-		finally { _ecologicalMutations.Remove(cell.Id); }
+		try { return TryApplyLandDebitGroupCore(room, ambient, native, out appliedAmbient, out appliedNative, out error); }
+		finally { _ecologicalMutations.Remove(room.Id); }
 	}
 
-	private bool TryApplyLandDebitGroupCore(ICell cell, IReadOnlyList<EnvironmentalLandAmbientDebit> ambient,
+	private bool TryApplyLandDebitGroupCore(IRoom room, IReadOnlyList<EnvironmentalLandAmbientDebit> ambient,
 		IReadOnlyList<NativeOrganicDebitPlan> native, out IReadOnlyList<long> appliedAmbient,
 		out IReadOnlyList<NativeOrganicDebitPlan> appliedNative, out string? error)
 	{
 		appliedAmbient = [];
 		appliedNative = [];
-		if (_disposed || cell is not Cell concrete || concrete.Id <= 0 ||
+		if (_disposed || room is not Room concrete || concrete.Id <= 0 ||
 		    !ReferenceEquals(concrete.Gameworld, _world) || ambient.Count + native.Count is < 1 or > 16 ||
 		    ambient.Select(x => x.Resource.Id).Distinct().Count() != ambient.Count ||
 		    native.Select(x => x.Selector).Distinct(StringComparer.Ordinal).Count() != native.Count ||
-		    _evaluating.Contains(cell.Id) || concrete.PendingEnvironmentalOperationId is not null)
+		    _evaluating.Contains(room.Id) || concrete.PendingEnvironmentalOperationId is not null)
 		{
 			error = "A bounded, distinct, currently available Land source group is required.";
 			return false;
 		}
-		var profileView = InspectOrganicProfile(cell);
+		var profileView = InspectOrganicProfile(room);
 		if (!profileView.ProfileId.HasValue || !profileView.HasOrganicConfiguration ||
 		    profileView.HasPendingOperation || profileView.Errors.Count > 0)
 		{
@@ -51,7 +51,7 @@ public sealed partial class EnvironmentalMagicCoordinator
 		foreach (EnvironmentalLandAmbientDebit debit in ambient)
 		{
 			if (debit.Resource is null || !double.IsFinite(debit.Amount) || debit.Amount <= 0.0 ||
-			    !TryInspectLandResource(cell, debit.Resource, out EnvironmentalResourceSnapshot output) ||
+			    !TryInspectLandResource(room, debit.Resource, out EnvironmentalResourceSnapshot output) ||
 			    !output.IsValid || !double.IsFinite(output.Balance) || !double.IsFinite(output.Maximum) ||
 			    debit.Amount > Math.Min(output.Balance, output.Maximum))
 			{
@@ -62,7 +62,7 @@ public sealed partial class EnvironmentalMagicCoordinator
 		}
 		foreach (NativeOrganicDebitPlan entry in native)
 		{
-			if (!TryPlanOrganicDebit(cell, entry.Selector, (double)entry.RequestedAmount,
+			if (!TryPlanOrganicDebit(room, entry.Selector, (double)entry.RequestedAmount,
 			    out NativeOrganicDebitPlan current, out error) || current != entry)
 			{
 				error ??= "A native source changed before the complete Land group could be validated.";
@@ -75,8 +75,8 @@ public sealed partial class EnvironmentalMagicCoordinator
 			error = "The Land profile changed during group validation.";
 			return false;
 		}
-		Register(cell);
-		Registration registration = _registered[cell.Id];
+		Register(room);
+		Registration registration = _registered[room.Id];
 		double now = Now;
 		AdvancePlan settlement = ProjectSettlement(registration, now);
 		var paidAmbient = new List<long>(ambient.Count);
@@ -104,7 +104,7 @@ public sealed partial class EnvironmentalMagicCoordinator
 				if (concrete.SetEnvironmentalResource(debit.Resource, balance - debit.Amount, true)) CountWrite();
 				paidAmbient.Add(debit.Resource.Id);
 			}
-			if (native.Count > 0 && !ApplyOrganicDebitBatch(cell, native, false, out appliedNative, out error))
+			if (native.Count > 0 && !ApplyOrganicDebitBatch(room, native, false, out appliedNative, out error))
 			{
 				return false;
 			}

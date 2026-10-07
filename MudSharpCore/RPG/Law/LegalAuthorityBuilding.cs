@@ -97,7 +97,7 @@ public partial class LegalAuthority
             case "prisoncell":
             case "holding":
             case "holdingcell":
-                return BuildingCommandCellLocation(actor, command);
+                return BuildingCommandRoomLocation(actor, command);
             case "know":
                 return BuildingCommandPlayersKnowCrimes(actor, command);
             case "imprisonedprog":
@@ -411,7 +411,7 @@ public partial class LegalAuthority
             return false;
         }
 
-        ICell location;
+        IRoom location;
         if (command.PeekSpeech().EqualTo("here"))
         {
             location = actor.Location;
@@ -425,7 +425,7 @@ public partial class LegalAuthority
                 return false;
             }
 
-            location = Gameworld.Cells.Get(value);
+            location = Gameworld.Rooms.Get(value);
             if (location == null)
             {
                 actor.OutputHandler.Send("There is no such location.");
@@ -475,7 +475,7 @@ public partial class LegalAuthority
             return false;
         }
 
-        ICell location = Gameworld.Cells.Get(value);
+        IRoom location = Gameworld.Rooms.Get(value);
         if (location == null)
         {
             actor.OutputHandler.Send("There is no such location.");
@@ -514,7 +514,7 @@ public partial class LegalAuthority
             return false;
         }
 
-        ICell location = Gameworld.Cells.Get(value);
+        IRoom location = Gameworld.Rooms.Get(value);
         if (location == null)
         {
             actor.OutputHandler.Send("There is no such location.");
@@ -1189,7 +1189,7 @@ public partial class LegalAuthority
             return false;
         }
 
-        ICell location = Gameworld.Cells.Get(value);
+        IRoom location = Gameworld.Rooms.Get(value);
         if (location == null)
         {
             actor.OutputHandler.Send("There is no such location.");
@@ -1228,7 +1228,7 @@ public partial class LegalAuthority
             return false;
         }
 
-        ICell location = Gameworld.Cells.Get(value);
+        IRoom location = Gameworld.Rooms.Get(value);
         if (location == null)
         {
             actor.OutputHandler.Send("There is no such location.");
@@ -1267,7 +1267,7 @@ public partial class LegalAuthority
             return false;
         }
 
-        ICell location = Gameworld.Cells.Get(value);
+        IRoom location = Gameworld.Rooms.Get(value);
         if (location == null)
         {
             actor.OutputHandler.Send("There is no such location.");
@@ -1306,7 +1306,7 @@ public partial class LegalAuthority
             return false;
         }
 
-        ICell location = Gameworld.Cells.Get(value);
+        IRoom location = Gameworld.Rooms.Get(value);
         if (location == null)
         {
             actor.OutputHandler.Send("There is no such location.");
@@ -1345,7 +1345,7 @@ public partial class LegalAuthority
             return false;
         }
 
-        ICell location = Gameworld.Cells.Get(value);
+        IRoom location = Gameworld.Rooms.Get(value);
         if (location == null)
         {
             actor.OutputHandler.Send("There is no such location.");
@@ -1384,7 +1384,7 @@ public partial class LegalAuthority
             return false;
         }
 
-        ICell location = Gameworld.Cells.Get(value);
+        IRoom location = Gameworld.Rooms.Get(value);
         if (location == null)
         {
             actor.OutputHandler.Send("There is no such location.");
@@ -1398,7 +1398,7 @@ public partial class LegalAuthority
         return true;
     }
 
-    private bool BuildingCommandCellLocation(ICharacter actor, StringStack command)
+    private bool BuildingCommandRoomLocation(ICharacter actor, StringStack command)
     {
         if (command.IsFinished)
         {
@@ -1407,7 +1407,7 @@ public partial class LegalAuthority
             return false;
         }
 
-        ICell location;
+        IRoom location;
         if (command.PeekSpeech().EqualTo("here"))
         {
             location = actor.Location;
@@ -1421,7 +1421,7 @@ public partial class LegalAuthority
                 return false;
             }
 
-            location = Gameworld.Cells.Get(value);
+            location = Gameworld.Rooms.Get(value);
             if (location == null)
             {
                 actor.OutputHandler.Send("There is no such location.");
@@ -1429,7 +1429,7 @@ public partial class LegalAuthority
             }
         }
 
-        if (CellLocations.Contains(location))
+        if (RoomLocations.Contains(location))
         {
             _cellLocations.Remove(location);
             actor.OutputHandler.Send(
@@ -1554,16 +1554,16 @@ public partial class LegalAuthority
         sb.AppendLine($"Jail Entry: {JailLocation?.GetFriendlyReference(actor) ?? "None".Colour(Telnet.Red)}");
         sb.AppendLine();
         sb.AppendLine($"Holding Cells:");
-        foreach (ICell cell in _cellLocations)
+        foreach (IRoom room in _cellLocations)
         {
-            sb.AppendLine($"\t{cell.GetFriendlyReference(actor)}");
+            sb.AppendLine($"\t{room.GetFriendlyReference(actor)}");
         }
 
         sb.AppendLine();
         sb.AppendLine($"Jail Locations:");
-        foreach (ICell cell in _jailLocations)
+        foreach (IRoom room in _jailLocations)
         {
-            sb.AppendLine($"\t{cell.GetFriendlyReference(actor)}");
+            sb.AppendLine($"\t{room.GetFriendlyReference(actor)}");
         }
 
         return sb.ToString();

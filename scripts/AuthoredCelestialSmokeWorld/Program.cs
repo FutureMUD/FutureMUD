@@ -98,7 +98,7 @@ using (var db = factory())
 	var receipt = new { profile = Property(profile, "Id"), firstRun = "PASS", completed = Property(first, "CompletedSeeders"),
 		secondRun = "REFUSED_WITHOUT_MUTATION", digestBefore = before, digestAfter = after,
 		celestials = db.Celestials.Select(x => new { x.Id, x.CelestialType }).ToArray(),
-		accounts = db.Accounts.Count(), characters = db.Characters.Count(), cells = db.Cells.Count() };
+		accounts = db.Accounts.Count(), characters = db.Characters.Count(), rooms = db.Rooms.Count() };
 	File.WriteAllText(receiptPath, JsonSerializer.Serialize(receipt, new JsonSerializerOptions { WriteIndented = true }));
 }
 Console.WriteLine("PASS: complete native replay and unchanged nonblank refusal.");

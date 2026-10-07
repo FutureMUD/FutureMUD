@@ -56,7 +56,7 @@ internal sealed class SpatialPerceivableReachability
 			throw new ArgumentOutOfRangeException(nameof(maximumRoomEquivalentCost));
 		}
 
-		var pathfinder = _pathfinder ?? origin.Cell.Gameworld.ExitManager.SpatialPathfinder;
+		var pathfinder = _pathfinder ?? origin.Room.Gameworld.ExitManager.SpatialPathfinder;
 		var candidateSet = new HashSet<IPerceivable>(ReferenceEqualityComparer.Instance);
 		var costs = new Dictionary<TraversalState, double>(TraversalStateComparer.Instance)
 		{
@@ -109,7 +109,7 @@ internal sealed class SpatialPerceivableReachability
 			}
 
 			var pathDestination = ignoreLayers
-				? new SpatialLocation(actualLocation.Cell, origin.Layer, actualLocation.RoutePositionMetres)
+				? new SpatialLocation(actualLocation.Room, origin.Layer, actualLocation.RoutePositionMetres)
 				: actualLocation;
 			if (!pathfinder.TryFindPath(
 					origin,
@@ -142,9 +142,9 @@ internal sealed class SpatialPerceivableReachability
 		ISet<IPerceivable> candidates)
 	{
 		var remainingCost = Math.Max(0.0, maximumCost - stateCost);
-		if (state.Cell.RouteDefinition is not { } route)
+		if (state.Room.RouteDefinition is not { } route)
 		{
-			foreach (var perceivable in state.Cell.Perceivables
+			foreach (var perceivable in state.Room.Perceivables
 				.Where(x => ignoreLayers || x.RoomLayer == state.Layer)
 				.Where(x => predicate?.Invoke(x) != false))
 			{
@@ -167,13 +167,13 @@ internal sealed class SpatialPerceivableReachability
 
 	private IEnumerable<TraversalEdge> Expand(TraversalState state, bool ignoreLayers)
 	{
-		if (state.Cell.RouteDefinition is not { } route)
+		if (state.Room.RouteDefinition is not { } route)
 		{
-			foreach (var exit in state.Cell.ExitsFor(null, true) ?? Array.Empty<ICellExit>())
+			foreach (var exit in state.Room.ExitsFor(null, true) ?? Array.Empty<IRoomExit>())
 			{
 				if (!TryResolveDestination(
 						exit,
-						state.Cell,
+						state.Room,
 						state.Layer,
 						ignoreLayers,
 						out var destination))
@@ -196,11 +196,11 @@ internal sealed class SpatialPerceivableReachability
 		{
 			var exit = anchor.Exit;
 			if (exit?.Destination is null ||
-				!ReferenceEquals(anchor.Cell, state.Cell) ||
+				!ReferenceEquals(anchor.Room, state.Room) ||
 				!IsValidAnchor(anchor, route.LengthMetres) ||
 				!TryResolveDestination(
 					exit,
-					state.Cell,
+					state.Room,
 					state.Layer,
 					ignoreLayers,
 					out var destination))
@@ -219,13 +219,13 @@ internal sealed class SpatialPerceivableReachability
 	}
 
 	private bool TryResolveDestination(
-		ICellExit exit,
-		ICell originCell,
+		IRoomExit exit,
+		IRoom originRoom,
 		RoomLayer layer,
 		bool ignoreLayers,
 		out TraversalState destination)
 	{
-		if (exit.Destination is not { } destinationCell)
+		if (exit.Destination is not { } destinationRoom)
 		{
 			destination = default;
 			return false;
@@ -247,35 +247,35 @@ internal sealed class SpatialPerceivableReachability
 			transitionLayer = appearingLayers[0];
 		}
 
-		var transitionPerceiver = new DummyPerceiver(location: originCell)
+		var transitionPerceiver = new DummyPerceiver(location: originRoom)
 		{
 			RoomLayer = transitionLayer
 		};
 		var transition = exit.MovementTransition(transitionPerceiver);
-		if (transition.TransitionType == CellMovementTransition.NoViableTransition)
+		if (transition.TransitionType == RoomMovementTransition.NoViableTransition)
 		{
 			destination = default;
 			return false;
 		}
 
-		if (destinationCell.RouteDefinition is null)
+		if (destinationRoom.RouteDefinition is null)
 		{
-			destination = new TraversalState(destinationCell, transition.TargetLayer, null);
+			destination = new TraversalState(destinationRoom, transition.TargetLayer, null);
 			return true;
 		}
 
-		if (!_spatialService.TryGetExitAnchor(exit, destinationCell, out var anchor) ||
+		if (!_spatialService.TryGetExitAnchor(exit, destinationRoom, out var anchor) ||
 			anchor is null ||
 			!double.IsFinite(anchor.ArrivalPositionMetres) ||
 			anchor.ArrivalPositionMetres < 0.0 ||
-			anchor.ArrivalPositionMetres > destinationCell.RouteDefinition.LengthMetres)
+			anchor.ArrivalPositionMetres > destinationRoom.RouteDefinition.LengthMetres)
 		{
 			destination = default;
 			return false;
 		}
 
 		destination = new TraversalState(
-			destinationCell,
+			destinationRoom,
 			transition.TargetLayer,
 			anchor.ArrivalPositionMetres);
 		return true;
@@ -294,7 +294,7 @@ internal sealed class SpatialPerceivableReachability
 		       anchor.ArrivalPositionMetres <= routeLengthMetres;
 	}
 
-	private static double GetExitCost(ICellExit exit)
+	private static double GetExitCost(IRoomExit exit)
 	{
 		var multiplier = exit.Exit?.TimeMultiplier ?? 1.0;
 		return double.IsFinite(multiplier) && multiplier > 0.0
@@ -305,18 +305,18 @@ internal sealed class SpatialPerceivableReachability
 	private readonly record struct TraversalEdge(TraversalState Destination, double Cost);
 
 	private readonly record struct TraversalState(
-		ICell Cell,
+		IRoom Room,
 		RoomLayer Layer,
 		double? CoordinateMetres)
 	{
 		public static TraversalState From(SpatialLocation location)
 		{
-			return new TraversalState(location.Cell, location.Layer, location.RoutePositionMetres);
+			return new TraversalState(location.Room, location.Layer, location.RoutePositionMetres);
 		}
 
 		public SpatialLocation ToSpatialLocation()
 		{
-			return new SpatialLocation(Cell, Layer, CoordinateMetres);
+			return new SpatialLocation(Room, Layer, CoordinateMetres);
 		}
 	}
 
@@ -326,7 +326,7 @@ internal sealed class SpatialPerceivableReachability
 
 		public bool Equals(TraversalState x, TraversalState y)
 		{
-			return ReferenceEquals(x.Cell, y.Cell) &&
+			return ReferenceEquals(x.Room, y.Room) &&
 			       x.Layer == y.Layer &&
 			       Nullable.Equals(x.CoordinateMetres, y.CoordinateMetres);
 		}
@@ -334,7 +334,7 @@ internal sealed class SpatialPerceivableReachability
 		public int GetHashCode(TraversalState obj)
 		{
 			return HashCode.Combine(
-				RuntimeHelpers.GetHashCode(obj.Cell),
+				RuntimeHelpers.GetHashCode(obj.Room),
 				(int)obj.Layer,
 				obj.CoordinateMetres);
 		}

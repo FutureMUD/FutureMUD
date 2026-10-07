@@ -1,5 +1,7 @@
 # Room Building Builder Guide
 
+The canonical administrative building command is now `room`; `cell` remains an alias with identical permissions and dispatch. The live internal and database concept is Room, retaining the former Cell ID. Legacy containing Rooms are removed rather than renamed into playable locations. Examples using `cell` below remain valid aliases during documentation transition. Optional unique names remain room-wide, case-insensitively unique, and independent of overlays; numeric IDs and FutureProg Location values retain their established meaning.
+
 Gameplay commands that target exits use the shared `ICell.GetExitKeyword` resolver, including door and lock manipulation, door smashing/destruction, directional socials, tollkeeper mode, and exit-targeted spell casting. Cardinal aliases resolve exactly (`n`/`north`, `ne`/`northeast`/`north-east`, `nw`/`northwest`/`north-west`), independently of exit ordering. Non-cardinal exits retain their configured keyword matching. Forced movement also uses exit-specific keyword matching when considering exits across layers. Builder exit editing retains its separate exact-direction, exit-ID, and exact named-keyword lookup. These lookup changes require no database migration or world-data repair.
 
 This guide explains the FutureMUD room-building model for engine users, world builders, and AI agents helping them. It focuses on the builder-facing workflow and command surface rather than the internal persistence model.

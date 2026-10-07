@@ -260,7 +260,7 @@ public class MagicSpellResolutionTests
 			World.Setup(x => x.GetCheck(CheckType.ResistMagicSpellCheck)).Returns(ResistanceCheck.Object);
 
 			Caster.SetupGet(x => x.Gameworld).Returns(World.Object);
-			Caster.SetupGet(x => x.Location).Returns((ICell)null!);
+			Caster.SetupGet(x => x.Location).Returns((IRoom)null!);
 			Caster.SetupGet(x => x.OutputHandler).Returns(new Mock<IOutputHandler>().Object);
 			Caster.Setup(x => x.CombinedEffectsOfType<MagicSpellLockout>()).Returns([]);
 			Caster.Setup(x => x.EffectsOfType<IMagicInterdictionEffect>(It.IsAny<Predicate<IMagicInterdictionEffect>>()))
@@ -312,7 +312,7 @@ public class MagicSpellResolutionTests
 		public Mock<ICharacter> CreateTarget()
 		{
 			var target = new Mock<ICharacter> { DefaultValue = DefaultValue.Mock };
-			target.SetupGet(x => x.Location).Returns((ICell)null!);
+			target.SetupGet(x => x.Location).Returns((IRoom)null!);
 			target.SetupGet(x => x.OutputHandler).Returns(new Mock<IOutputHandler>().Object);
 			target.Setup(x => x.EffectsOfType<IMagicInterdictionEffect>(It.IsAny<Predicate<IMagicInterdictionEffect>>()))
 				.Returns([]);

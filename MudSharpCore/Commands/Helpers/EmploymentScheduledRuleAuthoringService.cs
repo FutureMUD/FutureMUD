@@ -2420,7 +2420,7 @@ internal sealed class EmploymentScheduledRuleAuthoringService
 		return string.IsNullOrWhiteSpace(key) ? Guid.NewGuid().ToString("N") : key;
 	}
 
-	private static bool TryResolveLocation(ICharacter actor, string token, out ICell location, out string message)
+	private static bool TryResolveLocation(ICharacter actor, string token, out IRoom location, out string message)
 	{
 		location = null!;
 		if (token.EqualTo("here") || token.EqualTo("current"))
@@ -2431,8 +2431,8 @@ internal sealed class EmploymentScheduledRuleAuthoringService
 		}
 
 		var resolved = long.TryParse(token, out var id)
-			? actor.Gameworld?.Cells.Get(id)
-			: actor.Gameworld?.Cells.GetByIdOrUniqueNameOrName(token);
+			? actor.Gameworld?.Rooms.Get(id)
+			: actor.Gameworld?.Rooms.GetByIdOrUniqueNameOrName(token);
 		if (resolved is not null)
 		{
 			location = resolved;

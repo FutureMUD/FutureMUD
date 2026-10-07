@@ -764,7 +764,7 @@ return true",
             (ProgVariableTypes.Character, "criminal"),
             (ProgVariableTypes.Crime, "crime"));
 
-        FutureProg throwInCellProg = EnsureAiProg(
+        FutureProg throwInRoomProg = EnsureAiProg(
             $"ThrowInCellEcho{AuthorityName.CollapseString()}",
             "A prog that is executed when the enforcer or judge throws someone in a cell",
             ProgVariableTypes.Text,
@@ -813,7 +813,7 @@ return true",
   <WarnEchoProg>{warnEchoProg.Id}</WarnEchoProg>
   <WarnStartMoveEchoProg>{warnMoveProg.Id}</WarnStartMoveEchoProg>
   <FailToComplyEchoProg>{failToComplyProg.Id}</FailToComplyEchoProg>
-  <ThrowInPrisonEchoProg>{throwInCellProg.Id}</ThrowInPrisonEchoProg>
+  <ThrowInPrisonEchoProg>{throwInRoomProg.Id}</ThrowInPrisonEchoProg>
 </Definition>");
 
         EnsureArtificialIntelligence(
@@ -824,7 +824,7 @@ return true",
   <WarnEchoProg>{warnEchoProg.Id}</WarnEchoProg>
   <WarnStartMoveEchoProg>{warnMoveProg.Id}</WarnStartMoveEchoProg>
   <FailToComplyEchoProg>{failToComplyProg.Id}</FailToComplyEchoProg>
-  <ThrowInPrisonEchoProg>{throwInCellProg.Id}</ThrowInPrisonEchoProg>
+  <ThrowInPrisonEchoProg>{throwInRoomProg.Id}</ThrowInPrisonEchoProg>
   <IntroductionDelay>15</IntroductionDelay>
   <ChargesDelay>15</ChargesDelay>
   <PleaDelay>30</PleaDelay>

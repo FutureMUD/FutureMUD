@@ -18,13 +18,13 @@ public class HospitalServiceRequest : SaveableItem, IHospitalServiceRequest
 	private decimal _debtCharged;
 	private Guid? _employmentTaskId;
 	private long? _assignedEmployeeId;
-	private long? _operatingTheatreCellId;
+	private long? _operatingTheatreRoomId;
 	private bool _usedInPlaceFallback;
 	private bool _supplyPrepared;
 	private long? _preparedByEmployeeId;
 	private DateTimeOffset? _preparedAt;
-	private long? _recoveryRoomCellId;
-	private long? _returnCellId;
+	private long? _recoveryRoomRoomId;
+	private long? _returnRoomId;
 	private DateTimeOffset _lastUpdatedAt;
 	private DateTimeOffset? _completedAt;
 	private string _operationalNotes;
@@ -47,7 +47,7 @@ public class HospitalServiceRequest : SaveableItem, IHospitalServiceRequest
 		Price = service.Price;
 		_amountPaid = 0.0M;
 		_debtCharged = 0.0M;
-		_returnCellId = patient.Location?.Id;
+		_returnRoomId = patient.Location?.Id;
 		CreatedAt = DateTimeOffset.UtcNow;
 		_lastUpdatedAt = CreatedAt;
 		_operationalNotes = string.Empty;
@@ -70,7 +70,7 @@ public class HospitalServiceRequest : SaveableItem, IHospitalServiceRequest
 				DebtCharged = 0.0M,
 				UsedInPlaceFallback = false,
 				SupplyPrepared = false,
-				ReturnCellId = _returnCellId,
+				ReturnRoomId = _returnRoomId,
 				CreatedAtUtc = CreatedAt.UtcDateTime,
 				LastUpdatedAtUtc = LastUpdatedAt.UtcDateTime,
 				OperationalNotes = string.Empty,
@@ -99,15 +99,15 @@ public class HospitalServiceRequest : SaveableItem, IHospitalServiceRequest
 		_debtCharged = request.DebtCharged;
 		_employmentTaskId = Guid.TryParse(request.EmploymentTaskId, out var parsedTaskId) ? parsedTaskId : null;
 		_assignedEmployeeId = request.AssignedEmployeeId;
-		_operatingTheatreCellId = request.OperatingTheatreCellId;
+		_operatingTheatreRoomId = request.OperatingTheatreRoomId;
 		_usedInPlaceFallback = request.UsedInPlaceFallback;
 		_supplyPrepared = request.SupplyPrepared;
 		_preparedByEmployeeId = request.PreparedByEmployeeId;
 		_preparedAt = request.PreparedAtUtc.HasValue
 			? new DateTimeOffset(DateTime.SpecifyKind(request.PreparedAtUtc.Value, DateTimeKind.Utc))
 			: null;
-		_recoveryRoomCellId = request.RecoveryRoomCellId;
-		_returnCellId = request.ReturnCellId;
+		_recoveryRoomRoomId = request.RecoveryRoomId;
+		_returnRoomId = request.ReturnRoomId;
 		CreatedAt = new DateTimeOffset(DateTime.SpecifyKind(request.CreatedAtUtc, DateTimeKind.Utc));
 		_lastUpdatedAt = new DateTimeOffset(DateTime.SpecifyKind(request.LastUpdatedAtUtc, DateTimeKind.Utc));
 		_completedAt = request.CompletedAtUtc.HasValue
@@ -150,12 +150,12 @@ public class HospitalServiceRequest : SaveableItem, IHospitalServiceRequest
 		}
 	}
 
-	public long? OperatingTheatreCellId
+	public long? OperatingTheatreRoomId
 	{
-		get => _operatingTheatreCellId;
+		get => _operatingTheatreRoomId;
 		set
 		{
-			_operatingTheatreCellId = value;
+			_operatingTheatreRoomId = value;
 			Touch();
 		}
 	}
@@ -200,22 +200,22 @@ public class HospitalServiceRequest : SaveableItem, IHospitalServiceRequest
 		}
 	}
 
-	public long? RecoveryRoomCellId
+	public long? RecoveryRoomId
 	{
-		get => _recoveryRoomCellId;
+		get => _recoveryRoomRoomId;
 		set
 		{
-			_recoveryRoomCellId = value;
+			_recoveryRoomRoomId = value;
 			Touch();
 		}
 	}
 
-	public long? ReturnCellId
+	public long? ReturnRoomId
 	{
-		get => _returnCellId;
+		get => _returnRoomId;
 		set
 		{
-			_returnCellId = value;
+			_returnRoomId = value;
 			Touch();
 		}
 	}
@@ -302,13 +302,13 @@ public class HospitalServiceRequest : SaveableItem, IHospitalServiceRequest
 		dbitem.DebtCharged = DebtCharged;
 		dbitem.EmploymentTaskId = EmploymentTaskId?.ToString("D");
 		dbitem.AssignedEmployeeId = AssignedEmployeeId;
-		dbitem.OperatingTheatreCellId = OperatingTheatreCellId;
+		dbitem.OperatingTheatreRoomId = OperatingTheatreRoomId;
 		dbitem.UsedInPlaceFallback = UsedInPlaceFallback;
 		dbitem.SupplyPrepared = SupplyPrepared;
 		dbitem.PreparedByEmployeeId = PreparedByEmployeeId;
 		dbitem.PreparedAtUtc = PreparedAt?.UtcDateTime;
-		dbitem.RecoveryRoomCellId = RecoveryRoomCellId;
-		dbitem.ReturnCellId = ReturnCellId;
+		dbitem.RecoveryRoomId = RecoveryRoomId;
+		dbitem.ReturnRoomId = ReturnRoomId;
 		dbitem.LastUpdatedAtUtc = LastUpdatedAt.UtcDateTime;
 		dbitem.CompletedAtUtc = CompletedAt?.UtcDateTime;
 		dbitem.OperationalNotes = OperationalNotes;
@@ -329,10 +329,10 @@ public class HospitalServiceRequest : SaveableItem, IHospitalServiceRequest
 		sb.AppendLine($"Paid: {Hospital.Currency.Describe(AmountPaid, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
 		sb.AppendLine($"Debt Charged: {Hospital.Currency.Describe(DebtCharged, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
 		sb.AppendLine($"Task: {(EmploymentTaskId?.ToString("D").ColourValue() ?? "None".ColourError())}");
-		sb.AppendLine($"Theatre: {(OperatingTheatreCellId?.ToString("N0", actor).ColourValue() ?? (UsedInPlaceFallback ? "in-place fallback".ColourCommand() : "None".ColourError()))}");
+		sb.AppendLine($"Theatre: {(OperatingTheatreRoomId?.ToString("N0", actor).ColourValue() ?? (UsedInPlaceFallback ? "in-place fallback".ColourCommand() : "None".ColourError()))}");
 		sb.AppendLine($"Supplies: {(SupplyPrepared ? $"prepared by #{PreparedByEmployeeId?.ToString("N0", actor) ?? "?"} at {PreparedAt?.ToString("g", actor) ?? "?"}".ColourValue() : "Not prepared".ColourError())}");
-		sb.AppendLine($"Recovery Room: {(RecoveryRoomCellId?.ToString("N0", actor).ColourValue() ?? "None".ColourError())}");
-		sb.AppendLine($"Return/Lobby Cell: {(ReturnCellId?.ToString("N0", actor).ColourValue() ?? "None".ColourError())}");
+		sb.AppendLine($"Recovery Room: {(RecoveryRoomId?.ToString("N0", actor).ColourValue() ?? "None".ColourError())}");
+		sb.AppendLine($"Return/Lobby Cell: {(ReturnRoomId?.ToString("N0", actor).ColourValue() ?? "None".ColourError())}");
 		sb.AppendLine($"Procedure Parameters: {(string.IsNullOrWhiteSpace(ProcedureParameters) ? "None".ColourError() : ProcedureParameters.ColourCommand())}");
 		sb.AppendLine($"Created: {CreatedAt.ToString("g", actor).ColourValue()}");
 		sb.AppendLine($"Updated: {LastUpdatedAt.ToString("g", actor).ColourValue()}");

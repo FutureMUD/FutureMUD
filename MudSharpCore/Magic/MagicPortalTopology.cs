@@ -359,13 +359,13 @@ public class MagicPortalNetwork : SaveableItem, IMagicPortalNetwork
 
 		var targetText = command.PopSpeech();
 		var name = command.IsFinished ? key.TitleCase() : command.SafeRemainingArgument.TitleCase();
-		ICell? cell = null;
+		IRoom? room = null;
 		IGameItem? item = null;
-		var endpointType = typeText.EqualToAny("room", "cell") ? MagicPortalEndpointType.Cell : MagicPortalEndpointType.Item;
-		if (endpointType == MagicPortalEndpointType.Cell)
+		var endpointType = typeText.EqualToAny("room", "cell") ? MagicPortalEndpointType.Room : MagicPortalEndpointType.Item;
+		if (endpointType == MagicPortalEndpointType.Room)
 		{
-			cell = targetText.EqualTo("here") ? actor.Location : long.TryParse(targetText, out var id) ? Gameworld.Cells.Get(id) : null;
-			if (cell is null)
+			room = targetText.EqualTo("here") ? actor.Location : long.TryParse(targetText, out var id) ? Gameworld.Rooms.Get(id) : null;
+			if (room is null)
 			{
 				actor.OutputHandler.Send("There is no such cell.");
 				return false;
@@ -388,7 +388,7 @@ public class MagicPortalNetwork : SaveableItem, IMagicPortalNetwork
 		}
 
 		var endpoint = new MagicPortalTopologyService().CreateOrUpdateEndpoint(actor, this, key, name, endpointType,
-			cell, item, true, null, out var reason);
+			room, item, true, null, out var reason);
 		if (endpoint is null)
 		{
 			actor.OutputHandler.Send(reason.ColourError());
@@ -613,12 +613,12 @@ public class MagicPortalNetwork : SaveableItem, IMagicPortalNetwork
 	{
 		return endpoint.EndpointType switch
 		{
-			MagicPortalEndpointType.Cell => endpoint.CurrentCell is null
-				? $"missing cell #{endpoint.CellId?.ToString("N0", voyeur) ?? "0"}".ColourError()
-				: $"room #{endpoint.CurrentCell.Id.ToString("N0", voyeur)} {endpoint.CurrentCell.Name.ColourName()}",
-			MagicPortalEndpointType.Item => endpoint.CurrentCell is null
+			MagicPortalEndpointType.Room => endpoint.CurrentRoom is null
+				? $"missing cell #{endpoint.RoomId?.ToString("N0", voyeur) ?? "0"}".ColourError()
+				: $"room #{endpoint.CurrentRoom.Id.ToString("N0", voyeur)} {endpoint.CurrentRoom.Name.ColourName()}",
+			MagicPortalEndpointType.Item => endpoint.CurrentRoom is null
 				? $"item #{endpoint.GameItemId?.ToString("N0", voyeur) ?? "0"} not directly placed".ColourError()
-				: $"item #{endpoint.GameItemId?.ToString("N0", voyeur) ?? "0"} in room #{endpoint.CurrentCell.Id.ToString("N0", voyeur)} {endpoint.CurrentCell.Name.ColourName()}",
+				: $"item #{endpoint.GameItemId?.ToString("N0", voyeur) ?? "0"} in room #{endpoint.CurrentRoom.Id.ToString("N0", voyeur)} {endpoint.CurrentRoom.Name.ColourName()}",
 			_ => "unknown".ColourError()
 		};
 	}
@@ -685,7 +685,7 @@ public class MagicPortalEndpoint : FrameworkItem, IMagicPortalEndpoint
 		_name = dbitem.Name;
 		Key = dbitem.Key;
 		EndpointType = (MagicPortalEndpointType)dbitem.AnchorType;
-		CellId = dbitem.CellId;
+		RoomId = dbitem.RoomId;
 		GameItemId = dbitem.GameItemId;
 		IsActive = dbitem.IsActive;
 	}
@@ -698,7 +698,7 @@ public class MagicPortalEndpoint : FrameworkItem, IMagicPortalEndpoint
 		_name = name;
 		Key = key;
 		EndpointType = endpointType;
-		CellId = cellId;
+		RoomId = cellId;
 		GameItemId = gameItemId;
 		IsActive = true;
 	}
@@ -708,11 +708,11 @@ public class MagicPortalEndpoint : FrameworkItem, IMagicPortalEndpoint
 	public IMagicPortalNetwork Network => _network;
 	public string Key { get; private set; }
 	public MagicPortalEndpointType EndpointType { get; private set; }
-	public long? CellId { get; private set; }
+	public long? RoomId { get; private set; }
 	public long? GameItemId { get; private set; }
 	public bool IsActive { get; private set; }
 
-	public ICell? CurrentCell
+	public IRoom? CurrentRoom
 	{
 		get
 		{
@@ -723,8 +723,8 @@ public class MagicPortalEndpoint : FrameworkItem, IMagicPortalEndpoint
 
 			return EndpointType switch
 			{
-				MagicPortalEndpointType.Cell => CellId.HasValue ? Gameworld.Cells.Get(CellId.Value) : null,
-				MagicPortalEndpointType.Item => GameItemId.HasValue ? DirectCellForItem(Gameworld.TryGetItem(GameItemId.Value, true)) : null,
+				MagicPortalEndpointType.Room => RoomId.HasValue ? Gameworld.Rooms.Get(RoomId.Value) : null,
+				MagicPortalEndpointType.Item => GameItemId.HasValue ? DirectRoomForItem(Gameworld.TryGetItem(GameItemId.Value, true)) : null,
 				_ => null
 			};
 		}
@@ -752,32 +752,32 @@ public class MagicPortalEndpoint : FrameworkItem, IMagicPortalEndpoint
 					return "the target item is missing";
 				}
 
-				return DirectCellForItem(item) is null ? "the target item is not directly located in a room" : string.Empty;
+				return DirectRoomForItem(item) is null ? "the target item is not directly located in a room" : string.Empty;
 			}
 
 			return EndpointType switch
 			{
-				MagicPortalEndpointType.Cell when !CellId.HasValue => "cell endpoint has no cell id",
-				MagicPortalEndpointType.Cell when Gameworld.Cells.Get(CellId!.Value) is null => "the target cell is missing",
+				MagicPortalEndpointType.Room when !RoomId.HasValue => "cell endpoint has no cell id",
+				MagicPortalEndpointType.Room when Gameworld.Rooms.Get(RoomId!.Value) is null => "the target cell is missing",
 				_ => string.Empty
 			};
 		}
 	}
 
-	private static ICell? DirectCellForItem(IGameItem? item)
+	private static IRoom? DirectRoomForItem(IGameItem? item)
 	{
 		if (item is null || item.ContainedIn is not null || item.InInventoryOf is not null)
 		{
 			return null;
 		}
 
-		var cell = item.Location;
-		if (cell is null)
+		var room = item.Location;
+		if (room is null)
 		{
 			return null;
 		}
 
-		return cell.GameItems.Any(x => ReferenceEquals(x, item) || x.Id == item.Id) ? cell : null;
+		return room.GameItems.Any(x => ReferenceEquals(x, item) || x.Id == item.Id) ? room : null;
 	}
 
 	public void Update(string key, string name, MagicPortalEndpointType endpointType, long? cellId, long? gameItemId)
@@ -785,7 +785,7 @@ public class MagicPortalEndpoint : FrameworkItem, IMagicPortalEndpoint
 		Key = key;
 		_name = name;
 		EndpointType = endpointType;
-		CellId = cellId;
+		RoomId = cellId;
 		GameItemId = gameItemId;
 		using (new FMDB())
 		{
@@ -795,7 +795,7 @@ public class MagicPortalEndpoint : FrameworkItem, IMagicPortalEndpoint
 				dbitem.Key = Key;
 				dbitem.Name = Name;
 				dbitem.AnchorType = (int)EndpointType;
-				dbitem.CellId = CellId;
+				dbitem.RoomId = RoomId;
 				dbitem.GameItemId = GameItemId;
 				dbitem.IsActive = IsActive;
 				FMDB.Context.SaveChanges();
@@ -880,8 +880,8 @@ public class MagicPortalLink : FrameworkItem, IMagicPortalLink
 				return $"destination endpoint {DestinationEndpoint.Key}: {DestinationEndpoint.WhyInvalid}";
 			}
 
-			var source = SourceEndpoint.CurrentCell;
-			var destination = DestinationEndpoint.CurrentCell;
+			var source = SourceEndpoint.CurrentRoom;
+			var destination = DestinationEndpoint.CurrentRoom;
 			if (source is null || destination is null)
 			{
 				return "one or both endpoint rooms are unavailable";
@@ -923,7 +923,7 @@ public class MagicPortalLink : FrameworkItem, IMagicPortalLink
 
 public class MagicPortalTopologyExit : TransientExit, IMagicPortalTopologyExit
 {
-	public MagicPortalTopologyExit(IMagicPortalNetwork network, IMagicPortalLink link, ICell source, ICell destination)
+	public MagicPortalTopologyExit(IMagicPortalNetwork network, IMagicPortalLink link, IRoom source, IRoom destination)
 		: base(network.Gameworld, source, destination, network.Verb, network.OutboundKeyword, network.InboundKeyword,
 			network.OutboundTarget, network.InboundTarget, network.OutboundDescription, network.InboundDescription,
 			network.TimeMultiplier, stableKey: $"magic-portal-network:{network.Id}:link:{link.Id}")
@@ -976,8 +976,8 @@ public class MagicPortalTopologyService : IMagicPortalTopologyService
 				continue;
 			}
 
-			var source = link.SourceEndpoint.CurrentCell;
-			var destination = link.DestinationEndpoint.CurrentCell;
+			var source = link.SourceEndpoint.CurrentRoom;
+			var destination = link.DestinationEndpoint.CurrentRoom;
 			if (source is null || destination is null)
 			{
 				continue;
@@ -1020,7 +1020,7 @@ public class MagicPortalTopologyService : IMagicPortalTopologyService
 	}
 
 	public IMagicPortalEndpoint? CreateOrUpdateEndpoint(ICharacter actor, IMagicPortalNetwork network, string key,
-		string name, MagicPortalEndpointType endpointType, ICell? cell, IGameItem? item, bool replace, long? spellId,
+		string name, MagicPortalEndpointType endpointType, IRoom? room, IGameItem? item, bool replace, long? spellId,
 		out string reason)
 	{
 		reason = string.Empty;
@@ -1038,7 +1038,7 @@ public class MagicPortalTopologyService : IMagicPortalTopologyService
 			return null;
 		}
 
-		if (endpointType == MagicPortalEndpointType.Cell && cell is null)
+		if (endpointType == MagicPortalEndpointType.Room && room is null)
 		{
 			reason = "Cell endpoints must reference a room.";
 			return null;
@@ -1059,7 +1059,7 @@ public class MagicPortalTopologyService : IMagicPortalTopologyService
 				return null;
 			}
 
-			existing.Update(key, name, endpointType, cell?.Id, item?.Id);
+			existing.Update(key, name, endpointType, room?.Id, item?.Id);
 			RebuildNetwork(network);
 			return existing;
 		}
@@ -1073,7 +1073,7 @@ public class MagicPortalTopologyService : IMagicPortalTopologyService
 				Key = key,
 				Name = name,
 				AnchorType = (int)endpointType,
-				CellId = cell?.Id,
+				RoomId = room?.Id,
 				GameItemId = item?.Id,
 				IsActive = true,
 				CreatedByCharacterId = CharacterInstanceIdentityComparer.IdentityId(actor),
@@ -1084,7 +1084,7 @@ public class MagicPortalTopologyService : IMagicPortalTopologyService
 			FMDB.Context.SaveChanges();
 		}
 
-		var endpoint = new MagicPortalEndpoint(concreteNetwork, dbitem, key, name, endpointType, cell?.Id, item?.Id);
+		var endpoint = new MagicPortalEndpoint(concreteNetwork, dbitem, key, name, endpointType, room?.Id, item?.Id);
 		concreteNetwork.AddEndpoint(endpoint);
 		RebuildNetwork(network);
 		return endpoint;

@@ -90,16 +90,16 @@ internal class ToOverlayPackage : BuiltInFunction
         if (ParameterFunctions.Count == 2)
         {
             Result = ParameterFunctions[0].ReturnType.CompatibleWith(ProgVariableTypes.Text)
-                ? Gameworld.CellOverlayPackages.GetByName((string)ParameterFunctions[0].Result.GetObject,
+                ? Gameworld.RoomOverlayPackages.GetByName((string)ParameterFunctions[0].Result.GetObject,
                     Convert.ToInt32(ParameterFunctions[0].Result.GetObject))
-                : Gameworld.CellOverlayPackages.Get(Convert.ToInt64(ParameterFunctions[0].Result.GetObject),
+                : Gameworld.RoomOverlayPackages.Get(Convert.ToInt64(ParameterFunctions[0].Result.GetObject),
                     Convert.ToInt32(ParameterFunctions[0].Result.GetObject));
         }
         else
         {
             Result = ParameterFunctions[0].ReturnType.CompatibleWith(ProgVariableTypes.Text)
-                ? Gameworld.CellOverlayPackages.GetByName((string)ParameterFunctions[0].Result.GetObject)
-                : Gameworld.CellOverlayPackages.Get(Convert.ToInt64(ParameterFunctions[0].Result.GetObject));
+                ? Gameworld.RoomOverlayPackages.GetByName((string)ParameterFunctions[0].Result.GetObject)
+                : Gameworld.RoomOverlayPackages.Get(Convert.ToInt64(ParameterFunctions[0].Result.GetObject));
         }
 
         return StatementResult.Normal;

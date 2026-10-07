@@ -80,7 +80,7 @@ public class CoverAndAdvanceStrategy : CoverSeekingRangedStrategy
                 {
                     if (ch.CombatSettings.AutomaticallyMoveTowardsTarget)
                     {
-                        List<ICellExit> path = ch.PathBetween(ch.CombatTarget, 10, GetPathFunction(ch)).ToList();
+                        List<IRoomExit> path = ch.PathBetween(ch.CombatTarget, 10, GetPathFunction(ch)).ToList();
                         if (path.Any() && ch.CanMove(path.First()))
                         {
                             return new CombatMoveRoom { Assailant = ch, Direction = path.First() };

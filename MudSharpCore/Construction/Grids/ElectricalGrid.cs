@@ -17,7 +17,7 @@ public class ElectricalGrid : GridBase, IElectricalGrid
         }
     }
 
-    public ElectricalGrid(IFuturemud gameworld, ICell initialLocation) : base(gameworld, initialLocation)
+    public ElectricalGrid(IFuturemud gameworld, IRoom initialLocation) : base(gameworld, initialLocation)
     {
     }
 

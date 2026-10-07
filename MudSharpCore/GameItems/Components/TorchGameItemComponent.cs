@@ -108,7 +108,7 @@ public class TorchGameItemComponent : GameItemComponent, ILightable, IProduceLig
         return RemainingFuel != _prototype.SecondsOfFuel || Lit;
     }
 
-    public override bool HandleDieOrMorph(IGameItem newItem, ICell location)
+    public override bool HandleDieOrMorph(IGameItem newItem, IRoom location)
     {
         ILightable newItemLightable = newItem?.GetItemType<ILightable>();
         newItemLightable?.Lit = Lit;

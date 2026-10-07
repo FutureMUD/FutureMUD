@@ -208,8 +208,8 @@ public class CastingTriggerCharacterProgRoom : CastingTriggerBase
             return;
         }
 
-        ICell cell = TargetRoomProg?.Execute<ICell>(actor, Spell, additionalArguments, (int)power);
-        Spell.CastSpell(actor, target, power, new SpellAdditionalParameter { ParameterName = "room", Item = cell });
+        IRoom room = TargetRoomProg?.Execute<IRoom>(actor, Spell, additionalArguments, (int)power);
+        Spell.CastSpell(actor, target, power, new SpellAdditionalParameter { ParameterName = "room", Item = room });
     }
 
     public override bool TriggerYieldsTarget => true;

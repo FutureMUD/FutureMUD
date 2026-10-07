@@ -45,7 +45,7 @@ internal static partial class GNHProgram
 		gun.Definition = xml.ToString(); db.SaveChanges();
 	}
 
-	private sealed record FirearmSavedItem(long Id, ItemOwnershipReference? Title, long? HeldBody, long? Cell, long? Container, bool Wielded = false, int Quantity = 1, long? Prototype = null, double? Condition = null);
+	private sealed record FirearmSavedItem(long Id, ItemOwnershipReference? Title, long? HeldBody, long? Room, long? Container, bool Wielded = false, int Quantity = 1, long? Prototype = null, double? Condition = null);
 	private sealed record FirearmAuthorityReader(string Database, FixtureIds Fixture, DateTime Now, long Canonical,
 		long Body, double Stamina, long Trait, double Raw, long VictimBody, double Wounds,
 		long Gun, double Condition, long? Chamber, long[] Magazine, FirearmSavedItem[] Items, string Case, long? StaleChamber = null, long? OtherBody = null, double? OtherStamina = null, long? OtherCanonical = null, double? OtherRaw = null, long? Casing = null, long[]? DeletedItems = null);
@@ -57,7 +57,7 @@ internal static partial class GNHProgram
 		var clock = new HarnessClock(); clock.Advance(input.Now - clock.GetUtcNow().UtcDateTime); using var time = RuntimeClock.Push(clock);
 		var host = PrepareRetirementHost(database, input.Fixture, clock, wielding: true, corpseAnimationAnatomy: true);
 		ConfigureRegressionP2Fixture(host, database);
-		var world = host.Native.World; var source = CreateAreaCell(host.Native, database.ConnectionString, input.Fixture.CellId, create: false);
+		var world = host.Native.World; var source = CreateAreaRoom(host.Native, database.ConnectionString, input.Fixture.RoomId, create: false);
 		SetPrivateMember(host.Native.Actor, "Location", source);
 		using (var db = NewIndependentContext(database.ConnectionString))
 		{
@@ -76,14 +76,14 @@ internal static partial class GNHProgram
 				long.Parse(storedGun.Element("ChamberedCasing")!.Value) == (input.Casing ?? 0), "Exact saved firearm slot XML must agree before any item load.");
 			foreach (var deleted in input.DeletedItems ?? [])
 				Require(!db.GameItems.Any(x => x.Id == deleted) && !db.GameItemComponents.Any(x => x.GameItemId == deleted) &&
-					!db.BodiesGameItems.Any(x => x.GameItemId == deleted) && !db.CellsGameItems.Any(x => x.GameItemId == deleted), "Deleted ammunition has no cold rows or custody edges.");
+					!db.BodiesGameItems.Any(x => x.GameItemId == deleted) && !db.RoomsGameItems.Any(x => x.GameItemId == deleted), "Deleted ammunition has no cold rows or custody edges.");
 			foreach (var saved in input.Items)
 				Require(db.GameItems.AsNoTracking().Single(x => x.Id == saved.Id).ContainerId == saved.Container &&
 				(!saved.Condition.HasValue || Same(db.GameItems.AsNoTracking().Single(x => x.Id == saved.Id).Condition, saved.Condition.Value)) &&
 				db.BodiesGameItems.AsNoTracking().Where(x => x.GameItemId == saved.Id).Select(x => x.BodyId).ToArray()
 					.SequenceEqual(saved.HeldBody.HasValue ? [saved.HeldBody.Value] : Array.Empty<long>()) &&
-				db.CellsGameItems.AsNoTracking().Where(x => x.GameItemId == saved.Id).Select(x => x.CellId).ToArray()
-					.SequenceEqual(saved.Cell.HasValue ? [saved.Cell.Value] : Array.Empty<long>()), "Cold firearm exact container/body/cell SQL custody must agree before any item load.");
+				db.RoomsGameItems.AsNoTracking().Where(x => x.GameItemId == saved.Id).Select(x => x.RoomId).ToArray()
+					.SequenceEqual(saved.Room.HasValue ? [saved.Room.Value] : Array.Empty<long>()), "Cold firearm exact container/body/cell SQL custody must agree before any item load.");
 			foreach (var saved in input.Items.Where(x => x.Container.HasValue && x.Container != input.Gun))
 			{
 				Require(input.Items.Any(x => x.Id == saved.Container), "Declare each foreign container parent in the cold fixture.");
@@ -103,10 +103,10 @@ internal static partial class GNHProgram
 		foreach (var saved in input.Items)
 		{
 			var item = (GameItem)world.TryGetItem(saved.Id, true)!; item.FinaliseLoadTimeTasks();
-			if (saved.Cell.HasValue) source.Insert(item, true);
+			if (saved.Room.HasValue) source.Insert(item, true);
 			Require(!item.Deleted && (!saved.Prototype.HasValue || item.Prototype.Id == saved.Prototype) && item.Quantity == saved.Quantity && item.OwnershipReference == saved.Title &&
-				item.GetItemType<IHoldable>()!.HeldBy?.Id == saved.HeldBody && item.DirectLocation?.Id == saved.Cell &&
-				item.ContainedIn?.Id == saved.Container, $"Cold native firearm item:{item.Id} quantity:{item.Quantity}/{saved.Quantity} title:{item.OwnershipReference}/{saved.Title} held:{item.GetItemType<IHoldable>()!.HeldBy?.Id}/{saved.HeldBody} cell:{item.DirectLocation?.Id}/{saved.Cell} container:{item.ContainedIn?.Id}/{saved.Container}.");
+				item.GetItemType<IHoldable>()!.HeldBy?.Id == saved.HeldBody && item.DirectLocation?.Id == saved.Room &&
+				item.ContainedIn?.Id == saved.Container, $"Cold native firearm item:{item.Id} quantity:{item.Quantity}/{saved.Quantity} title:{item.OwnershipReference}/{saved.Title} held:{item.GetItemType<IHoldable>()!.HeldBy?.Id}/{saved.HeldBody} cell:{item.DirectLocation?.Id}/{saved.Room} container:{item.ContainedIn?.Id}/{saved.Container}.");
 			if (saved.HeldBody.HasValue) Require((saved.Wielded ? owner.Body.WieldedItems : owner.Body.HeldItems).Any(x => ReferenceEquals(x, item)), "Cold native hand/wield membership must contain the exact firearm item.");
 			if (saved.Container.HasValue && saved.Container != input.Gun)
 				Require(world.TryGetItem(saved.Container.Value, true)!.GetItemType<IContainer>()!.Contents.Count(x => ReferenceEquals(x, item)) == 1,

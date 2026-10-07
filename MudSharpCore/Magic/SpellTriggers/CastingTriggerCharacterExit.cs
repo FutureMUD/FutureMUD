@@ -177,7 +177,7 @@ public class CastingTriggerCharacterExit : CastingTriggerBase
 			return;
 		}
 
-		ICellExit? exit = CastingTriggerExitHelper.ResolveExit(actor, additionalArguments.PopSpeech());
+		IRoomExit? exit = CastingTriggerExitHelper.ResolveExit(actor, additionalArguments.PopSpeech());
 		if (exit is null)
 		{
 			actor.OutputHandler.Send("You do not see any exit like that here.");

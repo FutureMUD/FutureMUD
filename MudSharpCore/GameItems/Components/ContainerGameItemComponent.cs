@@ -177,7 +177,7 @@ public class ContainerGameItemComponent : GameItemComponent, IContainer, IOpenab
         return false;
     }
 
-    public override bool HandleDieOrMorph(IGameItem newItem, ICell location)
+    public override bool HandleDieOrMorph(IGameItem newItem, IRoom location)
     {
         ILockable newItemLockable = newItem?.GetItemType<ILockable>();
         if (newItemLockable != null)
@@ -353,19 +353,19 @@ public class ContainerGameItemComponent : GameItemComponent, IContainer, IOpenab
 		// Cell.Extract preserves the direct pointer for removal listeners. Adopt only that
 		// exact, already-extracted native source; active membership and callback custody win.
 		var nativeItem = item as GameItem;
-		var extractedCell = nativeItem?.DirectLocation;
+		var extractedRoom = nativeItem?.DirectLocation;
 		var sourceLayer = item.RoomLayer;
 		var sourceRoute = item.RoutePositionMetres;
 		bool SourceReady() => item is { Deleted: false, Destroyed: false } &&
 			item.InInventoryOf is null && item.ContainedIn is null && !ComponentItemTransfer.HasDirectBodyCustody(item) &&
 			item.GetItemType<IBeltable>()?.ConnectedTo is null &&
-			ReferenceEquals(ComponentItemTransfer.DirectLocationOf(item), extractedCell) &&
+			ReferenceEquals(ComponentItemTransfer.DirectLocationOf(item), extractedRoom) &&
 			item.RoomLayer == sourceLayer && item.RoutePositionMetres == sourceRoute &&
-			(extractedCell is null || !extractedCell.GameItems.Any(x => ReferenceEquals(x, item)));
+			(extractedRoom is null || !extractedRoom.GameItems.Any(x => ReferenceEquals(x, item)));
 		bool Ready() => MudSharp.NPC.AI.CommandExecutionScope.TryContinue(putter) && SourceReady() && !Parent.Deleted && !Parent.Destroyed;
 		void ClearExtractedSource()
 		{
-			if (extractedCell is not null) nativeItem!.ClearPreparedContainerSourcePosition();
+			if (extractedRoom is not null) nativeItem!.ClearPreparedContainerSourcePosition();
 		}
         if (_contents.Contains(item))
         {
@@ -515,7 +515,7 @@ public class ContainerGameItemComponent : GameItemComponent, IContainer, IOpenab
             }
         }
 
-        ICell location = emptier?.Location ?? Parent.TrueLocations.FirstOrDefault();
+        IRoom location = emptier?.Location ?? Parent.TrueLocations.FirstOrDefault();
         List<IGameItem> contents = Contents.ToList();
         _contents.Clear();
         if (emptier is not null)

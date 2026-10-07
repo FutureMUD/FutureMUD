@@ -51,7 +51,7 @@ public class VehicleRoutePersistenceModelTests
 	}
 
 	[TestMethod]
-	public void VehicleRouteStep_PinsRouteCellTopologyAtBothEndpoints()
+	public void VehicleRouteStep_PinsRouteRoomTopologyAtBothEndpoints()
 	{
 		using var context = CreateContext();
 		var step = context.GetService<IDesignTimeModel>().Model.FindEntityType(typeof(VehicleRouteStep));

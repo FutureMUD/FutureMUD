@@ -1280,7 +1280,7 @@ public class AnsweringMachineGameItemComponent : GameItemComponent, IAnsweringMa
             OutputRange.Local
         );
 
-        foreach (ICell? location in Parent.TrueLocations.Distinct())
+        foreach (IRoom? location in Parent.TrueLocations.Distinct())
         {
             location.HandleAudioEcho("You hear a telephone ringing {0}.", RingVolume, Parent, Parent.RoomLayer,
                 true, "telephone");
@@ -1964,7 +1964,7 @@ public class AnsweringMachineGameItemComponent : GameItemComponent, IAnsweringMa
         return true;
     }
 
-    public override bool HandleDieOrMorph(IGameItem newItem, ICell location)
+    public override bool HandleDieOrMorph(IGameItem newItem, IRoom location)
     {
 		if (_mediumItem != null)
 		{

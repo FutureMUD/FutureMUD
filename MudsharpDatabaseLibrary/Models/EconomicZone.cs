@@ -53,8 +53,8 @@ namespace MudSharp.Models
         public virtual Clock ReferenceClock { get; set; }
         public virtual Clan ControllingClan { get; set; }
         public virtual AuctionHouse EstateAuctionHouse { get; set; }
-        public virtual Cell MorgueOfficeLocation { get; set; }
-        public virtual Cell MorgueStorageLocation { get; set; }
+        public virtual Room MorgueOfficeLocation { get; set; }
+        public virtual Room MorgueStorageLocation { get; set; }
         public virtual Timezone ReferenceClockNavigation { get; set; }
         public virtual ICollection<EconomicZoneRevenue> EconomicZoneRevenues { get; set; }
         public virtual ICollection<EconomicZoneShopTax> EconomicZoneShopTaxes { get; set; }

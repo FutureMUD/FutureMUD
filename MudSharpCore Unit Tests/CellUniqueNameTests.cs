@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using System;
 using System.Linq;
 using System.Reflection;
@@ -20,14 +20,14 @@ using Db = MudSharp.Models;
 namespace MudSharp_Unit_Tests;
 
 [TestClass]
-public class CellUniqueNameTests
+public class RoomUniqueNameTests
 {
 	[TestMethod]
 	public void Rename_TrimCaseCollisionsClearAndNoAliases()
 	{
 		using var world = new EnvironmentalMagicTestWorld(count: 2);
-		var a = (Cell)world.Cells.First();
-		var b = (Cell)world.Cells.Last();
+		var a = (Room)world.Rooms.First();
+		var b = (Room)world.Rooms.Last();
 		Assert.IsTrue(a.TrySetUniqueName("  Église:North Gate  ", out _));
 		Assert.AreEqual("Église:North Gate", a.UniqueName);
 		Assert.IsTrue(a.Changed);
@@ -39,36 +39,36 @@ public class CellUniqueNameTests
 		Assert.IsFalse(a.TrySetUniqueName(new string('x', 256), out _));
 		Assert.AreEqual("ÉGLISE:North Gate", a.UniqueName);
 		Assert.IsTrue(a.TrySetUniqueName("new gate", out _));
-		Assert.IsNull(world.Cells.FindByUniqueName("ÉGLISE:North Gate"));
+		Assert.IsNull(world.Rooms.FindByUniqueName("ÉGLISE:North Gate"));
 		Assert.IsTrue(a.TrySetUniqueName(" \t ", out _));
 		Assert.IsTrue(b.TrySetUniqueName(null, out _));
 		Assert.AreEqual(string.Empty, a.GetProperty("uniquename").GetObject);
 	}
 
 	[TestMethod]
-	public void PersistedValidation_ReportsAllCellIdentitiesAndNeverRepairs()
+	public void PersistedValidation_ReportsAllRoomIdentitiesAndNeverRepairs()
 	{
-		var rows = new[] { new Db.Cell { Id = 41, UniqueName = "Gate" }, new Db.Cell { Id = 99, UniqueName = "gate" } };
-		var exception = Assert.ThrowsException<InvalidOperationException>(() => Cell.ValidatePersistedUniqueNames(rows));
+		var rows = new[] { new Db.Room { Id = 41, UniqueName = "Gate" }, new Db.Room { Id = 99, UniqueName = "gate" } };
+		var exception = Assert.ThrowsException<InvalidOperationException>(() => Room.ValidatePersistedUniqueNames(rows));
 		StringAssert.Contains(exception.Message, "41");
 		StringAssert.Contains(exception.Message, "99");
 		Assert.AreEqual("gate", rows[1].UniqueName);
 		foreach (var value in new[] { "42", " Gate ", new string('x', 256) })
-			Assert.ThrowsException<InvalidOperationException>(() => Cell.ValidatePersistedUniqueNames([new Db.Cell { Id = 50, UniqueName = value }]));
-		Cell.ValidatePersistedUniqueNames([new Db.Cell { Id = 1 }, new Db.Cell { Id = 2, UniqueName = "" }, new Db.Cell { Id = 3, UniqueName = "  " }]);
+			Assert.ThrowsException<InvalidOperationException>(() => Room.ValidatePersistedUniqueNames([new Db.Room { Id = 50, UniqueName = value }]));
+		Room.ValidatePersistedUniqueNames([new Db.Room { Id = 1 }, new Db.Room { Id = 2, UniqueName = "" }, new Db.Room { Id = 3, UniqueName = "  " }]);
 	}
 
 	[TestMethod]
 	public void HydrationAndSimulation_KeepTheirOwnIdentity()
 	{
 		using var world = new EnvironmentalMagicTestWorld();
-		var source = (Cell)world.Cells.First();
+		var source = (Room)world.Rooms.First();
 		var model = world.Models[source.Id];
 		model.UniqueName = "Persisted:Gate";
-		source.SetupCell(model);
+		source.SetupRoom(model);
 		Assert.AreEqual("Persisted:Gate", source.UniqueName);
 		Assert.AreEqual("Persisted:Gate", source.GetProperty("uniquename").GetObject);
-		var simulation = new Cell(source, -101);
+		var simulation = new Room(source, -101);
 		Assert.IsNull(simulation.UniqueName);
 		Assert.IsFalse(simulation.TrySetUniqueName("simulation", out _));
 	}
@@ -77,51 +77,51 @@ public class CellUniqueNameTests
 	public void Builder_IdentityEditingRequiresNoOverlayAndSupportsClearTokens()
 	{
 		using var world = new EnvironmentalMagicTestWorld();
-		var cell = (Cell)world.Cells.First();
+		var room = (Room)world.Rooms.First();
 		var actor = new Mock<ICharacter> { DefaultValue = DefaultValue.Mock };
-		actor.SetupGet(x => x.Location).Returns(cell);
-		var command = typeof(RoomBuilderModule).GetMethod("CellSet", BindingFlags.NonPublic | BindingFlags.Static)!;
+		actor.SetupGet(x => x.Location).Returns(room);
+		var command = typeof(RoomBuilderModule).GetMethod("RoomSet", BindingFlags.NonPublic | BindingFlags.Static)!;
 		command.Invoke(null, [actor.Object, new StringStack("uniquename  North Gate ")]);
-		Assert.AreEqual("North Gate", cell.UniqueName);
+		Assert.AreEqual("North Gate", room.UniqueName);
 		foreach (var token in new[] { "none", "clear", "delete", "remove" })
 		{
-			Assert.IsTrue(cell.TrySetUniqueName("gate", out _));
+			Assert.IsTrue(room.TrySetUniqueName("gate", out _));
 			command.Invoke(null, [actor.Object, new StringStack("unique " + token)]);
-			Assert.IsNull(cell.UniqueName, token);
+			Assert.IsNull(room.UniqueName, token);
 		}
 		command.Invoke(null, [actor.Object, new StringStack("uniquename")]);
-		Assert.IsNull(cell.UniqueName);
+		Assert.IsNull(room.UniqueName);
 	}
 
 	[TestMethod]
 	public void RoomLookupAndProgs_KeyBeforeDisplayAndStrictKeyWithoutSpecialGrammar()
 	{
 		using var world = new EnvironmentalMagicTestWorld(count: 2);
-		var cell = (Cell)world.Cells.First();
-		var other = (Cell)world.Cells.Last();
-		Assert.IsTrue(cell.TrySetUniqueName(other.Name, out _));
-		Assert.AreSame(cell, RoomBuilderModule.LookupCell(world.World.Object, other.Name));
-		Assert.AreSame(other, RoomBuilderModule.LookupCell(world.World.Object, other.Id.ToString()));
-		Assert.AreSame(cell, Execute(new LocationByUniqueNameFunction([Text(other.Name.ToUpperInvariant())], world.World.Object)));
-		Assert.IsNull(Execute(new LocationByUniqueNameFunction([Text(cell.Id.ToString())], world.World.Object)));
-		Assert.IsTrue(cell.TrySetUniqueName("here", out _));
+		var room = (Room)world.Rooms.First();
+		var other = (Room)world.Rooms.Last();
+		Assert.IsTrue(room.TrySetUniqueName(other.Name, out _));
+		Assert.AreSame(room, RoomBuilderModule.LookupRoom(world.World.Object, other.Name));
+		Assert.AreSame(other, RoomBuilderModule.LookupRoom(world.World.Object, other.Id.ToString()));
+		Assert.AreSame(room, Execute(new LocationByUniqueNameFunction([Text(other.Name.ToUpperInvariant())], world.World.Object)));
+		Assert.IsNull(Execute(new LocationByUniqueNameFunction([Text(room.Id.ToString())], world.World.Object)));
+		Assert.IsTrue(room.TrySetUniqueName("here", out _));
 		var actor = new Mock<ICharacter>();
 		actor.SetupGet(x => x.Location).Returns(other);
 		actor.SetupGet(x => x.Gameworld).Returns(world.World.Object);
-		Assert.AreSame(other, RoomBuilderModule.LookupCell(actor.Object, "here"));
-		Assert.AreSame(cell, Execute(new LocationByUniqueNameFunction([Text("here")], world.World.Object)));
+		Assert.AreSame(other, RoomBuilderModule.LookupRoom(actor.Object, "here"));
+		Assert.AreSame(room, Execute(new LocationByUniqueNameFunction([Text("here")], world.World.Object)));
 		Assert.IsNull(Execute(new LocationByUniqueNameFunction([Text("missing")], world.World.Object)));
 		Assert.AreSame(other, Execute(new ToLocationFunction([Text(other.Id.ToString())], world.World.Object, false)));
-		Assert.IsTrue(cell.TrySetUniqueName("@1", out _));
-		Assert.AreSame(cell, Execute(new LocationByUniqueNameFunction([Text("@1")], world.World.Object)));
-		var previous = RoomBuilderModule.BuiltCells.ToArray();
+		Assert.IsTrue(room.TrySetUniqueName("@1", out _));
+		Assert.AreSame(room, Execute(new LocationByUniqueNameFunction([Text("@1")], world.World.Object)));
+		var previous = RoomBuilderModule.BuiltRooms.ToArray();
 		try
 		{
-			RoomBuilderModule.BuiltCells.Clear(); RoomBuilderModule.BuiltCells.Add(other);
-			Assert.AreSame(other, RoomBuilderModule.LookupCell(world.World.Object, "@1"));
-			Assert.AreSame(other, RoomBuilderModule.LookupCell(actor.Object, "@1"));
+			RoomBuilderModule.BuiltRooms.Clear(); RoomBuilderModule.BuiltRooms.Add(other);
+			Assert.AreSame(other, RoomBuilderModule.LookupRoom(world.World.Object, "@1"));
+			Assert.AreSame(other, RoomBuilderModule.LookupRoom(actor.Object, "@1"));
 		}
-		finally { RoomBuilderModule.BuiltCells.Clear(); RoomBuilderModule.BuiltCells.AddRange(previous); }
+		finally { RoomBuilderModule.BuiltRooms.Clear(); RoomBuilderModule.BuiltRooms.AddRange(previous); }
 	}
 
 	[TestMethod]
@@ -143,15 +143,15 @@ public class CellUniqueNameTests
 	public void Goto_CharacterPrecedenceHashOverrideNumericAndLegacyFallback()
 	{
 		using var world = new EnvironmentalMagicTestWorld(count: 3);
-		var cells = world.Cells.Cast<Cell>().ToArray();
-		Assert.IsTrue(cells[1].TrySetUniqueName("gate", out _));
+		var rooms = world.Rooms.Cast<Room>().ToArray();
+		Assert.IsTrue(rooms[1].TrySetUniqueName("gate", out _));
 		var actor = new Mock<ICharacter> { DefaultValue = DefaultValue.Mock };
 		actor.Setup(x => x.IsAdministrator(It.IsAny<PermissionLevel>())).Returns(true);
 		actor.SetupGet(x => x.Gameworld).Returns(world.World.Object);
-		actor.SetupGet(x => x.Location).Returns(cells[0]);
+		actor.SetupGet(x => x.Location).Returns(rooms[0]);
 		var target = new Mock<ICharacter> { DefaultValue = DefaultValue.Mock };
 		target.SetupGet(x => x.Id).Returns(777);
-		target.SetupGet(x => x.Location).Returns(cells[2]);
+		target.SetupGet(x => x.Location).Returns(rooms[2]);
 		target.SetupGet(x => x.IsPlayerCharacter).Returns(true);
 		target.Setup(x => x.GetKeywordsFor(actor.Object)).Returns(["gate"]);
 		target.Setup(x => x.HasKeyword("gate", actor.Object, It.IsAny<bool>(), It.IsAny<bool>())).Returns(true);
@@ -163,19 +163,19 @@ public class CellUniqueNameTests
 		actors.Add(target.Object);
 		world.World.SetupGet(x => x.Actors).Returns(actors);
 		var command = typeof(SharedModule).GetMethod("Goto", BindingFlags.NonPublic | BindingFlags.Static)!;
-		void Check(string input, ICell expected)
+		void Check(string input, IRoom expected)
 		{
 			actor.Invocations.Clear();
 			command.Invoke(null, [actor.Object, "goto " + input]);
-			actor.Verify(x => x.TransferTo(It.Is<SpatialLocation>(location => ReferenceEquals(location.Cell, expected))), Times.Once);
+			actor.Verify(x => x.TransferTo(It.Is<SpatialLocation>(location => ReferenceEquals(location.Room, expected))), Times.Once);
 		}
-		Check("gate", cells[2]);
-		Check("#gate", cells[1]);
-		Check(cells[1].Id.ToString(), cells[1]);
-		Check("#" + cells[1].Id, cells[1]);
-		Check(cells[1].Name, cells[1]);
-		Assert.IsTrue(cells[1].TrySetUniqueName(null, out _));
-		Check("#" + cells[1].Name, cells[1]);
+		Check("gate", rooms[2]);
+		Check("#gate", rooms[1]);
+		Check(rooms[1].Id.ToString(), rooms[1]);
+		Check("#" + rooms[1].Id, rooms[1]);
+		Check(rooms[1].Name, rooms[1]);
+		Assert.IsTrue(rooms[1].TrySetUniqueName(null, out _));
+		Check("#" + rooms[1].Name, rooms[1]);
 	}
 
 	private static IFunction Text(string value)

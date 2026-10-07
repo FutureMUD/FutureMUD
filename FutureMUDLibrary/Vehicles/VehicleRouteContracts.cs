@@ -36,14 +36,14 @@ public interface IVehicleRouteStop : IFrameworkItem
 public interface IVehicleRoutePlatformBinding : IFrameworkItem
 {
 	IVehicleRouteStop Stop { get; }
-	ICell PlatformCell { get; }
+	IRoom PlatformRoom { get; }
 	IVehicleAccessPointPrototype AccessPoint { get; }
 	double DockingToleranceMetres { get; }
 }
 
 public interface IVehicleRouteTopologyPin
 {
-	ICell RouteCell { get; }
+	IRoom RouteRoom { get; }
 	long TopologyVersion { get; }
 }
 
@@ -189,7 +189,7 @@ public interface IVehicleDocking : IFrameworkItem
 	IVehicle Vehicle { get; }
 	IVehicleAccessPoint AccessPoint { get; }
 	IVehicleCompartment Compartment { get; }
-	ICell ExteriorCell { get; }
+	IRoom ExteriorRoom { get; }
 	RoomLayer ExteriorLayer { get; }
 	IVehicleRouteStop? Stop { get; }
 	VehicleDockingState State { get; }
@@ -202,14 +202,14 @@ public interface IVehicleDockingService
 	bool CanDock(
 		IVehicle vehicle,
 		IVehicleAccessPoint accessPoint,
-		ICell exteriorCell,
+		IRoom exteriorRoom,
 		RoomLayer exteriorLayer,
 		IVehicleRouteStop? stop,
 		out string reason);
 	IVehicleDocking Dock(
 		IVehicle vehicle,
 		IVehicleAccessPoint accessPoint,
-		ICell exteriorCell,
+		IRoom exteriorRoom,
 		RoomLayer exteriorLayer,
 		IVehicleRouteStop? stop = null);
 	void SetBoardingOpen(IVehicleDocking docking, bool open);

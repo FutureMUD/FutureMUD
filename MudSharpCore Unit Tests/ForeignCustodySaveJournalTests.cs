@@ -48,7 +48,7 @@ public class ForeignCustodySaveJournalTests
 	{
 		var f = ResourceItem(); var row = new MudSharp.Models.GameItem { Id = f.Item.Id };
 		row.GameItemsMagicResources.Add(new() { GameItemId = f.Item.Id, MagicResourceId = f.Resource.Id, Amount = 80 });
-		using var transfer = ForeignCustodyTransferContext.Enter(Mock.Of<MudSharp.Body.IBody>(), [f.Item], Mock.Of<ICell>());
+		using var transfer = ForeignCustodyTransferContext.Enter(Mock.Of<MudSharp.Body.IBody>(), [f.Item], Mock.Of<IRoom>());
 		Assert.IsTrue(f.Item.UseResource(f.Resource, 13)); f.Item.SaveMagic(row);
 		Assert.IsFalse(f.Item.ResourcesChanged);
 		Assert.IsTrue(f.Item.UseResource(f.Resource, 7)); f.Item.SaveMagic(row);
@@ -67,7 +67,7 @@ public class ForeignCustodySaveJournalTests
 		var f = ResourceItem(); var row = new MudSharp.Models.GameItem { Id = f.Item.Id + 1 };
 		row.GameItemsMagicResources.Add(new() { GameItemId = row.Id, MagicResourceId = f.Resource.Id, Amount = 80 });
 		Assert.IsTrue(f.Item.UseResource(f.Resource, 13));
-		using var transfer = ForeignCustodyTransferContext.Enter(Mock.Of<MudSharp.Body.IBody>(), [f.Item], Mock.Of<ICell>());
+		using var transfer = ForeignCustodyTransferContext.Enter(Mock.Of<MudSharp.Body.IBody>(), [f.Item], Mock.Of<IRoom>());
 		Assert.ThrowsException<InvalidOperationException>(() => f.Item.SaveMagic(row));
 		Assert.AreEqual(80, row.GameItemsMagicResources.Single().Amount);
 		Assert.IsTrue(f.Item.ResourcesChanged);
@@ -82,7 +82,7 @@ public class ForeignCustodySaveJournalTests
 		var body = (RuntimeBody)RuntimeHelpers.GetUninitializedObject(typeof(RuntimeBody));
 		typeof(PerceivedItem).GetProperty("Gameworld")!.SetValue(body, world.Object);
 		Raw(body, "_needsChanged", true); Raw(body, "_needsChangedCount", 4);
-		using var transfer = ForeignCustodyTransferContext.Enter(body, [], Mock.Of<ICell>());
+		using var transfer = ForeignCustodyTransferContext.Enter(body, [], Mock.Of<IRoom>());
 		ForeignCustodyTransferContext.RecordSave(body); ForeignCustodyTransferContext.RecordNeedsSave(body);
 		body.NeedsChanged = false;
 		Assert.AreEqual(0, NeedsCount(body));
@@ -98,7 +98,7 @@ public class ForeignCustodySaveJournalTests
 	{
 		var saves = new SaveManager(); var sentinel = new Mock<ISaveable>(); var initialiser = new Mock<ILateInitialisingItem>();
 		saves.Add(sentinel.Object); saves.AddInitialisation(initialiser.Object);
-		using var transfer = ForeignCustodyTransferContext.Enter(Mock.Of<MudSharp.Body.IBody>(), [], Mock.Of<ICell>());
+		using var transfer = ForeignCustodyTransferContext.Enter(Mock.Of<MudSharp.Body.IBody>(), [], Mock.Of<IRoom>());
 		Assert.ThrowsException<InvalidOperationException>(saves.Flush);
 		Assert.ThrowsException<InvalidOperationException>(() => saves.DirectInitialise(initialiser.Object));
 		Assert.ThrowsException<InvalidOperationException>(() => saves.FlushLazyLoad(TimeSpan.FromSeconds(1)));

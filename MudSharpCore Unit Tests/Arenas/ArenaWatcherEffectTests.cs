@@ -19,7 +19,7 @@ namespace MudSharp_Unit_Tests.Arenas;
 public class ArenaWatcherEffectTests
 {
     private Mock<IFuturemud> _gameworld = null!;
-    private Mock<ICell> _arenaCell = null!;
+    private Mock<IRoom> _arenaRoom = null!;
     private Mock<IArenaEvent> _arenaEvent = null!;
     private Mock<ICombatArena> _arena = null!;
     private Mock<IOutput> _output = null!;
@@ -29,10 +29,10 @@ public class ArenaWatcherEffectTests
     public void Setup()
     {
         _gameworld = new Mock<IFuturemud>();
-        _arenaCell = new Mock<ICell>();
-        _arenaCell.SetupGet(x => x.Gameworld).Returns(_gameworld.Object);
-        _arenaCell.Setup(x => x.RemoveEffect(It.IsAny<IEffect>(), false));
-        _arenaCell.Setup(x => x.HowSeen(It.IsAny<IPerceiver>(), It.IsAny<bool>(), It.IsAny<DescriptionType>(),
+        _arenaRoom = new Mock<IRoom>();
+        _arenaRoom.SetupGet(x => x.Gameworld).Returns(_gameworld.Object);
+        _arenaRoom.Setup(x => x.RemoveEffect(It.IsAny<IEffect>(), false));
+        _arenaRoom.Setup(x => x.HowSeen(It.IsAny<IPerceiver>(), It.IsAny<bool>(), It.IsAny<DescriptionType>(),
                 It.IsAny<bool>(), It.IsAny<PerceiveIgnoreFlags>())).Returns("the arena floor");
 
         _arena = new Mock<ICombatArena>();
@@ -46,20 +46,20 @@ public class ArenaWatcherEffectTests
         _output.SetupGet(x => x.Flags).Returns(OutputFlags.Normal);
         _output.Setup(x => x.ShouldSee(It.IsAny<ICharacter>())).Returns(true);
 
-        _effect = new ArenaWatcherEffect(_arenaCell.Object, _arenaEvent.Object);
+        _effect = new ArenaWatcherEffect(_arenaRoom.Object, _arenaEvent.Object);
     }
 
     [TestMethod]
     public void HandleOutput_WatcherMovesWithinObservationRooms_RetainsSubscription()
     {
-        Mock<ICell> observationCell1 = new();
-        observationCell1.SetupGet(x => x.Gameworld).Returns(_gameworld.Object);
-        Mock<ICell> observationCell2 = new();
-        observationCell2.SetupGet(x => x.Gameworld).Returns(_gameworld.Object);
-        _arena.Setup(x => x.ObservationCells).Returns(new[]
+        Mock<IRoom> observationRoom1 = new();
+        observationRoom1.SetupGet(x => x.Gameworld).Returns(_gameworld.Object);
+        Mock<IRoom> observationRoom2 = new();
+        observationRoom2.SetupGet(x => x.Gameworld).Returns(_gameworld.Object);
+        _arena.Setup(x => x.ObservationRooms).Returns(new[]
         {
-                        observationCell1.Object,
-                        observationCell2.Object
+                        observationRoom1.Object,
+                        observationRoom2.Object
                 });
 
         Mock<IOutputHandler> outputHandler = new();
@@ -71,50 +71,50 @@ public class ArenaWatcherEffectTests
         watcher.Setup(x => x.Equals(It.IsAny<object>()))
             .Returns<object>(obj => ReferenceEquals(obj, watcher.Object));
         watcher.SetupSequence(x => x.Location)
-            .Returns(observationCell1.Object)
-            .Returns(observationCell1.Object)
-            .Returns(observationCell2.Object);
+            .Returns(observationRoom1.Object)
+            .Returns(observationRoom1.Object)
+            .Returns(observationRoom2.Object);
 
-        _effect.AddWatcher(watcher.Object, observationCell1.Object);
+        _effect.AddWatcher(watcher.Object, observationRoom1.Object);
         int sendCountBefore = outputHandler.Invocations.Count(x => x.Method.Name == "Send");
-        _effect.HandleOutput(_output.Object, _arenaCell.Object);
+        _effect.HandleOutput(_output.Object, _arenaRoom.Object);
         int sendCountAfterFirst = outputHandler.Invocations.Count(x => x.Method.Name == "Send");
-        _effect.HandleOutput(_output.Object, _arenaCell.Object);
+        _effect.HandleOutput(_output.Object, _arenaRoom.Object);
         int sendCountAfterSecond = outputHandler.Invocations.Count(x => x.Method.Name == "Send");
 
         Assert.IsTrue(sendCountAfterFirst > sendCountBefore);
         Assert.IsTrue(sendCountAfterSecond > sendCountAfterFirst);
-        _arenaCell.Verify(x => x.RemoveEffect(_effect, false), Times.Never());
+        _arenaRoom.Verify(x => x.RemoveEffect(_effect, false), Times.Never());
     }
 
     [TestMethod]
     public void HandleOutput_CompletedEvent_RemovesEffect()
     {
         _arenaEvent.SetupGet(x => x.State).Returns(ArenaEventState.Completed);
-        _effect.HandleOutput(_output.Object, _arenaCell.Object);
+        _effect.HandleOutput(_output.Object, _arenaRoom.Object);
 
-        _arenaCell.Verify(x => x.RemoveEffect(_effect, false), Times.Once());
+        _arenaRoom.Verify(x => x.RemoveEffect(_effect, false), Times.Once());
     }
 
     [TestMethod]
     public void HandleOutput_AwakeWatcher_StillReceivesMirroredOutput()
     {
-        Mock<ICell> observationCell = new();
-        observationCell.SetupGet(x => x.Gameworld).Returns(_gameworld.Object);
-        _arena.Setup(x => x.ObservationCells).Returns(new[] { observationCell.Object });
+        Mock<IRoom> observationRoom = new();
+        observationRoom.SetupGet(x => x.Gameworld).Returns(_gameworld.Object);
+        _arena.Setup(x => x.ObservationRooms).Returns(new[] { observationRoom.Object });
 
         Mock<IOutputHandler> outputHandler = new();
         outputHandler.Setup(x => x.Send(It.IsAny<IOutput>(), It.IsAny<bool>(), It.IsAny<bool>())).Returns(true);
         Mock<ICharacter> watcher = new();
         watcher.SetupGet(x => x.State).Returns(CharacterState.Awake);
         watcher.SetupGet(x => x.OutputHandler).Returns(outputHandler.Object);
-        watcher.SetupGet(x => x.Location).Returns(observationCell.Object);
+        watcher.SetupGet(x => x.Location).Returns(observationRoom.Object);
         watcher.Setup(x => x.GetHashCode()).Returns(37);
         watcher.Setup(x => x.Equals(It.IsAny<object>()))
             .Returns<object>(obj => ReferenceEquals(obj, watcher.Object));
 
-        _effect.AddWatcher(watcher.Object, observationCell.Object);
-        _effect.HandleOutput(_output.Object, _arenaCell.Object);
+        _effect.AddWatcher(watcher.Object, observationRoom.Object);
+        _effect.HandleOutput(_output.Object, _arenaRoom.Object);
 
         outputHandler.Verify(x => x.Send(It.IsAny<IOutput>(), It.IsAny<bool>(), It.IsAny<bool>()), Times.Once);
     }
@@ -122,22 +122,22 @@ public class ArenaWatcherEffectTests
     [TestMethod]
     public void HandleOutput_StringEcho_WatcherReceivesPrefixedText()
     {
-        Mock<ICell> observationCell = new();
-        observationCell.SetupGet(x => x.Gameworld).Returns(_gameworld.Object);
-        _arena.Setup(x => x.ObservationCells).Returns(new[] { observationCell.Object });
+        Mock<IRoom> observationRoom = new();
+        observationRoom.SetupGet(x => x.Gameworld).Returns(_gameworld.Object);
+        _arena.Setup(x => x.ObservationRooms).Returns(new[] { observationRoom.Object });
 
         Mock<IOutputHandler> outputHandler = new();
         outputHandler.Setup(x => x.Send(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>())).Returns(true);
         Mock<ICharacter> watcher = new();
         watcher.SetupGet(x => x.State).Returns(CharacterState.Awake);
         watcher.SetupGet(x => x.OutputHandler).Returns(outputHandler.Object);
-        watcher.SetupGet(x => x.Location).Returns(observationCell.Object);
+        watcher.SetupGet(x => x.Location).Returns(observationRoom.Object);
         watcher.Setup(x => x.GetHashCode()).Returns(57);
         watcher.Setup(x => x.Equals(It.IsAny<object>()))
             .Returns<object>(obj => ReferenceEquals(obj, watcher.Object));
 
-        _effect.AddWatcher(watcher.Object, observationCell.Object);
-        _effect.HandleOutput("A final blow lands!", _arenaCell.Object);
+        _effect.AddWatcher(watcher.Object, observationRoom.Object);
+        _effect.HandleOutput("A final blow lands!", _arenaRoom.Object);
 
         outputHandler.Verify(x => x.Send(It.Is<string>(text => text.Contains("A final blow lands!")),
             It.IsAny<bool>(), It.IsAny<bool>()), Times.Once);

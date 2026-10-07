@@ -91,7 +91,7 @@ public class PathingAICommonOptionLoadTests
 		door.SetupGet(x => x.Parent).Returns(doorItem.Object);
 		var exit = new Mock<IExit>();
 		exit.SetupGet(x => x.Door).Returns(door.Object);
-		var cellExit = new Mock<ICellExit>();
+		var cellExit = new Mock<IRoomExit>();
 		cellExit.SetupGet(x => x.Exit).Returns(exit.Object);
 		var character = new Mock<ICharacter>();
 		var race = new Mock<IRace>();
@@ -105,7 +105,7 @@ public class PathingAICommonOptionLoadTests
 		var method = typeof(PathingAIBase).GetMethod("GetSuitabilityFunction",
 			BindingFlags.Instance | BindingFlags.NonPublic);
 		Assert.IsNotNull(method);
-		var suitability = (Func<ICellExit, bool>)method.Invoke(ai, new object[] { character.Object, true })!;
+		var suitability = (Func<IRoomExit, bool>)method.Invoke(ai, new object[] { character.Object, true })!;
 
 		Assert.IsTrue(suitability(cellExit.Object));
 	}

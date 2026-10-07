@@ -184,12 +184,12 @@ public abstract class GameItemComponent : LateInitialisingItem, IGameItemCompone
         return false;
     }
 
-    public virtual bool HandleDieOrMorph(IGameItem newItem, ICell location)
+    public virtual bool HandleDieOrMorph(IGameItem newItem, IRoom location)
     {
         return false;
     }
 
-	public bool HandleDieOrMorph(IGameItem newItem, ICell location, SpatialLocation? capturedSource)
+	public bool HandleDieOrMorph(IGameItem newItem, IRoom location, SpatialLocation? capturedSource)
 	{
 		var previousSource = _activeDieOrMorphSource;
 		_activeDieOrMorphSource = capturedSource;
@@ -328,7 +328,7 @@ public abstract class GameItemComponent : LateInitialisingItem, IGameItemCompone
 	/// supplied legacy cell is still the parent's current cell. Explicit destinations continue to
 	/// use the supplied cell's normal insertion semantics.
 	/// </summary>
-	protected void InsertAtParentSpatialLocation(IGameItem item, ICell fallbackLocation, bool newStack = false,
+	protected void InsertAtParentSpatialLocation(IGameItem item, IRoom fallbackLocation, bool newStack = false,
 		ILocateable preferredSource = null)
 	{
 		if (fallbackLocation is null)
@@ -337,11 +337,11 @@ public abstract class GameItemComponent : LateInitialisingItem, IGameItemCompone
 		}
 
 		if (_activeDieOrMorphSource is { } capturedSource &&
-			ReferenceEquals(capturedSource.Cell, fallbackLocation) &&
+			ReferenceEquals(capturedSource.Room, fallbackLocation) &&
 			fallbackLocation.RouteDefinition is not null)
 		{
 			item.InsertAtSpatialLocation(new SpatialLocation(
-				capturedSource.Cell,
+				capturedSource.Room,
 				item.RoomLayer,
 				capturedSource.RoutePositionMetres), newStack);
 			return;

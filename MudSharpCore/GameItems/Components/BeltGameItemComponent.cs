@@ -60,7 +60,7 @@ public class BeltGameItemComponent : GameItemComponent, IBelt
         return false;
     }
 
-    public override bool HandleDieOrMorph(IGameItem newItem, ICell location)
+    public override bool HandleDieOrMorph(IGameItem newItem, IRoom location)
     {
         if (!ConnectedItems.Any())
         {

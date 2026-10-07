@@ -148,7 +148,7 @@ public sealed partial class MonsterAI : CreatureAIBase
 	protected override bool TryGuardingAttack(ICharacter actor, ICharacter target) => BeginHunt(actor, target);
 	private bool InDefendedArea(ICharacter actor, ICharacter target)
 	{
-		var home = ResolveHomeBase(actor).HomeCell;
+		var home = ResolveHomeBase(actor).HomeRoom;
 		if (home is null) return false;
 		// Called only for an observed target. Radius is topology distance, with zero meaning the home cell.
 		return target.DistanceBetween(home, (uint)GuardRange) is var distance && distance >= 0 && distance <= GuardRange;
@@ -198,7 +198,7 @@ public sealed partial class MonsterAI : CreatureAIBase
 		if (intent.Motive == MonsterMotive.Hunger && (!PredatorAIHelpers.IsHungry(actor) || NpcSurvivalAIHelpers.IsThirsty(actor))) return true;
 		if (intent.Motive == MonsterMotive.Territory)
 		{
-			var home = ResolveHomeBase(actor).HomeCell;
+			var home = ResolveHomeBase(actor).HomeRoom;
 			if (home is null || actor.DistanceBetween(home, (uint)Hunting.PursuitRange) < 0) return true;
 		}
 		return false;
@@ -276,14 +276,14 @@ public sealed partial class MonsterAI : CreatureAIBase
 				return AdvanceHunt(actor, hunt);
 			}
 			if (type.In(EventType.FiveSecondTick, EventType.TenSecondTick, EventType.MinuteTick, EventType.LeaveCombat,
-				EventType.CharacterStopMovement, EventType.CharacterEnterCellFinish, EventType.CharacterEnterCellWitness,
+				EventType.CharacterStopMovement, EventType.CharacterEnterRoomFinish, EventType.CharacterEnterRoomWitness,
 				EventType.CharacterDiesWitness, EventType.TrapCaughtPrey))
 				return AdvanceHunt(actor, hunt);
 			return base.HandleEvent(type, arguments);
 		}
 		if (!CharacterState.Able.HasFlag(actor.State) || actor.Combat is not null || actor.Movement is not null ||
 		    actor.CombinedEffectsOfType<IEffect>().Any(x => x.IsBlockingEffect("general") || x.IsBlockingEffect("movement") || x.IsBlockingEffect("combat-engage"))) return false;
-		if (type.In(EventType.TenSecondTick, EventType.MinuteTick, EventType.CharacterEnterCellWitness, EventType.TrapCaughtPrey,
+		if (type.In(EventType.TenSecondTick, EventType.MinuteTick, EventType.CharacterEnterRoomWitness, EventType.TrapCaughtPrey,
 			EventType.LeaveCombat, EventType.CharacterDiesWitness))
 		{
 			if (Feeding == MonsterFeedingMode.Needs && (NpcSurvivalAIHelpers.TryDrinkIfThirsty(actor) || PredatorAIHelpers.EatLocalCorpseIfHungry(actor))) return true;
@@ -319,30 +319,30 @@ public sealed partial class MonsterAI : CreatureAIBase
 		return BeginHunt(actor, target);
 	}
 	public override bool HandlesEvent(params EventType[] types) => types.Any(x => x.In(EventType.TenSecondTick,
-		EventType.CharacterEnterCellWitness, EventType.EngagedInCombat, EventType.CharacterDiesWitness, EventType.TrapCaughtPrey)) || base.HandlesEvent(types);
+		EventType.CharacterEnterRoomWitness, EventType.EngagedInCombat, EventType.CharacterDiesWitness, EventType.TrapCaughtPrey)) || base.HandlesEvent(types);
 
 	protected override bool IsPathingEnabled(ICharacter actor) => ControllerConflict(actor) is null && ConfigurationError() is null &&
 		!actor.EffectsOfType<MonsterIntentEffect>().Any(x => x.AiId == Id && (x.Phase == AnimalHuntPhase.Abandoned || HuntExpired(actor, x)));
-	protected override bool PermitsPursuitCell(ICharacter actor, ICell cell)
+	protected override bool PermitsPursuitRoom(ICharacter actor, IRoom room)
 	{
 		var hunt = actor.EffectsOfType<MonsterIntentEffect>().FirstOrDefault(x => x.AiId == Id);
 		if (hunt is null) return true;
-		var origin = hunt.Motive == MonsterMotive.Territory ? ResolveHomeBase(actor).HomeCell : Gameworld.Cells.Get(hunt.OriginCellId);
-		return origin is not null && cell.DistanceBetween(origin, (uint)Hunting.PursuitRange) >= 0;
+		var origin = hunt.Motive == MonsterMotive.Territory ? ResolveHomeBase(actor).HomeRoom : Gameworld.Rooms.Get(hunt.OriginRoomId);
+		return origin is not null && room.DistanceBetween(origin, (uint)Hunting.PursuitRange) >= 0;
 	}
 	protected override bool WouldMove(ICharacter actor) => IsPathingEnabled(actor) &&
 		(actor.EffectsOfType<MonsterIntentEffect>().Any(x => x.AiId == Id && x.Phase != AnimalHuntPhase.Abandoned) ||
 		 // Completing an owned preparation path is independent of starting a random wander.
 		 actor.EffectsOfType<FollowingPath>().Any(x => ReferenceEquals(x.PathingOwner, this)) && ActivityWindow.InactiveReason(actor) is null ||
 		 Feeding == MonsterFeedingMode.Needs && NpcSurvivalAIHelpers.IsThirsty(actor) ||
-		 ReturnHome && !(State(actor)?.ReturnRetryUntil > RuntimeClock.UtcNow) && ResolveHomeBase(actor).HomeCell is { } home && home != actor.Location ||
+		 ReturnHome && !(State(actor)?.ReturnRetryUntil > RuntimeClock.UtcNow) && ResolveHomeBase(actor).HomeRoom is { } home && home != actor.Location ||
 		 MovementEnabledProg.ExecuteBool(false, actor) && RandomUtilities.DoubleRandom(0, 1) <= WanderChancePerMinute);
-	protected override (ICell? Target, IEnumerable<ICellExit>) GetPath(ICharacter actor)
+	protected override (IRoom? Target, IEnumerable<IRoomExit>) GetPath(ICharacter actor)
 	{
 		var hunt = actor.EffectsOfType<MonsterIntentEffect>().FirstOrDefault(x => x.AiId == Id);
 		if (hunt is null && Feeding == MonsterFeedingMode.Needs && NpcSurvivalAIHelpers.IsThirsty(actor))
 			return NpcSurvivalAIHelpers.GetPathToWater(actor, GetAnimalSuitabilityFunction(actor), DefaultNeedRange);
-		var destination = hunt is not null ? Gameworld.Cells.Get(hunt.LastCellId) : ReturnHome ? ResolveHomeBase(actor).HomeCell : null;
+		var destination = hunt is not null ? Gameworld.Rooms.Get(hunt.LastRoomId) : ReturnHome ? ResolveHomeBase(actor).HomeRoom : null;
 		if (destination is not null && (hunt is not null || destination != actor.Location))
 		{
 			if (hunt is null && State(actor)?.ReturnRetryUntil > RuntimeClock.UtcNow) return (null, []);
@@ -355,20 +355,20 @@ public sealed partial class MonsterAI : CreatureAIBase
 	internal int ReturnSearchRange => (int)Math.Min(int.MaxValue, (long)MovementRange + Hunting.PursuitRange + GuardRange);
 	protected override bool FollowHuntObservation(ICharacter actor, CreaturePursuitEffect hunt)
 	{
-		if (Gameworld.Cells.Get(hunt.LastCellId) is not { } cell) return false;
-		if (cell != actor.Location || cell.RouteDefinition is not null)
+		if (Gameworld.Rooms.Get(hunt.LastRoomId) is not { } room) return false;
+		if (room != actor.Location || room.RouteDefinition is not null)
 		{
 			CheckPathingEffect(actor, true);
 			return true;
 		}
 		return base.FollowHuntObservation(actor, hunt);
 	}
-	protected override (ICell? Target, ISpatialPath? Path) GetSpatialPath(ICharacter actor)
+	protected override (IRoom? Target, ISpatialPath? Path) GetSpatialPath(ICharacter actor)
 	{
 		var hunt = actor.EffectsOfType<MonsterIntentEffect>().FirstOrDefault(x => x.AiId == Id);
-		if (hunt is null || Gameworld.Cells.Get(hunt.LastCellId) is not { } cell) return (null, null);
-		if (cell.RouteDefinition is not null && hunt.LastRoutePosition is null) return (null, null);
-		var destination = new SpatialLocation(cell, hunt.LastLayer, hunt.LastRoutePosition);
-		return TryFindSpatialPath(actor, destination, Hunting.PursuitRange, GetAnimalSuitabilityFunction(actor), out var path) ? (cell, path) : (null, null);
+		if (hunt is null || Gameworld.Rooms.Get(hunt.LastRoomId) is not { } room) return (null, null);
+		if (room.RouteDefinition is not null && hunt.LastRoutePosition is null) return (null, null);
+		var destination = new SpatialLocation(room, hunt.LastLayer, hunt.LastRoutePosition);
+		return TryFindSpatialPath(actor, destination, Hunting.PursuitRange, GetAnimalSuitabilityFunction(actor), out var path) ? (room, path) : (null, null);
 	}
 }

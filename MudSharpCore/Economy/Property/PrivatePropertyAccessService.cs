@@ -9,14 +9,14 @@ namespace MudSharp.Economy.Property;
 
 public static class PrivatePropertyAccessService
 {
-	public static PrivatePropertyEffect? EffectFor(ICell cell)
+	public static PrivatePropertyEffect? EffectFor(IRoom room)
 	{
-		return cell.EffectsOfType<PrivatePropertyEffect>().FirstOrDefault();
+		return room.EffectsOfType<PrivatePropertyEffect>().FirstOrDefault();
 	}
 
-	public static PrivatePropertyAccessResult Evaluate(ICell cell, ICharacter actor)
+	public static PrivatePropertyAccessResult Evaluate(IRoom room, ICharacter actor)
 	{
-		var effect = EffectFor(cell);
+		var effect = EffectFor(room);
 		if (effect is null)
 		{
 			return new PrivatePropertyAccessResult(false, true, null,
@@ -36,7 +36,7 @@ public static class PrivatePropertyAccessService
 		}
 
 		if (actor.AffectedBy<PermitWork>(x =>
-			    x.Cell == cell || x.Property == controller ||
+			    x.Room == room || x.Property == controller ||
 			    x.Controller?.FrameworkItemType == controller.FrameworkItemType &&
 			    x.Controller.Id == controller.Id))
 		{
@@ -45,7 +45,7 @@ public static class PrivatePropertyAccessService
 
 		return controller switch
 		{
-			IProperty property => EvaluateProperty(property, cell, actor),
+			IProperty property => EvaluateProperty(property, room, actor),
 			IEmploymentHost host => EvaluateHost(host, actor),
 			_ => new PrivatePropertyAccessResult(true, false, controller,
 				PrivatePropertyAccessReason.InvalidController,
@@ -53,7 +53,7 @@ public static class PrivatePropertyAccessService
 		};
 	}
 
-	private static PrivatePropertyAccessResult EvaluateProperty(IProperty property, ICell cell, ICharacter actor)
+	private static PrivatePropertyAccessResult EvaluateProperty(IProperty property, IRoom room, ICharacter actor)
 	{
 		if (property.IsAuthorisedOwner(actor))
 		{
@@ -83,7 +83,7 @@ public static class PrivatePropertyAccessService
 			return Allowed(property, PrivatePropertyAccessReason.Tenant, "The character is a declared tenant.");
 		}
 
-		if (property.HotelRoomForCell(cell)?.ActiveRental?.Guest == actor)
+		if (property.HotelRoomForRoom(room)?.ActiveRental?.Guest == actor)
 		{
 			return Allowed(property, PrivatePropertyAccessReason.HotelGuest,
 				"The character is the active guest for this room.");

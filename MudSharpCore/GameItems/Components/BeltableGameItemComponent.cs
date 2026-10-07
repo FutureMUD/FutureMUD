@@ -38,7 +38,7 @@ public class BeltableGameItemComponent : GameItemComponent, IBeltable
         return new BeltableGameItemComponent(this, newParent, temporary);
     }
 
-    public override bool HandleDieOrMorph(IGameItem newItem, ICell location)
+    public override bool HandleDieOrMorph(IGameItem newItem, IRoom location)
     {
         if (ConnectedTo == null)
         {

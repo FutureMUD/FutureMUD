@@ -69,11 +69,11 @@ public abstract class CrimeTargetedPatrolStrategyBase : ArmedPatrolStrategy, ICr
 
 	protected bool RouteCoversCrime(IPatrolRoute patrol, ICrime crime)
 	{
-		ICell location = crime.CrimeLocation;
+		IRoom location = crime.CrimeLocation;
 		return patrol.PatrolNodes.Any(x => x == location || PathLengthBetween(x, location, CoverageRadius) is not null);
 	}
 
-	protected static int? PathLengthBetween(ICell origin, ICell destination, int maximumDistance)
+	protected static int? PathLengthBetween(IRoom origin, IRoom destination, int maximumDistance)
 	{
 		if (origin == destination)
 		{
@@ -85,7 +85,7 @@ public abstract class CrimeTargetedPatrolStrategyBase : ArmedPatrolStrategy, ICr
 			return null;
 		}
 
-		List<ICellExit> path = origin.PathBetween(destination, (uint)maximumDistance, PathSearch.IgnorePresenceOfDoors).ToList();
+		List<IRoomExit> path = origin.PathBetween(destination, (uint)maximumDistance, PathSearch.IgnorePresenceOfDoors).ToList();
 		if (path.Any())
 		{
 			return path.Count;
@@ -126,22 +126,22 @@ public abstract class CrimeTargetedPatrolStrategyBase : ArmedPatrolStrategy, ICr
 			: null;
 	}
 
-	protected List<ICell> PatrolAreaNodes(IPatrol patrol, ICrime crime)
+	protected List<IRoom> PatrolAreaNodes(IPatrol patrol, ICrime crime)
 	{
-		ICell location = crime.CrimeLocation;
-		List<ICell> nodes = new() { location };
+		IRoom location = crime.CrimeLocation;
+		List<IRoom> nodes = new() { location };
 		nodes.AddRange(patrol.PatrolRoute.PatrolNodes
 		                     .Where(x => x != location)
-		                     .Select(x => (Cell: x, Distance: PathLengthBetween(x, location, CoverageRadius)))
+		                     .Select(x => (Room: x, Distance: PathLengthBetween(x, location, CoverageRadius)))
 		                     .Where(x => x.Distance is not null)
 		                     .OrderBy(x => x.Distance!.Value)
-		                     .Select(x => x.Cell));
+		                     .Select(x => x.Room));
 		return nodes.Distinct().ToList();
 	}
 
-	protected ICell NextAreaNode(IPatrol patrol, ICrime crime, ICell current)
+	protected IRoom NextAreaNode(IPatrol patrol, ICrime crime, IRoom current)
 	{
-		List<ICell> nodes = PatrolAreaNodes(patrol, crime);
+		List<IRoom> nodes = PatrolAreaNodes(patrol, crime);
 		if (nodes.Count == 0)
 		{
 			return crime.CrimeLocation;
@@ -224,7 +224,7 @@ public abstract class CrimeTargetedPatrolStrategyBase : ArmedPatrolStrategy, ICr
 		MoveLeaderToTargetNode(patrol, patrol.NextMajorNode);
 	}
 
-	protected void MoveLeaderToTargetNode(IPatrol patrol, ICell destination)
+	protected void MoveLeaderToTargetNode(IPatrol patrol, IRoom destination)
 	{
 		if (destination is null)
 		{
@@ -264,7 +264,7 @@ public abstract class CrimeTargetedPatrolStrategyBase : ArmedPatrolStrategy, ICr
 		}
 	}
 
-	protected virtual void HandleArrivedAtTargetNode(IPatrol patrol, ICell node)
+	protected virtual void HandleArrivedAtTargetNode(IPatrol patrol, IRoom node)
 	{
 		if (patrol.LastMajorNode != node)
 		{

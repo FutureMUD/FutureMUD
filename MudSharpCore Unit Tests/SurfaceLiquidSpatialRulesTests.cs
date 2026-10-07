@@ -22,7 +22,7 @@ public class SurfaceLiquidSpatialRulesTests
 	[TestMethod]
 	public void Normalise_RouteBoundsAndOrdinaryCompatibility_AreFailClosed()
 	{
-		var route = new Mock<IRouteCellDefinition>();
+		var route = new Mock<IRouteRoomDefinition>();
 		route.SetupGet(x => x.LengthMetres).Returns(10_000.0);
 
 		Assert.AreEqual(7_150.123, SurfaceLiquidSpatialRules.Normalise(route.Object, 7_150.1234));

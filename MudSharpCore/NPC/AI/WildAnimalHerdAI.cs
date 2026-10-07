@@ -178,8 +178,8 @@ public class WildAnimalHerdFleeReaction : WildAnimalHerdAIReaction
 
         mover.AddEffect(new DelayedAction(mover, perc =>
         {
-            List<ICellExit> exits = mover.Location.ExitsFor(character).ToList();
-            ICellExit exit = exits.Where(x => mover.CanMove(x))
+            List<IRoomExit> exits = mover.Location.ExitsFor(character).ToList();
+            IRoomExit exit = exits.Where(x => mover.CanMove(x))
                             .GetWeightedRandom(x => _directionEvaluationProg.ExecuteDouble(0.0, mover, x));
             if (exit == null)
             {
@@ -865,13 +865,13 @@ public class WildAnimalHerdAI : PathingAIBase
 
     private List<ICharacter> GetStressors(ICharacter character, List<INPC> herd)
     {
-        return character.Location.CellsInVicinity(_threatAwarenessDistance, true, false)
+        return character.Location.RoomsInVicinity(_threatAwarenessDistance, true, false)
                         .SelectMany(x => x.Characters)
                         .Where(x => ConsidersThreat(character, x) && herd.Any(y => y.CanSee(x)))
                         .ToList();
     }
 
-    private List<(ICharacter Character, IEnumerable<ICellExit> Directions)> GetStressorsAndDirections(
+    private List<(ICharacter Character, IEnumerable<IRoomExit> Directions)> GetStressorsAndDirections(
         ICharacter character, List<INPC> herd)
     {
         bool EvaluateFunc(ICharacter target)
@@ -919,7 +919,7 @@ public class WildAnimalHerdAI : PathingAIBase
         ICharacter ch =
                 type switch
                 {
-                    EventType.CharacterEnterCellFinishWitness => (ICharacter)arguments[3],
+                    EventType.CharacterEnterRoomFinishWitness => (ICharacter)arguments[3],
                     EventType.CharacterBeginMovementWitness => (ICharacter)arguments[3],
                     EventType.EngagedInCombatWitness => (ICharacter)arguments[2],
                     EventType.EngagedInCombat => (ICharacter)arguments[1],
@@ -933,14 +933,14 @@ public class WildAnimalHerdAI : PathingAIBase
 
         switch (type)
         {
-            case EventType.CharacterEnterCellFinish:
-                return CharacterEnterCellFinish((ICharacter)arguments[0], (ICell)arguments[1],
-                    (ICellExit)arguments[2]) || base.HandleEvent(type, arguments);
-            case EventType.CharacterEnterCellFinishWitness:
-                return CharacterEnterCellFinishWitness((ICharacter)arguments[0], (ICell)arguments[1],
-                    (ICellExit)arguments[2], (ICharacter)arguments[3]);
+            case EventType.CharacterEnterRoomFinish:
+                return CharacterEnterRoomFinish((ICharacter)arguments[0], (IRoom)arguments[1],
+                    (IRoomExit)arguments[2]) || base.HandleEvent(type, arguments);
+            case EventType.CharacterEnterRoomFinishWitness:
+                return CharacterEnterRoomFinishWitness((ICharacter)arguments[0], (IRoom)arguments[1],
+                    (IRoomExit)arguments[2], (ICharacter)arguments[3]);
             case EventType.CharacterBeginMovementWitness:
-                return CharacterBeginMovementWitness((ICharacter)arguments[0], (ICellExit)arguments[2],
+                return CharacterBeginMovementWitness((ICharacter)arguments[0], (IRoomExit)arguments[2],
                     (ICharacter)arguments[3]);
             case EventType.NPCOnGameLoadFinished:
                 return NPCLoadedCheck((ICharacter)arguments[0]);
@@ -960,7 +960,7 @@ public class WildAnimalHerdAI : PathingAIBase
         }
     }
 
-    private bool CharacterBeginMovementWitness(ICharacter character, ICellExit exit, ICharacter witness)
+    private bool CharacterBeginMovementWitness(ICharacter character, IRoomExit exit, ICharacter witness)
     {
         WildAnimalHerdEffect effect = witness.EffectsOfType<WildAnimalHerdEffect>().FirstOrDefault();
         if (effect == null)
@@ -1090,7 +1090,7 @@ public class WildAnimalHerdAI : PathingAIBase
             character.MovePosition(PositionStanding.Instance, null, null);
         }
 
-        bool SuitabilityFunction(ICellExit exit)
+        bool SuitabilityFunction(IRoomExit exit)
         {
             return _willMoveIntoRoomProg?.Execute<bool?>(character, exit.Destination, state) != false &&
                    exit.Exit.Door?.IsOpen != false && character.CanMove(exit);
@@ -1099,7 +1099,7 @@ public class WildAnimalHerdAI : PathingAIBase
         WildAnimalHerdEffect effect = character.EffectsOfType<WildAnimalHerdEffect>().First().HerdLeaderEffectOrSelf;
         if (effect.HerdLeader.Location != character.Location && role != WildAnimalHerdRole.Outsider)
         {
-            List<ICellExit> pathToLeader = character.PathBetween(effect.HerdLeader, _maximumHerdDispersement, SuitabilityFunction)
+            List<IRoomExit> pathToLeader = character.PathBetween(effect.HerdLeader, _maximumHerdDispersement, SuitabilityFunction)
                                         .ToList();
             if (pathToLeader.Any())
             {
@@ -1116,7 +1116,7 @@ public class WildAnimalHerdAI : PathingAIBase
         {
             if (character.CanMove(CanMoveFlags.IgnoreCancellableActionBlockers | CanMoveFlags.IgnoreSafeMovement | CanMoveFlags.IgnoreWhetherExitCanBeCrossed))
             {
-                List<ICellExit> pathToLeader = character
+                List<IRoomExit> pathToLeader = character
                                    .PathBetween(effect.HerdLeader, _maximumHerdDispersement, SuitabilityFunction)
                                    .ToList();
 
@@ -1133,17 +1133,17 @@ public class WildAnimalHerdAI : PathingAIBase
                 // Move away from herd if too close
                 if (pathToLeader.Count < _minimumDistanceForOutsiders)
                 {
-                    List<(ICell Cell, int Distance)> validZone = effect.HerdLeader.Location
-                                          .CellsAndDistancesInVicinity(_maximumDistanceForOutsiders,
+                    List<(IRoom Room, int Distance)> validZone = effect.HerdLeader.Location
+                                          .RoomsAndDistancesInVicinity(_maximumDistanceForOutsiders,
                                               SuitabilityFunction,
-                                          cell => _willMoveIntoRoomProg?.Execute<bool?>(character, cell, state) !=
+                                          room => _willMoveIntoRoomProg?.Execute<bool?>(character, room, state) !=
                                                       false)
                                           .Where(x => x.Item2 >= _minimumDistanceForOutsiders)
                                           .OrderBy(x => x.Item1.EstimatedDirectDistanceTo(character.Location))
                                           .ToList();
-                    foreach ((ICell Cell, int Distance) cell in validZone)
+                    foreach ((IRoom Room, int Distance) room in validZone)
                     {
-                        List<ICellExit> path = character.PathBetween(cell.Cell, _maximumHerdDispersement, SuitabilityFunction)
+                        List<IRoomExit> path = character.PathBetween(room.Room, _maximumHerdDispersement, SuitabilityFunction)
                                             .ToList();
                         if (path.Any())
                         {
@@ -1207,7 +1207,7 @@ public class WildAnimalHerdAI : PathingAIBase
                     return true;
                 }
 
-                (List<ICellExit> path, ICell target) =
+                (List<IRoomExit> path, IRoom target) =
                     effect.KnownWater.Select(
                               x => (Path:
                                   character.PathBetween(
@@ -1227,7 +1227,7 @@ public class WildAnimalHerdAI : PathingAIBase
 
                 // No known water sources, wander randomly
                 AdjacentToExit recent = character.EffectsOfType<AdjacentToExit>().FirstOrDefault();
-                ICellExit random = character.Location.ExitsFor(character)
+                IRoomExit random = character.Location.ExitsFor(character)
                                       .Where(SuitabilityFunction)
                                       .GetWeightedRandom(x => recent?.Exit == x ? 1.0 : 100.0);
                 if (random != null && character.CanMove(random))
@@ -1440,23 +1440,23 @@ public class WildAnimalHerdAI : PathingAIBase
 
         if (priority == WildAnimalHerdPriority.Flee && state > WildAnimalHerdState.Alert)
         {
-            List<(ICharacter Character, IEnumerable<ICellExit> Directions)> potentialThreats = GetStressorsAndDirections(alpha, herd.Select(x => x.Animal).ToList());
+            List<(ICharacter Character, IEnumerable<IRoomExit> Directions)> potentialThreats = GetStressorsAndDirections(alpha, herd.Select(x => x.Animal).ToList());
             if (!potentialThreats.Any())
             {
                 effect.Priority = WildAnimalHerdPriority.Graze;
             }
 
-            ICellExit exitToMove = null;
+            IRoomExit exitToMove = null;
 
             List<CardinalDirection> directions = potentialThreats.Select(x => x.Directions)
-                                             .CountTotalDirections<IEnumerable<IEnumerable<ICellExit>>,
-                                                 IEnumerable<ICellExit>>()
+                                             .CountTotalDirections<IEnumerable<IEnumerable<IRoomExit>>,
+                                                 IEnumerable<IRoomExit>>()
                                              .ContainedDirections();
-            List<ICellExit> potentialExits = alpha.Location.ExitsFor(alpha)
+            List<IRoomExit> potentialExits = alpha.Location.ExitsFor(alpha)
                                       .Where(x => _willMoveIntoRoomProg?.Execute<bool?>(alpha, x.Destination, state) !=
                                                   false)
                                       .ToList();
-            List<ICellExit> preferredExits = potentialExits.Where(x => directions.Contains(x.OutboundDirection)).ToList();
+            List<IRoomExit> preferredExits = potentialExits.Where(x => directions.Contains(x.OutboundDirection)).ToList();
             if (preferredExits.Any())
             {
                 exitToMove = preferredExits.GetRandomElement();
@@ -1613,9 +1613,9 @@ public class WildAnimalHerdAI : PathingAIBase
         ICharacter leader = effect.HerdLeader;
         List<ICharacter> stressors = GetStressors(character, herd);
         List<(INPC Animal, WildAnimalHerdRole Role)> roles = GetHerdRoles(character);
-        List<ICellExit> escapes = character.Location.ExitsFor(character)
+        List<IRoomExit> escapes = character.Location.ExitsFor(character)
                                .Where(x => _willMoveAgitatedProg?.Execute<bool?>(character, x) != false).ToList();
-        ICellExit chosenEscape = escapes.GetRandomElement();
+        IRoomExit chosenEscape = escapes.GetRandomElement();
 
         void TryEngageInCombat(ICharacter animal)
         {
@@ -1709,7 +1709,7 @@ public class WildAnimalHerdAI : PathingAIBase
         return false;
     }
 
-    private bool CharacterEnterCellFinishWitness(ICharacter mover, ICell cell, ICellExit cellExit, ICharacter character)
+    private bool CharacterEnterRoomFinishWitness(ICharacter mover, IRoom room, IRoomExit cellExit, ICharacter character)
     {
         WildAnimalHerdEffect effect = character.EffectsOfType<WildAnimalHerdEffect>().FirstOrDefault();
         if (effect == null)
@@ -1732,7 +1732,7 @@ public class WildAnimalHerdAI : PathingAIBase
             return false;
         }
 
-        List<INPC> herd = cell.Location.Characters.OfType<INPC>().Where(x => x.AIs.Contains(this)).ToList();
+        List<INPC> herd = room.Location.Characters.OfType<INPC>().Where(x => x.AIs.Contains(this)).ToList();
         List<ICharacter> stressors = GetStressors(character, herd);
 
         if (EscalateThreat(character, herd, stressors, effect.State))
@@ -1746,7 +1746,7 @@ public class WildAnimalHerdAI : PathingAIBase
         return true;
     }
 
-    private bool CharacterEnterCellFinish(ICharacter character, ICell cell, ICellExit cellExit)
+    private bool CharacterEnterRoomFinish(ICharacter character, IRoom room, IRoomExit cellExit)
     {
         WildAnimalHerdEffect effect = character.EffectsOfType<WildAnimalHerdEffect>().FirstOrDefault();
         if (effect?.Role.In(WildAnimalHerdRole.Outsider, WildAnimalHerdRole.Alpha) != true)
@@ -1754,7 +1754,7 @@ public class WildAnimalHerdAI : PathingAIBase
             return false;
         }
 
-        List<INPC> herd = cell.Location.Characters.OfType<INPC>().Where(x => x.AIs.Contains(this)).ToList();
+        List<INPC> herd = room.Location.Characters.OfType<INPC>().Where(x => x.AIs.Contains(this)).ToList();
         List<ICharacter> stressors = GetStressors(character, herd);
 
         if (EscalateThreat(character, herd, stressors, effect.State))
@@ -1798,8 +1798,8 @@ public class WildAnimalHerdAI : PathingAIBase
 
     private void DoCheckForHerdRoles(ICharacter character)
     {
-        List<ICell> herdExtent = character
-                         .CellsInVicinity(_maximumHerdDispersement, false, false).ToList();
+        List<IRoom> herdExtent = character
+                         .RoomsInVicinity(_maximumHerdDispersement, false, false).ToList();
         List<(INPC Animal, WildAnimalHerdRole SuggestedRole)> potentialHerd = herdExtent
                             .SelectMany(x => x.Characters.OfType<INPC>().Where(y => y.AIs.Contains(this)))
                             .Select(x => (Animal: x, SuggestedRole: StringToRole(_herdRoleProg?.Execute<string>(x))))
@@ -1904,16 +1904,16 @@ public class WildAnimalHerdAI : PathingAIBase
         }
 
         // At load time, we'll assume they know about their local area
-        foreach (ICell cell in herdExtent)
+        foreach (IRoom room in herdExtent)
         {
-            if (LocalLiquids(character, cell).Any())
+            if (LocalLiquids(character, room).Any())
             {
-                leadereffect.KnownWater.Add(cell);
+                leadereffect.KnownWater.Add(room);
             }
         }
     }
 
-    private List<ILiquidContainer> LocalLiquids(ICharacter character, ICell location)
+    private List<ILiquidContainer> LocalLiquids(ICharacter character, IRoom location)
     {
         return location.LayerGameItems(character.RoomLayer).SelectNotNull(x => x.GetItemType<ILiquidContainer>())
                        .Where(x => x.LiquidMixture.Instances.Sum(
@@ -1947,8 +1947,8 @@ public class WildAnimalHerdAI : PathingAIBase
         {
             switch (type)
             {
-                case EventType.CharacterEnterCellFinish:
-                case EventType.CharacterEnterCellFinishWitness:
+                case EventType.CharacterEnterRoomFinish:
+                case EventType.CharacterEnterRoomFinishWitness:
                 case EventType.CharacterBeginMovementWitness:
                 case EventType.NPCOnGameLoadFinished:
                 case EventType.EngagedInCombat:
@@ -1963,9 +1963,9 @@ public class WildAnimalHerdAI : PathingAIBase
         });
     }
 
-    protected override (ICell? Target, IEnumerable<ICellExit>) GetPath(ICharacter ch)
+    protected override (IRoom? Target, IEnumerable<IRoomExit>) GetPath(ICharacter ch)
     {
         // This AI always supplies its own paths through other means
-        return (null, Enumerable.Empty<ICellExit>());
+        return (null, Enumerable.Empty<IRoomExit>());
     }
 }

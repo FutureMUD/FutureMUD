@@ -541,19 +541,19 @@ The syntax is:
 		var candidates = new List<(IVehicleRouteStop Stop, int Priority, double Distance)>();
 		foreach (var stop in route.Stops)
 		{
-			if (actorLocation.Cell.RouteDefinition is null &&
-				stop.PlatformBindings.Any(x => x.PlatformCell == actorLocation.Cell))
+			if (actorLocation.Room.RouteDefinition is null &&
+				stop.PlatformBindings.Any(x => x.PlatformRoom == actorLocation.Room))
 			{
 				candidates.Add((stop, 0, 0.0));
 				continue;
 			}
 
-			if (stop.Location.Cell != actorLocation.Cell)
+			if (stop.Location.Room != actorLocation.Room)
 			{
 				continue;
 			}
 
-			if (actorLocation.Cell.RouteDefinition is null)
+			if (actorLocation.Room.RouteDefinition is null)
 			{
 				candidates.Add((stop, 1, 0.0));
 				continue;
@@ -604,8 +604,8 @@ The syntax is:
 		{
 			var terminal = service.Route.Stops.OrderBy(x => x.Sequence).Last();
 			var platform = localStop!.PlatformBindings
-				.Where(x => x.PlatformCell == actorLocation.Cell)
-				.Select(x => $"cell #{x.PlatformCell.Id.ToString("N0", actor)} via {x.AccessPoint.Name.ColourName()}")
+				.Where(x => x.PlatformRoom == actorLocation.Room)
+				.Select(x => $"cell #{x.PlatformRoom.Id.ToString("N0", actor)} via {x.AccessPoint.Name.ColourName()}")
 				.DefaultIfEmpty("route-side stop")
 				.ListToString();
 			if (service.ActiveJourney is { } journey)
@@ -679,7 +679,7 @@ The syntax is:
 		}
 		var stop = journey.CurrentStop;
 		var platforms = stop?.PlatformBindings
-			.Select(x => $"cell #{x.PlatformCell.Id.ToString("N0", actor)} via {x.AccessPoint.Name.ColourName()}")
+			.Select(x => $"cell #{x.PlatformRoom.Id.ToString("N0", actor)} via {x.AccessPoint.Name.ColourName()}")
 			.ToList() ?? [];
 		actor.OutputHandler.Send($"{service.Name.ColourName()}: {journey.State.DescribeEnum().ColourName()}, scheduled {journey.ScheduledDeparture.ToString().ColourValue()}, expected {journey.ExpectedDeparture.ToString().ColourValue()}, current stop {journey.CurrentStop?.Name.ColourName() ?? "none"}, next stop {journey.NextStop?.Name.ColourName() ?? "none"}, platform {(platforms.Any() ? platforms.ListToString() : "none")}, delay {journey.Delay.Describe(actor).ColourValue()}, boarding {(journey.BoardingOpen ? "open".Colour(Telnet.Green) : "closed".Colour(Telnet.Yellow))}{(string.IsNullOrWhiteSpace(journey.StatusReason) ? string.Empty : $", reason: {journey.StatusReason.ColourError()}")}.");
 	}

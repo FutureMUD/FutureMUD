@@ -38,7 +38,7 @@ public class Empathy : Effect, IEffectSubtype, ITelepathyEffect
 
     public override bool Applies(object target)
     {
-        ICell location = (target as ILocateable)?.Location;
+        IRoom location = (target as ILocateable)?.Location;
         return location != null &&
                (location.ExitsFor(null).Any(x =>
                     x.Destination == Owner.Location) ||

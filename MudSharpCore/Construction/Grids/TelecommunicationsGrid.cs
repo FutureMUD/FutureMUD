@@ -88,7 +88,7 @@ public class TelecommunicationsGrid : GridBase, ITelecommunicationsGrid
         }
     }
 
-    public TelecommunicationsGrid(IFuturemud gameworld, ICell? initialLocation, string prefix, int numberLength,
+    public TelecommunicationsGrid(IFuturemud gameworld, IRoom? initialLocation, string prefix, int numberLength,
         bool hostedVoicemailEnabled = false, string? hostedVoicemailAccessCode = null)
         : base(gameworld, initialLocation)
     {

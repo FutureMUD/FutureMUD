@@ -13,6 +13,6 @@ namespace MudSharp.Effects.Interfaces
 	public interface IDoorguardModeEffect : IEffectSubtype
 	{
 		DoorguardAccessMode AccessMode { get; }
-		bool? PermitsDoorOpening(ICharacter doorguard, ICharacter target, ICellExit exit);
+		bool? PermitsDoorOpening(ICharacter doorguard, ICharacter target, IRoomExit exit);
 	}
 }

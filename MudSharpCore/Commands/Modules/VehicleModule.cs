@@ -209,7 +209,7 @@ Syntax:
 	private static bool DockingIsActiveAt(IVehicleDocking docking, ICharacter actor)
 	{
 		return docking.State == VehicleDockingState.BoardingOpen &&
-		       docking.ExteriorCell.Id == actor.Location.Id &&
+		       docking.ExteriorRoom.Id == actor.Location.Id &&
 		       docking.ExteriorLayer == actor.RoomLayer &&
 		       (docking is not VehicleDocking runtime || runtime.IsRegistered);
 	}
@@ -2207,7 +2207,7 @@ Builder and service workflow: #3vehicleproto#0 authors the revisioned definition
 		sb.AppendLine($"Scale: {vehicle.Prototype.Scale.DescribeEnum().ColourValue()}");
 		sb.AppendLine($"Canonical Location: {movement.LocationType.DescribeEnum().ColourValue()} {(movement.Location is null ? "nowhere".ColourError() : movement.Location.HowSeen(actor))} [{movement.RoomLayer.DescribeEnum().ColourValue()}]");
 		sb.AppendLine($"Movement: {movement.MovementStatus.DescribeEnum().ColourValue()}");
-		sb.AppendLine($"Transit: Exit #{movement.CurrentExitId?.ToString("N0", actor) ?? "none"}, Destination #{movement.DestinationCellId?.ToString("N0", actor) ?? "none"}");
+		sb.AppendLine($"Transit: Exit #{movement.CurrentExitId?.ToString("N0", actor) ?? "none"}, Destination #{movement.DestinationRoomId?.ToString("N0", actor) ?? "none"}");
 		if (movement.Location?.RouteDefinition is { } routeDefinition)
 		{
 			var effectivePosition = vehicle.ExteriorItem is null
@@ -2238,12 +2238,12 @@ Builder and service workflow: #3vehicleproto#0 authors the revisioned definition
 		sb.AppendLine();
 		sb.AppendLine("Hosted Compartments:");
 		sb.AppendLine(vehicle.Compartments.Any()
-			? vehicle.Compartments.Select(x => $"\t#{x.Id.ToString("N0", actor)} {x.Name.ColourName()} interior #{x.InteriorCellId?.ToString("N0", actor) ?? "missing".ColourError()} [{x.Prototype.InteriorTerrain?.Name.ColourName() ?? "terrain missing".ColourError()}, {x.Prototype.InteriorOutdoorsType.Describe().ColourValue()}] links {x.Links.Count().ToString("N0", actor).ColourValue()}").ListToString(separator: "\n", conjunction: "", twoItemJoiner: "\n")
+			? vehicle.Compartments.Select(x => $"\t#{x.Id.ToString("N0", actor)} {x.Name.ColourName()} interior #{x.InteriorRoomId?.ToString("N0", actor) ?? "missing".ColourError()} [{x.Prototype.InteriorTerrain?.Name.ColourName() ?? "terrain missing".ColourError()}, {x.Prototype.InteriorOutdoorsType.Describe().ColourValue()}] links {x.Links.Count().ToString("N0", actor).ColourValue()}").ListToString(separator: "\n", conjunction: "", twoItemJoiner: "\n")
 			: "\tNone");
 		sb.AppendLine();
 		sb.AppendLine("Dockings:");
 		sb.AppendLine(vehicle.Dockings.Any()
-			? vehicle.Dockings.Select(x => $"\t#{x.Id.ToString("N0", actor)} {x.AccessPoint.Name.ColourName()} -> {x.Compartment.Name.ColourName()} at cell #{x.ExteriorCell.Id.ToString("N0", actor)} [{x.ExteriorLayer.DescribeEnum().ColourValue()}] {x.State.DescribeEnum().ColourValue()}{(x is VehicleDocking runtimeDocking && runtimeDocking.IsRegistered ? $" exit #{runtimeDocking.TransientExit.Id.ToString("N0", actor)}" : " no live exit".Colour(Telnet.Yellow))}").ListToString(separator: "\n", conjunction: "", twoItemJoiner: "\n")
+			? vehicle.Dockings.Select(x => $"\t#{x.Id.ToString("N0", actor)} {x.AccessPoint.Name.ColourName()} -> {x.Compartment.Name.ColourName()} at cell #{x.ExteriorRoom.Id.ToString("N0", actor)} [{x.ExteriorLayer.DescribeEnum().ColourValue()}] {x.State.DescribeEnum().ColourValue()}{(x is VehicleDocking runtimeDocking && runtimeDocking.IsRegistered ? $" exit #{runtimeDocking.TransientExit.Id.ToString("N0", actor)}" : " no live exit".Colour(Telnet.Yellow))}").ListToString(separator: "\n", conjunction: "", twoItemJoiner: "\n")
 			: "\tNone");
 		sb.AppendLine();
 		sb.AppendLine("Access Points:");

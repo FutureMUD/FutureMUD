@@ -20,7 +20,7 @@ namespace FutureMUD.GatheringNativePersistenceHarness;
 
 internal static partial class GNHProgram
 {
-	private static int RunCellUniqueNames()
+	private static int RunRoomUniqueNames()
 	{
 		using var database = TestDatabase.CreateFresh(historicalExpanded: true);
 		ConfigureNativeDatabase(database.ConnectionString);
@@ -35,7 +35,7 @@ internal static partial class GNHProgram
 		using var connection = database.OpenOwnedConnection();
 		void Sql(string sql) { using var command = new MySqlCommand(sql, connection); command.ExecuteNonQuery(); }
 		long Scalar(string sql) { using var command = new MySqlCommand(sql, connection); return Convert.ToInt64(command.ExecuteScalar()); }
-		var roomId = Scalar($"SELECT RoomId FROM cells WHERE Id={fixture.CellId}");
+		var roomId = Scalar($"SELECT RoomId FROM cells WHERE Id={fixture.RoomId}");
 		var zoneId = Scalar($"SELECT ZoneId FROM rooms WHERE Id={roomId}");
 		Sql($"INSERT INTO rooms(Id,ZoneId,X,Y,Z) VALUES(9000,{zoneId},0,0,0),(9001,{zoneId},0,0,0);");
 		Sql($"INSERT INTO cells(Id,RoomId,EffectData,Temporary) VALUES(8000,{roomId},'<Effects/>',0),(8001,{roomId},'<Effects/>',1),(8002,9000,'<Effects/>',0);");
@@ -43,14 +43,14 @@ internal static partial class GNHProgram
 		Sql("INSERT INTO editableitems(Id,RevisionNumber,RevisionStatus,BuilderAccountId,BuilderDate) VALUES(9000,0,0,0,'2026-01-01');");
 		Sql("INSERT INTO celloverlaypackages(Id,RevisionNumber,Name,EditableItemId) VALUES(9000,0,'Legacy overlay package',9000);");
 		Sql("INSERT INTO terrains(Id,Name,MovementRate,TerrainBehaviourMode,HideDifficulty,SpotDifficulty,StaminaCost,ForagableProfileId,InfectionType) VALUES(9000,'Test terrain',1,'outdoors',0,0,1,0,0);");
-		foreach (var id in new[] { fixture.CellId, 8000L, 8001L, 8002L })
+		foreach (var id in new[] { fixture.RoomId, 8000L, 8001L, 8002L })
 		{
 			Sql($"INSERT INTO celloverlays(Id,Name,CellName,CellDescription,CellOverlayPackageId,CellOverlayPackageRevisionNumber,CellId,TerrainId,OutdoorsType,AddedLight,SafeQuit) VALUES({id},'Legacy overlay','Legacy cell {id}','Preserved description',9000,0,{id},9000,0,0,1); UPDATE cells SET CurrentOverlayId={id} WHERE Id={id};");
 		}
 		Sql("INSERT INTO exits(Id,CellId1,CellId2,Direction1,Direction2,TimeMultiplier,AcceptsDoor) VALUES(9000,8000,8002,1,3,1,0); INSERT INTO celloverlays_exits(CellOverlayId,ExitId) VALUES(8000,9000),(8002,9000);");
-		var before = CaptureLegacyCellData(connection);
+		var before = CaptureLegacyRoomData(connection);
 		using (var db = NewIndependentContext(database.ConnectionString)) db.GetService<IMigrator>().Migrate(db.Database.GetMigrations().Single(x => x.EndsWith("_CellUniqueNames", StringComparison.Ordinal)));
-		var after = CaptureLegacyCellData(connection);
+		var after = CaptureLegacyRoomData(connection);
 		Require(before.Count == after.Count && before.All(x => after.TryGetValue(x.Key, out var hash) && hash == x.Value), "Upgrade must preserve every existing table row and column (except migration history)." );
 		Require(Scalar("SELECT COUNT(*) FROM cells WHERE UniqueName IS NOT NULL") == 0, "No identifier backfill is allowed.");
 		Require(Scalar($"SELECT COUNT(*) FROM cells WHERE RoomId={roomId}") == 3 && Scalar("SELECT COUNT(*) FROM cells WHERE RoomId=9001") == 0, "Multiple-cell and empty rooms must survive unchanged.");
@@ -65,7 +65,7 @@ internal static partial class GNHProgram
 			db.GetService<IMigrator>().Migrate(migrations[Array.FindIndex(migrations, x => x.EndsWith("_CellUniqueNames", StringComparison.Ordinal)) - 1]);
 		}
 		Require(Scalar("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='cells' AND column_name='UniqueName'") == 0, "Historical identifier downgrade removes only additive storage/index.");
-		var downgraded = CaptureLegacyCellData(connection);
+		var downgraded = CaptureLegacyRoomData(connection);
 		Require(before.Count == downgraded.Count && before.All(x => downgraded.TryGetValue(x.Key, out var hash) && hash == x.Value), "Historical identifier downgrade preserves every legacy key/value, including multi-cell and empty Rooms.");
 		Console.WriteLine("CellUniqueNames-historical-downgrade=PASS original-keys-values multi-cell empty-parent");
 		using (var db = NewIndependentContext(database.ConnectionString)) db.GetService<IMigrator>().Migrate(db.Database.GetMigrations().Single(x => x.EndsWith("_CellUniqueNames", StringComparison.Ordinal)));
@@ -78,16 +78,16 @@ internal static partial class GNHProgram
 			db.Database.OpenConnection(); db.Database.ExecuteSqlRaw("SET @FutureMUD_CellSpatialMaintenance=1; SET @FutureMUD_CellSpatialContractionMaintenance=1;"); db.Database.Migrate();
 		}
 		var world = new Mock<IFuturemud> { DefaultValue = DefaultValue.Mock };
-		var cells = new All<ICell>();
-		world.SetupGet(x => x.Cells).Returns(cells);
+		var rooms = new All<IRoom>();
+		world.SetupGet(x => x.Rooms).Returns(rooms);
 		world.SetupGet(x => x.SaveManager).Returns(new SaveManager());
 		world.SetupGet(x => x.DefaultHooks).Returns(Array.Empty<IDefaultHook>());
-		var package = new Mock<ICellOverlayPackage>();
+		var package = new Mock<IRoomOverlayPackage>();
 		package.SetupGet(x => x.Id).Returns(9000);
 		package.SetupGet(x => x.Name).Returns("Legacy overlay package");
 		package.SetupGet(x => x.RevisionNumber).Returns(0);
 		package.SetupGet(x => x.Status).Returns(RevisionStatus.Current);
-		world.Setup(x => x.CellOverlayPackages.Get(9000, 0)).Returns(package.Object);
+		world.Setup(x => x.RoomOverlayPackages.Get(9000, 0)).Returns(package.Object);
 		var terrain = new Mock<ITerrain>();
 		terrain.SetupGet(x => x.Id).Returns(9000);
 		world.Setup(x => x.Terrains.Get(9000)).Returns(terrain.Object);
@@ -95,43 +95,43 @@ internal static partial class GNHProgram
 		var zone = new Mock<IZone> { DefaultValue = DefaultValue.Mock };
 		zone.SetupGet(x => x.Gameworld).Returns(world.Object);
 		zone.SetupGet(x => x.Id).Returns(zoneId);
-		Cell Load(long id)
+		Room Load(long id)
 		{
 			using var db = NewIndependentContext(database.ConnectionString);
-			var model = db.Cells.Include(x => x.CellOverlays).AsNoTracking().Single(x => x.Id == id);
-				return new Cell(model, zone.Object);
+			var model = db.Rooms.Include(x => x.RoomOverlays).AsNoTracking().Single(x => x.Id == id);
+				return new Room(model, zone.Object);
 		}
-		void Save(Cell cell) { using var scope = new FMDB(); cell.Save(); FMDB.Context.SaveChanges(); }
-		var first = Load(8000); var second = Load(8001); cells.Add(first); cells.Add(second);
+		void Save(Room room) { using var scope = new FMDB(); room.Save(); FMDB.Context.SaveChanges(); }
+		var first = Load(8000); var second = Load(8001); rooms.Add(first); rooms.Add(second);
 		Require(first.TrySetUniqueName("  Église:North Gate  ", out _) && first.UniqueName == "Église:North Gate", "Trim/preserve key.");
 		Save(first);
 		Require(Load(first.Id).UniqueName == "Église:North Gate", "Native Cell.Save and fresh EF hydration must preserve the key.");
 		Require(!second.TrySetUniqueName("église:north gate", out _) && second.UniqueName is null, "Case-insensitive collision must refuse without mutation.");
 		Require(first.TrySetUniqueName("ÉGLISE:North Gate", out _), "Case-only rename of the same cell must be allowed.");
 		Save(first); Require(Load(first.Id).UniqueName == "ÉGLISE:North Gate", "Case-only rename must retain its chosen casing through save/reload.");
-		Require(first.TrySetUniqueName("Renamed:Gate", out _) && cells.FindByUniqueName("Église:North Gate") is null, "Rename creates no alias.");
+		Require(first.TrySetUniqueName("Renamed:Gate", out _) && rooms.FindByUniqueName("Église:North Gate") is null, "Rename creates no alias.");
 		Save(first); Require(Load(first.Id).UniqueName == "Renamed:Gate", "Rename must persist.");
 		Require(first.TrySetUniqueName("Gate😀", out _), "Supplementary Unicode keys must be accepted.");
 		Save(first); Require(Load(first.Id).UniqueName == "Gate😀", "Accepted supplementary Unicode must round-trip without substitution.");
-		var clone = new Cell(package.Object, zone.Object, first);
+		var clone = new Room(package.Object, zone.Object, first);
 		Require(clone.Id != first.Id && clone.UniqueName is null && Load(clone.Id).UniqueName is null, "Persistent template clones have a new ID and no copied key.");
 		Require(first.TrySetUniqueName(null, out _) && second.TrySetUniqueName("  ", out _), "Blank keys can repeat.");
 		Save(first); Save(second); Require(Load(first.Id).UniqueName is null && Load(second.Id).UniqueName is null, "Clear must persist as null.");
 		Sql("UPDATE cells SET UniqueName='Gate' WHERE Id=8000; UPDATE cells SET UniqueName='gate' WHERE Id=8001;");
 		using (var db = NewIndependentContext(database.ConnectionString))
 		{
-			var rows = db.Cells.AsNoTracking().ToArray();
-			try { typeof(Cell).GetMethod("ValidatePersistedUniqueNames", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)!.Invoke(null, [rows]); throw new Exception("Duplicate load was accepted."); }
+			var rows = db.Rooms.AsNoTracking().ToArray();
+			try { typeof(Room).GetMethod("ValidatePersistedUniqueNames", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)!.Invoke(null, [rows]); throw new Exception("Duplicate load was accepted."); }
 			catch (System.Reflection.TargetInvocationException e) when (e.InnerException is InvalidOperationException && e.InnerException.Message.Contains("8000") && e.InnerException.Message.Contains("8001")) { }
 		}
 		Require(Scalar("SELECT COUNT(*) FROM cells WHERE UniqueName IN ('Gate','gate')") == 2, "Validation may not repair duplicate persisted data.");
 		Sql("UPDATE cells SET UniqueName=NULL;"); // Explicit disposal-fixture disposition after asserting refusal.
-		Require(Scalar($"SELECT COUNT(*) FROM cells WHERE Id IN ({fixture.CellId},8000,8001,8002,{clone.Id})") == 5, "Current runtime preserves legacy IDs and the new clone.");
+		Require(Scalar($"SELECT COUNT(*) FROM cells WHERE Id IN ({fixture.RoomId},8000,8001,8002,{clone.Id})") == 5, "Current runtime preserves legacy IDs and the new clone.");
 		Console.WriteLine("CellUniqueNames-runtime=PASS contracted-schema native-save fresh-reload rename clear blank collision clone duplicate-load-refusal explicit-fixture-disposition");
 		return 0;
 	}
 
-	private static Dictionary<string, string> CaptureLegacyCellData(MySqlConnection connection)
+	private static Dictionary<string, string> CaptureLegacyRoomData(MySqlConnection connection)
 	{
 		var tables = new Dictionary<string, List<string>>(StringComparer.Ordinal);
 		using (var command = new MySqlCommand("SELECT TABLE_NAME,COLUMN_NAME FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name NOT IN ('__efmigrationshistory','__gathering_harness_ownership') AND NOT(table_name='cells' AND column_name='UniqueName') ORDER BY TABLE_NAME,ORDINAL_POSITION", connection))

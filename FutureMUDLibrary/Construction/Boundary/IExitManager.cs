@@ -17,7 +17,7 @@ namespace MudSharp.Construction.Boundary
         /// <param name="direction">A CardinalDirection to retrieve the exit for.</param>
         /// <param name="overlay">An optional parameter specifying the overlay to use. If not specified, uses the current overlay</param>
         /// <returns>The appropriate ICellExit if found, or null if not</returns>
-        ICellExit GetExit(ICell cell, CardinalDirection direction, IPerceiver voyeur);
+        IRoomExit GetExit(IRoom room, CardinalDirection direction, IPerceiver voyeur);
 
         /// <summary>
         ///     Retrieves the correct exit for the specified cell
@@ -28,7 +28,7 @@ namespace MudSharp.Construction.Boundary
         /// <param name="voyeur">The person for whom the cell exit is being retrieved</param>
         /// <param name="overlay">An optional parameter specifying the overlay to use. If not specified, uses the current overlay</param>
         /// <returns>The appropriate ICellExit if found, or null if not</returns>
-        ICellExit GetExit(ICell cell, string verb, string target, IPerceiver voyeur, ICellOverlay overlay = null);
+        IRoomExit GetExit(IRoom room, string verb, string target, IPerceiver voyeur, IRoomOverlay overlay = null);
 
         /// <summary>
         ///     Retrieves the correct exit for the specified cell by target exit keyword
@@ -38,7 +38,7 @@ namespace MudSharp.Construction.Boundary
         /// <param name="voyeur">The person for whom the cell exit is being retrieved</param>
         /// <param name="overlay">An optional parameter specifying the overlay to use. If not specified, uses the current overlay</param>
         /// <returns>The appropriate ICellExit if found, or null if not</returns>
-        ICellExit GetExitKeyword(ICell cell, string keyword, IPerceiver voyeur, ICellOverlay overlay = null);
+        IRoomExit GetExitKeyword(IRoom room, string keyword, IPerceiver voyeur, IRoomOverlay overlay = null);
 
         /// <summary>
         ///     Retrieves all exits for the specified cell and overlay combination
@@ -46,7 +46,7 @@ namespace MudSharp.Construction.Boundary
         /// <param name="cell">The cell for which to request exit information</param>
         /// <param name="overlay">An optional parameter specifying the overlay to use. If not specified, uses the current overlay</param>
         /// <returns>An IEnumerable of all the ICellExit for this cell and overlay</returns>
-        IEnumerable<ICellExit> GetExitsFor(ICell cell, ICellOverlay overlay = null, RoomLayer? layer = null);
+        IEnumerable<IRoomExit> GetExitsFor(IRoom room, IRoomOverlay overlay = null, RoomLayer? layer = null);
 
         /// <summary>
         /// Retrieves all exits for the specified cell and overlay combination
@@ -54,7 +54,7 @@ namespace MudSharp.Construction.Boundary
         /// <param name="cell">The cell for which to request the exit information</param>
         /// <param name="package">The overlay package for which you want to get exits</param>
         /// <returns>An IEnumerable of all the ICellExits for this cell and overlay package</returns>
-        IEnumerable<ICellExit> GetExitsFor(ICell cell, ICellOverlayPackage package, RoomLayer? layer = null);
+        IEnumerable<IRoomExit> GetExitsFor(IRoom room, IRoomOverlayPackage package, RoomLayer? layer = null);
 
         /// <summary>
         ///     Returns all possible ICellExits for the specified ICell. This requires that all overlays for the cell will be
@@ -62,7 +62,7 @@ namespace MudSharp.Construction.Boundary
         /// </summary>
         /// <param name="cell">The ICell for which to return all ICellExits</param>
         /// <returns>An IEnumerable containing all ICellExits for all ICellOverlays for this ICell</returns>
-        IEnumerable<ICellExit> GetAllExits(ICell cell);
+        IEnumerable<IRoomExit> GetAllExits(IRoom room);
 
         IExit GetExitByID(long id);
         IEnumerable<IExit> TransientExits { get; }
@@ -79,10 +79,10 @@ namespace MudSharp.Construction.Boundary
         /// </summary>
         /// <param name="cell"></param>
         /// <param name="overlay"></param>
-        void UpdateCellOverlayExits(ICell cell, ICellOverlay overlay);
+        void UpdateRoomOverlayExits(IRoom room, IRoomOverlay overlay);
 
         void PreloadCriticalExits();
-        void DeleteCell(ICell cell);
-        void InitialiseCell(ICell cell, ICellOverlay overlay);
+        void DeleteRoom(IRoom room);
+        void InitialiseRoom(IRoom room, IRoomOverlay overlay);
     }
 }

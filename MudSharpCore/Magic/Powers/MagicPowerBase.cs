@@ -176,24 +176,24 @@ public abstract class MagicPowerBase : SaveableItem, IMagicPower
                 }
 
 				targets.AddRange(actor.Location.Areas
-				                      .SelectMany(x => x.Cells.SelectMany(y => y.Characters))
+				                      .SelectMany(x => x.Rooms.SelectMany(y => y.Characters))
 				                      .Except(actor)
 				                      .Where(x => TargetIsValid(actor, x)));
 				break;
 			case MagicPowerDistance.SameZoneOnly:
-				targets.AddRange(actor.Location.Zone.Cells
+				targets.AddRange(actor.Location.Zone.Rooms
 				                      .SelectMany(x => x.Characters)
 				                      .Except(actor)
 				                      .Where(x => TargetIsValid(actor, x)));
 				break;
 			case MagicPowerDistance.SameShardOnly:
-				targets.AddRange(actor.Location.Shard.Cells
+				targets.AddRange(actor.Location.Shard.Rooms
 				                      .SelectMany(x => x.Characters)
 				                      .Except(actor)
 				                      .Where(x => TargetIsValid(actor, x)));
 				break;
 			case MagicPowerDistance.SamePlaneOnly:
-				targets.AddRange(actor.Location.Shard.Cells
+				targets.AddRange(actor.Location.Shard.Rooms
 				                      .SelectMany(x => x.Characters)
 				                      .Except(actor)
 				                      .Where(x => actor.SharesPlaneWith(x))
@@ -246,7 +246,7 @@ public abstract class MagicPowerBase : SaveableItem, IMagicPower
 			case MagicPowerDistance.SameAreaOnly:
 				return owner.Location.Areas.Any()
 					? owner.Location.Areas
-					       .SelectMany(x => x.Cells.SelectMany(y => y.Characters))
+					       .SelectMany(x => x.Rooms.SelectMany(y => y.Characters))
 					       .Except(owner)
 					       .Where(x => TargetIsValid(owner, x))
 					       .GetFromItemListByKeyword(targetText, owner)
@@ -254,19 +254,19 @@ public abstract class MagicPowerBase : SaveableItem, IMagicPower
 					       .Where(x => TargetIsValid(owner, x))
 					       .GetFromItemListByKeyword(targetText, owner);
 			case MagicPowerDistance.SameZoneOnly:
-				return owner.Location.Zone.Cells
+				return owner.Location.Zone.Rooms
 				            .SelectMany(x => x.Characters)
 				            .Except(owner)
 				            .Where(x => TargetIsValid(owner, x))
 				            .GetFromItemListByKeyword(targetText, owner);
 			case MagicPowerDistance.SameShardOnly:
-				return owner.Location.Shard.Cells
+				return owner.Location.Shard.Rooms
 				            .SelectMany(x => x.Characters)
 				            .Except(owner)
 				            .Where(x => TargetIsValid(owner, x))
 				            .GetFromItemListByKeyword(targetText, owner);
 			case MagicPowerDistance.SamePlaneOnly:
-				return owner.Location.Shard.Cells
+				return owner.Location.Shard.Rooms
 				            .SelectMany(x => x.Characters)
 				            .Except(owner)
 				            .Where(x => owner.SharesPlaneWith(x))

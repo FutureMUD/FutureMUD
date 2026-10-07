@@ -185,8 +185,8 @@ internal class MagicResourceMutationFunction : MagicBuiltInFunctionBase
 		}
 
 		var amount = Convert.ToDouble(ParameterFunctions[2].Result?.GetObject ?? 0.0M);
-		if (haver is MudSharp.Construction.ICell cell &&
-			Gameworld.EnvironmentalMagic?.TryMutateResource(cell, resource!,
+		if (haver is MudSharp.Construction.IRoom room &&
+			Gameworld.EnvironmentalMagic?.TryMutateResource(room, resource!,
 				_mode == MutationMode.Set ? MudSharp.Magic.Environment.EnvironmentalResourceMutation.Set :
 				MudSharp.Magic.Environment.EnvironmentalResourceMutation.Add,
 				_mode == MutationMode.Subtract ? -amount : amount, out var success) == true)

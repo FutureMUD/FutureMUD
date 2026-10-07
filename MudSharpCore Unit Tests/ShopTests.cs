@@ -48,7 +48,7 @@ public class ShopTests
     private Dictionary<long, IGameItemProto> _registeredProtos = null!;
     private readonly List<ISalesTax> _salesTaxes = new();
     private long _nextDealId;
-    private Mock<ICell> _currentCell = null!;
+    private Mock<IRoom> _currentRoom = null!;
 
     [TestInitialize]
     public void Setup()
@@ -92,9 +92,9 @@ public class ShopTests
 
         _progs = new Mock<IUneditableAll<IFutureProg>>();
         _progs.Setup(x => x.Get(It.IsAny<long>())).Returns((IFutureProg)null);
-        Mock<IUneditableAll<ICell>> cells = new();
-        cells.Setup(x => x.Get(It.IsAny<long>())).Returns((ICell)null);
-        _gameworld.SetupGet(x => x.Cells).Returns(cells.Object);
+        Mock<IUneditableAll<IRoom>> rooms = new();
+        rooms.Setup(x => x.Get(It.IsAny<long>())).Returns((IRoom)null);
+        _gameworld.SetupGet(x => x.Rooms).Returns(rooms.Object);
         _gameworld.SetupGet(x => x.FutureProgs).Returns(_progs.Object);
 
         _itemProtos = new Mock<IUneditableRevisableAll<IGameItemProto>>();
@@ -107,10 +107,10 @@ public class ShopTests
         All<ICharacter> actors = new();
         _gameworld.SetupGet(x => x.Actors).Returns(actors);
         _gameworld.SetupGet(x => x.LegalAuthorities).Returns(new All<ILegalAuthority>());
-        _currentCell = new Mock<ICell>();
-        _currentCell.Setup(x => x.DateTime()).Returns(MudDateTime.Never);
-        _currentCell.Setup(x => x.DateTime(It.IsAny<ICalendar>())).Returns(MudDateTime.Never);
-        _currentCell.SetupGet(x => x.EventHandlers).Returns(new List<IHandleEvents>());
+        _currentRoom = new Mock<IRoom>();
+        _currentRoom.Setup(x => x.DateTime()).Returns(MudDateTime.Never);
+        _currentRoom.Setup(x => x.DateTime(It.IsAny<ICalendar>())).Returns(MudDateTime.Never);
+        _currentRoom.SetupGet(x => x.EventHandlers).Returns(new List<IHandleEvents>());
 
         MudSharp.Models.Shop model = new()
         {
@@ -128,12 +128,12 @@ public class ShopTests
             ShopDeals = new List<MudSharp.Models.ShopDeal>(),
             ShopTransactionRecords = new List<MudSharp.Models.ShopTransactionRecord>(),
             LineOfCreditAccounts = new List<MudSharp.Models.LineOfCreditAccount>(),
-            ShopsStoreroomCells = new List<MudSharp.Models.ShopsStoreroomCell>(),
+            ShopsStoreroomRooms = new List<MudSharp.Models.ShopsStoreroomRoom>(),
             ShopsTills = new List<MudSharp.Models.ShopsTill>()
         };
 
         _shop = new TestShop(model, _gameworld.Object);
-        _shop.CurrentLocationsOverride = new[] { _currentCell.Object };
+        _shop.CurrentLocationsOverride = new[] { _currentRoom.Object };
         _shop.EconomicZone = _zone.Object;
         _shop.Currency = _currency.Object;
     }
@@ -209,7 +209,7 @@ public class ShopTests
         item.Setup(x => x.Get(null, It.IsAny<int>())).Returns(item.Object);
         item.SetupGet(x => x.InInventoryOf).Returns((IBody)null);
         item.SetupGet(x => x.ContainedIn).Returns((IGameItem)null);
-        item.SetupGet(x => x.Location).Returns((ICell)null);
+        item.SetupGet(x => x.Location).Returns((IRoom)null);
 
         _shop.AddToStock(null, item.Object, merch);
         Assert.AreEqual(1, _shop.StockedItems(merch).Count());
@@ -231,7 +231,7 @@ public class ShopTests
         Mock<IBody> body = new();
         body.Setup(x => x.CanGet(It.IsAny<IGameItem>(), 0, ItemCanGetIgnore.None)).Returns(true);
         body.Setup(x => x.Get(It.IsAny<IGameItem>(), 0, It.IsAny<IEmote>(), true, ItemCanGetIgnore.None));
-        Mock<ICell> location = new();
+        Mock<IRoom> location = new();
         location.SetupGet(x => x.EventHandlers).Returns(new List<IHandleEvents>());
         location.SetupGet(x => x.Calendars).Returns(new List<ICalendar>());
         location.Setup(x => x.DateTime(It.IsAny<ICalendar>())).Returns(MudDateTime.Never);
@@ -272,12 +272,12 @@ public class ShopTests
         firstItem.Setup(x => x.DropsWhole(It.IsAny<int>())).Returns(true);
         firstItem.SetupGet(x => x.InInventoryOf).Returns((IBody)null);
         firstItem.SetupGet(x => x.ContainedIn).Returns((IGameItem)null);
-        firstItem.SetupGet(x => x.Location).Returns((ICell)null);
+        firstItem.SetupGet(x => x.Location).Returns((IRoom)null);
         Mock<IGameItem> selectedItem = CreateStackedItem(111L, 1, proto.Object);
         selectedItem.Setup(x => x.DropsWhole(It.IsAny<int>())).Returns(true);
         selectedItem.SetupGet(x => x.InInventoryOf).Returns((IBody)null);
         selectedItem.SetupGet(x => x.ContainedIn).Returns((IGameItem)null);
-        selectedItem.SetupGet(x => x.Location).Returns((ICell)null);
+        selectedItem.SetupGet(x => x.Location).Returns((IRoom)null);
 
         _shop.AddToStock(null, firstItem.Object, merch);
         _shop.AddToStock(null, selectedItem.Object, merch);
@@ -308,7 +308,7 @@ public class ShopTests
         selectedItem.Setup(x => x.DropsWhole(It.IsAny<int>())).Returns(true);
         selectedItem.SetupGet(x => x.InInventoryOf).Returns((IBody)null);
         selectedItem.SetupGet(x => x.ContainedIn).Returns((IGameItem)null);
-        selectedItem.SetupGet(x => x.Location).Returns((ICell)null);
+        selectedItem.SetupGet(x => x.Location).Returns((IRoom)null);
         _shop.AddToStock(null, selectedItem.Object, merch);
 
         var bankActor = CreateBankPaymentActor();
@@ -444,11 +444,11 @@ public class ShopTests
 		stock.Clean.SetupGet(x => x.CachedMorphTime).Returns(TimeSpan.FromSeconds(20));
 		stock.Contaminated.SetupGet(x => x.CachedMorphTime).Returns(TimeSpan.FromSeconds(20));
 		bank.Actor.SetupGet(x => x.Gameworld).Returns(_gameworld.Object);
-		bank.Actor.SetupGet(x => x.Location).Returns(_currentCell.Object);
+		bank.Actor.SetupGet(x => x.Location).Returns(_currentRoom.Object);
 		var account = new Mock<IAccount>();
 		account.SetupGet(x => x.ActLawfully).Returns(true);
 		bank.Actor.SetupGet(x => x.Account).Returns(account.Object);
-		_currentCell.SetupGet(x => x.Shop).Returns(_shop);
+		_currentRoom.SetupGet(x => x.Shop).Returns(_shop);
 		_gameworld.Setup(x => x.GetStaticBool("KeycardPaymentsEnabled")).Returns(true);
 		var card = new Mock<IGameItem>();
 		card.Setup(x => x.GetItemType<IBankPaymentItem>()).Returns(bank.Payment.Item);
@@ -514,10 +514,10 @@ public class ShopTests
         stockItem.Setup(x => x.GetByWeight(null, 0.25)).Returns(splitItem.Object);
         stockItem.SetupGet(x => x.InInventoryOf).Returns((IBody)null);
         stockItem.SetupGet(x => x.ContainedIn).Returns((IGameItem)null);
-        stockItem.SetupGet(x => x.Location).Returns((ICell)null);
+        stockItem.SetupGet(x => x.Location).Returns((IRoom)null);
         splitItem.SetupGet(x => x.InInventoryOf).Returns((IBody)null);
         splitItem.SetupGet(x => x.ContainedIn).Returns((IGameItem)null);
-        splitItem.SetupGet(x => x.Location).Returns((ICell)null);
+        splitItem.SetupGet(x => x.Location).Returns((IRoom)null);
 
         _shop.AddToStock(null, stockItem.Object, merch);
         var bankActor = CreateBankPaymentActor();
@@ -641,10 +641,10 @@ public class ShopTests
         Mock<IOutputHandler> output = new();
         output.Setup(x => x.Send(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>())).Returns(true);
         Mock<ICharacter> actor = new();
-        actor.SetupGet(x => x.Location).Returns(_currentCell.Object);
+        actor.SetupGet(x => x.Location).Returns(_currentRoom.Object);
         actor.SetupGet(x => x.OutputHandler).Returns(output.Object);
         actor.Setup(x => x.IsAdministrator(It.IsAny<PermissionLevel>())).Returns(false);
-        _currentCell.SetupGet(x => x.Shop).Returns(_shop);
+        _currentRoom.SetupGet(x => x.Shop).Returns(_shop);
 
         typeof(EconomyModule)
             .GetMethod("Buy", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)!
@@ -796,7 +796,7 @@ public class ShopTests
         output.SetupGet(x => x.Perceiver).Returns(actor.Object);
         actor.SetupGet(x => x.OutputHandler).Returns(output.Object);
         actor.SetupGet(x => x.Gameworld).Returns(_gameworld.Object);
-        actor.SetupGet(x => x.Location).Returns(_currentCell.Object);
+        actor.SetupGet(x => x.Location).Returns(_currentRoom.Object);
         actor.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
         Mock<IPaymentMethod> payment = new();
         payment.Setup(x => x.GivePayment(It.IsAny<decimal>()));
@@ -945,7 +945,7 @@ public class ShopTests
         item.Setup(x => x.Get(null, It.IsAny<int>())).Returns(item.Object);
         item.SetupGet(x => x.InInventoryOf).Returns((IBody)null);
         item.SetupGet(x => x.ContainedIn).Returns((IGameItem)null);
-        item.SetupGet(x => x.Location).Returns((ICell)null);
+        item.SetupGet(x => x.Location).Returns((IRoom)null);
         _shop.AddToStock(null, item.Object, merchandise);
 
         Mock<IBankAccount> shopAccount = new();
@@ -965,7 +965,7 @@ public class ShopTests
         Mock<IBody> body = new();
         body.Setup(x => x.CanGet(It.IsAny<IGameItem>(), 0, ItemCanGetIgnore.None)).Returns(true);
         body.Setup(x => x.Get(It.IsAny<IGameItem>(), 0, It.IsAny<IEmote>(), true, ItemCanGetIgnore.None));
-        Mock<ICell> location = new();
+        Mock<IRoom> location = new();
         location.SetupGet(x => x.EventHandlers).Returns(new List<IHandleEvents>());
         location.SetupGet(x => x.Calendars).Returns(new List<ICalendar>());
         location.Setup(x => x.DateTime(It.IsAny<ICalendar>())).Returns(MudDateTime.Never);
@@ -1004,7 +1004,7 @@ public class ShopTests
         Mock<IBody> body = new();
         body.Setup(x => x.CanGet(It.IsAny<IGameItem>(), 0, ItemCanGetIgnore.None)).Returns(true);
         body.Setup(x => x.Get(It.IsAny<IGameItem>(), 0, It.IsAny<IEmote>(), true, ItemCanGetIgnore.None));
-        Mock<ICell> location = new();
+        Mock<IRoom> location = new();
         location.SetupGet(x => x.EventHandlers).Returns(new List<IHandleEvents>());
         location.SetupGet(x => x.Calendars).Returns(new List<ICalendar>());
         location.Setup(x => x.DateTime(It.IsAny<ICalendar>())).Returns(MudDateTime.Never);
@@ -1026,11 +1026,11 @@ public class ShopTests
     {
         public int RecordedStockCount(IMerchandise merchandise) => _stockedMerchandiseCounts[merchandise];
         public void ReconcileStock(IMerchandise merchandise) => RecalculateStockedItems(merchandise, 0);
-        public IEnumerable<ICell> CurrentLocationsOverride { get; set; } = Enumerable.Empty<ICell>();
+        public IEnumerable<IRoom> CurrentLocationsOverride { get; set; } = Enumerable.Empty<IRoom>();
         public TestShop(MudSharp.Models.Shop model, IFuturemud gameworld) : base(model, gameworld) { }
         protected override void Save(MudSharp.Models.Shop dbitem) { }
         public override bool IsReadyToDoBusiness => true;
-        public override IEnumerable<ICell> CurrentLocations => CurrentLocationsOverride;
+        public override IEnumerable<IRoom> CurrentLocations => CurrentLocationsOverride;
         public override IEnumerable<IGameItem> DoAutoRestockForMerchandise(IMerchandise merchandise, List<(IGameItem Item, IGameItem Container)> purchasedItems = null)
         {
             return Enumerable.Empty<IGameItem>();

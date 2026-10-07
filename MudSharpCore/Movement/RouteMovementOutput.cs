@@ -80,12 +80,12 @@ public static class RouteMovementOutput
 			return;
 		}
 
-		foreach (var cell in vehicle.Compartments
-			         .Select(x => x.InteriorCell)
+		foreach (var room in vehicle.Compartments
+			         .Select(x => x.InteriorRoom)
 			         .Where(x => x is not null)
 			         .Distinct())
 		{
-			cell!.Handle(message);
+			room!.Handle(message);
 		}
 	}
 }

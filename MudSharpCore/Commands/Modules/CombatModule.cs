@@ -314,7 +314,7 @@ You can use the command in one of three ways:
             return;
         }
 
-        ICellExit targetExit = actor.Location.GetExitKeyword(ss.PopSpeech(), actor);
+        IRoomExit targetExit = actor.Location.GetExitKeyword(ss.PopSpeech(), actor);
         if (targetExit == null)
         {
             actor.OutputHandler.Send("There is no exit in that direction.");
@@ -844,7 +844,7 @@ The syntax is:
         }
 
         string exitText = ss.SafeRemainingArgument;
-        ICellExit exit = actor.Location.GetExitKeyword(exitText, actor) ??
+        IRoomExit exit = actor.Location.GetExitKeyword(exitText, actor) ??
                          actor.Location.ExitsFor(actor, true)
                              .FirstOrDefault(x => x.IsExitKeyword(exitText) && actor.CanSee(x.Exit));
         if (exit is null)
@@ -989,7 +989,7 @@ The syntax for the smash command is as follows:
         StringStack ss = new(command.RemoveFirstWord());
 
         string target = ss.PopSpeech();
-        ICellExit targetExit = actor.Location.GetExitKeyword(target, actor);
+        IRoomExit targetExit = actor.Location.GetExitKeyword(target, actor);
         IGameItem targetItem = targetExit?.Exit.Door?.Parent;
         if (targetItem == null && targetExit != null)
         {
@@ -1793,7 +1793,7 @@ Similarly to reverse the above you can use the following:
         }
 
         // Guard Exit
-        ICellExit targetDirection = actor.Location.GetExitKeyword(targetText, actor);
+        IRoomExit targetDirection = actor.Location.GetExitKeyword(targetText, actor);
         if (targetDirection != null)
         {
             if (guardExitEffect?.Exit == targetDirection)
@@ -2712,7 +2712,7 @@ The syntax is:
         }
 
         IPerceiver target = null;
-        List<ICellExit> path = new();
+        List<IRoomExit> path = new();
         IRangedWeapon weapon = null;
         if (ss.IsFinished)
         {
@@ -2755,7 +2755,7 @@ The syntax is:
 
                 actor.TargettedBodypart = bodypart;
                 actor.RemoveAllEffects(x => x.IsEffectType<OutOfCombatAim>(), true);
-                OutOfCombatAim aimEffect = new(actor, actor, weapon, Enumerable.Empty<ICellExit>());
+                OutOfCombatAim aimEffect = new(actor, actor, weapon, Enumerable.Empty<IRoomExit>());
                 actor.AddEffect(aimEffect, TimeSpan.FromSeconds(10));
                 aimEffect.AimCompletion = 1.0;
                 actor.OutputHandler.Handle(
@@ -3273,7 +3273,7 @@ The syntax is:
 					actor.Send("The syntax is artillery <piece> aimpath <bearing> <distance> <elevation> <traverse> <cellId> [cellId ...].");
 					return;
 				}
-				var cells = new List<long>();
+				var rooms = new List<long>();
 				while (!arguments.IsFinished)
 				{
 					if (!long.TryParse(arguments.PopSpeech(), out var cellId) || cellId <= 0)
@@ -3281,20 +3281,20 @@ The syntax is:
 						actor.Send("Every indirect firing-path entry must be a positive cell ID.");
 						return;
 					}
-					cells.Add(cellId);
+					rooms.Add(cellId);
 				}
-				if (cells.Count == 0)
+				if (rooms.Count == 0)
 				{
 					actor.Send("An indirect firing solution requires at least one reachable cell.");
 					return;
 				}
 				if (!piece.SetFiringSolution(actor,
-						new ArtilleryFiringSolution(bearing, distance, elevation, traverse, cells), out var pathReason))
+						new ArtilleryFiringSolution(bearing, distance, elevation, traverse, rooms), out var pathReason))
 				{
 					actor.Send(pathReason);
 					return;
 				}
-				actor.Send($"You set an indirect firing path for {item.HowSeen(actor)} through {cells.Count.ToString(actor).ColourValue()} cell{(cells.Count == 1 ? string.Empty : "s")}.");
+				actor.Send($"You set an indirect firing path for {item.HowSeen(actor)} through {rooms.Count.ToString(actor).ColourValue()} cell{(rooms.Count == 1 ? string.Empty : "s")}.");
 				return;
 			}
 			case "fuse":

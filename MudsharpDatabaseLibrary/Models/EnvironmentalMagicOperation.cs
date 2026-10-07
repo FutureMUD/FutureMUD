@@ -8,7 +8,7 @@ namespace MudSharp.Models;
 public class EnvironmentalMagicOperation
 {
 	public Guid Id { get; set; }
-	public long CellId { get; set; }
+	public long RoomId { get; set; }
 	public string Kind { get; set; } = "";
 	public double RequestedDamage { get; set; }
 	public double RequestedPressure { get; set; }

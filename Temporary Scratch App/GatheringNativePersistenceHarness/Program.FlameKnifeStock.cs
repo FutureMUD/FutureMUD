@@ -183,10 +183,10 @@ internal static partial class GNHProgram
 			Require(native.Body.Wield(item,native.Body.WieldLocs.OrderBy(x => x.Id).First(),silent:true) && native.Body.WieldedItems.Contains(item),"Native wield of stock output failed.");
 			FlushCasting(native); Console.WriteLine($"ARMFlame-paid-grade{grade}=passed actual-payment component-only-at-mon prototype:{item.Prototype.Id} native-standard-get explicit-native-wield mode:{life.Origin.Mode} deadline:{life.Origin.DeadlineUtc:o}"); return item;
 		}
-		var oldCell = caster.Location;
-		var cell = CreateStormCell(native, database, fixture.CellId);
-		foreach (var item in oldCell.GameItems.ToArray()) { oldCell.Extract(item); cell.Insert(item, true); }
-		SetPrivateMember(caster, "Location", cell); ((List<ICharacter>)cell.Characters).Add(caster);
+		var oldRoom = caster.Location;
+		var room = CreateStormRoom(native, database, fixture.RoomId);
+		foreach (var item in oldRoom.GameItems.ToArray()) { oldRoom.Extract(item); room.Insert(item, true); }
+		SetPrivateMember(caster, "Location", room); ((List<ICharacter>)room.Characters).Add(caster);
 		Mock.Get(native.Body.Race).SetupGet(x => x.NaturalPerceptionTypes).Returns(PerceptionTypes.DirectVisual);
 		Mock.Get(native.Body.Prototype).SetupGet(x => x.BasePlanarPresence).Returns(PlanarPresenceDefinition.DefaultMaterial(world));
 		var personalName = new PersonalName(new XElement("Name", new XAttribute("culture", 1), new XElement("Element", new XAttribute("usage", "BirthName"), "caster")), world);
@@ -195,12 +195,12 @@ internal static partial class GNHProgram
 		var templates = new RevisableAll<INPCTemplate>(); native.WorldMock.SetupGet(x => x.NpcTemplates).Returns(templates);
 		var data = new SimpleCharacterTemplate { Gameworld = world, SelectedName = new PersonalName(new XElement("Name", new XAttribute("culture", 1), new XElement("Element", new XAttribute("usage", "BirthName"), "opponent")), world),
 			SelectedRace = native.Body.Race, SelectedEthnicity = native.Body.Ethnicity, SelectedCulture = caster.Culture,
-			SelectedBirthday = world.Calendars.First().GetDate("1-month-2000"), SelectedStartingLocation = cell, SelectedGender = native.Body.Gender.Enum,
+			SelectedBirthday = world.Calendars.First().GetDate("1-month-2000"), SelectedStartingLocation = room, SelectedGender = native.Body.Gender.Enum,
 			SelectedHeight = 1.8, SelectedWeight = 80, SelectedSdesc = "an opponent", SelectedFullDesc = "A declared acceptance opponent.",
 			SelectedAccents = [], SelectedAttributes = [], SelectedCharacteristics = [], SelectedEntityDescriptionPatterns = [], SkillValues = [], SelectedRoles = [], SelectedMerits = [],
 			SelectedKnowledges = [], MissingBodyparts = [], SelectedDisfigurements = [], SelectedProstheses = [] };
 		var template = new SimpleNPCTemplate(world, DummyAccount.Instance, data, "Flame opponent"); templates.Add(template);
-		var opponent = (NPC)template.CreateNewCharacter(cell); world.Add(opponent, true); world.Add(opponent.Body); opponent.CombatSettings = caster.CombatSettings; cell.Enter(opponent);
+		var opponent = (NPC)template.CreateNewCharacter(room); world.Add(opponent, true); world.Add(opponent.Body); opponent.CombatSettings = caster.CombatSettings; room.Enter(opponent);
 		opponent.Body.Handedness = Alignment.Right;
 		void Strike(GameItem item, int grade, ICharacter? attacker = null, ICharacter? target = null)
 		{
@@ -245,11 +245,11 @@ internal static partial class GNHProgram
 		var permanent=Cast(7); Strike(permanent,7); Require(!exactSix.Deleted,"Higher component cast consumed unrelated exact-six token.");
 		Console.WriteLine("ARMFlame-component-threshold=passed exact-six-prepayment-admitted higher-descendant-seven-paid-and-consumed wrong-lower-tags-refused exact-six-unrelated-preserved");
 		Require(permanent.GetItemType<ISalvageable>()!.CanSalvage(out _) && host.Store.Find(permanent.SpellCreationOrigin!.LifecycleId)!.State==SpellLifecycleState.Completed,"Permanent staff retained temporary value/retirement state.");
-		native.Body.Take(permanent); bag.Put(caster,permanent,false); var sibling=New("ARM03B2B goods"); cell.Extract(sibling); bag.Put(caster,sibling,false);
+		native.Body.Take(permanent); bag.Put(caster,permanent,false); var sibling=New("ARM03B2B goods"); room.Extract(sibling); bag.Put(caster,sibling,false);
 		world.SaveManager.Flush(); FlushCasting(native);
 		using(var db=NewIndependentContext(database.ConnectionString))
 		{
-			if(!db.CellsGameItems.Any(x=>x.GameItemId==foreignBag.Id)) db.CellsGameItems.Add(new(){CellId=fixture.CellId,GameItemId=foreignBag.Id}); db.SaveChanges();
+			if(!db.RoomsGameItems.Any(x=>x.GameItemId==foreignBag.Id)) db.RoomsGameItems.Add(new(){RoomId=fixture.RoomId,GameItemId=foreignBag.Id}); db.SaveChanges();
 			Require(db.GameItems.Find(restartItem!.Id)!.ContainerId==foreignBag.Id && db.GameItems.Find(permanent.Id)!.ContainerId==foreignBag.Id,"Foreign containment was not persisted.");
 		}
 		RunItemReaderProcess(new FlameKnifeReader(database.Name,fixture,RuntimeClock.UtcNow,spell.Id,restartItem!.Id,restartItem.SpellCreationOrigin!.LifecycleId,restartItem.SpellCreationOrigin.DeadlineUtc!.Value,foreignBag.Id,sibling.Id,permanent.Id,permanent.Prototype.Id),"--flame-knife-stock-reader");

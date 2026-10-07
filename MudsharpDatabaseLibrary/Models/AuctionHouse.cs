@@ -11,7 +11,7 @@ namespace MudSharp.Models
         public long Id { get; set; }
         public string Name { get; set; }
         public long EconomicZoneId { get; set; }
-        public long AuctionHouseCellId { get; set; }
+        public long AuctionHouseRoomId { get; set; }
         public long? ProfitsBankAccountId { get; set; }
         public decimal AuctionListingFeeFlat { get; set; }
         public decimal AuctionListingFeeRate { get; set; }
@@ -19,7 +19,7 @@ namespace MudSharp.Models
         public double DefaultListingTime { get; set; }
 
         public virtual EconomicZone EconomicZone { get; set; }
-        public virtual Cell AuctionHouseCell { get; set; }
+        public virtual Room AuctionHouseRoom { get; set; }
         public virtual BankAccount ProfitsBankAccount { get; set; }
     }
 }

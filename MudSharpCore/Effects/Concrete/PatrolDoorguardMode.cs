@@ -17,7 +17,7 @@ public class PatrolDoorguardMode : Effect, IDoorguardModeEffect
 
 	protected override string SpecificEffectType => "PatrolDoorguardMode";
 
-	public bool? PermitsDoorOpening(ICharacter doorguard, ICharacter target, ICellExit exit)
+	public bool? PermitsDoorOpening(ICharacter doorguard, ICharacter target, IRoomExit exit)
 	{
 		return AccessMode switch
 		{

@@ -52,7 +52,7 @@ public class ProgCombat : CombatBase, ICombatSelectiveCessation
             OnJoinProg?.Execute(character, CombatReference);
         }
 
-        CombatCells.Add(character.Location);
+        CombatRooms.Add(character.Location);
     }
 
     /// <summary>

@@ -66,11 +66,11 @@ public class FlareAmmunitionGameItemComponent : AmmunitionGameItemComponent
         try
         {
             if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor) || !completion.IsUnclaimed) return;
-            var originCell = actor.Location;
-            if (target == null && originCell.CurrentOverlay.OutdoorsType == CellOutdoorsType.Outdoors)
+            var originRoom = actor.Location;
+            if (target == null && originRoom.CurrentOverlay.OutdoorsType == RoomOutdoorsType.Outdoors)
             {
-                var zone = originCell.Zone;
-                var cells = zone.Cells.ToArray();
+                var zone = originRoom.Zone;
+                var rooms = zone.Rooms.ToArray();
                 var effect = new FlareEffect(zone, _flarePrototype.FlareIllumination,
                     _flarePrototype.FlareZoneDescription, _flarePrototype.FlareZoneDescriptionColour,
                     _flarePrototype.FlareEndEmote);
@@ -80,12 +80,12 @@ public class FlareAmmunitionGameItemComponent : AmmunitionGameItemComponent
                 if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor) || !completion.IsUnclaimed) return;
                 zone.RecalculateLightLevel();
                 EmoteOutput emote = new(new Emote(_flarePrototype.FlareBeginEmote, actor));
-                foreach (ICell cell in cells)
+                foreach (IRoom room in rooms)
                 {
                     if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor) || !completion.IsUnclaimed) return;
-                    var outdoors = cell.CurrentOverlay.OutdoorsType == CellOutdoorsType.Outdoors;
+                    var outdoors = room.CurrentOverlay.OutdoorsType == RoomOutdoorsType.Outdoors;
                     if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor) || !completion.IsUnclaimed) return;
-                    if (outdoors) cell.Handle(emote);
+                    if (outdoors) room.Handle(emote);
                 }
             }
 

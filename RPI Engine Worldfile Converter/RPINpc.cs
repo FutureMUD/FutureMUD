@@ -144,9 +144,9 @@ public sealed record RpiNpcRecord
 	public required long BuyFlags { get; init; }
 	public required int SkinnedVnum { get; init; }
 	public required int Circle { get; init; }
-	public required int Cell1 { get; init; }
+	public required int Room1 { get; init; }
 	public required int CarcassVnum { get; init; }
-	public required int Cell2 { get; init; }
+	public required int Room2 { get; init; }
 	public required int PPoints { get; init; }
 	public required int NaturalDelay { get; init; }
 	public required int HelmRoom { get; init; }
@@ -157,7 +157,7 @@ public sealed record RpiNpcRecord
 	public required int HeightInches { get; init; }
 	public required int Frame { get; init; }
 	public required int NoAccessFlags { get; init; }
-	public required int Cell3 { get; init; }
+	public required int Room3 { get; init; }
 	public required int RoomPos { get; init; }
 	public required int Fallback { get; init; }
 	public required int Strength { get; init; }

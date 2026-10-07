@@ -41,13 +41,13 @@ internal sealed class PropertyQueryFunction : BuiltInFunction
 
 		if (_mode == PropertyQueryMode.ForLocation)
 		{
-			if (ParameterFunctions[0].Result?.GetObject is not ICell cell)
+			if (ParameterFunctions[0].Result?.GetObject is not IRoom room)
 			{
 				Result = new NullVariable(ProgVariableTypes.Property);
 				return StatementResult.Normal;
 			}
 
-			Result = _gameworld.Properties.FirstOrDefault(x => x.PropertyLocations.Any(y => y.Id == cell.Id))
+			Result = _gameworld.Properties.FirstOrDefault(x => x.PropertyLocations.Any(y => y.Id == room.Id))
 			         is IProgVariable locationProperty
 				? locationProperty
 				: new NullVariable(ProgVariableTypes.Property);

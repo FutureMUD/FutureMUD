@@ -95,7 +95,7 @@ public class CoreDataSeederTerrainTests
             MovementRate = 0,
             ForagableProfileId = 0,
             AtmosphereType = "Gas",
-            DefaultCellOutdoorsType = 0,
+            DefaultRoomOutdoorsType = 0,
             GravityModel = (int)GravityModel.Normal,
             TerrainEditorText = "Vo",
             CanHaveTracks = false,

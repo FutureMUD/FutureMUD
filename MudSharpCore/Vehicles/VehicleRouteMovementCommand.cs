@@ -158,7 +158,7 @@ internal static class VehicleRouteMovementCommand
 		targetMinimum = null;
 		targetMaximum = null;
 		selectedExitId = null;
-		var route = origin.Cell.RouteDefinition!;
+		var route = origin.Room.RouteDefinition!;
 		if (TryParseDistance(actor, text, out destination) && destination >= 0.0 &&
 			destination <= route.LengthMetres)
 		{
@@ -189,7 +189,7 @@ internal static class VehicleRouteMovementCommand
 		var stops = actor.Gameworld.VehicleRoutes
 			.GetAllByStatus(RevisionStatus.Current)
 			.SelectMany(x => x.Stops)
-			.Where(x => ReferenceEquals(x.Location.Cell, origin.Cell) && x.Location.Layer == origin.Layer &&
+			.Where(x => ReferenceEquals(x.Location.Room, origin.Room) && x.Location.Layer == origin.Layer &&
 			            x.Location.RoutePositionMetres.HasValue)
 			.ToList();
 		var stop = text.EqualTo("stop")

@@ -198,7 +198,7 @@ public sealed partial class SpellOwnedNpcService
 		_evacuationRetries.TryGetValue(body.Id, out var retrySnapshot);
 		var retryRoots = retrySnapshot?.Roots;
 		if (retryRoots?.Any(x => x.Deleted || x.InInventoryOf is { } custodian && !ReferenceEquals(custodian, body) ||
-			x.ContainedIn is not null || x.Location is { } cell && !ReferenceEquals(cell, destination.Cell)) == true)
+			x.ContainedIn is not null || x.Location is { } room && !ReferenceEquals(room, destination.Room)) == true)
 			throw new InvalidOperationException("Previously transferred foreign goods changed custody; preserve the owned body for review.");
 		if (!TryCaptureForeignCustody(body, out var roots, out var graph, out var error, retryRoots)) throw new InvalidOperationException(error);
 		if (retrySnapshot is not null && !retrySnapshot.Matches(roots, graph))
@@ -236,16 +236,16 @@ public sealed partial class SpellOwnedNpcService
 		if (persisted.Any(x => !ids.Contains(x)) || context.GameItems.Count(x => ids.Contains(x.Id)) != ids.Length)
 			throw new InvalidOperationException("Persisted or missing foreign custody is not fully loaded; preserve the native body.");
 		if (roots.Length == 0) { transaction.Commit(); return; }
-		if (!ReferenceEquals(destination.Cell?.Gameworld, body.Gameworld) ||
+		if (!ReferenceEquals(destination.Room?.Gameworld, body.Gameworld) ||
 			!RouteSpatialService.Instance.TryValidateLocation(destination, out error) ||
-			!context.Cells.Any(x => x.Id == destination.Cell.Id) || destination.Cell is not ICustodyRollbackLocation rollbackLocation)
+			!context.Rooms.Any(x => x.Id == destination.Room.Id) || destination.Room is not ICustodyRollbackLocation rollbackLocation)
 			throw new InvalidOperationException("Foreign custody has no validated persisted destination; retain a recoverable holding graph.");
 		var restoreLocation = rollbackLocation.CaptureCustodyMembershipRollback(graph)
 			?? throw new InvalidOperationException("Foreign custody has no verified location rollback adapter.");
 		_evacuationRetries[body.Id] = snapshot;
 		var resumeItems = body.Actor.State.HasFlag(CharacterState.Dead);
 		IGameItemComponent[] savedComponents = [];
-		using var transfer = ForeignCustodyTransferContext.Enter(body, graph, destination.Cell);
+		using var transfer = ForeignCustodyTransferContext.Enter(body, graph, destination.Room);
 		try
 		{
 		foreach (var item in roots)
@@ -256,7 +256,7 @@ public sealed partial class SpellOwnedNpcService
 		}
 		body.RecalculateItemHelpers();
 		var topologyChanged = !snapshot.Matches(roots, graph);
-		if (body.AllItems.Any() || roots.Any(x => x.Deleted || !ReferenceEquals(x.Location, destination.Cell)) ||
+		if (body.AllItems.Any() || roots.Any(x => x.Deleted || !ReferenceEquals(x.Location, destination.Room)) ||
 			graph.Any(x => x.Deleted) || !TryCaptureForeignCustody(body, out _, out var after, out _, roots) ||
 			!new HashSet<IGameItem>(graph, ReferenceEqualityComparer.Instance).SetEquals(after) ||
 			topologyChanged || structuralComponents.Any(c => c.Changed))
@@ -279,8 +279,8 @@ public sealed partial class SpellOwnedNpcService
 		}
 		foreach (var component in savedComponents) component.Save();
 		var rootIds = roots.Select(x => x.Id).ToArray();
-		context.CellsGameItems.RemoveRange(context.CellsGameItems.Where(x => rootIds.Contains(x.GameItemId)));
-		foreach (var item in roots) context.CellsGameItems.Add(new() { CellId = destination.Cell.Id, GameItemId = item.Id });
+		context.RoomsGameItems.RemoveRange(context.RoomsGameItems.Where(x => rootIds.Contains(x.GameItemId)));
+		foreach (var item in roots) context.RoomsGameItems.Add(new() { RoomId = destination.Room.Id, GameItemId = item.Id });
 		context.SaveChanges(); transaction.Commit();
 		}
 		catch (Exception original)
@@ -299,7 +299,7 @@ public sealed partial class SpellOwnedNpcService
 			foreach (var item in graph) Recover(() => RouteSpatialService.Instance.TrackPerceivable(item));
 			Recover(body.RecalculateItemHelpers);
 			if (!snapshot.Matches(roots, graph) || graph.Any(x => x.Deleted) ||
-				!roots.All(x => ReferenceEquals(x.InInventoryOf, body)) || destination.Cell.GameItems.Any(graph.Contains))
+				!roots.All(x => ReferenceEquals(x.InInventoryOf, body)) || destination.Room.GameItems.Any(graph.Contains))
 				failures.Add(new InvalidOperationException("Native custody rollback could not restore its exact captured graph."));
 			if (failures.Count > 1) throw new AggregateException("Native custody transfer and compensation failed; retain the retirement hold.", failures);
 			throw;

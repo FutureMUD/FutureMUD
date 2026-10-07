@@ -57,7 +57,7 @@ public class ListeningBugGameItemComponent : GameItemComponent, IConsumePower, I
             return;
         }
 
-        ICell location = Parent.TrueLocations.FirstOrDefault();
+        IRoom location = Parent.TrueLocations.FirstOrDefault();
         if (location == null)
         {
 #if DEBUG

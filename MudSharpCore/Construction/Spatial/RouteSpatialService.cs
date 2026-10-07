@@ -54,15 +54,15 @@ public sealed class RouteSpatialService : IRouteSpatialService
 	private readonly object _sync = new();
 	private readonly TimeProvider _timeProvider;
 	private readonly RouteSpatialConfiguration? _fixedConfiguration;
-	private readonly Dictionary<ICell, Dictionary<RoomLayer, SpatialBucket>> _stationaryIndex =
+	private readonly Dictionary<IRoom, Dictionary<RoomLayer, SpatialBucket>> _stationaryIndex =
 		new(ReferenceEqualityComparer.Instance);
 	private readonly Dictionary<IPerceivable, IndexedPosition> _indexedPositions =
 		new(ReferenceEqualityComparer.Instance);
 	private readonly Dictionary<ILocateable, ActiveMovementState> _activeMovements =
 		new(ReferenceEqualityComparer.Instance);
-	private readonly Dictionary<ICell, Dictionary<RoomLayer, HashSet<ILocateable>>> _activeMovementIndex =
+	private readonly Dictionary<IRoom, Dictionary<RoomLayer, HashSet<ILocateable>>> _activeMovementIndex =
 		new(ReferenceEqualityComparer.Instance);
-	private readonly HashSet<ICell> _initialisedCells = new(ReferenceEqualityComparer.Instance);
+	private readonly HashSet<IRoom> _initialisedRooms = new(ReferenceEqualityComparer.Instance);
 
 	public RouteSpatialService(
 		RouteSpatialConfiguration? fixedConfiguration = null,
@@ -103,18 +103,18 @@ public sealed class RouteSpatialService : IRouteSpatialService
 
 	public bool TryValidateLocation(SpatialLocation location, out string error)
 	{
-		if (location.Cell is null)
+		if (location.Room is null)
 		{
 			error = "A spatial location must specify a cell.";
 			return false;
 		}
 
-		var routeCell = location.Cell.RouteDefinition;
-		if (routeCell is null)
+		var routeRoom = location.Room.RouteDefinition;
+		if (routeRoom is null)
 		{
 			if (location.RoutePositionMetres.HasValue)
 			{
-				error = $"Ordinary Cell #{location.Cell.Id:N0} cannot have a route coordinate.";
+				error = $"Ordinary Cell #{location.Room.Id:N0} cannot have a route coordinate.";
 				return false;
 			}
 
@@ -122,23 +122,23 @@ public sealed class RouteSpatialService : IRouteSpatialService
 			return true;
 		}
 
-		if (!double.IsFinite(routeCell.LengthMetres) || routeCell.LengthMetres <= 0.0)
+		if (!double.IsFinite(routeRoom.LengthMetres) || routeRoom.LengthMetres <= 0.0)
 		{
-			error = $"RouteCell #{location.Cell.Id:N0} has an invalid length.";
+			error = $"RouteCell #{location.Room.Id:N0} has an invalid length.";
 			return false;
 		}
 
 		if (!location.RoutePositionMetres.HasValue)
 		{
-			error = $"A location in RouteCell #{location.Cell.Id:N0} requires a route coordinate.";
+			error = $"A location in RouteCell #{location.Room.Id:N0} requires a route coordinate.";
 			return false;
 		}
 
 		var position = location.RoutePositionMetres.Value;
-		if (!double.IsFinite(position) || position < 0.0 || position > routeCell.LengthMetres)
+		if (!double.IsFinite(position) || position < 0.0 || position > routeRoom.LengthMetres)
 		{
 			error =
-				$"Route coordinate {position} is outside RouteCell #{location.Cell.Id:N0} (0-{routeCell.LengthMetres} metres).";
+				$"Route coordinate {position} is outside RouteCell #{location.Room.Id:N0} (0-{routeRoom.LengthMetres} metres).";
 			return false;
 		}
 
@@ -146,29 +146,29 @@ public sealed class RouteSpatialService : IRouteSpatialService
 		return true;
 	}
 
-	public double ClampPosition(IRouteCellDefinition routeCell, double positionMetres)
+	public double ClampPosition(IRouteRoomDefinition routeRoom, double positionMetres)
 	{
-		ArgumentNullException.ThrowIfNull(routeCell);
+		ArgumentNullException.ThrowIfNull(routeRoom);
 		if (!double.IsFinite(positionMetres))
 		{
 			throw new ArgumentOutOfRangeException(nameof(positionMetres), "A route coordinate must be finite.");
 		}
 
-		if (!double.IsFinite(routeCell.LengthMetres) || routeCell.LengthMetres <= 0.0)
+		if (!double.IsFinite(routeRoom.LengthMetres) || routeRoom.LengthMetres <= 0.0)
 		{
-			throw new ArgumentException("The RouteCell must have a finite positive length.", nameof(routeCell));
+			throw new ArgumentException("The RouteCell must have a finite positive length.", nameof(routeRoom));
 		}
 
-		return Math.Clamp(positionMetres, 0.0, routeCell.LengthMetres);
+		return Math.Clamp(positionMetres, 0.0, routeRoom.LengthMetres);
 	}
 
 	public double? GetExactSeparation(SpatialLocation first, SpatialLocation second)
 	{
-		if (first.Cell is null ||
-			second.Cell is null ||
-			!ReferenceEquals(first.Cell, second.Cell) ||
+		if (first.Room is null ||
+			second.Room is null ||
+			!ReferenceEquals(first.Room, second.Room) ||
 			first.Layer != second.Layer ||
-			first.Cell.RouteDefinition is null ||
+			first.Room.RouteDefinition is null ||
 			!TryValidateLocation(first, out _) ||
 			!TryValidateLocation(second, out _))
 		{
@@ -190,19 +190,19 @@ public sealed class RouteSpatialService : IRouteSpatialService
 
 		var firstLocation = GetEffectiveLocation(first);
 		var secondLocation = GetEffectiveLocation(second);
-		if (firstLocation.Cell is null || secondLocation.Cell is null)
+		if (firstLocation.Room is null || secondLocation.Room is null)
 		{
-			return ReferenceEquals(firstLocation.Cell, secondLocation.Cell)
+			return ReferenceEquals(firstLocation.Room, secondLocation.Room)
 				? Proximity.Distant
 				: Proximity.Unapproximable;
 		}
 
-		if (!ReferenceEquals(firstLocation.Cell, secondLocation.Cell))
+		if (!ReferenceEquals(firstLocation.Room, secondLocation.Room))
 		{
 			return Proximity.Unapproximable;
 		}
 
-		if (firstLocation.Cell.RouteDefinition is null)
+		if (firstLocation.Room.RouteDefinition is null)
 		{
 			return Proximity.Distant;
 		}
@@ -232,15 +232,15 @@ public sealed class RouteSpatialService : IRouteSpatialService
 
 		var sourceLocation = GetEffectiveLocation(source);
 		var targetLocation = GetEffectiveLocation(target);
-		if (sourceLocation.Cell is null ||
-			targetLocation.Cell is null ||
-			!ReferenceEquals(sourceLocation.Cell, targetLocation.Cell) ||
+		if (sourceLocation.Room is null ||
+			targetLocation.Room is null ||
+			!ReferenceEquals(sourceLocation.Room, targetLocation.Room) ||
 			sourceLocation.Layer != targetLocation.Layer)
 		{
 			return false;
 		}
 
-		if (sourceLocation.Cell.RouteDefinition is null)
+		if (sourceLocation.Room.RouteDefinition is null)
 		{
 			return true;
 		}
@@ -264,26 +264,26 @@ public sealed class RouteSpatialService : IRouteSpatialService
 			throw new ArgumentException(error, nameof(origin));
 		}
 
-		if (origin.Cell.RouteDefinition is null)
+		if (origin.Room.RouteDefinition is null)
 		{
-			return origin.Cell.Perceivables
+			return origin.Room.Perceivables
 				.Where(x => x.RoomLayer == origin.Layer)
 				.Where(x => predicate?.Invoke(x) != false)
 				.ToArray();
 		}
 
-		EnsureCellIndexed(origin.Cell);
+		EnsureRoomIndexed(origin.Room);
 		var lower = origin.RoutePositionMetres!.Value - maximumDistanceMetres;
 		var upper = origin.RoutePositionMetres.Value + maximumDistanceMetres;
 		List<IPerceivable> stationary;
 		List<IPerceivable> active;
 		lock (_sync)
 		{
-			stationary = _stationaryIndex.TryGetValue(origin.Cell, out var layers) &&
+			stationary = _stationaryIndex.TryGetValue(origin.Room, out var layers) &&
 			             layers.TryGetValue(origin.Layer, out var bucket)
 				? bucket.Between(lower, upper).ToList()
 				: [];
-			active = _activeMovementIndex.TryGetValue(origin.Cell, out var activeLayers) &&
+			active = _activeMovementIndex.TryGetValue(origin.Room, out var activeLayers) &&
 			         activeLayers.TryGetValue(origin.Layer, out var activeBucket)
 				? activeBucket.OfType<IPerceivable>().ToList()
 				: [];
@@ -293,7 +293,7 @@ public sealed class RouteSpatialService : IRouteSpatialService
 		foreach (var perceivable in active)
 		{
 			var location = GetEffectiveLocation(perceivable);
-			if (!ReferenceEquals(location.Cell, origin.Cell) ||
+			if (!ReferenceEquals(location.Room, origin.Room) ||
 				location.Layer != origin.Layer ||
 				!location.RoutePositionMetres.HasValue ||
 				Math.Abs(location.RoutePositionMetres.Value - origin.RoutePositionMetres.Value) >
@@ -328,24 +328,24 @@ public sealed class RouteSpatialService : IRouteSpatialService
 			throw new ArgumentException(error, nameof(origin));
 		}
 
-		if (origin.Cell.RouteDefinition is null)
+		if (origin.Room.RouteDefinition is null)
 		{
-			return origin.Cell.Perceivables
+			return origin.Room.Perceivables
 				.Where(x => predicate?.Invoke(x) != false)
 				.ToArray();
 		}
 
-		EnsureCellIndexed(origin.Cell);
+		EnsureRoomIndexed(origin.Room);
 		var lower = origin.RoutePositionMetres!.Value - maximumDistanceMetres;
 		var upper = origin.RoutePositionMetres.Value + maximumDistanceMetres;
 		List<IPerceivable> stationary;
 		List<IPerceivable> active;
 		lock (_sync)
 		{
-			stationary = _stationaryIndex.TryGetValue(origin.Cell, out var layers)
+			stationary = _stationaryIndex.TryGetValue(origin.Room, out var layers)
 				? layers.Values.SelectMany(x => x.Between(lower, upper)).ToList()
 				: [];
-			active = _activeMovementIndex.TryGetValue(origin.Cell, out var activeLayers)
+			active = _activeMovementIndex.TryGetValue(origin.Room, out var activeLayers)
 				? activeLayers.Values.SelectMany(x => x).OfType<IPerceivable>().Distinct().ToList()
 				: [];
 		}
@@ -354,7 +354,7 @@ public sealed class RouteSpatialService : IRouteSpatialService
 		foreach (var perceivable in active)
 		{
 			var location = GetEffectiveLocation(perceivable);
-			if (!ReferenceEquals(location.Cell, origin.Cell) ||
+			if (!ReferenceEquals(location.Room, origin.Room) ||
 				!location.RoutePositionMetres.HasValue ||
 				Math.Abs(location.RoutePositionMetres.Value - origin.RoutePositionMetres.Value) >
 				maximumDistanceMetres)
@@ -373,14 +373,14 @@ public sealed class RouteSpatialService : IRouteSpatialService
 		return results.ToArray();
 	}
 
-	public bool TryGetExitAnchor(ICellExit exit, ICell routeCell, out IRouteExitAnchor? anchor)
+	public bool TryGetExitAnchor(IRoomExit exit, IRoom routeRoom, out IRouteExitAnchor? anchor)
 	{
 		ArgumentNullException.ThrowIfNull(exit);
-		ArgumentNullException.ThrowIfNull(routeCell);
+		ArgumentNullException.ThrowIfNull(routeRoom);
 
 		var exitId = exit.Exit.Id;
-		anchor = routeCell.RouteDefinition?.ExitAnchors.FirstOrDefault(x =>
-			x is RouteCellExitAnchor concrete
+		anchor = routeRoom.RouteDefinition?.ExitAnchors.FirstOrDefault(x =>
+			x is RouteRoomExitAnchor concrete
 				? concrete.ExitId == exitId
 				: x.Exit.Exit.Id == exitId);
 		return anchor is not null;
@@ -388,7 +388,7 @@ public sealed class RouteSpatialService : IRouteSpatialService
 
 	public bool IsExitVisible(
 		IPerceiver voyeur,
-		ICellExit exit,
+		IRoomExit exit,
 		double maximumDistanceMetres,
 		PerceptionTypes type = PerceptionTypes.DirectVisual,
 		PerceiveIgnoreFlags flags = PerceiveIgnoreFlags.None)
@@ -401,44 +401,44 @@ public sealed class RouteSpatialService : IRouteSpatialService
 		}
 
 		var location = GetEffectiveLocation(voyeur);
-		if (location.Cell is null || !location.Cell.IsExitVisible(voyeur, exit, type, flags))
+		if (location.Room is null || !location.Room.IsExitVisible(voyeur, exit, type, flags))
 		{
 			return false;
 		}
 
-		if (location.Cell.RouteDefinition is null)
+		if (location.Room.RouteDefinition is null)
 		{
 			return true;
 		}
 
 		return location.RoutePositionMetres.HasValue &&
-		       TryGetExitAnchor(exit, location.Cell, out var anchor) &&
+		       TryGetExitAnchor(exit, location.Room, out var anchor) &&
 		       DistanceToBand(location.RoutePositionMetres.Value, anchor!) <= maximumDistanceMetres;
 	}
 
-	public bool IsExitAccessible(ILocateable locateable, ICellExit exit)
+	public bool IsExitAccessible(ILocateable locateable, IRoomExit exit)
 	{
 		var location = GetEffectiveLocation(locateable);
-		if (location.Cell is null)
+		if (location.Room is null)
 		{
 			return false;
 		}
 
-		if (location.Cell.RouteDefinition is null)
+		if (location.Room.RouteDefinition is null)
 		{
 			return true;
 		}
 
-		return TryGetExitAnchor(exit, location.Cell, out var anchor) &&
+		return TryGetExitAnchor(exit, location.Room, out var anchor) &&
 		       location.RoutePositionMetres.HasValue &&
 		       anchor!.Contains(location.RoutePositionMetres.Value);
 	}
 
-	public double? GetNearestAccessiblePosition(SpatialLocation origin, ICellExit exit)
+	public double? GetNearestAccessiblePosition(SpatialLocation origin, IRoomExit exit)
 	{
 		if (!TryValidateLocation(origin, out _) ||
-			origin.Cell.RouteDefinition is null ||
-			!TryGetExitAnchor(exit, origin.Cell, out var anchor))
+			origin.Room.RouteDefinition is null ||
+			!TryGetExitAnchor(exit, origin.Room, out var anchor))
 		{
 			return null;
 		}
@@ -464,8 +464,8 @@ public sealed class RouteSpatialService : IRouteSpatialService
 	public double? GetInheritedRoutePosition(ILocateable locateable, ILocateable? owner)
 	{
 		var ownLocation = GetEffectiveLocation(locateable);
-		if (ownLocation.Cell is not null &&
-			ownLocation.Cell.RouteDefinition is not null &&
+		if (ownLocation.Room is not null &&
+			ownLocation.Room.RouteDefinition is not null &&
 			TryValidateLocation(ownLocation, out _))
 		{
 			return ownLocation.RoutePositionMetres;
@@ -477,8 +477,8 @@ public sealed class RouteSpatialService : IRouteSpatialService
 		}
 
 		var ownerLocation = GetEffectiveLocation(owner);
-		return ownerLocation.Cell is not null &&
-		       ownerLocation.Cell.RouteDefinition is not null &&
+		return ownerLocation.Room is not null &&
+		       ownerLocation.Room.RouteDefinition is not null &&
 		       TryValidateLocation(ownerLocation, out _)
 			? ownerLocation.RoutePositionMetres
 			: null;
@@ -496,19 +496,19 @@ public sealed class RouteSpatialService : IRouteSpatialService
 			}
 
 			var location = perceivable.SpatialLocation;
-			if (location.Cell?.RouteDefinition is null ||
+			if (location.Room?.RouteDefinition is null ||
 				!location.RoutePositionMetres.HasValue ||
 				!double.IsFinite(location.RoutePositionMetres.Value) ||
 				location.RoutePositionMetres.Value < 0.0 ||
-				location.RoutePositionMetres.Value > location.Cell.RouteDefinition.LengthMetres)
+				location.RoutePositionMetres.Value > location.Room.RouteDefinition.LengthMetres)
 			{
 				return;
 			}
 
-			if (!_stationaryIndex.TryGetValue(location.Cell, out var layers))
+			if (!_stationaryIndex.TryGetValue(location.Room, out var layers))
 			{
 				layers = new Dictionary<RoomLayer, SpatialBucket>();
-				_stationaryIndex[location.Cell] = layers;
+				_stationaryIndex[location.Room] = layers;
 			}
 
 			if (!layers.TryGetValue(location.Layer, out var bucket))
@@ -519,7 +519,7 @@ public sealed class RouteSpatialService : IRouteSpatialService
 
 			bucket.Add(location.RoutePositionMetres.Value, perceivable);
 			_indexedPositions[perceivable] = new IndexedPosition(
-				location.Cell,
+				location.Room,
 				location.Layer,
 				location.RoutePositionMetres.Value);
 		}
@@ -565,7 +565,7 @@ public sealed class RouteSpatialService : IRouteSpatialService
 				initialElapsed,
 				delay ?? TimeSpan.Zero);
 			_activeMovements[locateable] = movement;
-			AddActiveMovement(locateable, segment.Origin.Cell, segment.Origin.Layer);
+			AddActiveMovement(locateable, segment.Origin.Room, segment.Origin.Layer);
 		}
 	}
 
@@ -649,12 +649,12 @@ public sealed class RouteSpatialService : IRouteSpatialService
 		}
 	}
 
-	private void AddActiveMovement(ILocateable locateable, ICell cell, RoomLayer layer)
+	private void AddActiveMovement(ILocateable locateable, IRoom room, RoomLayer layer)
 	{
-		if (!_activeMovementIndex.TryGetValue(cell, out var layers))
+		if (!_activeMovementIndex.TryGetValue(room, out var layers))
 		{
 			layers = new Dictionary<RoomLayer, HashSet<ILocateable>>();
-			_activeMovementIndex[cell] = layers;
+			_activeMovementIndex[room] = layers;
 		}
 
 		if (!layers.TryGetValue(layer, out var bucket))
@@ -673,9 +673,9 @@ public sealed class RouteSpatialService : IRouteSpatialService
 			return false;
 		}
 
-		var cell = movement.Segment.Origin.Cell;
+		var room = movement.Segment.Origin.Room;
 		var layer = movement.Segment.Origin.Layer;
-		if (!_activeMovementIndex.TryGetValue(cell, out var layers) ||
+		if (!_activeMovementIndex.TryGetValue(room, out var layers) ||
 		    !layers.TryGetValue(layer, out var bucket))
 		{
 			return true;
@@ -688,7 +688,7 @@ public sealed class RouteSpatialService : IRouteSpatialService
 		}
 		if (layers.Count == 0)
 		{
-			_activeMovementIndex.Remove(cell);
+			_activeMovementIndex.Remove(room);
 		}
 
 		return true;
@@ -734,17 +734,17 @@ public sealed class RouteSpatialService : IRouteSpatialService
 			: Proximity.Unapproximable;
 	}
 
-	private void EnsureCellIndexed(ICell cell)
+	private void EnsureRoomIndexed(IRoom room)
 	{
 		lock (_sync)
 		{
-			if (!_initialisedCells.Add(cell))
+			if (!_initialisedRooms.Add(room))
 			{
 				return;
 			}
 		}
 
-		foreach (var perceivable in cell.Perceivables.ToList())
+		foreach (var perceivable in room.Perceivables.ToList())
 		{
 			TrackPerceivable(perceivable);
 		}
@@ -753,7 +753,7 @@ public sealed class RouteSpatialService : IRouteSpatialService
 	private void RemoveIndexedPosition(IPerceivable perceivable)
 	{
 		if (!_indexedPositions.Remove(perceivable, out var indexed) ||
-			!_stationaryIndex.TryGetValue(indexed.Cell, out var layers) ||
+			!_stationaryIndex.TryGetValue(indexed.Room, out var layers) ||
 			!layers.TryGetValue(indexed.Layer, out var bucket))
 		{
 			return;
@@ -767,25 +767,25 @@ public sealed class RouteSpatialService : IRouteSpatialService
 
 		if (layers.Count == 0)
 		{
-			_stationaryIndex.Remove(indexed.Cell);
+			_stationaryIndex.Remove(indexed.Room);
 		}
 	}
 
 	private static void ValidateMovementSegment(ISpatialMovementSegment segment)
 	{
-		if (segment.Origin.Cell is null ||
-			segment.Destination.Cell is null ||
-			!ReferenceEquals(segment.Origin.Cell, segment.Destination.Cell) ||
+		if (segment.Origin.Room is null ||
+			segment.Destination.Room is null ||
+			!ReferenceEquals(segment.Origin.Room, segment.Destination.Room) ||
 			segment.Origin.Layer != segment.Destination.Layer ||
-			segment.Origin.Cell.RouteDefinition is null ||
+			segment.Origin.Room.RouteDefinition is null ||
 			!segment.Origin.RoutePositionMetres.HasValue ||
 			!segment.Destination.RoutePositionMetres.HasValue ||
 			!double.IsFinite(segment.Origin.RoutePositionMetres.Value) ||
 			!double.IsFinite(segment.Destination.RoutePositionMetres.Value) ||
 			segment.Origin.RoutePositionMetres.Value < 0.0 ||
 			segment.Destination.RoutePositionMetres.Value < 0.0 ||
-			segment.Origin.RoutePositionMetres.Value > segment.Origin.Cell.RouteDefinition.LengthMetres ||
-			segment.Destination.RoutePositionMetres.Value > segment.Origin.Cell.RouteDefinition.LengthMetres ||
+			segment.Origin.RoutePositionMetres.Value > segment.Origin.Room.RouteDefinition.LengthMetres ||
+			segment.Destination.RoutePositionMetres.Value > segment.Origin.Room.RouteDefinition.LengthMetres ||
 			segment.Duration < TimeSpan.Zero ||
 			!double.IsFinite(segment.DistanceMetres) ||
 			segment.DistanceMetres < 0.0 ||
@@ -951,5 +951,5 @@ public sealed class RouteSpatialService : IRouteSpatialService
 	}
 
 	private sealed record ActiveMovementSnapshot(ISpatialMovementSegment Segment, TimeSpan Elapsed);
-	private sealed record IndexedPosition(ICell Cell, RoomLayer Layer, double PositionMetres);
+	private sealed record IndexedPosition(IRoom Room, RoomLayer Layer, double PositionMetres);
 }

@@ -53,18 +53,18 @@ public class VehicleMovementCommandTests
 	[TestMethod]
 	public void DockedVehiclesAt_IncludesVehicleWithOpenDockingAtActorsPlatform()
 	{
-		var platform = new Mock<ICell>();
+		var platform = new Mock<IRoom>();
 		platform.SetupGet(x => x.Id).Returns(42L);
-		var elsewhere = new Mock<ICell>();
+		var elsewhere = new Mock<IRoom>();
 		elsewhere.SetupGet(x => x.Id).Returns(84L);
 
 		var activeDocking = new Mock<IVehicleDocking>();
 		activeDocking.SetupGet(x => x.State).Returns(VehicleDockingState.BoardingOpen);
-		activeDocking.SetupGet(x => x.ExteriorCell).Returns(platform.Object);
+		activeDocking.SetupGet(x => x.ExteriorRoom).Returns(platform.Object);
 		activeDocking.SetupGet(x => x.ExteriorLayer).Returns(RoomLayer.GroundLevel);
 		var remoteDocking = new Mock<IVehicleDocking>();
 		remoteDocking.SetupGet(x => x.State).Returns(VehicleDockingState.BoardingOpen);
-		remoteDocking.SetupGet(x => x.ExteriorCell).Returns(elsewhere.Object);
+		remoteDocking.SetupGet(x => x.ExteriorRoom).Returns(elsewhere.Object);
 		remoteDocking.SetupGet(x => x.ExteriorLayer).Returns(RoomLayer.GroundLevel);
 
 		var dockedVehicle = new Mock<IVehicle>();
@@ -95,13 +95,13 @@ public class VehicleMovementCommandTests
 	[TestMethod]
 	public void DockingExitFrom_UsesTransientExitFromInteriorToPlatform()
 	{
-		var interior = new Mock<ICell>();
-		var platform = new Mock<ICell>();
-		var cellExit = new Mock<ICellExit>();
+		var interior = new Mock<IRoom>();
+		var platform = new Mock<IRoom>();
+		var cellExit = new Mock<IRoomExit>();
 		cellExit.SetupGet(x => x.Origin).Returns(interior.Object);
 		cellExit.SetupGet(x => x.Destination).Returns(platform.Object);
 		var transientExit = new Mock<IExit>();
-		transientExit.Setup(x => x.CellExitFor(interior.Object)).Returns(cellExit.Object);
+		transientExit.Setup(x => x.RoomExitFor(interior.Object)).Returns(cellExit.Object);
 		var docking = new Mock<IVehicleDocking>();
 		docking.SetupGet(x => x.State).Returns(VehicleDockingState.BoardingOpen);
 		docking.SetupGet(x => x.TransientExit).Returns(transientExit.Object);
@@ -115,20 +115,20 @@ public class VehicleMovementCommandTests
 	[TestMethod]
 	public void DockedVehicleLookLines_ShowRemotePlatformDockingWithoutDuplicatingLocalExterior()
 	{
-		var platform = new Mock<ICell>();
+		var platform = new Mock<IRoom>();
 		platform.SetupGet(x => x.Id).Returns(42L);
-		var routeCell = new Mock<ICell>();
-		routeCell.SetupGet(x => x.Id).Returns(84L);
+		var routeRoom = new Mock<IRoom>();
+		routeRoom.SetupGet(x => x.Id).Returns(84L);
 		var access = new Mock<IVehicleAccessPoint>();
 		access.SetupGet(x => x.Name).Returns("Passenger Doors");
 
 		var remoteDocking = new Mock<IVehicleDocking>();
 		remoteDocking.SetupGet(x => x.State).Returns(VehicleDockingState.BoardingOpen);
-		remoteDocking.SetupGet(x => x.ExteriorCell).Returns(platform.Object);
+		remoteDocking.SetupGet(x => x.ExteriorRoom).Returns(platform.Object);
 		remoteDocking.SetupGet(x => x.ExteriorLayer).Returns(RoomLayer.GroundLevel);
 		remoteDocking.SetupGet(x => x.AccessPoint).Returns(access.Object);
 		var remoteExterior = new Mock<IGameItem>();
-		remoteExterior.SetupGet(x => x.Location).Returns(routeCell.Object);
+		remoteExterior.SetupGet(x => x.Location).Returns(routeRoom.Object);
 		var train = new Mock<IVehicle>();
 		train.SetupGet(x => x.Id).Returns(1L);
 		train.SetupGet(x => x.Name).Returns("QA Intertown Train");
@@ -274,34 +274,34 @@ public class VehicleMovementCommandTests
 		actor.SetupGet(x => x.OutputHandler).Returns(output.Object);
 		actor.SetupGet(x => x.InnerLineFormatLength).Returns(120);
 		actor.SetupGet(x => x.QueuedMoveCommands).Returns(new System.Collections.Generic.Queue<string>());
-		actor.Setup(x => x.MoveSpeed(It.IsAny<ICellExit>())).Returns(250.0);
+		actor.Setup(x => x.MoveSpeed(It.IsAny<IRoomExit>())).Returns(250.0);
 		actor.Setup(x => x.CanSee(actor.Object, It.IsAny<PerceiveIgnoreFlags>())).Returns(true);
 		actor.Setup(x => x.IsSelf(actor.Object)).Returns(true);
 		actor.Setup(x => x.HowSeen(actor.Object, It.IsAny<bool>(), It.IsAny<DescriptionType>(), It.IsAny<bool>(),
 			It.IsAny<PerceiveIgnoreFlags>())).Returns("you");
 
-		var origin = new Mock<ICell>();
+		var origin = new Mock<IRoom>();
 		origin.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
 		origin.Setup(x => x.LayerCharacters(RoomLayer.GroundLevel)).Returns([actor.Object]);
 		actor.SetupGet(x => x.Location).Returns(origin.Object);
 		actor.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
-		var destination = new Mock<ICell>();
+		var destination = new Mock<IRoom>();
 		destination.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
 		destination.Setup(x => x.LayerCharacters(RoomLayer.GroundLevel)).Returns([]);
 
 		var exitModel = new Mock<IExit>();
 		exitModel.SetupGet(x => x.MaximumSizeToEnter).Returns(SizeCategory.Huge);
-		var exit = new Mock<ICellExit>();
+		var exit = new Mock<IRoomExit>();
 		exit.SetupGet(x => x.Origin).Returns(origin.Object);
 		exit.SetupGet(x => x.Destination).Returns(destination.Object);
 		exit.SetupGet(x => x.Exit).Returns(exitModel.Object);
 		exit.SetupGet(x => x.OutboundMovementSuffix).Returns("north");
 		exit.Setup(x => x.MovementTransition(actor.Object))
-		    .Returns((CellMovementTransition.GroundToGround, RoomLayer.GroundLevel));
+		    .Returns((RoomMovementTransition.GroundToGround, RoomLayer.GroundLevel));
 
 		var profile = new Mock<IVehicleMovementProfilePrototype>();
 		profile.SetupGet(x => x.Id).Returns(1L);
-		profile.SetupGet(x => x.MovementType).Returns(VehicleMovementProfileType.CellExit);
+		profile.SetupGet(x => x.MovementType).Returns(VehicleMovementProfileType.RoomExit);
 		profile.SetupGet(x => x.IsDefault).Returns(true);
 		var prototype = new Mock<IVehiclePrototype>();
 		prototype.SetupGet(x => x.MovementProfiles).Returns([profile.Object]);
@@ -332,8 +332,8 @@ public class VehicleMovementCommandTests
 
 		movement.InitialAction();
 
-		vehicle.Verify(x => x.BeginMoveToCell(destination.Object, RoomLayer.GroundLevel, exit.Object), Times.Once);
-		vehicle.Verify(x => x.MoveToCell(It.IsAny<ICell>(), It.IsAny<RoomLayer>(), It.IsAny<ICellExit>(), It.IsAny<IMovement>()), Times.Never);
+		vehicle.Verify(x => x.BeginMoveToRoom(destination.Object, RoomLayer.GroundLevel, exit.Object), Times.Once);
+		vehicle.Verify(x => x.MoveToRoom(It.IsAny<IRoom>(), It.IsAny<RoomLayer>(), It.IsAny<IRoomExit>(), It.IsAny<IMovement>()), Times.Never);
 		scheduler.Verify(x => x.AddSchedule(It.Is<ISchedule>(schedule => schedule.Type == ScheduleType.Movement)), Times.Once);
 		output.Verify(x => x.Send(It.Is<string>(text => text.Contains("begin riding") &&
 		                                                text.Contains("QA test bicycle")), true, false), Times.Once);
@@ -349,7 +349,7 @@ public class VehicleMovementCommandTests
 		var actor = new Mock<ICharacter>();
 		actor.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
 		actor.SetupGet(x => x.QueuedMoveCommands).Returns(new Queue<string>());
-		actor.Setup(x => x.MoveSpeed(It.IsAny<ICellExit>())).Returns(250.0);
+		actor.Setup(x => x.MoveSpeed(It.IsAny<IRoomExit>())).Returns(250.0);
 
 		var voyeur = new Mock<ICharacter>();
 		voyeur.Setup(x => x.CanSee(actor.Object, It.IsAny<PerceiveIgnoreFlags>())).Returns(true);
@@ -357,9 +357,9 @@ public class VehicleMovementCommandTests
 		actor.Setup(x => x.HowSeen(voyeur.Object, It.IsAny<bool>(), It.IsAny<DescriptionType>(), It.IsAny<bool>(),
 			It.IsAny<PerceiveIgnoreFlags>())).Returns("a wide-eyed gentleman");
 
-		var origin = new Mock<ICell>();
-		var destination = new Mock<ICell>();
-		var exit = new Mock<ICellExit>();
+		var origin = new Mock<IRoom>();
+		var destination = new Mock<IRoom>();
+		var exit = new Mock<IRoomExit>();
 		exit.SetupGet(x => x.Origin).Returns(origin.Object);
 		exit.SetupGet(x => x.Destination).Returns(destination.Object);
 		exit.SetupGet(x => x.InboundMovementSuffix).Returns("in from the South");

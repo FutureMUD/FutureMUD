@@ -19,10 +19,10 @@ public partial class RemainsRuntimeBoundaryTests
 	private sealed class TargetCharacter : MudSharp.Character.Character
 	{
 		private TargetCharacter() : base(null!, null!, true) { }
-		public static TargetCharacter Create(ICell cell, IBody body)
+		public static TargetCharacter Create(IRoom room, IBody body)
 		{
 			var actor = (TargetCharacter)RuntimeHelpers.GetUninitializedObject(typeof(TargetCharacter));
-			actor.Location = cell; actor.Body = body; return actor;
+			actor.Location = room; actor.Body = body; return actor;
 		}
 		public override bool CanSee(IPerceivable thing, PerceiveIgnoreFlags flags = PerceiveIgnoreFlags.None) => thing is not null;
 	}

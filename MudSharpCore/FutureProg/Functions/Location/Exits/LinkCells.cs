@@ -5,7 +5,7 @@ using MudSharp.FutureProg.Variables;
 
 namespace MudSharp.FutureProg.Functions.Location.Exits;
 
-internal class LinkCells : BuiltInFunction
+internal class LinkRooms : BuiltInFunction
 {
     public IFuturemud Gameworld { get; set; }
 
@@ -21,7 +21,7 @@ internal class LinkCells : BuiltInFunction
                     ProgVariableTypes.Location, ProgVariableTypes.Location,
                     ProgVariableTypes.OverlayPackage, ProgVariableTypes.Number
                 },
-                (pars, gameworld) => new LinkCells(pars, gameworld),
+                (pars, gameworld) => new LinkRooms(pars, gameworld),
                 new List<string> { "origin", "destination", "overlay", "direction" },
                 new List<string> { "The origin room for the new exit.", "The destination room for the new exit.", "The editable overlay package where the exit should be created or copied.", "The outbound cardinal direction as a numeric enum value." },
                 "Creates a standard bidirectional cardinal exit between two rooms in an editable overlay package. This is equivalent to linking rooms with the room builder tools. Returns the created exit from the origin side or null if either room/package is invalid, the package is not editable, the direction is invalid, the rooms are the same, or a conflicting exit already exists.",
@@ -38,7 +38,7 @@ internal class LinkCells : BuiltInFunction
                     ProgVariableTypes.Location, ProgVariableTypes.Location,
                     ProgVariableTypes.OverlayPackage, ProgVariableTypes.Text
                 },
-                (pars, gameworld) => new LinkCells(pars, gameworld),
+                (pars, gameworld) => new LinkRooms(pars, gameworld),
                 new List<string> { "origin", "destination", "overlay", "direction" },
                 new List<string> { "The origin room for the new exit.", "The destination room for the new exit.", "The editable overlay package where the exit should be created or copied.", "The outbound cardinal direction name, such as north or up." },
                 "Creates a standard bidirectional cardinal exit between two rooms in an editable overlay package. This is equivalent to linking rooms with the room builder tools. Returns the created exit from the origin side or null if either room/package is invalid, the package is not editable, the direction is invalid, the rooms are the same, or a conflicting exit already exists.",
@@ -52,7 +52,7 @@ internal class LinkCells : BuiltInFunction
 
     #region Constructors
 
-    protected LinkCells(IList<IFunction> parameterFunctions, IFuturemud gameworld) : base(parameterFunctions)
+    protected LinkRooms(IList<IFunction> parameterFunctions, IFuturemud gameworld) : base(parameterFunctions)
     {
         Gameworld = gameworld;
     }
@@ -72,21 +72,21 @@ internal class LinkCells : BuiltInFunction
             return StatementResult.Error;
         }
 
-        ICell origin = (ICell)ParameterFunctions[0].Result?.GetObject;
+        IRoom origin = (IRoom)ParameterFunctions[0].Result?.GetObject;
         if (origin == null)
         {
             Result = null;
             return StatementResult.Normal;
         }
 
-        ICell destination = (ICell)ParameterFunctions[1].Result?.GetObject;
+        IRoom destination = (IRoom)ParameterFunctions[1].Result?.GetObject;
         if (destination == null)
         {
             Result = null;
             return StatementResult.Normal;
         }
 
-        ICellOverlayPackage package = (ICellOverlayPackage)ParameterFunctions[2].Result?.GetObject;
+        IRoomOverlayPackage package = (IRoomOverlayPackage)ParameterFunctions[2].Result?.GetObject;
         if (package == null)
         {
             Result = null;
@@ -126,7 +126,7 @@ internal class LinkCells : BuiltInFunction
             return StatementResult.Normal;
         }
 
-        IEditableCellOverlay overlay = origin.GetOrCreateOverlay(package);
+        IEditableRoomOverlay overlay = origin.GetOrCreateOverlay(package);
         if (Gameworld.ExitManager.GetExitsFor(origin, overlay)
                      .Any(x => x.OutboundDirection == direction || x.Destination == destination))
         {
@@ -134,7 +134,7 @@ internal class LinkCells : BuiltInFunction
             return StatementResult.Normal;
         }
 
-        IEditableCellOverlay otherOverlay = destination.GetOrCreateOverlay(package);
+        IEditableRoomOverlay otherOverlay = destination.GetOrCreateOverlay(package);
         CardinalDirection oppositeDirection = direction.Opposite();
         if (Gameworld.ExitManager.GetExitsFor(destination, otherOverlay)
                      .Any(x => x.OutboundDirection == oppositeDirection || x.Destination == origin))
@@ -146,10 +146,10 @@ internal class LinkCells : BuiltInFunction
         Exit newExit = new(Gameworld, origin, destination, direction, oppositeDirection, 1.0);
         overlay.AddExit(newExit);
         otherOverlay.AddExit(newExit);
-        Gameworld.ExitManager.UpdateCellOverlayExits(origin, overlay);
-        Gameworld.ExitManager.UpdateCellOverlayExits(destination, otherOverlay);
+        Gameworld.ExitManager.UpdateRoomOverlayExits(origin, overlay);
+        Gameworld.ExitManager.UpdateRoomOverlayExits(destination, otherOverlay);
 
-        Result = newExit.CellExitFor(origin);
+        Result = newExit.RoomExitFor(origin);
         return StatementResult.Normal;
     }
 }

@@ -258,7 +258,7 @@ internal class ScriptedEvent : SaveableItem, IScriptedEvent
                 IsJournalEntry = true,
                 TimeStamp = DateTime.UtcNow,
                 Subject = $"[Event] {Name}",
-                InGameTimeStamp = (Character.Location?.DateTime() ?? Gameworld.Cells.First().DateTime()).GetDateTimeString(),
+                InGameTimeStamp = (Character.Location?.DateTime() ?? Gameworld.Rooms.First().DateTime()).GetDateTimeString(),
                 Text = sb.ToString()
             };
             FMDB.Context.AccountNotes.Add(dbnote);

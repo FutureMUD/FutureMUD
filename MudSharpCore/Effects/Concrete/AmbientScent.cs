@@ -81,7 +81,7 @@ public class AmbientScent : Effect, IScentTrailEffect
 			return false;
 		}
 
-		if (Owner is not ICell { RouteDefinition: not null } cell ||
+		if (Owner is not IRoom { RouteDefinition: not null } room ||
 			!RoutePositionMetres.HasValue ||
 			!MaximumRouteDistanceMetres.HasValue ||
 			target is not ILocateable locateable)
@@ -90,7 +90,7 @@ public class AmbientScent : Effect, IScentTrailEffect
 		}
 
 		var location = RouteSpatialService.Instance.GetEffectiveLocation(locateable);
-		return ReferenceEquals(location.Cell, cell) &&
+		return ReferenceEquals(location.Room, room) &&
 		       location.RoutePositionMetres.HasValue &&
 		       Math.Abs(location.RoutePositionMetres.Value - RoutePositionMetres.Value) <=
 		       MaximumRouteDistanceMetres.Value;

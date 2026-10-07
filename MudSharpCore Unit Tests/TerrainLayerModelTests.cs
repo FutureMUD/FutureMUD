@@ -71,12 +71,12 @@ public class TerrainLayerModelTests
 	[TestMethod]
 	public void RooftopsOnlyToRooftopsExit_AppearsOnRooftopAndAirLayersButNotGround()
 	{
-		var origin = CreateCell(CreateTerrain("rooftopsonly"));
-		var destination = CreateCell(CreateTerrain("rooftops"));
+		var origin = CreateRoom(CreateTerrain("rooftopsonly"));
+		var destination = CreateRoom(CreateTerrain("rooftops"));
 		var parent = new Mock<IExit>();
 		parent.SetupGet(x => x.BlockedLayers).Returns([]);
 		parent.SetupGet(x => x.ClimbDifficulty).Returns(Difficulty.Normal);
-		var exit = new CellExit(
+		var exit = new RoomExit(
 			parent.Object,
 			origin.Object,
 			destination.Object,
@@ -94,8 +94,8 @@ public class TerrainLayerModelTests
 	[TestMethod]
 	public void RooftopsOnlyLayer_IsSupportedAndDoesNotRepeatFallProcessing()
 	{
-		var rooftopOnly = CreateCell(CreateTerrain("rooftopsonly"));
-		var ordinaryRooftops = CreateCell(CreateTerrain("rooftops"));
+		var rooftopOnly = CreateRoom(CreateTerrain("rooftopsonly"));
+		var ordinaryRooftops = CreateRoom(CreateTerrain("rooftops"));
 		var perceiver = new Mock<IPerceiver>();
 
 		Assert.IsTrue(PerceiverItem.IsSupportedRooftopsOnlyLayer(
@@ -137,10 +137,10 @@ public class TerrainLayerModelTests
 		IPerceiver perceiver)
 	{
 		FutureProgTestBootstrap.EnsureInitialised();
-		var expectedExitMock = new Mock<ICellExit>();
+		var expectedExitMock = new Mock<IRoomExit>();
 		expectedExitMock.SetupGet(x => x.GetObject).Returns(expectedExitMock.Object);
 		var expectedExit = expectedExitMock.Object;
-		var location = new Mock<ICell>();
+		var location = new Mock<IRoom>();
 		location
 			.Setup(x => x.ExitsFor(perceiver, false))
 			.Returns([expectedExit]);
@@ -179,11 +179,11 @@ public class TerrainLayerModelTests
 		return new Terrain(model, new Mock<IFuturemud>().Object);
 	}
 
-	private static Mock<ICell> CreateCell(ITerrain terrain)
+	private static Mock<IRoom> CreateRoom(ITerrain terrain)
 	{
-		var cell = new Mock<ICell>();
-		cell.Setup(x => x.Terrain(It.IsAny<IPerceiver?>())).Returns(terrain);
-		return cell;
+		var room = new Mock<IRoom>();
+		room.Setup(x => x.Terrain(It.IsAny<IPerceiver?>())).Returns(terrain);
+		return room;
 	}
 
 	private sealed class ConstantFunction(

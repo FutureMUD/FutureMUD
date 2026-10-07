@@ -102,8 +102,8 @@ public partial class SimpleMagicResource : BaseMagicResource
         {
             case ICharacter ch:
                 return ShouldStartWithResourceCharacterProg?.ExecuteBool(ch) ?? false;
-            case ICell cell:
-                return ShouldStartWithResourceLocationProg?.ExecuteBool(cell) ?? false;
+            case IRoom room:
+                return ShouldStartWithResourceLocationProg?.ExecuteBool(room) ?? false;
             case IGameItem gi:
                 return ShouldStartWithResourceItemProg?.ExecuteBool(gi) ?? false;
         }
@@ -117,8 +117,8 @@ public partial class SimpleMagicResource : BaseMagicResource
         {
             case ICharacter ch:
                 return StartingResourceAmountCharacterProg?.ExecuteDouble(ch) ?? 0.0;
-            case ICell cell:
-                return StartingResourceAmountLocationProg?.ExecuteDouble(cell) ?? 0.0;
+            case IRoom room:
+                return StartingResourceAmountLocationProg?.ExecuteDouble(room) ?? 0.0;
             case IGameItem gi:
                 return StartingResourceAmountItemProg?.ExecuteDouble(gi) ?? 0.0;
         }
@@ -130,8 +130,8 @@ public partial class SimpleMagicResource : BaseMagicResource
     {
 		if (HasAttributeCapacity && thing is ICharacter actor)
 			return TryAttributeCapacity(actor, out var cap, out _) ? cap : double.NaN;
-		if (thing is MudSharp.Construction.ICell cell &&
-			Gameworld.EnvironmentalMagic?.TryInspectResource(cell, this, out var output) == true)
+		if (thing is MudSharp.Construction.IRoom room &&
+			Gameworld.EnvironmentalMagic?.TryInspectResource(room, this, out var output) == true)
 			return output.IsValid ? output.Maximum : double.NaN;
         return ResourceCapProg?.ExecuteDouble(0.0, thing) ?? 0.0;
     }

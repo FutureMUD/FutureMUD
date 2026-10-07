@@ -147,8 +147,8 @@ public class MagicPhase3Tests
 		var gameworld = CreateGameworld();
 		var manager = new ExitManager(gameworld.Object);
 		gameworld.SetupGet(x => x.ExitManager).Returns(manager);
-		var origin = CreateCell(1, "Origin", gameworld.Object);
-		var destination = CreateCell(2, "Destination", gameworld.Object);
+		var origin = CreateRoom(1, "Origin", gameworld.Object);
+		var destination = CreateRoom(2, "Destination", gameworld.Object);
 
 		var exit = new TransientExit(gameworld.Object, origin.Object, destination.Object, "enter", "portal", "portal",
 			"a bright portal", "a bright portal", "through", "through", 1.0);
@@ -156,7 +156,7 @@ public class MagicPhase3Tests
 		manager.RegisterTransientExit(exit);
 
 		Assert.AreSame(exit, manager.GetExitByID(exit.Id));
-		Assert.AreSame(destination.Object, exit.CellExitFor(origin.Object)!.Destination);
+		Assert.AreSame(destination.Object, exit.RoomExitFor(origin.Object)!.Destination);
 
 		manager.UnregisterTransientExit(exit);
 
@@ -168,8 +168,8 @@ public class MagicPhase3Tests
 	{
 		var gameworld = CreateGameworld();
 		var owner = CreatePerceivable(gameworld.Object);
-		var source = CreateCell(1, "Source", gameworld.Object);
-		var destination = CreateCell(2, "Destination", gameworld.Object);
+		var source = CreateRoom(1, "Source", gameworld.Object);
+		var destination = CreateRoom(2, "Destination", gameworld.Object);
 		var effect = new SpellPortalEffect(owner.Object, CreateParent().Object, source.Object, destination.Object,
 			"enter", "portal", "portal", "a portal", "a portal", "through", "through", 1.0);
 		var xml = effect.SaveToXml(new Dictionary<IEffect, TimeSpan>());
@@ -257,7 +257,7 @@ public class MagicPhase3Tests
 			new XElement("OverrideKey", new XCData("clan-mask")));
 		yield return new XElement("Effect", new XAttribute("type", "phantomillusion"),
 			new XElement("Text", new XCData("A ghostly door hangs in the air.")),
-			new XElement("AudienceScope", IllusionAudienceScope.SameCell.ToString()), new XElement("ClanId", 0L),
+			new XElement("AudienceScope", IllusionAudienceScope.SameRoom.ToString()), new XElement("ClanId", 0L),
 			new XElement("ViewerProg", 0L), new XElement("Priority", 4),
 			new XElement("IllusionKey", new XCData("ghost-door")), new XElement("Colour", "bold cyan"));
 	}
@@ -279,13 +279,13 @@ public class MagicPhase3Tests
 		return perceivable;
 	}
 
-	private static Mock<ICell> CreateCell(long id, string name, IFuturemud gameworld)
+	private static Mock<IRoom> CreateRoom(long id, string name, IFuturemud gameworld)
 	{
-		var cell = new Mock<ICell>();
-		cell.SetupGet(x => x.Id).Returns(id);
-		cell.SetupGet(x => x.Name).Returns(name);
-		cell.SetupGet(x => x.Gameworld).Returns(gameworld);
-		return cell;
+		var room = new Mock<IRoom>();
+		room.SetupGet(x => x.Id).Returns(id);
+		room.SetupGet(x => x.Name).Returns(name);
+		room.SetupGet(x => x.Gameworld).Returns(gameworld);
+		return room;
 	}
 
 	private static Mock<IFuturemud> CreateGameworld()

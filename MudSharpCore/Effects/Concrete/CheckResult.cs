@@ -1,4 +1,4 @@
-﻿using MudSharp.Body.Traits;
+using MudSharp.Body.Traits;
 using MudSharp.RPG.Checks;
 
 namespace MudSharp.Effects.Concrete;
@@ -14,9 +14,9 @@ public class CheckResult : Effect, ICheckResultEffect
         Outcome = outcome;
         Trait = trait;
         TargetID = target?.Id;
-        TargetType = target != null ? target.FrameworkItemType : "None";
+        TargetType = target != null ? target.GetPersistedReferenceType() : "None";
         ToolID = tool?.Id;
-        ToolType = tool != null ? tool.FrameworkItemType : "None";
+        ToolType = tool != null ? tool.GetPersistedReferenceType() : "None";
     }
 
     public CheckResult(XElement effect, IPerceivable owner)
@@ -51,7 +51,7 @@ public class CheckResult : Effect, ICheckResultEffect
             Check == type &&
             Difficulty == difficulty &&
             target.FrameworkItemEquals(TargetID, TargetType) &&
-            tool.FrameworkItemEquals(TargetID, TargetType) &&
+            tool.FrameworkItemEquals(ToolID, ToolType) &&
             Trait == trait
             ;
     }
@@ -63,9 +63,9 @@ public class CheckResult : Effect, ICheckResultEffect
             Difficulty == other.Difficulty &&
             Trait == other.Trait &&
             TargetID == other.TargetID &&
-            TargetType == other.TargetType &&
+            PersistedFrameworkItemReference.SamePersistedReferenceType(TargetType, other.TargetType) &&
             ToolID == other.ToolID &&
-            ToolType == other.ToolType;
+            PersistedFrameworkItemReference.SamePersistedReferenceType(ToolType, other.ToolType);
     }
 
     public override void ExpireEffect()
@@ -78,8 +78,8 @@ public class CheckResult : Effect, ICheckResultEffect
         return string.Format("Fixed Check Result of {0} for {1} ({5}){2}{3}{4}.",
             Outcome.Describe(),
             Check,
-            TargetID.HasValue ? string.Format(voyeur, " +[{0} #{1:N0}]", TargetType, TargetID) : "",
-            ToolID.HasValue ? string.Format(voyeur, " +[{0} #{1:N0}]", ToolType, ToolID) : "",
+            TargetID.HasValue ? string.Format(voyeur, " +[{0} #{1:N0}]", PersistedFrameworkItemReference.PublicReferenceType(TargetType), TargetID) : "",
+            ToolID.HasValue ? string.Format(voyeur, " +[{0} #{1:N0}]", PersistedFrameworkItemReference.PublicReferenceType(ToolType), ToolID) : "",
             Trait != null ? string.Format(voyeur, " +[{0} #{1:N0}]", Trait.Name, Trait.Id) : "",
             Difficulty.Describe()
         );
@@ -97,8 +97,8 @@ public class CheckResult : Effect, ICheckResultEffect
         return string.Format("Fixed Check Result of {0} for {1} ({5}){2}{3}{4}.",
             Outcome.Describe(),
             Check,
-            TargetID.HasValue ? $" +[{TargetType} #{TargetID:N0}]" : "",
-            ToolID.HasValue ? $" +[{ToolType} #{ToolID:N0}]" : "",
+            TargetID.HasValue ? $" +[{PersistedFrameworkItemReference.PublicReferenceType(TargetType)} #{TargetID:N0}]" : "",
+            ToolID.HasValue ? $" +[{PersistedFrameworkItemReference.PublicReferenceType(ToolType)} #{ToolID:N0}]" : "",
             Trait != null ? $" +[{Trait.Name} #{Trait.Id:N0}]" : "",
             Difficulty.Describe()
         );
@@ -107,10 +107,10 @@ public class CheckResult : Effect, ICheckResultEffect
     protected override XElement SaveDefinition()
     {
         return
-            new XElement("Effect", new XAttribute("Outcome", (int)Outcome), new XAttribute("Check", (int)Outcome),
+            new XElement("Effect", new XAttribute("Outcome", (int)Outcome), new XAttribute("Check", (int)Check),
                 new XAttribute("Difficulty", (int)Difficulty),
                 new XAttribute("Trait", Trait?.Id ?? 0), new XAttribute("TargetId", TargetID ?? 0),
                 new XAttribute("TargetType", TargetType), new XAttribute("ToolId", ToolID ?? 0),
-                new XAttribute("ToolType", TargetType));
+                new XAttribute("ToolType", ToolType));
     }
 }

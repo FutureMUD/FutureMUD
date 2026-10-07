@@ -166,9 +166,9 @@ public class IndustrialisedClothingDependencyPlanTests
 		var columns = lines[0].Split('\t');
 		return lines.Skip(1).Select(line =>
 		{
-			var cells = line.Split('\t');
-			Assert.AreEqual(columns.Length, cells.Length);
-			return columns.Zip(cells).ToDictionary(x => x.First, x => x.Second, StringComparer.Ordinal);
+			var rooms = line.Split('\t');
+			Assert.AreEqual(columns.Length, rooms.Length);
+			return columns.Zip(rooms).ToDictionary(x => x.First, x => x.Second, StringComparer.Ordinal);
 		}).ToArray();
 	}
 

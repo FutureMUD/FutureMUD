@@ -24,9 +24,9 @@ internal class CelestialElevationFunction : BuiltInFunction
 
 		var obj = ParameterFunctions[0].Result?.GetObject;
 		var zone = obj as IZone;
-		if (zone is null && obj is ICell cell)
+		if (zone is null && obj is IRoom room)
 		{
-			zone = cell.Zone;
+			zone = room.Zone;
 		}
 
 		if (zone is null)

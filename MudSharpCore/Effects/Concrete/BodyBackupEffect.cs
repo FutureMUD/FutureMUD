@@ -87,13 +87,13 @@ public class BodyBackupEffect : Effect, IBodyBackupEffect
 		RegisterFactory("BodyBackup", (effect, owner) => new BodyBackupEffect(effect, owner));
 	}
 
-	public BodyBackupEffect(IPerceivable owner, long backupBodyId, ICell destinationCell, RoomLayer destinationLayer,
+	public BodyBackupEffect(IPerceivable owner, long backupBodyId, IRoom destinationRoom, RoomLayer destinationLayer,
 		int priority, BodyRemainsContext remainsContext, string sourceDescription, string oldLocationEcho,
 		string newLocationEcho, string selfEcho, bool consumeOnUse, IFutureProg? applicabilityProg = null)
 		: base(owner, applicabilityProg)
 	{
 		BackupBodyId = backupBodyId;
-		DestinationCellId = destinationCell.Id;
+		DestinationRoomId = destinationRoom.Id;
 		DestinationLayer = destinationLayer;
 		Priority = priority;
 		RemainsContext = NormaliseBackupRemainsContext(remainsContext);
@@ -109,7 +109,7 @@ public class BodyBackupEffect : Effect, IBodyBackupEffect
 	{
 		var root = effect.Element("Effect");
 		BackupBodyId = long.Parse(root?.Element("BackupBodyId")?.Value ?? "0");
-		DestinationCellId = long.Parse(root?.Element("DestinationCellId")?.Value ?? "0");
+		DestinationRoomId = long.Parse(root?.Element("DestinationCellId")?.Value ?? "0");
 		DestinationLayer = (RoomLayer)int.Parse(root?.Element("DestinationLayer")?.Value ?? "0");
 		Priority = int.Parse(root?.Element("Priority")?.Value ?? "0");
 		RemainsContext =
@@ -122,8 +122,8 @@ public class BodyBackupEffect : Effect, IBodyBackupEffect
 	}
 
 	public long BackupBodyId { get; }
-	public long DestinationCellId { get; }
-	public ICell? DestinationCell => Gameworld.Cells.Get(DestinationCellId);
+	public long DestinationRoomId { get; }
+	public IRoom? DestinationRoom => Gameworld.Rooms.Get(DestinationRoomId);
 	public RoomLayer DestinationLayer { get; }
 	public int Priority { get; }
 	public BodyRemainsContext RemainsContext { get; }
@@ -145,7 +145,7 @@ public class BodyBackupEffect : Effect, IBodyBackupEffect
 	{
 		return new XElement("Effect",
 			new XElement("BackupBodyId", BackupBodyId),
-			new XElement("DestinationCellId", DestinationCellId),
+			new XElement("DestinationCellId", DestinationRoomId),
 			new XElement("DestinationLayer", (int)DestinationLayer),
 			new XElement("Priority", Priority),
 			new XElement("RemainsContext", (int)RemainsContext),

@@ -13,7 +13,7 @@ public class AutobuilderAreaCylinder : AutobuilderAreaBase
             (gameworld, name) => new AutobuilderAreaCylinder(name, gameworld));
     }
 
-    public bool ConnectCellsWithDiagonalExits { get; private set; }
+    public bool ConnectRoomsWithDiagonalExits { get; private set; }
 
     public bool ConnectRingsAlongLengthOfCylinder { get; private set; }
 
@@ -31,7 +31,7 @@ public class AutobuilderAreaCylinder : AutobuilderAreaBase
     {
         ShowCommandByLine = element.Element("ShowCommandByLine")?.Value ??
                             "An undescribed autobuilder area template";
-        ConnectCellsWithDiagonalExits = bool.Parse(element.Element("ConnectCellsWithDiagonalExits")?.Value ?? "false");
+        ConnectRoomsWithDiagonalExits = bool.Parse(element.Element("ConnectCellsWithDiagonalExits")?.Value ?? "false");
         ConnectRingsAlongLengthOfCylinder = bool.Parse(element.Element("ConnectRingsAlongLengthOfCylinder")?.Value ?? "false");
     }
 
@@ -39,7 +39,7 @@ public class AutobuilderAreaCylinder : AutobuilderAreaBase
     {
         return new XElement("Template",
             new XElement("ShowCommandByLine", new XCData(ShowCommandByLine)),
-            new XElement("ConnectCellsWithDiagonalExits", ConnectCellsWithDiagonalExits),
+            new XElement("ConnectCellsWithDiagonalExits", ConnectRoomsWithDiagonalExits),
             new XElement("ConnectRingsAlongLengthOfCylinder", ConnectRingsAlongLengthOfCylinder)
         );
     }
@@ -53,8 +53,8 @@ public class AutobuilderAreaCylinder : AutobuilderAreaBase
         switch (command.PopForSwitch())
         {
             case "diagonals":
-                ConnectCellsWithDiagonalExits = !ConnectCellsWithDiagonalExits;
-                actor.OutputHandler.Send($"This autobuilder area template will {(ConnectCellsWithDiagonalExits ? "now" : "no longer")} connect cells with diagonal exits.");
+                ConnectRoomsWithDiagonalExits = !ConnectRoomsWithDiagonalExits;
+                actor.OutputHandler.Send($"This autobuilder area template will {(ConnectRoomsWithDiagonalExits ? "now" : "no longer")} connect cells with diagonal exits.");
                 return true;
             case "link":
                 ConnectRingsAlongLengthOfCylinder = !ConnectRingsAlongLengthOfCylinder;
@@ -93,9 +93,9 @@ public class AutobuilderAreaCylinder : AutobuilderAreaBase
         _parameters.Add(new AutobuilderTerrainParameter("terrain type", "", true, Gameworld));
     }
 
-    public override IEnumerable<ICell> ExecuteTemplate(ICharacter builder, IEnumerable<object> arguments)
+    public override IEnumerable<IRoom> ExecuteTemplate(ICharacter builder, IEnumerable<object> arguments)
     {
-        ICellOverlayPackage package = builder.CurrentOverlayPackage;
+        IRoomOverlayPackage package = builder.CurrentOverlayPackage;
         List<object> argList = arguments.ToList();
         int circumfrence = (int)argList.ElementAt(0);
         int length = (int)argList.ElementAt(1);
@@ -174,58 +174,58 @@ public class AutobuilderAreaCylinder : AutobuilderAreaBase
         CardinalDirection clockwiseDiagonalFromPrevious = CombineDirections(coneOpposite, clockwisedirection);
         CardinalDirection counterClockwiseDiagonalFromPrevious = CombineDirections(coneOpposite, counterclockwisedirection);
 
-        ICell[,] cells = new ICell[length, circumfrence];
+        IRoom[,] rooms = new IRoom[length, circumfrence];
         for (int i = 0; i < length; i++)
         {
             for (int j = 0; j < circumfrence; j++)
             {
-                ICell cell = roomTemplate.CreateRoom(builder, terrain, false);
-                cells[i, j] = cell;
+                IRoom room = roomTemplate.CreateRoom(builder, terrain, false);
+                rooms[i, j] = room;
 
                 if (j > 0)
                 {
-                    Exit exit = new(builder.Gameworld, cell, cells[i, j - 1], counterclockwisedirection,
+                    Exit exit = new(builder.Gameworld, room, rooms[i, j - 1], counterclockwisedirection,
                         clockwisedirection, 1.0);
-                    cell.GetOrCreateOverlay(package).AddExit(exit);
-                    cells[i, j - 1].GetOrCreateOverlay(package).AddExit(exit);
+                    room.GetOrCreateOverlay(package).AddExit(exit);
+                    rooms[i, j - 1].GetOrCreateOverlay(package).AddExit(exit);
                 }
 
                 if (i > 0 && (j == 0 || ConnectRingsAlongLengthOfCylinder))
                 {
-                    Exit exit = new(builder.Gameworld, cell, cells[i - 1, j], coneOpposite, conedirection, 1.0);
-                    cell.GetOrCreateOverlay(package).AddExit(exit);
-                    cells[i - 1, j].GetOrCreateOverlay(package).AddExit(exit);
+                    Exit exit = new(builder.Gameworld, room, rooms[i - 1, j], coneOpposite, conedirection, 1.0);
+                    room.GetOrCreateOverlay(package).AddExit(exit);
+                    rooms[i - 1, j].GetOrCreateOverlay(package).AddExit(exit);
                 }
 
-                if (i > 0 && ConnectRingsAlongLengthOfCylinder && ConnectCellsWithDiagonalExits)
+                if (i > 0 && ConnectRingsAlongLengthOfCylinder && ConnectRoomsWithDiagonalExits)
                 {
                     int clockwiseIndex = (j + 1) % circumfrence;
                     int counterClockwiseIndex = (j - 1 + circumfrence) % circumfrence;
 
-                    Exit exit = new(builder.Gameworld, cell, cells[i - 1, clockwiseIndex],
+                    Exit exit = new(builder.Gameworld, room, rooms[i - 1, clockwiseIndex],
                         clockwiseDiagonalFromPrevious, clockwiseDiagonalFromPrevious.Opposite(), 1.0);
-                    cell.GetOrCreateOverlay(package).AddExit(exit);
-                    cells[i - 1, clockwiseIndex].GetOrCreateOverlay(package).AddExit(exit);
+                    room.GetOrCreateOverlay(package).AddExit(exit);
+                    rooms[i - 1, clockwiseIndex].GetOrCreateOverlay(package).AddExit(exit);
 
-                    exit = new Exit(builder.Gameworld, cell, cells[i - 1, counterClockwiseIndex],
+                    exit = new Exit(builder.Gameworld, room, rooms[i - 1, counterClockwiseIndex],
                         counterClockwiseDiagonalFromPrevious, counterClockwiseDiagonalFromPrevious.Opposite(), 1.0);
-                    cell.GetOrCreateOverlay(package).AddExit(exit);
-                    cells[i - 1, counterClockwiseIndex].GetOrCreateOverlay(package).AddExit(exit);
+                    room.GetOrCreateOverlay(package).AddExit(exit);
+                    rooms[i - 1, counterClockwiseIndex].GetOrCreateOverlay(package).AddExit(exit);
                 }
             }
 
-            Exit ringExit = new(builder.Gameworld, cells[i, 0], cells[i, circumfrence - 1],
+            Exit ringExit = new(builder.Gameworld, rooms[i, 0], rooms[i, circumfrence - 1],
                 counterclockwisedirection, clockwisedirection, 1.0);
-            cells[i, 0].GetOrCreateOverlay(package).AddExit(ringExit);
-            cells[i, circumfrence - 1].GetOrCreateOverlay(package).AddExit(ringExit);
+            rooms[i, 0].GetOrCreateOverlay(package).AddExit(ringExit);
+            rooms[i, circumfrence - 1].GetOrCreateOverlay(package).AddExit(ringExit);
         }
 
-        foreach (ICell cell in cells)
+        foreach (IRoom room in rooms)
         {
-            builder.Gameworld.ExitManager.UpdateCellOverlayExits(cell, cell.CurrentOverlay);
+            builder.Gameworld.ExitManager.UpdateRoomOverlayExits(room, room.CurrentOverlay);
         }
 
-        return cells.Cast<ICell>().ToList();
+        return rooms.Cast<IRoom>().ToList();
     }
 
     public override string Show(ICharacter builder)
@@ -236,7 +236,7 @@ public class AutobuilderAreaCylinder : AutobuilderAreaBase
 This autobuilder template will return a cylinder area of linked cells (like the inside of a ring world) with circumfrence, length, orientation, terrain and room template supplied by the builder.
 
 It {(ConnectRingsAlongLengthOfCylinder ? "will".Colour(Telnet.Green) : "will not".Colour(Telnet.Red))} connect the rooms on the ring along the length.
-It {(ConnectCellsWithDiagonalExits ? "will".Colour(Telnet.Green) : "will not".Colour(Telnet.Red))} connect the rooms in diagonals.";
+It {(ConnectRoomsWithDiagonalExits ? "will".Colour(Telnet.Green) : "will not".Colour(Telnet.Red))} connect the rooms in diagonals.";
     }
 
     public override IAutobuilderArea Clone(string newName)

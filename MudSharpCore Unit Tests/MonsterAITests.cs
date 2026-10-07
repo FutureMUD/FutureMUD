@@ -69,11 +69,11 @@ public class MonsterAITests
 	{
 		var f = new Fixture();
 		f.Ai.ActivityWindow.Times.Add(TimeOfDay.Night);
-		f.Cell.SetupGet(x => x.CurrentTimeOfDay).Returns(TimeOfDay.Night);
-		Assert.IsTrue(f.Ai.HandleEvent(EventType.CharacterEnterCellWitness, f.Target.Object, f.Cell.Object, null!, f.Actor.Object));
+		f.Room.SetupGet(x => x.CurrentTimeOfDay).Returns(TimeOfDay.Night);
+		Assert.IsTrue(f.Ai.HandleEvent(EventType.CharacterEnterRoomWitness, f.Target.Object, f.Room.Object, null!, f.Actor.Object));
 		var hunt = f.Effects.OfType<MonsterIntentEffect>().Single();
 		var delay = f.Effects.OfType<CreatureEngagementDelay>().Single();
-		f.Cell.SetupGet(x => x.CurrentTimeOfDay).Returns(TimeOfDay.Morning);
+		f.Room.SetupGet(x => x.CurrentTimeOfDay).Returns(TimeOfDay.Morning);
 		delay.ExpireEffect();
 		Assert.AreEqual(AnimalHuntPhase.Abandoned, hunt.Phase);
 		f.Actor.Verify(x => x.Engage(It.IsAny<IPerceiver>(), It.IsAny<bool>()), Times.Never);
@@ -86,7 +86,7 @@ public class MonsterAITests
 	public void ScheduledHunt_RepeatedEvents_EngageOnceThroughNativeApi()
 	{
 		var f = new Fixture();
-		for (var i = 0; i < 4; i++) f.Ai.HandleEvent(EventType.CharacterEnterCellWitness, f.Target.Object, f.Cell.Object, null!, f.Actor.Object);
+		for (var i = 0; i < 4; i++) f.Ai.HandleEvent(EventType.CharacterEnterRoomWitness, f.Target.Object, f.Room.Object, null!, f.Actor.Object);
 		Assert.AreEqual(1, f.Effects.OfType<MonsterIntentEffect>().Count());
 		var delay = f.Effects.OfType<CreatureEngagementDelay>().Single();
 		delay.ExpireEffect();
@@ -99,9 +99,9 @@ public class MonsterAITests
 	{
 		var f = new Fixture();
 		f.Actor.SetupGet(x => x.RoomLayer).Returns(RoomLayer.Underwater);
-		f.Cell.Setup(x => x.LayerCharacters(RoomLayer.Underwater)).Returns([f.Actor.Object]);
+		f.Room.Setup(x => x.LayerCharacters(RoomLayer.Underwater)).Returns([f.Actor.Object]);
 		f.Actor.SetupGet(x => x.SeenTargets).Returns([]);
-		f.Ai.HandleEvent(EventType.CharacterEnterCellWitness, f.Target.Object, f.Cell.Object, null!, f.Actor.Object);
+		f.Ai.HandleEvent(EventType.CharacterEnterRoomWitness, f.Target.Object, f.Room.Object, null!, f.Actor.Object);
 		Assert.AreEqual(f.Target.Object.Id, f.Effects.OfType<MonsterIntentEffect>().Single().TargetId);
 		f.Effects.OfType<CreatureEngagementDelay>().Single().ExpireEffect();
 		f.Actor.Verify(x => x.Engage(f.Target.Object, false), Times.Once);
@@ -116,10 +116,10 @@ public class MonsterAITests
 			{ PathingOwner = f.Ai };
 		f.Effects.Add(path);
 		f.Ai.ActivityWindow.Times.Add(TimeOfDay.Night);
-		f.Cell.SetupGet(x => x.CurrentTimeOfDay).Returns(TimeOfDay.Morning);
+		f.Room.SetupGet(x => x.CurrentTimeOfDay).Returns(TimeOfDay.Morning);
 		f.Ai.HandleEvent(EventType.FiveSecondTick, f.Actor.Object);
 		Assert.IsTrue(f.Effects.Contains(path));
-		f.Cell.SetupGet(x => x.CurrentTimeOfDay).Returns(TimeOfDay.Night);
+		f.Room.SetupGet(x => x.CurrentTimeOfDay).Returns(TimeOfDay.Night);
 		f.Ai.HandleEvent(EventType.FiveSecondTick, f.Actor.Object);
 		Assert.IsFalse(f.Effects.Contains(path));
 		Assert.AreEqual(0, f.Effects.OfType<MonsterIntentEffect>().Count());
@@ -130,12 +130,12 @@ public class MonsterAITests
 	{
 		var f = new Fixture();
 		f.Ai.ActivityWindow.Times.Add(TimeOfDay.Night);
-		f.Cell.SetupGet(x => x.CurrentTimeOfDay).Returns(TimeOfDay.Night);
-		f.Ai.HandleEvent(EventType.CharacterEnterCellWitness, f.Target.Object, f.Cell.Object, null!, f.Actor.Object);
+		f.Room.SetupGet(x => x.CurrentTimeOfDay).Returns(TimeOfDay.Night);
+		f.Ai.HandleEvent(EventType.CharacterEnterRoomWitness, f.Target.Object, f.Room.Object, null!, f.Actor.Object);
 		var path = new FollowingPath(f.Actor.Object, []) { PathingOwner = f.Ai };
-		var door = new BreakDownDoor(f.Actor.Object, Mock.Of<ICellExit>()) { PathingEpisode = path };
+		var door = new BreakDownDoor(f.Actor.Object, Mock.Of<IRoomExit>()) { PathingEpisode = path };
 		f.Effects.Add(path); f.Effects.Add(door);
-		f.Cell.SetupGet(x => x.CurrentTimeOfDay).Returns(TimeOfDay.Morning);
+		f.Room.SetupGet(x => x.CurrentTimeOfDay).Returns(TimeOfDay.Morning);
 		f.Ai.HandleEvent(EventType.CommandDelayExpired, f.Actor.Object, "open");
 		Assert.AreEqual(0, f.Effects.OfType<MonsterIntentEffect>().Count());
 		Assert.AreEqual(0, f.Effects.OfType<CreatureEngagementDelay>().Count());
@@ -149,16 +149,16 @@ public class MonsterAITests
 		var f = new Fixture();
 		f.Ai.Hunting.PursuitRange = 17;
 		Assert.IsTrue(f.Ai.ReturnSearchRange >= f.Ai.MovementRange + 17);
-		var homeCell = new Mock<ICell>(); homeCell.SetupGet(x => x.Id).Returns(99);
-		var home = new NpcHomeBaseEffect(f.Actor.Object); home.SetHomeCell(homeCell.Object); f.Effects.Add(home);
-		f.World.SetupGet(x => x.Cells).Returns(Collection(f.Cell.Object, homeCell.Object));
-		f.Cell.Setup(x => x.ExitsFor(It.IsAny<IPerceiver>(), It.IsAny<bool>())).Returns([]);
+		var homeRoom = new Mock<IRoom>(); homeRoom.SetupGet(x => x.Id).Returns(99);
+		var home = new NpcHomeBaseEffect(f.Actor.Object); home.SetHomeRoom(homeRoom.Object); f.Effects.Add(home);
+		f.World.SetupGet(x => x.Rooms).Returns(Collection(f.Room.Object, homeRoom.Object));
+		f.Room.Setup(x => x.ExitsFor(It.IsAny<IPerceiver>(), It.IsAny<bool>())).Returns([]);
 		var method = typeof(MonsterAI).GetMethod("GetPath", BindingFlags.Instance | BindingFlags.NonPublic)!;
-		var result = ((ICell?, IEnumerable<ICellExit>))method.Invoke(f.Ai, [f.Actor.Object])!;
-		Assert.AreSame(homeCell.Object, result.Item1); Assert.IsFalse(result.Item2.Any());
+		var result = ((IRoom?, IEnumerable<IRoomExit>))method.Invoke(f.Ai, [f.Actor.Object])!;
+		Assert.AreSame(homeRoom.Object, result.Item1); Assert.IsFalse(result.Item2.Any());
 		var state = f.Effects.OfType<MonsterStateEffect>().Single();
 		Assert.IsTrue(state.ReturnRetryUntil > DateTime.UtcNow);
-		result = ((ICell?, IEnumerable<ICellExit>))method.Invoke(f.Ai, [f.Actor.Object])!;
+		result = ((IRoom?, IEnumerable<IRoomExit>))method.Invoke(f.Ai, [f.Actor.Object])!;
 		Assert.IsNull(result.Item1);
 		MonsterStateEffect.InitialiseEffectType();
 		Assert.AreEqual(state.ReturnRetryUntil, ((MonsterStateEffect)Effect.LoadEffect(state.SaveToXml([]), f.Actor.Object)).ReturnRetryUntil);
@@ -204,18 +204,18 @@ public class MonsterAITests
 	{
 		var f = new Fixture();
 		var winter = new Mock<ISeason>(); winter.SetupGet(x => x.Id).Returns(1); winter.SetupGet(x => x.SeasonGroup).Returns("Winter");
-		f.World.SetupGet(x => x.Seasons).Returns(Collection(winter.Object)); f.Cell.Setup(x => x.CurrentSeason(f.Actor.Object)).Returns(winter.Object);
+		f.World.SetupGet(x => x.Seasons).Returns(Collection(winter.Object)); f.Room.Setup(x => x.CurrentSeason(f.Actor.Object)).Returns(winter.Object);
 		var moon = new Mock<ICelestialObject>(); moon.SetupGet(x => x.Id).Returns(4);
 		var lunar = moon.As<ILunarPhase>(); var phase = Enum.GetValues<MoonPhase>()[0]; lunar.Setup(x => x.CurrentPhase()).Returns(phase);
 		f.World.SetupGet(x => x.CelestialObjects).Returns(Collection(moon.Object));
-		f.Cell.SetupGet(x => x.Zone.Celestials).Returns([moon.Object]);
+		f.Room.SetupGet(x => x.Zone.Celestials).Returns([moon.Object]);
 		var rule = f.Ai.ActivityWindow; rule.Times.UnionWith([TimeOfDay.Dusk, TimeOfDay.Night]); rule.Seasons.Add("winter"); rule.MoonId = 4; rule.Phases.Add(phase);
-		f.Cell.SetupGet(x => x.CurrentTimeOfDay).Returns(TimeOfDay.Night);
+		f.Room.SetupGet(x => x.CurrentTimeOfDay).Returns(TimeOfDay.Night);
 		Assert.IsNull(rule.InactiveReason(f.Actor.Object));
-		f.Cell.SetupGet(x => x.CurrentTimeOfDay).Returns(TimeOfDay.Morning);
+		f.Room.SetupGet(x => x.CurrentTimeOfDay).Returns(TimeOfDay.Morning);
 		Assert.AreEqual("outside the active time bands", rule.InactiveReason(f.Actor.Object));
-		f.Cell.SetupGet(x => x.CurrentTimeOfDay).Returns(TimeOfDay.Dusk);
-		f.Cell.SetupGet(x => x.Zone.Celestials).Returns([]);
+		f.Room.SetupGet(x => x.CurrentTimeOfDay).Returns(TimeOfDay.Dusk);
+		f.Room.SetupGet(x => x.Zone.Celestials).Returns([]);
 		Assert.AreEqual("the selected moon is not present in this zone", rule.InactiveReason(f.Actor.Object));
 	}
 
@@ -254,7 +254,7 @@ public class MonsterAITests
 	public void Provocation_UsesOneObservedReceipt_AndRespectsDefenceWindow()
 	{
 		var f = new Fixture(motive: "Provocation"); f.Ai.ActivityWindow.Times.Add(TimeOfDay.Night);
-		f.Cell.SetupGet(x => x.CurrentTimeOfDay).Returns(TimeOfDay.Morning);
+		f.Room.SetupGet(x => x.CurrentTimeOfDay).Returns(TimeOfDay.Morning);
 		for (var i = 0; i < 3; i++) f.Ai.HandleEvent(EventType.EngagedInCombat, f.Target.Object, f.Actor.Object);
 		Assert.AreEqual(1, f.Effects.OfType<MonsterStateEffect>().Count());
 		Assert.AreEqual(MonsterMotive.Provocation, f.Ai.SelectMotive(f.Actor.Object, f.Target.Object));
@@ -263,7 +263,7 @@ public class MonsterAITests
 		MonsterStateEffect.InitialiseEffectType(); f.Effects.Clear(); f.Effects.Add(Effect.LoadEffect(xml, f.Actor.Object));
 		Assert.AreEqual(MonsterMotive.None, f.Ai.SelectMotive(f.Actor.Object, f.Target.Object));
 		var bounded = new Fixture("<DefenceUsesWindow>true</DefenceUsesWindow>", "Provocation"); bounded.Ai.ActivityWindow.Times.Add(TimeOfDay.Night);
-		bounded.Cell.SetupGet(x => x.CurrentTimeOfDay).Returns(TimeOfDay.Morning);
+		bounded.Room.SetupGet(x => x.CurrentTimeOfDay).Returns(TimeOfDay.Morning);
 		bounded.Ai.HandleEvent(EventType.EngagedInCombat, bounded.Target.Object, bounded.Actor.Object);
 		Assert.AreEqual(MonsterMotive.None, bounded.Ai.SelectMotive(bounded.Actor.Object, bounded.Target.Object));
 	}
@@ -271,13 +271,13 @@ public class MonsterAITests
 	[TestMethod]
 	public void Guardian_WarnsOnce_ThenStartsAnIntentAfterWarning()
 	{
-		var f = new Fixture(motive: "Territory"); var home = new NpcHomeBaseEffect(f.Actor.Object); home.SetHomeCell(f.Cell.Object); f.Effects.Add(home);
-		f.Ai.HandleEvent(EventType.CharacterEnterCellWitness, f.Target.Object, f.Cell.Object, null!, f.Actor.Object);
+		var f = new Fixture(motive: "Territory"); var home = new NpcHomeBaseEffect(f.Actor.Object); home.SetHomeRoom(f.Room.Object); f.Effects.Add(home);
+		f.Ai.HandleEvent(EventType.CharacterEnterRoomWitness, f.Target.Object, f.Room.Object, null!, f.Actor.Object);
 		var state = f.Effects.OfType<MonsterStateEffect>().Single(); Assert.AreEqual(f.Target.Object.Id, state.WarningTargetId);
 		Assert.AreEqual(0, f.Effects.OfType<MonsterIntentEffect>().Count());
 		var xml = state.SaveToXml([]); xml.Element("Effect")!.Element("WarningUntil")!.Value = DateTime.UtcNow.AddSeconds(-1).ToString("O");
 		MonsterStateEffect.InitialiseEffectType(); f.Effects.Remove(state); f.Effects.Add(Effect.LoadEffect(xml, f.Actor.Object));
-		f.Ai.HandleEvent(EventType.CharacterEnterCellWitness, f.Target.Object, f.Cell.Object, null!, f.Actor.Object);
+		f.Ai.HandleEvent(EventType.CharacterEnterRoomWitness, f.Target.Object, f.Room.Object, null!, f.Actor.Object);
 		Assert.AreEqual(MonsterMotive.Territory, f.Effects.OfType<MonsterIntentEffect>().Single().Motive);
 	}
 
@@ -313,10 +313,10 @@ public class MonsterAITests
 	public void AfterKillFeeding_WithNoNeeds_ConsumesOnlyConfiguredBites()
 	{
 		var f = new Fixture("<Feeding>AfterKill</Feeding><FeedingBites>2</FeedingBites>");
-		var item = new Mock<IGameItem>(); item.SetupGet(x => x.Id).Returns(80); item.SetupGet(x => x.Location).Returns(f.Cell.Object);
+		var item = new Mock<IGameItem>(); item.SetupGet(x => x.Id).Returns(80); item.SetupGet(x => x.Location).Returns(f.Room.Object);
 		item.Setup(x => x.ShallowAccessibleItems(f.Actor.Object)).Returns([item.Object]);
 		var corpse = new Mock<ICorpse>(); corpse.SetupGet(x => x.Parent).Returns(item.Object); item.Setup(x => x.GetItemType<ICorpse>()).Returns(corpse.Object);
-		f.Cell.Setup(x => x.LayerGameItems(RoomLayer.GroundLevel)).Returns([item.Object]);
+		f.Room.Setup(x => x.LayerGameItems(RoomLayer.GroundLevel)).Returns([item.Object]);
 		f.Actor.SetupGet(x => x.Race.BiteWeight).Returns(1); f.Actor.Setup(x => x.CanEat(corpse.Object, 1)).Returns((true, ""));
 		f.Target.SetupGet(x => x.Corpse).Returns(corpse.Object);
 		f.Target.SetupGet(x => x.State).Returns(CharacterState.Dead);
@@ -326,7 +326,7 @@ public class MonsterAITests
 		Assert.AreEqual("target died", state.LastEndReason);
 		Assert.AreEqual(0, f.Effects.OfType<MonsterIntentEffect>().Count());
 		f.Ai.Motives.Clear();
-		for (var i = 0; i < 5; i++) f.Ai.HandleEvent(EventType.CharacterEnterCellWitness, f.Target.Object, f.Cell.Object, null!, f.Actor.Object);
+		for (var i = 0; i < 5; i++) f.Ai.HandleEvent(EventType.CharacterEnterRoomWitness, f.Target.Object, f.Room.Object, null!, f.Actor.Object);
 		f.Actor.Verify(x => x.Eat(corpse.Object, 1, null), Times.Exactly(2)); Assert.AreEqual(0, state.BitesRemaining);
 		Assert.IsInstanceOfType(f.Actor.Object.NeedsModel, typeof(NoNeedsModel));
 	}
@@ -365,7 +365,7 @@ public class MonsterAITests
 		public Mock<INPC> Actor { get; } = new() { DefaultValue = DefaultValue.Mock };
 		public Mock<ICharacter> Target { get; } = new() { DefaultValue = DefaultValue.Mock };
 		public Mock<IRace> TargetRace { get; } = new() { DefaultValue = DefaultValue.Mock };
-		public Mock<ICell> Cell { get; } = new() { DefaultValue = DefaultValue.Mock };
+		public Mock<IRoom> Room { get; } = new() { DefaultValue = DefaultValue.Mock };
 		public List<IEffect> Effects { get; } = [];
 		public MonsterAI Ai { get; }
 		public Fixture(string options = "", string motive = "Scheduled")
@@ -377,10 +377,10 @@ public class MonsterAITests
 			World.SetupGet(x => x.AlwaysTrueProg).Returns(always.Object); World.SetupGet(x => x.AlwaysFalseProg).Returns(never.Object); World.SetupGet(x => x.AlwaysOneProg).Returns(always.Object);
 			World.SetupGet(x => x.FutureProgs).Returns(Collection(always.Object, never.Object));
 			World.SetupGet(x => x.Calendars).Returns(Collection<ICalendar>()); World.SetupGet(x => x.CelestialObjects).Returns(Collection<ICelestialObject>()); World.SetupGet(x => x.Seasons).Returns(Collection<ISeason>());
-			Cell.SetupGet(x => x.Id).Returns(7); Cell.SetupGet(x => x.Location).Returns(Cell.Object); Cell.SetupGet(x => x.RouteDefinition).Returns((IRouteCellDefinition)null!);
-			Cell.SetupGet(x => x.Characters).Returns([Actor.Object, Target.Object]); Cell.Setup(x => x.LayerCharacters(RoomLayer.GroundLevel)).Returns([Actor.Object, Target.Object]);
-			Cell.SetupGet(x => x.GameItems).Returns([]); Cell.Setup(x => x.LayerGameItems(RoomLayer.GroundLevel)).Returns([]);
-			Actor.SetupGet(x => x.Location).Returns(Cell.Object); Target.SetupGet(x => x.Location).Returns(Cell.Object);
+			Room.SetupGet(x => x.Id).Returns(7); Room.SetupGet(x => x.Location).Returns(Room.Object); Room.SetupGet(x => x.RouteDefinition).Returns((IRouteRoomDefinition)null!);
+			Room.SetupGet(x => x.Characters).Returns([Actor.Object, Target.Object]); Room.Setup(x => x.LayerCharacters(RoomLayer.GroundLevel)).Returns([Actor.Object, Target.Object]);
+			Room.SetupGet(x => x.GameItems).Returns([]); Room.Setup(x => x.LayerGameItems(RoomLayer.GroundLevel)).Returns([]);
+			Actor.SetupGet(x => x.Location).Returns(Room.Object); Target.SetupGet(x => x.Location).Returns(Room.Object);
 			Actor.SetupGet(x => x.Id).Returns(10); Target.SetupGet(x => x.Id).Returns(20);
 			Actor.SetupGet(x => x.Gameworld).Returns(World.Object); Target.SetupGet(x => x.Gameworld).Returns(World.Object);
 			Actor.SetupGet(x => x.State).Returns(CharacterState.Awake); Target.SetupGet(x => x.State).Returns(CharacterState.Awake);
@@ -395,7 +395,7 @@ public class MonsterAITests
 			Actor.SetupGet(x => x.PositionState).Returns(PositionStanding.Instance); Target.SetupGet(x => x.PositionState).Returns(PositionStanding.Instance);
 			Actor.SetupGet(x => x.MaximumStamina).Returns(100); Actor.SetupGet(x => x.CurrentStamina).Returns(100);
 			Actor.Setup(x => x.HealthStrategy.CurrentHealthPercentage(Actor.Object)).Returns(1);
-			World.SetupGet(x => x.Cells).Returns(Collection(Cell.Object)); World.Setup(x => x.TryGetCharacter(20, true)).Returns(Target.Object);
+			World.SetupGet(x => x.Rooms).Returns(Collection(Room.Object)); World.Setup(x => x.TryGetCharacter(20, true)).Returns(Target.Object);
 			Actor.SetupGet(x => x.Effects).Returns(() => Effects); Actor.Setup(x => x.AddEffect(It.IsAny<IEffect>())).Callback<IEffect>(Effects.Add);
 			Actor.Setup(x => x.AddEffect(It.IsAny<IEffect>(), It.IsAny<TimeSpan>())).Callback<IEffect, TimeSpan>((effect, _) => Effects.Add(effect));
 			Actor.Setup(x => x.RemoveEffect(It.IsAny<IEffect>(), It.IsAny<bool>())).Callback<IEffect, bool>((effect, _) => Effects.Remove(effect));

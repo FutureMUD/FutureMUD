@@ -173,8 +173,8 @@ public class LookingForTracks : Effect, IActionEffect, ILDescSuffixEffect, IRemo
         {
 			if (track.Track.RoutePositionMetres.HasValue && track.Track.RouteDirection.HasValue)
 			{
-				var route = track.Track.Cell.RouteDefinition;
-				var direction = track.Track.RouteDirection == RouteCellDirection.Positive
+				var route = track.Track.Room.RouteDefinition;
+				var direction = track.Track.RouteDirection == RouteRoomDirection.Positive
 					? route?.PositiveDirectionName ?? "forward"
 					: route?.NegativeDirectionName ?? "backward";
 				var distance = actor.Gameworld.UnitManager.DescribeMostSignificantExact(
@@ -187,11 +187,11 @@ public class LookingForTracks : Effect, IActionEffect, ILDescSuffixEffect, IRemo
             {
                 if (track.Track.TurnedAround)
                 {
-                    sb.AppendLine($"...It was dragged {track.Track.FromCellExit?.InboundMovementSuffix ?? track.Track.ToCellExit?.OutboundMovementSuffix} but turned around.");
+                    sb.AppendLine($"...It was dragged {track.Track.FromRoomExit?.InboundMovementSuffix ?? track.Track.ToRoomExit?.OutboundMovementSuffix} but turned around.");
                 }
                 else
                 {
-                    sb.AppendLine($"...It was dragged {track.Track.FromCellExit?.InboundMovementSuffix ?? track.Track.ToCellExit?.OutboundMovementSuffix}.");
+                    sb.AppendLine($"...It was dragged {track.Track.FromRoomExit?.InboundMovementSuffix ?? track.Track.ToRoomExit?.OutboundMovementSuffix}.");
                 }
             }
             else
@@ -203,11 +203,11 @@ public class LookingForTracks : Effect, IActionEffect, ILDescSuffixEffect, IRemo
 				}
                 else if (track.Track.TurnedAround)
                 {
-                    sb.AppendLine($"...It {speed.PresentParticiple} {track.Track.FromCellExit?.InboundMovementSuffix ?? track.Track.ToCellExit?.OutboundMovementSuffix} but turned around.");
+                    sb.AppendLine($"...It {speed.PresentParticiple} {track.Track.FromRoomExit?.InboundMovementSuffix ?? track.Track.ToRoomExit?.OutboundMovementSuffix} but turned around.");
                 }
                 else
                 {
-                    sb.AppendLine($"...It {speed.PresentParticiple} {track.Track.FromCellExit?.InboundMovementSuffix ?? track.Track.ToCellExit?.OutboundMovementSuffix}.");
+                    sb.AppendLine($"...It {speed.PresentParticiple} {track.Track.FromRoomExit?.InboundMovementSuffix ?? track.Track.ToRoomExit?.OutboundMovementSuffix}.");
                 }
             }
 
@@ -226,19 +226,19 @@ public class LookingForTracks : Effect, IActionEffect, ILDescSuffixEffect, IRemo
         {
 			if (track.Track.RoutePositionMetres.HasValue && track.Track.RouteDirection.HasValue)
 			{
-				var route = track.Track.Cell.RouteDefinition;
-				var direction = track.Track.RouteDirection == RouteCellDirection.Positive
+				var route = track.Track.Room.RouteDefinition;
+				var direction = track.Track.RouteDirection == RouteRoomDirection.Positive
 					? route?.PositiveDirectionName ?? "forward"
 					: route?.NegativeDirectionName ?? "backward";
 				sb.AppendLine($"...It went {direction} along the route.");
 			}
             else if (track.Track.TurnedAround)
             {
-                sb.AppendLine($"...It went {track.Track.FromCellExit?.InboundMovementSuffix ?? track.Track.ToCellExit?.OutboundMovementSuffix} but turned around.");
+                sb.AppendLine($"...It went {track.Track.FromRoomExit?.InboundMovementSuffix ?? track.Track.ToRoomExit?.OutboundMovementSuffix} but turned around.");
             }
             else
             {
-                sb.AppendLine($"...It went {track.Track.FromCellExit?.InboundMovementSuffix ?? track.Track.ToCellExit?.OutboundMovementSuffix}.");
+                sb.AppendLine($"...It went {track.Track.FromRoomExit?.InboundMovementSuffix ?? track.Track.ToRoomExit?.OutboundMovementSuffix}.");
             }
         }
 

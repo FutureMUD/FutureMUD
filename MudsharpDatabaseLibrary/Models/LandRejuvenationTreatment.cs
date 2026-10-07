@@ -8,7 +8,7 @@ namespace MudSharp.Models;
 public class LandRejuvenationTreatment
 {
 	public Guid Id { get; set; }
-	public long CellId { get; set; }
+	public long RoomId { get; set; }
 	public long Revision { get; set; }
 	public string Status { get; set; } = string.Empty;
 	public string Checkpoint { get; set; } = string.Empty;

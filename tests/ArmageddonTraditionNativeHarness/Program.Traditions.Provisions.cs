@@ -113,7 +113,7 @@ internal static partial class GNHProgram
 		void Terrain(string name)
 		{
 			var terrain = new Mock<MudSharp.Construction.ITerrain>(); terrain.SetupGet(x => x.Type).Returns(ProgVariableTypes.Terrain); terrain.SetupGet(x => x.GetObject).Returns(terrain.Object); terrain.Setup(x => x.GetProperty("name")).Returns(new MudSharp.FutureProg.Variables.TextVariable(name));
-			var cell = Mock.Get(actor.Location); cell.SetupGet(x => x.Type).Returns(ProgVariableTypes.Location); cell.SetupGet(x => x.GetObject).Returns(actor.Location); cell.Setup(x => x.GetProperty("terrain")).Returns(terrain.Object);
+			var room = Mock.Get(actor.Location); room.SetupGet(x => x.Type).Returns(ProgVariableTypes.Location); room.SetupGet(x => x.GetObject).Returns(actor.Location); room.Setup(x => x.GetProperty("terrain")).Returns(terrain.Object);
 		}
 		var operations = new List<Guid>();
 		void Cast(long spell, string target = "")
@@ -146,7 +146,7 @@ internal static partial class GNHProgram
 		FlushCasting(native); var players = TraditionPlayers(database); RequireInstalled(InstallProvisions(database, installed.Plan)); RequireTraditions(InstallTraditions(database, installed.Traditions)); Require(players == TraditionPlayers(database), "Active installer rerun changed acquisition, proficiency, reserve, merits, or consumption.");
 		using (var db = NewIndependentContext(database.ConnectionString))
 		{
-			foreach (var item in host.Items.Where(x => !x.Deleted && x.InInventoryOf is null && x.ContainedIn is null)) if (!db.CellsGameItems.Any(x => x.GameItemId == item.Id)) db.CellsGameItems.Add(new() { CellId = fixture.CellId, GameItemId = item.Id }); db.SaveChanges();
+			foreach (var item in host.Items.Where(x => !x.Deleted && x.InInventoryOf is null && x.ContainedIn is null)) if (!db.RoomsGameItems.Any(x => x.GameItemId == item.Id)) db.RoomsGameItems.Add(new() { RoomId = fixture.RoomId, GameItemId = item.Id }); db.SaveChanges();
 		}
 		RunItemReaderProcess(new ProvisionInstallerReader(database.Name, fixture, RuntimeClock.UtcNow, utilities, utilityIds.ToDictionary(x => x.Key, x => x.Value), ids.ToDictionary(x => x.Key, x => x.Value), installed,
 			consumed.Id, partial.Id, expiring.Id, light.Id, vessel.Id, actor.NeedsModel.FoodSatiatedHours, actor.NeedsModel.AlcoholLitres, native.Body.EffectsOfType<DelayedNeedsFulfillment>().Sum(x => x.Payload.AlcoholLitres), actor.MagicResourceAmounts[native.Resource], operations.ToArray()), "--traditions-provisions-reader");
@@ -165,7 +165,7 @@ internal static partial class GNHProgram
 		using (var db = NewIndependentContext(database.ConnectionString))
 		{
 			native.Body.LoadInventory(db.Bodies.Include(x => x.BodiesGameItems).Single(x => x.Id == native.Body.Id));
-			foreach (var id in db.CellsGameItems.Where(x => x.CellId == input.Fixture.CellId).Select(x => x.GameItemId).ToArray()) { var item = world.TryGetItem(id, true)!; if (item.InInventoryOf is null && item.ContainedIn is null) native.Actor.Location.Insert(item, true); }
+			foreach (var id in db.RoomsGameItems.Where(x => x.RoomId == input.Fixture.RoomId).Select(x => x.GameItemId).ToArray()) { var item = world.TryGetItem(id, true)!; if (item.InInventoryOf is null && item.ContainedIn is null) native.Actor.Location.Insert(item, true); }
 			Require(!db.GameItems.Any(x => x.Id == input.Consumed), "Consumed installed food recreated.");
 		}
 		foreach (var item in host.Items.ToArray()) item.FinaliseLoadTimeTasks();

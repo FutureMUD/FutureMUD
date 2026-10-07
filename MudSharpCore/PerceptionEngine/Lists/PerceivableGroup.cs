@@ -74,7 +74,7 @@ public class PerceivableGroup : TemporaryPerceivable, IPerceivableGroup
         return _members.All(x => x.HiddenFromPerception(type, flags));
     }
 
-    public override ICell Location => _members.First().Location;
+    public override IRoom Location => _members.First().Location;
 
     #region Implementation of ILocateable
 

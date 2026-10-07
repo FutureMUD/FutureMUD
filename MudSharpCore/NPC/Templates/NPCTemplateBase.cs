@@ -461,7 +461,7 @@ public abstract partial class NPCTemplateBase : EditableItem, INPCTemplate, IEdi
         return true;
     }
 
-    protected abstract ICharacterTemplate CharacterTemplate(ICell location);
+    protected abstract ICharacterTemplate CharacterTemplate(IRoom location);
 
     protected static List<int> RollRandomStats(int numberOfStats, int totalCap, int individualCap,
         string diceExpression)
@@ -552,12 +552,12 @@ public abstract partial class NPCTemplateBase : EditableItem, INPCTemplate, IEdi
 
     public string? BuilderNotes { get; protected set; }
 
-    public ICharacterTemplate GetCharacterTemplate(ICell cell = null)
+    public ICharacterTemplate GetCharacterTemplate(IRoom room = null)
     {
-        return CharacterTemplate(cell);
+        return CharacterTemplate(room);
     }
 
-    public ICharacter CreateNewCharacter(ICell location)
+    public ICharacter CreateNewCharacter(IRoom location)
     {
         return CreateNewCharacter(new SpatialLocation(
             location,
@@ -572,7 +572,7 @@ public abstract partial class NPCTemplateBase : EditableItem, INPCTemplate, IEdi
             throw new ArgumentException(error, nameof(location));
         }
 
-        ICharacterTemplate template = CharacterTemplate(location.Cell);
+        ICharacterTemplate template = CharacterTemplate(location.Room);
         NPC npc = new(Gameworld, template, this);
         npc.MoveTo(location, noSave: true);
         return npc;

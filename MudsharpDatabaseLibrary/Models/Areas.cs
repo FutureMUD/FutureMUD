@@ -7,7 +7,7 @@ namespace MudSharp.Models
     {
         public Areas()
         {
-            AreasCells = new HashSet<AreasCells>();
+            AreasRooms = new HashSet<AreasRooms>();
         }
 
         public long Id { get; set; }
@@ -15,6 +15,6 @@ namespace MudSharp.Models
         public long? WeatherControllerId { get; set; }
 
         public virtual WeatherController WeatherController { get; set; }
-        public virtual ICollection<AreasCells> AreasCells { get; set; }
+        public virtual ICollection<AreasRooms> AreasRooms { get; set; }
     }
 }

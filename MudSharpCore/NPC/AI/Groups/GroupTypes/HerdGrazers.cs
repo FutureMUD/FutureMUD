@@ -149,7 +149,7 @@ public abstract class HerdGrazers : GroupAIType
             return (main, stragglers, outsiders);
         }
 
-        (ICell Location, RoomLayer Layer) mainLocation = group.GroupMembers.GroupBy(x => (Location: x.Location, Layer: x.RoomLayer))
+        (IRoom Location, RoomLayer Layer) mainLocation = group.GroupMembers.GroupBy(x => (Location: x.Location, Layer: x.RoomLayer))
                                 .Select(x => (x.Key, Count: x.Count())).FirstMax(x => x.Count).Key;
         if (mainLocation.Location == null)
         {
@@ -188,7 +188,7 @@ public abstract class HerdGrazers : GroupAIType
             return;
         }
 
-        (ICell Location, RoomLayer RoomLayer) targetLocation = (main.First().Location, main.First().RoomLayer);
+        (IRoom Location, RoomLayer RoomLayer) targetLocation = (main.First().Location, main.First().RoomLayer);
         foreach (ICharacter ch in stragglers)
         {
             if (!ch.CouldMove(false, null).Success)
@@ -213,20 +213,20 @@ public abstract class HerdGrazers : GroupAIType
 
         foreach (ICharacter ch in outsiders)
         {
-            List<ICellExit> leaderPath = ch.PathBetween(targetLocation.Location, 20, PathSearch.PathRespectClosedDoors(ch))
+            List<IRoomExit> leaderPath = ch.PathBetween(targetLocation.Location, 20, PathSearch.PathRespectClosedDoors(ch))
                                .ToList();
             if (leaderPath.Count < 2)
             {
-                List<(ICell Cell, int Distance)> validZone = targetLocation.Location
-                                              .CellsAndDistancesInVicinity(6,
+                List<(IRoom Room, int Distance)> validZone = targetLocation.Location
+                                              .RoomsAndDistancesInVicinity(6,
                                                   exit => ch.CouldMove(false, null).Success && ch.CanMove(exit),
-                                                  cell => !group.AvoidCell(cell, group.Alertness))
+                                                  room => !group.AvoidRoom(room, group.Alertness))
                                               .Where(x => x.Distance >= 3)
-                                              .OrderBy(x => x.Cell.EstimatedDirectDistanceTo(ch.Location))
+                                              .OrderBy(x => x.Room.EstimatedDirectDistanceTo(ch.Location))
                                               .ToList();
-                foreach ((ICell Cell, int Distance) cell in validZone)
+                foreach ((IRoom Room, int Distance) room in validZone)
                 {
-                    List<ICellExit> path = ch.PathBetween(cell.Cell, 6,
+                    List<IRoomExit> path = ch.PathBetween(room.Room, 6,
                         exit => ch.CouldMove(false, null).Success && ch.CanMove(exit)).ToList();
                     if (path.Any())
                     {
@@ -340,14 +340,14 @@ public abstract class HerdGrazers : GroupAIType
         }
 
         IEnumerable<IRace> races = main.Concat(outsiders).Select(x => x.Race).Distinct();
-        IEnumerable<(ICell Location, RoomLayer Layer)> locations = main.Concat(outsiders).Select(x => (Location: x.Location, Layer: x.RoomLayer)).Distinct();
-        CollectionDictionary<(ICell Location, RoomLayer Layer, IRace Race), EdibleForagableYield> localYields =
+        IEnumerable<(IRoom Location, RoomLayer Layer)> locations = main.Concat(outsiders).Select(x => (Location: x.Location, Layer: x.RoomLayer)).Distinct();
+        CollectionDictionary<(IRoom Location, RoomLayer Layer, IRace Race), EdibleForagableYield> localYields =
             new();
-        CollectionDictionary<(ICell Location, RoomLayer Layer), ILiquidContainer> lcons = new();
-        ICell mainLocation = main.First().Location;
+        CollectionDictionary<(IRoom Location, RoomLayer Layer), ILiquidContainer> lcons = new();
+        IRoom mainLocation = main.First().Location;
         ICharacter leader = main.FirstOrDefault(x => group.GroupRoles[x] == GroupRole.Leader) ?? main.First();
 
-        foreach ((ICell Location, RoomLayer Layer) location in locations)
+        foreach ((IRoom Location, RoomLayer Layer) location in locations)
         {
             foreach (IRace race in races)
             {
@@ -358,7 +358,7 @@ public abstract class HerdGrazers : GroupAIType
             lcons.AddRange((location.Location, location.Layer), LocalLiquids(location.Location, location.Layer));
         }
 
-        foreach (KeyValuePair<(ICell Location, RoomLayer Layer), List<ILiquidContainer>> location in lcons)
+        foreach (KeyValuePair<(IRoom Location, RoomLayer Layer), List<ILiquidContainer>> location in lcons)
         {
             if (location.Value.Any() && !data.KnownWaterLocations.Contains(location.Key.Location))
             {
@@ -378,9 +378,9 @@ public abstract class HerdGrazers : GroupAIType
             return;
         }
 
-        foreach (ICell water in data.KnownWaterLocations)
+        foreach (IRoom water in data.KnownWaterLocations)
         {
-            IEnumerable<ICellExit> path = mainLocation.PathBetween(water, 20, CanMoveExitFunctionFor(leader, group));
+            IEnumerable<IRoomExit> path = mainLocation.PathBetween(water, 20, CanMoveExitFunctionFor(leader, group));
             if (!path.Any())
             {
                 continue;
@@ -396,7 +396,7 @@ public abstract class HerdGrazers : GroupAIType
         if (leader.CouldMove(false, null).Success)
         {
             AdjacentToExit recent = leader.EffectsOfType<AdjacentToExit>().FirstOrDefault();
-            ICellExit random = mainLocation.ExitsFor(leader)
+            IRoomExit random = mainLocation.ExitsFor(leader)
                                      .Where(x => CanMoveExitFunctionFor(leader, group).Invoke(x))
                                      .GetWeightedRandom(x => recent?.Exit == x ? 1.0 : 100.0);
             if (random != null && leader.CanMove(random))
@@ -415,7 +415,7 @@ public abstract class HerdGrazers : GroupAIType
             return;
         }
 
-        ICell mainLocation = main.First().Location;
+        IRoom mainLocation = main.First().Location;
         ICharacter leader = main.FirstOrDefault(x => group.GroupRoles[x] == GroupRole.Leader) ?? main.First();
 
         IEnumerable<IRace> races = main.Select(x => x.Race).Distinct();
@@ -437,7 +437,7 @@ public abstract class HerdGrazers : GroupAIType
         if (leader.CouldMove(false, null).Success)
         {
             AdjacentToExit recent = leader.EffectsOfType<AdjacentToExit>().FirstOrDefault();
-            ICellExit random = mainLocation.ExitsFor(leader)
+            IRoomExit random = mainLocation.ExitsFor(leader)
                                      .Where(x => CanMoveExitFunctionFor(leader, group).Invoke(x) && leader.CanMove(x))
                                      .GetWeightedRandom(x => recent?.Exit == x ? 1.0 : 100.0);
             if (random != null)
@@ -453,12 +453,12 @@ public abstract class HerdGrazers : GroupAIType
         HerdGrazerData data = (HerdGrazerData)group.Data;
 
         IEnumerable<IRace> races = main.Concat(outsiders).Select(x => x.Race).Distinct();
-        IEnumerable<(ICell Location, RoomLayer Layer)> locations = main.Concat(outsiders).Select(x => (Location: x.Location, Layer: x.RoomLayer)).Distinct();
-        CollectionDictionary<(ICell Location, RoomLayer Layer, IRace Race), EdibleForagableYield> localYields =
+        IEnumerable<(IRoom Location, RoomLayer Layer)> locations = main.Concat(outsiders).Select(x => (Location: x.Location, Layer: x.RoomLayer)).Distinct();
+        CollectionDictionary<(IRoom Location, RoomLayer Layer, IRace Race), EdibleForagableYield> localYields =
             new();
-        CollectionDictionary<(ICell Location, RoomLayer Layer), ILiquidContainer> lcons = new();
+        CollectionDictionary<(IRoom Location, RoomLayer Layer), ILiquidContainer> lcons = new();
 
-        foreach ((ICell Location, RoomLayer Layer) location in locations)
+        foreach ((IRoom Location, RoomLayer Layer) location in locations)
         {
             foreach (IRace race in races)
             {
@@ -469,7 +469,7 @@ public abstract class HerdGrazers : GroupAIType
             lcons.AddRange((location.Location, location.Layer), LocalLiquids(location.Location, location.Layer));
         }
 
-        foreach (KeyValuePair<(ICell Location, RoomLayer Layer), List<ILiquidContainer>> location in lcons)
+        foreach (KeyValuePair<(IRoom Location, RoomLayer Layer), List<ILiquidContainer>> location in lcons)
         {
             if (location.Value.Any() && !data.KnownWaterLocations.Contains(location.Key.Location))
             {
@@ -651,7 +651,7 @@ public abstract class HerdGrazers : GroupAIType
 
     protected void PruneStaleThreatLocations(IGroupAI group, HerdGrazerData data)
     {
-        foreach (KeyValuePair<ICell, DateTime> location in data.KnownThreatLocations.ToList())
+        foreach (KeyValuePair<IRoom, DateTime> location in data.KnownThreatLocations.ToList())
         {
             if (RuntimeClock.UtcNow - location.Value > TimeSpan.FromHours(12))
             {

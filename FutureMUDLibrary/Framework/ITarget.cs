@@ -109,10 +109,10 @@ namespace MudSharp.Framework
 
         ICorpse? TargetCorpse(string keyword, PerceiveIgnoreFlags ignoreFlags = PerceiveIgnoreFlags.None);
 
-        (ICharacter? Target, IEnumerable<ICellExit> Path) TargetDistantActor(string keyword, ICellExit? initialExit, uint maximumRange, bool respectDoors,
+        (ICharacter? Target, IEnumerable<IRoomExit> Path) TargetDistantActor(string keyword, IRoomExit? initialExit, uint maximumRange, bool respectDoors,
             bool respectCorners);
 
-        (IGameItem? Target, IEnumerable<ICellExit> Path) TargetDistantItem(string keyword, ICellExit? initialExit, uint maximumRange, bool respectDoors,
+        (IGameItem? Target, IEnumerable<IRoomExit> Path) TargetDistantItem(string keyword, IRoomExit? initialExit, uint maximumRange, bool respectDoors,
             bool respectCorners);
 
 

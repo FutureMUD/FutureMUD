@@ -27,7 +27,7 @@ namespace MudSharp.Economy.Property
     {
         IEconomicZone EconomicZone { get; }
         IEnumerable<IPropertyOwner> PropertyOwners { get; }
-        IEnumerable<ICell> PropertyLocations { get; }
+        IEnumerable<IRoom> PropertyLocations { get; }
         IEnumerable<IHospital> PropertyHospitals { get; }
         string DetailedDescription { get; }
         MudDateTime LastChangeOfOwnership { get; }
@@ -75,9 +75,9 @@ namespace MudSharp.Economy.Property
         bool HasHotelBalance(ICharacter patron);
         decimal HotelBalanceFor(ICharacter patron);
         void AdjustHotelBalance(ICharacter patron, decimal amount);
-        IHotelRoom AddHotelRoom(ICell cell, string name, decimal pricePerDay, decimal securityDeposit, TimeSpan minimumDuration, TimeSpan maximumDuration);
+        IHotelRoom AddHotelRoom(IRoom room, string name, decimal pricePerDay, decimal securityDeposit, TimeSpan minimumDuration, TimeSpan maximumDuration);
         void RemoveHotelRoom(IHotelRoom room);
-        IHotelRoom HotelRoomForCell(ICell cell);
+        IHotelRoom HotelRoomForRoom(IRoom room);
         bool CanRentHotelRoom(ICharacter patron, IHotelRoom room, TimeSpan duration, out string reason);
         IHotelRoomRental RentHotelRoom(ICharacter patron, IHotelRoom room, TimeSpan duration, decimal rentalCharge, decimal taxCharge);
         decimal CompleteHotelStay(IHotelRoom room, ICharacter actor, bool force);

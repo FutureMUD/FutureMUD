@@ -96,7 +96,7 @@ public sealed record MagicGatheringQuote(
 	MagicGatheringMethodKind Kind,
 	long DestinationResourceId,
 	long? SourceResourceId,
-	long? SourceCellId,
+	long? SourceRoomId,
 	long? SourceProfileId,
 	long? SourceProfileRevision,
 	double RequestedAmount,

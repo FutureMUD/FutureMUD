@@ -38,7 +38,7 @@ public class SimpleMeleeCombat : CombatBase, ICombatSelectiveCessation
             character.HandleEvent(EventType.JoinCombat, character);
         }
 
-        CombatCells.Add(character.Location);
+        CombatRooms.Add(character.Location);
     }
 
     public override bool LeaveCombat(IPerceiver character)

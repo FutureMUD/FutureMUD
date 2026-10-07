@@ -30,8 +30,8 @@ namespace MudSharp.GameItems.Interfaces
         Difficulty UninstallDifficultyHingeSide { get; }
         Difficulty UninstallDifficultyNotHingeSide { get; }
         Difficulty SmashDifficulty { get; }
-        ICell? HingeCell { get; set; }
-        ICell? OpenDirectionCell { get; set; }
+        IRoom? HingeRoom { get; set; }
+        IRoom? OpenDirectionRoom { get; set; }
         ITraitDefinition? UninstallTrait { get; }
         bool CanFireThrough { get; }
         string InstalledExitDescription(IPerceiver perceiver);

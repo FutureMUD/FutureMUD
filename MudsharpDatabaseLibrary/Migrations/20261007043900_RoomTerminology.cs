@@ -1414,6 +1414,7 @@ BEGIN
    END IF;
   END LOOP;
   CLOSE definitions;
+__CHECK_PREFLIGHT__
   -- These observed legacy variants have validated identical columns, targets
   -- and delete semantics. Capture their exact actions before any foreign-key DDL.
   -- A stale temporary table refuses; never reuse data from a failed cutover.
@@ -1505,6 +1506,7 @@ BEGIN
   INSERT INTO `fm_room_naming_counts_20261007043900` SELECT 'RouteRooms',COUNT(*) FROM `RouteCells`;
   INSERT INTO `fm_room_naming_counts_20261007043900` SELECT 'Shops_StoreroomRooms',COUNT(*) FROM `Shops_StoreroomCells`;
  ELSE
+__CHECK_POSTFLIGHT__
   IF (SELECT COUNT(*) FROM `fm_room_naming_optional_fk_20261007043900`)<>1 THEN
    SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT='Room naming: optional foreign-key capture changed after rename';
   END IF;
@@ -1627,7 +1629,8 @@ BEGIN
   DROP TEMPORARY TABLE `fm_room_naming_optional_fk_20261007043900`;
  END IF;
 END;
-""", suppressTransaction: true);
+""".Replace("__CHECK_PREFLIGHT__", ReviewedCheckGuard(false))
+   .Replace("__CHECK_POSTFLIGHT__", ReviewedCheckGuard(true)), suppressTransaction: true);
   migrationBuilder.Sql("CALL `fm_room_terminology_20261007043900`(FALSE);", suppressTransaction: true);
 			migrationBuilder.DropForeignKey(name: "FK_ActiveProjects_Cells", table: "ActiveProjects");
 			migrationBuilder.DropForeignKey(name: "FK_ActiveRouteMotions_RouteCells", table: "ActiveRouteMotions");
@@ -1731,6 +1734,7 @@ END;
 			migrationBuilder.DropCheckConstraint(name: "CK_RouteCells_Length", table: "RouteCells");
 			migrationBuilder.DropCheckConstraint(name: "CK_RouteCells_RoomEquivalent", table: "RouteCells");
 			migrationBuilder.DropCheckConstraint(name: "CK_RouteCells_TopologyVersion", table: "RouteCells");
+			migrationBuilder.DropCheckConstraint(name: "CK_VehicleRouteSteps_TypedPayload", table: "VehicleRouteSteps");
 			migrationBuilder.RenameTable(name: "Areas_Cells", newName: "Areas_Rooms");
 			migrationBuilder.RenameTable(name: "ArenaCells", newName: "ArenaRooms");
 			migrationBuilder.RenameTable(name: "CellEnvironmentalStates", newName: "RoomEnvironmentalStates");
@@ -2025,15 +2029,8 @@ END;
 			migrationBuilder.AddForeignKey(name: "FK_Vehicles_Rooms_Current", table: "Vehicles", columns: new[] { "CurrentRoomId" }, principalTable: "Rooms", principalColumns: new[] { "Id" }, onDelete: ReferentialAction.SetNull);
 			migrationBuilder.AddForeignKey(name: "FK_Vehicles_Rooms_Destination", table: "Vehicles", columns: new[] { "DestinationRoomId" }, principalTable: "Rooms", principalColumns: new[] { "Id" }, onDelete: ReferentialAction.SetNull);
 			migrationBuilder.AddForeignKey(name: "FK_Zones_Rooms", table: "Zones", columns: new[] { "DefaultRoomId" }, principalTable: "Rooms", principalColumns: new[] { "Id" }, onDelete: ReferentialAction.NoAction);
-			migrationBuilder.AddCheckConstraint(name: "CK_RoomEnvironmentalStates_Pressure", table: "RoomEnvironmentalStates", sql: "\u0060RecentPressure\u0060 \u003E= 0 AND \u0060PressureHalfLifeSeconds\u0060 \u003E 0");
-			migrationBuilder.AddCheckConstraint(name: "CK_RoomEnvironmentalStates_ScarDamage", table: "RoomEnvironmentalStates", sql: "\u0060ScarDamage\u0060 \u003E= 0");
-			migrationBuilder.AddCheckConstraint(name: "CK_RoomEnvironmentalStates_Versions", table: "RoomEnvironmentalStates", sql: "\u0060SchemaVersion\u0060 \u003E= 1 AND \u0060Revision\u0060 \u003E= 0");
-			migrationBuilder.AddCheckConstraint(name: "CK_Rooms_HostedVehicleOwnership", table: "Rooms", sql: "(\u0060HostedVehicleId\u0060 IS NULL AND \u0060HostedVehicleCompartmentId\u0060 IS NULL) OR (\u0060HostedVehicleId\u0060 IS NOT NULL AND \u0060HostedVehicleCompartmentId\u0060 IS NOT NULL)");
-			migrationBuilder.AddCheckConstraint(name: "CK_RouteRoomLandmarks_Position", table: "RouteRoomLandmarks", sql: "\u0060PositionMetres\u0060 \u003E= 0");
-			migrationBuilder.AddCheckConstraint(name: "CK_RouteRooms_DefaultPosition", table: "RouteRooms", sql: "\u0060DefaultPositionMetres\u0060 \u003E= 0 AND \u0060DefaultPositionMetres\u0060 \u003C= \u0060LengthMetres\u0060");
-			migrationBuilder.AddCheckConstraint(name: "CK_RouteRooms_Length", table: "RouteRooms", sql: "\u0060LengthMetres\u0060 \u003E 0");
-			migrationBuilder.AddCheckConstraint(name: "CK_RouteRooms_RoomEquivalent", table: "RouteRooms", sql: "\u0060MetresPerRoomEquivalent\u0060 \u003E 0");
-			migrationBuilder.AddCheckConstraint(name: "CK_RouteRooms_TopologyVersion", table: "RouteRooms", sql: "\u0060TopologyVersion\u0060 \u003E= 1");
+
+  AddChecksWithPreservedEnforcement(migrationBuilder);
 
   // Older contracted databases may retain required child columns in these
   // independent ledgers. Allow explicit empty-parent membership dispositions.
@@ -2083,6 +2080,154 @@ EXECUTE fm_room_naming_fk_statement_20261007043900;
 DEALLOCATE PREPARE fm_room_naming_fk_statement_20261007043900;
 SET @fm_room_naming_fk_statement_20261007043900 = NULL;
 """, suppressTransaction: true);
+	}
+
+	// Reviewed against every preceding Up operation and both relational models.
+	// Native signatures come from the maintained MySQL 8 snapshot, without its
+	// CHECK grammar wrapper. Predicate parentheses/operators remain significant.
+	private sealed record ReviewedCheck(string SourceTable, string SourceName, string TargetTable,
+		string TargetName, string SourceSql, string SourceNativeSql, string TargetSql,
+		string TargetNativeSql, bool Recreate);
+
+	private static readonly ReviewedCheck[] ReviewedChecks =
+	[
+		new("ActiveRouteMotions", "CK_ActiveRouteMotions_Checkpoint", "ActiveRouteMotions", "CK_ActiveRouteMotions_Checkpoint", "`CheckpointPositionMetres` >= 0", "(`CheckpointPositionMetres` >= 0)", "`CheckpointPositionMetres` >= 0", "(`CheckpointPositionMetres` >= 0)", false),
+		new("ActiveRouteMotions", "CK_ActiveRouteMotions_Direction", "ActiveRouteMotions", "CK_ActiveRouteMotions_Direction", "`Direction` IN (-1, 1)", "(`Direction` in (-(1),1))", "`Direction` IN (-1, 1)", "(`Direction` in (-(1),1))", false),
+		new("ActiveRouteMotions", "CK_ActiveRouteMotions_RemainingDuration", "ActiveRouteMotions", "CK_ActiveRouteMotions_RemainingDuration", "`RemainingDurationMilliseconds` >= 0", "(`RemainingDurationMilliseconds` >= 0)", "`RemainingDurationMilliseconds` >= 0", "(`RemainingDurationMilliseconds` >= 0)", false),
+		new("ActiveRouteMotions", "CK_ActiveRouteMotions_Sequence", "ActiveRouteMotions", "CK_ActiveRouteMotions_Sequence", "`CheckpointSequence` >= 0", "(`CheckpointSequence` >= 0)", "`CheckpointSequence` >= 0", "(`CheckpointSequence` >= 0)", false),
+		new("ActiveRouteMotions", "CK_ActiveRouteMotions_Speed", "ActiveRouteMotions", "CK_ActiveRouteMotions_Speed", "`SpeedMetresPerSecond` > 0", "(`SpeedMetresPerSecond` > 0)", "`SpeedMetresPerSecond` > 0", "(`SpeedMetresPerSecond` > 0)", false),
+		new("ActiveRouteMotions", "CK_ActiveRouteMotions_TargetBand", "ActiveRouteMotions", "CK_ActiveRouteMotions_TargetBand", "`TargetMinimumPositionMetres` >= 0 AND `TargetMaximumPositionMetres` >= `TargetMinimumPositionMetres`", "((`TargetMinimumPositionMetres` >= 0) and (`TargetMaximumPositionMetres` >= `TargetMinimumPositionMetres`))", "`TargetMinimumPositionMetres` >= 0 AND `TargetMaximumPositionMetres` >= `TargetMinimumPositionMetres`", "((`TargetMinimumPositionMetres` >= 0) and (`TargetMaximumPositionMetres` >= `TargetMinimumPositionMetres`))", false),
+		new("ActiveRouteMotions", "CK_ActiveRouteMotions_TopologyVersion", "ActiveRouteMotions", "CK_ActiveRouteMotions_TopologyVersion", "`TopologyVersion` >= 1", "(`TopologyVersion` >= 1)", "`TopologyVersion` >= 1", "(`TopologyVersion` >= 1)", false),
+		new("CellEnvironmentalStates", "CK_CellEnvironmentalStates_Pressure", "RoomEnvironmentalStates", "CK_RoomEnvironmentalStates_Pressure", "`RecentPressure` >= 0 AND `PressureHalfLifeSeconds` > 0", "((`RecentPressure` >= 0) and (`PressureHalfLifeSeconds` > 0))", "`RecentPressure` >= 0 AND `PressureHalfLifeSeconds` > 0", "((`RecentPressure` >= 0) and (`PressureHalfLifeSeconds` > 0))", true),
+		new("CellEnvironmentalStates", "CK_CellEnvironmentalStates_ScarDamage", "RoomEnvironmentalStates", "CK_RoomEnvironmentalStates_ScarDamage", "`ScarDamage` >= 0", "(`ScarDamage` >= 0)", "`ScarDamage` >= 0", "(`ScarDamage` >= 0)", true),
+		new("CellEnvironmentalStates", "CK_CellEnvironmentalStates_Versions", "RoomEnvironmentalStates", "CK_RoomEnvironmentalStates_Versions", "`SchemaVersion` >= 1 AND `Revision` >= 0", "((`SchemaVersion` >= 1) and (`Revision` >= 0))", "`SchemaVersion` >= 1 AND `Revision` >= 0", "((`SchemaVersion` >= 1) and (`Revision` >= 0))", true),
+		new("Cells", "CK_Cells_HostedVehicleOwnership", "Rooms", "CK_Rooms_HostedVehicleOwnership", "(`HostedVehicleId` IS NULL AND `HostedVehicleCompartmentId` IS NULL) OR (`HostedVehicleId` IS NOT NULL AND `HostedVehicleCompartmentId` IS NOT NULL)", "(((`HostedVehicleId` is null) and (`HostedVehicleCompartmentId` is null)) or ((`HostedVehicleId` is not null) and (`HostedVehicleCompartmentId` is not null)))", "(`HostedVehicleId` IS NULL AND `HostedVehicleCompartmentId` IS NULL) OR (`HostedVehicleId` IS NOT NULL AND `HostedVehicleCompartmentId` IS NOT NULL)", "(((`HostedVehicleId` is null) and (`HostedVehicleCompartmentId` is null)) or ((`HostedVehicleId` is not null) and (`HostedVehicleCompartmentId` is not null)))", true),
+		new("RouteCellLandmarks", "CK_RouteCellLandmarks_Position", "RouteRoomLandmarks", "CK_RouteRoomLandmarks_Position", "`PositionMetres` >= 0", "(`PositionMetres` >= 0)", "`PositionMetres` >= 0", "(`PositionMetres` >= 0)", true),
+		new("RouteCells", "CK_RouteCells_DefaultPosition", "RouteRooms", "CK_RouteRooms_DefaultPosition", "`DefaultPositionMetres` >= 0 AND `DefaultPositionMetres` <= `LengthMetres`", "((`DefaultPositionMetres` >= 0) and (`DefaultPositionMetres` <= `LengthMetres`))", "`DefaultPositionMetres` >= 0 AND `DefaultPositionMetres` <= `LengthMetres`", "((`DefaultPositionMetres` >= 0) and (`DefaultPositionMetres` <= `LengthMetres`))", true),
+		new("RouteCells", "CK_RouteCells_Length", "RouteRooms", "CK_RouteRooms_Length", "`LengthMetres` > 0", "(`LengthMetres` > 0)", "`LengthMetres` > 0", "(`LengthMetres` > 0)", true),
+		new("RouteCells", "CK_RouteCells_RoomEquivalent", "RouteRooms", "CK_RouteRooms_RoomEquivalent", "`MetresPerRoomEquivalent` > 0", "(`MetresPerRoomEquivalent` > 0)", "`MetresPerRoomEquivalent` > 0", "(`MetresPerRoomEquivalent` > 0)", true),
+		new("RouteCells", "CK_RouteCells_TopologyVersion", "RouteRooms", "CK_RouteRooms_TopologyVersion", "`TopologyVersion` >= 1", "(`TopologyVersion` >= 1)", "`TopologyVersion` >= 1", "(`TopologyVersion` >= 1)", true),
+		new("RouteExitAnchors", "CK_RouteExitAnchors_Arrival", "RouteExitAnchors", "CK_RouteExitAnchors_Arrival", "`ArrivalPositionMetres` >= `MinimumPositionMetres` AND `ArrivalPositionMetres` <= `MaximumPositionMetres`", "((`ArrivalPositionMetres` >= `MinimumPositionMetres`) and (`ArrivalPositionMetres` <= `MaximumPositionMetres`))", "`ArrivalPositionMetres` >= `MinimumPositionMetres` AND `ArrivalPositionMetres` <= `MaximumPositionMetres`", "((`ArrivalPositionMetres` >= `MinimumPositionMetres`) and (`ArrivalPositionMetres` <= `MaximumPositionMetres`))", false),
+		new("RouteExitAnchors", "CK_RouteExitAnchors_Band", "RouteExitAnchors", "CK_RouteExitAnchors_Band", "`MinimumPositionMetres` >= 0 AND `MaximumPositionMetres` >= `MinimumPositionMetres`", "((`MinimumPositionMetres` >= 0) and (`MaximumPositionMetres` >= `MinimumPositionMetres`))", "`MinimumPositionMetres` >= 0 AND `MaximumPositionMetres` >= `MinimumPositionMetres`", "((`MinimumPositionMetres` >= 0) and (`MaximumPositionMetres` >= `MinimumPositionMetres`))", false),
+		new("Tracks", "CK_Tracks_Owner", "Tracks", "CK_Tracks_Owner", "(`VehicleId` IS NULL AND `CharacterId` IS NOT NULL AND `BodyPrototypeId` IS NOT NULL) OR (`VehicleId` IS NOT NULL AND `CharacterId` IS NULL AND `BodyPrototypeId` IS NULL)", "(((`VehicleId` is null) and (`CharacterId` is not null) and (`BodyPrototypeId` is not null)) or ((`VehicleId` is not null) and (`CharacterId` is null) and (`BodyPrototypeId` is null)))", "(`VehicleId` IS NULL AND `CharacterId` IS NOT NULL AND `BodyPrototypeId` IS NOT NULL) OR (`VehicleId` IS NOT NULL AND `CharacterId` IS NULL AND `BodyPrototypeId` IS NULL)", "(((`VehicleId` is null) and (`CharacterId` is not null) and (`BodyPrototypeId` is not null)) or ((`VehicleId` is not null) and (`CharacterId` is null) and (`BodyPrototypeId` is null)))", false),
+		new("VehicleRoutePlatformBindings", "CK_VehicleRoutePlatformBindings_Tolerance", "VehicleRoutePlatformBindings", "CK_VehicleRoutePlatformBindings_Tolerance", "`DockingToleranceMetres` >= 0", "(`DockingToleranceMetres` >= 0)", "`DockingToleranceMetres` >= 0", "(`DockingToleranceMetres` >= 0)", false),
+		new("VehicleRouteSteps", "CK_VehicleRouteSteps_Positions", "VehicleRouteSteps", "CK_VehicleRouteSteps_Positions", "(`OriginRoutePositionMetres` IS NULL OR `OriginRoutePositionMetres` >= 0) AND (`DestinationRoutePositionMetres` IS NULL OR `DestinationRoutePositionMetres` >= 0) AND ((`OriginRoutePositionMetres` IS NULL AND `PinnedTopologyVersion` IS NULL) OR (`OriginRoutePositionMetres` IS NOT NULL AND `PinnedTopologyVersion` IS NOT NULL AND `PinnedTopologyVersion` >= 1)) AND ((`DestinationRoutePositionMetres` IS NULL AND `DestinationTopologyVersion` IS NULL) OR (`DestinationRoutePositionMetres` IS NOT NULL AND `DestinationTopologyVersion` IS NOT NULL AND `DestinationTopologyVersion` >= 1))", "(((`OriginRoutePositionMetres` is null) or (`OriginRoutePositionMetres` >= 0)) and ((`DestinationRoutePositionMetres` is null) or (`DestinationRoutePositionMetres` >= 0)) and (((`OriginRoutePositionMetres` is null) and (`PinnedTopologyVersion` is null)) or ((`OriginRoutePositionMetres` is not null) and (`PinnedTopologyVersion` is not null) and (`PinnedTopologyVersion` >= 1))) and (((`DestinationRoutePositionMetres` is null) and (`DestinationTopologyVersion` is null)) or ((`DestinationRoutePositionMetres` is not null) and (`DestinationTopologyVersion` is not null) and (`DestinationTopologyVersion` >= 1))))", "(`OriginRoutePositionMetres` IS NULL OR `OriginRoutePositionMetres` >= 0) AND (`DestinationRoutePositionMetres` IS NULL OR `DestinationRoutePositionMetres` >= 0) AND ((`OriginRoutePositionMetres` IS NULL AND `PinnedTopologyVersion` IS NULL) OR (`OriginRoutePositionMetres` IS NOT NULL AND `PinnedTopologyVersion` IS NOT NULL AND `PinnedTopologyVersion` >= 1)) AND ((`DestinationRoutePositionMetres` IS NULL AND `DestinationTopologyVersion` IS NULL) OR (`DestinationRoutePositionMetres` IS NOT NULL AND `DestinationTopologyVersion` IS NOT NULL AND `DestinationTopologyVersion` >= 1))", "(((`OriginRoutePositionMetres` is null) or (`OriginRoutePositionMetres` >= 0)) and ((`DestinationRoutePositionMetres` is null) or (`DestinationRoutePositionMetres` >= 0)) and (((`OriginRoutePositionMetres` is null) and (`PinnedTopologyVersion` is null)) or ((`OriginRoutePositionMetres` is not null) and (`PinnedTopologyVersion` is not null) and (`PinnedTopologyVersion` >= 1))) and (((`DestinationRoutePositionMetres` is null) and (`DestinationTopologyVersion` is null)) or ((`DestinationRoutePositionMetres` is not null) and (`DestinationTopologyVersion` is not null) and (`DestinationTopologyVersion` >= 1))))", false),
+		new("VehicleRouteSteps", "CK_VehicleRouteSteps_RoomEquivalentCost", "VehicleRouteSteps", "CK_VehicleRouteSteps_RoomEquivalentCost", "`RoomEquivalentCost` >= 0", "(`RoomEquivalentCost` >= 0)", "`RoomEquivalentCost` >= 0", "(`RoomEquivalentCost` >= 0)", false),
+		new("VehicleRouteSteps", "CK_VehicleRouteSteps_Sequence", "VehicleRouteSteps", "CK_VehicleRouteSteps_Sequence", "`Sequence` >= 0", "(`Sequence` >= 0)", "`Sequence` >= 0", "(`Sequence` >= 0)", false),
+		new("VehicleRouteSteps", "CK_VehicleRouteSteps_TypedPayload", "VehicleRouteSteps", "CK_VehicleRouteSteps_TypedPayload", "(`StepType` = 0 AND `ExitId` IS NULL AND `Direction` IS NOT NULL AND `Direction` IN (-1, 1) AND `PinnedTopologyVersion` IS NOT NULL AND `DestinationTopologyVersion` = `PinnedTopologyVersion` AND `DistanceMetres` IS NOT NULL AND `DistanceMetres` >= 0 AND `OriginRoutePositionMetres` IS NOT NULL AND `DestinationRoutePositionMetres` IS NOT NULL AND `OriginCellId` = `DestinationCellId` AND `OriginRoomLayer` = `DestinationRoomLayer`) OR (`StepType` = 1 AND `ExitId` IS NOT NULL AND `Direction` IS NULL AND `DistanceMetres` IS NULL)", "(((`StepType` = 0) and (`ExitId` is null) and (`Direction` is not null) and (`Direction` in (-(1),1)) and (`PinnedTopologyVersion` is not null) and (`DestinationTopologyVersion` = `PinnedTopologyVersion`) and (`DistanceMetres` is not null) and (`DistanceMetres` >= 0) and (`OriginRoutePositionMetres` is not null) and (`DestinationRoutePositionMetres` is not null) and (`OriginCellId` = `DestinationCellId`) and (`OriginRoomLayer` = `DestinationRoomLayer`)) or ((`StepType` = 1) and (`ExitId` is not null) and (`Direction` is null) and (`DistanceMetres` is null)))", "(`StepType` = 0 AND `ExitId` IS NULL AND `Direction` IS NOT NULL AND `Direction` IN (-1, 1) AND `PinnedTopologyVersion` IS NOT NULL AND `DestinationTopologyVersion` = `PinnedTopologyVersion` AND `DistanceMetres` IS NOT NULL AND `DistanceMetres` >= 0 AND `OriginRoutePositionMetres` IS NOT NULL AND `DestinationRoutePositionMetres` IS NOT NULL AND `OriginRoomId` = `DestinationRoomId` AND `OriginRoomLayer` = `DestinationRoomLayer`) OR (`StepType` = 1 AND `ExitId` IS NOT NULL AND `Direction` IS NULL AND `DistanceMetres` IS NULL)", "(((`StepType` = 0) and (`ExitId` is null) and (`Direction` is not null) and (`Direction` in (-(1),1)) and (`PinnedTopologyVersion` is not null) and (`DestinationTopologyVersion` = `PinnedTopologyVersion`) and (`DistanceMetres` is not null) and (`DistanceMetres` >= 0) and (`OriginRoutePositionMetres` is not null) and (`DestinationRoutePositionMetres` is not null) and (`OriginRoomId` = `DestinationRoomId`) and (`OriginRoomLayer` = `DestinationRoomLayer`)) or ((`StepType` = 1) and (`ExitId` is not null) and (`Direction` is null) and (`DistanceMetres` is null)))", true),
+		new("VehicleRouteStops", "CK_VehicleRouteStops_Dwell", "VehicleRouteStops", "CK_VehicleRouteStops_Dwell", "`DwellDurationMilliseconds` >= 0", "(`DwellDurationMilliseconds` >= 0)", "`DwellDurationMilliseconds` >= 0", "(`DwellDurationMilliseconds` >= 0)", false),
+		new("VehicleRouteStops", "CK_VehicleRouteStops_RoutePosition", "VehicleRouteStops", "CK_VehicleRouteStops_RoutePosition", "`RoutePositionMetres` IS NULL OR `RoutePositionMetres` >= 0", "((`RoutePositionMetres` is null) or (`RoutePositionMetres` >= 0))", "`RoutePositionMetres` IS NULL OR `RoutePositionMetres` >= 0", "((`RoutePositionMetres` is null) or (`RoutePositionMetres` >= 0))", false),
+		new("VehicleRouteStops", "CK_VehicleRouteStops_Sequence", "VehicleRouteStops", "CK_VehicleRouteStops_Sequence", "`Sequence` >= 0", "(`Sequence` >= 0)", "`Sequence` >= 0", "(`Sequence` >= 0)", false),
+		new("VehicleRouteTopologyPins", "CK_VehicleRouteTopologyPins_Version", "VehicleRouteTopologyPins", "CK_VehicleRouteTopologyPins_Version", "`TopologyVersion` >= 1", "(`TopologyVersion` >= 1)", "`TopologyVersion` >= 1", "(`TopologyVersion` >= 1)", false),
+	];
+
+	private static readonly string[] SourceCheckTables = ["activeprojects", "activeroutemotions", "agriculturefields", "areas_cells", "arenacells", "auctionhouses", "bankbranches", "cellenvironmentalstates", "celloverlaypackages", "celloverlays", "celloverlays_exits", "cellroomareacontractionledger", "cellroomareamigrationledger", "cellroomcontractionledger", "cellroommigrationledger", "cells", "cells_foragableyields", "cells_gameitems", "cells_magicresources", "cells_rangedcovers", "cells_tags", "characterlog", "clans_administrationcells", "clans_hallcells", "clans_treasurycells", "conveyancinglocations", "corpserecoveryreports", "employmentactionsteps", "environmentalmagicoperations", "exits", "hooks_perceivables", "hospitallocations", "hospitalservicerequests", "hotelrooms", "jobfindinglocations", "landrejuvenationtreatments", "legalauthoritiycells", "legalauthorityjailcells", "magicgatheringoperations", "magicgatheringparticipants", "magicportalendpoints", "npcspawnercells", "patrolroutesnodes", "probatelocations", "propertylocations", "restaurantcells", "routecelllandmarks", "routecells", "routeexitanchors", "shops", "shops_storeroomcells", "stables", "terrains", "tracks", "vehiclecompartments", "vehicledockings", "vehiclerouteplatformbindings", "vehicleroutesteps", "vehicleroutestops", "vehicleroutetopologypins", "vehicles", "zones"];
+	private static readonly string[] TargetCheckTables = ["activeprojects", "activeroutemotions", "agriculturefields", "areas_rooms", "arenarooms", "auctionhouses", "bankbranches", "roomenvironmentalstates", "roomoverlaypackages", "roomoverlays", "roomoverlays_exits", "roomspatialareacontractionledger", "roomspatialareamigrationledger", "roomspatialcontractionledger", "roomspatialmigrationledger", "rooms", "rooms_foragableyields", "rooms_gameitems", "rooms_magicresources", "rooms_rangedcovers", "rooms_tags", "characterlog", "clans_administrationrooms", "clans_hallrooms", "clans_treasuryrooms", "conveyancinglocations", "corpserecoveryreports", "employmentactionsteps", "environmentalmagicoperations", "exits", "hooks_perceivables", "hospitallocations", "hospitalservicerequests", "hotelrooms", "jobfindinglocations", "landrejuvenationtreatments", "legalauthoritiyrooms", "legalauthorityjailrooms", "magicgatheringoperations", "magicgatheringparticipants", "magicportalendpoints", "npcspawnerrooms", "patrolroutesnodes", "probatelocations", "propertylocations", "restaurantrooms", "routeroomlandmarks", "routerooms", "routeexitanchors", "shops", "shops_storeroomrooms", "stables", "terrains", "tracks", "vehiclecompartments", "vehicledockings", "vehiclerouteplatformbindings", "vehicleroutesteps", "vehicleroutestops", "vehicleroutetopologypins", "vehicles", "zones"];
+	private const string CheckCaptureTable = "fm_room_naming_checks_20261007043900";
+
+	private static string CheckLiteral(string value) => "'" + value.Replace("'", "''") + "'";
+
+	private static string CheckSignature(string value) =>
+		System.Text.RegularExpressions.Regex.Replace(value.Replace("`", ""), @"\s", "")
+			.ToLowerInvariant();
+
+	private static string ReviewedCheckGuard(bool afterRename)
+	{
+		var sql = new System.Text.StringBuilder();
+		if (!afterRename)
+		{
+			sql.AppendLine($"""
+  CREATE TEMPORARY TABLE `{CheckCaptureTable}`(
+   SourceTable VARCHAR(64) NOT NULL,SourceName VARCHAR(64) COLLATE utf8mb4_bin NOT NULL PRIMARY KEY,
+   TargetTable VARCHAR(64) NOT NULL,TargetName VARCHAR(64) COLLATE utf8mb4_bin NOT NULL,
+   SourceSignature LONGTEXT NOT NULL,SourceNativeSignature LONGTEXT NOT NULL,
+   TargetSignature LONGTEXT NOT NULL,TargetNativeSignature LONGTEXT NOT NULL,
+   NeedsRecreate BOOL NOT NULL,OriginalEnforced VARCHAR(3) COLLATE utf8mb4_bin NULL)
+   CHARACTER SET utf8mb4 COLLATE utf8mb4_bin;
+""");
+			foreach (var check in ReviewedChecks)
+			{
+				var values = new[] {check.SourceTable, check.SourceName, check.TargetTable, check.TargetName,
+					CheckSignature(check.SourceSql), CheckSignature(check.SourceNativeSql),
+					CheckSignature(check.TargetSql), CheckSignature(check.TargetNativeSql)};
+				sql.AppendLine($"  INSERT INTO `{CheckCaptureTable}` VALUES ({string.Join(",", System.Array.ConvertAll(values, CheckLiteral))},{(check.Recreate ? 1 : 0)},NULL);");
+			}
+		}
+		// Use each temporary table once per statement: MySQL cannot reopen it.
+		var phase = afterRename ? "Target" : "Source";
+		var tables = afterRename ? TargetCheckTables : SourceCheckTables;
+		var tableList = string.Join(",", System.Array.ConvertAll(tables, CheckLiteral));
+		sql.AppendLine($"""
+  SET diagnostic=NULL;
+  SELECT LEFT(CONCAT('Room naming: unclassified check ',t.TABLE_NAME,'.',t.CONSTRAINT_NAME),128) INTO diagnostic
+   FROM information_schema.TABLE_CONSTRAINTS t
+   LEFT JOIN `{CheckCaptureTable}` expected ON BINARY t.CONSTRAINT_NAME=BINARY expected.{phase}Name
+    AND LOWER(t.TABLE_NAME)=LOWER(expected.{phase}Table)
+   WHERE t.CONSTRAINT_SCHEMA=DATABASE() AND t.CONSTRAINT_TYPE='CHECK'
+    AND LOWER(t.TABLE_NAME) IN ({tableList}) AND expected.SourceName IS NULL LIMIT 1;
+  IF diagnostic IS NOT NULL THEN SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT=diagnostic; END IF;
+  IF (SELECT COUNT(*) FROM `{CheckCaptureTable}`)<>28 THEN
+   SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT='Room naming: reviewed check capture is incomplete';
+  END IF;
+  IF (SELECT COUNT(*) FROM `{CheckCaptureTable}` WHERE NeedsRecreate=1)<>10 THEN
+   SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT='Room naming: reviewed check dependency set differs';
+  END IF;
+  SET diagnostic=NULL;
+  SELECT LEFT(CONCAT('Room naming: check shape/enforcement differs ',expected.{phase}Name),128) INTO diagnostic
+   FROM `{CheckCaptureTable}` expected
+   LEFT JOIN information_schema.TABLE_CONSTRAINTS t ON t.CONSTRAINT_SCHEMA=DATABASE()
+    AND BINARY t.CONSTRAINT_NAME=BINARY expected.{phase}Name
+    AND LOWER(t.TABLE_NAME)=LOWER(expected.{phase}Table) AND t.CONSTRAINT_TYPE='CHECK'
+   LEFT JOIN information_schema.CHECK_CONSTRAINTS c ON c.CONSTRAINT_SCHEMA=t.CONSTRAINT_SCHEMA
+    AND BINARY c.CONSTRAINT_NAME=BINARY t.CONSTRAINT_NAME
+   WHERE c.CHECK_CLAUSE IS NULL OR t.ENFORCED IS NULL OR BINARY t.ENFORCED NOT IN ('YES','NO')
+    OR REGEXP_LIKE(REGEXP_REPLACE(c.CHECK_CLAUSE,'`[A-Za-z_][A-Za-z0-9_]*`',''),'[`''"]')
+    OR BINARY LOWER(REGEXP_REPLACE(REPLACE(c.CHECK_CLAUSE,'`',''),'[[:space:]]',''))
+     NOT IN (BINARY expected.{phase}Signature,BINARY expected.{phase}NativeSignature)
+""");
+		if (afterRename)
+		{
+			sql.AppendLine("    OR expected.OriginalEnforced IS NULL OR BINARY t.ENFORCED<>BINARY expected.OriginalEnforced");
+		}
+		sql.AppendLine("   LIMIT 1;\n  IF diagnostic IS NOT NULL THEN SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT=diagnostic; END IF;");
+		if (afterRename)
+		{
+			sql.AppendLine($"  DROP TEMPORARY TABLE `{CheckCaptureTable}`;");
+		}
+		else
+		{
+			sql.AppendLine($"""
+  UPDATE `{CheckCaptureTable}` expected
+   JOIN information_schema.TABLE_CONSTRAINTS t ON t.CONSTRAINT_SCHEMA=DATABASE()
+    AND BINARY t.CONSTRAINT_NAME=BINARY expected.SourceName
+    AND LOWER(t.TABLE_NAME)=LOWER(expected.SourceTable) AND t.CONSTRAINT_TYPE='CHECK'
+   SET expected.OriginalEnforced=t.ENFORCED;
+  IF EXISTS(SELECT 1 FROM `{CheckCaptureTable}` WHERE OriginalEnforced IS NULL OR BINARY OriginalEnforced NOT IN ('YES','NO')) THEN
+   SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT='Room naming: original check enforcement capture is incomplete';
+  END IF;
+""");
+		}
+		return sql.ToString();
+	}
+
+	private static void AddChecksWithPreservedEnforcement(MigrationBuilder migrationBuilder)
+	{
+		foreach (var check in ReviewedChecks)
+		{
+			if (!check.Recreate) continue;
+			var statement = $"ALTER TABLE `{check.TargetTable}` ADD CONSTRAINT `{check.TargetName}` CHECK ({check.TargetSql})";
+			migrationBuilder.Sql($"""
+SET @fm_room_naming_check_statement_20261007043900 = (
+ SELECT CONCAT({CheckLiteral(statement)},CASE BINARY OriginalEnforced WHEN 'YES' THEN ' ENFORCED' WHEN 'NO' THEN ' NOT ENFORCED' END)
+ FROM `{CheckCaptureTable}`
+ WHERE BINARY SourceName={CheckLiteral(check.SourceName)} AND NeedsRecreate=1
+  AND BINARY OriginalEnforced IN ('YES','NO'));
+PREPARE fm_room_naming_check_statement_20261007043900 FROM @fm_room_naming_check_statement_20261007043900;
+EXECUTE fm_room_naming_check_statement_20261007043900;
+DEALLOCATE PREPARE fm_room_naming_check_statement_20261007043900;
+SET @fm_room_naming_check_statement_20261007043900 = NULL;
+""", suppressTransaction: true);
+		}
 	}
 
  protected override void Down(MigrationBuilder migrationBuilder) =>

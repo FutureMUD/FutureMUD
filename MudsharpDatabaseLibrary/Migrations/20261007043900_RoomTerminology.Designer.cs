@@ -25469,7 +25469,7 @@ namespace MudSharp.Migrations
 
                             t.HasCheckConstraint("CK_VehicleRouteSteps_Sequence", "`Sequence` >= 0");
 
-                            t.HasCheckConstraint("CK_VehicleRouteSteps_TypedPayload", "(`StepType` = 0 AND `ExitId` IS NULL AND `Direction` IS NOT NULL AND `Direction` IN (-1, 1) AND `PinnedTopologyVersion` IS NOT NULL AND `DestinationTopologyVersion` = `PinnedTopologyVersion` AND `DistanceMetres` IS NOT NULL AND `DistanceMetres` >= 0 AND `OriginRoutePositionMetres` IS NOT NULL AND `DestinationRoutePositionMetres` IS NOT NULL AND `OriginCellId` = `DestinationCellId` AND `OriginRoomLayer` = `DestinationRoomLayer`) OR (`StepType` = 1 AND `ExitId` IS NOT NULL AND `Direction` IS NULL AND `DistanceMetres` IS NULL)");
+                            t.HasCheckConstraint("CK_VehicleRouteSteps_TypedPayload", "(`StepType` = 0 AND `ExitId` IS NULL AND `Direction` IS NOT NULL AND `Direction` IN (-1, 1) AND `PinnedTopologyVersion` IS NOT NULL AND `DestinationTopologyVersion` = `PinnedTopologyVersion` AND `DistanceMetres` IS NOT NULL AND `DistanceMetres` >= 0 AND `OriginRoutePositionMetres` IS NOT NULL AND `DestinationRoutePositionMetres` IS NOT NULL AND `OriginRoomId` = `DestinationRoomId` AND `OriginRoomLayer` = `DestinationRoomLayer`) OR (`StepType` = 1 AND `ExitId` IS NOT NULL AND `Direction` IS NULL AND `DistanceMetres` IS NULL)");
                         });
                 });
 

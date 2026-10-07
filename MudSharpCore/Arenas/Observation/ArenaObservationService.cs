@@ -83,7 +83,7 @@ public class ArenaObservationService : IArenaObservationService
 
         if (!arenaEvent.Arena.ObservationRooms.Contains(observationRoom))
         {
-            throw new InvalidOperationException("The specified cell is not configured as an observation room for this arena.");
+            throw new InvalidOperationException("The specified room is not configured as an observation room for this arena.");
         }
 
         foreach (IRoom room in arenaEvent.Arena.ArenaRooms)

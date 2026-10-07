@@ -56,13 +56,13 @@ internal class StorytellerModule : Module<ICharacter>
 
 Use this command to inspect, spawn, move, retire and audit non-primary character instances. Instance owners and instances can generally be resolved by visible target, loaded character name or ID, while forms are resolved from the owner's known forms.
 
-The #3spawn#0 options after the form can be supplied in any order. #3ai#0 chooses NPC AI for NPC identities and script AI for other identities, while #3npcai#0 and #3scriptai#0 force a specific AI mode. #3cloneinventory#0 copies inventory to the new body where supported. In a RouteCell, #3here#0 preserves your exact coordinate while #3room <cell id>#0 uses that cell's authored default coordinate.
+The #3spawn#0 options after the form can be supplied in any order. #3ai#0 chooses NPC AI for NPC identities and script AI for other identities, while #3npcai#0 and #3scriptai#0 force a specific AI mode. #3cloneinventory#0 copies inventory to the new body where supported. In a RouteRoom, #3here#0 preserves your exact coordinate while #3room <room id>#0 uses that room's authored default coordinate.
 Use #3audit all#0 for persisted instance row and global actor-cache diagnostics. Use #3audit <character>#0 for the loaded identity currently in memory.
 
 The syntax is as follows:
 	#3instance list <character>#0 - lists all loaded instances for a character
-	#3instance spawn <character> <form> [here|room <cell id>] [persistent|temporary] [passive|focusable|ai|npcai|scriptai] [cloneinventory]#0 - spawns a secondary instance
-	#3instance move <instance id|target> here|room <cell id>#0 - moves a secondary instance
+	#3instance spawn <character> <form> [here|room <room id>] [persistent|temporary] [passive|focusable|ai|npcai|scriptai] [cloneinventory]#0 - spawns a secondary instance
+	#3instance move <instance id|target> here|room <room id>#0 - moves a secondary instance
 	#3instance retire <instance id|target>#0 - retires a secondary instance and removes temporary rows
 	#3instance despawn <instance id|target>#0 - alias for #3instance retire#0
 	#3instance audit <character>#0 - audits loaded instances for a character
@@ -166,7 +166,7 @@ The syntax is as follows:
 
         if (ss.IsFinished)
         {
-            error = "You must specify HERE or ROOM <cell id>.";
+            error = "You must specify HERE or ROOM <room id>.";
             return false;
         }
 
@@ -178,13 +178,13 @@ The syntax is as follows:
 
         if (!keyword.EqualTo("room"))
         {
-            error = "You must specify HERE or ROOM <cell id>.";
+            error = "You must specify HERE or ROOM <room id>.";
             return false;
         }
 
         if (ss.IsFinished)
         {
-            error = "Which room cell id do you want to use?";
+            error = "Which room room id do you want to use?";
             return false;
         }
 
@@ -197,7 +197,7 @@ The syntax is as follows:
             return true;
         }
 
-        error = "There is no such cell.";
+        error = "There is no such room.";
         return false;
     }
 
@@ -518,17 +518,17 @@ The syntax is as follows:
     }
 
     private const string SpyHelp =
-        @"The #3spy#0 command toggles staff spying on one or more cells, causing you to receive output from those locations as if you were there.
+        @"The #3spy#0 command toggles staff spying on one or more rooms, causing you to receive output from those locations as if you were there.
 
-Use #3spy here#0 to toggle your current cell, #3spy <cell id>#0 for a specific cell, and #3spy list#0 to review active spy locations.
+Use #3spy here#0 to toggle your current room, #3spy <room id>#0 for a specific room, and #3spy list#0 to review active spy locations.
 
-Spying is stored as an effect on you. Toggling a cell you already spy on removes it, and #3spy clear#0 removes every spied cell at once.
+Spying is stored as an effect on you. Toggling a room you already spy on removes it, and #3spy clear#0 removes every spied room at once.
 
 The syntax is as follows:
-	#3spy list#0 - lists all cells you are spying on
-	#3spy here#0 - toggles spying on your current cell
-	#3spy <cell id>#0 - toggles spying on a specific cell
-	#3spy clear#0 - clears all spied cells
+	#3spy list#0 - lists all rooms you are spying on
+	#3spy here#0 - toggles spying on your current room
+	#3spy <room id>#0 - toggles spying on a specific room
+	#3spy clear#0 - clears all spied rooms
 	#3spy none#0 - alias for #3spy clear#0
 	#3spy off#0 - alias for #3spy clear#0";
 
@@ -583,7 +583,7 @@ The syntax is as follows:
 
         if (targetRoom == null)
         {
-            actor.Send("There is no such cell to spy on.");
+            actor.Send("There is no such room to spy on.");
             return;
         }
 
@@ -1246,7 +1246,7 @@ The syntax is as follows:
 
 		if (targetText.Equals("here", StringComparison.InvariantCultureIgnoreCase))
 		{
-			// FORCE HERE is an explicit administrative whole-cell scope, including for RouteCells.
+			// FORCE HERE is an explicit administrative whole-room scope, including for RouteRooms.
 			character.OutputHandler.Handle(new EmoteOutput(new Emote(
                     $"@ force|forces everyone in the room to do the command '{ss.RemainingArgument}'", character),
                 flags: OutputFlags.WizOnly));
@@ -1264,7 +1264,7 @@ The syntax is as follows:
 
 		if (targetText.Equals("npcshere", StringComparison.InvariantCultureIgnoreCase))
 		{
-			// NPCSHERE intentionally shares FORCE HERE's administrative whole-cell scope.
+			// NPCSHERE intentionally shares FORCE HERE's administrative whole-room scope.
 			character.OutputHandler.Handle(new EmoteOutput(new Emote(
                     $"@ force|forces all NPCs in the room to do the command '{ss.RemainingArgument}'", character),
                 flags: OutputFlags.WizOnly));
@@ -2308,7 +2308,7 @@ The target is resolved from loaded actors, not offline character records. The co
 
 The syntax is as follows:
 	#3transfer <target>#0 - transfers a loaded actor to your exact spatial location
-	#3transfer <target> at <distance|landmark>#0 - transfers a loaded actor to another coordinate in your RouteCell";
+	#3transfer <target> at <distance|landmark>#0 - transfers a loaded actor to another coordinate in your RouteRoom";
 
     [PlayerCommand("Transfer", "transfer")]
     [CommandPermission(PermissionLevel.JuniorAdmin)]
@@ -2846,7 +2846,7 @@ The syntax is as follows:
             }
         }
 
-		// This storyteller maintenance command deliberately modifies every corpse in the cell.
+		// This storyteller maintenance command deliberately modifies every corpse in the room.
 		foreach (ICorpse item in
                  actor.Location.LayerGameItems(actor.RoomLayer).SelectNotNull(x => x.GetItemType<ICorpse>()))
         {
@@ -3736,7 +3736,7 @@ Use it to inspect effects, hooks, variable-register values and other diagnostic 
 Use #3*<direction>#0 to inspect an exit from your current room, such as #3sniff *north#0. Character and item targets are resolved through normal targeting.
 
 The syntax is as follows:
-	#3sniff here#0 - sniffs your current cell
+	#3sniff here#0 - sniffs your current room
 	#3sniff zone#0 - sniffs your current zone
 	#3sniff shard#0 - sniffs your current shard
 	#3sniff *<direction>#0 - sniffs an exit
@@ -4073,9 +4073,9 @@ The syntax is as follows:
     {
         IRoom room = actor.Location;
         StringBuilder sb = new();
-        sb.AppendLine($"Sniffing Cell {room.Id}...");
+        sb.AppendLine($"Sniffing Room {room.Id}...");
         sb.AppendLine(
-            $"Cell: {room.Id} - Zone: {room.OwningZone.Name} ({room.OwningZone.Id}) - Shard: {room.OwningZone.Shard.Name} ({room.OwningZone.Shard.Id})");
+            $"Room: {room.Id} - Zone: {room.OwningZone.Name} ({room.OwningZone.Id}) - Shard: {room.OwningZone.Shard.Name} ({room.OwningZone.Shard.Id})");
         sb.AppendLine(
             $"Current Overlay: {room.CurrentOverlay.Id} from package {room.CurrentOverlay.Package.Name.Colour(Telnet.Green)} ({room.CurrentOverlay.Package.Id}r{room.CurrentOverlay.Package.RevisionNumber})");
         sb.AppendLine("All overlays:");

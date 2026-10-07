@@ -382,7 +382,7 @@ The syntax is:
 
         if (!legal.RoomLocations.Any())
         {
-            missingLocations.Add("holding cells");
+            missingLocations.Add("holding rooms");
         }
 
         if (missingLocations.Any())

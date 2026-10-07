@@ -41,13 +41,13 @@ public sealed record RouteSpatialConfiguration(
 			!double.IsFinite(DefaultRoomEquivalentMetres) || DefaultRoomEquivalentMetres <= 0.0)
 		{
 			throw new InvalidOperationException(
-				"RouteCell distance settings must be finite and positive, and proximity thresholds must be strictly increasing.");
+				"RouteRoom distance settings must be finite and positive, and proximity thresholds must be strictly increasing.");
 		}
 	}
 }
 
 /// <summary>
-/// Resolves one-dimensional RouteCell geometry and owns the ordered locality index.
+/// Resolves one-dimensional RouteRoom geometry and owns the ordered locality index.
 /// </summary>
 public sealed class RouteSpatialService : IRouteSpatialService
 {
@@ -95,7 +95,7 @@ public sealed class RouteSpatialService : IRouteSpatialService
 		var location = snapshot.Segment.PositionAt(snapshot.Elapsed);
 		if (!TryValidateLocation(location, out var error))
 		{
-			throw new InvalidOperationException($"Active RouteCell movement produced an invalid location: {error}");
+			throw new InvalidOperationException($"Active RouteRoom movement produced an invalid location: {error}");
 		}
 
 		return location;
@@ -105,7 +105,7 @@ public sealed class RouteSpatialService : IRouteSpatialService
 	{
 		if (location.Room is null)
 		{
-			error = "A spatial location must specify a cell.";
+			error = "A spatial location must specify a room.";
 			return false;
 		}
 
@@ -114,7 +114,7 @@ public sealed class RouteSpatialService : IRouteSpatialService
 		{
 			if (location.RoutePositionMetres.HasValue)
 			{
-				error = $"Ordinary Cell #{location.Room.Id:N0} cannot have a route coordinate.";
+				error = $"Ordinary Room #{location.Room.Id:N0} cannot have a route coordinate.";
 				return false;
 			}
 
@@ -124,13 +124,13 @@ public sealed class RouteSpatialService : IRouteSpatialService
 
 		if (!double.IsFinite(routeRoom.LengthMetres) || routeRoom.LengthMetres <= 0.0)
 		{
-			error = $"RouteCell #{location.Room.Id:N0} has an invalid length.";
+			error = $"RouteRoom #{location.Room.Id:N0} has an invalid length.";
 			return false;
 		}
 
 		if (!location.RoutePositionMetres.HasValue)
 		{
-			error = $"A location in RouteCell #{location.Room.Id:N0} requires a route coordinate.";
+			error = $"A location in RouteRoom #{location.Room.Id:N0} requires a route coordinate.";
 			return false;
 		}
 
@@ -138,7 +138,7 @@ public sealed class RouteSpatialService : IRouteSpatialService
 		if (!double.IsFinite(position) || position < 0.0 || position > routeRoom.LengthMetres)
 		{
 			error =
-				$"Route coordinate {position} is outside RouteCell #{location.Room.Id:N0} (0-{routeRoom.LengthMetres} metres).";
+				$"Route coordinate {position} is outside RouteRoom #{location.Room.Id:N0} (0-{routeRoom.LengthMetres} metres).";
 			return false;
 		}
 
@@ -156,7 +156,7 @@ public sealed class RouteSpatialService : IRouteSpatialService
 
 		if (!double.IsFinite(routeRoom.LengthMetres) || routeRoom.LengthMetres <= 0.0)
 		{
-			throw new ArgumentException("The RouteCell must have a finite positive length.", nameof(routeRoom));
+			throw new ArgumentException("The RouteRoom must have a finite positive length.", nameof(routeRoom));
 		}
 
 		return Math.Clamp(positionMetres, 0.0, routeRoom.LengthMetres);
@@ -792,7 +792,7 @@ public sealed class RouteSpatialService : IRouteSpatialService
 			!double.IsFinite(segment.SpeedMetresPerSecond) ||
 			segment.SpeedMetresPerSecond <= 0.0)
 		{
-			throw new ArgumentException("The spatial movement segment is not a valid linear RouteCell movement.",
+			throw new ArgumentException("The spatial movement segment is not a valid linear RouteRoom movement.",
 				nameof(segment));
 		}
 	}

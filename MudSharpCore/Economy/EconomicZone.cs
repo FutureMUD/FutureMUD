@@ -294,7 +294,7 @@ public class EconomicZone : SaveableItem, IEconomicZone
 #if DEBUG
             if (room == null)
             {
-                throw new ApplicationException("Cell shouldn't be null in EconomicZone constructor");
+                throw new ApplicationException("Room shouldn't be null in EconomicZone constructor");
             }
 #endif
             _conveyancingRooms.Add(room);
@@ -308,7 +308,7 @@ public class EconomicZone : SaveableItem, IEconomicZone
 #if DEBUG
             if (room == null)
             {
-                throw new ApplicationException("Cell shouldn't be null in EconomicZone constructor");
+                throw new ApplicationException("Room shouldn't be null in EconomicZone constructor");
             }
 #endif
             _jobFindingRooms.Add(room);
@@ -322,7 +322,7 @@ public class EconomicZone : SaveableItem, IEconomicZone
 #if DEBUG
             if (room == null)
             {
-                throw new ApplicationException("Cell shouldn't be null in EconomicZone constructor");
+                throw new ApplicationException("Room shouldn't be null in EconomicZone constructor");
             }
 #endif
             _probateOfficeRooms.Add(room);
@@ -616,11 +616,11 @@ public class EconomicZone : SaveableItem, IEconomicZone
                 ["properties"] = "The properties assigned to this economic zone.",
                 ["propertycount"] = "The number of properties assigned to this economic zone.",
                 ["estatesenabled"] = "Whether new estates may be created in this economic zone.",
-                ["conveyancingcells"] = "The cells used for conveyancing workflows.",
-                ["jobfindingcells"] = "The cells used for job-finding workflows.",
-                ["probateofficecells"] = "The cells used for probate workflows.",
-                ["morgueoffice"] = "The morgue office cell, or null.",
-                ["morguestorage"] = "The morgue storage cell, or null."
+                ["conveyancingcells"] = "The rooms used for conveyancing workflows.",
+                ["jobfindingcells"] = "The rooms used for job-finding workflows.",
+                ["probateofficecells"] = "The rooms used for probate workflows.",
+                ["morgueoffice"] = "The morgue office room, or null.",
+                ["morguestorage"] = "The morgue storage room, or null."
             });
     }
 

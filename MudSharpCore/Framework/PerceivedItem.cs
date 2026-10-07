@@ -205,7 +205,7 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
 	{
 		if (Location is null)
 		{
-			error = "A route coordinate cannot be assigned before the perceivable has a cell.";
+			error = "A route coordinate cannot be assigned before the perceivable has a room.";
 			return false;
 		}
 

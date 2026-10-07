@@ -48,7 +48,7 @@ public partial class Terrain
 		}
 
 		SetEnvironmentalMagicProfile(profile.Id);
-		actor.OutputHandler.Send($"This terrain now supplies {profile.Name.ColourName()} to cells that inherit their environmental profile.");
+		actor.OutputHandler.Send($"This terrain now supplies {profile.Name.ColourName()} to rooms that inherit their environmental profile.");
 		return true;
 	}
 }

@@ -10,7 +10,7 @@ using DB = MudSharp.Models;
 namespace MudSharp.Vehicles;
 
 /// <summary>
-/// A stable, persisted compartment instance. Its hosted cell belongs to the
+/// A stable, persisted compartment instance. Its hosted room belongs to the
 /// vehicle rather than to the vehicle's current exterior room.
 /// </summary>
 public sealed class VehicleCompartment : FrameworkItem, IVehicleCompartment
@@ -58,7 +58,7 @@ public sealed class VehicleCompartment : FrameworkItem, IVehicleCompartment
 
 /// <summary>
 /// A live internal passage built from a revisioned compartment-link blueprint.
-/// The exit itself is intentionally transient; the two hosted cell IDs are the
+/// The exit itself is intentionally transient; the two hosted room IDs are the
 /// durable identity on either side of it.
 /// </summary>
 public sealed class VehicleCompartmentLink : FrameworkItem, IVehicleCompartmentLink
@@ -262,8 +262,8 @@ public sealed class VehicleDocking : FrameworkItem, IVehicleDocking
 }
 
 /// <summary>
-/// Creates hosted cells only when explicitly requested by vehicle creation or
-/// recovery. Normal load never invents a replacement for a missing cell ID.
+/// Creates hosted rooms only when explicitly requested by vehicle creation or
+/// recovery. Normal load never invents a replacement for a missing room ID.
 /// </summary>
 public static class RoomScaleVehicleInteriorService
 {
@@ -328,7 +328,7 @@ public static class RoomScaleVehicleInteriorService
 
 		if (candidateIds.Count > 1)
 		{
-			reason = $"More than one persisted hosted cell claims vehicle #{vehicle.Id:N0} compartment " +
+			reason = $"More than one persisted hosted room claims vehicle #{vehicle.Id:N0} compartment " +
 			         $"#{compartment.Id:N0}. Resolve the duplicate ownership records before retrying recovery.";
 			return false;
 		}
@@ -337,8 +337,8 @@ public static class RoomScaleVehicleInteriorService
 		var room = vehicle.Gameworld.Rooms.Get(candidateId);
 		if (room is null)
 		{
-			reason = $"Persisted hosted cell #{candidateId:N0} already belongs to {compartment.Name}, but it is not " +
-			         "loaded. Recovery refused to create a duplicate; restore or reload that cell first.";
+			reason = $"Persisted hosted room #{candidateId:N0} already belongs to {compartment.Name}, but it is not " +
+			         "loaded. Recovery refused to create a duplicate; restore or reload that room first.";
 			return false;
 		}
 
@@ -348,15 +348,15 @@ public static class RoomScaleVehicleInteriorService
 			.FirstOrDefault();
 		if (claimedBy != 0)
 		{
-			reason = $"Persisted hosted cell #{candidateId:N0} is already linked to vehicle compartment " +
-			         $"#{claimedBy:N0}. Recovery refused to steal that cell.";
+			reason = $"Persisted hosted room #{candidateId:N0} is already linked to vehicle compartment " +
+			         $"#{claimedBy:N0}. Recovery refused to steal that room.";
 			return false;
 		}
 
 		var dbcompartment = context.VehicleCompartments.Find(compartment.Id);
 		if (dbcompartment is null)
 		{
-			reason = $"Vehicle compartment #{compartment.Id:N0} disappeared while its hosted cell was being recovered.";
+			reason = $"Vehicle compartment #{compartment.Id:N0} disappeared while its hosted room was being recovered.";
 			return false;
 		}
 
@@ -370,7 +370,7 @@ public static class RoomScaleVehicleInteriorService
 		{
 			dbcompartment.InteriorRoomId = previousInteriorRoomId;
 			context.Entry(dbcompartment).Property(x => x.InteriorRoomId).IsModified = false;
-			reason = $"Persisted hosted cell #{candidateId:N0} could not be relinked because its ownership " +
+			reason = $"Persisted hosted room #{candidateId:N0} could not be relinked because its ownership " +
 			         "changed or conflicts with another record. Recovery did not create a replacement.";
 			return false;
 		}
@@ -385,7 +385,7 @@ public static class RoomScaleVehicleInteriorService
 	{
 		if (vehicle.Prototype.Scale != VehicleScale.RoomScale)
 		{
-			reason = "Only room-scale vehicles have hosted interior cells.";
+			reason = "Only room-scale vehicles have hosted interior rooms.";
 			return false;
 		}
 
@@ -397,7 +397,7 @@ public static class RoomScaleVehicleInteriorService
 
 		if (vehicle.Location is null)
 		{
-			reason = "The vehicle has no exterior cell from which to source its hosted interior.";
+			reason = "The vehicle has no exterior room from which to source its hosted interior.";
 			return false;
 		}
 
@@ -427,7 +427,7 @@ public static class RoomScaleVehicleInteriorService
 			var dbcompartment = FMDB.Context.VehicleCompartments.Find(compartment.Id);
 			if (dbcell is null || dbcompartment is null)
 			{
-				reason = "The hosted cell or vehicle compartment disappeared while it was being persisted.";
+				reason = "The hosted room or vehicle compartment disappeared while it was being persisted.";
 				return false;
 			}
 
@@ -493,7 +493,7 @@ public sealed class VehicleDockingService : IVehicleDockingService
 	{
 		if (vehicle is not Vehicle concrete || vehicle.Prototype.Scale != VehicleScale.RoomScale)
 		{
-			reason = "Only live room-scale vehicles can create hosted-cell dockings.";
+			reason = "Only live room-scale vehicles can create hosted-room dockings.";
 			return false;
 		}
 
@@ -512,7 +512,7 @@ public sealed class VehicleDockingService : IVehicleDockingService
 
 		if (exteriorRoom is null)
 		{
-			reason = "A docking requires an exterior cell.";
+			reason = "A docking requires an exterior room.";
 			return false;
 		}
 

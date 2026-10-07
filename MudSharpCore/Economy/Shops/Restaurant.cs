@@ -60,7 +60,7 @@ public sealed class Restaurant : PermanentShop, IRestaurant
 	/// </summary>
 	private sealed record KitchenContainerAllocation(IGameItem Item, IContainer? SourceStorage);
 
-	private readonly List<RestaurantRoomAssignment> _cells = new();
+	private readonly List<RestaurantRoomAssignment> _rooms = new();
 	private readonly HashSet<long> _tableIds = new();
 	private readonly List<IRestaurantMenuItem> _menuItems = new();
 	private readonly List<IRestaurantTableSession> _tableSessions = new();
@@ -113,18 +113,18 @@ public sealed class Restaurant : PermanentShop, IRestaurant
 				continue;
 			}
 
-			_cells.Add(new RestaurantRoomAssignment(room, (RestaurantRoomRole)assignment.Role));
+			_rooms.Add(new RestaurantRoomAssignment(room, (RestaurantRoomRole)assignment.Role));
 			if (!ShopfrontRooms.Contains(room))
 			{
 				AddShopfrontRoom(room);
 			}
 		}
 
-		if (!_cells.Any())
+		if (!_rooms.Any())
 		{
 			foreach (var room in ShopfrontRooms)
 			{
-				_cells.Add(new RestaurantRoomAssignment(room, RestaurantRoomRole.Service));
+				_rooms.Add(new RestaurantRoomAssignment(room, RestaurantRoomRole.Service));
 			}
 		}
 
@@ -179,7 +179,7 @@ public sealed class Restaurant : PermanentShop, IRestaurant
 		_handlingTime = TimeSpan.FromSeconds(15);
 		_maximumBatchWait = TimeSpan.FromSeconds(90);
 		_tableCleanupInterval = TimeSpan.FromMinutes(2);
-		_cells.Add(new RestaurantRoomAssignment(originalShopFront, RestaurantRoomRole.Service));
+		_rooms.Add(new RestaurantRoomAssignment(originalShopFront, RestaurantRoomRole.Service));
 
 		using (new FMDB())
 		{
@@ -365,15 +365,15 @@ public sealed class Restaurant : PermanentShop, IRestaurant
 		Changed = true;
 	}
 
-	public IEnumerable<IRoom> ServiceRooms => _cells
+	public IEnumerable<IRoom> ServiceRooms => _rooms
 		.Where(x => x.Role == RestaurantRoomRole.Service)
 		.Select(x => x.Room)
 		.Distinct();
-	public IEnumerable<IRoom> InternalRooms => _cells
+	public IEnumerable<IRoom> InternalRooms => _rooms
 		.Where(x => x.Role == RestaurantRoomRole.Internal)
 		.Select(x => x.Room)
 		.Distinct();
-	public IEnumerable<IRoom> KitchenRooms => _cells
+	public IEnumerable<IRoom> KitchenRooms => _rooms
 		.Where(x => x.Role == RestaurantRoomRole.Kitchen)
 		.Select(x => x.Room)
 		.Distinct();
@@ -429,7 +429,7 @@ public sealed class Restaurant : PermanentShop, IRestaurant
 
 	public bool IsWithinRestaurant(IRoom? room)
 	{
-		return room is not null && _cells.Any(x => x.Room.Id == room.Id);
+		return room is not null && _rooms.Any(x => x.Room.Id == room.Id);
 	}
 
 	private bool IsWithinTableServiceBoundary(IRoom? room)
@@ -1171,15 +1171,15 @@ Use #3order takeaway <item> [quantity]#0 to pay in advance and order for takeawa
 
 	public RestaurantOperationResult AddRestaurantRoom(IRoom room, RestaurantRoomRole role)
 	{
-		if (_cells.Any(x => x.Room.Id == room.Id && x.Role == role))
+		if (_rooms.Any(x => x.Room.Id == room.Id && x.Role == role))
 		{
-			return RestaurantOperationResult.Fail("That cell already has that restaurant role.");
+			return RestaurantOperationResult.Fail("That room already has that restaurant role.");
 		}
 
-		_cells.Add(new RestaurantRoomAssignment(room, role));
+		_rooms.Add(new RestaurantRoomAssignment(room, role));
 		AddShopfrontRoom(room);
 		Changed = true;
-		return RestaurantOperationResult.Succeed($"Cell #{room.Id:N0} is now a {role.DescribeEnum()} cell for this restaurant.");
+		return RestaurantOperationResult.Succeed($"Room #{room.Id:N0} is now a {role.DescribeEnum()} room for this restaurant.");
 	}
 
 	public RestaurantOperationResult SetStorageRole(IGameItem item, RestaurantStorageRole role, bool add)
@@ -1196,7 +1196,7 @@ Use #3order takeaway <item> [quantity]#0 to pay in advance and order for takeawa
 
 		if (!item.TrueLocations.Any(x => KitchenRooms.Any(y => y.Id == x.Id)))
 		{
-			return RestaurantOperationResult.Fail("Restaurant storage containers must be physically located in a configured kitchen cell.");
+			return RestaurantOperationResult.Fail("Restaurant storage containers must be physically located in a configured kitchen room.");
 		}
 
 		var storage = _storageContainers.OfType<RestaurantStorageContainer>()
@@ -1232,32 +1232,32 @@ Use #3order takeaway <item> [quantity]#0 to pay in advance and order for takeawa
 
 	public RestaurantOperationResult RemoveRestaurantRoom(IRoom room, RestaurantRoomRole role)
 	{
-		var assignment = _cells.FirstOrDefault(x => x.Room.Id == room.Id && x.Role == role);
+		var assignment = _rooms.FirstOrDefault(x => x.Room.Id == room.Id && x.Role == role);
 		if (assignment is null)
 		{
-			return RestaurantOperationResult.Fail("That cell does not have that restaurant role.");
+			return RestaurantOperationResult.Fail("That room does not have that restaurant role.");
 		}
 
 		if (role == RestaurantRoomRole.Service && ServiceRooms.Count() <= 1)
 		{
-			return RestaurantOperationResult.Fail("A restaurant must retain at least one table-service cell.");
+			return RestaurantOperationResult.Fail("A restaurant must retain at least one table-service room.");
 		}
 
 		if (role == RestaurantRoomRole.Kitchen && _storageContainers
 			.OfType<RestaurantStorageContainer>()
 			.Any(x => Gameworld.TryGetItem(x.GameItemId, true)?.TrueLocations.Any(y => y.Id == room.Id) == true))
 		{
-			return RestaurantOperationResult.Fail("Remove or relocate the restaurant storage containers in that kitchen cell before removing its kitchen role.");
+			return RestaurantOperationResult.Fail("Remove or relocate the restaurant storage containers in that kitchen room before removing its kitchen role.");
 		}
 
-		_cells.Remove(assignment);
-		if (!_cells.Any(x => x.Room.Id == room.Id))
+		_rooms.Remove(assignment);
+		if (!_rooms.Any(x => x.Room.Id == room.Id))
 		{
 			RemoveShopfrontRoom(room);
 		}
 
 		Changed = true;
-		return RestaurantOperationResult.Succeed("That restaurant cell role has been removed.");
+		return RestaurantOperationResult.Succeed("That restaurant room role has been removed.");
 	}
 
 	public RestaurantOperationResult AddRestaurantTable(IGameItem table)
@@ -1358,7 +1358,7 @@ Use #3order takeaway <item> [quantity]#0 to pay in advance and order for takeawa
 
 		var existingRooms = context.RestaurantRooms.Where(x => x.RestaurantShopId == Id).ToList();
 		context.RestaurantRooms.RemoveRange(existingRooms);
-		foreach (var assignment in _cells.DistinctBy(x => (x.Room.Id, x.Role)))
+		foreach (var assignment in _rooms.DistinctBy(x => (x.Room.Id, x.Role)))
 		{
 			context.RestaurantRooms.Add(new DbRestaurantRoom
 			{
@@ -1891,7 +1891,7 @@ Use #3order takeaway <item> [quantity]#0 to pay in advance and order for takeawa
 
 	/// <summary>
 	/// Separates exactly the quantity produced for this order from a stack. Crafts release their
-	/// products through normal cell insertion, which can merge a new stack into pre-existing stock;
+	/// products through normal room insertion, which can merge a new stack into pre-existing stock;
 	/// restaurant queue ownership must therefore keep the newly produced serving as a distinct item.
 	/// </summary>
 	private static IGameItem? IsolateCraftedOutput(IRoom kitchen, IGameItem output, int newlyProducedQuantity,
@@ -2175,7 +2175,7 @@ Use #3order takeaway <item> [quantity]#0 to pay in advance and order for takeawa
 
 	/// <summary>
 	/// NPCs normally use a non-player output handler. Dispatch restaurant emotes from the employee's
-	/// actual cell rather than relying on that handler, so visible service remains visible to diners
+	/// actual room rather than relying on that handler, so visible service remains visible to diners
 	/// even while no player is possessing or monitoring the employee.
 	/// </summary>
 	private static void BroadcastServiceEmote(ICharacter employee, IEmote emote)
@@ -2818,7 +2818,7 @@ Use #3order takeaway <item> [quantity]#0 to pay in advance and order for takeawa
 
 		if (!table.TrueLocations.Any(room => ServiceRooms.Any(service => service.Id == room.Id)))
 		{
-			reason = "A restaurant table must be located in one of the restaurant's table-service cells.";
+			reason = "A restaurant table must be located in one of the restaurant's table-service rooms.";
 			return false;
 		}
 
@@ -2842,7 +2842,7 @@ Use #3order takeaway <item> [quantity]#0 to pay in advance and order for takeawa
 
 	private ICharacter? ActiveActor(long identityId)
 	{
-		// Dynamically loaded NPCs are always visible in a cell, but are not necessarily retained in
+		// Dynamically loaded NPCs are always visible in a room, but are not necessarily retained in
 		// the global actor collection. Restaurant participants may be NPCs, so include the current
 		// restaurant occupants as well as online actors when resolving a persisted participant ID.
 		return Gameworld.Actors
@@ -2854,7 +2854,7 @@ Use #3order takeaway <item> [quantity]#0 to pay in advance and order for takeawa
 	private IGameItem? FindRestaurantItem(long id)
 	{
 		var restaurantRooms = AllShopRooms
-			.Concat(_cells.Select(x => x.Room))
+			.Concat(_rooms.Select(x => x.Room))
 			.DistinctBy(x => x.Id)
 			.ToList();
 		return restaurantRooms

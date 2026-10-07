@@ -79,7 +79,7 @@ internal sealed class PropertyQueryFunction : BuiltInFunction
 			[ProgVariableTypes.Location],
 			(parameters, gameworld) => new PropertyQueryFunction(parameters, gameworld, PropertyQueryMode.ForLocation),
 			["location"],
-			["The cell for which to find a property."],
+			["The room for which to find a property."],
 			"Returns the property containing the location, or null if the location is not assigned to a property.",
 			"Economy",
 			ProgVariableTypes.Property));

@@ -24,12 +24,12 @@ internal enum ArenaRoomRole
 public sealed partial class CombatArena : SaveableItem, ICombatArena
 {
     private readonly HashSet<long> _managerIds = new();
-    private readonly Dictionary<ArenaRoomRole, List<IRoom>> _cells = new();
+    private readonly Dictionary<ArenaRoomRole, List<IRoom>> _rooms = new();
     private readonly List<ICombatantClass> _combatantClasses = new();
     private readonly List<IArenaEventType> _eventTypes = new();
     private readonly List<IArenaEvent> _events = new();
     private bool _managersDirty;
-    private bool _cellsDirty;
+    private bool _roomsDirty;
     private decimal _virtualBalance;
     private string _signupEcho = DefaultSignupEcho;
     private IFutureProg? _onArenaEventPhaseProg;
@@ -55,12 +55,12 @@ public sealed partial class CombatArena : SaveableItem, ICombatArena
 
         foreach (ArenaRoomRole role in Enum.GetValues(typeof(ArenaRoomRole)))
         {
-            _cells[role] = new List<IRoom>();
+            _rooms[role] = new List<IRoom>();
         }
 
         foreach (ArenaRoom? room in arena.ArenaRooms)
         {
-            if (!_cells.TryGetValue((ArenaRoomRole)room.Role, out List<IRoom>? list))
+            if (!_rooms.TryGetValue((ArenaRoomRole)room.Role, out List<IRoom>? list))
             {
                 continue;
             }
@@ -168,12 +168,12 @@ public sealed partial class CombatArena : SaveableItem, ICombatArena
             .Select(x => x.Employee)
             .DistinctBy(CharacterInstanceIdentityComparer.IdentityId);
 
-    public IEnumerable<IRoom> WaitingRooms => _cells[ArenaRoomRole.Waiting];
-    public IEnumerable<IRoom> ArenaRooms => _cells[ArenaRoomRole.ArenaFloor];
-    public IEnumerable<IRoom> ObservationRooms => _cells[ArenaRoomRole.Observation];
-    public IEnumerable<IRoom> InfirmaryRooms => _cells[ArenaRoomRole.Infirmary];
-    public IEnumerable<IRoom> NpcStablesRooms => _cells[ArenaRoomRole.NpcStables];
-    public IEnumerable<IRoom> AfterFightRooms => _cells[ArenaRoomRole.AfterFight];
+    public IEnumerable<IRoom> WaitingRooms => _rooms[ArenaRoomRole.Waiting];
+    public IEnumerable<IRoom> ArenaRooms => _rooms[ArenaRoomRole.ArenaFloor];
+    public IEnumerable<IRoom> ObservationRooms => _rooms[ArenaRoomRole.Observation];
+    public IEnumerable<IRoom> InfirmaryRooms => _rooms[ArenaRoomRole.Infirmary];
+    public IEnumerable<IRoom> NpcStablesRooms => _rooms[ArenaRoomRole.NpcStables];
+    public IEnumerable<IRoom> AfterFightRooms => _rooms[ArenaRoomRole.AfterFight];
 
     public IEnumerable<IArenaEventType> EventTypes => _eventTypes;
     public IEnumerable<IArenaEvent> ActiveEvents =>
@@ -210,12 +210,12 @@ public sealed partial class CombatArena : SaveableItem, ICombatArena
     {
         if (!ArenaRooms.Any())
         {
-            return (false, "The arena does not have any configured combat cells.");
+            return (false, "The arena does not have any configured combat rooms.");
         }
 
         if (!WaitingRooms.Any())
         {
-            return (false, "The arena does not have any waiting cells configured.");
+            return (false, "The arena does not have any waiting rooms configured.");
         }
 
         if (eventType.Arena != this)
@@ -394,7 +394,7 @@ public sealed partial class CombatArena : SaveableItem, ICombatArena
         sb.AppendLine("Cells:");
         sb.AppendLine();
         List<(IRoom room, ArenaRoomRole role)> unrolledRooms = new();
-        foreach (KeyValuePair<ArenaRoomRole, List<IRoom>> group in _cells)
+        foreach (KeyValuePair<ArenaRoomRole, List<IRoom>> group in _rooms)
         {
             foreach (IRoom? item in group.Value)
             {
@@ -494,8 +494,8 @@ public sealed partial class CombatArena : SaveableItem, ICombatArena
 	#3phaseprog <prog>|none#0 - sets or clears the event phase transition prog
 	#3manager add <character id>#0 - adds a manager by character id
 	#3manager remove <character id>#0 - removes a manager by character id
-	#3cell <role> add <cell id>#0 - adds a cell in a particular role
-	#3cell <role> remove <cell id>#0 - removes a cell from a particular role
+	#3cell <role> add <room id>#0 - adds a room in a particular role
+	#3cell <role> remove <room id>#0 - removes a room from a particular role
 
 The phase transition prog is executed once for each side and passes in the following parameters:
 	
@@ -772,25 +772,25 @@ The valid phases are #6Draft#0, #6Scheduled#0, #6RegistrationOpen#0, #6Preparing
             case "add":
                 if (command.IsFinished)
                 {
-                    actor.OutputHandler.Send("Which cell you want to add in that role?");
+                    actor.OutputHandler.Send("Which room you want to add in that role?");
                     return false;
                 }
 
                 IRoom? addRoom = RoomBuilderModule.LookupRoom(actor, command.SafeRemainingArgument);
                 if (addRoom == null)
                 {
-                    actor.OutputHandler.Send("There is no such cell.".ColourError());
+                    actor.OutputHandler.Send("There is no such room.".ColourError());
                     return false;
                 }
 
-                if (_cells[role].Contains(addRoom))
+                if (_rooms[role].Contains(addRoom))
                 {
                     actor.OutputHandler.Send($"{addRoom.GetFriendlyReference(actor).ColourName()} is already in that role.");
                     return false;
                 }
 
-                _cells[role].Add(addRoom);
-                _cellsDirty = true;
+                _rooms[role].Add(addRoom);
+                _roomsDirty = true;
                 Changed = true;
                 actor.OutputHandler.Send(
                     $"{addRoom.GetFriendlyReference(actor).ColourName()} is now configured as {role.DescribeEnum().ColourValue()}.");
@@ -798,32 +798,32 @@ The valid phases are #6Draft#0, #6Scheduled#0, #6RegistrationOpen#0, #6Preparing
             case "remove":
                 if (command.IsFinished)
                 {
-                    actor.OutputHandler.Send("Which cell you want to add in that role?");
+                    actor.OutputHandler.Send("Which room you want to add in that role?");
                     return false;
                 }
 
                 IRoom? removeRoom = RoomBuilderModule.LookupRoom(actor, command.SafeRemainingArgument);
                 if (removeRoom == null)
                 {
-                    actor.OutputHandler.Send("There is no such cell.".ColourError());
+                    actor.OutputHandler.Send("There is no such room.".ColourError());
                     return false;
                 }
 
-                if (!_cells[role].Contains(removeRoom))
+                if (!_rooms[role].Contains(removeRoom))
                 {
-                    actor.OutputHandler.Send("That cell is not configured in that role.".ColourError());
+                    actor.OutputHandler.Send("That room is not configured in that role.".ColourError());
                     return false;
                 }
 
-                _cells[role].Remove(removeRoom);
-                _cellsDirty = true;
+                _rooms[role].Remove(removeRoom);
+                _roomsDirty = true;
                 Changed = true;
                 actor.OutputHandler.Send(
                     $"{removeRoom.GetFriendlyReference(actor).ColourName()} is no longer configured as {role.DescribeEnum().ColourValue()}.");
                 return true;
             default:
                 actor.OutputHandler.Send(
-                    "You must use #3cell <role> add <cell reference>#0 or #3cell <role> remove <cell reference>#0.".SubstituteANSIColour());
+                    "You must use #3cell <role> add <room reference>#0 or #3cell <role> remove <room reference>#0.".SubstituteANSIColour());
                 return false;
         }
     }
@@ -845,10 +845,10 @@ The valid phases are #6Draft#0, #6Scheduled#0, #6RegistrationOpen#0, #6Preparing
             dbArena.CurrencyId = Currency.Id;
             dbArena.Name = Name;
             dbArena.SignupEcho = _signupEcho;
-            if (_cellsDirty)
+            if (_roomsDirty)
             {
                 FMDB.Context.ArenaRooms.RemoveRange(FMDB.Context.ArenaRooms.Where(x => x.ArenaId == dbArena.Id));
-                foreach ((ArenaRoomRole role, List<IRoom>? rooms) in _cells)
+                foreach ((ArenaRoomRole role, List<IRoom>? rooms) in _rooms)
                 {
                     foreach (IRoom room in rooms)
                     {
@@ -861,7 +861,7 @@ The valid phases are #6Draft#0, #6Scheduled#0, #6RegistrationOpen#0, #6Preparing
                     }
                 }
 
-                _cellsDirty = false;
+                _roomsDirty = false;
             }
             if (_managersDirty)
             {

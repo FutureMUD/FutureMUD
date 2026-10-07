@@ -121,7 +121,7 @@ public abstract class NaturalRangedAttackMoveBase : WeaponAttackMove, IRangedAtt
 
     protected virtual void HandleScatterImpact(RangedScatterResult scatter, CheckOutcome attackOutcome)
     {
-        // Default: no additional effect when the scattered shot lands in a cell.
+        // Default: no additional effect when the scattered shot lands in a room.
     }
 
     protected virtual string BuildAttackEmote(IPerceiver target, Outcome outcome)

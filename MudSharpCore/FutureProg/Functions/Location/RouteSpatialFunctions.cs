@@ -8,7 +8,7 @@ using MudSharp.Framework;
 namespace MudSharp.FutureProg.Functions.Location;
 
 /// <summary>
-/// Read-only FutureProg surface for RouteCell geometry. All coordinate-sensitive functions
+/// Read-only FutureProg surface for RouteRoom geometry. All coordinate-sensitive functions
 /// resolve lazy movement through <see cref="RouteSpatialService"/> rather than reading only the
 /// last durable checkpoint.
 /// </summary>
@@ -51,24 +51,24 @@ internal sealed class RouteSpatialFunction : BuiltInFunction
 			[ProgVariableTypes.Location],
 			ProgVariableTypes.Boolean,
 			["location"],
-			["The cell to inspect."],
-			"Returns true when the location has linear RouteCell geometry.",
+			["The room to inspect."],
+			"Returns true when the location has linear RouteRoom geometry.",
 			parameters => new BooleanVariable(RoomFrom(parameters[0])?.RouteDefinition is not null));
 		Register(
 			"routecelllength",
 			[ProgVariableTypes.Location],
 			ProgVariableTypes.Number,
 			["location"],
-			["The RouteCell to inspect."],
-			"Returns the RouteCell length in metres, or null for an ordinary cell.",
+			["The RouteRoom to inspect."],
+			"Returns the RouteRoom length in metres, or null for an ordinary room.",
 			parameters => NumberOrNull(RoomFrom(parameters[0])?.RouteDefinition?.LengthMetres));
 		Register(
 			"routecelltopologyversion",
 			[ProgVariableTypes.Location],
 			ProgVariableTypes.Number,
 			["location"],
-			["The RouteCell to inspect."],
-			"Returns the RouteCell topology version, or null for an ordinary cell.",
+			["The RouteRoom to inspect."],
+			"Returns the RouteRoom topology version, or null for an ordinary room.",
 			parameters => RoomFrom(parameters[0])?.RouteDefinition is { } route
 				? new NumberVariable(route.TopologyVersion)
 				: null);
@@ -78,7 +78,7 @@ internal sealed class RouteSpatialFunction : BuiltInFunction
 			ProgVariableTypes.Number,
 			["perceivable"],
 			["The character, item, or other located perceivable."],
-			"Returns its effective metres-along-RouteCell coordinate, including lazy movement, or null outside a RouteCell.",
+			"Returns its effective metres-along-RouteRoom coordinate, including lazy movement, or null outside a RouteRoom.",
 			parameters => NumberOrNull(EffectiveLocation(parameters[0])?.RoutePositionMetres));
 		Register(
 			"routeexactdistance",
@@ -86,7 +86,7 @@ internal sealed class RouteSpatialFunction : BuiltInFunction
 			ProgVariableTypes.Number,
 			["first", "second"],
 			["The first perceivable.", "The second perceivable."],
-			"Returns exact longitudinal separation in metres when both perceivables share a RouteCell layer; otherwise null.",
+			"Returns exact longitudinal separation in metres when both perceivables share a RouteRoom layer; otherwise null.",
 			parameters =>
 			{
 				var first = LocateableFrom(parameters[0]);
@@ -128,7 +128,7 @@ internal sealed class RouteSpatialFunction : BuiltInFunction
 			ProgVariableTypes.Text,
 			["origin", "target"],
 			["The perceivable used as the origin.", "The target perceivable."],
-			"Returns the RouteCell's authored positive/negative direction label, same, or blank when not comparable.",
+			"Returns the RouteRoom's authored positive/negative direction label, same, or blank when not comparable.",
 			parameters => RelativeDirection(parameters[0], parameters[1]));
 		Register(
 			"routenearestlandmark",
@@ -136,7 +136,7 @@ internal sealed class RouteSpatialFunction : BuiltInFunction
 			ProgVariableTypes.Text,
 			["perceivable"],
 			["The located perceivable."],
-			"Returns the stable name of the nearest RouteCell landmark, or blank when none applies.",
+			"Returns the stable name of the nearest RouteRoom landmark, or blank when none applies.",
 			parameters => NearestLandmark(parameters[0]));
 		Register(
 			"routeportalaccessible",
@@ -144,7 +144,7 @@ internal sealed class RouteSpatialFunction : BuiltInFunction
 			ProgVariableTypes.Boolean,
 			["perceivable", "exit"],
 			["The located perceivable.", "The portal exit to test."],
-			"Returns true when the perceivable is currently inside the RouteCell exit's authored access band.",
+			"Returns true when the perceivable is currently inside the RouteRoom exit's authored access band.",
 			parameters => new BooleanVariable(
 				LocateableFrom(parameters[0]) is { } locateable &&
 				ExitFrom(parameters[1]) is { } exit &&
@@ -167,7 +167,7 @@ internal sealed class RouteSpatialFunction : BuiltInFunction
 			parameterNames,
 			parameterHelp,
 			description,
-			"RouteCells",
+			"RouteRooms",
 			returnType));
 	}
 

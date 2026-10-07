@@ -54,7 +54,7 @@ public sealed class SpellOwnedCorpseAnimationService(IFuturemud world) : ISpellO
 		if (item is not GameItem || !ReferenceEquals(item.Gameworld, world) || item.Deleted || item.GetItemType<ICorpse>() is not { } corpse ||
 			corpse.OriginalCharacter?.Identity is not Character.Character || corpse.OriginalBody is not { } body ||
 			item.Location is not { } room || item.InInventoryOf is not null || item.ContainedIn is not null)
-			return "An available native corpse must be directly present in a cell.";
+			return "An available native corpse must be directly present in a room.";
 		if (!corpse.RepresentsFinalCharacterDeath)
 			return "Durable animation currently requires final-death remains; abandoned bodies need a cold-load adapter.";
 		if (!corpse.OriginalCharacter.Identity.PrimaryInstance.State.IsDead())
@@ -209,7 +209,7 @@ public sealed class SpellOwnedCorpseAnimationService(IFuturemud world) : ISpellO
 				world.Vehicles.Any(x => x.IsOccupant(actor)) || new MudSharp.Vehicles.VehicleHitchService().LinksInvolving(world, actor).Any()))
 				throw new InvalidOperationException("An occupied vehicle, riding or project binding needs release before restoration.");
 			var destination = alreadyCommitted ? world.Rooms.Get(savedRoom) : actor?.Location ?? corpse.Location ?? world.Rooms.Get(savedRoom) ?? world.Rooms.Get(borrow.Room);
-			if (destination is null) throw new InvalidOperationException("No loaded safe cell exists; retain this recoverable animation.");
+			if (destination is null) throw new InvalidOperationException("No loaded safe room exists; retain this recoverable animation.");
 			var layer = alreadyCommitted ? (RoomLayer)savedLayer : actor?.RoomLayer ?? (RoomLayer)savedLayer;
 			CommitRestoration(life, borrow, destination.Id, layer);
 			// The row deletion and exact corpse placement are durable before any runtime callback can throw.
@@ -273,11 +273,11 @@ public sealed class SpellOwnedCorpseAnimationService(IFuturemud world) : ISpellO
 		if (corpse.ContainerId is not null || FMDB.Context.BodiesGameItems.Any(x => x.GameItemId == borrow.Corpse))
 			throw new InvalidOperationException("The corpse acquired a foreign custodian; release it before restoration.");
 		var links = FMDB.Context.RoomsGameItems.Where(x => x.GameItemId == borrow.Corpse).ToArray();
-		if (links.Any(x => x.RoomId != cellId)) throw new InvalidOperationException("The corpse is already placed in another cell.");
+		if (links.Any(x => x.RoomId != cellId)) throw new InvalidOperationException("The corpse is already placed in another room.");
 		if (links.Length == 0) FMDB.Context.RoomsGameItems.Add(new() { GameItemId = borrow.Corpse, RoomId = cellId });
 		corpse.RoomLayer = (int)layer; corpse.RoutePosition = null;
 		if (row is not null) FMDB.Context.CharacterInstances.Remove(row);
-		// Preserve the committed destination independently of deferred cell saves and runtime callbacks.
+		// Preserve the committed destination independently of deferred room saves and runtime callbacks.
 		journal.Diagnostic = new XElement("CorpseRestore", new XAttribute("cell", cellId), new XAttribute("layer", (int)layer)).ToString(SaveOptions.DisableFormatting);
 		journal.Version = checked(journal.Version + 1); journal.UpdatedUtc = Now(life);
 		FMDB.Context.SaveChanges(); transaction.Commit();

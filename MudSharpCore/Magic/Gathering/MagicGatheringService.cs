@@ -121,7 +121,7 @@ public sealed partial class MagicGatheringService : IMagicGatheringService
 
 		if (actor.Location is not IRoom room)
 		{
-			return Refused("You must be physically located in a cell to begin gathering.");
+			return Refused("You must be physically located in a room to begin gathering.");
 		}
 		if (quote.Kind == MagicGatheringMethodKind.Gentle && HasUnresolvedGatheringSource(room.Id, quote))
 		{
@@ -129,7 +129,7 @@ public sealed partial class MagicGatheringService : IMagicGatheringService
 		}
 		if (quote.Kind == MagicGatheringMethodKind.Land && HasUnresolvedGatheringSource(room.Id, quote))
 		{
-			return Refused("A Land source or this cell's ecological state has an unresolved gathering receipt.");
+			return Refused("A Land source or this room's ecological state has an unresolved gathering receipt.");
 		}
 
 		LiveOperation live = new()
@@ -507,7 +507,7 @@ public sealed partial class MagicGatheringService : IMagicGatheringService
 			}
 			if (actor.Location is not IRoom room || !ReferenceEquals(room.Gameworld, _gameworld))
 			{
-				return Refused("You must be physically located in a cell to gather.");
+				return Refused("You must be physically located in a room to gather.");
 			}
 			if (ActionError(actor, ignoredAction) is { } actionError)
 			{

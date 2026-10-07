@@ -547,7 +547,7 @@ public class EnvironmentalMagicGeneratorTests
 		foreach (var holder in holders)
 		{
 			var exception = Assert.ThrowsException<InvalidOperationException>(() => generator.GetOnMinuteDelegate(holder));
-			StringAssert.Contains(exception.Message, holder is IRoom ? "centrally coordinated" : "physical cells only");
+			StringAssert.Contains(exception.Message, holder is IRoom ? "centrally coordinated" : "physical rooms only");
 		}
 		var cache = (IDictionary)typeof(BaseMagicResourceGenerator).GetField("_delegates", BindingFlags.Instance | BindingFlags.NonPublic)!
 			.GetValue(generator)!;

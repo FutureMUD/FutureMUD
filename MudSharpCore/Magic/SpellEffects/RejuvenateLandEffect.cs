@@ -14,12 +14,12 @@ namespace MudSharp.Magic.SpellEffects;
 
 public sealed class RejuvenateLandEffect : IMagicSpellEffectTemplate, IMagicSpellEffectAdmission
 {
-	public const string HelpText = @"Gradually repairs existing scars on a physical room, once per cell.
+	public const string HelpText = @"Gradually repairs existing scars on a physical room, once per room.
 	#3budget <expression>#0 - total scar repair, capped to damage at installation
 	#3rate <expression>#0 - scar units per real minute
 	#3eligibility <prog|none>#0 - NotStatic boolean (character, location) admission policy
 	#3continuation <prog|none>#0 - same signature; requires the active original caster
-	#3local <on|off>#0 - require the original conscious acting instance in its captured cell/plane/layer
+	#3local <on|off>#0 - require the original conscious acting instance in its captured room/plane/layer
 	#3desc <text|none>#0 - plain description addendum (no substitution placeholders)
 	#3colour <colour>#0 - addendum colour
 
@@ -36,7 +36,7 @@ Stored scrolls and magical substances are unsupported.";
 		SpellEffectFactory.RegisterBuilderFactory("rejuvenateland", (_, spell) =>
 			(new RejuvenateLandEffect(new XElement("Effect", new XAttribute("type", "rejuvenateland"),
 				new XAttribute("version", 1), new XElement("Budget", "1"), new XElement("Rate", "1")), spell), string.Empty),
-			"Establishes one bounded, gradual scar-repair treatment in a physical cell", HelpText, false, true,
+			"Establishes one bounded, gradual scar-repair treatment in a physical room", HelpText, false, true,
 			SpellTriggerFactory.MagicTriggerTypes.Where(x => SpellTriggerFactory.BuilderInfoForType(x).TargetTypes is "room" or "rooms").ToArray());
 	}
 
@@ -107,7 +107,7 @@ Stored scrolls and magical substances are unsupported.";
 		error = DefinitionError;
 		if (error is not null) return false;
 		if (target is not IRoom room || !ReferenceEquals(room.Gameworld, Gameworld) || !ReferenceEquals(caster.Gameworld, Gameworld))
-		{ error = "Rejuvenation requires an actual physical cell in the caster's gameworld."; return false; }
+		{ error = "Rejuvenation requires an actual physical room in the caster's gameworld."; return false; }
 		if (resolvedDuration <= TimeSpan.Zero || resolvedDuration == TimeSpan.MaxValue)
 		{ error = "Rejuvenation requires a finite positive resolved spell duration."; return false; }
 		var service = Gameworld.EnvironmentalMagic;

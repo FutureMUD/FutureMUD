@@ -80,15 +80,15 @@ public class VehicleRoutePreviewTests
 			.StripANSIColour();
 
 		StringAssert.Contains(result, "LinearRouteStep #301");
-		StringAssert.Contains(result, "cell #101 Intertown Main Line / GroundLevel at local-length-250");
-		StringAssert.Contains(result, "cell #101 Intertown Main Line / GroundLevel at local-length-750");
+		StringAssert.Contains(result, "room #101 Intertown Main Line / GroundLevel at local-length-250");
+		StringAssert.Contains(result, "room #101 Intertown Main Line / GroundLevel at local-length-750");
 		StringAssert.Contains(result, "Direction eastbound; distance local-length-500; cost 5.000 room-equivalents");
-		StringAssert.Contains(result, "topology pins: origin cell #101 v7, destination cell #101 v7");
-		StringAssert.Contains(result, "CellExitStep #302 via exit #401 (the station gate)");
-		StringAssert.Contains(result, "cell #202 East Town Station / GroundLevel");
+		StringAssert.Contains(result, "topology pins: origin room #101 v7, destination room #101 v7");
+		StringAssert.Contains(result, "RoomExitStep #302 via exit #401 (the station gate)");
+		StringAssert.Contains(result, "room #202 East Town Station / GroundLevel");
 		StringAssert.Contains(result, "Cost 1.250 room-equivalents");
-		StringAssert.Contains(result, "RouteCell Topology Pins:");
-		StringAssert.Contains(result, "Cell #101 Intertown Main Line: pinned v7, current v7 [current]");
+		StringAssert.Contains(result, "RouteRoom Topology Pins:");
+		StringAssert.Contains(result, "Room #101 Intertown Main Line: pinned v7, current v7 [current]");
 	}
 
 	[TestMethod]
@@ -102,7 +102,7 @@ public class VehicleRoutePreviewTests
 			Array.Empty<IVehicleRouteTopologyPin>());
 
 		StringAssert.Contains(result, "Compiled Legs:");
-		StringAssert.Contains(result, "RouteCell Topology Pins:");
+		StringAssert.Contains(result, "RouteRoom Topology Pins:");
 		Assert.AreEqual(2, result.Split("\t(none)").Length - 1);
 	}
 

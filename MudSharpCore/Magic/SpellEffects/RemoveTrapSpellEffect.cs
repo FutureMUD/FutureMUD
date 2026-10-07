@@ -7,7 +7,7 @@ using MudSharp.Traps;
 namespace MudSharp.Magic.SpellEffects;
 
 /// <summary>
-/// An instantaneous spell effect for clearing a magical or dispellable trap on an item, character, or cell.
+/// An instantaneous spell effect for clearing a magical or dispellable trap on an item, character, or room.
 /// It deliberately removes only the trap effect, leaving the anchor item and all unrelated effects intact.
 /// </summary>
 public sealed class RemoveTrapSpellEffect : IMagicSpellEffectTemplate

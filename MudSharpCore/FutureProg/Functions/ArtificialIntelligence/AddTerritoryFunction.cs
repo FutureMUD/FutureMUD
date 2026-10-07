@@ -36,7 +36,7 @@ internal class AddTerritoryFunction : BuiltInFunction
         IRoom target = (IRoom)ParameterFunctions[1].Result;
         if (target == null)
         {
-            ErrorMessage = "Target Cell was null in AddTerritory function.";
+            ErrorMessage = "Target Room was null in AddTerritory function.";
             return StatementResult.Error;
         }
 

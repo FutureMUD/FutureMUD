@@ -33,7 +33,7 @@ internal static class RouteCommandUtilities
 		positionMetres = 0.0;
 		if (room.RouteDefinition is not { } route)
 		{
-			error = "That destination is an ordinary cell and does not accept a route coordinate.";
+			error = "That destination is an ordinary room and does not accept a route coordinate.";
 			return false;
 		}
 
@@ -48,7 +48,7 @@ internal static class RouteCommandUtilities
 
 		if (!actor.Gameworld.UnitManager.TryGetBaseUnits(text, UnitType.Length, actor, out var baseUnits))
 		{
-			error = "Specify a valid distance or RouteCell landmark after AT.";
+			error = "Specify a valid distance or RouteRoom landmark after AT.";
 			return false;
 		}
 

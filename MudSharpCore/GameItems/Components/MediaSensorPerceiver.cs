@@ -37,9 +37,9 @@ internal sealed class MediaSensorPerceiver : DummyPerceiver
 			return true;
 		}
 
-		// Cells do not have a containing Location of their own. Cell descriptions ask the
-		// perceiver whether it can see the cell itself before rendering the scene, so handle
-		// the sensor's current cell explicitly while still respecting its light threshold.
+		// Rooms do not have a containing Location of their own. Room descriptions ask the
+		// perceiver whether it can see the room itself before rendering the scene, so handle
+		// the sensor's current room explicitly while still respecting its light threshold.
 		if (ReferenceEquals(thing, Location))
 		{
 			return flags.HasFlag(PerceiveIgnoreFlags.IgnoreDark) ||

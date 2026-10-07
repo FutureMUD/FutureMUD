@@ -1408,7 +1408,7 @@ public class FutureProg : SaveableItem, IFutureProg
                     $"Character #{ch.Id.ToString("N0", voyeur)} ({ch.PersonalName.GetName(NameStyle.FullWithNickname)}) - {ch.HowSeen(voyeur)}";
             case ProgVariableTypeCode.Location:
                 IRoom room = (IRoom)variable;
-                return $"Cell #{room.Id.ToString("N0", voyeur)}: {room.CurrentOverlay.RoomName}";
+                return $"Room #{room.Id.ToString("N0", voyeur)}: {room.CurrentOverlay.RoomName}";
             case ProgVariableTypeCode.Item:
                 IGameItem item = (IGameItem)variable;
                 return

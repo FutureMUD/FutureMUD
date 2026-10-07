@@ -31,7 +31,7 @@ public sealed class TracePower : PsionicTargetedPowerBase
 	private TracePower(IFuturemud gameworld, IMagicSchool school, string name, ITraitDefinition trait) : base(gameworld, school, name, trait)
 	{
 		Blurb = "Inspect active mind links around a target";
-		_showHelpText = $"Use {school.SchoolVerb.ToUpperInvariant()} TRACE <target> to inspect permitted active mental links and residual traces. Checks and concealment limit what you learn. Item and cell traces are unavailable when psychometric impressions are disabled; character traces remain independent.";
+		_showHelpText = $"Use {school.SchoolVerb.ToUpperInvariant()} TRACE <target> to inspect permitted active mental links and residual traces. Checks and concealment limit what you learn. Item and room traces are unavailable when psychometric impressions are disabled; character traces remain independent.";
 		FailEcho = PsionicPowerEmotes.Get("trace", "FailEcho");
 		DoDatabaseInsert();
 	}

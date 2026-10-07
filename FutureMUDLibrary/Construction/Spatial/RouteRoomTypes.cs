@@ -3,7 +3,7 @@
 namespace MudSharp.Construction;
 
 /// <summary>
-/// Describes the spatial model used by a cell.
+/// Describes the spatial model used by a room.
 /// </summary>
 public enum RoomSpatialType
 {
@@ -12,7 +12,7 @@ public enum RoomSpatialType
 }
 
 /// <summary>
-/// Direction of travel along a linear route cell.
+/// Direction of travel along a linear route room.
 /// </summary>
 public enum RouteRoomDirection
 {

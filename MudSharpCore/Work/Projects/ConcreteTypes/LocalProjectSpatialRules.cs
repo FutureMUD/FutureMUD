@@ -18,7 +18,7 @@ internal static class LocalProjectSpatialRules
 		if (!Enum.IsDefined(layer))
 		{
 			throw new InvalidDataException(
-				$"Active local project #{projectId} has invalid room layer {(int)layer} in cell #{room.Id}.");
+				$"Active local project #{projectId} has invalid room layer {(int)layer} in room #{room.Id}.");
 		}
 
 		var site = new SpatialLocation(room, layer, routePositionMetres);
@@ -28,7 +28,7 @@ internal static class LocalProjectSpatialRules
 		}
 
 		throw new InvalidDataException(
-			$"Active local project #{projectId} has invalid spatial data in cell #{room.Id}: {error}");
+			$"Active local project #{projectId} has invalid spatial data in room #{room.Id}: {error}");
 	}
 
 	internal static bool IsAtSite(SpatialLocation site, ICharacter character)

@@ -49,9 +49,9 @@ public class VehicleStatusRouteReadinessTests
 
 		VehicleModule.AppendMovementReadiness(sb, actor.Object, vehicle.Object, service.Object);
 
-		StringAssert.Contains(sb.ToString(), "RouteCell readiness:");
+		StringAssert.Contains(sb.ToString(), "RouteRoom readiness:");
 		StringAssert.Contains(sb.ToString(), "ready");
-		Assert.IsFalse(sb.ToString().Contains("Cell-exit readiness:"));
+		Assert.IsFalse(sb.ToString().Contains("Room-exit readiness:"));
 		service.Verify(x => x.BuildLongitudinalMovementReadiness(
 			It.IsAny<VehicleLongitudinalReadinessRequest>()), Times.Once);
 		service.Verify(x => x.BuildMovementReadiness(It.IsAny<VehicleMovementReadinessRequest>()), Times.Never);
@@ -75,9 +75,9 @@ public class VehicleStatusRouteReadinessTests
 
 		VehicleModule.AppendMovementReadiness(sb, actor.Object, vehicle.Object, service.Object);
 
-		StringAssert.Contains(sb.ToString(), "Cell-exit readiness:");
+		StringAssert.Contains(sb.ToString(), "Room-exit readiness:");
 		StringAssert.Contains(sb.ToString(), "ready");
-		Assert.IsFalse(sb.ToString().Contains("RouteCell readiness:"));
+		Assert.IsFalse(sb.ToString().Contains("RouteRoom readiness:"));
 		service.Verify(x => x.BuildMovementReadiness(It.IsAny<VehicleMovementReadinessRequest>()), Times.Once);
 		service.Verify(x => x.BuildLongitudinalMovementReadiness(
 			It.IsAny<VehicleLongitudinalReadinessRequest>()), Times.Never);

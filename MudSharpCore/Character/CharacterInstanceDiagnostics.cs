@@ -597,7 +597,7 @@ public static class CharacterInstanceDiagnostics
 				CharacterInstanceDiagnosticSeverity.Error,
 				CharacterInstanceStateScope.Instance,
 				"global-cache-secondary-instance",
-				$"{cacheName} contains secondary instance #{actor.InstanceId} for identity #{CharacterInstanceIdentityComparer.IdentityId(actor)}. Secondary instances must remain cell-local and out of global actor caches.",
+				$"{cacheName} contains secondary instance #{actor.InstanceId} for identity #{CharacterInstanceIdentityComparer.IdentityId(actor)}. Secondary instances must remain room-local and out of global actor caches.",
 				new CharacterInstanceDiagnosticSubject(
 					CharacterInstanceIdentityComparer.IdentityId(actor),
 					actor.InstanceId,

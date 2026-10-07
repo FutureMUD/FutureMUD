@@ -85,9 +85,9 @@ internal partial class RoomBuilderModule : Module<ICharacter>
     private const string RoomHelpText = @"
 #5Introduction#0
 
-This command is used primarily to build rooms and their locations. Almost all uses of this command require you to be editing a #2cell overlay package#0. If you are not familiar with these, you should read the section on them below before proceeding with this command.
+This command is used primarily to build rooms and their locations. Almost all uses of this command require you to be editing a #2room overlay package#0. If you are not familiar with these, you should read the section on them below before proceeding with this command.
 
-#5Cell Overlay Packages#0
+#5Room Overlay Packages#0
 
 A room overlay package is used to allow building to take place on the ""live"" game server, and also permit review, roll-back and multiple versions of room building to exist. All room-based building begins with a room overlay package.
 
@@ -97,80 +97,80 @@ The key process is as follows: #6Open a Room Overlay Package#3 -> #6Do your buil
 
 Where possible you should prefer to revise existing room overlay packages instead of creating new ones, as the latest approved version of the package will be used for any swap commands or progs. This is especially true if you have event-based special building where you have multiple versions of a room.
 
-#5Cell Commands#0
+#5Room Commands#0
 
 The following commands do not require you to have adopted an overlay package:
 
-	#3cell show#0 - shows builder-specific info about the location you are in
-	#3cell overlay <id> [<revnum>]#0 - temporarily adopt a specific package so you can view the world as if it were live
-	#3cell overlay clear#0 - clears your current override for seeing room packages
-	#3cell exit list#0 - lists all exits for the current room (including in other overlays)
-	#3cell exit hide <exit> <prog>#0 - hides a room exit with a specified prog controlling who can see it
-	#3cell exit unhide <exit>#0 - unhides a room exit
-	#3cell set register <varname> <value>#0 - sets the specified prog variable for the current room to the specified value
-	#3cell set register delete <varname>#0 - resets the specified prog variable to its default value for the current room
-	#3cell landmark [<prog>] [<sphere>]#0 - sets your current location as a landmark (with optional applicability prog and sphere)
-	#3cell landmark#0 - toggles being a landmark off
-	#3cell meeting [<prog>] [<sphere>]#0 - sets your current location as a meeting place landmark (with optional applicability prog and sphere)
-	#3cell meeting#0 - toggles being a meeting place off
-	#3cell landmarktext#0 - shows all extra texts for a landmark room
-	#3cell landmarktext add <prog>#0 - drops into an editor to create a new extra text
-	#3cell landmarktext prog <##> <prog>#0 - replaces the prog of a specific extra text
-	#3cell landmarktext text <##>#0 - drops into an editor to replace an extra text
-	#3cell landmarktext swap <##> <##>#0 - swaps the order of two extra texts
-	#3cell landmarktext delete <##>#0 - deletes a landmark text
-	#3cell private property <property>#0 - marks this room private under a property controller
-	#3cell private host <host-type> <host>#0 - marks this room private under an employment host
-	#3cell private show|clear#0 - shows or clears the private-property controller
+	#3room show#0 - shows builder-specific info about the location you are in
+	#3room overlay <id> [<revnum>]#0 - temporarily adopt a specific package so you can view the world as if it were live
+	#3room overlay clear#0 - clears your current override for seeing room packages
+	#3room exit list#0 - lists all exits for the current room (including in other overlays)
+	#3room exit hide <exit> <prog>#0 - hides a room exit with a specified prog controlling who can see it
+	#3room exit unhide <exit>#0 - unhides a room exit
+	#3room set register <varname> <value>#0 - sets the specified prog variable for the current room to the specified value
+	#3room set register delete <varname>#0 - resets the specified prog variable to its default value for the current room
+	#3room landmark [<prog>] [<sphere>]#0 - sets your current location as a landmark (with optional applicability prog and sphere)
+	#3room landmark#0 - toggles being a landmark off
+	#3room meeting [<prog>] [<sphere>]#0 - sets your current location as a meeting place landmark (with optional applicability prog and sphere)
+	#3room meeting#0 - toggles being a meeting place off
+	#3room landmarktext#0 - shows all extra texts for a landmark room
+	#3room landmarktext add <prog>#0 - drops into an editor to create a new extra text
+	#3room landmarktext prog <##> <prog>#0 - replaces the prog of a specific extra text
+	#3room landmarktext text <##>#0 - drops into an editor to replace an extra text
+	#3room landmarktext swap <##> <##>#0 - swaps the order of two extra texts
+	#3room landmarktext delete <##>#0 - deletes a landmark text
+	#3room private property <property>#0 - marks this room private under a property controller
+	#3room private host <host-type> <host>#0 - marks this room private under an employment host
+	#3room private show|clear#0 - shows or clears the private-property controller
 
 These are the commands used to work with overlay packages:
 
-	#3cell package list [all|by <who> | mine]#0 - lists all room packages (optionally filtered)
-	#3cell package new ""name of your package""#0 - creates a new package with the specified name
-	#3cell package open <id>|""name of your package"">#0 - opens an existing unapproved package for further editing
-	#3cell package rename <name>#0 - renames your open room package to something else
-	#3cell package revise <id>|""name of your package"">#0 - creates a new revision of an existing package
-	#3cell package close#0 - closes the package you are currently editing
-	#3cell package show <id>|""name"">#0 - views an existing package
-	#3cell package submit#0 - submits the package for review by an appropriate reviewer
-	#3cell package review list#0 - shows all packages ready for review
-	#3cell package review all#0 - reviews all submitted packages at once
-	#3cell package review <id>#0 - reviews a specific package
-	#3cell package history <id>#0 - shows the building/review history of a particular room package
-	#3cell package swap <id|""name of your package"">#0 - swaps the package into the affected rooms and makes it live
+	#3room package list [all|by <who> | mine]#0 - lists all room packages (optionally filtered)
+	#3room package new ""name of your package""#0 - creates a new package with the specified name
+	#3room package open <id>|""name of your package"">#0 - opens an existing unapproved package for further editing
+	#3room package rename <name>#0 - renames your open room package to something else
+	#3room package revise <id>|""name of your package"">#0 - creates a new revision of an existing package
+	#3room package close#0 - closes the package you are currently editing
+	#3room package show <id>|""name"">#0 - views an existing package
+	#3room package submit#0 - submits the package for review by an appropriate reviewer
+	#3room package review list#0 - shows all packages ready for review
+	#3room package review all#0 - reviews all submitted packages at once
+	#3room package review <id>#0 - reviews a specific package
+	#3room package history <id>#0 - shows the building/review history of a particular room package
+	#3room package swap <id|""name of your package"">#0 - swaps the package into the affected rooms and makes it live
 
 These commands all require you to have an open overlay package:
 
-	#3cell new#0 - creates a new room and transports you to it
-	#3cell dig <direction#0 - creates a new room and a two-way exit in the specified direction, and transports you to it
-	#3cell ndig <template> <outboundkeyword> <inboundkeyword> ""<outbounddescription>"" ""<inbounddescription>""#0 - creates a new room with a non cardinal exit, and transports you to it
-	#3cell exit add <id>#0 - adds an existing exit from another overlay for this room to this overlay
-	#3cell exit remove <id>#0 - removes an exit from this overlay
-	#3cell exit size <id|direction> <size>#0 - sets the maximum size of creatures that can use the exit
-	#3cell exit upright <id|direction> <size>#0 - sets the maximum size of creatures that can use the exit in a standing position
-	#3cell exit reset <id|direction>#0 - turns a climb/fall exit into a regular exit
-	#3cell exit fall <id|direction>#0 - turns an up/down exit into a fall exit or toggles it off
-	#3cell exit climb <id|direction> <difficulty>#0 - turns an exit into a climb exit with a specified difficulty
-	#3cell exit climb <id|direction>#0 - toggles a climb exit off
-	#3cell exit block <id|direction> <layer>#0 - blocks an exit from appearing in a specified layer
-	#3cell exit unblock <id|direction> <layer>#0 - removes a block on an exit from appearing in a specified layer
-	#3cell link <direction> <cellid**>#0 - creates a new exit in the specified direction to the specified room
-	#3cell nlink <template> <cellid**> <outboundkeyword> <inboundkeyword> ""<outbounddescription>"" ""<inbounddescription>""#0 - creates a non-cardinal exit using a template to a room
-	#3cell set name <name>#0 - sets the name of the room
-	#3cell set desc#0 - drops you into an editor to edit the room description
-	#3cell set terrain <id|name>#0 - sets the terrain of this room
-	#3cell set hearing <id|name>#0 - sets the hearing/noise profile for this room
-	#3cell set lightmultiplier <multiplier>#0 - sets the multiplier for natural light (e.g. from shade etc)
-	#3cell set lightlevel <lux>#0 - sets the added light for the location to the specified lux level
-	#3cell set type outdoors|indoors|cave|windows|exposed#0 - sets the room exposure type
-	#3cell set door <exit id|direction> clear#0 - clears the exit from accepting doors
-	#3cell set door <exit id|direction> <size>#0 - sets the exit to accept doors of the specified size
-	#3cell set forage clear#0 - clears an existing forage profile
-	#3cell set forage <id|name>#0 - sets the forage profile to the specified profile
-	#3cell set atmosphere liquid|gas <id|name>#0 - sets the atmosphere to the specified
-	#3cell set atmosphere none#0 - sets the location to have no atmosphere
-	#3cell set route ...#0 - creates, edits, maps and validates linear RouteCell geometry
-	#3cell set safequit#0 - toggles whether the current room is a safe quit room
+	#3room new#0 - creates a new room and transports you to it
+	#3room dig <direction#0 - creates a new room and a two-way exit in the specified direction, and transports you to it
+	#3room ndig <template> <outboundkeyword> <inboundkeyword> ""<outbounddescription>"" ""<inbounddescription>""#0 - creates a new room with a non cardinal exit, and transports you to it
+	#3room exit add <id>#0 - adds an existing exit from another overlay for this room to this overlay
+	#3room exit remove <id>#0 - removes an exit from this overlay
+	#3room exit size <id|direction> <size>#0 - sets the maximum size of creatures that can use the exit
+	#3room exit upright <id|direction> <size>#0 - sets the maximum size of creatures that can use the exit in a standing position
+	#3room exit reset <id|direction>#0 - turns a climb/fall exit into a regular exit
+	#3room exit fall <id|direction>#0 - turns an up/down exit into a fall exit or toggles it off
+	#3room exit climb <id|direction> <difficulty>#0 - turns an exit into a climb exit with a specified difficulty
+	#3room exit climb <id|direction>#0 - toggles a climb exit off
+	#3room exit block <id|direction> <layer>#0 - blocks an exit from appearing in a specified layer
+	#3room exit unblock <id|direction> <layer>#0 - removes a block on an exit from appearing in a specified layer
+	#3room link <direction> <cellid**>#0 - creates a new exit in the specified direction to the specified room
+	#3room nlink <template> <cellid**> <outboundkeyword> <inboundkeyword> ""<outbounddescription>"" ""<inbounddescription>""#0 - creates a non-cardinal exit using a template to a room
+	#3room set name <name>#0 - sets the name of the room
+	#3room set desc#0 - drops you into an editor to edit the room description
+	#3room set terrain <id|name>#0 - sets the terrain of this room
+	#3room set hearing <id|name>#0 - sets the hearing/noise profile for this room
+	#3room set lightmultiplier <multiplier>#0 - sets the multiplier for natural light (e.g. from shade etc)
+	#3room set lightlevel <lux>#0 - sets the added light for the location to the specified lux level
+	#3room set type outdoors|indoors|cave|windows|exposed#0 - sets the room exposure type
+	#3room set door <exit id|direction> clear#0 - clears the exit from accepting doors
+	#3room set door <exit id|direction> <size>#0 - sets the exit to accept doors of the specified size
+	#3room set forage clear#0 - clears an existing forage profile
+	#3room set forage <id|name>#0 - sets the forage profile to the specified profile
+	#3room set atmosphere liquid|gas <id|name>#0 - sets the atmosphere to the specified
+	#3room set atmosphere none#0 - sets the location to have no atmosphere
+	#3room set route ...#0 - creates, edits, maps and validates linear RouteRoom geometry
+	#3room set safequit#0 - toggles whether the current room is a safe quit room
 
 #6** Note: You can use the alternate syntax @n instead of the room ID for this.
 
@@ -186,7 +186,7 @@ To see a list of all autobuilder templates, you simply use the #3SHOW AUTOAREAS#
 
 In order to use an autobuilder template, you must first be editing a room overlay package, and then use the following command:
 
-	#3cell new <template id|name> ...#0
+	#3room new <template id|name> ...#0
 
 Each template has its own required arguments, which you will see if you simply type the command above with no further text.
 
@@ -1805,26 +1805,26 @@ The syntax is:
 
     #region CellSet
 
-    internal const string RoomSetHelpText = @"Valid options for #3cell set#0 are as follows:
+    internal const string RoomSetHelpText = @"Valid options for #3room set#0 are as follows:
 
-	#3cell set uniquename <name|none>#0 - sets or clears the global identifier without an overlay package
-	#3cell set name <name>#0 - sets the name of the room
-	#3cell set desc#0 - drops you into an editor to edit the room description
-	#3cell set suggestdesc#0 - uses configured AI description generation to suggest a description
-	#3cell set terrain <id|name>#0 - sets the terrain of this room
-	#3cell set hearing <id|name>#0 - sets the hearing/noise profile for this room
-	#3cell set lightmultiplier <multiplier>#0 - sets the multiplier for natural light
-	#3cell set lightlevel <lux>#0 - sets the added light for the location to the specified lux level
-	#3cell set type outdoors|indoors|cave|windows|exposed#0 - sets the room exposure type
-	#3cell set door <exit id|direction|keyword> clear#0 - clears the exit from accepting doors
-	#3cell set door <exit id|direction|keyword> <size>#0 - sets the exit to accept doors of the specified size
-	#3cell set forage clear#0 - clears an existing forage profile
-	#3cell set forage <id|name>#0 - sets the forage profile to the specified profile
-	#3cell set atmosphere liquid|gas <id|name>#0 - sets the atmosphere to the specified fluid
-	#3cell set atmosphere none#0 - sets the location to have no atmosphere
-	#3cell set safequit#0 - toggles whether the current room is a safe quit room
-	#3cell set register <varname> <value>#0 - sets the specified prog variable for the current room
-	#3cell set register delete <varname>#0 - resets the specified prog variable to its default value";
+	#3room set uniquename <name|none>#0 - sets or clears the global identifier without an overlay package
+	#3room set name <name>#0 - sets the name of the room
+	#3room set desc#0 - drops you into an editor to edit the room description
+	#3room set suggestdesc#0 - uses configured AI description generation to suggest a description
+	#3room set terrain <id|name>#0 - sets the terrain of this room
+	#3room set hearing <id|name>#0 - sets the hearing/noise profile for this room
+	#3room set lightmultiplier <multiplier>#0 - sets the multiplier for natural light
+	#3room set lightlevel <lux>#0 - sets the added light for the location to the specified lux level
+	#3room set type outdoors|indoors|cave|windows|exposed#0 - sets the room exposure type
+	#3room set door <exit id|direction|keyword> clear#0 - clears the exit from accepting doors
+	#3room set door <exit id|direction|keyword> <size>#0 - sets the exit to accept doors of the specified size
+	#3room set forage clear#0 - clears an existing forage profile
+	#3room set forage <id|name>#0 - sets the forage profile to the specified profile
+	#3room set atmosphere liquid|gas <id|name>#0 - sets the atmosphere to the specified fluid
+	#3room set atmosphere none#0 - sets the location to have no atmosphere
+	#3room set safequit#0 - toggles whether the current room is a safe quit room
+	#3room set register <varname> <value>#0 - sets the specified prog variable for the current room
+	#3room set register delete <varname>#0 - resets the specified prog variable to its default value";
 
 	private static void RoomSetUniqueName(ICharacter actor, StringStack input)
 	{
@@ -3450,18 +3450,18 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
             default:
                 actor.OutputHandler.Send(@"These are the commands used to work with overlay packages:
 
-#3cell package list [all|by <who> | mine]#0 - lists all room packages (optionally filtered)
-#3cell package new ""name of your package""#0 - creates a new package with the specified name
-#3cell package open <id>|""name of your package""#0 - opens an existing unapproved package for further editing
-#3cell package rename <name>#0 - renames your open room package to something else
-#3cell package revise <id>|""name of your package""#0 - creates a new revision of an existing package
-#3cell package close#0 - closes the package you are currently editing
-#3cell package show <id>|""name""#0 - views an existing package
-#3cell package submit#0 - submits the package for review by an appropriate reviewer
-#3cell package review list#0 - shows all packages ready for review
-#3cell package review all#0 - reviews all submitted packages at once
-#3cell package review <id>#0 - reviews a specific package
-#3cell package history <id>#0 - shows the building/review history of a particular room package"
+#3room package list [all|by <who> | mine]#0 - lists all room packages (optionally filtered)
+#3room package new ""name of your package""#0 - creates a new package with the specified name
+#3room package open <id>|""name of your package""#0 - opens an existing unapproved package for further editing
+#3room package rename <name>#0 - renames your open room package to something else
+#3room package revise <id>|""name of your package""#0 - creates a new revision of an existing package
+#3room package close#0 - closes the package you are currently editing
+#3room package show <id>|""name""#0 - views an existing package
+#3room package submit#0 - submits the package for review by an appropriate reviewer
+#3room package review list#0 - shows all packages ready for review
+#3room package review all#0 - reviews all submitted packages at once
+#3room package review <id>#0 - reviews a specific package
+#3room package history <id>#0 - shows the building/review history of a particular room package"
                     .SubstituteANSIColour());
                 return;
         }

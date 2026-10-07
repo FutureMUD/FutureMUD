@@ -98,7 +98,7 @@ public class RoomOverlayPackage : Framework.Revision.EditableItem, IRoomOverlayP
             foreach (IRoomOverlay overlay in overlays)
             {
                 sb.AppendLine(
-                    $"Cell #{overlay.Room.Id.ToString("N0", actor)} ({overlay.Room.Zone.Name.ColourName()}): {overlay.RoomName.ColourName()}");
+                    $"Room #{overlay.Room.Id.ToString("N0", actor)} ({overlay.Room.Zone.Name.ColourName()}): {overlay.RoomName.ColourName()}");
             }
 
             return sb.ToString();
@@ -195,7 +195,7 @@ public class RoomOverlayPackage : Framework.Revision.EditableItem, IRoomOverlayP
 
     public override string EditHeader()
     {
-        return $"Cell Overlay Package: \"{Name}\" (ID #{Id} Rev {RevisionNumber})";
+        return $"Room Overlay Package: \"{Name}\" (ID #{Id} Rev {RevisionNumber})";
     }
 
     public override void Save()

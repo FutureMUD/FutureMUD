@@ -193,7 +193,7 @@ public sealed class VehicleService : SavableKeywordedItem, IVehicleService
 		}
 		if (_route is VehicleRoute concreteRoute && !concreteRoute.TopologyIsCurrent)
 		{
-			errors.Add("The service route has stale RouteCell topology pins.");
+			errors.Add("The service route has stale RouteRoom topology pins.");
 		}
 		if (_vehicle is null)
 		{

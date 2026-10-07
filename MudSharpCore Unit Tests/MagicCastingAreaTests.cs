@@ -417,7 +417,7 @@ public partial class MagicCastingAreaTests
 	{
 		var a = new AreaFixture(); var room = Mock.Get(a.F.Actor.Object.Location);
 		room.SetupGet(x => x.RouteDefinition).Returns(new Mock<IRouteRoomDefinition>().Object);
-		var quote = a.Service.Quote(a.Intent()); Assert.IsFalse(quote.Allowed); StringAssert.Contains(quote.Reason, "RouteCell");
+		var quote = a.Service.Quote(a.Intent()); Assert.IsFalse(quote.Allowed); StringAssert.Contains(quote.Reason, "RouteRoom");
 		room.SetupGet(x => x.RouteDefinition).Returns(() => null!); a.Build("grades area scope ImmediateCharacters"); a.Target();
 		var result = a.Service.Cast(a.Intent()); Assert.AreEqual(MagicCastingStatus.Succeeded, result.Status, result.Message);
 		Assert.AreEqual(2, a.Damage.Count); Assert.AreEqual(SpellAreaScope.ImmediateCharacters, a.Service.Quote(a.Intent() with { Overreach = false }).Invocation!.Area!.Scope);

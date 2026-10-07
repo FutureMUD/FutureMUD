@@ -151,7 +151,7 @@ public class VehicleFleetOperationsService : IVehicleFleetOperationsService
 				{
 					findings.Add(new VehicleFleetAuditFinding(vehicle, VehicleOperationalSubsystem.Route,
 						VehicleOperationalSeverity.Warning,
-						"The vehicle prototype has no longitudinal RouteCell movement profile.",
+						"The vehicle prototype has no longitudinal RouteRoom movement profile.",
 						"vehicleproto set movement route"));
 				}
 
@@ -163,7 +163,7 @@ public class VehicleFleetOperationsService : IVehicleFleetOperationsService
 				{
 					findings.Add(new VehicleFleetAuditFinding(vehicle, VehicleOperationalSubsystem.Route,
 						VehicleOperationalSeverity.Blocking,
-						"The vehicle has no valid durable coordinate in its current RouteCell.",
+						"The vehicle has no valid durable coordinate in its current RouteRoom.",
 						"vehicle recover <vehicle> projection fix, then transfer it to a valid route coordinate"));
 				}
 			}
@@ -175,7 +175,7 @@ public class VehicleFleetOperationsService : IVehicleFleetOperationsService
 				{
 					findings.Add(new VehicleFleetAuditFinding(vehicle, VehicleOperationalSubsystem.Journey,
 						VehicleOperationalSeverity.Blocking,
-						$"Active journey #{journey.Id:N0} has stale RouteCell topology pins.",
+						$"Active journey #{journey.Id:N0} has stale RouteRoom topology pins.",
 						"cancel the journey and recompile/approve a new route revision"));
 				}
 				else if (journey.State == VehicleJourneyState.Held)
@@ -355,10 +355,10 @@ public class VehicleFleetOperationsService : IVehicleFleetOperationsService
 					var occupied = concreteVehicle.IsInteriorOccupied(compartment);
 					var action = VehicleRecoveryAction.Warning;
 					var reason = compartment.InteriorRoomId is null
-						? $"{compartment.Name} has no hosted interior cell assigned."
-						: $"{compartment.Name} points to missing hosted cell #{compartment.InteriorRoomId:N0}.";
+						? $"{compartment.Name} has no hosted interior room assigned."
+						: $"{compartment.Name} points to missing hosted room #{compartment.InteriorRoomId:N0}.";
 					var hint = occupied
-						? "restore the missing cell from backup before moving its recorded occupants"
+						? "restore the missing room from backup before moving its recorded occupants"
 						: "vehicle recover <vehicle> interior fix";
 					var repairReason = string.Empty;
 					if (apply && !occupied && compartment is VehicleCompartment runtime &&
@@ -367,8 +367,8 @@ public class VehicleFleetOperationsService : IVehicleFleetOperationsService
 					{
 						action = VehicleRecoveryAction.Repaired;
 						reason = recoveryAction == RoomScaleVehicleInteriorService.RecoveryAction.Relinked
-							? $"{compartment.Name} was relinked to persisted hosted cell #{compartment.InteriorRoomId:N0}."
-							: $"{compartment.Name} was assigned a new hosted interior cell.";
+							? $"{compartment.Name} was relinked to persisted hosted room #{compartment.InteriorRoomId:N0}."
+							: $"{compartment.Name} was assigned a new hosted interior room.";
 						hint = string.Empty;
 					}
 					else if (apply && !occupied && !string.IsNullOrWhiteSpace(repairReason))
@@ -395,7 +395,7 @@ public class VehicleFleetOperationsService : IVehicleFleetOperationsService
 
 					findings.Add(new VehicleRecoveryFinding(vehicle, VehicleOperationalSubsystem.Interior,
 						VehicleOperationalSeverity.Warning,
-						$"{compartment.Name} cell #{hostedRoom.Id:N0} has incorrect hosted-vehicle ownership metadata.",
+						$"{compartment.Name} room #{hostedRoom.Id:N0} has incorrect hosted-vehicle ownership metadata.",
 						apply ? string.Empty : "vehicle recover <vehicle> interior fix", action));
 				}
 			}

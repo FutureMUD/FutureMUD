@@ -30,7 +30,7 @@ public class Area : Location, IEditableArea
 
     private void Attach(IRoom room)
     {
-        _cells.Add(room);
+        _rooms.Add(room);
         room.AddArea(this);
         room.RoomRequestsDeletion -= Room_RoomRequestsDeletion;
         room.RoomRequestsDeletion += Room_RoomRequestsDeletion;
@@ -50,21 +50,21 @@ public class Area : Location, IEditableArea
         foreach (var membership in area.AreasRooms)
         {
             var room = Gameworld.Rooms.Get(membership.RoomId)
-                ?? throw new InvalidOperationException($"Area #{Id} references missing cell #{membership.RoomId}.");
+                ?? throw new InvalidOperationException($"Area #{Id} references missing room #{membership.RoomId}.");
             Attach(room);
         }
     }
 
     public void Add(IRoom room)
     {
-        if (_cells.Contains(room)) return;
+        if (_rooms.Contains(room)) return;
         Attach(room);
         Changed = true;
     }
 
     public void Remove(IRoom room)
     {
-        if (!_cells.Remove(room)) return;
+        if (!_rooms.Remove(room)) return;
         room.RemoveArea(this);
         room.RoomRequestsDeletion -= Room_RoomRequestsDeletion;
         Changed = true;
@@ -75,10 +75,10 @@ public class Area : Location, IEditableArea
         Areas dbitem = FMDB.Context.Areas.Find(Id);
         dbitem.Name = Name;
         dbitem.WeatherControllerId = WeatherController?.Id;
-		var desiredIds = _cells.Select(x => x.Id).ToHashSet();
+		var desiredIds = _rooms.Select(x => x.Id).ToHashSet();
 		FMDB.Context.AreasRooms.RemoveRange(dbitem.AreasRooms.Where(x => !desiredIds.Contains(x.RoomId)).ToList());
 		var existingIds = dbitem.AreasRooms.Select(x => x.RoomId).ToHashSet();
-		foreach (var room in _cells.Where(x => !existingIds.Contains(x.Id)))
+		foreach (var room in _rooms.Where(x => !existingIds.Contains(x.Id)))
 			dbitem.AreasRooms.Add(new AreasRooms { Area = dbitem, RoomId = room.Id });
         Changed = false;
     }
@@ -96,11 +96,11 @@ public class Area : Location, IEditableArea
         }
     }
 
-    private readonly List<IRoom> _cells = new();
+    private readonly List<IRoom> _rooms = new();
     private IWeatherController _weatherController;
 
 
-    public override IEnumerable<IRoom> Rooms => _cells;
+    public override IEnumerable<IRoom> Rooms => _rooms;
     public IEnumerable<IZone> Zones => Rooms.Select(x => x.OwningZone).Distinct();
 
     #region Overrides of Location

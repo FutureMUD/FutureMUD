@@ -189,7 +189,7 @@ public class AutobuilderAreaTerrainRectangle : AutobuilderAreaBase
     public override string Show(ICharacter builder)
     {
         return
-            $"{$"Autobuilder Area Template #{Id} ({Name})".Colour(Telnet.Cyan)}\n\n{$"This autobuilder template will return a rectangular area of cells with height, width, terrain and room template supplied by the builder. It {(ConnectRoomsWithDiagonalExits ? "does" : "does not")} link diagonally between rooms.".Wrap(builder.InnerLineFormatLength)}";
+            $"{$"Autobuilder Area Template #{Id} ({Name})".Colour(Telnet.Cyan)}\n\n{$"This autobuilder template will return a rectangular area of rooms with height, width, terrain and room template supplied by the builder. It {(ConnectRoomsWithDiagonalExits ? "does" : "does not")} link diagonally between rooms.".Wrap(builder.InnerLineFormatLength)}";
     }
 
     public override string SubtypeHelpText => @"

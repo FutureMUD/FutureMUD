@@ -54,7 +54,7 @@ public static class PathSearch
     /// <summary>
     ///     Builds a suitability function that ignores doors but rejects exits too small for a character.
     /// </summary>
-    /// <param name="who">The character whose current cell-exit size is compared to each exit.</param>
+    /// <param name="who">The character whose current room-exit size is compared to each exit.</param>
     /// <returns>A predicate suitable for <c>PathBetween</c> overloads that accept an exit suitability function.</returns>
     public static Func<IRoomExit, bool> PathIgnoreDoors(ICharacter who)
     {
@@ -64,7 +64,7 @@ public static class PathSearch
     /// <summary>
     ///     Builds a suitability function that rejects closed doors and exits too small for a character.
     /// </summary>
-    /// <param name="who">The character whose current cell-exit size is compared to each exit.</param>
+    /// <param name="who">The character whose current room-exit size is compared to each exit.</param>
     /// <returns>A predicate suitable for ordinary movement path searches.</returns>
     public static Func<IRoomExit, bool> PathRespectClosedDoors(ICharacter who)
     {
@@ -76,7 +76,7 @@ public static class PathSearch
     ///     Builds a suitability function that permits doorless/open exits, closed unlocked doors, and exits large enough
     ///     for a character.
     /// </summary>
-    /// <param name="who">The character whose current cell-exit size is compared to each exit.</param>
+    /// <param name="who">The character whose current room-exit size is compared to each exit.</param>
     /// <returns>A predicate suitable for path searches that assume the actor can open unlocked doors.</returns>
     public static Func<IRoomExit, bool> PathIncludeUnlockedDoors(ICharacter who)
     {
@@ -202,7 +202,7 @@ public static class PerceivedItemExtensions
             return new List<IRoomExit>();
         }
 
-		// Exit-only paths cannot represent longitudinal travel inside a RouteCell. Failing closed here
+		// Exit-only paths cannot represent longitudinal travel inside a RouteRoom. Failing closed here
 		// prevents legacy AI, combat, range, and following callers from treating a many-kilometre cell
 		// as a single-room shortcut. Coordinate-aware callers must use ISpatialPathfinder.
 		if (source.RouteDefinition is not null)
@@ -409,7 +409,7 @@ public static class PerceivedItemExtensions
         seen.Add(source);
         rooms.Add(source);
 		// This compatibility API has no coordinate-bearing result type. It must not flatten a
-		// RouteCell into a single room or enter one as a one-room shortcut; spatial callers use
+		// RouteRoom into a single room or enter one as a one-room shortcut; spatial callers use
 		// ISpatialPathfinder instead.
 		if (source.RouteDefinition is not null)
 		{
@@ -494,17 +494,17 @@ public static class PerceivedItemExtensions
     }
 
     /// <summary>
-    ///     Determines the shortest number of cell exits between the source's current location and the target's current
+    ///     Determines the shortest number of room exits between the source's current location and the target's current
     ///     location.
     /// </summary>
-    /// <param name="source">The perceivable whose location is the start cell.</param>
-    /// <param name="target">The perceivable whose location is the destination cell.</param>
+    /// <param name="source">The perceivable whose location is the start room.</param>
+    /// <param name="target">The perceivable whose location is the destination room.</param>
     /// <param name="maximumDistance">
     ///     The inclusive maximum number of exits to traverse. Use small values for hot-path checks; a value of
-    ///     <c>0</c> only succeeds when both perceivables are already in the same cell.
+    ///     <c>0</c> only succeeds when both perceivables are already in the same room.
     /// </param>
     /// <returns>
-    ///     <c>0</c> when both perceivables are in the same cell, a positive exit count for the shortest route, or
+    ///     <c>0</c> when both perceivables are in the same room, a positive exit count for the shortest route, or
     ///     <c>-1</c> when either perceivable has no location or no route exists within <paramref name="maximumDistance" />.
     /// </returns>
     public static int DistanceBetween(this IPerceivable source, IPerceivable target, uint maximumDistance)
@@ -535,7 +535,7 @@ public static class PerceivedItemExtensions
     }
 
     /// <summary>
-    ///     Determines the number of cell exits between two perceivables using the supplied search options. Exact mode
+    ///     Determines the number of room exits between two perceivables using the supplied search options. Exact mode
     ///     preserves the ordinary shortest-path behaviour; automatic and hierarchical modes may use the topology index
     ///     for long routes but still validate every returned exit against live state.
     /// </summary>
@@ -568,7 +568,7 @@ public static class PerceivedItemExtensions
     }
 
 	/// <summary>
-	/// Returns the exact hybrid-path cost in room equivalents. RouteCell longitudinal edges use
+	/// Returns the exact hybrid-path cost in room equivalents. RouteRoom longitudinal edges use
 	/// their authored metres-per-room scale; ordinary exits retain their normal unit cost.
 	/// </summary>
 	public static double RoomEquivalentDistanceBetween(this IPerceivable source, IPerceivable target)
@@ -598,8 +598,8 @@ public static class PerceivedItemExtensions
     /// <summary>
     ///     Tests whether the target can be reached from the source within a maximum exit count.
     /// </summary>
-    /// <param name="source">The perceivable whose location is the start cell.</param>
-    /// <param name="target">The perceivable whose location is the destination cell.</param>
+    /// <param name="source">The perceivable whose location is the start room.</param>
+    /// <param name="target">The perceivable whose location is the destination room.</param>
     /// <param name="desiredDistance">The inclusive maximum number of exits that may be traversed.</param>
     /// <returns>
     ///     <see langword="true" /> when <see cref="DistanceBetween" /> finds any route within
@@ -612,20 +612,20 @@ public static class PerceivedItemExtensions
     }
 
     /// <summary>
-    ///     Finds cells underneath the broad corridor of a flight or projectile path between two perceivables.
+    ///     Finds rooms underneath the broad corridor of a flight or projectile path between two perceivables.
     /// </summary>
     /// <param name="source">The perceivable whose location is the start of the flight path.</param>
     /// <param name="target">The perceivable whose location is the end of the flight path.</param>
     /// <param name="maximumDistance">The maximum number of generations to trace before giving up.</param>
     /// <param name="permittedDirections">
-    ///     Optional outbound directions to seed the corridor. When omitted, all non-unknown exits from the source cell
+    ///     Optional outbound directions to seed the corridor. When omitted, all non-unknown exits from the source room
     ///     are used. As the search advances, directions opposing the current travel direction are dropped to keep the
     ///     corridor moving generally away from the source.
     /// </param>
     /// <returns>
-    ///     Cells under the path, excluding the source and target cells. Closed doors block the corridor unless they can
+    ///     Rooms under the path, excluding the source and target rooms. Closed doors block the corridor unless they can
     ///     be fired through. An empty collection means the target is colocated, invalid, adjacent with no intervening
-    ///     cells, or unreachable within the limit.
+    ///     rooms, or unreachable within the limit.
     /// </returns>
     public static IEnumerable<IRoom> RoomsUnderneathFlight(this IPerceivable source, IPerceivable target,
         uint maximumDistance, IEnumerable<CardinalDirection> permittedDirections = null)
@@ -733,13 +733,13 @@ public static class PerceivedItemExtensions
     }
 
     /// <summary>
-    ///     Returns the intermediate destination cells on the shortest route between two perceivables.
+    ///     Returns the intermediate destination rooms on the shortest route between two perceivables.
     /// </summary>
-    /// <param name="source">The perceivable whose location is the start cell.</param>
-    /// <param name="target">The perceivable whose location is the destination cell.</param>
+    /// <param name="source">The perceivable whose location is the start room.</param>
+    /// <param name="target">The perceivable whose location is the destination room.</param>
     /// <param name="maximumDistance">The inclusive maximum number of exits to traverse.</param>
     /// <returns>
-    ///     The cells reached by each exit on the route except the final target cell. The source cell is never included.
+    ///     The rooms reached by each exit on the route except the final target room. The source room is never included.
     ///     If the target is adjacent, colocated, invalid, or unreachable within the limit, the result is empty.
     /// </returns>
     public static IEnumerable<IRoom> RoomsBetween(this IPerceivable source, IPerceivable target,
@@ -766,8 +766,8 @@ public static class PerceivedItemExtensions
     ///     Returns the shortest ordered list of exits between two perceivables without applying movement suitability
     ///     rules.
     /// </summary>
-    /// <param name="source">The perceivable whose location is the start cell.</param>
-    /// <param name="target">The perceivable whose location is the destination cell.</param>
+    /// <param name="source">The perceivable whose location is the start room.</param>
+    /// <param name="target">The perceivable whose location is the destination room.</param>
     /// <param name="maximumDistance">The inclusive maximum number of exits to traverse.</param>
     /// <returns>
     ///     The exits to take from source to target. The result is empty when the perceivables are colocated, either
@@ -811,8 +811,8 @@ public static class PerceivedItemExtensions
     }
 
     /// <summary>
-    ///     Returns all cells reachable from a source within a maximum exit count while applying caller-provided exit and
-    ///     destination-cell filters.
+    ///     Returns all rooms reachable from a source within a maximum exit count while applying caller-provided exit and
+    ///     destination-room filters.
     /// </summary>
     /// <param name="source">The perceivable whose location is the centre of the vicinity search.</param>
     /// <param name="maximumDistance">The inclusive maximum number of exits to radiate out from the source.</param>
@@ -821,11 +821,11 @@ public static class PerceivedItemExtensions
     ///     route.
     /// </param>
     /// <param name="cellFitnessEvaluator">
-    ///     Predicate run for the destination cell of a candidate exit. Return <see langword="false" /> to exclude that
-    ///     cell and prevent traversal through it.
+    ///     Predicate run for the destination room of a candidate exit. Return <see langword="false" /> to exclude that
+    ///     room and prevent traversal through it.
     /// </param>
     /// <returns>
-    ///     Cells in breadth-first order by distance, always including the source cell when it has a location. An invalid
+    ///     Rooms in breadth-first order by distance, always including the source room when it has a location. An invalid
     ///     source or missing evaluator returns an empty collection.
     /// </returns>
     public static IEnumerable<IRoom> RoomsInVicinity(this IPerceivable source, uint maximumDistance,
@@ -842,7 +842,7 @@ public static class PerceivedItemExtensions
     }
 
     /// <summary>
-    ///     Returns all cells within a maximum exit count, optionally applying line-of-effect corner logic.
+    ///     Returns all rooms within a maximum exit count, optionally applying line-of-effect corner logic.
     /// </summary>
     /// <param name="source">The perceivable whose location is the centre of the vicinity search.</param>
     /// <param name="maximumDistance">The inclusive maximum number of exits to radiate out from the source.</param>
@@ -863,7 +863,7 @@ public static class PerceivedItemExtensions
     ///     when turning away from that direction.
     /// </param>
     /// <returns>
-    ///     Cells in distance order, always including the source cell when it has a location. An invalid source returns an
+    ///     Rooms in distance order, always including the source room when it has a location. An invalid source returns an
     ///     empty collection.
     /// </returns>
     public static IEnumerable<IRoom> RoomsInVicinity(this IPerceivable source, uint maximumDistance,
@@ -995,8 +995,8 @@ public static class PerceivedItemExtensions
     }
 
     /// <summary>
-    ///     Returns all cells reachable from a source with their shortest exit-count distance while applying
-    ///     caller-provided exit and destination-cell filters.
+    ///     Returns all rooms reachable from a source with their shortest exit-count distance while applying
+    ///     caller-provided exit and destination-room filters.
     /// </summary>
     /// <param name="source">The perceivable whose location is the centre of the vicinity search.</param>
     /// <param name="maximumDistance">The inclusive maximum number of exits to radiate out from the source.</param>
@@ -1005,11 +1005,11 @@ public static class PerceivedItemExtensions
     ///     route.
     /// </param>
     /// <param name="cellFitnessEvaluator">
-    ///     Predicate run for the destination cell of a candidate exit. Return <see langword="false" /> to exclude that
-    ///     cell and prevent traversal through it.
+    ///     Predicate run for the destination room of a candidate exit. Return <see langword="false" /> to exclude that
+    ///     room and prevent traversal through it.
     /// </param>
     /// <returns>
-    ///     Tuples of cell and distance in breadth-first order, including the source cell at distance <c>0</c>. An invalid
+    ///     Tuples of room and distance in breadth-first order, including the source room at distance <c>0</c>. An invalid
     ///     source or missing evaluator returns an empty collection.
     /// </returns>
     public static IEnumerable<(IRoom Room, int Distance)> RoomsAndDistancesInVicinity(this IPerceivable source,
@@ -1027,7 +1027,7 @@ public static class PerceivedItemExtensions
     }
 
     /// <summary>
-    ///     Returns all cells within a maximum exit count with their distances, optionally applying line-of-effect corner
+    ///     Returns all rooms within a maximum exit count with their distances, optionally applying line-of-effect corner
     ///     logic.
     /// </summary>
     /// <param name="source">The perceivable whose location is the centre of the vicinity search.</param>
@@ -1045,7 +1045,7 @@ public static class PerceivedItemExtensions
     ///     source are used.
     /// </param>
     /// <returns>
-    ///     Tuples of cell and distance in search order, including the source cell at distance <c>0</c>. An invalid source
+    ///     Tuples of room and distance in search order, including the source room at distance <c>0</c>. An invalid source
     ///     returns an empty collection.
     /// </returns>
     public static IEnumerable<(IRoom Room, int Distance)> RoomsAndDistancesInVicinity(this IPerceivable source,
@@ -1186,8 +1186,8 @@ public static class PerceivedItemExtensions
     /// <summary>
     ///     Returns the shortest ordered exit path between two perceivables using the built-in door traversal flags.
     /// </summary>
-    /// <param name="source">The perceivable whose location is the start cell.</param>
-    /// <param name="target">The perceivable whose location is the destination cell.</param>
+    /// <param name="source">The perceivable whose location is the start room.</param>
+    /// <param name="target">The perceivable whose location is the destination room.</param>
     /// <param name="maximumDistance">The inclusive maximum number of exits to traverse.</param>
     /// <param name="openDoors">
     ///     When <see langword="true" />, closed but unlocked doors are treated as passable because the pathing actor is
@@ -1241,8 +1241,8 @@ public static class PerceivedItemExtensions
     ///     Returns the shortest ordered exit path between two perceivables using a caller-supplied exit suitability
     ///     predicate.
     /// </summary>
-    /// <param name="source">The perceivable whose location is the start cell.</param>
-    /// <param name="target">The perceivable whose location is the destination cell.</param>
+    /// <param name="source">The perceivable whose location is the start room.</param>
+    /// <param name="target">The perceivable whose location is the destination room.</param>
     /// <param name="maximumDistance">The inclusive maximum number of exits to traverse.</param>
     /// <param name="suitabilityFunction">
     ///     Predicate run before an exit is traversed. Use this for actor size, door handling, terrain restrictions, AI
@@ -1284,8 +1284,8 @@ public static class PerceivedItemExtensions
     /// <summary>
     ///     Returns the shortest ordered exit path from a source to the nearest reachable target in a set.
     /// </summary>
-    /// <param name="source">The perceivable whose location is the start cell.</param>
-    /// <param name="targets">Candidate perceivables; their current locations are used as destination cells.</param>
+    /// <param name="source">The perceivable whose location is the start room.</param>
+    /// <param name="targets">Candidate perceivables; their current locations are used as destination rooms.</param>
     /// <param name="maximumDistance">The inclusive maximum number of exits to traverse.</param>
     /// <param name="suitabilityFunction">
     ///     Predicate run before an exit is traversed. It must return <see langword="true" /> for every exit in the
@@ -1293,7 +1293,7 @@ public static class PerceivedItemExtensions
     /// </param>
     /// <returns>
     ///     The exits to the nearest reachable target, or an empty collection when there are no valid targets, a target is
-    ///     already in the source cell, all targets are blocked, or all targets are beyond
+    ///     already in the source room, all targets are blocked, or all targets are beyond
     ///     <paramref name="maximumDistance" />.
     /// </returns>
     public static IEnumerable<IRoomExit> PathBetween(this IPerceivable source, IEnumerable<IPerceivable> targets,
@@ -1346,10 +1346,10 @@ public static class PerceivedItemExtensions
     /// <summary>
     ///     Searches outward from a perceivable and returns the first matching target plus the shortest path to it.
     /// </summary>
-    /// <param name="source">The perceivable whose location is the start cell.</param>
+    /// <param name="source">The perceivable whose location is the start room.</param>
     /// <param name="targetFunction">
-    ///     Predicate applied to perceivables in each searched cell and to the cell itself. Use type checks inside this
-    ///     predicate when only characters, items, cells, or another perceivable category should match.
+    ///     Predicate applied to perceivables in each searched room and to the room itself. Use type checks inside this
+    ///     predicate when only characters, items, rooms, or another perceivable category should match.
     /// </param>
     /// <param name="maximumDistance">The inclusive maximum number of exits to traverse.</param>
     /// <param name="suitabilityFunction">
@@ -1358,7 +1358,7 @@ public static class PerceivedItemExtensions
     /// </param>
     /// <returns>
     ///     A tuple containing the nearest matching target and the ordered exit path to it. If the target is in the source
-    ///     cell, the path is empty. If no target is found, the target item is <see langword="null" /> and the path is
+    ///     room, the path is empty. If no target is found, the target item is <see langword="null" /> and the path is
     ///     empty.
     /// </returns>
     public static Tuple<IPerceivable, IEnumerable<IRoomExit>> AcquireTargetAndPath(this IPerceivable source,
@@ -1437,17 +1437,17 @@ public static class PerceivedItemExtensions
     ///     Searches outward from a perceivable and returns all matching targets of a specific type with their shortest
     ///     paths.
     /// </summary>
-    /// <typeparam name="T">The perceivable type to return, such as <see cref="ICharacter" />, <c>IGameItem</c>, or <see cref="ICell" />.</typeparam>
-    /// <param name="source">The perceivable whose location is the start cell.</param>
+    /// <typeparam name="T">The perceivable type to return, such as <see cref="ICharacter" />, <c>IGameItem</c>, or <see cref="IRoom" />.</typeparam>
+    /// <param name="source">The perceivable whose location is the start room.</param>
     /// <param name="targetFunction">
-    ///     Predicate applied only to perceivables of type <typeparamref name="T" /> and to cells when <typeparamref name="T" />
-    ///     is compatible with <see cref="ICell" />.
+    ///     Predicate applied only to perceivables of type <typeparamref name="T" /> and to rooms when <typeparamref name="T" />
+    ///     is compatible with <see cref="IRoom" />.
     /// </param>
     /// <param name="maximumDistance">The inclusive maximum number of exits to traverse.</param>
     /// <param name="suitabilityFunction">Predicate run before an exit is traversed.</param>
     /// <returns>
-    ///     A list of all matching targets found within range. Targets in the source cell have an empty path; other
-    ///     targets share the shortest path to their cell. An invalid source or missing predicate returns an empty list.
+    ///     A list of all matching targets found within range. Targets in the source room have an empty path; other
+    ///     targets share the shortest path to their room. An invalid source or missing predicate returns an empty list.
     /// </returns>
     public static List<(T Target, IEnumerable<IRoomExit> Path)> AcquireAllTargetsAndPaths<T>(this IPerceivable source,
         Func<T, bool> targetFunction, uint maximumDistance, Func<IRoomExit, bool> suitabilityFunction)

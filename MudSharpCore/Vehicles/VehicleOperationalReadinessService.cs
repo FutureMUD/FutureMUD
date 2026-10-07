@@ -497,17 +497,17 @@ public class VehicleOperationalReadinessService : IVehicleOperationalReadinessSe
 			if (profile is null || profile.MovementType != VehicleMovementProfileType.Route ||
 				!double.IsFinite(profile.RouteSpeedMetresPerSecond) || profile.RouteSpeedMetresPerSecond <= 0.0)
 			{
-				return Fail("Automatic exit traversal requires a valid RouteCell movement profile.");
+				return Fail("Automatic exit traversal requires a valid RouteRoom movement profile.");
 			}
 
 			if (!profile.AutomaticOperationCapable)
 			{
-				return Fail("That RouteCell movement profile is not approved for automatic operation.");
+				return Fail("That RouteRoom movement profile is not approved for automatic operation.");
 			}
 
 			if (profile.RoutePropulsionMode != RouteVehiclePropulsionMode.Powered)
 			{
-				return Fail("Automatic RouteCell operation requires a powered movement profile.");
+				return Fail("Automatic RouteRoom operation requires a powered movement profile.");
 			}
 		}
 		else
@@ -576,7 +576,7 @@ public class VehicleOperationalReadinessService : IVehicleOperationalReadinessSe
 
 		if (profile is null)
 		{
-			return Fail("That vehicle cannot move through normal cell exits.");
+			return Fail("That vehicle cannot move through normal room exits.");
 		}
 
 		if (vehicle.IsDisabledByDamage(VehicleDamageEffectTargetType.MovementProfile, profile.Id))
@@ -756,7 +756,7 @@ public class VehicleOperationalReadinessService : IVehicleOperationalReadinessSe
 		else
 		{
 			// Automatic route operation is powered by the Route profile and its distance/time
-			// resource plan. Cell-exit propulsion modes require a physical operator and are
+			// resource plan. Room-exit propulsion modes require a physical operator and are
 			// deliberately not synthesised for an automatic service.
 			propulsionReadiness = null;
 		}
@@ -788,7 +788,7 @@ public class VehicleOperationalReadinessService : IVehicleOperationalReadinessSe
 
 		if (profile is null || profile.MovementType != VehicleMovementProfileType.Route)
 		{
-			return Fail("That vehicle does not have a RouteCell movement profile.");
+			return Fail("That vehicle does not have a RouteRoom movement profile.");
 		}
 
 		if (!double.IsFinite(request.DistanceMetres) || request.DistanceMetres < 0.0 ||
@@ -805,13 +805,13 @@ public class VehicleOperationalReadinessService : IVehicleOperationalReadinessSe
 
 		if (vehicle.Location?.RouteDefinition is not { } route || !vehicle.RoutePositionMetres.HasValue)
 		{
-			return Fail("That vehicle is not positioned in a RouteCell.");
+			return Fail("That vehicle is not positioned in a RouteRoom.");
 		}
 
 		if (!double.IsFinite(vehicle.RoutePositionMetres.Value) ||
 			vehicle.RoutePositionMetres.Value < 0.0 || vehicle.RoutePositionMetres.Value > route.LengthMetres)
 		{
-			return Fail("That vehicle has an invalid RouteCell coordinate and must be recovered before it can move.");
+			return Fail("That vehicle has an invalid RouteRoom coordinate and must be recovered before it can move.");
 		}
 
 		var externalPullers = new List<ICharacter>();
@@ -836,7 +836,7 @@ public class VehicleOperationalReadinessService : IVehicleOperationalReadinessSe
 		{
 			if (actor is null)
 			{
-				return Fail("An externally pulled RouteCell vehicle requires an onboard controller.", movePlan);
+				return Fail("An externally pulled RouteRoom vehicle requires an onboard controller.", movePlan);
 			}
 
 			if (!TryResolveExternalPullerLinks(vehicle, actor, out var incoming,
@@ -1117,7 +1117,7 @@ public class VehicleOperationalReadinessService : IVehicleOperationalReadinessSe
 
 		if (profile.RouteSpeedMetresPerSecond <= 0.0 || !double.IsFinite(profile.RouteSpeedMetresPerSecond))
 		{
-			reason = "That RouteCell movement profile does not have a valid positive speed.";
+			reason = "That RouteRoom movement profile does not have a valid positive speed.";
 			return false;
 		}
 
@@ -1131,13 +1131,13 @@ public class VehicleOperationalReadinessService : IVehicleOperationalReadinessSe
 		{
 			if (!profile.AutomaticOperationCapable)
 			{
-				reason = "That RouteCell movement profile is not approved for automatic operation.";
+				reason = "That RouteRoom movement profile is not approved for automatic operation.";
 				return false;
 			}
 
 			if (profile.RoutePropulsionMode != RouteVehiclePropulsionMode.Powered)
 			{
-				reason = "Automatic RouteCell operation requires a powered movement profile.";
+				reason = "Automatic RouteRoom operation requires a powered movement profile.";
 				return false;
 			}
 		}

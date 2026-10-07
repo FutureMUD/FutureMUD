@@ -220,9 +220,13 @@ return @togglevalue");
 		Assert.IsTrue(owners.Any(x => x.FileOwnerId == fileGenerator.Id));
 	}
 
-	[TestMethod]
-	public void MotionSensorDetectionMode_MatchesExpectedWitnessEvents()
+	[DataTestMethod]
+	[DataRow("enter cell")]
+	[DataRow("enter room")]
+	public void MotionSensorDetectionMode_MatchesExpectedWitnessEvents(string selector)
 	{
+		Assert.IsTrue(MotionSensorDetectionModeExtensions.TryParse(selector, out var parsed));
+		Assert.AreEqual(MotionSensorDetectionMode.EnterRoom, parsed);
 		Assert.IsTrue(MotionSensorDetectionMode.AnyMovement.MatchesEventType(EventType.CharacterBeginMovementWitness));
 		Assert.IsTrue(MotionSensorDetectionMode.AnyMovement.MatchesEventType(EventType.CharacterEnterRoomWitness));
 		Assert.IsTrue(MotionSensorDetectionMode.AnyMovement.MatchesEventType(EventType.CharacterStopMovementWitness));
@@ -235,6 +239,24 @@ return @togglevalue");
 		Assert.IsTrue(MotionSensorDetectionMode.StopMovement.MatchesEventType(EventType.CharacterStopMovementWitness));
 		Assert.IsTrue(MotionSensorDetectionMode.StopMovement.MatchesEventType(EventType.CharacterStopMovementClosedDoorWitness));
 		Assert.IsFalse(MotionSensorDetectionMode.StopMovement.MatchesEventType(EventType.CharacterEnterRoomWitness));
+	}
+
+	[DataTestMethod]
+	[DataRow("EnterCell")]
+	[DataRow("EnterRoom")]
+	[DataRow("2")]
+	public void MotionSensorPrototype_LegacyDetectionMode_PreservesArrivalOnlyOnLoadSave(string persistedMode)
+	{
+		var gameworld = CreateGameworld();
+		var proto = CreateMotionSensorProto(gameworld.Object, persistedMode);
+		Assert.AreEqual(MotionSensorDetectionMode.EnterRoom, proto.DetectionMode);
+		Assert.IsTrue(proto.DetectionMode.MatchesEventType(EventType.CharacterEnterRoomWitness));
+		Assert.IsFalse(proto.DetectionMode.MatchesEventType(EventType.CharacterBeginMovementWitness));
+		var xml = XElement.Parse((string)typeof(PoweredMachineBaseGameItemComponentProto)
+			.GetMethod("SaveToXml", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(proto, [])!);
+		Assert.AreEqual("EnterCell", xml.Element("DetectionMode")!.Value);
+		var reloaded = CreateMotionSensorProto(gameworld.Object, xml.Element("DetectionMode")!.Value);
+		Assert.AreEqual(MotionSensorDetectionMode.EnterRoom, reloaded.DetectionMode);
 	}
 
 	[TestMethod]
@@ -2016,7 +2038,8 @@ return @togglevalue");
 			]);
 	}
 
-	private static MotionSensorGameItemComponentProto CreateMotionSensorProto(IFuturemud gameworld)
+	private static MotionSensorGameItemComponentProto CreateMotionSensorProto(IFuturemud gameworld,
+		string persistedMode = "AnyMovement")
 	{
 		var definition = new XElement("Definition",
 			new XElement("Wattage", 50.0),
@@ -2030,7 +2053,7 @@ return @togglevalue");
 			new XElement("SignalValue", 1.0),
 			new XElement("SignalDurationSeconds", 10.0),
 			new XElement("MinimumSize", SizeCategory.Normal),
-			new XElement("DetectionMode", MotionSensorDetectionMode.AnyMovement)
+			new XElement("DetectionMode", persistedMode)
 		);
 
 		return (MotionSensorGameItemComponentProto)typeof(MotionSensorGameItemComponentProto)

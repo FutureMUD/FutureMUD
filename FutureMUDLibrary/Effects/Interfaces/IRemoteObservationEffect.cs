@@ -13,7 +13,7 @@ namespace MudSharp.Effects.Interfaces
     {
 		/// <summary>
 		/// Returns whether this observer is spatially anchored close enough to receive a local
-		/// output. The safe default rejects RouteCell-local events; explicit whole-location
+		/// output. The safe default rejects RouteRoom-local events; explicit whole-location
 		/// broadcasts continue to bypass this filter.
 		/// </summary>
 		bool Observes(SpatialLocation source)

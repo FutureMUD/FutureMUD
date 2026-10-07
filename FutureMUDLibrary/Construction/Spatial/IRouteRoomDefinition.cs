@@ -7,7 +7,7 @@ using MudSharp.Framework;
 namespace MudSharp.Construction;
 
 /// <summary>
-/// The authored one-dimensional spatial definition attached to a linear route cell.
+/// The authored one-dimensional spatial definition attached to a linear route room.
 /// Coordinates are expressed in metres from the negative endpoint and are inclusive in
 /// the range zero through <see cref="LengthMetres"/>.
 /// </summary>
@@ -25,7 +25,7 @@ public interface IRouteRoomDefinition
 }
 
 /// <summary>
-/// A named point used for navigation and local presentation within a route cell.
+/// A named point used for navigation and local presentation within a route room.
 /// </summary>
 public interface IRouteRoomLandmark : IFrameworkItem, IKeyworded
 {

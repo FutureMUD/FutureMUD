@@ -32,7 +32,7 @@ The multi-zone form takes the package name first, followed by one or more quoted
 On the target installation:
 
 ```text
-cell package new "Harbour Import"
+room package new "Harbour Import"
 spatialpackage validate harbour-ward "Prime Material" "Imported Harbour Ward"
 spatialpackage import harbour-ward "Prime Material" confirm "Imported Harbour Ward"
 ```
@@ -41,7 +41,11 @@ The target overlay package must be `Under Design`. The target shard must already
 
 `validate` is read-only. `import` repeats the complete preflight and also requires the literal `confirm` keyword. All selected zones and their cross-zone links use one serializable transaction, with every zone name rechecked inside the transaction.
 
-## Current version 4 payload
+## Current version 5 payload
+
+Version 5 stores `Rooms` with direct `ZoneKey` and integer `X/Y/Z`, and Areas use `RoomKeys`. Source Room IDs are the former Cell IDs; imports allocate new IDs and leave optional global unique names unset. There is no live containing Room section. Frozen versions 1–4 retain their original field names and checksums.
+
+## Historical version 4 payload
 
 Version 4 stores `ZoneKey` and integer `X/Y/Z` directly on each cell; Areas use `CellKeys`. There is no `Rooms` section, `RoomKey`, or singular `Zone` section. Source Cell IDs remain diagnostic and imports allocate fresh numeric IDs. Global cell unique names are deliberately not transferred, so imported copies cannot collide with installation-wide keys.
 

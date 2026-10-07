@@ -25,7 +25,7 @@ public partial class Room
 	{
 		ArgumentNullException.ThrowIfNull(zone);
 		if (ReferenceEquals(zone, OwningZone)) return;
-		if (_isCombatSimulationRoom) throw new InvalidOperationException("A simulation cell's stored ownership cannot be rezoned.");
+		if (_isCombatSimulationRoom) throw new InvalidOperationException("A simulation room's stored ownership cannot be rezoned.");
 		using var exposureChange = EnvironmentalExposureService.ChangingDefinitions(Gameworld);
 		var oldParents = new[] { OwningZone as Location, OwningZone.Shard as Location }
 			.OfType<Location>().Distinct().ToArray();
@@ -37,7 +37,7 @@ public partial class Room
 		foreach (var parent in oldParents.Concat(newParents).OfType<IZone>().Distinct())
 			parent.Changed = true;
 
-		// Ownership changes are callback-free. Preserve membership belonging to other cells,
+		// Ownership changes are callback-free. Preserve membership belonging to other rooms,
 		// including a canonical destination within the same shard.
 		foreach (var parent in oldParents)
 		{

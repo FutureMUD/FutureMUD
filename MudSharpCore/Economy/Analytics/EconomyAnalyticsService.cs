@@ -735,7 +735,7 @@ public sealed partial class EconomyAnalyticsService : IEconomyAnalyticsService
 				ResolveEconomicZone(claim.Type, claim.Id), $"{claim.Type.ToLowerInvariant()} custody");
 		}
 
-		return (null, null, EconomicControlBucket.Unclaimed, ResolveRoomZone(cellId), "unclaimed cell cash");
+		return (null, null, EconomicControlBucket.Unclaimed, ResolveRoomZone(cellId), "unclaimed room cash");
 	}
 
 	private long? ResolveEconomicZone(string ownerType, long ownerId)

@@ -51,7 +51,7 @@ public sealed class MonsterActivityWindow
 	public string? InactiveReason(ICharacter actor)
 	{
 		if (ConfigurationError(actor.Gameworld) is { } error) return error;
-		if (actor.Location is null) return "no current cell";
+		if (actor.Location is null) return "no current room";
 		if (Times.Count > 0 && !Times.Contains(actor.Location.CurrentTimeOfDay)) return "outside the active time bands";
 		if (Seasons.Count > 0 && !Seasons.Contains(actor.Location.CurrentSeason(actor)?.SeasonGroup ?? ""))
 			return "outside the active season groups";

@@ -298,7 +298,7 @@ public class InternalMagazineGunGameItemComponent : FirearmBaseGameItemComponent
         var loadResult = results.FirstOrDefault(x => x.OriginalReference is string reference && reference == "loaditem");
         IAmmo ammo = loadResult?.PrimaryTarget?.GetItemType<IAmmo>();
         // Feasibility/scouting does not guarantee that the plan acquired its target.
-        // Taking a still-floor item clears its location without extracting cell membership.
+        // Taking a still-floor item clears its location without extracting room membership.
         if (loadResult?.ActionState != DesiredItemState.Held || ammo is null ||
             !loader.Body.HeldItems.Contains(ammo.Parent) ||
             !ReferenceEquals(ammo.Parent.GetItemType<IHoldable>()?.HeldBy, loader.Body) ||

@@ -4552,7 +4552,7 @@ The syntax is:
 
 	private const string InstallHelpText = @"The #3install#0 command is used to put compatible loose items into their working location. It can install a door into an exit, a loose lock into a lockable item or door, or a vehicle module into a compatible vehicle installation point. You must usually be holding the thing being installed, and ordinary characters take time to complete the work.
 
-Doors are installed into exits, which may be cardinal directions like #3north#0 or non-cardinal exit keywords like #3cell1#0. The exit must accept doors, must not already have one, and must be sized for the door. If you specify #3inwards#0 or #3outwards#0, that is from your current side of the exit.
+Doors are installed into exits, which may be cardinal directions like #3north#0 or non-cardinal exit keywords like #3room1#0. The exit must accept doors, must not already have one, and must be sized for the door. If you specify #3inwards#0 or #3outwards#0, that is from your current side of the exit.
 
 Locks must be loose installable lock items and must be unlocked before installation. Vehicle modules use the vehicle's own installation points and access checks. Any delayed installation can be interrupted if you move, lose the item, or the target stops being present.
 
@@ -4964,7 +4964,7 @@ The syntax is as follows:
 
 	private const string UninstallHelpText = @"The #3uninstall#0 command is used to remove installed things from their working location. It can remove a door from an exit, a lock from a lockable item or door, or a vehicle module from a vehicle installation point. Ordinary characters take time to complete most removals, while administrators complete them immediately.
 
-Doors are addressed either by the door item or by the exit keyword shown in LOOK, including non-cardinal exits like #3cell1#0. Removing a door may require the door to be player-removable, may be easier or harder from the hinge side, and may require a successful check with the appropriate trait.
+Doors are addressed either by the door item or by the exit keyword shown in LOOK, including non-cardinal exits like #3room1#0. Removing a door may require the door to be player-removable, may be easier or harder from the hinge side, and may require a successful check with the appropriate trait.
 
 Locks must usually be unlocked first, and if the locked object can open it must be open before you remove its lock. Removed locks go to your hands if possible or are set down; removed doors are placed in the room. Delayed removals can be interrupted if the target disappears, closes, locks, or otherwise changes while you work.
 

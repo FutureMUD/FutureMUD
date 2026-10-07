@@ -19,7 +19,7 @@ internal sealed record SpatialReachablePerceivable(
 
 /// <summary>
 /// Discovers perceivables within a bounded room-equivalent cost without flattening a
-/// RouteCell into one ordinary room. RouteCell occupants are obtained from the ordered
+/// RouteRoom into one ordinary room. RouteRoom occupants are obtained from the ordered
 /// spatial index; topology traversal is limited to authored exit anchors and ordinary exits.
 /// Every discovered candidate is finally checked by the hybrid pathfinder.
 /// </summary>

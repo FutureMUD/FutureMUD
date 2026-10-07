@@ -10,7 +10,7 @@ namespace MudSharp.Construction;
 
 /// <summary>
 /// Maintains locality indexes for the comparatively small set of perceivables that have opted in to proximity
-/// change events. Moving ordinary characters therefore queries listeners, not every object in their cell.
+/// change events. Moving ordinary characters therefore queries listeners, not every object in their room.
 /// </summary>
 public sealed class ProximityEventService : IProximityEventService
 {

@@ -4,50 +4,50 @@ namespace MudSharp.Effects.Concrete;
 
 public class Territory : Effect, IEffectSubtype
 {
-    private readonly List<(IRoom Room, HashSet<string> Flags)> _cells = new();
-    public IEnumerable<IRoom> Rooms => _cells.Select(x => x.Room);
+    private readonly List<(IRoom Room, HashSet<string> Flags)> _rooms = new();
+    public IEnumerable<IRoom> Rooms => _rooms.Select(x => x.Room);
 
     public void AddRoom(IRoom room)
     {
-        if (!_cells.Any(x => x.Room == room))
+        if (!_rooms.Any(x => x.Room == room))
         {
-            _cells.Add((room, new HashSet<string>()));
+            _rooms.Add((room, new HashSet<string>()));
             Changed = true;
         }
     }
 
     public void RemoveRoom(IRoom room)
     {
-        _cells.RemoveAll(x => x.Room == room);
+        _rooms.RemoveAll(x => x.Room == room);
         Changed = true;
     }
 
     public void TagRoom(IRoom room, string tag)
     {
-        if (!_cells.Any(x => x.Room == room))
+        if (!_rooms.Any(x => x.Room == room))
         {
             return;
         }
 
-        _cells.First(x => x.Room == room).Flags.Add(tag.ToLowerInvariant());
+        _rooms.First(x => x.Room == room).Flags.Add(tag.ToLowerInvariant());
         Changed = true;
     }
 
     public void UntagRoom(IRoom room, string tag)
     {
-        if (!_cells.Any(x => x.Room == room))
+        if (!_rooms.Any(x => x.Room == room))
         {
             return;
         }
 
-        _cells.First(x => x.Room == room).Flags.Remove(tag.ToLowerInvariant());
+        _rooms.First(x => x.Room == room).Flags.Remove(tag.ToLowerInvariant());
         Changed = true;
     }
 
     public bool HasFlag(IRoom room, string flag)
     {
         flag = flag.ToLowerInvariant();
-        return _cells.Any(x => x.Room == room && x.Flags.Contains(flag));
+        return _rooms.Any(x => x.Room == room && x.Flags.Contains(flag));
     }
 
     #region Static Initialisation
@@ -78,7 +78,7 @@ public class Territory : Effect, IEffectSubtype
     {
         return
             new XElement("Effect",
-                from room in _cells
+                from room in _rooms
                 select new XElement("Cell", new XAttribute("id", room.Room.Id),
                     from flag in room.Flags
                     select new XElement("Flag", new XCData(flag)))
@@ -112,7 +112,7 @@ public class Territory : Effect, IEffectSubtype
 
     public override string Describe(IPerceiver voyeur)
     {
-        return $"Has territory [{_cells.Select(x => x.Room.Id.ToString("F0")).ListToCommaSeparatedValues(" ")}]";
+        return $"Has territory [{_rooms.Select(x => x.Room.Id.ToString("F0")).ListToCommaSeparatedValues(" ")}]";
     }
 
     public override bool SavingEffect => true;

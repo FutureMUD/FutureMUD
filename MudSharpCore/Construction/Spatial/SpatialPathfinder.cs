@@ -10,8 +10,8 @@ using MudSharp.Framework;
 namespace MudSharp.Construction;
 
 /// <summary>
-/// Dijkstra pathfinder over a hybrid graph of ordinary cells and exact one-dimensional
-/// RouteCell waypoints. Route topology snapshots are retained until their authored topology
+/// Dijkstra pathfinder over a hybrid graph of ordinary rooms and exact one-dimensional
+/// RouteRoom waypoints. Route topology snapshots are retained until their authored topology
 /// version changes or they are explicitly invalidated.
 /// </summary>
 public sealed class SpatialPathfinder : ISpatialPathfinder
@@ -218,7 +218,7 @@ public sealed class SpatialPathfinder : ISpatialPathfinder
 		Func<IRoomExit, bool> suitabilityFunction,
 		bool ignoreLayers)
 	{
-		// A null perceiver does not give Cell.ExitsFor a layer to filter against. Enumerate the
+		// A null perceiver does not give Room.ExitsFor a layer to filter against. Enumerate the
 		// topology here and apply the source-layer contract explicitly below.
 		var exits = origin.Room.ExitsFor(null, true) ?? Array.Empty<IRoomExit>();
 		foreach (var exit in exits)

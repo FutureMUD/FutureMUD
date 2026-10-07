@@ -115,7 +115,7 @@ public class SaveManager : ISaveManager
 
             if (thing is IRoom room)
             {
-                return $"Cell {room.Id} - {room.Name}";
+                return $"Room {room.Id} - {room.Name}";
             }
 
             if (thing is IGameItemComponent component)

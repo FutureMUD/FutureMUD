@@ -2,7 +2,7 @@ namespace MudSharp.GameItems.Interfaces;
 
 /// <summary>
 /// Identifies an item component whose parent is a logical projection of another item rather than an
-/// independently placed world object. The parent inherits its effective cell, layer and RouteCell
+/// independently placed world object. The parent inherits its effective room, layer and RouteRoom
 /// coordinate from the spatial host.
 /// </summary>
 public interface IProvideItemSpatialHost : IGameItemComponent

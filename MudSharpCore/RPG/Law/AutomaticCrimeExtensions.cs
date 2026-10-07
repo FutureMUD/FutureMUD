@@ -303,7 +303,7 @@ public static class AutomaticCrimeExtensions
 	private static string PrivatePropertyTrespassContext(PrivatePropertyAccessResult access, IRoom destination)
 	{
 		var controller = access.Controller;
-		return $"automatic=private-property-entry; controller=#{controller?.Id ?? 0}; controllertype={ContextValue(controller?.FrameworkItemType ?? "missing")}; controllername={ContextValue(controller?.Name ?? "missing")}; cell=#{destination.Id}; denial={ContextValue(access.Explanation)}";
+		return $"automatic=private-property-entry; controller=#{controller?.Id ?? 0}; controllertype={ContextValue(controller?.FrameworkItemType ?? "missing")}; controllername={ContextValue(controller?.Name ?? "missing")}; room=#{destination.Id}; denial={ContextValue(access.Explanation)}";
 	}
 
 	private static bool IsAuthorisedForProperty(ICharacter actor, IProperty property, IRoom destination)
@@ -317,7 +317,7 @@ public static class AutomaticCrimeExtensions
 
 	private static string TrespassContext(IProperty property, IRoom destination)
 	{
-		return $"automatic=property-entry; property=#{property.Id}; propertyname={ContextValue(property.Name)}; cell=#{destination.Id}";
+		return $"automatic=property-entry; property=#{property.Id}; propertyname={ContextValue(property.Name)}; room=#{destination.Id}";
 	}
 
 	private static bool WouldTrafficContraband(IFuturemud gameworld, ICharacter actor, IRoomExit exit, out string context)

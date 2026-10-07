@@ -88,7 +88,7 @@ public class EnvironmentalMagicLifecycleTests
 	{
 		var world = TestObjectFactory.CreateUninitialized<Futuremud>();
 		typeof(Futuremud).GetProperty(nameof(Futuremud.EnvironmentalMagic))!.SetValue(world, service);
-		SetField(world, "_cells", new All<IRoom>());
+		SetField(world, "_rooms", new All<IRoom>());
 		SetField(world, "_listeners", new All<ITemporalListener>());
 		SetField(world, "_agricultureFields", new All<IAgricultureField>());
 		SetField(world, "_magicResources", new All<IMagicResource>());

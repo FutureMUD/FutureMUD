@@ -14,7 +14,7 @@ public sealed partial class SpellOwnedCreation
 	private Models.CharacterInstance? _borrowedCorpseInstance;
 	private readonly Dictionary<object, (EntityState State, Dictionary<string, object?> Values)> _borrowedChanges = new(ReferenceEqualityComparer.Instance);
 
-	/// <summary>Only this adapter may suspend a dead body holder and remove the exact source cell link.</summary>
+	/// <summary>Only this adapter may suspend a dead body holder and remove the exact source room link.</summary>
 	internal void ClaimBorrowedCorpseAnimation(Models.CharacterInstance instance, long corpseId, long cellId)
 	{
 		if (_borrowedCorpseInstance is not null || instance.IsPrimary ||
@@ -54,7 +54,7 @@ public sealed partial class SpellOwnedCreation
 			context.BodiesGameItems.Any(x => x.GameItemId == corpseId) ||
 			context.RoomsGameItems.Count(x => x.GameItemId == corpseId) != 1 ||
 			!context.RoomsGameItems.Any(x => x.GameItemId == corpseId && x.RoomId == cellId))
-			return "The saved corpse must be directly in its current cell, outside a route or inventory.";
+			return "The saved corpse must be directly in its current room, outside a route or inventory.";
 		if (!context.Characters.Any(x => x.Id == ownerId && !x.IsArchived) || !context.Bodies.Any(x => x.Id == bodyId) ||
 			!context.GameItemComponents.AsNoTracking().Where(x => x.GameItemId == corpseId).Select(x => x.Definition)
 				.AsEnumerable().Any(x => IsExactCorpseDefinition(x, ownerId, bodyId)))

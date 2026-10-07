@@ -361,7 +361,7 @@ public class CharacterInstanceIdentityComparerTests
 		StringAssert.Contains(text, "instance #200");
 		StringAssert.Contains(text, "body #30");
 		StringAssert.Contains(text, "Physical Clone");
-		StringAssert.Contains(text, "cell #40");
+		StringAssert.Contains(text, "room #40");
 	}
 
 	private static Mock<ICharacter> CreateCharacter(long characterId, long identityId, long instanceId,

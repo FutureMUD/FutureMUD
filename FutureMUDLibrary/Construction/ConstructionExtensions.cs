@@ -51,7 +51,7 @@ namespace MudSharp.Construction
 
         /// <summary>
         /// Distant is for things that are in the same location, but not in any other way close to each other.
-        /// The usual MUD example is any two items in the same cell that do not otherwise have a relationship
+        /// The usual MUD example is any two items in the same room that do not otherwise have a relationship
         /// </summary>
         Distant,
 

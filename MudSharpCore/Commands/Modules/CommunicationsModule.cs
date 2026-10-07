@@ -1582,7 +1582,7 @@ The syntax is:
 
 	[PlayerCommand("OOC", "ooc")]
 	[HelpInfo("ooc",
-		@"This command is used to communicate in an out of character manner with players nearby in your current location. In a RouteCell, it reaches only the local audible area rather than the entire route. Any usage of this command is considered to be you, the player, communicating with other people and not your character. This command should be reserved for helping new players and urgent clarifications of mistakes only. Overuse of this command is very poor form.
+		@"This command is used to communicate in an out of character manner with players nearby in your current location. In a RouteRoom, it reaches only the local audible area rather than the entire route. Any usage of this command is considered to be you, the player, communicating with other people and not your character. This command should be reserved for helping new players and urgent clarifications of mistakes only. Overuse of this command is very poor form.
 
 The syntax is simply #3OOC <your message>#0 to send a message to everyone nearby.", AutoHelp.HelpArg)]
     protected static void OOC(ICharacter actor, string input)

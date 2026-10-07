@@ -88,7 +88,7 @@ public partial class AIStoryteller
                     ["OwnerType"] = new Dictionary<string, object>
                     {
                         ["type"] = "string",
-                        ["description"] = "Optional owner type (character, item, cell, zone, shard)."
+                        ["description"] = "Optional owner type (character, item, room, zone, shard)."
                     },
                     ["OwnerId"] = new Dictionary<string, object>
                     {

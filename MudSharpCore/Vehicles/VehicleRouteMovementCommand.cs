@@ -74,7 +74,7 @@ internal static class VehicleRouteMovementCommand
 			: RouteSpatialService.Instance.GetEffectiveLocation(vehicle.ExteriorItem);
 		if (routeDefinition is null || !origin.RoutePositionMetres.HasValue)
 		{
-			actor.OutputHandler.Send("That vehicle can only drive longitudinally while positioned in a RouteCell.");
+			actor.OutputHandler.Send("That vehicle can only drive longitudinally while positioned in a RouteRoom.");
 			return VehicleMovementCommandResult.Failed;
 		}
 
@@ -120,7 +120,7 @@ internal static class VehicleRouteMovementCommand
 						command.SafeRemainingArgument, out destination, out targetMinimum,
 						out targetMaximum, out selectedExitId))
 				{
-					actor.OutputHandler.Send("Specify a RouteCell coordinate, landmark, visible exit, or route stop.");
+					actor.OutputHandler.Send("Specify a RouteRoom coordinate, landmark, visible exit, or route stop.");
 					return VehicleMovementCommandResult.Failed;
 				}
 				break;

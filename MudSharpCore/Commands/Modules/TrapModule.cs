@@ -399,7 +399,7 @@ internal class TrapModule : Module<ICharacter>
 
 		if (!TrapEffect.IsValidAnchor(template, anchor))
 		{
-			actor.Send("Proximity traps require an item, character, or other real spatial anchor. Use a cell-entry trigger for a here trap.");
+			actor.Send("Proximity traps require an item, character, or other real spatial anchor. Use a room-entry trigger for a here trap.");
 			return;
 		}
 

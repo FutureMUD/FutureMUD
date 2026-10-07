@@ -12,7 +12,7 @@ namespace MudSharp.Commands.Modules;
 
 internal partial class MovementModule
 {
-	private const string RouteTravelHelp = @"The travel command moves continuously along a linear RouteCell.
+	private const string RouteTravelHelp = @"The travel command moves continuously along a linear RouteRoom.
 
 	travel forward|backward - travel to that endpoint
 	travel forward|backward <distance> - travel that far in the named direction
@@ -36,7 +36,7 @@ Passing an exit does not use it. Travelling to an exit stops at the nearest poin
 		var origin = RouteSpatialService.Instance.GetEffectiveLocation(actor);
 		if (route is null || !origin.RoutePositionMetres.HasValue)
 		{
-			actor.OutputHandler.Send("You can only use travel while you are in a linear RouteCell.");
+			actor.OutputHandler.Send("You can only use travel while you are in a linear RouteRoom.");
 			return;
 		}
 

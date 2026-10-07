@@ -20,12 +20,12 @@ public abstract partial class CombatBase
 		private readonly long _instance = actor.CombatInstanceIdentity;
 		private readonly CharacterState _state = actor.State;
 		private readonly bool _embodied = actor.IsEmbodied;
-		private readonly object _cell = actor.Location;
+		private readonly object _room = actor.Location;
 		internal ICombat? Combat = actor.Combat;
 		internal IPerceiver? Target = actor.CombatTarget;
 		internal long Version = actor.CombatMutationVersion;
 		internal bool IsCurrent => ReferenceEquals(Actor.Body, _body) && ReferenceEquals(_body.Actor, _focus) &&
-			Actor.CombatInstanceIdentity == _instance && Actor.IsEmbodied == _embodied && Actor.State == _state && ReferenceEquals(Actor.Location, _cell) &&
+			Actor.CombatInstanceIdentity == _instance && Actor.IsEmbodied == _embodied && Actor.State == _state && ReferenceEquals(Actor.Location, _room) &&
 			ReferenceEquals(Actor.Combat, Combat) && ReferenceEquals(Actor.CombatTarget, Target) &&
 			Actor.CombatMutationVersion == Version;
 	}

@@ -5,7 +5,7 @@ using MudSharp.Construction;
 namespace MudSharp.Combat.Moves;
 
 /// <summary>
-/// Physical RouteCell movement rules shared by combat strategies and moves. Melee flags are
+/// Physical RouteRoom movement rules shared by combat strategies and moves. Melee flags are
 /// never allowed to substitute for longitudinal convergence or separation.
 /// </summary>
 public static class RouteCombatMovementUtilities

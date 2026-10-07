@@ -305,7 +305,7 @@ public sealed class WildlifeGroupAIType : GroupAIType, IGroupAIControlPolicy, IE
 				return SetActivity(actor, command);
 		}
 
-		actor.OutputHandler.Send("You can set #3kind <kind>#0, #3tactic <tactic>#0, #3scope <scopes>#0, #3preferred <prog>#0, #3shelter <prog>#0, #3range <cells>#0, #3wander <percent>#0 or #3activity <pattern>#0.".SubstituteANSIColour());
+		actor.OutputHandler.Send("You can set #3kind <kind>#0, #3tactic <tactic>#0, #3scope <scopes>#0, #3preferred <prog>#0, #3shelter <prog>#0, #3range <rooms>#0, #3wander <percent>#0 or #3activity <pattern>#0.".SubstituteANSIColour());
 		return false;
 	}
 
@@ -625,7 +625,7 @@ public sealed class WildlifeGroupAIType : GroupAIType, IGroupAIControlPolicy, IE
 
 	/// <summary>
 	/// Lets a group that owns Feeding consume the same live forage yields as an individual
-	/// AnimalAI. Each successful bite depletes the cell normally; when a hungry or thirsty member
+	/// AnimalAI. Each successful bite depletes the room normally; when a hungry or thirsty member
 	/// can no longer feed locally, the leader moves the group to a reachable preferred patch.
 	/// </summary>
 	private bool CoordinateForaging(IGroupAI group, IEnumerable<ICharacter> members, ICharacter leader,
@@ -762,7 +762,7 @@ public sealed class WildlifeGroupAIType : GroupAIType, IGroupAIControlPolicy, IE
 	{
 		if (command.IsFinished)
 		{
-			actor.OutputHandler.Send($"Which prog should identify {label} cells?");
+			actor.OutputHandler.Send($"Which prog should identify {label} rooms?");
 			return false;
 		}
 
@@ -792,7 +792,7 @@ public sealed class WildlifeGroupAIType : GroupAIType, IGroupAIControlPolicy, IE
 		}
 
 		MovementRange = range;
-		actor.OutputHandler.Send($"This wildlife group will now use a {range.ToString("N0", actor).ColourValue()} cell movement range.");
+		actor.OutputHandler.Send($"This wildlife group will now use a {range.ToString("N0", actor).ColourValue()} room movement range.");
 		return true;
 	}
 
@@ -874,7 +874,7 @@ public sealed class WildlifeGroupAIType : GroupAIType, IGroupAIControlPolicy, IE
 		{
 			return base.ShowText(voyeur) +
 			       $"Home / Roost: {HomeRoom?.GetFriendlyReference(voyeur).ColourName() ?? "None".ColourError()}\n" +
-			       $"Last Forage Cell: {_lastForageRoomId.ToString("N0", voyeur).ColourValue()}\n";
+			       $"Last Forage Room: {_lastForageRoomId.ToString("N0", voyeur).ColourValue()}\n";
 		}
 	}
 }

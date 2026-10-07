@@ -152,11 +152,11 @@ The following clan sub-commands are used to interact with clans:
 	#3clan payinterval <clan> ""<every x days|weeks|months|years>"" [<date time>]#0 - sets the pay interval and the reference date time
 	#3clan view <clan>#0 - views information about a clan
 	#3clan members <clan>#0 - views the member list for a clan
-	#3clan treasury <clan> [toggle]#0 - sets your current location as a treasury cell for a clan (ADMIN ONLY)
+	#3clan treasury <clan> [toggle]#0 - sets your current location as a treasury room for a clan (ADMIN ONLY)
 	#3clan treasury <clan> balance|ledger [count]#0 - reviews the clan's virtual treasury
 	#3clan treasury <clan> deposit|withdraw <amount>#0 - moves cash into or out of the clan's virtual treasury
-	#3clan admin <clan>#0 - sets your current location as an admin cell for a clan (ADMIN ONLY)
-	#3clan hall <clan>#0 - sets your current location as a clan hall cell for a clan (ADMIN ONLY)
+	#3clan admin <clan>#0 - sets your current location as an admin room for a clan (ADMIN ONLY)
+	#3clan hall <clan>#0 - sets your current location as a clan hall room for a clan (ADMIN ONLY)
 	#3clan vassal appoint <who> <clan> <position> [<liege clan>]#0 - appoints a person to a clan appointment in a vassal clan
 	#3clan vassal dismiss <who> <clan> <position> [<liege clan>]#0 - dismisses a person from a clan appointment in a vassal clan
 	#3clan vassal control <clan> <position> <liege appointment|none> [<liege clan>]#0 - sets which liege appointment controls a vassal appointment
@@ -1898,7 +1898,7 @@ The syntax is:
 
         if (!memberships.Any() || memberships.All(x => x.BackPayDiciontary.Sum(y => y.Value) <= 0))
         {
-            // Not in any clan's administrative cells, just show what paydays they have
+            // Not in any clan's administrative rooms, just show what paydays they have
             if (!actor.ClanMemberships.Any())
             {
                 actor.Send("You are not in any clans.");
@@ -3003,13 +3003,13 @@ Your next payday is {3}.
                 $"Discord Channel: {clan.DiscordChannelId?.ToString("F0", actor).ColourValue() ?? "None".ColourError()}");
             sb.AppendLine();
             sb.AppendLine(
-                $"Treasury Cells:\n{clan.TreasuryRooms.Select(x => x.GetFriendlyReference(actor)).DefaultIfEmpty("None").ListToLines(true)}");
+                $"Treasury Rooms:\n{clan.TreasuryRooms.Select(x => x.GetFriendlyReference(actor)).DefaultIfEmpty("None").ListToLines(true)}");
             sb.AppendLine();
             sb.AppendLine(
-                $"Administration Cells:\n{clan.AdministrationRooms.Select(x => x.GetFriendlyReference(actor)).DefaultIfEmpty("None").ListToLines(true)}");
+                $"Administration Rooms:\n{clan.AdministrationRooms.Select(x => x.GetFriendlyReference(actor)).DefaultIfEmpty("None").ListToLines(true)}");
             sb.AppendLine();
             sb.AppendLine(
-                $"Clan Hall Cells:\n{clan.ClanHallRooms.Select(x => x.GetFriendlyReference(actor)).DefaultIfEmpty("None").ListToLines(true)}");
+                $"Clan Hall Rooms:\n{clan.ClanHallRooms.Select(x => x.GetFriendlyReference(actor)).DefaultIfEmpty("None").ListToLines(true)}");
             sb.AppendLine();
         }
 
@@ -7380,6 +7380,7 @@ return 0",
                     ClanTreasuryLedger(actor, clan, command);
                     return;
                 case "toggle":
+                case "room":
                 case "cell":
                     break;
                 default:
@@ -7394,13 +7395,13 @@ return 0",
             clan.RemoveTreasuryRoom(actor.Location);
             clan.Changed = true;
             actor.Send(
-                $"Your current location is no longer a treasury cell for the {clan.FullName.Colour(Telnet.Green)} clan.");
+                $"Your current location is no longer a treasury room for the {clan.FullName.Colour(Telnet.Green)} clan.");
             return;
         }
 
         clan.AddTreasuryRoom(actor.Location);
         clan.Changed = true;
-        actor.Send($"Your current location is now a treasury cell for the {clan.FullName.Colour(Telnet.Green)} clan.");
+        actor.Send($"Your current location is now a treasury room for the {clan.FullName.Colour(Telnet.Green)} clan.");
     }
 
     private static bool CanViewClanTreasury(ICharacter actor, IClan clan)
@@ -7587,7 +7588,7 @@ return 0",
     {
         if (command.IsFinished)
         {
-            actor.OutputHandler.Send("For which clan do you want to toggle an administration cell?");
+            actor.OutputHandler.Send("For which clan do you want to toggle an administration room?");
             return;
         }
 
@@ -7603,21 +7604,21 @@ return 0",
             clan.RemoveAdministrationRoom(actor.Location);
             clan.Changed = true;
             actor.Send(
-                $"Your current location is no longer an administration cell for the {clan.FullName.Colour(Telnet.Green)} clan.");
+                $"Your current location is no longer an administration room for the {clan.FullName.Colour(Telnet.Green)} clan.");
             return;
         }
 
         clan.AddAdministrationRoom(actor.Location);
         clan.Changed = true;
         actor.Send(
-            $"Your current location is now a administration cell for the {clan.FullName.Colour(Telnet.Green)} clan.");
+            $"Your current location is now a administration room for the {clan.FullName.Colour(Telnet.Green)} clan.");
     }
 
     private static void ClanHall(ICharacter actor, StringStack command)
     {
         if (command.IsFinished)
         {
-            actor.OutputHandler.Send("For which clan do you want to toggle a clan hall cell?");
+            actor.OutputHandler.Send("For which clan do you want to toggle a clan hall room?");
             return;
         }
 
@@ -7633,14 +7634,14 @@ return 0",
             clan.RemoveClanHallRoom(actor.Location);
             clan.Changed = true;
             actor.Send(
-                $"Your current location is no longer a clan hall cell for the {clan.FullName.Colour(Telnet.Green)} clan.");
+                $"Your current location is no longer a clan hall room for the {clan.FullName.Colour(Telnet.Green)} clan.");
             return;
         }
 
         clan.AddClanHallRoom(actor.Location);
         clan.Changed = true;
         actor.Send(
-            $"Your current location is now a clan hall cell for the {clan.FullName.Colour(Telnet.Green)} clan.");
+            $"Your current location is now a clan hall room for the {clan.FullName.Colour(Telnet.Green)} clan.");
     }
 
     private static void ClanMaxBackpay(ICharacter actor, StringStack command)

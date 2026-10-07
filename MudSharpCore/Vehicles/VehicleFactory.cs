@@ -148,7 +148,7 @@ public static class VehicleFactory
 		exterior.GetItemType<IVehicleExterior>()?.LinkVehicle(vehicle);
 		vehicle.SynchroniseExteriorItemToLocation();
 		// The canonical vehicle and exterior are already durable at this point. Persist their
-		// mutual link before creating hosted cells so an interrupted RoomScale factory run
+		// mutual link before creating hosted rooms so an interrupted RoomScale factory run
 		// always leaves an inspectable, recoverable projection.
 		prototype.Gameworld.SaveManager.Flush();
 		if (vehicle is Vehicle concrete && !concrete.EnsureRoomScaleInteriors(out var interiorReason))

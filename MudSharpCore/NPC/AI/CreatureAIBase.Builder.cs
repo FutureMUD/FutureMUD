@@ -110,7 +110,7 @@ public abstract partial class CreatureAIBase : PathingAIBase
 
 		MovementRange = value;
 		Changed = true;
-		actor.OutputHandler.Send($"This creature AI will now search up to {value.ToString("N0", actor).ColourValue()} cells for movement targets.");
+		actor.OutputHandler.Send($"This creature AI will now search up to {value.ToString("N0", actor).ColourValue()} rooms for movement targets.");
 		return true;
 	}
 
@@ -167,7 +167,7 @@ public abstract partial class CreatureAIBase : PathingAIBase
 	{
 		if (command.IsFinished)
 		{
-			actor.OutputHandler.Send($"Which prog should evaluate amphibious {label} cells?");
+			actor.OutputHandler.Send($"Which prog should evaluate amphibious {label} rooms?");
 			return false;
 		}
 
@@ -186,7 +186,7 @@ public abstract partial class CreatureAIBase : PathingAIBase
 
 		setter(prog);
 		Changed = true;
-		actor.OutputHandler.Send($"This creature AI will now use {prog.MXPClickableFunctionName()} for amphibious {label} cells.");
+		actor.OutputHandler.Send($"This creature AI will now use {prog.MXPClickableFunctionName()} for amphibious {label} rooms.");
 		return true;
 	}
 
@@ -194,7 +194,7 @@ public abstract partial class CreatureAIBase : PathingAIBase
 	{
 		if (command.IsFinished)
 		{
-			actor.OutputHandler.Send("Which prog should evaluate ambient movement target cells?");
+			actor.OutputHandler.Send("Which prog should evaluate ambient movement target rooms?");
 			return false;
 		}
 
@@ -363,7 +363,7 @@ public abstract partial class CreatureAIBase : PathingAIBase
 	{
 		if (command.IsFinished)
 		{
-			actor.OutputHandler.Send("Which prog should decide suitable territory cells?");
+			actor.OutputHandler.Send("Which prog should decide suitable territory rooms?");
 			return false;
 		}
 
@@ -457,7 +457,7 @@ public abstract partial class CreatureAIBase : PathingAIBase
 	{
 		if (command.IsFinished)
 		{
-			actor.OutputHandler.Send("Which prog should decide whether a cell is suitable for a burrow?");
+			actor.OutputHandler.Send("Which prog should decide whether a room is suitable for a burrow?");
 			return false;
 		}
 
@@ -623,6 +623,8 @@ public abstract partial class CreatureAIBase : PathingAIBase
 				return BuildingCommandAwarenessThreatProg(actor, command);
 			case "avoid":
 			case "avoidprog":
+			case "room":
+			case "roomprog":
 			case "cell":
 			case "cellprog":
 				return BuildingCommandAwarenessAvoidProg(actor, command);
@@ -674,7 +676,7 @@ public abstract partial class CreatureAIBase : PathingAIBase
 	{
 		if (command.IsFinished)
 		{
-			actor.OutputHandler.Send("Which prog should identify cells this animal avoids?");
+			actor.OutputHandler.Send("Which prog should identify rooms this animal avoids?");
 			return false;
 		}
 
@@ -693,7 +695,7 @@ public abstract partial class CreatureAIBase : PathingAIBase
 
 		AwarenessAvoidRoomProg = prog;
 		Changed = true;
-		actor.OutputHandler.Send($"This creature AI will now use {prog.MXPClickableFunctionName()} to avoid cells.");
+		actor.OutputHandler.Send($"This creature AI will now use {prog.MXPClickableFunctionName()} to avoid rooms.");
 		return true;
 	}
 
@@ -748,6 +750,8 @@ public abstract partial class CreatureAIBase : PathingAIBase
 				return SetRefugeStrategy(actor, AnimalRefugeStrategyType.Prog);
 			case "layer":
 				return BuildingCommandLayer(actor, command, x => RefugeLayer = x, "refuge");
+			case "room":
+			case "roomprog":
 			case "cell":
 			case "cellprog":
 				return BuildingCommandRefugeRoomProg(actor, command);
@@ -787,7 +791,7 @@ public abstract partial class CreatureAIBase : PathingAIBase
 	{
 		if (command.IsFinished)
 		{
-			actor.OutputHandler.Send("Which prog should identify refuge cells?");
+			actor.OutputHandler.Send("Which prog should identify refuge rooms?");
 			return false;
 		}
 
@@ -806,7 +810,7 @@ public abstract partial class CreatureAIBase : PathingAIBase
 
 		RefugeRoomProg = prog;
 		Changed = true;
-		actor.OutputHandler.Send($"This creature AI will now use {prog.MXPClickableFunctionName()} to identify refuge cells.");
+		actor.OutputHandler.Send($"This creature AI will now use {prog.MXPClickableFunctionName()} to identify refuge rooms.");
 		return true;
 	}
 
@@ -895,7 +899,7 @@ public abstract partial class CreatureAIBase : PathingAIBase
 	{
 		if (command.IsFinished)
 		{
-			actor.OutputHandler.Send($"Which prog should identify {label} cells?");
+			actor.OutputHandler.Send($"Which prog should identify {label} rooms?");
 			return false;
 		}
 
@@ -914,7 +918,7 @@ public abstract partial class CreatureAIBase : PathingAIBase
 
 		setter(prog);
 		Changed = true;
-		actor.OutputHandler.Send($"This creature AI will now use {prog.MXPClickableFunctionName()} for {label} cells.");
+		actor.OutputHandler.Send($"This creature AI will now use {prog.MXPClickableFunctionName()} for {label} rooms.");
 		return true;
 	}
 

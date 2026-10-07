@@ -11,7 +11,7 @@ public sealed class DelayedSuggestionPower : PsychicTechniquePower
 	public static void RegisterLoader() => Register("delayedsuggestion", (m,w) => new DelayedSuggestionPower(m,w), (w,s,n,t) => new DelayedSuggestionPower(w,s,n,t));
 	private DelayedSuggestionPower(Models.MagicPower m, IFuturemud w) : base(m,w) { }
 	private DelayedSuggestionPower(IFuturemud w, IMagicSchool s, string n, ITraitDefinition t) : base(w,s,n,t) =>
-		Initialise("<target> <delay seconds|cell here|encounter person|combat> <thought text|emotion mode>.");
+		Initialise("<target> <delay seconds|room here|encounter person|combat> <thought text|emotion mode>.");
 	public override void UseCommand(ICharacter actor, string verb, StringStack command)
 	{
 		if (!TryPrepareTarget(actor, command, "Whose mind should hold a delayed suggestion?", out var target) || target is null) return;
@@ -25,8 +25,10 @@ public sealed class DelayedSuggestionPower : PsychicTechniquePower
 				{ actor.OutputHandler.Send("Specify a delay within the power's duration."); return; }
 				lifetime = TimeSpan.FromSeconds(seconds);
 				break;
+			case "room":
 			case "cell":
-				if (!command.PopSpeech().EqualTo("here")) { actor.OutputHandler.Send("Use cell here to select this location."); return; }
+				if (!command.PopSpeech().EqualTo("here")) { actor.OutputHandler.Send("Use room here to select this location."); return; }
+				trigger = "cell"; // Preserve the persisted trigger token used by existing suggestions.
 				subjectId = actor.Location.Id;
 				break;
 			case "encounter":
@@ -35,7 +37,7 @@ public sealed class DelayedSuggestionPower : PsychicTechniquePower
 				subjectId = CharacterInstanceIdentityComparer.IdentityId(subject);
 				break;
 			case "combat": break;
-			default: actor.OutputHandler.Send("Choose delay, cell, encounter, or combat."); return;
+			default: actor.OutputHandler.Send("Choose delay, room, encounter, or combat."); return;
 		}
 		var payloadMode = command.PopForSwitch();
 		var payload = command.SafeRemainingArgument.Sanitise().RawText();

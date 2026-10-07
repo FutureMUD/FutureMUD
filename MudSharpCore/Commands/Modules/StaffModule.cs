@@ -2482,7 +2482,7 @@ There are three forms for this command:
 
 		if (ss.IsFinished)
 		{
-			// PURGE LOCATION is an explicit administrative whole-cell operation, including for RouteCells.
+			// PURGE LOCATION is an explicit administrative whole-room operation, including for RouteRooms.
 			items = actor.Location.LayerGameItems(actor.RoomLayer).ToList();
             emote = new Emote("@ purge|purges the location of all items.", actor);
         }
@@ -2498,7 +2498,7 @@ There are three forms for this command:
                 }
 
 				string keyword = ss.PopSpeech();
-				// PURGE ALL is likewise deliberately cell-wide rather than actor-local.
+				// PURGE ALL is likewise deliberately room-wide rather than actor-local.
 				items = actor.Location.LayerGameItems(actor.RoomLayer).Where(x => x.HasKeyword(keyword, actor, true))
                              .ToList();
                 emote = new Emote(
@@ -2939,7 +2939,7 @@ The following options are available:
             foreach (ICharacter ch in room.Characters.Where(x => x.State == CharacterState.Dead))
             {
                 sb.AppendLine(
-                    $"Cell {room.Id:N0} ({room.CurrentOverlay.RoomName}) had dead character {ch.Id} ({ch.HowSeen(actor)})");
+                    $"Room {room.Id:N0} ({room.CurrentOverlay.RoomName}) had dead character {ch.Id} ({ch.HowSeen(actor)})");
             }
         }
 

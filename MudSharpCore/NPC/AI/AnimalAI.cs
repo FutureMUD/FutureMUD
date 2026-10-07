@@ -460,7 +460,7 @@ public partial class AnimalAI : CreatureAIBase
 		    !movement.In(AnimalMovementStrategyType.Swim, AnimalMovementStrategyType.Amphibious) &&
 		    !hasWaterRoomProg)
 		{
-			return (false, "immersion or surface water behavior requires swim, amphibious, or water-cell movement support");
+			return (false, "immersion or surface water behavior requires swim, amphibious, or water-room movement support");
 		}
 
 		if (ecologyNesting && home != AnimalHomeStrategyType.Denning && !hasNestSiteProg)
@@ -562,11 +562,11 @@ public partial class AnimalAI : CreatureAIBase
 		sb.AppendLine($"Movement Range: {MovementRange.ToString("N0", actor).ColourValue()}");
 		sb.AppendLine($"Amphibious Water Bias: {AmphibiousWaterBias.ToString("P2", actor).ColourValue()}");
 		sb.AppendLine($"Movement Enabled Prog: {MovementEnabledProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
-		sb.AppendLine($"Movement Cell Prog: {MovementRoomProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+		sb.AppendLine($"Movement Room Prog: {MovementRoomProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
 		sb.AppendLine($"Preferred Habitat Prog: {PreferredHabitatProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
 		sb.AppendLine($"Tolerated Habitat Prog: {ToleratedHabitatProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
-		sb.AppendLine($"Amphibious Land Cell Prog: {AmphibiousLandRoomProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
-		sb.AppendLine($"Amphibious Water Cell Prog: {AmphibiousWaterRoomProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+		sb.AppendLine($"Amphibious Land Room Prog: {AmphibiousLandRoomProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+		sb.AppendLine($"Amphibious Water Room Prog: {AmphibiousWaterRoomProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
 		sb.AppendLine($"Wander Chance: {WanderChancePerMinute.ToString("P2", actor).ColourValue()} per minute");
 		sb.AppendLine($"Wander Emote: {WanderEmote.ColourCommand()}");
 		sb.AppendLine($"Flying Layer: {TargetFlyingLayer.DescribeEnum().ColourValue()}");
@@ -600,14 +600,14 @@ public partial class AnimalAI : CreatureAIBase
 		sb.AppendLine();
 		sb.AppendLine($"Awareness: {AwarenessStrategy.DescribeEnum().ColourName()}");
 		sb.AppendLine($"Threat Filter Prog: {AwarenessThreatProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
-		sb.AppendLine($"Avoid Cell Prog: {AwarenessAvoidRoomProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+		sb.AppendLine($"Avoid Room Prog: {AwarenessAvoidRoomProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
 		sb.AppendLine($"Awareness Range: {AwarenessRange.ToString("N0", actor).ColourValue()} rooms");
 		sb.AppendLine($"Threat Memory: {AwarenessMemoryMinutes.ToString("N0", actor).ColourValue()} minutes");
 		sb.AppendLine($"Senses: {SensesStrategy.DescribeEnum().ColourName()}");
 		sb.AppendLine();
 		sb.AppendLine($"Refuge: {RefugeStrategy.DescribeEnum().ColourName()}");
 		sb.AppendLine($"Refuge Layer: {RefugeLayer.DescribeEnum().ColourValue()}");
-		sb.AppendLine($"Refuge Cell Prog: {RefugeRoomProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+		sb.AppendLine($"Refuge Room Prog: {RefugeRoomProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
 		sb.AppendLine($"Refuge Return Delay: {RefugeReturnSeconds.ToString("N0", actor).ColourValue()} seconds");
 		sb.AppendLine();
 		sb.AppendLine($"Activity: {ActivityStrategy.DescribeEnum().ColourName()}");
@@ -624,8 +624,8 @@ public partial class AnimalAI : CreatureAIBase
 		sb.AppendLine($"Ecology Nesting: {EcologyNestingEnabled.ToColouredString()}");
 		sb.AppendLine($"Ecology Parenting: {EcologyParentingEnabled.ToColouredString()}");
 		sb.AppendLine($"Shelter Needed Prog: {ShelterNeededProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
-		sb.AppendLine($"Shelter Cell Prog: {ShelterRoomProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
-		sb.AppendLine($"Seasonal Cell Prog: {SeasonalRoomProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+		sb.AppendLine($"Shelter Room Prog: {ShelterRoomProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+		sb.AppendLine($"Seasonal Room Prog: {SeasonalRoomProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
 		sb.AppendLine($"Seasonal Habitat Progs: {_seasonalHabitatProgs.OrderBy(x => x.Key, StringComparer.InvariantCultureIgnoreCase).Select(x => $"{x.Key.ColourName()}: {x.Value.MXPClickableFunctionName()}").ListToString()}");
 		sb.AppendLine($"Nest Site Prog: {NestSiteProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
 		sb.AppendLine($"Protect Prog: {ProtectProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
@@ -691,11 +691,11 @@ public partial class AnimalAI : CreatureAIBase
 	#3movement waterbias <0-100>#0 - sets amphibious ambient water preference
 	#3movement chance <%>#0 - sets the ambient movement chance per minute
 	#3movement enabled <prog>#0 - sets whether ambient movement is enabled
-	#3movement room <prog>#0 - sets which cells can be ambient movement targets
+	#3movement room <prog>#0 - sets which rooms can be ambient movement targets
 	#3movement preferredhabitat <prog>#0 - sets habitats preferred for ambient destinations
 	#3movement toleratedhabitat <prog>#0 - sets habitats allowed for all animal routing
-	#3movement landprog <prog>#0 - sets amphibious land cells
-	#3movement waterprog <prog>#0 - sets amphibious water cells
+	#3movement landprog <prog>#0 - sets amphibious land rooms
+	#3movement waterprog <prog>#0 - sets amphibious water rooms
 	#3movement flying <layer>#0 - sets the flying travel layer
 	#3movement resting <layer>#0 - sets the final/resting layer for flyers
 	#3movement preferred <layer>#0 - sets the preferred tree layer
@@ -703,13 +703,13 @@ public partial class AnimalAI : CreatureAIBase
 	#3movement descent <prog>#0 - sets when arboreal movement may descend
 	#3movement emote <text|clear>#0 - sets the movement emote
 	#3home none|territorial|denning#0 - sets home behavior
-	#3home territory <prog>#0 - sets suitable territory cells
+	#3home territory <prog>#0 - sets suitable territory rooms
 	#3home size <prog>#0 - sets desired territory size
 	#3home share#0 - toggles sharing territory with same-race NPCs
 	#3home shareother#0 - toggles sharing territory with other races
 	#3home shareshelter#0 - toggles same-live-group sharing of claimed wildlife shelters
 	#3home craft <craft|clear>#0 - sets the optional burrow craft
-	#3home site <prog>#0 - sets suitable burrow cells
+	#3home site <prog>#0 - sets suitable burrow rooms
 	#3home location <prog|clear>#0 - sets fallback home location
 	#3home enabled <prog>#0 - sets whether burrow building is active
 	#3home anchor <prog|clear>#0 - sets burrow anchor detection
@@ -725,13 +725,13 @@ public partial class AnimalAI : CreatureAIBase
 	#3threat duration <dice>#0 - sets posture duration in seconds
 	#3awareness none|wary|wimpy|skittish|guarding#0 - sets non-combat awareness behavior
 	#3awareness threat <prog>#0 - sets the character filter for disliked or feared targets
-	#3awareness avoid <prog>#0 - sets the cell filter for places this animal avoids
+	#3awareness avoid <prog>#0 - sets the room filter for places this animal avoids
 	#3awareness range <rooms>#0 - sets how far the animal notices threats
 	#3awareness memory <minutes>#0 - sets how long threat locations are remembered
 	#3awareness senses none|vigilant|hiding|stalking|tracking#0 - adds animal-specific senses behavior
 	#3refuge none|home|den|trees|sky|water|prog#0 - sets where the animal retreats or rests
 	#3refuge layer <layer>#0 - sets the refuge layer for trees or sky
-	#3refuge cell <prog>#0 - sets the refuge-cell selector for prog refuge
+	#3refuge room <prog>#0 - sets the refuge-room selector for prog refuge
 	#3refuge return <seconds>#0 - sets the return delay after refuge work
 #3activity always|diurnal|nocturnal|crepuscular|custom#0 - sets active periods
 #3activity active <timeofday...>#0 - sets active times for custom activity
@@ -743,10 +743,10 @@ public partial class AnimalAI : CreatureAIBase
 	#3activity nestingseason <season group|clear>#0 - toggles the hemisphere-aware nesting season group
 	#3ecology shelter|seasonal|nesting|parenting on|off#0 - toggles ecology behaviors
 	#3ecology shelterneeded <prog>#0 - sets when shelter is required
-	#3ecology sheltercell <prog>#0 - sets valid shelter cells
-	#3ecology seasonalcell <prog>#0 - sets valid seasonal range cells
+	#3ecology sheltercell <prog>#0 - sets valid shelter rooms
+	#3ecology seasonalcell <prog>#0 - sets valid seasonal range rooms
 	#3ecology seasonalhabitat <season group> <prog|clear>#0 - sets or clears a season-specific preferred habitat
-	#3ecology nestsite <prog>#0 - sets valid nest cells
+	#3ecology nestsite <prog>#0 - sets valid nest rooms
 	#3ecology protect <prog>#0 - sets protected young or friends
 	#3hunting <on|off|opening|followup|layer|opportunity|range|timeout|lost> <value>#0 - configures hunting tactics
 	#3prey <people|selection|include|exclude|prefer|sizes|eligibility|classification|preference> <value>#0 - configures prey policy
@@ -1191,11 +1191,11 @@ public partial class AnimalAI : CreatureAIBase
 					new[] { ProgVariableTypes.Character });
 			case "sheltercell":
 			case "shelterprog":
-				return BuildingCommandEcologyRoomProg(actor, command, value => ShelterRoomProg = value, "shelter cells");
+				return BuildingCommandEcologyRoomProg(actor, command, value => ShelterRoomProg = value, "shelter rooms");
 			case "seasonalcell":
 			case "seasonalprog":
 			case "seasoncell":
-				return BuildingCommandEcologyRoomProg(actor, command, value => SeasonalRoomProg = value, "seasonal range cells");
+				return BuildingCommandEcologyRoomProg(actor, command, value => SeasonalRoomProg = value, "seasonal range rooms");
 			case "seasonalhabitat":
 			case "seasonhabitat":
 				return BuildingCommandEcologySeasonalHabitat(actor, command);
@@ -1665,7 +1665,7 @@ public partial class AnimalAI : CreatureAIBase
 	}
 
 	/// <summary>
-	/// Territory selection predates the character-first cell-policy convention used by AnimalAI
+	/// Territory selection predates the character-first room-policy convention used by AnimalAI
 	/// movement and ecology. Accept both contracts so old location-first definitions remain valid
 	/// while finished wildlife profiles can reuse their habitat progs unchanged.
 	/// </summary>
@@ -2652,9 +2652,9 @@ public partial class AnimalAI : CreatureAIBase
 	}
 
 	/// <summary>
-	/// Supplies an exact-coordinate RouteCell path for a remotely scanned prey target. The regular
-	/// exit path is still used for ordinary cells; keeping the spatial path here avoids reducing a
-	/// live RouteCell target to the route's default coordinate.
+	/// Supplies an exact-coordinate RouteRoom path for a remotely scanned prey target. The regular
+	/// exit path is still used for ordinary rooms; keeping the spatial path here avoids reducing a
+	/// live RouteRoom target to the route's default coordinate.
 	/// </summary>
 	protected override (IRoom? Target, ISpatialPath? Path) GetSpatialPath(ICharacter ch)
 	{

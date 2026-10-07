@@ -61,7 +61,7 @@ namespace MudSharp.GameItems
 
         /// <summary>
         ///     Game Items are often not simply "in" a location but may be indirectly in one (e.g. in inventory) or even more (e.g.
-        ///     installed doors). This will return all cells they are actually in.
+        ///     installed doors). This will return all rooms they are actually in.
         /// </summary>
         IEnumerable<IRoom> TrueLocations { get; }
 

@@ -122,6 +122,6 @@ public class ImplantTelephoneGameItemComponentProto : ImplantBaseGameItemCompone
     public override string ComponentDescriptionOLC(ICharacter actor)
     {
         return ComponentDescriptionOLC(actor, "This is an implant telephone",
-            $"It connects to the cellular network when a cell tower serves the user's zone. Incoming calls show the following internal alert:\n{RingText.ColourCommand()}");
+            $"It connects to the cellular network when a room tower serves the user's zone. Incoming calls show the following internal alert:\n{RingText.ColourCommand()}");
     }
 }

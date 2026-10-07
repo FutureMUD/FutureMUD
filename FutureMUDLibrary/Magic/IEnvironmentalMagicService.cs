@@ -134,7 +134,7 @@ public interface IEnvironmentalMagicService : IDisposable
 		double amount, out bool success);
 	/// <summary>Debits only the complete requested recorded amount after current validation; never spends unrecorded accrual.</summary>
 	bool TryDebit(IRoom room, IMagicResource resource, double amount, out string? error);
-	/// <summary>Purely resolves all declarations on the cell's effective environmental profile.</summary>
+	/// <summary>Purely resolves all declarations on the room's effective environmental profile.</summary>
 	IReadOnlyList<NativeOrganicSourceSnapshot> InspectOrganicSources(IRoom room);
 	/// <summary>Purely resolves one canonical selector, including explicit unauthorised/error states.</summary>
 	NativeOrganicSourceSnapshot InspectOrganicSource(IRoom room, string selector);
@@ -163,7 +163,7 @@ public interface IEnvironmentalMagicService : IDisposable
 	void Unregister(IRoom room);
 	void RoomTerrainChanged(IRoom room);
 	void TerrainDefaultChanged(ITerrain terrain);
-	/// <summary>Coalesces a source change for bounded later evaluation; never grants production or adds a per-cell callback.</summary>
+	/// <summary>Coalesces a source change for bounded later evaluation; never grants production or adds a per-room callback.</summary>
 	void MarkDirty(IRoom room, EnvironmentalMagicDirtyReason reason);
 	void BeforeProfileChange(IEnvironmentalMagicProfile profile);
 	void ProfileChanged(IEnvironmentalMagicProfile profile);

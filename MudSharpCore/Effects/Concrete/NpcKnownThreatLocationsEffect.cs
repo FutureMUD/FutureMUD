@@ -128,7 +128,7 @@ public sealed class NpcKnownThreatLocationsEffect : Effect
 
 	public override string Describe(IPerceiver voyeur)
 	{
-		return $"NPC remembers threat locations in cells {_knownThreatRoomIds.Select(x => x.RoomId.ToString("N0", voyeur)).ListToCommaSeparatedValues()}.";
+		return $"NPC remembers threat locations in rooms {_knownThreatRoomIds.Select(x => x.RoomId.ToString("N0", voyeur)).ListToCommaSeparatedValues()}.";
 	}
 
 	public override bool SavingEffect => true;

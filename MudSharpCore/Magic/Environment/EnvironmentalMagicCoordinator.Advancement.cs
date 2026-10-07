@@ -209,7 +209,7 @@ public sealed partial class EnvironmentalMagicCoordinator
 		registration.RepairRemainder = 0.0;
 		SetStatus(registration, false, false, true);
 		ScheduleAudit(registration, now, null);
-		_representativeError = $"Profile #{registration.ProfileId}, cell #{registration.Room.Id}: {error}";
+		_representativeError = $"Profile #{registration.ProfileId}, room #{registration.Room.Id}: {error}";
 		_totalFaults++;
 		if (!_lastLoggedFault.TryGetValue(registration.ProfileId, out var last) || now - last >= 60.0)
 		{
@@ -272,7 +272,7 @@ public sealed partial class EnvironmentalMagicCoordinator
 	{
 		if (!TryMutateResource(room, resource, EnvironmentalResourceMutation.Debit, amount, out var success))
 		{
-			error = "This cell/resource pair is not managed by an environmental profile.";
+			error = "This room/resource pair is not managed by an environmental profile.";
 			return false;
 		}
 		error = success ? null : "The full recorded amount is unavailable, or the current environment is invalid.";
@@ -304,8 +304,8 @@ public sealed partial class EnvironmentalMagicCoordinator
 		var d = Diagnostics;
 		return $"Environmental magic: {d.Configured:N0} configured; {d.ActiveProduction:N0} producing; {d.ActiveMaintenance:N0} maintaining; {d.Dormant:N0} dormant; {d.Dirty:N0} dirty; {d.Faulted:N0} faulted.\n" +
 			$"Queues: {d.ProductionQueue:N0} production, {d.AuditQueue:N0} audit, {d.DiscoveryRemaining:N0} discovery remaining. Oldest ready {d.OldestReadySeconds:F2}s; oldest audit {d.OldestAuditSeconds:F2}s.\n" +
-			$"Last pump: {d.LastRoomVisits:N0} cells, {d.LastEvaluations:N0} evaluations, {d.LastInputProgExecutions:N0} progs, {d.LastWrites:N0} writes; {d.LastPumpMilliseconds:F3} ms (max {d.MaximumPumpMilliseconds:F3} ms); {d.BudgetLimitedPumps:N0} budget-limited pumps.\n" +
-			$"Budgets: {Options.MaximumRoomVisits:N0} cells / {Options.MaximumOutputWork:N0} outputs / {Options.SoftBudgetMilliseconds:F2} ms; active {Options.ActiveCadenceSeconds:F0}s, audit {Options.ReconciliationSeconds:F0}s.\n" +
+			$"Last pump: {d.LastRoomVisits:N0} rooms, {d.LastEvaluations:N0} evaluations, {d.LastInputProgExecutions:N0} progs, {d.LastWrites:N0} writes; {d.LastPumpMilliseconds:F3} ms (max {d.MaximumPumpMilliseconds:F3} ms); {d.BudgetLimitedPumps:N0} budget-limited pumps.\n" +
+			$"Budgets: {Options.MaximumRoomVisits:N0} rooms / {Options.MaximumOutputWork:N0} outputs / {Options.SoftBudgetMilliseconds:F2} ms; active {Options.ActiveCadenceSeconds:F0}s, audit {Options.ReconciliationSeconds:F0}s.\n" +
 			$"Last error: {d.RepresentativeError ?? "none"}\nSlow input progs: {d.TotalSlowInputProgs:N0}; latest: {d.SlowProg ?? "none"}";
 	}
 }

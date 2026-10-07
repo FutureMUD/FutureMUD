@@ -16,7 +16,7 @@ namespace MudSharp.Construction;
 
 public class Zone : Location, IEditableZone
 {
-    protected readonly All<IRoom> _cells = new();
+    protected readonly All<IRoom> _rooms = new();
 
     protected readonly Dictionary<ICelestialObject, CelestialInformation> CelestialInfo =
         new();
@@ -28,7 +28,7 @@ public class Zone : Location, IEditableZone
 
     private GeographicCoordinate _geography;
 
-    public override IEnumerable<IRoom> Rooms => _cells;
+    public override IEnumerable<IRoom> Rooms => _rooms;
 
     public Zone(MudSharp.Models.Zone zone, IFuturemud game) : base(game)
     {
@@ -67,7 +67,7 @@ public class Zone : Location, IEditableZone
     public IShard Shard { get; }
 
     private long? _defaultRoomId;
-    public IRoom DefaultRoom => _cells.Get(_defaultRoomId ?? 0L) ?? Rooms.FirstOrDefault();
+    public IRoom DefaultRoom => _rooms.Get(_defaultRoomId ?? 0L) ?? Rooms.FirstOrDefault();
 
     public long P => Shard.Id;
 
@@ -131,7 +131,7 @@ public class Zone : Location, IEditableZone
 
     public void Register(IRoom room)
     {
-        _cells.Add(room);
+        _rooms.Add(room);
         Shard.Register(room);
 		if (_defaultRoomId is null)
 		{
@@ -142,7 +142,7 @@ public class Zone : Location, IEditableZone
 
     public void Unregister(IRoom room)
     {
-        _cells.Remove(room);
+        _rooms.Remove(room);
         Shard.Unregister(room);
 		if (_defaultRoomId == room.Id)
 		{
@@ -340,7 +340,7 @@ public class Zone : Location, IEditableZone
     public void PostLoadSetup()
     {
         _noSave = true;
-        // Insert anything that needs to happen after all cells are loaded
+        // Insert anything that needs to happen after all rooms are loaded
         _noSave = false;
     }
 
@@ -379,7 +379,7 @@ public class Zone : Location, IEditableZone
         if (missingRooms.Any())
         {
             Console.WriteLine(
-                $"Warning: The following cells in zone {Id:N0} ({Name}) were not linked to the main grid:\n{missingRooms.Select(x => x.Id.ToString("N0")).ArrangeStringsOntoLines(7, 60)}");
+                $"Warning: The following rooms in zone {Id:N0} ({Name}) were not linked to the main grid:\n{missingRooms.Select(x => x.Id.ToString("N0")).ArrangeStringsOntoLines(7, 60)}");
         }
     }
 
@@ -390,11 +390,11 @@ public class Zone : Location, IEditableZone
         sb.AppendLine($"Shard: {Shard.Name.Colour(Telnet.Green)}");
         if (DefaultRoom != null)
         {
-            sb.AppendLine($"Default Cell: {DefaultRoom.HowSeen(builder)} #{DefaultRoom.Id.ToString("N0", builder)}");
+            sb.AppendLine($"Default Room: {DefaultRoom.HowSeen(builder)} #{DefaultRoom.Id.ToString("N0", builder)}");
         }
         else
         {
-            sb.AppendLine($"Default Cell: {"None".Colour(Telnet.Red)}");
+            sb.AppendLine($"Default Room: {"None".Colour(Telnet.Red)}");
         }
 
         sb.AppendLine(
@@ -460,7 +460,7 @@ public class Zone : Location, IEditableZone
         switch (property.ToLowerInvariant())
         {
             case "rooms":
-                return new CollectionVariable(_cells.ToList(),
+                return new CollectionVariable(_rooms.ToList(),
                     ProgVariableTypes.Location);
             case "latitude":
                 return new NumberVariable(Geography.Latitude.RadiansToDegrees());

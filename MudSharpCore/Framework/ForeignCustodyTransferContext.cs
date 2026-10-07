@@ -60,7 +60,7 @@ internal static class ForeignCustodyTransferContext
 	{
 		EnsureItem(item);
 		if (Current.Value is { } scope && !ReferenceEquals(scope.Destination, room))
-			throw new InvalidOperationException("A native transfer callback attempted an uncaptured cell destination.");
+			throw new InvalidOperationException("A native transfer callback attempted an uncaptured room destination.");
 	}
 
 	internal static void RecordSave(PerceivedItem item, long? persistedItemId = null)

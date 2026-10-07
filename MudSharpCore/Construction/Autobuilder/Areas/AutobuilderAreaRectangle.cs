@@ -95,7 +95,7 @@ public class AutobuilderAreaRectangle : AutobuilderAreaBase
     public override string Show(ICharacter builder)
     {
         return
-            $"{$"Autobuilder Area Template #{Id} ({Name})".Colour(Telnet.Cyan)}\n\nThis autobuilder template will return a rectangular area of linked cells with height, width, terrain and room template supplied by the builder.";
+            $"{$"Autobuilder Area Template #{Id} ({Name})".Colour(Telnet.Cyan)}\n\nThis autobuilder template will return a rectangular area of linked rooms with height, width, terrain and room template supplied by the builder.";
     }
 
     public override IAutobuilderArea Clone(string newName)

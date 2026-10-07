@@ -155,7 +155,7 @@ public partial class Room : Location, IDisposable, IRoom, IRecoverableSaveFailur
     }
 
 	/// <summary>
-	/// Creates a transient cell which borrows environmental data from a real cell but owns its
+	/// Creates a transient room which borrows environmental data from a real room but owns its
 	/// contents independently. It is never registered with its owning zone or written to the database.
 	/// </summary>
 	internal Room(IRoom combatSimulationTemplate, long temporaryId) : base(combatSimulationTemplate.Gameworld)
@@ -232,7 +232,7 @@ public partial class Room : Location, IDisposable, IRoom, IRecoverableSaveFailur
 	public int? Z => HostedExteriorContext?.Z ?? _storedCoordinates.Z;
 
     /// <summary>
-    /// If a cell is temporary, it may disappear at any time.
+    /// If a room is temporary, it may disappear at any time.
     /// </summary>
     public bool Temporary { get; set; }
 
@@ -243,14 +243,14 @@ public partial class Room : Location, IDisposable, IRoom, IRecoverableSaveFailur
 	public IRouteRoomDefinition RouteDefinition => _routeDefinition;
 
 	/// <summary>
-	/// The persistent room-scale vehicle that owns this hosted interior cell, if any.
-	/// Hosted cells remain ordinary cells; this metadata prevents their identity from
+	/// The persistent room-scale vehicle that owns this hosted interior room, if any.
+	/// Hosted rooms remain ordinary rooms; this metadata prevents their identity from
 	/// being inferred from the vehicle's current exterior location.
 	/// </summary>
 	public long? HostedVehicleId => _hostedVehicleId;
 
 	/// <summary>
-	/// The live vehicle compartment row that owns this hosted interior cell, if any.
+	/// The live vehicle compartment row that owns this hosted interior room, if any.
 	/// </summary>
 	public long? HostedVehicleCompartmentId => _hostedVehicleCompartmentId;
 
@@ -261,7 +261,7 @@ public partial class Room : Location, IDisposable, IRoom, IRecoverableSaveFailur
 	}
 
 	/// <summary>
-	/// Replaces the immutable runtime RouteCell snapshot after a persisted builder mutation.
+	/// Replaces the immutable runtime RouteRoom snapshot after a persisted builder mutation.
 	/// </summary>
 	public void ReloadRouteDefinition(Models.RouteRoom routeRoom)
 	{
@@ -345,7 +345,7 @@ public partial class Room : Location, IDisposable, IRoom, IRecoverableSaveFailur
 #if DEBUG
             if (_gameItems.Contains(thing))
             {
-                throw new ApplicationException("Item duplication in Cell.");
+                throw new ApplicationException("Item duplication in Room.");
             }
 #endif
             return;
@@ -425,7 +425,7 @@ public partial class Room : Location, IDisposable, IRoom, IRecoverableSaveFailur
         if (!StillAtIntendedPoint(originalContainer, originalBody)) return;
         thing.ContainedIn = null;
         // Clearing containment may publish proximity/environment callbacks. A new holder or
-        // container owns the item; do not overwrite that custody with enclosing cell membership.
+        // container owns the item; do not overwrite that custody with enclosing room membership.
         var clearedBody = originalContainer is null ? originalBody : null;
         if (!StillAtIntendedPoint(null, clearedBody)) return;
         if (_gameItems.Contains(thing)) return; // Reentrant insertion already completed membership.
@@ -1394,7 +1394,7 @@ public partial class Room : Location, IDisposable, IRoom, IRecoverableSaveFailur
 
 		// Keep the staged forage rows, their specialised dirty bit and the owner's final save state atomic
 		// with respect to native consumption and recovery. A mutation either precedes this snapshot or waits
-		// until Changed has been cleared, at which point it marks and queues the cell again.
+		// until Changed has been cleared, at which point it marks and queues the room again.
 		lock (_foragableYields)
 		{
 			if (_yieldsChanged)
@@ -1621,11 +1621,11 @@ public partial class Room : Location, IDisposable, IRoom, IRecoverableSaveFailur
 	public void AreaRemoved(IArea area) => RefreshWeatherSubscriptions();
 
     /// <summary>
-    ///     If the voyeur is specifying an overlay package they wish to see, and this cell has an overlay from that package,
+    ///     If the voyeur is specifying an overlay package they wish to see, and this room has an overlay from that package,
     ///     display that, otherwise display the current one
     /// </summary>
     /// <param name="voyeur">The person for whom the overlay is being displayed</param>
-    /// <returns>The appropriate ICellOverlay</returns>
+    /// <returns>The appropriate IRoomOverlay</returns>
     public IRoomOverlay GetOverlayFor(IPerceiver voyeur)
     {
         return voyeur?.CurrentOverlayPackage != null
@@ -1640,7 +1640,7 @@ public partial class Room : Location, IDisposable, IRoom, IRecoverableSaveFailur
 
     public override string ToString()
     {
-        return $"Cell ID {Id} Name {CurrentOverlay.RoomName}";
+        return $"Room ID {Id} Name {CurrentOverlay.RoomName}";
     }
 
     public void OnExitsInitialised()
@@ -2025,7 +2025,7 @@ public partial class Room : Location, IDisposable, IRoom, IRecoverableSaveFailur
         }
     }
 
-    #region ICell Members
+    #region IRoom Members
 
     public (bool Truth, IEnumerable<string> Errors) ProposeDelete()
     {
@@ -2220,9 +2220,9 @@ public partial class Room : Location, IDisposable, IRoom, IRecoverableSaveFailur
 
 		if (RouteRoomAudioPropagation.Instance.RequiresSpatialPropagation(this, volume))
 		{
-			// Any bounded audio graph that touches RouteCell topology uses the spatial audio
+			// Any bounded audio graph that touches RouteRoom topology uses the spatial audio
 			// service. It resolves an exact source coordinate, uses indexed longitudinal
-			// candidates and follows only reachable anchored portals. Missing RouteCell source
+			// candidates and follows only reachable anchored portals. Missing RouteRoom source
 			// coordinates fail closed.
 			RouteRoomAudioPropagation.Instance.Propagate(
 				this,

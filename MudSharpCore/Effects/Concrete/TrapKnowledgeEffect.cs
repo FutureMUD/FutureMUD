@@ -9,7 +9,7 @@ namespace MudSharp.Effects.Concrete;
 
 /// <summary>
 /// Records that a character has positively identified a particular persistent trap instance.
-/// It deliberately records an instance GUID rather than an item or cell reference so knowledge remains
+/// It deliberately records an instance GUID rather than an item or room reference so knowledge remains
 /// correct when several traps share an anchor.
 /// </summary>
 public sealed class TrapKnowledgeEffect : Effect

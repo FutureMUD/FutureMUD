@@ -350,7 +350,7 @@ public class ContainerGameItemComponent : GameItemComponent, IContainer, IOpenab
     {
 		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(putter)) return;
 		ForeignCustodyTransferContext.EnsurePair(Parent, item);
-		// Cell.Extract preserves the direct pointer for removal listeners. Adopt only that
+		// Room.Extract preserves the direct pointer for removal listeners. Adopt only that
 		// exact, already-extracted native source; active membership and callback custody win.
 		var nativeItem = item as GameItem;
 		var extractedRoom = nativeItem?.DirectLocation;

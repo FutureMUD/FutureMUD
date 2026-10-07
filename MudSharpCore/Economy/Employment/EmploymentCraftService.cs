@@ -179,7 +179,7 @@ internal static class EmploymentCraftService
 			var room = actor.Gameworld.Rooms.Get(cellId);
 			if (room is null)
 			{
-				reason = $"There is no cell with id {cellId:N0}.";
+				reason = $"There is no room with id {cellId:N0}.";
 				return false;
 			}
 
@@ -572,7 +572,7 @@ internal static class EmploymentCraftService
 				stationSelector,
 				cellId,
 				null,
-				room?.GetFriendlyReference(actor) ?? $"cell #{cellId:N0}",
+				room?.GetFriendlyReference(actor) ?? $"room #{cellId:N0}",
 				now,
 				expires);
 		}

@@ -106,7 +106,7 @@ This section replaces the scattered status updates that used to live in the coun
 
 Completed on 2026-04-21.
 
-- Fixed the `teleport` spell-effect mismatch so `TeleportEffect` accepts `room` / `rooms` triggers and lines up with its `ICell` target handling.
+- Fixed the `teleport` spell-effect mismatch so `TeleportEffect` accepts `room` / `rooms` triggers and lines up with its `IRoom` target handling.
 - Added standalone builder-visible status effects and matching removals for silence, sleep, fear, paralysis, flying, water breathing, poison, disease, curse, detect invisible, detect ethereal, detect magick, infravision, and comprehend language.
 - Added `MagicResourceDeltaEffect` against the existing `IHaveMagicResource` abstraction, with character, item, and room resources clamped to valid ranges.
 - Added `SpellArmourEffect` by sharing `MagicArmourConfiguration` with the existing armour power.
@@ -542,7 +542,7 @@ Status: completed on 2026-04-21.
 These are the changes with the best "entries unlocked per unit of work" ratio.
 
 1. Fix the current teleport spell-effect mismatch.
-   - Completed by updating `TeleportEffect` compatibility to `room` / `rooms` so it now lines up with its `ICell` target handling.
+   - Completed by updating `TeleportEffect` compatibility to `room` / `rooms` so it now lines up with its `IRoom` target handling.
 
 2. Add reusable Phase 1 statuses and removals.
    - Completed with standalone builder-visible spell-effect templates and standalone runtime effects for `silence`, `sleep`, `fear`, `paralysis`, `flying`, `waterbreathing`, `poison`, `disease`, `curse`, `detectinvisible`, `detectethereal`, `detectmagick`, `infravision`, and `comprehendlanguage`, plus the matching `remove...` spell effects.

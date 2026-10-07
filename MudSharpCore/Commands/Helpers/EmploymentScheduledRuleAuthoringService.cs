@@ -1138,7 +1138,7 @@ internal sealed class EmploymentScheduledRuleAuthoringService
 
 		if (input.IsFinished || !IsAny(input.PopSpeech(), "in", "at", "room"))
 		{
-			message = $"Item conditions use the syntax: {"tasks rule condition item <prototype|*item|&tag|keyword> in <here|cell id> [container <prototype|*item|&tag|keyword>] below|atleast <quantity>".ColourCommand()}";
+			message = $"Item conditions use the syntax: {"tasks rule condition item <prototype|*item|&tag|keyword> in <here|room id> [container <prototype|*item|&tag|keyword>] below|atleast <quantity>".ColourCommand()}";
 			return false;
 		}
 
@@ -1188,7 +1188,7 @@ internal sealed class EmploymentScheduledRuleAuthoringService
 		{
 			if (string.IsNullOrWhiteSpace(message))
 			{
-				message = $"Commodity conditions use the syntax: {"tasks rule condition commodity <material[|tag][|name=value...]> in <here|cell id> [container <prototype|*item|&tag|keyword>] below|atleast <weight>".ColourCommand()}";
+				message = $"Commodity conditions use the syntax: {"tasks rule condition commodity <material[|tag][|name=value...]> in <here|room id> [container <prototype|*item|&tag|keyword>] below|atleast <weight>".ColourCommand()}";
 			}
 
 			return false;
@@ -1196,7 +1196,7 @@ internal sealed class EmploymentScheduledRuleAuthoringService
 
 		if (input.IsFinished || !IsAny(input.PopSpeech(), "in", "at", "room"))
 		{
-			message = $"Commodity conditions use the syntax: {"tasks rule condition commodity <material[|tag][|name=value...]> in <here|cell id> [container <prototype|*item|&tag|keyword>] below|atleast <weight>".ColourCommand()}";
+			message = $"Commodity conditions use the syntax: {"tasks rule condition commodity <material[|tag][|name=value...]> in <here|room id> [container <prototype|*item|&tag|keyword>] below|atleast <weight>".ColourCommand()}";
 			return false;
 		}
 
@@ -2440,7 +2440,7 @@ internal sealed class EmploymentScheduledRuleAuthoringService
 			return true;
 		}
 
-		message = $"There is no room/cell matching {token.ColourCommand()}.";
+		message = $"There is no room matching {token.ColourCommand()}.";
 		return false;
 	}
 

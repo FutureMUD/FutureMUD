@@ -61,7 +61,7 @@ public sealed partial class EnvironmentalMagicCoordinator
 	public LandRejuvenationPolicy InspectRepairPolicy(IRoom room)
 	{
 		if (_disposed || room is not Room concrete || !ReferenceEquals(room.Gameworld, _world) || room.Id <= 0)
-			return new(null, null, "A physical cell in this gameworld is required.");
+			return new(null, null, "A physical room in this gameworld is required.");
 		var id = EffectiveProfileId(concrete);
 		if (id is null || Profile(id.Value) is not { } profile)
 			return new(id, null, "An effective environmental profile is required.");
@@ -127,7 +127,7 @@ public sealed partial class EnvironmentalMagicCoordinator
 		{
 			LoadTreatmentRecords(room.Id);
 			if (_treatments.ContainsKey(room.Id) || RoomTreatmentRecords(room.Id).Any(x => !x.IsTerminal || x.PendingRequest is not null))
-				error = "This cell already has an active or unresolved rejuvenation treatment.";
+				error = "This room already has an active or unresolved rejuvenation treatment.";
 			else if (((Room)room).EnvironmentState.ScarDamage <= 0.0) error = "There are no existing scars to treat.";
 		}
 		catch (Exception ex) { error = $"Treatment admission cannot read authoritative progress: {ex.Message}"; }
@@ -181,7 +181,7 @@ public sealed partial class EnvironmentalMagicCoordinator
 	{
 		error = null;
 		if (_disposed || effect.TreatmentRoom is not Room room || !ReferenceEquals(room.Gameworld, _world))
-		{ error = "Treatment requires an attached spell parent on a physical cell."; return false; }
+		{ error = "Treatment requires an attached spell parent on a physical room."; return false; }
 		if (_treatments.TryGetValue(room.Id, out var existing))
 		{
 			if (ReferenceEquals(existing.Effect, effect)) return true;
@@ -384,7 +384,7 @@ public sealed partial class EnvironmentalMagicCoordinator
 	{
 		error = null;
 		if (room is not Room concrete || !ReferenceEquals(room.Gameworld, _world) || _evaluating.Contains(room.Id) || _ecologicalMutations.Contains(room.Id))
-		{ error = "Confirmation requires a physical cell outside policy evaluation or ecological mutation."; return false; }
+		{ error = "Confirmation requires a physical room outside policy evaluation or ecological mutation."; return false; }
 		_treatments.TryGetValue(room.Id, out var r);
 		if (r?.Progress.Id != treatmentId) r = null;
 		var closeInterval = false;
@@ -412,7 +412,7 @@ public sealed partial class EnvironmentalMagicCoordinator
 			}
 			else if (stored.LastOperationId is { } last && concrete.PendingEnvironmentalOperationId == last)
 			{
-				// Removal can already have adopted the committed budget while the cell still awaits acknowledgement.
+				// Removal can already have adopted the committed budget while the room still awaits acknowledgement.
 				var receipt = _operations.Find(last);
 				if (receipt is null || receipt.RoomId != room.Id || stored.PendingRequest is not null)
 					throw new InvalidOperationException("The last acknowledged repair receipt is unavailable.");

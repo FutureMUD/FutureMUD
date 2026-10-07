@@ -174,7 +174,7 @@ public class NPCSpawner : SaveableItem, INPCSpawner
 	#3counts <prog>#0 - sets a prog that determines which NPCs count for this spawner
 	#3counts none#0 - clears having a prog determine NPC counting
 	#3zone <id>#0 - toggles a zone being monitored by this spawner
-	#3cell <id>#0 - toggles a cell being a spawn location for this spawner
+	#3cell <id>#0 - toggles a room being a spawn location for this spawner
 
 Note that the #6Multi#0 strategy has additional building commands:
 

@@ -131,7 +131,7 @@ public static class OutputExtensions
 		}
 
 		// Legacy room-echo subscribers have no source coordinate and therefore cannot safely
-		// consume a local RouteCell event without leaking it across the entire linear cell.
+		// consume a local RouteRoom event without leaking it across the entire linear room.
 	}
 
 	private static void HandleWholeLocation(ILocation location, string text)
@@ -322,7 +322,7 @@ public static class OutputExtensions
 		if (location is IRoom { RouteDefinition: not null })
 		{
 			// Source-less local output cannot be mapped to a longitudinal coordinate. Fail closed;
-			// callers that intend a whole RouteCell broadcast must request OutputRange.Room.
+			// callers that intend a whole RouteRoom broadcast must request OutputRange.Room.
 			return;
 		}
 

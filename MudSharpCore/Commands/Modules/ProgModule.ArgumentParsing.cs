@@ -12,7 +12,7 @@ namespace MudSharp.Commands.Modules;
 
 internal partial class ProgModule
 {
-	private const string ProgArgumentHelp = @"Manual FutureProg values are shared by #3prog execute#0, #3register default#0, #3setregister#0, #3cell set register#0 and computer-program execution.
+	private const string ProgArgumentHelp = @"Manual FutureProg values are shared by #3prog execute#0, #3register default#0, #3setregister#0, #3room set register#0 and computer-program execution.
 
 Use quotes for names or text containing spaces, and parentheses to group a compound argument. #3""""#0 is empty text; #3()#0 is an empty container. Unclosed groups and missing or extra prog arguments are errors.
 

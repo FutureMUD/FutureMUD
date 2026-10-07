@@ -11,7 +11,7 @@ using MudSharp.Health;
 namespace MudSharp.Effects.Concrete;
 
 /// <summary>
-/// A temporary, localised cloud produced by a trap. It deliberately does not rewrite the cell atmosphere:
+/// A temporary, localised cloud produced by a trap. It deliberately does not rewrite the room atmosphere:
 /// existing atmospheric simulations continue to own the world's bulk gas while this effect supplies a bounded
 /// inhalation hazard on one room layer.
 /// </summary>

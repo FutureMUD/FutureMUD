@@ -816,7 +816,7 @@ public partial class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterL
   #3auction set withdraw <amount>#0 - withdraws from virtual cash and bank fallback
   #3auction set ledger [count]#0 - reviews the auction house cash ledger
   #3auction set time <time period>#0 - sets the amount of time auctions run for
-  #3auction set location#0 - changes the location of the auction house to the current cell".SubstituteANSIColour());
+  #3auction set location#0 - changes the location of the auction house to the current room".SubstituteANSIColour());
         return false;
     }
 

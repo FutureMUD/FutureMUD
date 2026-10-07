@@ -41,8 +41,8 @@ public sealed partial class EnvironmentalMagicCoordinator : IEnvironmentalMagicS
 	private readonly long _epoch;
 	private readonly IEnvironmentalMagicOperationStore _operations;
 	private readonly Dictionary<long, Registration> _registered = new();
-	private readonly Dictionary<long, LinkedListNode<Room>> _cells = new();
-	private readonly LinkedList<Room> _cellOrder = new();
+	private readonly Dictionary<long, LinkedListNode<Room>> _rooms = new();
+	private readonly LinkedList<Room> _roomOrder = new();
 	private readonly Dictionary<long, IAgricultureField> _fields = new();
 	private readonly Dictionary<long, IAgricultureField> _apiaryFields = new();
 	private readonly Dictionary<long, long> _referenceGenerations = new();
@@ -139,9 +139,9 @@ public sealed partial class EnvironmentalMagicCoordinator : IEnvironmentalMagicS
 	public void Register(IRoom room)
 	{
 		if (_disposed || room is not Room concrete || room.Id <= 0 || !ReferenceEquals(room.Gameworld, _world)) return;
-		if (_cells.TryGetValue(room.Id, out var previous) && !ReferenceEquals(previous.Value, concrete))
+		if (_rooms.TryGetValue(room.Id, out var previous) && !ReferenceEquals(previous.Value, concrete))
 			Unregister(previous.Value);
-		if (!_cells.ContainsKey(room.Id)) _cells[room.Id] = _cellOrder.AddLast(concrete);
+		if (!_rooms.ContainsKey(room.Id)) _rooms[room.Id] = _roomOrder.AddLast(concrete);
 		var id = EffectiveProfileId(concrete);
 		if (_registered.TryGetValue(room.Id, out var existing))
 		{
@@ -170,18 +170,18 @@ public sealed partial class EnvironmentalMagicCoordinator : IEnvironmentalMagicS
 
 	public void Unregister(IRoom room)
 	{
-		if (!_cells.TryGetValue(room.Id, out var indexed) || !ReferenceEquals(indexed.Value, room)) return;
+		if (!_rooms.TryGetValue(room.Id, out var indexed) || !ReferenceEquals(indexed.Value, room)) return;
 		if (_treatments.TryGetValue(room.Id, out var treatment))
 		{
 			_treatmentDue.Remove(treatment);
 			_treatments.Remove(room.Id);
 		}
 		if (_registered.Remove(room.Id, out var registration)) RemoveRegistration(registration);
-		if (_cells.Remove(room.Id, out var node))
+		if (_rooms.Remove(room.Id, out var node))
 		{
-			if (_discoveryCursor == node) _discoveryCursor = node.Next ?? _cellOrder.First;
-			_cellOrder.Remove(node);
-			if (_cellOrder.Count == 0) _discoveryCursor = null;
+			if (_discoveryCursor == node) _discoveryCursor = node.Next ?? _roomOrder.First;
+			_roomOrder.Remove(node);
+			if (_roomOrder.Count == 0) _discoveryCursor = null;
 		}
 		_fields.Remove(room.Id);
 	}
@@ -203,7 +203,7 @@ public sealed partial class EnvironmentalMagicCoordinator : IEnvironmentalMagicS
 	{
 		if (room is not Room concrete || room.Id <= 0 || !ReferenceEquals(room.Gameworld, _world) || !Enum.IsDefined(mode) ||
 			mode == EnvironmentalMagicBindingMode.Explicit && !profileId.HasValue)
-			throw new ArgumentException("A physical cell and a valid environmental binding are required.");
+			throw new ArgumentException("A physical room and a valid environmental binding are required.");
 		if (_evaluating.Contains(room.Id)) throw new InvalidOperationException("Environmental input progs must be read-only.");
 		if (concrete.PendingEnvironmentalOperationId is { } pending)
 			throw new InvalidOperationException($"Environmental operation {pending} must be confirmed before changing its binding.");
@@ -251,8 +251,8 @@ public sealed partial class EnvironmentalMagicCoordinator : IEnvironmentalMagicS
 
 	private void BeginDiscovery()
 	{
-		_discoveryCursor ??= _cellOrder.First;
-		_discoveryRemaining = _cellOrder.Count;
+		_discoveryCursor ??= _roomOrder.First;
+		_discoveryRemaining = _roomOrder.Count;
 	}
 
 	public IAgricultureField? FieldFor(IRoom room) => ReferenceEquals(room.Gameworld, _world)
@@ -340,7 +340,7 @@ public sealed partial class EnvironmentalMagicCoordinator : IEnvironmentalMagicS
 						break;
 						case 3 when _discoveryRemaining > 0 && _discoveryCursor is not null:
 						var room = _discoveryCursor.Value;
-						_discoveryCursor = _discoveryCursor.Next ?? _cellOrder.First;
+						_discoveryCursor = _discoveryCursor.Next ?? _roomOrder.First;
 						_discoveryRemaining--;
 						Register(room);
 						_registered.TryGetValue(room.Id, out work);
@@ -396,8 +396,8 @@ public sealed partial class EnvironmentalMagicCoordinator : IEnvironmentalMagicS
 		_loadedTreatments.Clear();
 		_queuedTreatments.Clear();
 		_registered.Clear();
-		_cells.Clear();
-		_cellOrder.Clear();
+		_rooms.Clear();
+		_roomOrder.Clear();
 		_fields.Clear();
 		_apiaryFields.Clear();
 		_referenceGenerations.Clear();

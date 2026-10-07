@@ -349,7 +349,7 @@ vehicleproto set movement environment <profile id> surfacewater
 vehicleproto set movement waterexposure <profile id> <protected|exposed>
 ```
 
-`SurfaceWater` requires both the origin and destination to be exactly `RoomLayer.GroundLevel`, with `ICell.IsSwimmingLayer(GroundLevel)` true. The shared hitch-graph preflight applies this rule to every vehicle in driven, character-dragged, and vehicle-towed movement. A surface-water craft can still be created, stored, administratively relocated, or carried as an unoccupied item on land; it simply cannot traverse a cell exit operationally from or into that state.
+`SurfaceWater` requires both the origin and destination to be exactly `RoomLayer.GroundLevel`, with `IRoom.IsSwimmingLayer(GroundLevel)` true. The shared hitch-graph preflight applies this rule to every vehicle in driven, character-dragged, and vehicle-towed movement. A surface-water craft can still be created, stored, administratively relocated, or carried as an unoccupied item on land; it simply cannot traverse a cell exit operationally from or into that state.
 
 An intact surface-water exterior is kept in `PositionFloatingInWater` even when its ordinary material buoyancy would be negative. The hull still receives normal liquid exposure. Disabled craft continue to float, while a globally destroyed vehicle loses its floating exemption.
 

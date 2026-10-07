@@ -150,7 +150,7 @@ public sealed partial class MonsterAI : CreatureAIBase
 	{
 		var home = ResolveHomeBase(actor).HomeRoom;
 		if (home is null) return false;
-		// Called only for an observed target. Radius is topology distance, with zero meaning the home cell.
+		// Called only for an observed target. Radius is topology distance, with zero meaning the home room.
 		return target.DistanceBetween(home, (uint)GuardRange) is var distance && distance >= 0 && distance <= GuardRange;
 	}
 	internal MonsterMotive SelectMotive(ICharacter actor, ICharacter target)

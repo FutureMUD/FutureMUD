@@ -1034,7 +1034,7 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 
 			operationalState = new EmploymentActionStepOperationalState(
 				LoadedAssets: FormatLoadedAssets("return", targetContainer?.Id ?? destination.Id, placedItems),
-				SelectedResources: $"Returned container {container.Id} to {(targetContainer is null ? $"cell {destination.Id}" : $"container {targetContainer.Id}")}");
+				SelectedResources: $"Returned container {container.Id} to {(targetContainer is null ? $"room {destination.Id}" : $"container {targetContainer.Id}")}");
 			reason = string.Empty;
 			_taskManagedContainerIds.Remove(container.Id);
 			return true;
@@ -1071,7 +1071,7 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 
 		operationalState = new EmploymentActionStepOperationalState(
 			LoadedAssets: FormatLoadedAssets("return", targetContainer?.Id ?? destination.Id, [container]),
-			SelectedResources: $"Returned container {container.Id} to {(targetContainer is null ? $"cell {destination.Id}" : $"container {targetContainer.Id}")}");
+			SelectedResources: $"Returned container {container.Id} to {(targetContainer is null ? $"room {destination.Id}" : $"container {targetContainer.Id}")}");
 		reason = string.Empty;
 		_taskManagedContainerIds.Remove(container.Id);
 		return true;
@@ -1852,7 +1852,7 @@ public sealed record ItemThresholdCondition(string ItemKey, int Threshold, bool 
 		var location = ResolveLocation(context.Employer, locationId);
 		if (location is null)
 		{
-			reason = $"There is no room/cell #{locationId:N0} available to this employment host.";
+			reason = $"There is no room #{locationId:N0} available to this employment host.";
 			return false;
 		}
 
@@ -2075,7 +2075,7 @@ public sealed record CommodityThresholdCondition(string CommodityKey, decimal Th
 		var location = ItemThresholdCondition.ResolveLocation(context.Employer, locationId);
 		if (location is null)
 		{
-			reason = $"There is no room/cell #{locationId:N0} available to this employment host.";
+			reason = $"There is no room #{locationId:N0} available to this employment host.";
 			return false;
 		}
 

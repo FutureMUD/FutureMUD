@@ -2243,7 +2243,7 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
             }
         }
 
-        // Special overrides for non-cardinal cell exits
+        // Special overrides for non-cardinal room exits
         if (!ss.IsFinished)
         {
             IRoomExit nonCardinalExit = Location.GetExit(cmd, ss.PeekSpeech(), this);

@@ -18,7 +18,7 @@ public partial class AgricultureField : SaveableItem, IAgricultureField
 {
 	private readonly List<AgricultureFieldHerd> _herds = new();
 	private readonly Dictionary<AgricultureScoreType, int> _customScores = new();
-	private long _cellId;
+	private long _roomId;
 	private long _profileId;
 	private IAgricultureFieldProfile _profile;
 	private long _cropDefinitionId;
@@ -50,7 +50,7 @@ public partial class AgricultureField : SaveableItem, IAgricultureField
 	{
 		Gameworld = room.Gameworld;
 		Room = room;
-		_cellId = room.Id;
+		_roomId = room.Id;
 		Profile = profile;
 		CurrentUse = AgricultureFieldUse.Fallow;
 		foreach (var score in AgricultureScoreTypeExtensions.ActiveScoreTypes(Gameworld))
@@ -397,8 +397,8 @@ public partial class AgricultureField : SaveableItem, IAgricultureField
 	{
 		_id = field.Id;
 		_name = $"Field #{field.Id}";
-		_cellId = field.RoomId;
-		Room = Gameworld.Rooms.Get(_cellId);
+		_roomId = field.RoomId;
+		Room = Gameworld.Rooms.Get(_roomId);
 		_profileId = field.ProfileId;
 		CurrentUse = (AgricultureFieldUse)field.CurrentUse;
 		Moisture = field.Moisture.ClampScore();

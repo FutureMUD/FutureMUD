@@ -36,7 +36,7 @@ public static class MotionSensorDetectionModeExtensions
 		{
 			MotionSensorDetectionMode.AnyMovement => "Any Movement",
 			MotionSensorDetectionMode.BeginMovement => "Begin Movement",
-			MotionSensorDetectionMode.EnterRoom => "Enter Cell",
+			MotionSensorDetectionMode.EnterRoom => "Enter Room",
 			MotionSensorDetectionMode.StopMovement => "Stop Movement",
 			_ => "Unknown"
 		};
@@ -61,6 +61,8 @@ public static class MotionSensorDetectionModeExtensions
 			case "enter":
 			case "entercell":
 			case "enter cell":
+			case "enterroom":
+			case "enter room":
 			case "arrival":
 				mode = MotionSensorDetectionMode.EnterRoom;
 				return true;

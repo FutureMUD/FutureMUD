@@ -18,7 +18,7 @@ public sealed partial class EnvironmentalMagicCoordinator
 		{
 			appliedAmbient = [];
 			appliedNative = [];
-			error = "This cell already has an ecological mutation in progress.";
+			error = "This room already has an ecological mutation in progress.";
 			return false;
 		}
 		try { return TryApplyLandDebitGroupCore(room, ambient, native, out appliedAmbient, out appliedNative, out error); }

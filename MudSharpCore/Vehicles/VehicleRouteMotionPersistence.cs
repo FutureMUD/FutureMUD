@@ -76,7 +76,7 @@ public sealed class DatabaseVehicleRouteMotionPersistence : IVehicleRouteMotionP
 		ArgumentNullException.ThrowIfNull(start.RootVehicle);
 		ArgumentNullException.ThrowIfNull(start.Segment);
 		var route = start.Segment.Origin.Room.RouteDefinition ??
-		            throw new InvalidOperationException("Active vehicle route motion requires a RouteCell definition.");
+		            throw new InvalidOperationException("Active vehicle route motion requires a RouteRoom definition.");
 		var operationKey = start.OperationId.ToString("N");
 		var state = new VehicleRouteMotionState(
 			start.JourneyId,

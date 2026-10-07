@@ -81,19 +81,19 @@ public sealed class CombatSimulationService : ICombatSimulationService
 		else if (request.Rooms is not null && !IsStagedRoom(request.Rooms, request.Scene))
 		{
 			messages.Add(new CombatSimulationValidationMessage(true,
-				"The default combat cell must be included in the staged cells."));
+				"The default combat room must be included in the staged rooms."));
 		}
 
 		if (request.Rooms is not null && request.Rooms.Count == 0)
 		{
 			messages.Add(new CombatSimulationValidationMessage(true,
-				"At least one staged combat cell is required."));
+				"At least one staged combat room is required."));
 		}
 
 		if (request.Rooms is not null && request.Rooms.Count != request.Rooms.Distinct(ReferenceEqualityComparer.Instance).Count())
 		{
 			messages.Add(new CombatSimulationValidationMessage(true,
-				"Each staged combat cell may only be included once."));
+				"Each staged combat room may only be included once."));
 		}
 
 		if (request.Participants.Count < 2)
@@ -144,21 +144,21 @@ public sealed class CombatSimulationService : ICombatSimulationService
 			if (startingRoom is null)
 			{
 				messages.Add(new CombatSimulationValidationMessage(true,
-					$"Combatant slot {participant.Slot:N0} has no starting cell."));
+					$"Combatant slot {participant.Slot:N0} has no starting room."));
 			}
 			else
 			{
 				if (request.Rooms is not null && !IsStagedRoom(request.Rooms, startingRoom))
 				{
 					messages.Add(new CombatSimulationValidationMessage(true,
-						$"Combatant slot {participant.Slot:N0} starts in a cell that is not staged for this simulation."));
+						$"Combatant slot {participant.Slot:N0} starts in a room that is not staged for this simulation."));
 				}
 
 				var terrain = startingRoom.Terrain(null);
 				if (terrain is not null && !terrain.TerrainLayers.Contains(participant.StartingLayer))
 				{
 					messages.Add(new CombatSimulationValidationMessage(true,
-						$"Combatant slot {participant.Slot:N0} starts on {participant.StartingLayer.DescribeEnum(true)}, which is not available in its selected cell."));
+						$"Combatant slot {participant.Slot:N0} starts on {participant.StartingLayer.DescribeEnum(true)}, which is not available in its selected room."));
 				}
 
 				if (participant.StartingRoutePositionMetres.HasValue &&
@@ -168,7 +168,7 @@ public sealed class CombatSimulationService : ICombatSimulationService
 				     participant.StartingRoutePositionMetres.Value > startingRoom.RouteDefinition.LengthMetres))
 				{
 					messages.Add(new CombatSimulationValidationMessage(true,
-						$"Combatant slot {participant.Slot:N0} has an invalid RouteCell coordinate."));
+						$"Combatant slot {participant.Slot:N0} has an invalid RouteRoom coordinate."));
 				}
 			}
 

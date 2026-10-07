@@ -1890,7 +1890,7 @@ public partial class Body
 			}
 		}
 		// A callback may invalidate the prepared destination. Preserve actual relocation/deletion,
-		// otherwise leave this item safely at the captured cell rather than inventing another hand.
+		// otherwise leave this item safely at the captured room rather than inventing another hand.
 		item.RoomLayer = placement.Layer;
 		item.Drop(placement.Fallback);
 		if (!item.Deleted && !item.Destroyed && ReferenceEquals(item.Location, placement.Fallback) &&

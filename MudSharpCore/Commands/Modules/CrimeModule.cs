@@ -1708,7 +1708,7 @@ Durations use ordinary time units such as #3hours#0, #3days#0 or #3weeks#0; mont
     [RequiredCharacterState(CharacterState.Able)]
     [HelpInfo("requesttrial", @"The #3requesttrial#0 command is used when you are being held in remand for crimes you have committed, and if possible, begins a trial for you so that you can answer for your crimes. In some cases a trial may commence after you've been waiting for a while regardless of whether you request one.
 
-You must be physically held in a remand cell and not out on bail to request a trial.
+You must be physically held in a remand room and not out on bail to request a trial.
 
 The syntax for this command is simply #3requesttrial#0.", AutoHelp.HelpArg)]
     protected static void RequestTrial(ICharacter actor, string input)
@@ -1739,7 +1739,7 @@ The syntax for this command is simply #3requesttrial#0.", AutoHelp.HelpArg)]
             ILegalAuthority jurisdiction = effect.LegalAuthority;
             if (!jurisdiction.IsInRemandRoom(actor))
             {
-                errors.Add($"you are not being held in a {jurisdiction.Name.ColourName()} remand cell");
+                errors.Add($"you are not being held in a {jurisdiction.Name.ColourName()} remand room");
                 continue;
             }
 
@@ -1794,7 +1794,7 @@ The syntax for this command is simply #3requesttrial#0.", AutoHelp.HelpArg)]
     [RequiredCharacterState(CharacterState.Able)]
     [HelpInfo("requestexecution", @"The #3requestexecution#0 command is used when you are being held in remand while awaiting execution, and asks for your execution to be brought forward to the current time if an execution patrol can carry it out.
 
-You must be physically held in a remand cell, not already in an execution patrol, and the jurisdiction must have an execution patrol route available.
+You must be physically held in a remand room, not already in an execution patrol, and the jurisdiction must have an execution patrol route available.
 
 The syntax for this command is simply #3requestexecution#0.", AutoHelp.HelpArg)]
     protected static void RequestExecution(ICharacter actor, string input)
@@ -1823,7 +1823,7 @@ The syntax for this command is simply #3requestexecution#0.", AutoHelp.HelpArg)]
             ILegalAuthority jurisdiction = effect.LegalAuthority;
             if (!jurisdiction.IsInRemandRoom(actor))
             {
-                errors.Add($"you are not being held in a {jurisdiction.Name.ColourName()} remand cell");
+                errors.Add($"you are not being held in a {jurisdiction.Name.ColourName()} remand room");
                 continue;
             }
 

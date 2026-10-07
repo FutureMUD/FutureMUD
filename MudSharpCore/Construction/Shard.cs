@@ -16,12 +16,12 @@ public class Shard : Location, IEditableShard
 
     protected List<IClock> _clocks = new();
 
-    protected All<IRoom> _cells = new();
+    protected All<IRoom> _rooms = new();
 
     protected All<IZone> _zones = new();
 
     public IEnumerable<IZone> Zones => _zones;
-    public override IEnumerable<IRoom> Rooms => _cells;
+    public override IEnumerable<IRoom> Rooms => _rooms;
 
     public Shard(IFuturemud game, ISkyDescriptionTemplate skyTemplate, string name) : base(game)
     {
@@ -49,12 +49,12 @@ public class Shard : Location, IEditableShard
 
     public void Register(IRoom room)
     {
-        _cells.Add(room);
+        _rooms.Add(room);
     }
 
     public void Unregister(IRoom zone)
     {
-        _cells.Remove(zone);
+        _rooms.Remove(zone);
     }
 
     public void Register(IZone zone)

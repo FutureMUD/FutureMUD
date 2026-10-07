@@ -230,7 +230,7 @@ namespace MudSharp.Character
     {
 		/// <summary>
 		/// Estimates traversal of a prospective path edge using the character's current body and movement state,
-		/// without requiring the edge's origin to be the character's present cell. This does not authorise movement;
+		/// without requiring the edge's origin to be the character's present room. This does not authorise movement;
 		/// every executed step must still pass ordinary CanMove and CanCross checks at its actual origin.
 		/// </summary>
 		CanMoveResponse CanMoveForPathPlanning(IRoomExit exit, CanMoveFlags flags = CanMoveFlags.None);
@@ -431,7 +431,7 @@ namespace MudSharp.Character
 		}
 
         /// <summary>
-        /// This function should be the preferred way of teleporting a character from one cell to another, handling all the consequences
+        /// This function should be the preferred way of teleporting a character from one room to another, handling all the consequences
         /// </summary>
         /// <param name="target">The target location</param>
         /// <param name="layer">The target layer</param>

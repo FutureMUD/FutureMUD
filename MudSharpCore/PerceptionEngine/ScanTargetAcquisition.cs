@@ -119,7 +119,7 @@ internal static class ScanTargetAcquisition
 		double? separation = RouteSpatialService.Instance.GetExactSeparation(origin, destination);
 		// A scan may legitimately see between compatible route layers, whereas exact combat
 		// separation deliberately requires the same layer. The route query has already limited
-		// candidates to this cell and radius, so retain their horizontal distance for scan size
+		// candidates to this room and radius, so retain their horizontal distance for scan size
 		// difficulty rather than overflowing to an artificial automatic check.
 		if (!separation.HasValue && ReferenceEquals(origin.Room, destination.Room) &&
 			origin.RoutePositionMetres.HasValue && destination.RoutePositionMetres.HasValue)

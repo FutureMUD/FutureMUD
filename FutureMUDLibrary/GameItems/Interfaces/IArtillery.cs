@@ -78,7 +78,7 @@ public enum WeaponCarrierState
 
 /// <summary>
 /// A validated spatial artillery target. The item component owns the current solution;
-/// the path is represented by stable cell identifiers so it remains version tolerant.
+/// the path is represented by stable room identifiers so it remains version tolerant.
 /// </summary>
 public sealed record ArtilleryFiringSolution(
 	double Bearing,

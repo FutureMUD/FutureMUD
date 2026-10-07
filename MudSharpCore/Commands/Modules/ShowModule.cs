@@ -154,7 +154,7 @@ public class ShowModule : Module<ICharacter>
 	#3outcomes#0 - shows a list of the possible outcomes
 	#3permissions#0 - shows all permission levels for accounts
 	#3profiles#0 - shows all characteristic profiles
-	#3overlays#0 - shows all cell overlay packages
+	#3overlays#0 - shows all room overlay packages
 	#3pattern <id>#0 - shows a description pattern
 	#3patterns#0 - shows all description patterns
 	#3popbloodmodels#0 - shows all population blood models
@@ -439,6 +439,7 @@ Using #3show#0 on its own displays the topic list appropriate to your current pe
                 Show_FutureProgs(actor, ss);
                 break;
             case "cell overlay packages":
+            case "room overlay packages":
             case "overlay packages":
             case "overlays":
                 Show_RoomOverlayPackages(actor, ss);

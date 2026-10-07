@@ -7,7 +7,7 @@ using MudSharp.Framework;
 namespace MudSharp.Construction;
 
 /// <summary>
-/// A path that may combine ordinary exit traversal with longitudinal movement inside route cells.
+/// A path that may combine ordinary exit traversal with longitudinal movement inside route rooms.
 /// </summary>
 public interface ISpatialPath
 {

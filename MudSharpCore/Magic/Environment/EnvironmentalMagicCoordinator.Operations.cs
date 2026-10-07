@@ -34,11 +34,11 @@ public sealed partial class EnvironmentalMagicCoordinator
 			string.IsNullOrWhiteSpace(request.Attribution) || request.Attribution.Length > 500 ||
 			!double.IsFinite(request.Damage) || request.Damage < 0.0 || !double.IsFinite(request.Pressure) || request.Pressure < 0.0 ||
 			!double.IsFinite(request.Repair) || request.Repair < 0.0 || request.Repair > 0.0 && (request.Damage > 0.0 || request.Pressure > 0.0))
-			return Fail("A physical cell, unique operation ID, attribution and finite non-negative damage/pressure or repair are required.");
+			return Fail("A physical room, unique operation ID, attribution and finite non-negative damage/pressure or repair are required.");
 		if (_evaluating.Contains(room.Id)) { _recursive.Add(room.Id); return Fail("Environmental input progs must be read-only."); }
 		if (concrete.PendingEnvironmentalOperationId is { } pending && pending != request.OperationId)
 			return Fail($"Operation {pending} must be confirmed before another environmental operation can be applied.");
-		if (!_ecologicalMutations.Add(room.Id)) return Fail("This cell already has an ecological mutation in progress.");
+		if (!_ecologicalMutations.Add(room.Id)) return Fail("This room already has an ecological mutation in progress.");
 		try
 		{
 			var previous = _operations.Find(request.OperationId);

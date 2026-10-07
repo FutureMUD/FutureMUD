@@ -6156,7 +6156,7 @@ The syntax for using this command is as follows:
 	#3auction set withdraw <amount>#0 - withdraws cash from the auction house reserve
 	#3auction set ledger [count]#0 - reviews reserve ledger entries
 	#3auction set time <time period>#0 - sets the amount of time auctions run for
-	#3auction set location#0 - changes the location of the auction house to the current cell
+	#3auction set location#0 - changes the location of the auction house to the current room
 
 There is also the player version of the command, which is used to interact with auction houses, and it must be used at a location that is an auction house. You should also see the related command AUCTIONS.
 

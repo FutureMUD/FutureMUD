@@ -27,11 +27,11 @@ public sealed partial class MonsterAI
 	#3hunting on|off#0, #3hunting opening <Direct|Ambush|TrapWait>#0, #3hunting followup <Fight|Extract|VenomWithdrawal>#0
 	#3hunting layer <layer|any>#0, #3hunting opportunity <on|off>#0, #3hunting range <1-20>#0, #3hunting timeout|lost <seconds>#0
 	#3assessment cautious|balanced|bold#0, #3assessment engage|abandon|confidence <number>#0, #3assessment weight <factor> <number>#0
-	#3movement <Ground|Swim|Fly|Arboreal|Amphibious>#0; #3movement range|chance|enabled|cell|emote|flyinglayer|restinglayer|preferredhabitat|toleratedhabitat#0
+	#3movement <Ground|Swim|Fly|Arboreal|Amphibious>#0; #3movement range|chance|enabled|room|emote|flyinglayer|restinglayer|preferredhabitat|toleratedhabitat#0
 	#3home none|territorial|denning#0; #3home location <Location(Character) prog>#0, #3home anchor <Boolean(Character,Item) prog>#0
 	#3home craft|site|enabled|territory|size|share|shareother#0 - shared shelter and territory controls
 	#3awareness none|wary|wimpy|skittish|guarding|range|memory|threat|avoid|senses#0 - shared observation and refuge policy
-	#3refuge none|home|den|trees|sky|water|prog|layer|cell|return#0
+	#3refuge none|home|den|trees|sky|water|prog|layer|room|return#0
 	#3guardrange <0-20>#0, #3warning <seconds>#0, #3warningemote <emote|clear>#0 ($0 monster, $1 target)
 	#3returnhome <on|off>#0, #3cooldown <seconds>#0, #3provocation <seconds>#0
 	#3engagedelay <dice milliseconds>#0, #3engageemote <emote|clear>#0
@@ -91,7 +91,7 @@ Use one primary Animal/Monster AI per NPC; Monster AI is not a Wildlife group me
 			case "provocation": success = Seconds(x => ProvocationDuration = x, 1); break;
 			case "warning": success = Seconds(x => WarningDelay = x, 0, 3600); break;
 			case "guardrange":
-				if (!int.TryParse(command.SafeRemainingArgument, out var range) || range < 0 || range > 20) return Bad("Use a defended radius from 0 to 20 cells; zero means the home cell.");
+				if (!int.TryParse(command.SafeRemainingArgument, out var range) || range < 0 || range > 20) return Bad("Use a defended radius from 0 to 20 rooms; zero means the home room.");
 				GuardRange = range; success = true; break;
 			case "feeding":
 				var feeding = command.PopForSwitch();
@@ -202,7 +202,7 @@ Use one primary Animal/Monster AI per NPC; Monster AI is not a Wildlife group me
 		$"Hunting: {Hunting.Enabled.ToColouredString()}; target selection: {Hunting.Selection.DescribeEnum().ColourName()}\n" +
 		$"Opening: {Hunting.Opening.DescribeEnum()}; followup: {Hunting.Followup.DescribeEnum()}; layer: {Hunting.PreferredLayer?.DescribeEnum() ?? "any"}; opportunity: {Hunting.Opportunistic.ToColouredString()}\n" +
 		$"Assessment start/abandon: {Hunting.EngageThreshold.ToString("N1", voyeur)}/{Hunting.AbandonThreshold.ToString("N1", voyeur)}; confidence: {Hunting.ConfidenceBias.ToString("N1", voyeur)}\n" +
-		$"Pursuit: {Hunting.PursuitRange.ToString("N0", voyeur)} cells, {Hunting.PursuitTimeout.Describe(voyeur)}; lost sight: {Hunting.LostTimeout.Describe(voyeur)}\n" +
+		$"Pursuit: {Hunting.PursuitRange.ToString("N0", voyeur)} rooms, {Hunting.PursuitTimeout.Describe(voyeur)}; lost sight: {Hunting.LostTimeout.Describe(voyeur)}\n" +
 		$"Target size differences: {Hunting.MinimumSizeDifference?.ToString(voyeur) ?? "any"} to {Hunting.MaximumSizeDifference?.ToString(voyeur) ?? "any"}; include: {Hunting.IncludedRaces.Select(x => x.ToString(voyeur)).ListToCommaSeparatedValues()}; exclude: {Hunting.ExcludedRaces.Select(x => x.ToString(voyeur)).ListToCommaSeparatedValues()}\n" +
 		$"Preference lineages: {Hunting.PreferredRaces.Select(x => $"{x.Key}: {x.Value}").ListToCommaSeparatedValues()}; eligibility/preference progs: {Hunting.EligibilityProgId}/{Hunting.PreferenceProgId}\n" +
 		$"Weights: {Hunting.Weights.Select(x => $"{x.Key}: {x.Value.ToString("N1", voyeur)}").ListToCommaSeparatedValues()}";
@@ -218,9 +218,9 @@ Use one primary Animal/Monster AI per NPC; Monster AI is not a Wildlife group me
 		sb.AppendLine($"Defence uses window: {DefenceUsesWindow.ToColouredString()}; trap provokes: {TrapProvokes.ToColouredString()}; provocation: {ProvocationDuration.Describe(actor)}; cooldown: {Cooldown.Describe(actor)}");
 		sb.AppendLine($"Allies: same race {SameRaceAllies.ToColouredString()}, prog {AllyProgId}; feeding: {Feeding.DescribeEnum()}, {FeedingBites.ToString("N0", actor)} bites within {FeedingDuration.Describe(actor)}");
 		sb.AppendLine($"Home: {HomeStrategy.DescribeEnum()}, location prog {HomeLocationProg?.Id ?? 0}, anchor prog {AnchorItemProg?.Id ?? 0}, craft {_burrowCraftId}; guard radius {GuardRange.ToString("N0", actor)}; return {ReturnHome.ToColouredString()}; warning {WarningDelay.Describe(actor)}");
-		sb.AppendLine($"Movement: {MovementStrategy.DescribeEnum()}, range {MovementRange.ToString("N0", actor)}, wander {WanderChancePerMinute.ToString("P1", actor)}; enabled/cell progs {MovementEnabledProg?.Id}/{MovementRoomProg?.Id}; habitats {PreferredHabitatProg?.Id}/{ToleratedHabitatProg?.Id}");
+		sb.AppendLine($"Movement: {MovementStrategy.DescribeEnum()}, range {MovementRange.ToString("N0", actor)}, wander {WanderChancePerMinute.ToString("P1", actor)}; enabled/room progs {MovementEnabledProg?.Id}/{MovementRoomProg?.Id}; habitats {PreferredHabitatProg?.Id}/{ToleratedHabitatProg?.Id}");
 		sb.AppendLine($"Flying/resting layers: {TargetFlyingLayer.DescribeEnum()}/{TargetRestingLayer.DescribeEnum()}; tree layers: {PreferredTreeLayer.DescribeEnum()}/{SecondaryTreeLayer.DescribeEnum()}; aquatic bias {AmphibiousWaterBias.ToString("P1", actor)}");
-		sb.AppendLine($"Awareness: {AwarenessStrategy.DescribeEnum()}, {AwarenessRange.ToString("N0", actor)} cells, {AwarenessMemoryMinutes.ToString("N0", actor)} minutes; senses {SensesStrategy.DescribeEnum()}; threat/avoid progs {AwarenessThreatProg?.Id}/{AwarenessAvoidRoomProg?.Id}; refuge {RefugeStrategy.DescribeEnum()}/{RefugeLayer.DescribeEnum()}, prog {RefugeRoomProg?.Id}");
+		sb.AppendLine($"Awareness: {AwarenessStrategy.DescribeEnum()}, {AwarenessRange.ToString("N0", actor)} rooms, {AwarenessMemoryMinutes.ToString("N0", actor)} minutes; senses {SensesStrategy.DescribeEnum()}; threat/avoid progs {AwarenessThreatProg?.Id}/{AwarenessAvoidRoomProg?.Id}; refuge {RefugeStrategy.DescribeEnum()}/{RefugeLayer.DescribeEnum()}, prog {RefugeRoomProg?.Id}");
 		sb.AppendLine($"Engage delay (ms dice): {EngageDelayDiceExpression}; engage emote: {EngageEmote}; warning emote: {PostureEmote}");
 		sb.AppendLine(ShowHunting(actor));
 		sb.AppendLine("Needs, equipment, skills and combat powers are configured on the NPC separately.");

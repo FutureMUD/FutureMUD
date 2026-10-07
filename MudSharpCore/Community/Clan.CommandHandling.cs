@@ -1508,11 +1508,11 @@ public partial class Clan
 		if (actor.IsAdministrator(PermissionLevel.Admin))
 		{
 			sb.AppendLine($"Discord Channel: {DiscordChannelId?.ToString("F0", actor).ColourValue() ?? "None".ColourError()}");
-			sb.AppendLine($"Treasury Cells:\n{TreasuryRooms.Select(x => x.GetFriendlyReference(actor)).DefaultIfEmpty("None").ListToLines(true)}");
+			sb.AppendLine($"Treasury Rooms:\n{TreasuryRooms.Select(x => x.GetFriendlyReference(actor)).DefaultIfEmpty("None").ListToLines(true)}");
 			sb.AppendLine();
-			sb.AppendLine($"Administration Cells:\n{AdministrationRooms.Select(x => x.GetFriendlyReference(actor)).DefaultIfEmpty("None").ListToLines(true)}");
+			sb.AppendLine($"Administration Rooms:\n{AdministrationRooms.Select(x => x.GetFriendlyReference(actor)).DefaultIfEmpty("None").ListToLines(true)}");
 			sb.AppendLine();
-			sb.AppendLine($"Clan Hall Cells:\n{ClanHallRooms.Select(x => x.GetFriendlyReference(actor)).DefaultIfEmpty("None").ListToLines(true)}");
+			sb.AppendLine($"Clan Hall Rooms:\n{ClanHallRooms.Select(x => x.GetFriendlyReference(actor)).DefaultIfEmpty("None").ListToLines(true)}");
 			sb.AppendLine();
 		}
 

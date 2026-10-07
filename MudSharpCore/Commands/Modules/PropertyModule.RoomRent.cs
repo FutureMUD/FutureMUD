@@ -815,7 +815,7 @@ Economic zone manager commands:
 				$"{room.MinimumDuration.Describe(actor)} to {room.MaximumDuration.Describe(actor)}",
 				HotelRoomAvailability(room)
 			}),
-			new List<string> { "Room", "Cell", "Listed", "Daily", "Deposit", "Duration", "Available" },
+			new List<string> { "Room", "Location", "Listed", "Daily", "Deposit", "Duration", "Available" },
 			actor.LineFormatLength,
 			colour: Telnet.Green,
 			unicodeTable: actor.Account.UseUnicode));
@@ -1216,7 +1216,7 @@ Economic zone manager commands:
 				room.Keys.Select(x => x.Name).ListToString(),
 				room.Furnishings.Count().ToString("N0", actor)
 			}),
-			new List<string> { "Room", "Cell", "Listed", "Daily", "Deposit", "Duration", "Keys", "Furnishings" },
+			new List<string> { "Room", "Location", "Listed", "Daily", "Deposit", "Duration", "Keys", "Furnishings" },
 			actor.LineFormatLength,
 			colour: Telnet.Green,
 			unicodeTable: actor.Account.UseUnicode));

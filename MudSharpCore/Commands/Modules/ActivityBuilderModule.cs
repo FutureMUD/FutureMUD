@@ -1006,13 +1006,13 @@ You can use the following options with this command:
     private const string ForagableProfileHelpText =
         @$"This command is used to view and edit foragable profiles. 
 
-Foragable profiles are attached to terrain types, zones or individual cells, and control both what yield types exist in that location and what item or commodity results can be foraged by players. Cells inherit from their zone, and zones usually inherit from terrain defaults unless a builder sets a more specific override.
+Foragable profiles are attached to terrain types, zones or individual rooms, and control both what yield types exist in that location and what item or commodity results can be foraged by players. Rooms inherit from their zone, and zones usually inherit from terrain defaults unless a builder sets a more specific override.
 
 The individual foraged outputs are built using the #Bforagable#0 command. These foragables can be shared between multiple foragable profiles. A profile yield without matching linked foragables can still support grazing/eating systems, but players will not gather items from it with #3forage#0 until you link matching foragables.
 
 See #6terrain set forage <id|name>#0 to set a default foragable profile for a terrain type
 See #6zone set <which> forage <id|name>#0 to set a foragable profile for a zone
-See #6cell set forage <id|name>#0 to set a foragable profile at a cell level.
+See #6room set forage <id|name>#0 to set a foragable profile at a room level.
 
 You can use the following options with this command:
 

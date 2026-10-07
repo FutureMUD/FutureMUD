@@ -38,12 +38,12 @@ internal class BuilderModule : BaseBuilderModule
     public static BuilderModule Instance { get; } = new();
 
     private const string ZeroGravityHelp = @"Syntax:
-	#3zerog show [cell]#0
-	#3zerog on [cell]#0
-	#3zerog off [cell]#0
-	#3zerog reset [cell]#0
+	#3zerog show [room]#0
+	#3zerog on [room]#0
+	#3zerog off [room]#0
+	#3zerog reset [room]#0
 
-This command controls the admin gravity override on a cell. #3on#0 forces zero gravity, #3off#0 forces normal gravity and #3reset#0 returns the cell to its terrain or spell-derived gravity.";
+This command controls the admin gravity override on a room. #3on#0 forces zero gravity, #3off#0 forces normal gravity and #3reset#0 returns the room to its terrain or spell-derived gravity.";
 
     [PlayerCommand("ZeroGravity", "zerog")]
     [CommandPermission(PermissionLevel.SeniorAdmin)]
@@ -61,7 +61,7 @@ This command controls the admin gravity override on a cell. #3on#0 forces zero g
         var room = ss.IsFinished ? actor.Location : RoomBuilderModule.LookupRoom(actor, ss.SafeRemainingArgument);
         if (room is null)
         {
-            actor.OutputHandler.Send("There is no such cell.");
+            actor.OutputHandler.Send("There is no such room.");
             return;
         }
 

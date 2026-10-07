@@ -113,7 +113,7 @@ public class AutobuilderAreaTerrainFeatureRectangle : AutobuilderAreaTerrainRect
     public override string Show(ICharacter builder)
     {
         return
-            $"{$"Autobuilder Area Template #{Id} ({Name})".Colour(Telnet.Cyan)}\n\n{$"This autobuilder template will return a rectangular area of cells with height, width, terrain, room features and room template supplied by the builder. It also requires the builder to specify a matching mask of tag IDs to be applied to the generated rooms. This template {(ConnectRoomsWithDiagonalExits ? "does" : "does not")} connect rooms diagonally.".Wrap(builder.InnerLineFormatLength)}";
+            $"{$"Autobuilder Area Template #{Id} ({Name})".Colour(Telnet.Cyan)}\n\n{$"This autobuilder template will return a rectangular area of rooms with height, width, terrain, room features and room template supplied by the builder. It also requires the builder to specify a matching mask of tag IDs to be applied to the generated rooms. This template {(ConnectRoomsWithDiagonalExits ? "does" : "does not")} connect rooms diagonally.".Wrap(builder.InnerLineFormatLength)}";
     }
 
     public override IAutobuilderArea Clone(string newName)

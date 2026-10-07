@@ -473,7 +473,7 @@ To look at a person's tattoos: #3look <person> tattoos [<bodypart>]#0
 To look at a person's scars: #3look <person> scars [<bodypart>]
 To look at graffiti in a location: #3look graffiti [<which>]#0
 To look at graffiti on an object: #3look <item> graffiti [<which>]#0
-In a RouteCell, to look longitudinally: #3look forward|backward#0
+In a RouteRoom, to look longitudinally: #3look forward|backward#0
 
 The use of the look command is affected by various factors such as the ambient light level, the relative skill and attribute levels of you and the things you could potentially see, magical effects, and damage to your eyes.
 
@@ -763,7 +763,7 @@ See also: HELP EVALUATE, HELP SEARCH, HELP SCAN",
 		var origin = RouteSpatialService.Instance.GetEffectiveLocation(actor);
 		if (route is null || !origin.RoutePositionMetres.HasValue)
 		{
-			actor.OutputHandler.Send("You are not positioned in a RouteCell.");
+			actor.OutputHandler.Send("You are not positioned in a RouteRoom.");
 			return;
 		}
 
@@ -948,7 +948,7 @@ There are several syntaxes you can use with this command:
 	#3qs <size>#0 - show only items and people equal or larger than a particular size
 	#3qs <exit>#0 - show only a particular exit
 	#3qs <size> <exit>#0 - combination of the previous two options.
-	#3qs forward|backward#0 - scan longitudinally in a RouteCell.
+	#3qs forward|backward#0 - scan longitudinally in a RouteRoom.
 
 See also the #3scan#0, #3longscan#0 and #3search#0 commands.", AutoHelp.HelpArg)]
     protected static void QuickScan(ICharacter actor, string input)
@@ -1145,7 +1145,7 @@ There are several syntaxes you can use with this command:
 	#3scan <size>#0 - show only items and people equal or larger than a particular size
 	#3scan <exit>#0 - show only a particular exit
 	#3scan <size> <exit>#0 - combination of the previous two options.
-	#3scan forward|backward#0 - scan longitudinally in a RouteCell.
+	#3scan forward|backward#0 - scan longitudinally in a RouteRoom.
 
 See also the #3quickscan#0, #3longscan#0 and #3search#0 commands.", AutoHelp.HelpArg)]
     [DelayBlock("general", "You must first stop {0} before you can do that.")]
@@ -1415,7 +1415,7 @@ There are several syntaxes you can use with this command:
 	#3ls <size>#0 - show only items and people equal or larger than a particular size
 	#3ls <exit>#0 - show only a particular exit
 	#3ls <size> <exit>#0 - combination of the previous two options.
-	#3ls forward|backward#0 - scan longitudinally in a RouteCell.
+	#3ls forward|backward#0 - scan longitudinally in a RouteRoom.
 
 See also the #3quickscan#0, #3scan#0 and #3search#0 commands.",
         AutoHelp.HelpArg)]

@@ -27,7 +27,7 @@ namespace MudSharp.Construction
 
 		/// <summary>
 		/// Returns handlers close enough to witness an event produced by <paramref name="source"/>.
-		/// Ordinary locations retain whole-location semantics; spatially large cells can bound
+		/// Ordinary locations retain whole-location semantics; spatially large rooms can bound
 		/// the result by the source's effective position.
 		/// </summary>
 		IEnumerable<IHandleEvents> EventHandlersFor(IPerceivable source) => EventHandlers;

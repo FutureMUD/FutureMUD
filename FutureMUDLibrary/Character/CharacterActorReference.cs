@@ -156,7 +156,7 @@ public static class CharacterActorReferenceExtensions
 			actor.InstanceKind.DescribeEnum(true),
 			actor.Location is null
 				? "nowhere"
-				: $"cell #{actor.Location.Id.ToString("N0", CultureInfo.InvariantCulture)} {actor.RoomLayer.DescribeEnum()}"
+				: $"room #{actor.Location.Id.ToString("N0", CultureInfo.InvariantCulture)} {actor.RoomLayer.DescribeEnum()}"
 		};
 
 		return parts.ListToString(separator: " | ", conjunction: "", twoItemJoiner: " | ");

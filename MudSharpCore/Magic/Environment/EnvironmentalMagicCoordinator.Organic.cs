@@ -18,13 +18,13 @@ public sealed partial class EnvironmentalMagicCoordinator
 	{
 		if (room is not Room concrete || concrete.Id <= 0 || !ReferenceEquals(concrete.Gameworld, _world))
 		{
-			return new(null, 0, false, false, ["Land gathering requires a physical cell in this gameworld."]);
+			return new(null, 0, false, false, ["Land gathering requires a physical room in this gameworld."]);
 		}
 		var profileId = EffectiveProfileId(concrete);
 		if (!profileId.HasValue)
 		{
 			return new(null, 0, false, concrete.PendingEnvironmentalOperationId.HasValue,
-				["The cell has no effective environmental profile."]);
+				["The room has no effective environmental profile."]);
 		}
 		var profile = Profile(profileId.Value);
 		if (profile is null)
@@ -67,13 +67,13 @@ public sealed partial class EnvironmentalMagicCoordinator
 		if (room is not Room concrete || concrete.Id <= 0 || !ReferenceEquals(concrete.Gameworld, _world))
 		{
 			return OrganicFailure(room, canonical, kind, NativeOrganicSourceStatus.Indeterminate,
-				"Native organic sources require a registered physical cell in this gameworld.");
+				"Native organic sources require a registered physical room in this gameworld.");
 		}
 		var profileId = EffectiveProfileId(concrete);
 		if (!profileId.HasValue)
 		{
 			return OrganicFailure(room, canonical, kind, NativeOrganicSourceStatus.Unauthorised,
-				"The cell has no effective environmental profile authorising this source.");
+				"The room has no effective environmental profile authorising this source.");
 		}
 		var profile = Profile(profileId.Value);
 		if (profile is null)
@@ -209,7 +209,7 @@ public sealed partial class EnvironmentalMagicCoordinator
 		if (field is null)
 		{
 			return OrganicFailure(room, canonical, kind, NativeOrganicSourceStatus.Absent,
-				"This physical cell has no indexed agriculture field.", profile.Id, profile.Revision);
+				"This physical room has no indexed agriculture field.", profile.Id, profile.Revision);
 		}
 		NativeOrganicSourceSnapshot owner;
 		try
@@ -490,7 +490,7 @@ public sealed partial class EnvironmentalMagicCoordinator
 		}
 		if (room is not Room concrete || concrete.Id <= 0 || !ReferenceEquals(concrete.Gameworld, _world))
 		{
-			return NativeOrganicPenaltyEvaluation.Invalid("Organic penalties require a physical cell in this gameworld.");
+			return NativeOrganicPenaltyEvaluation.Invalid("Organic penalties require a physical room in this gameworld.");
 		}
 		var profileId = EffectiveProfileId(concrete);
 		if (!profileId.HasValue)
@@ -558,7 +558,7 @@ public sealed partial class EnvironmentalMagicCoordinator
 			if (state.SchemaVersion != 1 || !double.IsFinite(state.ScarDamage) || state.ScarDamage < 0.0 ||
 			    !double.IsFinite(pressure) || pressure < 0.0)
 			{
-				return OrganicPenaltyFailure(profile.Id, channel, "The cell's environmental scar/pressure state is invalid.");
+				return OrganicPenaltyFailure(profile.Id, channel, "The room's environmental scar/pressure state is invalid.");
 			}
 			var values = new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase)
 			{
@@ -704,7 +704,7 @@ public sealed partial class EnvironmentalMagicCoordinator
 		var field = FieldFor(room);
 		if (field is null)
 		{
-			result = "This physical cell has no indexed agriculture field.";
+			result = "This physical room has no indexed agriculture field.";
 			return false;
 		}
 		if (_evaluating.Contains(room.Id))

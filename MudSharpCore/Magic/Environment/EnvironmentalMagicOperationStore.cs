@@ -95,7 +95,7 @@ public sealed partial class DatabaseEnvironmentalMagicOperationStore : IEnvironm
 		{
 			var dbcell = FMDB.Context.Rooms.Include(x => x.EnvironmentalState).Include(x => x.RoomsMagicResources).Single(x => x.Id == room.Id);
 			if (dbcell.EnvironmentalState?.Revision != room.ExpectedEnvironmentDatabaseRevision)
-				throw new DbUpdateConcurrencyException("The cell's environmental persistence revision changed. Reload before retrying the operation.");
+				throw new DbUpdateConcurrencyException("The room's environmental persistence revision changed. Reload before retrying the operation.");
 			using var transaction = FMDB.Context.Database.BeginTransaction(IsolationLevel.ReadCommitted);
 			if (progress is not null)
 			{
@@ -171,7 +171,7 @@ public sealed partial class DatabaseEnvironmentalMagicOperationStore : IEnvironm
 			}
 			FMDB.Context.SaveChanges();
 			transaction.Commit();
-			// The coordinator adopts these confirmed values before lifting the cell's write freeze.
+			// The coordinator adopts these confirmed values before lifting the room's write freeze.
 		}
 	}
 }

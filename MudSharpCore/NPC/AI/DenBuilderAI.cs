@@ -96,7 +96,7 @@ public class DenBuilderAI : PathingAIBase
 
     protected override string TypeHelpText => $@"{base.TypeHelpText}
 	#3craft <craft>#0 - sets the craft used to build the den or nest
-	#3site <prog>#0 - sets the prog that chooses suitable den cells
+	#3site <prog>#0 - sets the prog that chooses suitable den rooms
 	#3enabled <prog>#0 - sets the prog that controls whether den building is active
 	#3defend <prog>#0 - sets the prog that decides who to attack near the den
 	#3anchor <prog>#0 - sets the prog that identifies the completed den anchor item
@@ -154,7 +154,7 @@ public class DenBuilderAI : PathingAIBase
     {
         if (command.IsFinished)
         {
-            actor.OutputHandler.Send("Which prog should decide whether a cell is suitable for a den?");
+            actor.OutputHandler.Send("Which prog should decide whether a room is suitable for a den?");
             return false;
         }
 

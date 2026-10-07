@@ -27,10 +27,10 @@ public class ExitManager : IExitManager, IHaveFuturemud
 	public ISpatialPathfinder SpatialPathfinder { get; }
 
     /// <summary>
-    ///     Called the first time that an exit for a particular cell and/or overlay is requested. Initialises the cell in the
+    ///     Called the first time that an exit for a particular room and/or overlay is requested. Initialises the room in the
     ///     manager.
     /// </summary>
-    /// <param name="cell">The cell which is being initialised</param>
+    /// <param name="room">The room which is being initialised</param>
     /// <param name="overlay">The overlay which is being initialised (if not specified, initialise all overlays)</param>
     public void InitialiseRoom(IRoom room, IRoomOverlay overlay)
     {
@@ -191,11 +191,11 @@ public class ExitManager : IExitManager, IHaveFuturemud
     }
 
     /// <summary>
-    /// Retrieves all exits for the specified cell and overlay combination
+    /// Retrieves all exits for the specified room and overlay combination
     /// </summary>
-    /// <param name="cell">The cell for which to request the exit information</param>
+    /// <param name="room">The room for which to request the exit information</param>
     /// <param name="package">The overlay package for which you want to get exits</param>
-    /// <returns>An IEnumerable of all the ICellExits for this cell and overlay package</returns>
+    /// <returns>An IEnumerable of all the IRoomExits for this room and overlay package</returns>
     public IEnumerable<IRoomExit> GetExitsFor(IRoom room, IRoomOverlayPackage package, RoomLayer? layer = null)
     {
         IRoomOverlay overlay = room.GetOverlay(package);
@@ -229,7 +229,7 @@ public class ExitManager : IExitManager, IHaveFuturemud
 
     public IEnumerable<IRoomExit> GetAllExits(IRoom room)
     {
-        // Initialise each of the overlays for the cell
+        // Initialise each of the overlays for the room
         foreach (IRoomOverlay overlay in room.Overlays)
         {
             InitialiseRoom(room, overlay);
@@ -351,7 +351,7 @@ public class ExitManager : IExitManager, IHaveFuturemud
 
     public void UpdateRoomOverlayExits(IRoom room, IRoomOverlay overlay)
     {
-        // It is only necessary to update if it is a Cell / Cell Overlay combo that we have already loaded. Otherwise it can be caught later.
+        // It is only necessary to update if it is a Room / Room Overlay combo that we have already loaded. Otherwise it can be caught later.
         if (RoomExitDictionary.ContainsKey((room, overlay)))
         {
             RoomExitDictionary.Remove((room, overlay));
@@ -367,7 +367,7 @@ public class ExitManager : IExitManager, IHaveFuturemud
         PathfindingService.InvalidateTopology(room);
 		SpatialPathfinder.InvalidateTopology();
 
-        // Initialise the cell so all exits are in memory
+        // Initialise the room so all exits are in memory
         InitialiseRoom(room, null);
 
         // Get a list of all the exits that we're deleting
@@ -379,7 +379,7 @@ public class ExitManager : IExitManager, IHaveFuturemud
                 exitsToDelete.Add(MasterExitList[exit]);
             }
 
-            // Also remove the cell/overlay combo from the master list
+            // Also remove the room/overlay combo from the master list
             RoomExitDictionary.Remove((room, overlay));
         }
 

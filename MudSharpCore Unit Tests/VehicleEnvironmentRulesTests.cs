@@ -219,7 +219,7 @@ public class VehicleEnvironmentRulesTests
 			.GetRawConstantValue()!;
 
 		StringAssert.Contains(help, "Compartments, Occupants And Control");
-		StringAssert.Contains(help, "Cell-Exit Propulsion");
+		StringAssert.Contains(help, "Room-Exit Propulsion");
 		StringAssert.Contains(help, "Access, Cargo And Modules");
 		StringAssert.Contains(help, "Towing And Damage");
 		StringAssert.Contains(help, "thing@vehicle");

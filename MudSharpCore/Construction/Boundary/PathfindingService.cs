@@ -265,20 +265,20 @@ public class PathfindingService : IPathfindingService
 		private readonly IFuturemud _gameworld;
 		private readonly long _version;
 		private readonly int _bucketSize;
-		private readonly IReadOnlyList<IRoom> _cells;
+		private readonly IReadOnlyList<IRoom> _rooms;
 		private readonly Stopwatch _buildStopwatch = new();
 		private readonly Dictionary<ClusterKey, int> _clusterIds = new();
-		private readonly Dictionary<long, int> _cellClusters = new();
+		private readonly Dictionary<long, int> _roomClusters = new();
 		private readonly List<TopologyEdge> _topologyEdges = new();
-		private int _cellIndex;
+		private int _roomIndex;
 
 		public PathfindingIndexBuilder(IFuturemud gameworld, long version, int bucketSize)
 		{
 			_gameworld = gameworld;
 			_version = version;
 			_bucketSize = bucketSize;
-			_cells = _gameworld.Rooms.ToList();
-			QueuedRoomCount = _cells.Count;
+			_rooms = _gameworld.Rooms.ToList();
+			QueuedRoomCount = _rooms.Count;
 			_buildStopwatch.Start();
 		}
 
@@ -292,7 +292,7 @@ public class PathfindingService : IPathfindingService
 			int edgesScanned = 0;
 			while (cellsProcessed < maximumRooms && sliceStopwatch.Elapsed < budget)
 			{
-				if (_cellIndex >= _cells.Count)
+				if (_roomIndex >= _rooms.Count)
 				{
 					_buildStopwatch.Stop();
 					return new IndexBuildSlice
@@ -305,7 +305,7 @@ public class PathfindingService : IPathfindingService
 					};
 				}
 
-				edgesScanned += ProcessRoom(_cells[_cellIndex++]);
+				edgesScanned += ProcessRoom(_rooms[_roomIndex++]);
 				cellsProcessed++;
 				ProcessedRoomCount++;
 			}
@@ -327,7 +327,7 @@ public class PathfindingService : IPathfindingService
 			}
 
 			int clusterId = GetClusterId(ClusterKeyFor(room));
-			_cellClusters[room.Id] = clusterId;
+			_roomClusters[room.Id] = clusterId;
 			int edgeCount = 0;
 			foreach (IRoomExit exit in room.ExitsFor(null, true))
 			{
@@ -377,8 +377,8 @@ public class PathfindingService : IPathfindingService
 			HashSet<AbstractEdgeKey> seenEdges = new();
 			foreach (TopologyEdge edge in _topologyEdges)
 			{
-				if (!_cellClusters.TryGetValue(edge.FromRoomId, out int fromCluster) ||
-				    !_cellClusters.TryGetValue(edge.ToRoomId, out int toCluster) ||
+				if (!_roomClusters.TryGetValue(edge.FromRoomId, out int fromCluster) ||
+				    !_roomClusters.TryGetValue(edge.ToRoomId, out int toCluster) ||
 				    fromCluster == toCluster)
 				{
 					continue;
@@ -399,8 +399,8 @@ public class PathfindingService : IPathfindingService
 				edges.Add(abstractEdge);
 			}
 
-			return new PathfindingSnapshot(_version, _cellClusters, boundaryEdges, _clusterIds.Count,
-				_cellClusters.Count, boundaryEdges.Values.Sum(x => x.Count), buildDuration);
+			return new PathfindingSnapshot(_version, _roomClusters, boundaryEdges, _clusterIds.Count,
+				_roomClusters.Count, boundaryEdges.Values.Sum(x => x.Count), buildDuration);
 		}
 	}
 

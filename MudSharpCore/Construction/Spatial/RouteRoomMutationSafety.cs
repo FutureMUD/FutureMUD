@@ -29,7 +29,7 @@ internal readonly record struct RouteRoomPersistedLengthBlockers(
 	bool HasPointSurfaceLiquidBeyondLength);
 
 /// <summary>
-/// Performs the persisted half of RouteCell geometry mutation validation. Builder commands use
+/// Performs the persisted half of RouteRoom geometry mutation validation. Builder commands use
 /// these queries inside the same serializable transaction as the geometry mutation so dormant
 /// world presences cannot be stranded between validation and commit.
 /// </summary>
@@ -111,7 +111,7 @@ internal static class RouteRoomMutationSafety
 		if (instance is null)
 		{
 			throw new InvalidDataException(
-				$"Character instance #{actor.CharacterInstanceId:N0} is missing while committing RouteCell builder spatial state.");
+				$"Character instance #{actor.CharacterInstanceId:N0} is missing while committing RouteRoom builder spatial state.");
 		}
 
 		instance.LocationId = cellId;
@@ -127,7 +127,7 @@ internal static class RouteRoomMutationSafety
 		if (character is null)
 		{
 			throw new InvalidDataException(
-				$"Character #{actor.CharacterId:N0} is missing while committing primary RouteCell builder spatial state.");
+				$"Character #{actor.CharacterId:N0} is missing while committing primary RouteRoom builder spatial state.");
 		}
 
 		character.Location = cellId;
@@ -149,7 +149,7 @@ internal static class RouteRoomMutationSafety
 		}
 		catch (Exception exception) when (exception is System.Xml.XmlException or InvalidOperationException)
 		{
-			throw new InvalidDataException("The cell has malformed persisted surface-liquid XML.", exception);
+			throw new InvalidDataException("The room has malformed persisted surface-liquid XML.", exception);
 		}
 
 		var positions = new List<double>();
@@ -161,7 +161,7 @@ internal static class RouteRoomMutationSafety
 					out var position) || !double.IsFinite(position) || position < 0.0)
 			{
 				throw new InvalidDataException(
-					$"The cell has an invalid persisted surface-liquid RouteCell coordinate '{attribute.Value}'.");
+					$"The room has an invalid persisted surface-liquid RouteRoom coordinate '{attribute.Value}'.");
 			}
 
 			positions.Add(position);

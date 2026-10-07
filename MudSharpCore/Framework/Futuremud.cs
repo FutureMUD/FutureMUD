@@ -1344,10 +1344,10 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
 
     public void Add(IRoom room)
     {
-		var conflict = _cells.GetUniqueNameConflict(room.UniqueName, room.Id);
+		var conflict = _rooms.GetUniqueNameConflict(room.UniqueName, room.Id);
 		if (conflict is not null)
-			throw new InvalidOperationException($"Cannot register cell #{room.Id}: unique name '{room.UniqueName}' is already used by cell #{conflict.Id}.");
-        _cells.Add(room);
+			throw new InvalidOperationException($"Cannot register room #{room.Id}: unique name '{room.UniqueName}' is already used by room #{conflict.Id}.");
+        _rooms.Add(room);
 		EnvironmentalMagic?.Register(room);
     }
 
@@ -1462,7 +1462,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
 
     public void Add(IRoomOverlayPackage package)
     {
-        _cellOverlayPackages.Add(package);
+        _roomOverlayPackages.Add(package);
     }
 
     public void Add(IGameItemProto proto)
@@ -2456,7 +2456,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
 
     public void Destroy(IRoomOverlayPackage package)
     {
-        _cellOverlayPackages.Remove(package);
+        _roomOverlayPackages.Remove(package);
     }
 
     public void Destroy(ICharacteristicDefinition definition)
@@ -2564,7 +2564,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
     {
 		EnvironmentalMagic?.Unregister(room);
         room.OwningZone.Unregister(room);
-        _cells.Remove(room);
+        _rooms.Remove(room);
         DestroyListeners(room);
     }
 

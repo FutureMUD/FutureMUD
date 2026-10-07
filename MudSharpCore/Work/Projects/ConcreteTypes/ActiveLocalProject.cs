@@ -25,7 +25,7 @@ public class ActiveLocalProject : ActiveProject, ILocalProject
 		if (Location is null)
 		{
 			throw new InvalidDataException(
-				$"Active local project #{project.Id} refers to missing cell #{project.RoomId?.ToString() ?? "null"}.");
+				$"Active local project #{project.Id} refers to missing room #{project.RoomId?.ToString() ?? "null"}.");
 		}
 
 		RoomLayer = (RoomLayer)project.RoomLayer;

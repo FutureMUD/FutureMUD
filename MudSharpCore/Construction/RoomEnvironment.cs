@@ -91,7 +91,7 @@ public partial class Room
 		{
 			if (!ExpectedEnvironmentDatabaseRevision.HasValue)
 				throw new InvalidOperationException("An unexpected persisted environmental state exists; reload before saving it.");
-			// Compare against the cell's known persistence baseline, not whichever revision a fresh query returned.
+			// Compare against the room's known persistence baseline, not whichever revision a fresh query returned.
 			if (FMDB.Context is { } context)
 				context.Entry(room.EnvironmentalState).Property(x => x.Revision).OriginalValue =
 					ExpectedEnvironmentDatabaseRevision.Value;

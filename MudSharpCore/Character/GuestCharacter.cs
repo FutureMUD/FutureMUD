@@ -56,7 +56,7 @@ public class GuestCharacter : Character
 
     private static void GuestLoungeRoom_RoomProposedForDeletion(IRoom room, ProposalRejectionResponse response)
     {
-        response.RejectWithReason("That room is the guest lounge cell");
+        response.RejectWithReason("That room is the guest lounge room");
     }
 
     public static ICharacter GetRandomGuestCharacter(IFuturemud gameworld)

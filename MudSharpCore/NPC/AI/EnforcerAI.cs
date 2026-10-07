@@ -217,7 +217,7 @@ public class EnforcerAI : ArtificialIntelligenceBase, IOverrideAlertEmote
         {
             ThrowInPrisonEchoProg = null;
             Changed = true;
-            actor.OutputHandler.Send("This AI will no longer execute any actions when it throws someone in a cell.");
+            actor.OutputHandler.Send("This AI will no longer execute any actions when it throws someone in a room.");
             return true;
         }
 
@@ -245,7 +245,7 @@ public class EnforcerAI : ArtificialIntelligenceBase, IOverrideAlertEmote
 
         ThrowInPrisonEchoProg = prog;
         Changed = true;
-        actor.OutputHandler.Send($"This AI will now use the prog {prog.MXPClickableFunctionName()} to return commands to execute when it throws someone in a cell.");
+        actor.OutputHandler.Send($"This AI will now use the prog {prog.MXPClickableFunctionName()} to return commands to execute when it throws someone in a room.");
         return true;
     }
 

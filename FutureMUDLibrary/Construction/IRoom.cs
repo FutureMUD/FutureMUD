@@ -35,7 +35,7 @@ namespace MudSharp.Construction
 		bool TrySetUniqueName(string? value, out string error);
 
 		/// <summary>
-		/// The spatial model used by this cell. Existing cell implementations remain ordinary
+		/// The spatial model used by this room. Existing room implementations remain ordinary
 		/// unless they expose a route definition.
 		/// </summary>
 		RoomSpatialType SpatialType => RouteDefinition is null
@@ -43,14 +43,14 @@ namespace MudSharp.Construction
 			: RoomSpatialType.LinearRoute;
 
 		/// <summary>
-		/// The optional one-dimensional spatial definition for a linear route cell.
+		/// The optional one-dimensional spatial definition for a linear route room.
 		/// </summary>
 		IRouteRoomDefinition? RouteDefinition => null;
 
 #nullable restore annotations
 
         /// <summary>
-        /// If a cell is temporary, it may disappear at any time.
+        /// If a room is temporary, it may disappear at any time.
         /// </summary>
         bool Temporary { get; }
         IEnumerable<IRoom> Surrounds { get; }
@@ -131,7 +131,7 @@ namespace MudSharp.Construction
         bool TryConsumeYield(string foragableType, double yield);
 		/// <summary>Exactly compare-and-applies a previously observed native forage debit.</summary>
 		bool TryConsumeYield(NativeForageYieldSnapshot expected, double yield, out string reason);
-		/// <summary>Validates and consumes distinct forage keys atomically under their one cell owner.</summary>
+		/// <summary>Validates and consumes distinct forage keys atomically under their one room owner.</summary>
 		bool TryConsumeYieldBatch(IReadOnlyList<NativeForageDebitRequest> requests, out string reason);
         void ConsumeYieldFor(IForagable foragable);
         void ConsumeYield(string foragableType, double yield);
@@ -164,7 +164,7 @@ namespace MudSharp.Construction
         IRoomOverlay GetOverlayFor(IPerceiver voyeur);
 
         /// <summary>
-        /// Determines whether this cell acts like a water cell (i.e. swimming required), optionally specifying a layer at which the swim should be checked
+        /// Determines whether this room acts like a water room (i.e. swimming required), optionally specifying a layer at which the swim should be checked
         /// </summary>
         /// <param name="referenceLayer">A layer to check if it counts as a swim layer</param>
         /// <returns>True if the specified layer (and by implication all lower layers) is a swim layer</returns>
@@ -183,7 +183,7 @@ namespace MudSharp.Construction
         void InitialiseTracks(IReadOnlyCollectionDictionary<IRoom, ITrack> tracks);
 
         /// <summary>
-        /// Use this to send an AudioOutput to all perceivers in the same cell, adjacent layers, and surrounding cells with an audio volume drop off
+        /// Use this to send an AudioOutput to all perceivers in the same room, adjacent layers, and surrounding rooms with an audio volume drop off
         /// </summary>
         /// <param name="audioText">The text to echo. Use {0} for the direction ("from above", "far to the east", etc) and {1} for the volume ("very loud", "quiet", etc)</param>
         /// <param name="volume">The volume to echo. Drops off one per room</param>

@@ -15,9 +15,9 @@ public class RoomOverlay : SaveableItem, IEditableRoomOverlay
     private double _ambientLightFactor;
 
 
-    private string _cellDescription;
+    private string _roomDescription;
 
-    private string _cellName;
+    private string _roomName;
 
     protected List<long> _exitIDs;
 
@@ -181,27 +181,27 @@ public class RoomOverlay : SaveableItem, IEditableRoomOverlay
     public IRoomOverlayPackage Package { get; protected set; }
 
     /// <summary>
-    ///     When this CellOverlay is in place, this is the Name of the Cell
+    ///     When this RoomOverlay is in place, this is the Name of the Room
     /// </summary>
     public string RoomName
     {
-        get => _cellName;
+        get => _roomName;
         set
         {
-            _cellName = value;
+            _roomName = value;
             Changed = true;
         }
     }
 
     /// <summary>
-    ///     When this CellOverlay is in place, this is the Description of the Cell
+    ///     When this RoomOverlay is in place, this is the Description of the Room
     /// </summary>
     public string RoomDescription
     {
-        get => _cellDescription;
+        get => _roomDescription;
         set
         {
-            _cellDescription = value;
+            _roomDescription = value;
             Changed = true;
         }
     }
@@ -265,7 +265,7 @@ public class RoomOverlay : SaveableItem, IEditableRoomOverlay
     }
 
     /// <summary>
-    ///     The ID numbers of the Exits which are in place when this CellOverlay is selected
+    ///     The ID numbers of the Exits which are in place when this RoomOverlay is selected
     /// </summary>
     public IEnumerable<long> ExitIDs => _exitIDs;
 

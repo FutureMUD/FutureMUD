@@ -1528,7 +1528,7 @@ The syntax is:
             foreach (ICharacter ch in room.Characters.Where(x => x.State == CharacterState.Dead))
             {
                 sb.AppendLine(
-                    $"Cell {room.Id:N0} ({room.CurrentOverlay.RoomName}) had dead character {ch.Id} ({ch.HowSeen(actor)})");
+                    $"Room {room.Id:N0} ({room.CurrentOverlay.RoomName}) had dead character {ch.Id} ({ch.HowSeen(actor)})");
             }
         }
 
@@ -2487,7 +2487,7 @@ div.function-generalhelp {
 
         if (GuestCharacter.GuestLoungeRoom == null)
         {
-            actor.Send("There is no guest lounge cell set. You cannot initialise guests.");
+            actor.Send("There is no guest lounge room set. You cannot initialise guests.");
             return;
         }
 

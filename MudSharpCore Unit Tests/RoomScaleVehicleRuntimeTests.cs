@@ -418,7 +418,7 @@ public class RoomScaleVehicleRuntimeTests
 
 		Assert.AreEqual(1, result.Findings.Count);
 		Assert.AreEqual(VehicleOperationalSubsystem.Interior, result.Findings[0].Subsystem);
-		StringAssert.Contains(result.Findings[0].Reason, "no hosted interior cell assigned");
+		StringAssert.Contains(result.Findings[0].Reason, "no hosted interior room assigned");
 		StringAssert.Contains(result.Findings[0].Hint, "vehicle recover <vehicle> interior fix");
 	}
 

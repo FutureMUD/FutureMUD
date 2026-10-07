@@ -143,7 +143,7 @@ public partial class Room
 		_lastWeatherExposureByLayer[layer] = now;
 		if (Gameworld.GetStaticBool("PuddlesEnabled"))
 		{
-			// Precipitation is uniform RouteCell environment state rather than a point spill.
+			// Precipitation is uniform RouteRoom environment state rather than a point spill.
 			var state = GetOrCreateSurfaceState(layer, null);
 			state.AddLiquid(new LiquidMixture(rainLiquid, amountPerTick * elapsed / 5.0, Gameworld));
 			CapSurfaceLiquid(state);
@@ -241,7 +241,7 @@ public partial class Room
 						out var parsedCoordinate))
 				{
 					throw new InvalidDataException(
-						$"Cell #{Id:N0} has an invalid persisted surface-liquid RouteCell coordinate '{positionAttribute.Value}'.");
+						$"Room #{Id:N0} has an invalid persisted surface-liquid RouteRoom coordinate '{positionAttribute.Value}'.");
 				}
 
 				coordinate = parsedCoordinate;
@@ -255,7 +255,7 @@ public partial class Room
 			catch (ArgumentException exception)
 			{
 				throw new InvalidDataException(
-					$"Cell #{Id:N0} has invalid persisted surface-liquid spatial data: {exception.Message}",
+					$"Room #{Id:N0} has invalid persisted surface-liquid spatial data: {exception.Message}",
 					exception);
 			}
 

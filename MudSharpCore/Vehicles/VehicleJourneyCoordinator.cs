@@ -8,7 +8,7 @@ namespace MudSharp.Vehicles;
 
 /// <summary>
 /// Coordinates durable service journeys while delegating compiled leg execution to the
-/// independently replaceable physical RouteCell movement strategy.
+/// independently replaceable physical RouteRoom movement strategy.
 /// </summary>
 public sealed class VehicleJourneyCoordinator : IVehicleJourneyCoordinator, IVehicleJourneyOperations
 {
@@ -97,7 +97,7 @@ public sealed class VehicleJourneyCoordinator : IVehicleJourneyCoordinator, IVeh
 		if (routeStop &&
 			(!journey.Vehicle.RoutePositionMetres.HasValue || !stop.Location.RoutePositionMetres.HasValue))
 		{
-			reason = "The room-scale vehicle does not have a valid coordinate at the authored RouteCell stop.";
+			reason = "The room-scale vehicle does not have a valid coordinate at the authored RouteRoom stop.";
 			return false;
 		}
 

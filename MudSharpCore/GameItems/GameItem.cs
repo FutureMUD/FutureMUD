@@ -237,9 +237,9 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 
 		if (!Nullable.Equals(previousPosition, RoutePositionMetres))
 		{
-			// Longitudinal movement is real movement even though the containing cell does not change.
+			// Longitudinal movement is real movement even though the containing room does not change.
 			// Independent cables, hoses and other ordinary connectors must therefore revalidate and
-			// disconnect just as they do for a cell transition.
+			// disconnect just as they do for a room transition.
 			ForceMove();
 		}
 
@@ -913,7 +913,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
     }
 
     // The original database containment is evidence for component reconstruction before
-    // another root has loaded this child's hand or cell membership.
+    // another root has loaded this child's hand or room membership.
     internal bool LoadedFromDatabase { get; }
     internal long? ContainerIdAtLoad { get; }
 
@@ -3244,8 +3244,8 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 
 		spatialService.TryValidateLocation(currentLocation, out var error);
 		throw new InvalidOperationException(
-			$"Cannot capture the destruction or morph position of item #{Id:N0} in Cell #{selectedRoom.Id:N0}: " +
-			$"{error} Installed RouteCell doors require an anchor on the selected exit side.");
+			$"Cannot capture the destruction or morph position of item #{Id:N0} in Room #{selectedRoom.Id:N0}: " +
+			$"{error} Installed RouteRoom doors require an anchor on the selected exit side.");
 	}
 
     #endregion

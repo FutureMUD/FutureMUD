@@ -641,7 +641,7 @@ public class AutobuilderRoomByTerrain : AutobuilderRoomBase
     public override string Show(ICharacter builder)
     {
         return
-            $"{$"Autobuilder Room Template #{Id.ToString("N0", builder)} ({Name})".Colour(Telnet.Cyan)}\n\nThis template will create the same cell for each terrain. This particular template has specific cell information set up for the terrain types {TerrainInfos.Select(x => x.Key.Name.Colour(Telnet.Green)).ListToString()}.";
+            $"{$"Autobuilder Room Template #{Id.ToString("N0", builder)} ({Name})".Colour(Telnet.Cyan)}\n\nThis template will create the same room for each terrain. This particular template has specific room information set up for the terrain types {TerrainInfos.Select(x => x.Key.Name.Colour(Telnet.Green)).ListToString()}.";
     }
 
     #endregion

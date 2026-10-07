@@ -166,7 +166,7 @@ public static partial class SpatialAreaPackageSerializer
 		if (package.Rooms.Count is < 1 or > MaximumRooms)
 		{
 			diagnostics.Add(Error("invalid-cell-count",
-				$"The package must contain between 1 and {MaximumRooms:N0} cells."));
+				$"The package must contain between 1 and {MaximumRooms:N0} rooms."));
 		}
 
 		if (package.Exits.Count > MaximumExits)
@@ -180,7 +180,7 @@ public static partial class SpatialAreaPackageSerializer
 		    package.Omissions.Cast<object?>().Any(x => x is null))
 		{
 			diagnostics.Add(Error("null-collection-entry",
-				"Cell, exit, and omission collections may not contain null entries."));
+				"Room, exit, and omission collections may not contain null entries."));
 			return diagnostics;
 		}
 
@@ -214,12 +214,12 @@ public static partial class SpatialAreaPackageSerializer
 			if (!zoneKeys.Contains(room.ZoneKey))
 			{
 				diagnostics.Add(Error("orphan-cell",
-					$"Cell '{room.Key}' references missing zone '{room.ZoneKey}'."));
+					$"Room '{room.Key}' references missing zone '{room.ZoneKey}'."));
 			}
 
 			if (room.Overlay is null)
 			{
-				diagnostics.Add(Error("missing-overlay", $"Cell '{room.Key}' has no overlay."));
+				diagnostics.Add(Error("missing-overlay", $"Room '{room.Key}' has no overlay."));
 				continue;
 			}
 
@@ -227,27 +227,27 @@ public static partial class SpatialAreaPackageSerializer
 			    string.IsNullOrWhiteSpace(room.Overlay.RoomDescription))
 			{
 				diagnostics.Add(Error("invalid-overlay-text",
-					$"Cell '{room.Key}' must have both a name and description."));
+					$"Room '{room.Key}' must have both a name and description."));
 			}
 
 			if (!double.IsFinite(room.Overlay.AmbientLightFactor) ||
 			    !double.IsFinite(room.Overlay.AddedLight))
 			{
 				diagnostics.Add(Error("invalid-overlay-light",
-					$"Cell '{room.Key}' contains a non-finite light value."));
+					$"Room '{room.Key}' contains a non-finite light value."));
 			}
 
 			if (room.Overlay.Terrain is null || string.IsNullOrWhiteSpace(room.Overlay.Terrain.Name))
 			{
 				diagnostics.Add(Error("missing-terrain",
-					$"Cell '{room.Key}' does not identify a terrain dependency."));
+					$"Room '{room.Key}' does not identify a terrain dependency."));
 			}
 
 			if (room.Tags is null || room.RangedCovers is null || room.MagicResources is null ||
 			    room.Overlay.ExitKeys is null)
 			{
 				diagnostics.Add(Error("missing-cell-collections",
-					$"Cell '{room.Key}' is missing one or more required collection fields."));
+					$"Room '{room.Key}' is missing one or more required collection fields."));
 				continue;
 			}
 
@@ -257,7 +257,7 @@ public static partial class SpatialAreaPackageSerializer
 			    room.MagicResources.Any(x => x.Resource is null))
 			{
 				diagnostics.Add(Error("null-cell-dependency",
-					$"Cell '{room.Key}' contains a null dependency entry."));
+					$"Room '{room.Key}' contains a null dependency entry."));
 				continue;
 			}
 
@@ -273,13 +273,13 @@ public static partial class SpatialAreaPackageSerializer
 			      string.IsNullOrWhiteSpace(room.Overlay.Atmosphere.Kind))))
 			{
 				diagnostics.Add(Error("invalid-cell-dependency",
-					$"Cell '{room.Key}' contains a dependency without a name or kind."));
+					$"Room '{room.Key}' contains a dependency without a name or kind."));
 			}
 
 			if (room.Overlay.ExitKeys.Count != room.Overlay.ExitKeys.Distinct(StringComparer.Ordinal).Count())
 			{
 				diagnostics.Add(Error("duplicate-overlay-exit",
-					$"Cell '{room.Key}' lists the same exit more than once."));
+					$"Room '{room.Key}' lists the same exit more than once."));
 			}
 
 			foreach (var exitKey in room.Overlay.ExitKeys ?? [])
@@ -287,7 +287,7 @@ public static partial class SpatialAreaPackageSerializer
 				if (!exitKeys.Contains(exitKey))
 				{
 					diagnostics.Add(Error("orphan-overlay-exit",
-						$"Cell '{room.Key}' references missing exit '{exitKey}'."));
+						$"Room '{room.Key}' references missing exit '{exitKey}'."));
 				}
 			}
 
@@ -311,7 +311,7 @@ public static partial class SpatialAreaPackageSerializer
 
 			if (string.Equals(exit.Room1Key, exit.Room2Key, StringComparison.Ordinal))
 			{
-				diagnostics.Add(Error("self-exit", $"Exit '{exit.Key}' connects a cell to itself."));
+				diagnostics.Add(Error("self-exit", $"Exit '{exit.Key}' connects a room to itself."));
 			}
 
 			if (exit.TimeMultiplier <= 0.0 || !double.IsFinite(exit.TimeMultiplier))
@@ -323,7 +323,7 @@ public static partial class SpatialAreaPackageSerializer
 			if (exit.FallRoomKey is not null && !cellKeys.Contains(exit.FallRoomKey))
 			{
 				diagnostics.Add(Error("orphan-fall-cell",
-					$"Exit '{exit.Key}' references missing fall cell '{exit.FallRoomKey}'."));
+					$"Exit '{exit.Key}' references missing fall room '{exit.FallRoomKey}'."));
 			}
 
 			if (exit.FallRoomKey is not null &&
@@ -331,7 +331,7 @@ public static partial class SpatialAreaPackageSerializer
 			    !string.Equals(exit.FallRoomKey, exit.Room2Key, StringComparison.Ordinal))
 			{
 				diagnostics.Add(Error("invalid-fall-cell",
-					$"Exit '{exit.Key}' fall cell must be one of its two endpoints."));
+					$"Exit '{exit.Key}' fall room must be one of its two endpoints."));
 			}
 
 			var side1NonCardinal = !string.IsNullOrWhiteSpace(exit.Side1.Verb);
@@ -371,7 +371,7 @@ public static partial class SpatialAreaPackageSerializer
 				    !string.Equals(room.Key, exit.Room2Key, StringComparison.Ordinal))
 				{
 					diagnostics.Add(Error("invalid-overlay-exit-endpoint",
-						$"Cell '{room.Key}' lists exit '{exitKey}' but is not one of its endpoints."));
+						$"Room '{room.Key}' lists exit '{exitKey}' but is not one of its endpoints."));
 				}
 
 				exitReferences[exitKey] = exitReferences.GetValueOrDefault(exitKey) + 1;
@@ -381,7 +381,7 @@ public static partial class SpatialAreaPackageSerializer
 		foreach (var exit in package.Exits.Where(x => !exitReferences.ContainsKey(x.Key)))
 		{
 			diagnostics.Add(Error("unreferenced-exit",
-				$"Exit '{exit.Key}' is not active in any packaged cell overlay."));
+				$"Exit '{exit.Key}' is not active in any packaged room overlay."));
 		}
 
 		ValidateZones(package, zones, cellKeys, diagnostics);
@@ -406,7 +406,7 @@ public static partial class SpatialAreaPackageSerializer
 			if (!cellKeys.Contains(zone.DefaultRoomKey))
 			{
 				diagnostics.Add(Error("invalid-default-cell",
-					$"Zone '{zoneKey}' default cell '{zone.DefaultRoomKey}' is not in the package."));
+					$"Zone '{zoneKey}' default room '{zone.DefaultRoomKey}' is not in the package."));
 			}
 			else
 			{
@@ -414,7 +414,7 @@ public static partial class SpatialAreaPackageSerializer
 				if (!string.Equals(defaultRoom.ZoneKey, zoneKey, StringComparison.Ordinal))
 				{
 					diagnostics.Add(Error("wrong-zone-default-cell",
-						$"Zone '{zoneKey}' default cell belongs to another packaged zone."));
+						$"Zone '{zoneKey}' default room belongs to another packaged zone."));
 				}
 			}
 
@@ -542,14 +542,14 @@ public static partial class SpatialAreaPackageSerializer
 		    string.IsNullOrWhiteSpace(route.NegativeDirectionName))
 		{
 			diagnostics.Add(Error("invalid-route-cell",
-				$"Cell '{room.Key}' contains invalid route-cell geometry."));
+				$"Room '{room.Key}' contains invalid route-room geometry."));
 			return;
 		}
 
 		if (route.Landmarks is null || route.ExitAnchors is null)
 		{
 			diagnostics.Add(Error("missing-route-collections",
-				$"Cell '{room.Key}' route-cell collections may not be null."));
+				$"Room '{room.Key}' route-room collections may not be null."));
 			return;
 		}
 
@@ -562,7 +562,7 @@ public static partial class SpatialAreaPackageSerializer
 			    landmark.PositionMetres > route.LengthMetres)
 			{
 				diagnostics.Add(Error("invalid-route-landmark",
-					$"Cell '{room.Key}' contains an invalid route landmark."));
+					$"Room '{room.Key}' contains an invalid route landmark."));
 			}
 		}
 
@@ -581,7 +581,7 @@ public static partial class SpatialAreaPackageSerializer
 			    anchor.ArrivalPositionMetres > anchor.MaximumPositionMetres)
 			{
 				diagnostics.Add(Error("invalid-route-anchor",
-					$"Cell '{room.Key}' contains an invalid route exit anchor."));
+					$"Room '{room.Key}' contains an invalid route exit anchor."));
 			}
 		}
 
@@ -592,7 +592,7 @@ public static partial class SpatialAreaPackageSerializer
 		if (duplicateAnchor is not null)
 		{
 			diagnostics.Add(Error("duplicate-route-anchor",
-				$"Cell '{room.Key}' contains more than one anchor for exit '{duplicateAnchor.Key}'."));
+				$"Room '{room.Key}' contains more than one anchor for exit '{duplicateAnchor.Key}'."));
 		}
 	}
 

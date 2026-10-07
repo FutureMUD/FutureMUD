@@ -12,7 +12,7 @@ public class MediaMonitorGameItemComponentProto : PoweredMachineBaseGameItemComp
 {
 	private const string SpecificBuildingHelpText = @"
 	#3capabilities <video|av>#0 - sets whether this monitor accepts video only or audio/video
-	#3ambient#0 - toggles ambient relay to everyone in the cell; otherwise viewers must use watch feed
+	#3ambient#0 - toggles ambient relay to everyone in the room; otherwise viewers must use watch feed
 	#3audio#0 - toggles audio presentation when A/V is supported
 	#3volume <volume>#0 - sets the default audio output volume, including silent
 	#3endpoint <key>#0 - sets the stable local input endpoint key

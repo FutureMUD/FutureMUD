@@ -27,7 +27,7 @@ public sealed partial class MagicCastingService
 		if (!intent.Targets.Trim().EqualTo("here"))
 			throw new InvalidOperationException("This area policy requires exactly on here; selected-character, room and exit targeting retain their own native contracts.");
 		if (intent.Actor.Location.RouteDefinition is not null && policy.Scope == SpellAreaScope.RoomCharacters)
-			throw new InvalidOperationException("Whole-room area scope is unavailable in a spatial RouteCell; explicitly author ImmediateCharacters for its native local neighbourhood.");
+			throw new InvalidOperationException("Whole-room area scope is unavailable in a spatial RouteRoom; explicitly author ImmediateCharacters for its native local neighbourhood.");
 		var actor = intent.Actor;
 		var snapshot = AreaLocalCharacters(actor, policy).Take(AreaInputBound + 1).ToArray();
 		if (snapshot.Length > AreaInputBound)

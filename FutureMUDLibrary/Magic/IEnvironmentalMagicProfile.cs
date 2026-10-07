@@ -6,7 +6,7 @@ using MudSharp.FutureProg;
 
 namespace MudSharp.Magic.Environment;
 
-/// <summary>A reusable, centrally coordinated definition for physical cell resources.</summary>
+/// <summary>A reusable, centrally coordinated definition for physical room resources.</summary>
 public interface IEnvironmentalMagicProfile : IMagicResourceRegenerator
 {
 	long Revision { get; }
@@ -34,7 +34,7 @@ public interface IEnvironmentalMagicProfile : IMagicResourceRegenerator
 	IReadOnlySet<string> RequiredOutputInputNames(long resourceId);
 	/// <summary>Cumulative half-lives; differences preserve pressure decay across profile edits.</summary>
 	double PressureDecayIntegralAt(DateTimeOffset utc);
-	/// <summary>Rebind edited references once per definition revision, without evaluating cell inputs.</summary>
+	/// <summary>Rebind edited references once per definition revision, without evaluating room inputs.</summary>
 	void RefreshReferences();
 	/// <summary>Evaluate a maximum, then a rate, against one already collected immutable input snapshot.</summary>
 	EnvironmentalMagicOutputEvaluation EvaluateOutput(EnvironmentalMagicOutput output,

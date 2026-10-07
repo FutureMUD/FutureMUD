@@ -120,10 +120,10 @@ public sealed partial class Futuremud : IDisposable
     private readonly All<ICalendar> _calendars = new();
     private readonly All<ICelestialObject> _celestialObjects = new();
 
-    private readonly RevisableAll<IRoomOverlayPackage> _cellOverlayPackages =
+    private readonly RevisableAll<IRoomOverlayPackage> _roomOverlayPackages =
         new();
 
-    private readonly All<IRoom> _cells = new();
+    private readonly All<IRoom> _rooms = new();
     private readonly All<IChannel> _channels = new();
     private readonly All<ICharacteristicProfile> _characteristicProfiles = new();
     private readonly All<ICharacteristicDefinition> _characteristics = new();
@@ -359,9 +359,9 @@ public sealed partial class Futuremud : IDisposable
 
     public IUneditableAll<ICelestialObject> CelestialObjects => _celestialObjects;
 
-    public IUneditableRevisableAll<IRoomOverlayPackage> RoomOverlayPackages => _cellOverlayPackages;
+    public IUneditableRevisableAll<IRoomOverlayPackage> RoomOverlayPackages => _roomOverlayPackages;
 
-    public IUneditableAll<IRoom> Rooms => _cells;
+    public IUneditableAll<IRoom> Rooms => _rooms;
 
     public IUneditableAll<IChannel> Channels => _channels;
 

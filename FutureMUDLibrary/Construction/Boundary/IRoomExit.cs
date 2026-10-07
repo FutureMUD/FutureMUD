@@ -27,7 +27,7 @@ namespace MudSharp.Construction.Boundary
     }
 
     /// <summary>
-    ///     A cell exit is the one-sided implementation of a particular IExit
+    ///     A room exit is the one-sided implementation of a particular IExit
     /// </summary>
     public interface IRoomExit : IKeyworded, IProgVariable
     {

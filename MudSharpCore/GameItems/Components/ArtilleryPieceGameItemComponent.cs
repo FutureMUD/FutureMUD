@@ -18,7 +18,7 @@ namespace MudSharp.GameItems.Components;
 
 /// <summary>
 /// A crew-served ranged platform. This deliberately does not implement IWieldable;
-/// command resolution must find it in the local cell rather than a character's hands.
+/// command resolution must find it in the local room rather than a character's hands.
 /// </summary>
 public sealed class ArtilleryPieceGameItemComponent : GameItemComponent, IArtilleryPiece
 {
@@ -1162,7 +1162,7 @@ public sealed class ArtilleryPieceGameItemComponent : GameItemComponent, IArtill
 		var current = Parent.Location;
 		if (current is null)
 		{
-			reason = "The artillery piece is not located in a cell.";
+			reason = "The artillery piece is not located in a room.";
 			return false;
 		}
 		foreach (var cellId in cellPath)
@@ -1170,7 +1170,7 @@ public sealed class ArtilleryPieceGameItemComponent : GameItemComponent, IArtill
 			var next = Gameworld.Rooms.Get(cellId);
 			if (next is null || !current.ExitsFor(actor).Any(x => x.Destination == next))
 			{
-				reason = "An indirect firing path must be an explicit, reachable chain of cells.";
+				reason = "An indirect firing path must be an explicit, reachable chain of rooms.";
 				return false;
 			}
 			current = next;

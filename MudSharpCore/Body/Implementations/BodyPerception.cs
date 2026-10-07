@@ -183,7 +183,7 @@ public partial class Body
             }
             else
             {
-                // Require at least 1 eye to see unless things are in your inventory or are cell exits
+                // Require at least 1 eye to see unless things are in your inventory or are room exits
                 List<EyeProto> eyes = Bodyparts.OfType<EyeProto>().ToList();
                 if (AffectedBy<IBlindnessEffect>() || Actor.AffectedBy<IBlindnessEffect>())
                 {
@@ -766,9 +766,9 @@ public partial class Body
 	}
 
     /// <summary>
-    /// Ordinary cells retain their existing whole-layer look semantics. A RouteCell can span
+    /// Ordinary rooms retain their existing whole-layer look semantics. A RouteRoom can span
     /// kilometres, so a normal look is deliberately bounded at the configured visual-locality
-    /// ceiling and uses the RouteCell's ordered spatial index.
+    /// ceiling and uses the RouteRoom's ordered spatial index.
     /// </summary>
     private IEnumerable<IPerceivable> PerceivablesInVisualRouteRange()
     {

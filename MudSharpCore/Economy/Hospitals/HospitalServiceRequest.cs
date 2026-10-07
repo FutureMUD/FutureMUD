@@ -332,7 +332,7 @@ public class HospitalServiceRequest : SaveableItem, IHospitalServiceRequest
 		sb.AppendLine($"Theatre: {(OperatingTheatreRoomId?.ToString("N0", actor).ColourValue() ?? (UsedInPlaceFallback ? "in-place fallback".ColourCommand() : "None".ColourError()))}");
 		sb.AppendLine($"Supplies: {(SupplyPrepared ? $"prepared by #{PreparedByEmployeeId?.ToString("N0", actor) ?? "?"} at {PreparedAt?.ToString("g", actor) ?? "?"}".ColourValue() : "Not prepared".ColourError())}");
 		sb.AppendLine($"Recovery Room: {(RecoveryRoomId?.ToString("N0", actor).ColourValue() ?? "None".ColourError())}");
-		sb.AppendLine($"Return/Lobby Cell: {(ReturnRoomId?.ToString("N0", actor).ColourValue() ?? "None".ColourError())}");
+		sb.AppendLine($"Return/Lobby Room: {(ReturnRoomId?.ToString("N0", actor).ColourValue() ?? "None".ColourError())}");
 		sb.AppendLine($"Procedure Parameters: {(string.IsNullOrWhiteSpace(ProcedureParameters) ? "None".ColourError() : ProcedureParameters.ColourCommand())}");
 		sb.AppendLine($"Created: {CreatedAt.ToString("g", actor).ColourValue()}");
 		sb.AppendLine($"Updated: {LastUpdatedAt.ToString("g", actor).ColourValue()}");

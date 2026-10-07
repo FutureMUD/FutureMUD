@@ -12,8 +12,8 @@ using MudSharp.PerceptionEngine.Outputs;
 namespace MudSharp.Construction;
 
 /// <summary>
-/// Emits distance-attenuated audio from an exact RouteCell coordinate. It deliberately
-/// bypasses cell-wide output because a RouteCell may represent many kilometres.
+/// Emits distance-attenuated audio from an exact RouteRoom coordinate. It deliberately
+/// bypasses room-wide output because a RouteRoom may represent many kilometres.
 /// </summary>
 internal sealed class RouteRoomAudioPropagation
 {

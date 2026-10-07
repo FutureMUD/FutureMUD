@@ -122,7 +122,7 @@ public static class SpatialQueryExtensions
 
 		if (room.RouteDefinition is null)
 		{
-			// ILocation.Perceivables is the convenient concrete Cell projection, but the older
+			// ILocation.Perceivables is the convenient concrete Room projection, but the older
 			// contract exposes characters and game items independently. Merge both surfaces so
 			// ordinary-cell implementations and existing builders keep their historical results.
 			var legacyPerceivables = sameLayerOnly

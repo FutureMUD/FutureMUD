@@ -153,7 +153,7 @@ public class CombatSimulationTests
 
 		var messages = new CombatSimulationService().Validate(stagedRequest);
 
-		Assert.IsTrue(messages.Any(x => x.IsError && x.Message.Contains("invalid RouteCell coordinate")));
+		Assert.IsTrue(messages.Any(x => x.IsError && x.Message.Contains("invalid RouteRoom coordinate")));
 	}
 
 	[TestMethod]

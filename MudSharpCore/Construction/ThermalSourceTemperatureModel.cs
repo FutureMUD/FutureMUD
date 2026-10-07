@@ -21,8 +21,8 @@ internal static class ThermalSourceTemperatureModel
     {
         if (room.RouteDefinition is null)
         {
-            // Preserve the ordinary-cell contract instead of requiring the newer aggregate
-            // Perceivables projection from every ICell implementation.
+            // Preserve the ordinary-room contract instead of requiring the newer aggregate
+            // Perceivables projection from every IRoom implementation.
             return (room.GameItems ?? [])
                    .SelectMany(x => x.DeepItems)
                    .Concat((room.Characters ?? [])
@@ -32,8 +32,8 @@ internal static class ThermalSourceTemperatureModel
                    .Select(x => x.First());
         }
 
-        // A RouteCell thermal query without a valid observer coordinate cannot be scoped
-        // safely. Fail closed instead of leaking heat across the whole linear cell.
+        // A RouteRoom thermal query without a valid observer coordinate cannot be scoped
+        // safely. Fail closed instead of leaking heat across the whole linear room.
         if (voyeur?.Location != room || !voyeur.RoutePositionMetres.HasValue)
         {
             return [];

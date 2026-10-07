@@ -102,7 +102,7 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
         JailLocation = Gameworld.Rooms.Get(dbitem.JailLocationId ?? 0);
         CourtLocation = Gameworld.Rooms.Get(dbitem.CourtLocationId ?? 0);
         BankAccount = Gameworld.BankAccounts.Get(dbitem.BankAccountId ?? 0);
-        _cellLocations.AddRange(dbitem.LegalAuthorityRooms.SelectNotNull(x => Gameworld.Rooms.Get(x.RoomId)));
+        _roomLocations.AddRange(dbitem.LegalAuthorityRooms.SelectNotNull(x => Gameworld.Rooms.Get(x.RoomId)));
         _jailLocations.AddRange(dbitem.LegalAuthorityJailRooms.SelectNotNull(x => Gameworld.Rooms.Get(x.RoomId)));
 
         OnPrisonerReleased = Gameworld.FutureProgs.Get(dbitem.OnReleaseProgId ?? 0);
@@ -1058,7 +1058,7 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
 
     private void PreparingLocation_RoomProposedForDeletion(IRoom room, ProposalRejectionResponse response)
     {
-        response.RejectWithReason($"That cell is a preparing location for patrols in Legal Authority #{Id:N0} ({Name.ColourName()})");
+        response.RejectWithReason($"That room is a preparing location for patrols in Legal Authority #{Id:N0} ({Name.ColourName()})");
     }
 
     public IRoom MarshallingLocation
@@ -1080,7 +1080,7 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
 
     private void MarshallingLocation_RoomProposedForDeletion(IRoom room, ProposalRejectionResponse response)
     {
-        response.RejectWithReason($"That cell is a marshalling location for patrols in Legal Authority #{Id:N0} ({Name.ColourName()})");
+        response.RejectWithReason($"That room is a marshalling location for patrols in Legal Authority #{Id:N0} ({Name.ColourName()})");
     }
 
     public IRoom EnforcerStowingLocation
@@ -1102,7 +1102,7 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
 
     private void EnforcerStowingLocation_RoomProposedForDeletion(IRoom room, ProposalRejectionResponse response)
     {
-        response.RejectWithReason($"That cell is an enforcer stowing location for patrols in Legal Authority #{Id:N0} ({Name.ColourName()})");
+        response.RejectWithReason($"That room is an enforcer stowing location for patrols in Legal Authority #{Id:N0} ({Name.ColourName()})");
     }
 
     public IRoom PrisonLocation
@@ -1211,7 +1211,7 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
 
     private void CourtLocation_RoomProposedForDeletion(IRoom room, ProposalRejectionResponse response)
     {
-        response.RejectWithReason($"That cell is a court location for patrols in Legal Authority #{Id:N0} ({Name.ColourName()})");
+        response.RejectWithReason($"That room is a court location for patrols in Legal Authority #{Id:N0} ({Name.ColourName()})");
     }
 
     public IFutureProg OnPrisonerHeld { get; set; }
@@ -1219,8 +1219,8 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
     public IFutureProg OnPrisonerReleased { get; set; }
     public IFutureProg BailCalculationProg { get; set; }
 
-    private readonly List<IRoom> _cellLocations = new();
-    public IEnumerable<IRoom> RoomLocations => _cellLocations;
+    private readonly List<IRoom> _roomLocations = new();
+    public IEnumerable<IRoom> RoomLocations => _roomLocations;
 
     private readonly List<IRoom> _jailLocations = new();
     public IEnumerable<IRoom> JailLocations => _jailLocations;

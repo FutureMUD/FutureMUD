@@ -110,8 +110,8 @@ public partial class Room
                 "outdoors",
                 "0=Indoors, 1=Indoors with Windows, 2=Outdoors, 3=Indoors No Light (Cave), 4=Indoors Climate Exposed (Shelter)"
             },
-            { "overlay", "The current cell overlay" },
-            { "overlays", "A collection of all the cell overlays for this room" },
+            { "overlay", "The current room overlay" },
+            { "overlays", "A collection of all the room overlays for this room" },
             { "grids", "A collection of the IDs of any grids in this location" },
             { "electricgrids", "A collection of the IDs of any electrical grids in this location" },
             { "name", "The name of this room" },

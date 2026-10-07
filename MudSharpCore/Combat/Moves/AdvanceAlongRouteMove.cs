@@ -6,8 +6,8 @@ using MudSharp.RPG.Checks;
 namespace MudSharp.Combat.Moves;
 
 /// <summary>
-/// Advances a combatant longitudinally inside a RouteCell. RouteCell occupants can share a
-/// concrete cell while still being kilometres apart, so ordinary room advance cannot simply
+/// Advances a combatant longitudinally inside a RouteRoom. RouteRoom occupants can share a
+/// concrete room while still being kilometres apart, so ordinary room advance cannot simply
 /// toggle melee range.
 /// </summary>
 public sealed class AdvanceAlongRouteMove : CombatMoveBase

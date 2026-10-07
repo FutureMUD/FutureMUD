@@ -46,20 +46,20 @@ public sealed partial class SpatialAreaTransferService
 			omissions.Add(new SpatialPackageOmission
 			{
 				Code = "temporary-cell",
-				Message = $"Temporary cell #{temporaryRoom.Id:N0} ({temporaryRoom.Name}) was skipped because dwelling and other temporary state is not portable."
+				Message = $"Temporary room #{temporaryRoom.Id:N0} ({temporaryRoom.Name}) was skipped because dwelling and other temporary state is not portable."
 			});
 		}
 
 		var rooms = allRooms.Where(x => !x.Temporary).ToList();
 		if (rooms.Count == 0)
-			return Failure("The selected zones do not contain any exportable cells.", diagnostics, "empty-zone");
+			return Failure("The selected zones do not contain any exportable rooms.", diagnostics, "empty-zone");
 		if (rooms.Count > SpatialAreaPackageSerializer.MaximumRooms)
 			return Failure("The selected zones exceed the package safety limits.", diagnostics, "zone-too-large");
 
 		foreach (var zone in selectedZones.Where(x => x.DefaultRoom is null || !rooms.Any(room => room.Id == x.DefaultRoom.Id)))
 		{
 			diagnostics.Add(Error("unexportable-default-cell",
-				$"Zone '{zone.Name}' has default cell #{zone.DefaultRoom?.Id:N0}, which cannot be exported."));
+				$"Zone '{zone.Name}' has default room #{zone.DefaultRoom?.Id:N0}, which cannot be exported."));
 		}
 
 		diagnostics.AddRange(ValidateExportableRooms(rooms));
@@ -150,9 +150,9 @@ public sealed partial class SpatialAreaTransferService
 					? nonCardinal.Verb
 					: side.OutboundDirection.DescribeEnum().ToLowerInvariant();
 				var reason = destination.Temporary
-					? "the destination cell is temporary."
+					? "the destination room is temporary."
 					: $"destination zone '{destination.Zone.Name}' was not selected.";
-				var message = $"Exit \"{name}\" from cell #{origin.Id:N0} ({origin.Name}) to cell " +
+				var message = $"Exit \"{name}\" from room #{origin.Id:N0} ({origin.Name}) to room " +
 				              $"#{destination.Id:N0} ({destination.Name}) was skipped because {reason}";
 				omissions.Add(new SpatialPackageOmission { Code = "boundary-exit", Message = message });
 			}
@@ -172,7 +172,7 @@ public sealed partial class SpatialAreaTransferService
 			if (exit.FallRoom is not null && !cellIds.Contains(exit.FallRoom.Id))
 			{
 				diagnostics.Add(Error("external-fall-cell",
-					$"Exit #{exit.Id:N0} falls to cell #{exit.FallRoom.Id:N0}, which is outside the package."));
+					$"Exit #{exit.Id:N0} falls to room #{exit.FallRoom.Id:N0}, which is outside the package."));
 			}
 		}
 
@@ -252,7 +252,7 @@ public sealed partial class SpatialAreaTransferService
 		if (overlayPackages.Count > 1)
 		{
 			diagnostics.Add(Warning("mixed-overlays",
-				$"The selection uses {overlayPackages.Count:N0} different active overlay packages. Each cell's active overlay data will be imported into the selected target package."));
+				$"The selection uses {overlayPackages.Count:N0} different active overlay packages. Each room's active overlay data will be imported into the selected target package."));
 		}
 
 		var sources = zones
@@ -465,7 +465,7 @@ public sealed partial class SpatialAreaTransferService
 				omissions.Add(new SpatialPackageOmission
 				{
 					Code = "live-contents",
-					Message = $"Cell #{room.Id:N0} ({room.Name}) contains {characterCount:N0} character(s) and " +
+					Message = $"Room #{room.Id:N0} ({room.Name}) contains {characterCount:N0} character(s) and " +
 					          $"{itemCount:N0} item(s); live contents are not included."
 				});
 			}
@@ -476,7 +476,7 @@ public sealed partial class SpatialAreaTransferService
 				omissions.Add(new SpatialPackageOmission
 				{
 					Code = "cell-hooks",
-					Message = $"Cell #{room.Id:N0} ({room.Name}) has {hookCount:N0} installed hook(s), which are not included."
+					Message = $"Room #{room.Id:N0} ({room.Name}) has {hookCount:N0} installed hook(s), which are not included."
 				});
 			}
 		}

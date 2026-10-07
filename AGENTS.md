@@ -33,7 +33,7 @@ Other projects may be tools, experiments, or separate products. Inspect their pr
 
 ## Engine contracts and player-facing output
 
-`IFrameworkItem` supplies the common 64-bit ID, name, and type identity. `IPerceivable` extends it for world entities that participate in perception; `IPerceiver` extends that for entities that perceive output. Prefer `ICell`/`Cell` over the legacy `IRoom`/`Room` distinction; a design's “room” normally means a cell.
+`IFrameworkItem` supplies the common 64-bit ID, name, and type identity. `IPerceivable` extends it for world entities that participate in perception; `IPerceiver` extends that for entities that perceive output. Use `IRoom`/`Room` for the playable location, retaining the former Cell identities and mechanics. The legacy containing Room layer is removed. Preserve explicit historical wire labels and the `cell` admin-command alias.
 
 Use the established `MudSharp.Framework` helpers rather than reimplementing formatting or command parsing:
 

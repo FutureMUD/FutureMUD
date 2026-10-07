@@ -146,7 +146,7 @@ internal static class RestaurantIngredientStockGoalPlanner
 		var storage = IngredientStorageContainers(restaurant).ToList();
 		if (!storage.Any())
 		{
-			reason = $"{restaurant.Name} has no usable ingredient storage container in a configured kitchen cell.";
+			reason = $"{restaurant.Name} has no usable ingredient storage container in a configured kitchen room.";
 			return [];
 		}
 

@@ -82,7 +82,7 @@ public class ArborealWandererAI : PathingAIBase
     {
         StringBuilder sb = new(base.Show(actor));
         sb.AppendLine($"Enabled Prog: {IsWanderingProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
-        sb.AppendLine($"Wander Cell Prog: {WillWanderIntoRoomProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+        sb.AppendLine($"Wander Room Prog: {WillWanderIntoRoomProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
         sb.AppendLine($"Allow Descent Prog: {AllowDescentProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
         sb.AppendLine($"Preferred Tree Layer: {PreferredTreeLayer.DescribeEnum().ColourValue()}");
         sb.AppendLine($"Secondary Tree Layer: {SecondaryTreeLayer.DescribeEnum().ColourValue()}");
@@ -93,8 +93,8 @@ public class ArborealWandererAI : PathingAIBase
 
     protected override string TypeHelpText => $@"{base.TypeHelpText}
 	#3enabled <prog>#0 - sets whether arboreal wandering is enabled
-	#3room <prog>#0 - sets which cells are valid arboreal wander targets
-	#3descent <prog>#0 - sets whether this AI may descend out of the trees into a target cell
+	#3room <prog>#0 - sets which rooms are valid arboreal wander targets
+	#3descent <prog>#0 - sets whether this AI may descend out of the trees into a target room
 	#3delay <expression>#0 - sets the delay between wander evaluations
 	#3emote <text>#0 - sets the optional wander emote
 	#3emote clear#0 - clears the wander emote
@@ -154,7 +154,7 @@ public class ArborealWandererAI : PathingAIBase
     {
         if (command.IsFinished)
         {
-            actor.OutputHandler.Send("Which prog should decide which cells are suitable?");
+            actor.OutputHandler.Send("Which prog should decide which rooms are suitable?");
             return false;
         }
 
@@ -172,7 +172,7 @@ public class ArborealWandererAI : PathingAIBase
 
         WillWanderIntoRoomProg = prog;
         Changed = true;
-        actor.OutputHandler.Send($"This AI will now use {prog.MXPClickableFunctionName()} to evaluate wander cells.");
+        actor.OutputHandler.Send($"This AI will now use {prog.MXPClickableFunctionName()} to evaluate wander rooms.");
         return true;
     }
 

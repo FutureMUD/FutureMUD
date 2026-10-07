@@ -109,7 +109,7 @@ public class IncenseBurnerGameItemComponentProto : GameItemComponentProto, IInce
 	}
 
 	private const string BuildingHelpText =
-		"You can use the following options with this component:\n\t#3name <name>#0 - sets the name of the component\n\t#3desc <desc>#0 - sets the description of the component\n\t#3tag <tag>|clear#0 - sets the required fuel tag\n\t#3capacity <weight>#0 - sets maximum fuel weight\n\t#3rate <seconds>#0 - sets burn seconds per unit weight\n\t#3range <rooms>#0 - sets scent spread range\n\t#3linger <multiplier>#0 - sets scent lingering multiplier\n\t#3source <text>|clear#0 - sets scent text in the source cell\n\t#3distant <text>|clear#0 - sets scent text in other cells\n\t#3difficulty <difficulty>#0 - sets scent tracking difficulty\n\t#3drug <drug>|clear#0 - sets optional inhaled drug\n\t#3dose <weight>#0 - sets drug dose per pulse\n\t#3pulse <seconds>#0 - sets drug pulse interval\n\t#3drugrange <rooms>#0 - sets drug dosing range";
+		"You can use the following options with this component:\n\t#3name <name>#0 - sets the name of the component\n\t#3desc <desc>#0 - sets the description of the component\n\t#3tag <tag>|clear#0 - sets the required fuel tag\n\t#3capacity <weight>#0 - sets maximum fuel weight\n\t#3rate <seconds>#0 - sets burn seconds per unit weight\n\t#3range <rooms>#0 - sets scent spread range\n\t#3linger <multiplier>#0 - sets scent lingering multiplier\n\t#3source <text>|clear#0 - sets scent text in the source room\n\t#3distant <text>|clear#0 - sets scent text in other rooms\n\t#3difficulty <difficulty>#0 - sets scent tracking difficulty\n\t#3drug <drug>|clear#0 - sets optional inhaled drug\n\t#3dose <weight>#0 - sets drug dose per pulse\n\t#3pulse <seconds>#0 - sets drug pulse interval\n\t#3drugrange <rooms>#0 - sets drug dosing range";
 
 	public override string ShowBuildingHelp => BuildingHelpText;
 
@@ -284,7 +284,7 @@ public class IncenseBurnerGameItemComponentProto : GameItemComponentProto, IInce
 	{
 		if (command.IsFinished)
 		{
-			actor.OutputHandler.Send($"What text should appear in the source cell? Use {"clear".ColourCommand()} to clear it.");
+			actor.OutputHandler.Send($"What text should appear in the source room? Use {"clear".ColourCommand()} to clear it.");
 			return false;
 		}
 
@@ -300,7 +300,7 @@ public class IncenseBurnerGameItemComponentProto : GameItemComponentProto, IInce
 	{
 		if (command.IsFinished)
 		{
-			actor.OutputHandler.Send($"What text should appear in distant cells? Use {"clear".ColourCommand()} to clear it.");
+			actor.OutputHandler.Send($"What text should appear in distant rooms? Use {"clear".ColourCommand()} to clear it.");
 			return false;
 		}
 

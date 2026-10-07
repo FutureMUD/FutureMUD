@@ -60,7 +60,7 @@ public class VehicleRouteExitStepLoadTests
 
 		StringAssert.Contains(exception.Message, "Vehicle route exit step #77");
 		StringAssert.Contains(exception.Message, "exit #401");
-		StringAssert.Contains(exception.Message, "origin cell #101");
+		StringAssert.Contains(exception.Message, "origin room #101");
 		exitManager.Verify(x => x.GetAllExits(origin.Object), Times.Once);
 	}
 

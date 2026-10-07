@@ -14,7 +14,7 @@ using MudSharp.PerceptionEngine.Outputs;
 namespace MudSharp.Movement;
 
 /// <summary>
-/// Continuous character movement within a single RouteCell. The cell and layer never change;
+/// Continuous character movement within a single RouteRoom. The room and layer never change;
 /// RouteSpatialService supplies the effective lazy coordinate between durable checkpoints.
 /// </summary>
 public sealed class LinearRouteMovement : ILinearRouteMovement
@@ -146,7 +146,7 @@ public sealed class LinearRouteMovement : ILinearRouteMovement
 		if (route is null || !origin.RoutePositionMetres.HasValue)
 		{
 			movement = null;
-			error = "You can only travel longitudinally while you are in a RouteCell.";
+			error = "You can only travel longitudinally while you are in a RouteRoom.";
 			return false;
 		}
 
@@ -207,13 +207,13 @@ public sealed class LinearRouteMovement : ILinearRouteMovement
 		if (interval <= TimeSpan.Zero)
 		{
 			movement = null;
-			error = "The RouteCell checkpoint interval must be positive.";
+			error = "The RouteRoom checkpoint interval must be positive.";
 			return false;
 		}
 
 		persistence ??= new DatabaseRouteMotionPersistence();
 		schedule ??= (action, delay) => rootMover.Gameworld.Scheduler.AddSchedule(
-			new Schedule(action, ScheduleType.Movement, delay, "Linear RouteCell movement checkpoint"));
+			new Schedule(action, ScheduleType.Movement, delay, "Linear RouteRoom movement checkpoint"));
 
 		movement = new LinearRouteMovement(
 			rootMover,
@@ -499,7 +499,7 @@ public sealed class LinearRouteMovement : ILinearRouteMovement
 				: $" Rollback also reported {rollbackFailures.Count:N0} error(s): {rollbackFailures[0].Message}";
 			Cancelled = true;
 			_rootMover.Gameworld.SystemMessage(
-				$"RouteCell movement {OperationId:N} stopped after checkpoint {_checkpointSequence:N0} failed: {exception.Message}{rollbackSuffix}",
+				$"RouteRoom movement {OperationId:N} stopped after checkpoint {_checkpointSequence:N0} failed: {exception.Message}{rollbackSuffix}",
 				true);
 			Finish(false, "stop|stops because the durable movement checkpoint could not be committed");
 			return;
@@ -507,7 +507,7 @@ public sealed class LinearRouteMovement : ILinearRouteMovement
 
 		RouteCheckpointSaveQueue.Restore(saveQueueStates, exception =>
 			_rootMover.Gameworld.SystemMessage(
-				$"RouteCell movement {OperationId:N} committed checkpoint {_checkpointSequence:N0}, but could not restore an affected save-queue entry: {exception.Message}",
+				$"RouteRoom movement {OperationId:N} committed checkpoint {_checkpointSequence:N0}, but could not restore an affected save-queue entry: {exception.Message}",
 				true));
 
 		_lastCheckpointPosition = position;
@@ -550,7 +550,7 @@ public sealed class LinearRouteMovement : ILinearRouteMovement
 		catch (Exception exception)
 		{
 			_rootMover.Gameworld.SystemMessage(
-				$"RouteCell movement {OperationId:N} could not clear its durable motion row: {exception.Message}",
+				$"RouteRoom movement {OperationId:N} could not clear its durable motion row: {exception.Message}",
 				true);
 		}
 		foreach (var mover in _characterMovers)

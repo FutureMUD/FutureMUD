@@ -1403,7 +1403,7 @@ public partial class LegalAuthority
         if (command.IsFinished)
         {
             actor.OutputHandler.Send(
-                "Which location do you want to toggle as a holding cell for this legal authority?");
+                "Which location do you want to toggle as a holding room for this legal authority?");
             return false;
         }
 
@@ -1431,15 +1431,15 @@ public partial class LegalAuthority
 
         if (RoomLocations.Contains(location))
         {
-            _cellLocations.Remove(location);
+            _roomLocations.Remove(location);
             actor.OutputHandler.Send(
-                $"The {Name.ColourName()} legal authority will no longer use the location {location.HowSeen(actor)} as a holding cell.");
+                $"The {Name.ColourName()} legal authority will no longer use the location {location.HowSeen(actor)} as a holding room.");
         }
         else
         {
-            _cellLocations.Add(location);
+            _roomLocations.Add(location);
             actor.OutputHandler.Send(
-                $"The {Name.ColourName()} legal authority will now use the location {location.HowSeen(actor)} as a holding cell.");
+                $"The {Name.ColourName()} legal authority will now use the location {location.HowSeen(actor)} as a holding room.");
         }
 
         Changed = true;
@@ -1553,8 +1553,8 @@ public partial class LegalAuthority
         sb.AppendLine($"Courtroom: {CourtLocation?.GetFriendlyReference(actor) ?? "None".Colour(Telnet.Red)}");
         sb.AppendLine($"Jail Entry: {JailLocation?.GetFriendlyReference(actor) ?? "None".Colour(Telnet.Red)}");
         sb.AppendLine();
-        sb.AppendLine($"Holding Cells:");
-        foreach (IRoom room in _cellLocations)
+        sb.AppendLine($"Holding Rooms:");
+        foreach (IRoom room in _roomLocations)
         {
             sb.AppendLine($"\t{room.GetFriendlyReference(actor)}");
         }

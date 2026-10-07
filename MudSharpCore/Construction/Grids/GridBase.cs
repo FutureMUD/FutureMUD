@@ -151,7 +151,7 @@ public abstract class GridBase : LateInitialisingItem, IGrid
 				["id"] = "The stable grid identity.",
 				["name"] = "The grid name.",
 				["gridtype"] = "The concrete grid implementation type.",
-				["locations"] = "The cells that currently belong to this grid."
+				["locations"] = "The rooms that currently belong to this grid."
 			});
 	}
 

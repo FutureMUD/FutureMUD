@@ -724,7 +724,7 @@ Use #3arena tasks actions#0 and #3arena tasks conditions#0 for the full task act
             .ToList();
         if (!stableNpcs.Any())
         {
-            actor.OutputHandler.Send("There are no NPCs currently in the stable cells for that arena.".ColourError());
+            actor.OutputHandler.Send("There are no NPCs currently in the stable rooms for that arena.".ColourError());
             return;
         }
 

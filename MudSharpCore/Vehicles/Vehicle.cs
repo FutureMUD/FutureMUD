@@ -29,7 +29,7 @@ public class Vehicle : SaveableItem, IVehicle
 	private readonly List<IVehicleInstallation> _installations = new();
 	private readonly List<IVehicleTowLink> _towLinks = new();
 	private readonly List<IVehicleDamageZone> _damageZones = new();
-	private readonly RoomExitVehicleMovementStrategy _cellExitMovementStrategy = new();
+	private readonly RoomExitVehicleMovementStrategy _roomExitMovementStrategy = new();
 	private readonly IVehicleOperationalReadinessService _operationalReadinessService = new VehicleOperationalReadinessService();
 	private readonly VehicleDockingService _dockingService = new();
 	private bool _forceDisembarking;
@@ -71,13 +71,13 @@ public class Vehicle : SaveableItem, IVehicle
 			if (route is null)
 			{
 				throw new System.IO.InvalidDataException(
-					$"Vehicle #{dbitem.Id:N0} has a persisted RouteCell coordinate but is not located in a RouteCell.");
+					$"Vehicle #{dbitem.Id:N0} has a persisted RouteRoom coordinate but is not located in a RouteRoom.");
 			}
 
 			if (!double.IsFinite(position) || position < 0.0 || position > route.LengthMetres)
 			{
 				throw new System.IO.InvalidDataException(
-					$"Vehicle #{dbitem.Id:N0} has invalid RouteCell coordinate {position:N3}m in Cell #{route.Room.Id:N0}; valid coordinates are 0-{route.LengthMetres:N3}m.");
+					$"Vehicle #{dbitem.Id:N0} has invalid RouteRoom coordinate {position:N3}m in Room #{route.Room.Id:N0}; valid coordinates are 0-{route.LengthMetres:N3}m.");
 			}
 
 			_routePositionMetres = position;
@@ -87,7 +87,7 @@ public class Vehicle : SaveableItem, IVehicle
 			if (Location?.RouteDefinition is { } route)
 			{
 				throw new System.IO.InvalidDataException(
-					$"Vehicle #{dbitem.Id:N0} is located in RouteCell #{route.Room.Id:N0} but has no persisted route coordinate; use vehicle recovery to assign an explicit position.");
+					$"Vehicle #{dbitem.Id:N0} is located in RouteRoom #{route.Room.Id:N0} but has no persisted route coordinate; use vehicle recovery to assign an explicit position.");
 			}
 
 			// Null is the legacy value for an ordinary-cell vehicle.
@@ -222,9 +222,9 @@ public class Vehicle : SaveableItem, IVehicle
 				["id"] = "The stable vehicle identity.",
 				["name"] = "The vehicle name.",
 				["exterioritem"] = "The linked exterior game item, or null.",
-				["location"] = "The vehicle's current cell, or null.",
+				["location"] = "The vehicle's current room, or null.",
 				["layer"] = "The vehicle's current room layer.",
-				["routeposition"] = "The current route-cell coordinate in metres, or zero outside a route cell.",
+				["routeposition"] = "The current route-room coordinate in metres, or zero outside a route room.",
 				["occupants"] = "The characters currently occupying the vehicle.",
 				["controller"] = "The current vehicle controller, or null.",
 				["activejourney"] = "The active automatic journey, or null.",
@@ -1138,12 +1138,12 @@ public class Vehicle : SaveableItem, IVehicle
 
 	public bool CanMove(ICharacter actor, IRoomExit exit, out string reason)
 	{
-		return _cellExitMovementStrategy.CanMove(this, actor, exit, out reason);
+		return _roomExitMovementStrategy.CanMove(this, actor, exit, out reason);
 	}
 
 	public bool Move(ICharacter actor, IRoomExit exit)
 	{
-		return _cellExitMovementStrategy.Move(this, actor, exit);
+		return _roomExitMovementStrategy.Move(this, actor, exit);
 	}
 
 	public void LinkExteriorItem(IGameItem item)
@@ -1168,7 +1168,7 @@ public class Vehicle : SaveableItem, IVehicle
 	{
 		if (Location?.RouteDefinition is not { } route)
 		{
-			throw new InvalidOperationException("The vehicle is not in a RouteCell.");
+			throw new InvalidOperationException("The vehicle is not in a RouteRoom.");
 		}
 
 		_destinationRoutePositionMetres = Math.Clamp(destinationPositionMetres, 0.0, route.LengthMetres);
@@ -1182,7 +1182,7 @@ public class Vehicle : SaveableItem, IVehicle
 	{
 		if (Location?.RouteDefinition is not { } route)
 		{
-			throw new InvalidOperationException("The vehicle is not in a RouteCell.");
+			throw new InvalidOperationException("The vehicle is not in a RouteRoom.");
 		}
 
 		_routePositionMetres = Math.Clamp(positionMetres, 0.0, route.LengthMetres);

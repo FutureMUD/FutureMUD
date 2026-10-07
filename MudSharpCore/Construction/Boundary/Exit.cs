@@ -7,7 +7,7 @@ namespace MudSharp.Construction.Boundary;
 
 public class Exit : PerceivedItem, IExit
 {
-    private readonly List<IRoom> _cells = new();
+    private readonly List<IRoom> _rooms = new();
 
     private readonly IRoomExit[] RoomExits = new IRoomExit[2];
 
@@ -83,8 +83,8 @@ public class Exit : PerceivedItem, IExit
     {
         Models.Exit dbexit = new()
         {
-            RoomId1 = _cells[0].Id,
-            RoomId2 = _cells[1].Id
+            RoomId1 = _rooms[0].Id,
+            RoomId2 = _rooms[1].Id
         };
         dbexit.RoomId1 = RoomExits[0].Origin.Id;
         dbexit.RoomId2 = RoomExits[1].Origin.Id;
@@ -141,8 +141,8 @@ public class Exit : PerceivedItem, IExit
 
         AcceptsDoor = otherExit.AcceptsDoor;
         DoorSize = otherExit.DoorSize;
-        _cells.Add(origin);
-        _cells.Add(destination);
+        _rooms.Add(origin);
+        _rooms.Add(destination);
 
         if (otherExit.RoomExits[0] is NonCardinalRoomExit exit)
         {
@@ -265,7 +265,7 @@ public class Exit : PerceivedItem, IExit
 
     public override string ToString()
     {
-        return $"Exit {Id:N0} from {_cells[0].Name} ({_cells[0].Id:N0}) to {_cells[1].Name} ({_cells[1].Id})";
+        return $"Exit {Id:N0} from {_rooms[0].Name} ({_rooms[0].Id:N0}) to {_rooms[1].Name} ({_rooms[1].Id})";
     }
 
     public override string FrameworkItemType => "Exit";
@@ -276,7 +276,7 @@ public class Exit : PerceivedItem, IExit
 
     #endregion
 
-    public IEnumerable<IRoom> Rooms => _cells;
+    public IEnumerable<IRoom> Rooms => _rooms;
 
     #region Overrides of PerceivedItem
 
@@ -416,8 +416,8 @@ public class Exit : PerceivedItem, IExit
 
         AcceptsDoor = exit.AcceptsDoor;
         DoorSize = (SizeCategory)(exit.DoorSize ?? 0);
-        _cells.Add(Gameworld.Rooms.Get(exit.RoomId1));
-        _cells.Add(Gameworld.Rooms.Get(exit.RoomId2));
+        _rooms.Add(Gameworld.Rooms.Get(exit.RoomId1));
+        _rooms.Add(Gameworld.Rooms.Get(exit.RoomId2));
 
         if (!string.IsNullOrEmpty(exit.Verb1))
         {
@@ -435,7 +435,7 @@ public class Exit : PerceivedItem, IExit
         ClimbDifficulty = (Difficulty)exit.ClimbDifficulty;
         if (exit.FallRoom.HasValue)
         {
-            FallRoom = _cells.First(x => x.Id == exit.FallRoom);
+            FallRoom = _rooms.First(x => x.Id == exit.FallRoom);
         }
 
         IsClimbExit = exit.IsClimbExit;

@@ -96,7 +96,7 @@ internal sealed class EnvironmentalMagicResourceFunction(IList<IFunction> parame
 					new[] { ProgVariableTypes.Location, byId ? ProgVariableTypes.Number : ProgVariableTypes.Text },
 					(pars, world) => new EnvironmentalMagicResourceFunction(pars, world, rate, byId),
 					new[] { "location", byId ? "resourceId" : "resource" },
-					new[] { "The physical cell to inspect", "The existing magic resource's name or ID" },
+					new[] { "The physical room to inspect", "The existing magic resource's name or ID" },
 					$"Returns the current environmental {(rate ? "regeneration rate per real minute" : "maximum")} for a bound location/resource pair without advancing production, saving or changing scheduling. An unbound output or invalid calculation is a runtime error. Use an uncached policy prog for state-dependent calls.",
 					"Magic", ProgVariableTypes.Number));
 			}
@@ -156,13 +156,13 @@ internal sealed class EnvironmentalMagicStateFunction(IList<IFunction> parameter
 	public static void RegisterFunctionCompiler()
 	{
 		Register("environmentscardamage", Query.ScarDamage, ProgVariableTypes.Number,
-			"Returns persistent remaining scar damage without modifying the cell or evaluating resource input progs. A cell with no damage returns zero.");
+			"Returns persistent remaining scar damage without modifying the room or evaluating resource input progs. A room with no damage returns zero.");
 		Register("environmentpressure", Query.Pressure, ProgVariableTypes.Number,
 			"Returns currently decayed, severity-weighted recent destructive-use pressure without saving its projection or evaluating resource input progs.");
 		Register("environmentlastdefile", Query.LastDefile, ProgVariableTypes.DateTime,
 			"Returns the last destructive-use time in UTC without evaluating resource input progs. With no event, returns FutureProg's default datetime (year 1); use environmenthasdefile to distinguish absence. Repair does not rewrite this timestamp.");
 		Register("environmenthasdefile", Query.HasDefile, ProgVariableTypes.Boolean,
-			"Returns whether a destructive-use timestamp exists for the physical cell, without modifying state or evaluating resource input progs.");
+			"Returns whether a destructive-use timestamp exists for the physical room, without modifying state or evaluating resource input progs.");
 	}
 
 	private static void Register(string name, Query query, ProgVariableTypes returnType, string help)
@@ -170,7 +170,7 @@ internal sealed class EnvironmentalMagicStateFunction(IList<IFunction> parameter
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(name,
 			new[] { ProgVariableTypes.Location },
 			(pars, world) => new EnvironmentalMagicStateFunction(pars, world, query),
-			new[] { "location" }, new[] { "The physical cell whose persistent environmental state is inspected" },
+			new[] { "location" }, new[] { "The physical room whose persistent environmental state is inspected" },
 			help, "Magic", returnType));
 	}
 }
@@ -197,7 +197,7 @@ internal sealed class InvalidateEnvironmentFunction(IList<IFunction> parameterFu
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation("invalidateenvironment",
 			new[] { ProgVariableTypes.Location },
 			(pars, world) => new InvalidateEnvironmentFunction(pars, world),
-			new[] { "location" }, new[] { "The physical cell whose external policy inputs changed" },
+			new[] { "location" }, new[] { "The physical room whose external policy inputs changed" },
 			"Trusted authoring helper that requests a coalesced environmental policy recheck and returns true when the notification is accepted. It never advances production, grants resources or repairs damage. Use it after changing a dependency that the native source notifications cannot observe; do not call it from a pure environmental input prog.",
 			"Magic", ProgVariableTypes.Boolean));
 	}

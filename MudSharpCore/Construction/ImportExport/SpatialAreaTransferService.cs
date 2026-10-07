@@ -127,7 +127,7 @@ public sealed partial class SpatialAreaTransferService : ISpatialAreaTransferSer
 		    actor.CurrentOverlayPackage.Status != RevisionStatus.UnderDesign)
 		{
 			failure = Failure(
-				"You must be editing an under-design cell overlay package before validating or importing a spatial package.",
+				"You must be editing an under-design room overlay package before validating or importing a spatial package.",
 				diagnostics,
 				"overlay-package-required");
 			return null;
@@ -409,20 +409,20 @@ public sealed partial class SpatialAreaTransferService : ISpatialAreaTransferSer
 				if (room.Temporary)
 				{
 					diagnostics.Add(Error("temporary-cell",
-						$"Cell #{room.Id:N0} is temporary and cannot be faithfully imported."));
+						$"Room #{room.Id:N0} is temporary and cannot be faithfully imported."));
 				}
 
 				if (room is Room concreteRoom &&
 				    (concreteRoom.HostedVehicleId.HasValue || concreteRoom.HostedVehicleCompartmentId.HasValue))
 				{
 					diagnostics.Add(Error("hosted-vehicle-cell",
-						$"Cell #{room.Id:N0} is a hosted vehicle interior and cannot be detached from its vehicle."));
+						$"Room #{room.Id:N0} is a hosted vehicle interior and cannot be detached from its vehicle."));
 				}
 
 				if (room.AgricultureField is not null)
 				{
 					diagnostics.Add(Error("agriculture-field",
-						$"Cell #{room.Id:N0} has an agriculture field, which spatial packages do not carry."));
+						$"Room #{room.Id:N0} has an agriculture field, which spatial packages do not carry."));
 				}
 
 				if (persistedRooms.TryGetValue(room.Id, out var dbRoom))
@@ -430,13 +430,13 @@ public sealed partial class SpatialAreaTransferService : ISpatialAreaTransferSer
 					if (HasPersistedEffects(dbRoom.EffectData))
 					{
 						diagnostics.Add(Error("persisted-cell-effects",
-							$"Cell #{room.Id:N0} has persisted effects. Spatial packages refuse to discard effect state."));
+							$"Room #{room.Id:N0} has persisted effects. Spatial packages refuse to discard effect state."));
 					}
 
 					if (HasSurfaceLiquid(dbRoom.SurfaceLiquidData))
 					{
 						diagnostics.Add(Error("surface-liquid",
-							$"Cell #{room.Id:N0} has persistent surface-liquid state, which spatial packages do not carry."));
+							$"Room #{room.Id:N0} has persistent surface-liquid state, which spatial packages do not carry."));
 					}
 				}
 			}
@@ -454,7 +454,7 @@ public sealed partial class SpatialAreaTransferService : ISpatialAreaTransferSer
 		if (hookCount > 0)
 		{
 			diagnostics.Add(Warning("hooks-omitted",
-				$"{hookCount:N0} installed cell hook reference(s) are not spatial topology and are not included in package version {SpatialAreaPackage.CurrentVersion:N0}."));
+				$"{hookCount:N0} installed room hook reference(s) are not spatial topology and are not included in package version {SpatialAreaPackage.CurrentVersion:N0}."));
 		}
 
 		return diagnostics;
@@ -600,14 +600,14 @@ public sealed partial class SpatialAreaTransferService : ISpatialAreaTransferSer
 			if (!Enum.IsDefined((RoomOutdoorsType)room.Overlay.OutdoorsType))
 			{
 				diagnostics.Add(Error("invalid-outdoors-type",
-					$"Cell '{room.Key}' has an unknown outdoors type."));
+					$"Room '{room.Key}' has an unknown outdoors type."));
 			}
 
 			foreach (var resource in room.MagicResources.Where(x =>
 				         !double.IsFinite(x.Amount) || x.Amount < 0.0))
 			{
 				diagnostics.Add(Error("invalid-magic-resource",
-					$"Cell '{room.Key}' has an invalid amount for magic resource '{resource.Resource.Name}'."));
+					$"Room '{room.Key}' has an invalid amount for magic resource '{resource.Resource.Name}'."));
 			}
 		}
 

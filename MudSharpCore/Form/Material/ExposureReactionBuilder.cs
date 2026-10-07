@@ -190,7 +190,7 @@ public static class ExposureReactionBuilder
 
 public static class ExposureProgContract
 {
-	public const string Description = "Exposure hooks take perceivable target, number body ID, number part ID, number material ID, text source, text category, text route, location cell, number layer, number strength, number seconds, number quantity. Notifications append number damage, pain, stun, consumption. Applicability returns boolean; intensity returns number; notification returns void.";
+	public const string Description = "Exposure hooks take perceivable target, number body ID, number part ID, number material ID, text source, text category, text route, location room, number layer, number strength, number seconds, number quantity. Notifications append number damage, pain, stun, consumption. Applicability returns boolean; intensity returns number; notification returns void.";
 	public static readonly ProgVariableTypes[] Parameters = { ProgVariableTypes.Perceivable, ProgVariableTypes.Number, ProgVariableTypes.Number, ProgVariableTypes.Number, ProgVariableTypes.Text, ProgVariableTypes.Text, ProgVariableTypes.Text, ProgVariableTypes.Location, ProgVariableTypes.Number, ProgVariableTypes.Number, ProgVariableTypes.Number, ProgVariableTypes.Number };
 	public static bool Valid(IFutureProg prog, string kind) => prog.ReturnType == (kind == "applicability" ? ProgVariableTypes.Boolean : kind == "intensity" ? ProgVariableTypes.Number : ProgVariableTypes.Void) &&
 		prog.MatchesParameters(kind == "notification" ? Parameters.Concat(Enumerable.Repeat(ProgVariableTypes.Number, 4)).ToArray() : Parameters);

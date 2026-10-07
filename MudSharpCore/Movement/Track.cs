@@ -26,7 +26,7 @@ public class Track : LateInitialisingItem, ITrack
         _id = track.Id;
         IdInitialised = true;
         _bodyProtoTypeId = track.BodyPrototypeId;
-        _cellId = track.RoomId;
+        _roomId = track.RoomId;
         RoomLayer = (RoomLayer)track.RoomLayer;
         _fromExitId = track.FromDirectionExitId;
         _toExitId = track.ToDirectionExitId;
@@ -50,14 +50,14 @@ public class Track : LateInitialisingItem, ITrack
 	private void ValidateLoadedSpatialState(Models.Track track)
 	{
 		var room = Gameworld.Rooms.Get(track.RoomId) ??
-			throw new InvalidDataException($"Track #{track.Id:N0} references missing Cell #{track.RoomId:N0}.");
+			throw new InvalidDataException($"Track #{track.Id:N0} references missing Room #{track.RoomId:N0}.");
 		var route = room.RouteDefinition;
 		if (route is null)
 		{
 			if (RoutePositionMetres.HasValue || RouteDirection.HasValue)
 			{
 				throw new InvalidDataException(
-					$"Track #{track.Id:N0} has RouteCell position or direction data but Cell #{track.RoomId:N0} is ordinary.");
+					$"Track #{track.Id:N0} has RouteRoom position or direction data but Room #{track.RoomId:N0} is ordinary.");
 			}
 
 			return;
@@ -67,13 +67,13 @@ public class Track : LateInitialisingItem, ITrack
 			RoutePositionMetres.Value < 0.0 || RoutePositionMetres.Value > route.LengthMetres)
 		{
 			throw new InvalidDataException(
-				$"Track #{track.Id:N0} has an invalid or missing coordinate in RouteCell #{track.RoomId:N0}; valid coordinates are 0-{route.LengthMetres:N3}m.");
+				$"Track #{track.Id:N0} has an invalid or missing coordinate in RouteRoom #{track.RoomId:N0}; valid coordinates are 0-{route.LengthMetres:N3}m.");
 		}
 
 		if (RouteDirection is not (RouteRoomDirection.Negative or RouteRoomDirection.Positive))
 		{
 			throw new InvalidDataException(
-				$"Track #{track.Id:N0} has an invalid or missing longitudinal direction in RouteCell #{track.RoomId:N0}.");
+				$"Track #{track.Id:N0} has an invalid or missing longitudinal direction in RouteRoom #{track.RoomId:N0}.");
 		}
 	}
 
@@ -90,7 +90,7 @@ public class Track : LateInitialisingItem, ITrack
         RoomLayer = who.RoomLayer;
         TrackIntensityOlfactory = olfactory;
         TrackIntensityVisual = visual;
-        _cell = exit.Origin;
+        _room = exit.Origin;
         if (isLeaving)
         {
             ToExit = exit.Exit;
@@ -125,7 +125,7 @@ public class Track : LateInitialisingItem, ITrack
 		RoomLayer = who.RoomLayer;
 		TrackIntensityOlfactory = olfactory;
 		TrackIntensityVisual = visual;
-		_cell = who.Location;
+		_room = who.Location;
 		RoutePositionMetres = routePositionMetres;
 		RouteDirection = routeDirection;
 		_toSpeed = who.CurrentSpeed;
@@ -150,7 +150,7 @@ public class Track : LateInitialisingItem, ITrack
 		RoomLayer = vehicle.RoomLayer;
 		TrackIntensityOlfactory = olfactory;
 		TrackIntensityVisual = visual;
-		_cell = vehicle.Location;
+		_room = vehicle.Location;
 		RoutePositionMetres = routePositionMetres;
 		RouteDirection = routeDirection;
 
@@ -285,11 +285,11 @@ public class Track : LateInitialisingItem, ITrack
 		? Gameworld.Vehicles.Get(_vehicleId.Value)
 		: null;
 
-    private long _cellId;
-    private IRoom? _cell;
+    private long _roomId;
+    private IRoom? _room;
 
     /// <inheritdoc />
-    public IRoom Room => (_cell ??= Gameworld.Rooms.Get(_cellId))!;
+    public IRoom Room => (_room ??= Gameworld.Rooms.Get(_roomId))!;
 
     /// <inheritdoc />
     public RoomLayer RoomLayer { get; set; }

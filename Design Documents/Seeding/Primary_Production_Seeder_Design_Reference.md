@@ -1503,7 +1503,7 @@ The initial audit found that the first implementation can reuse several existing
 
 - `CoreDataSeeder.Materials.cs` already seeds core ores and industrial feedstocks including hematite, magnetite, cassiterite, galena, malachite, native copper, limestone, clay, fire clay, peat, salt, brick, glass, mortar, pitch, tar, charcoal, lye, slaked lime, calcium oxide, calcium hydroxide, sulfur, wrought iron, and sponge iron.
 - `UsefulSeeder.Tags.cs` already supplies broad stock and tool roots including `Material Functions`, `Ore Deposit`, `Hot Fire`, `Household Craft Stock`, `Prepared Pitch`, `Glass Batch`, `Tool Blank Stock`, `Tools`, `Hammer`, `Chisel`, `Wheelbarrow`, `Professional Tools`, `Construction Materials`, `Stone Blocks`, `Aggregate`, and `Lime`.
-- `ICell` already implements `IHaveTags`, `Cell` already persists tags through `CellsTags`, and FutureProg `istagged` already supports `ProgVariableTypes.Location`. Active projects expose `project.location`, so prospecting discovery can use cell resource tags through ordinary `prog` project actions.
+- `IRoom` already implements `IHaveTags`, `Cell` already persists tags through `CellsTags`, and FutureProg `istagged` already supports `ProgVariableTypes.Location`. Active projects expose `project.location`, so prospecting discovery can use cell resource tags through ordinary `prog` project actions.
 - The lowest-risk discovery model for this pass is therefore cell resource tags plus visible/non-holdable deposit props. A native `resourcediscovery` action is deferred until a real builder workflow gap appears.
 
 Reusable dependencies are covered by `PrimaryProductionSeederSourceTests`, which intentionally checks source seams rather than generated database rows for this audit phase.

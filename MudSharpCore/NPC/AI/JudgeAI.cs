@@ -1369,7 +1369,7 @@ With each of the emotes, you can use the following tokens:
                     defendant
                 )));
 
-                // Transfer back to holding cell
+                // Transfer back to holding room
                 trialEffect.LegalAuthority.SendCharacterToHoldingRoom(defendant);
             }
             else if (defendant.EffectsOfType<ServingCustodialSentence>(x => x.LegalAuthority == trialEffect.LegalAuthority).Any())

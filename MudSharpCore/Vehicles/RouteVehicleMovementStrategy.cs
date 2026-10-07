@@ -17,7 +17,7 @@ using MudSharp.Movement;
 namespace MudSharp.Vehicles;
 
 /// <summary>
-/// Executes continuous longitudinal RouteCell movement for vehicles and compiled vehicle-route
+/// Executes continuous longitudinal RouteRoom movement for vehicles and compiled vehicle-route
 /// legs. The root vehicle, recursive tow train, physical hitch gear, and external motive cohort
 /// share one v1 reference coordinate.
 /// </summary>
@@ -31,7 +31,7 @@ public sealed class RouteVehicleMovementStrategy : IVehicleRouteLegExecutor
 	private readonly IVehicleOperationalReadinessService _readinessService;
 	private readonly IVehicleHitchGraphService _graphService;
 	private readonly IVehicleRouteMotionPersistence _persistence;
-	private readonly RoomExitVehicleMovementStrategy _cellExitStrategy;
+	private readonly RoomExitVehicleMovementStrategy _roomExitStrategy;
 	private readonly Action<IFuturemud, Action, TimeSpan> _schedule;
 
 	public RouteVehicleMovementStrategy(
@@ -46,11 +46,11 @@ public sealed class RouteVehicleMovementStrategy : IVehicleRouteLegExecutor
 		_graphService = graphService ?? new VehicleHitchGraphService();
 		_readinessService = readinessService ?? new VehicleOperationalReadinessService(_graphService);
 		_persistence = persistence ?? new DatabaseVehicleRouteMotionPersistence();
-		_cellExitStrategy = cellExitStrategy ?? new RoomExitVehicleMovementStrategy(
+		_roomExitStrategy = cellExitStrategy ?? new RoomExitVehicleMovementStrategy(
 			new VehicleTowService(), _graphService, _readinessService);
 		_schedule = schedule ?? ((gameworld, action, delay) => gameworld.Scheduler.AddSchedule(
 			new Schedule(action, ScheduleType.Movement, delay,
-				"Longitudinal RouteCell vehicle movement checkpoint")));
+				"Longitudinal RouteRoom vehicle movement checkpoint")));
 	}
 
 	public static RouteVehicleMovementStrategy Instance { get; } = new();
@@ -100,7 +100,7 @@ public sealed class RouteVehicleMovementStrategy : IVehicleRouteLegExecutor
 	{
 		if (vehicle is null || !_vehicleMovements.TryGetValue(vehicle.Id, out var movement))
 		{
-			reason = "That vehicle is not travelling along a RouteCell.";
+			reason = "That vehicle is not travelling along a RouteRoom.";
 			return false;
 		}
 
@@ -336,7 +336,7 @@ public sealed class RouteVehicleMovementStrategy : IVehicleRouteLegExecutor
 
 		if (_vehicleMovements.ContainsKey(vehicle.Id))
 		{
-			reason = "That vehicle is already moving along a RouteCell.";
+			reason = "That vehicle is already moving along a RouteRoom.";
 			return false;
 		}
 
@@ -346,7 +346,7 @@ public sealed class RouteVehicleMovementStrategy : IVehicleRouteLegExecutor
 		var route = origin.Room.RouteDefinition;
 		if (route is null || !origin.RoutePositionMetres.HasValue)
 		{
-			reason = "That vehicle is not positioned in a RouteCell.";
+			reason = "That vehicle is not positioned in a RouteRoom.";
 			return false;
 		}
 
@@ -369,7 +369,7 @@ public sealed class RouteVehicleMovementStrategy : IVehicleRouteLegExecutor
 		var profile = RouteProfile(vehicle);
 		if (profile is null)
 		{
-			reason = "That vehicle does not have a RouteCell movement profile.";
+			reason = "That vehicle does not have a RouteRoom movement profile.";
 			return false;
 		}
 
@@ -378,7 +378,7 @@ public sealed class RouteVehicleMovementStrategy : IVehicleRouteLegExecutor
 		{
 			reason = profile.RoutePropulsionMode == RouteVehiclePropulsionMode.ExternallyPulled
 				? "That vehicle has no able external motive character or mount."
-				: "That vehicle's RouteCell movement speed is invalid.";
+				: "That vehicle's RouteRoom movement speed is invalid.";
 			return false;
 		}
 
@@ -398,7 +398,7 @@ public sealed class RouteVehicleMovementStrategy : IVehicleRouteLegExecutor
 			vehicle.Gameworld.GetStaticDouble("RouteCellMovementCheckpointSeconds")));
 		if (interval <= TimeSpan.Zero)
 		{
-			reason = "The RouteCell vehicle checkpoint interval must be positive.";
+			reason = "The RouteRoom vehicle checkpoint interval must be positive.";
 			return false;
 		}
 
@@ -476,7 +476,7 @@ public sealed class RouteVehicleMovementStrategy : IVehicleRouteLegExecutor
 		if (exit.Origin.RouteDefinition is not null &&
 			!exit.Origin.ExitsFor(vehicle.ExteriorItem).Any(x => x.Exit.Id == exit.Exit.Id))
 		{
-			reason = "The vehicle is outside that exit's authored RouteCell access band.";
+			reason = "The vehicle is outside that exit's authored RouteRoom access band.";
 			return false;
 		}
 
@@ -506,7 +506,7 @@ public sealed class RouteVehicleMovementStrategy : IVehicleRouteLegExecutor
 			}
 
 			IReadOnlyCollection<ICharacter> externalPullers = motiveCharacters;
-			if (!_cellExitStrategy.TryPrepareMove(vehicle, actor, exit, true, out var towTrain,
+			if (!_roomExitStrategy.TryPrepareMove(vehicle, actor, exit, true, out var towTrain,
 					out var transition, out var readiness, out reason, externalPullers: externalPullers,
 					movementProfile: profile))
 			{
@@ -526,13 +526,13 @@ public sealed class RouteVehicleMovementStrategy : IVehicleRouteLegExecutor
 				}
 			}
 
-			if (!_cellExitStrategy.TryCommitPropulsion(readiness, out _, out reason))
+			if (!_roomExitStrategy.TryCommitPropulsion(readiness, out _, out reason))
 			{
 				return false;
 			}
 
-			_cellExitStrategy.EchoDeparture(vehicle, actor, exit, towTrain);
-			_cellExitStrategy.BeginMove(vehicle, exit, towTrain, transition);
+			_roomExitStrategy.EchoDeparture(vehicle, actor, exit, towTrain);
+			_roomExitStrategy.BeginMove(vehicle, exit, towTrain, transition);
 			VehicleRouteExitMovement? movement = null;
 			if (movedCohort is not null && motiveCharacter is not null)
 			{
@@ -540,20 +540,20 @@ public sealed class RouteVehicleMovementStrategy : IVehicleRouteLegExecutor
 					readiness.MovePlan!.Vehicles);
 				MoveExternalCohortAcrossExit(movedCohort, readiness.MovePlan, exit, movement);
 			}
-			_cellExitStrategy.CompleteMove(vehicle, exit, transition, readiness, movement);
+			_roomExitStrategy.CompleteMove(vehicle, exit, transition, readiness, movement);
 			MoveExtraCohortItemsAcrossExit(movedCohort, readiness.MovePlan, exit, transition.TargetLayer);
-			_cellExitStrategy.EchoArrival(vehicle, actor, exit, towTrain, transition.TargetLayer);
+			_roomExitStrategy.EchoArrival(vehicle, actor, exit, towTrain, transition.TargetLayer);
 		}
 		else
 		{
 			var profile = RouteProfile(vehicle);
 			if (profile is null)
 			{
-				reason = "That vehicle does not have a RouteCell movement profile.";
+				reason = "That vehicle does not have a RouteRoom movement profile.";
 				return false;
 			}
 
-			if (!_cellExitStrategy.TryPrepareMove(vehicle, null!, exit, true, out var towTrain,
+			if (!_roomExitStrategy.TryPrepareMove(vehicle, null!, exit, true, out var towTrain,
 					out var transition, out var readiness, out reason, movementProfile: profile,
 					automaticOperation: true))
 			{
@@ -561,15 +561,15 @@ public sealed class RouteVehicleMovementStrategy : IVehicleRouteLegExecutor
 			}
 			movedPlan = readiness.MovePlan;
 
-			if (!_cellExitStrategy.TryCommitPropulsion(readiness, out _, out reason))
+			if (!_roomExitStrategy.TryCommitPropulsion(readiness, out _, out reason))
 			{
 				return false;
 			}
 
-			_cellExitStrategy.EchoDeparture(vehicle, null!, exit, towTrain);
-			_cellExitStrategy.BeginMove(vehicle, exit, towTrain, transition);
-			_cellExitStrategy.CompleteMove(vehicle, exit, transition, readiness);
-			_cellExitStrategy.EchoArrival(vehicle, null!, exit, towTrain, transition.TargetLayer);
+			_roomExitStrategy.EchoDeparture(vehicle, null!, exit, towTrain);
+			_roomExitStrategy.BeginMove(vehicle, exit, towTrain, transition);
+			_roomExitStrategy.CompleteMove(vehicle, exit, transition, readiness);
+			_roomExitStrategy.EchoArrival(vehicle, null!, exit, towTrain, transition.TargetLayer);
 		}
 
 		if (step.Destination.Room.RouteDefinition is not null && step.Destination.RoutePositionMetres.HasValue)
@@ -1370,7 +1370,7 @@ public sealed class RouteVehicleMovementStrategy : IVehicleRouteLegExecutor
 				CommitEffectivePosition(out _);
 				if (!_finished)
 				{
-					Finish(false, "The vehicle stops because the RouteCell topology changed.");
+					Finish(false, "The vehicle stops because the RouteRoom topology changed.");
 				}
 				return;
 			}
@@ -1567,7 +1567,7 @@ public sealed class RouteVehicleMovementStrategy : IVehicleRouteLegExecutor
 				_owner._persistence.CommitCheckpoint(checkpoint, applyCharges);
 				RouteCheckpointSaveQueue.Restore(saveQueueStates ?? [], exception =>
 					Vehicle.Gameworld.SystemMessage(
-						$"Vehicle RouteCell movement {OperationId:N} committed checkpoint {checkpoint.Sequence:N0}, but could not restore an affected save-queue entry: {exception.Message}",
+						$"Vehicle RouteRoom movement {OperationId:N} committed checkpoint {checkpoint.Sequence:N0}, but could not restore an affected save-queue entry: {exception.Message}",
 						true));
 				reason = string.Empty;
 				return true;
@@ -1598,7 +1598,7 @@ public sealed class RouteVehicleMovementStrategy : IVehicleRouteLegExecutor
 					? string.Empty
 					: $" Rollback also reported {rollbackFailures.Count:N0} error(s): {rollbackFailures[0].Message}";
 				Vehicle.Gameworld.SystemMessage(
-					$"Vehicle RouteCell movement {OperationId:N} stopped after checkpoint {checkpoint.Sequence:N0} failed: {exception.Message}{rollbackSuffix}",
+					$"Vehicle RouteRoom movement {OperationId:N} stopped after checkpoint {checkpoint.Sequence:N0} failed: {exception.Message}{rollbackSuffix}",
 					true);
 				reason = "The vehicle stops because its durable movement checkpoint could not be committed.";
 				return false;
@@ -1842,7 +1842,7 @@ public sealed class RouteVehicleMovementStrategy : IVehicleRouteLegExecutor
 			catch (Exception exception)
 			{
 				Vehicle.Gameworld.SystemMessage(
-					$"Vehicle RouteCell movement {OperationId:N} could not clear its durable motion row: {exception.Message}",
+					$"Vehicle RouteRoom movement {OperationId:N} could not clear its durable motion row: {exception.Message}",
 					true);
 			}
 			_owner.MovementFinished(this);
@@ -1926,7 +1926,7 @@ public sealed class RouteVehicleMovementStrategy : IVehicleRouteLegExecutor
 			{
 				if (pin.RouteRoom.RouteDefinition?.TopologyVersion != pin.TopologyVersion)
 				{
-					reason = $"RouteCell #{pin.RouteRoom.Id:N0} no longer matches the route's pinned topology version.";
+					reason = $"RouteRoom #{pin.RouteRoom.Id:N0} no longer matches the route's pinned topology version.";
 					return false;
 				}
 			}
@@ -1992,7 +1992,7 @@ public sealed class RouteVehicleMovementStrategy : IVehicleRouteLegExecutor
 			{
 				if (linear.RouteRoom.TopologyVersion != linear.PinnedTopologyVersion)
 				{
-					reason = "The current RouteCell topology no longer matches the compiled linear step.";
+					reason = "The current RouteRoom topology no longer matches the compiled linear step.";
 					return false;
 				}
 
@@ -2113,7 +2113,7 @@ public sealed class RouteVehicleMovementStrategy : IVehicleRouteLegExecutor
 			{
 				if (linear.RouteRoom.TopologyVersion != linear.PinnedTopologyVersion)
 				{
-					reason = "The current RouteCell topology no longer matches the compiled route step.";
+					reason = "The current RouteRoom topology no longer matches the compiled route step.";
 					return false;
 				}
 

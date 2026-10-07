@@ -121,7 +121,7 @@ public class AutobuilderAreaTerrainRectangleRandomFeatures : AutobuilderAreaTerr
             }
         }
 
-        builder.OutputHandler.PrioritySend("Initialising the cells and exits...");
+        builder.OutputHandler.PrioritySend("Initialising the rooms and exits...");
         IRoom[,] rooms = new IRoom[width, height];
         for (int i = 0; i < width; i++)
         {
@@ -169,7 +169,7 @@ public class AutobuilderAreaTerrainRectangleRandomFeatures : AutobuilderAreaTerr
         builder.OutputHandler.Send($"Applied {count.ToString("N0", builder).ColourValue()} features in total.");
 #endif
 
-		builder.OutputHandler.PrioritySend("Describing the cells...");
+		builder.OutputHandler.PrioritySend("Describing the rooms...");
 		foreach (IRoom room in rooms)
 		{
 			if (room == null)
@@ -190,7 +190,7 @@ public class AutobuilderAreaTerrainRectangleRandomFeatures : AutobuilderAreaTerr
         sb.AppendLine(
             $"{$"Autobuilder Area Template #{Id} ({Name})".Colour(Telnet.Cyan)}\n\n");
         sb.AppendLine(
-            $"This autobuilder template will return a rectangular area of cells with height, width, terrain and room template supplied by the builder. It {(ConnectRoomsWithDiagonalExits ? "does" : "does not")} link diagonally between rooms."
+            $"This autobuilder template will return a rectangular area of rooms with height, width, terrain and room template supplied by the builder. It {(ConnectRoomsWithDiagonalExits ? "does" : "does not")} link diagonally between rooms."
                 .Wrap(builder.InnerLineFormatLength));
         sb.AppendLine();
         sb.AppendLine(

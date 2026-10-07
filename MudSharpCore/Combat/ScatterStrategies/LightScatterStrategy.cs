@@ -24,7 +24,7 @@ public class LightScatterStrategy : IRangedScatterStrategy
     public RangedScatterResult? GetScatterTarget(ICharacter shooter, IPerceiver originalTarget,
         IEnumerable<IRoomExit> path)
     {
-        // Up to 5 cells away
+        // Up to 5 rooms away
         if (originalTarget.Location == null)
         {
             return null;

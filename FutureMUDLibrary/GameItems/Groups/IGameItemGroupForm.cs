@@ -12,9 +12,9 @@ namespace MudSharp.GameItems.Groups
     public interface IGameItemGroupForm : IFrameworkItem, ISaveable
     {
         /// <summary>
-        ///     Determines whether this form applies in the given cell
+        ///     Determines whether this form applies in the given room
         /// </summary>
-        /// <param name="cell">The cell against which to check</param>
+        /// <param name="room">The room against which to check</param>
         /// <returns>True if it applies</returns>
         bool Applies(IRoom room);
 

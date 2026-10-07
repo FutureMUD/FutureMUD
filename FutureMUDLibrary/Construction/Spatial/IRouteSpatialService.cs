@@ -11,7 +11,7 @@ namespace MudSharp.Construction;
 
 /// <summary>
 /// Central authority for resolving locations, distance, proximity and portals in linear
-/// route cells. Consumers should use this service instead of interpreting route coordinates
+/// route rooms. Consumers should use this service instead of interpreting route coordinates
 /// directly.
 /// </summary>
 public interface IRouteSpatialService
@@ -23,7 +23,7 @@ public interface IRouteSpatialService
 	double ClampPosition(IRouteRoomDefinition routeRoom, double positionMetres);
 
 	/// <summary>
-	/// Returns exact longitudinal separation when both locations occupy the same route cell
+	/// Returns exact longitudinal separation when both locations occupy the same route room
 	/// and layer; otherwise returns null.
 	/// </summary>
 	double? GetExactSeparation(SpatialLocation first, SpatialLocation second);
@@ -38,7 +38,7 @@ public interface IRouteSpatialService
 		Func<IPerceivable, bool>? predicate = null);
 
 	/// <summary>
-	/// Performs the same indexed longitudinal query across every layer in the RouteCell.
+	/// Performs the same indexed longitudinal query across every layer in the RouteRoom.
 	/// Callers remain responsible for applying the cross-layer minimum proximity rule.
 	/// </summary>
 	IReadOnlyCollection<IPerceivable> GetPerceivablesWithinAcrossLayers(
@@ -53,7 +53,7 @@ public interface IRouteSpatialService
 
 	/// <summary>
 	/// Returns whether an exit is perceptually visible from the locateable's effective position.
-	/// In a RouteCell the closest point in the authored anchor band must also be inside the
+	/// In a RouteRoom the closest point in the authored anchor band must also be inside the
 	/// supplied longitudinal range. Accessibility is deliberately separate: a visible portal
 	/// ahead is not traversable until the locateable reaches its band.
 	/// </summary>
@@ -68,13 +68,13 @@ public interface IRouteSpatialService
 
 	/// <summary>
 	/// Resolves the closest coordinate in an exit's accessible band. Returns null when the
-	/// exit has no anchor for the supplied route cell.
+	/// exit has no anchor for the supplied route room.
 	/// </summary>
 	double? GetNearestAccessiblePosition(SpatialLocation origin, IRoomExit exit);
 
 	/// <summary>
 	/// Resolves the effective coordinate inherited from an owning, carrying or containing
-	/// locateable. Returns null when neither entity is positioned in the supplied route cell.
+	/// locateable. Returns null when neither entity is positioned in the supplied route room.
 	/// </summary>
 	double? GetInheritedRoutePosition(ILocateable locateable, ILocateable? owner);
 }

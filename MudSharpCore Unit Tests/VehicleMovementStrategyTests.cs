@@ -47,7 +47,7 @@ public class VehicleMovementStrategyTests
 		var result = strategy.CanMove(vehicle, controller.Object, exit, out var reason);
 
 		Assert.IsFalse(result);
-		Assert.AreEqual("That vehicle cannot move through normal cell exits.", reason);
+		Assert.AreEqual("That vehicle cannot move through normal room exits.", reason);
 	}
 
 	[TestMethod]

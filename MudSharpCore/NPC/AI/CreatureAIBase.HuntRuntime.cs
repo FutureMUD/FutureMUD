@@ -52,7 +52,7 @@ public abstract partial class CreatureAIBase
 		    ResolveHomeBase(actor).HomeRoom is { } homeRoom && !ReferenceEquals(homeRoom, actor.Location) &&
 		    !IsGroupControlled(actor, GroupAIControlScope.Movement))
 		{
-			// A completed or abandoned pursuit must not turn the retreat cell into a new waiting site.
+			// A completed or abandoned pursuit must not turn the retreat room into a new waiting site.
 			CheckPathingEffect(actor, true);
 			return true;
 		}
@@ -174,7 +174,7 @@ public abstract partial class CreatureAIBase
 			return path.Count > 0 && actor.CanMove(path[0]) && actor.Move(path[0]);
 		}
 		// Use the same physical track checks as a player search, only at the last observed site.
-		// Route-cell tracks require an exact-coordinate path and are deliberately not reduced to an exit.
+		// Route-room tracks require an exact-coordinate path and are deliberately not reduced to an exit.
 		if (actor.Location.RouteDefinition is not null) return false;
 		var vision = Gameworld.GetCheck(CheckType.SearchForTracksCheck).CheckAgainstAllDifficulties(actor, Difficulty.Normal, null);
 		var smell = Gameworld.GetCheck(CheckType.SearchForTracksByScentScheck).CheckAgainstAllDifficulties(actor, Difficulty.Normal, null);

@@ -14,18 +14,18 @@ namespace MudSharp.Commands.Modules;
 
 public partial class MagicModule
 {
-	private const string EnvironmentHelp = @"Environmental resources belong to physical cells. Configure their reusable profiles with #3magic regenerator#0.
+	private const string EnvironmentHelp = @"Environmental resources belong to physical rooms. Configure their reusable profiles with #3magic regenerator#0.
 
-	#3magic environment show [here|<cell id>]#0 - inspect profile, inputs, resources and damage
-	#3magic environment treatments [here|<cell id>]#0 - inspect active, completed and unresolved land treatments
-	#3magic environment treatments confirm <here|cell id> <treatment guid>#0 - reconcile durable evidence without applying repair
-	#3magic environment yields [here|<cell id>]#0 - purely inspect authorised native organic sources and accounting
-	#3magic environment yields repair [here|<cell id>] [crop|woodland|pasture|all]#0 - clear malformed extension accounting only
-	#3magic environment cell <here|cell id> <inherit|disabled|profile>#0 - set a cell binding
+	#3magic environment show [here|<room id>]#0 - inspect profile, inputs, resources and damage
+	#3magic environment treatments [here|<room id>]#0 - inspect active, completed and unresolved land treatments
+	#3magic environment treatments confirm <here|room id> <treatment guid>#0 - reconcile durable evidence without applying repair
+	#3magic environment yields [here|<room id>]#0 - purely inspect authorised native organic sources and accounting
+	#3magic environment yields repair [here|<room id>] [crop|woodland|pasture|all]#0 - clear malformed extension accounting only
+	#3magic environment room <here|room id> <inherit|disabled|profile>#0 - set a room binding
 	#3magic environment terrain <terrain> <profile|none>#0 - set a terrain default
-	#3magic environment damage <here|cell id> <damage> <pressure> <operation guid> <reason>#0 - record staff damage and destructive-use pressure
-	#3magic environment repair <here|cell id> <amount> <operation guid> <reason>#0 - repair an actual amount of scar damage
-	#3magic environment recheck [here|<cell id>]#0 - request a bounded policy recheck
+	#3magic environment damage <here|room id> <damage> <pressure> <operation guid> <reason>#0 - record staff damage and destructive-use pressure
+	#3magic environment repair <here|room id> <amount> <operation guid> <reason>#0 - repair an actual amount of scar damage
+	#3magic environment recheck [here|<room id>]#0 - request a bounded policy recheck
 	#3magic environment diagnostics#0 - inspect coordinator work, queues and ages
 
 Damage and repair require a non-empty GUID operation identity and an audit reason. Repeating that identity reuses its recorded result; it does not apply the operation again. Repair grants no resource and preserves the last destructive-use timestamp. Inspection never advances production.";
@@ -58,6 +58,7 @@ Damage and repair require a non-empty GUID operation identity and an audit reaso
 			case "show":
 				EnvironmentShow(actor, command, service);
 				return;
+			case "room":
 			case "cell":
 				EnvironmentRoom(actor, command, service);
 				return;
@@ -74,7 +75,7 @@ Damage and repair require a non-empty GUID operation identity and an audit reaso
 				if (TryEnvironmentRoom(actor, command, true, out var room) && EnvironmentArgumentsFinished(actor, command))
 				{
 					service.MarkDirty(room, EnvironmentalMagicDirtyReason.Policy);
-					actor.OutputHandler.Send($"Requested an environmental recheck for cell #{room.Id.ToString("N0", actor).ColourValue()}.");
+					actor.OutputHandler.Send($"Requested an environmental recheck for room #{room.Id.ToString("N0", actor).ColourValue()}.");
 				}
 
 				return;
@@ -106,7 +107,7 @@ Damage and repair require a non-empty GUID operation identity and an audit reaso
 		{
 			if (!Guid.TryParse(command.PopSpeech(), out var id) || id == Guid.Empty || !EnvironmentArgumentsFinished(actor, command))
 			{
-				actor.OutputHandler.Send("Use magic environment treatments confirm <here|cell id> <treatment guid>.".ColourError());
+				actor.OutputHandler.Send("Use magic environment treatments confirm <here|room id> <treatment guid>.".ColourError());
 				return;
 			}
 			actor.OutputHandler.Send(service.ConfirmTreatment(room, id, out var error)
@@ -116,7 +117,7 @@ Damage and repair require a non-empty GUID operation identity and an audit reaso
 		else if (!EnvironmentArgumentsFinished(actor, command)) return;
 		try
 		{
-			var sb = new StringBuilder($"Land Treatments — Cell #{room.Id.ToString("N0", actor)}\n");
+			var sb = new StringBuilder($"Land Treatments — Room #{room.Id.ToString("N0", actor)}\n");
 			var policy = service.InspectRepairPolicy(room);
 			sb.AppendLine($"Magical repair ceiling: {policy.Ceiling?.ToString("G", actor) ?? "none"}; {policy.Error ?? "repair policy valid"}");
 			var records = service.InspectTreatments(room);
@@ -148,7 +149,7 @@ Damage and repair require a non-empty GUID operation identity and an audit reaso
 
 		var sources = service.InspectOrganicSources(room);
 		var sb = new StringBuilder();
-		sb.AppendLine($"Native Organic Yields — Cell #{room.Id.ToString("N0", actor)}"
+		sb.AppendLine($"Native Organic Yields — Room #{room.Id.ToString("N0", actor)}"
 			.GetLineWithTitleInner(actor, Telnet.Cyan, Telnet.BoldWhite));
 		if (sources.Count == 0)
 		{
@@ -202,12 +203,12 @@ Damage and repair require a non-empty GUID operation identity and an audit reaso
 		}
 		if (room is null)
 		{
-			actor.OutputHandler.Send("Specify here or the ID of an existing cell.".ColourError());
+			actor.OutputHandler.Send("Specify here or the ID of an existing room.".ColourError());
 			return;
 		}
 		if (!command.IsFinished)
 		{
-			actor.OutputHandler.Send("Use magic environment yields repair [here|cell id] [crop|woodland|pasture|all].".ColourError());
+			actor.OutputHandler.Send("Use magic environment yields repair [here|room id] [crop|woodland|pasture|all].".ColourError());
 			return;
 		}
 		NativeOrganicSourceKind? kind = null;
@@ -283,8 +284,8 @@ Damage and repair require a non-empty GUID operation identity and an audit reaso
 
 		var snapshot = service.Inspect(room);
 		var sb = new StringBuilder();
-		sb.AppendLine($"Environmental Magic — Cell #{room.Id.ToString("N0", actor)}".GetLineWithTitleInner(actor, Telnet.Cyan, Telnet.BoldWhite));
-		sb.AppendLine($"Cell: {room.Name.ColourName()}");
+		sb.AppendLine($"Environmental Magic — Room #{room.Id.ToString("N0", actor)}".GetLineWithTitleInner(actor, Telnet.Cyan, Telnet.BoldWhite));
+		sb.AppendLine($"Room: {room.Name.ColourName()}");
 		sb.AppendLine($"Binding: {snapshot.BindingMode.DescribeEnum().ColourName()}");
 		sb.AppendLine($"Effective Profile: {(snapshot.ProfileId.HasValue ? $"{snapshot.ProfileName} (#{snapshot.ProfileId.Value.ToString("N0", actor)})".ColourName() : "None".ColourValue())}");
 		sb.AppendLine($"Scar Damage: {snapshot.State.ScarDamage.ToString("G8", actor).ColourValue()}");
@@ -339,14 +340,14 @@ Damage and repair require a non-empty GUID operation identity and an audit reaso
 		if (binding.EqualTo("inherit"))
 		{
 			if (!TrySetEnvironmentBinding(actor, service, room, EnvironmentalMagicBindingMode.Inherit, null)) return;
-			actor.OutputHandler.Send($"Cell #{room.Id.ToString("N0", actor).ColourValue()} now inherits its terrain's environmental profile.");
+			actor.OutputHandler.Send($"Room #{room.Id.ToString("N0", actor).ColourValue()} now inherits its terrain's environmental profile.");
 			return;
 		}
 
 		if (binding.EqualTo("disabled"))
 		{
 			if (!TrySetEnvironmentBinding(actor, service, room, EnvironmentalMagicBindingMode.Disabled, null)) return;
-			actor.OutputHandler.Send($"Environmental production is disabled for cell #{room.Id.ToString("N0", actor).ColourValue()}; its balances and damage are retained.");
+			actor.OutputHandler.Send($"Environmental production is disabled for room #{room.Id.ToString("N0", actor).ColourValue()}; its balances and damage are retained.");
 			return;
 		}
 
@@ -357,7 +358,7 @@ Damage and repair require a non-empty GUID operation identity and an audit reaso
 		}
 
 		if (!TrySetEnvironmentBinding(actor, service, room, EnvironmentalMagicBindingMode.Explicit, profile.Id)) return;
-		actor.OutputHandler.Send($"Cell #{room.Id.ToString("N0", actor).ColourValue()} now explicitly uses {profile.Name.ColourName()}.");
+		actor.OutputHandler.Send($"Room #{room.Id.ToString("N0", actor).ColourValue()} now explicitly uses {profile.Name.ColourName()}.");
 	}
 
 	private static bool TrySetEnvironmentBinding(ICharacter actor, IEnvironmentalMagicService service, IRoom room,
@@ -399,7 +400,7 @@ Damage and repair require a non-empty GUID operation identity and an audit reaso
 		}
 
 		terrain.SetEnvironmentalMagicProfile(profile.Id);
-		actor.OutputHandler.Send($"Terrain {terrain.Name.ColourName()} now supplies {profile.Name.ColourName()} to cells that inherit their environmental profile.");
+		actor.OutputHandler.Send($"Terrain {terrain.Name.ColourName()} now supplies {profile.Name.ColourName()} to rooms that inherit their environmental profile.");
 	}
 
 	private static void EnvironmentOperation(ICharacter actor, StringStack command, IEnvironmentalMagicService service, bool repair)
@@ -462,7 +463,7 @@ Damage and repair require a non-empty GUID operation identity and an audit reaso
 			return true;
 		}
 
-		actor.OutputHandler.Send("Specify here or the ID of an existing cell.".ColourError());
+		actor.OutputHandler.Send("Specify here or the ID of an existing room.".ColourError());
 		return false;
 	}
 

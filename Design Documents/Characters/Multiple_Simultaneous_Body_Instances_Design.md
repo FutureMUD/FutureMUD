@@ -574,7 +574,7 @@ EmbodiedBy?.Body == this && EmbodiedBy.CanRunBodyProcesses
 Recommended transitional implementation:
 
 ```csharp
-public override ICell Location => EmbodiedBy?.Location;
+public override IRoom Location => EmbodiedBy?.Location;
 public override IOutputHandler OutputHandler => EmbodiedBy?.OutputHandler ?? NonPlayerOutputHandler.Instance;
 ```
 

@@ -14,8 +14,8 @@ using MudSharp.TimeAndDate.Intervals;
 namespace MudSharp.Vehicles;
 
 /// <summary>
-/// A revisioned operational itinerary. This is deliberately distinct from a linear RouteCell.
-/// Approved revisions pin every traversed RouteCell topology version and every concrete step.
+/// A revisioned operational itinerary. This is deliberately distinct from a linear RouteRoom.
+/// Approved revisions pin every traversed RouteRoom topology version and every concrete step.
 /// </summary>
 public interface IVehicleRoute : IEditableRevisableItem, IProgVariable
 {
@@ -128,7 +128,7 @@ public interface IVehicleJourney : IFrameworkItem, IHaveFuturemud, ISaveable, IP
 /// <summary>
 /// The result returned by the physical movement layer when a compiled route leg completes.
 /// Operational journeys deliberately depend on this seam rather than on a concrete movement
-/// implementation so longitudinal RouteCell and room-scale vehicle movement can evolve independently.
+/// implementation so longitudinal RouteRoom and room-scale vehicle movement can evolve independently.
 /// </summary>
 public sealed record VehicleJourneyLegResult(bool Succeeded, string Reason)
 {

@@ -160,7 +160,7 @@ Task 3B should use these exact public surfaces:
 - `IEnvironmentalMagicService.TryPlanOrganicDebit` for a pure full-amount quote.
 - `IEnvironmentalMagicService.TryApplyOrganicDebit` once, only inside the existing parent gathering commitment/receipt flow.
 - `NativeOrganicDebitPlan` as a transient validation token, never as the durable receipt.
-- `ICell.TryConsumeYield(NativeForageYieldSnapshot, ...)` and `IAgricultureField.TryApplyNativeOrganicDebit` remain owner-only integration points; player/FutureProg code must not call them directly.
+- `IRoom.TryConsumeYield(NativeForageYieldSnapshot, ...)` and `IAgricultureField.TryApplyNativeOrganicDebit` remain owner-only integration points; player/FutureProg code must not call them directly.
 
 Applying a native debit marks its owner dirty but does not save some unrelated environmental receipt. The Task 3B parent operation must checkpoint the changed native owner before payout acknowledgement and quarantine an uncertain save exactly as it does for other native costs. Agriculture stock and accounting are written together by the field save. Forage stock uses the cell's existing forage-yield checkpoint. `IRecoverableSaveFailure` is the narrow owner hook used by `SaveManager` after a failed provider commit: a cell restores every dirty facet and its pre-attempt expected environmental revision before the entire attempted batch is requeued. The hook does not make a failed write successful, provide a transaction receipt, or prove that an ambiguous external provider rollback succeeded. Task 3B must still treat an uncertain commit as uncertain.
 

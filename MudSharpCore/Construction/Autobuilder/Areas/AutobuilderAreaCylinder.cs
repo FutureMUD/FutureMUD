@@ -54,11 +54,11 @@ public class AutobuilderAreaCylinder : AutobuilderAreaBase
         {
             case "diagonals":
                 ConnectRoomsWithDiagonalExits = !ConnectRoomsWithDiagonalExits;
-                actor.OutputHandler.Send($"This autobuilder area template will {(ConnectRoomsWithDiagonalExits ? "now" : "no longer")} connect cells with diagonal exits.");
+                actor.OutputHandler.Send($"This autobuilder area template will {(ConnectRoomsWithDiagonalExits ? "now" : "no longer")} connect rooms with diagonal exits.");
                 return true;
             case "link":
                 ConnectRingsAlongLengthOfCylinder = !ConnectRingsAlongLengthOfCylinder;
-                actor.OutputHandler.Send($"This autobuilder area template will {(ConnectRingsAlongLengthOfCylinder ? "now" : "no longer")} connect cells along the length of the cylinder.");
+                actor.OutputHandler.Send($"This autobuilder area template will {(ConnectRingsAlongLengthOfCylinder ? "now" : "no longer")} connect rooms along the length of the cylinder.");
                 return true;
             default:
                 return base.BuildingCommand(actor, command.GetUndo());
@@ -233,7 +233,7 @@ public class AutobuilderAreaCylinder : AutobuilderAreaBase
         return
             $@"{$"Autobuilder Area Template #{Id} ({Name})".Colour(Telnet.Cyan)}
 
-This autobuilder template will return a cylinder area of linked cells (like the inside of a ring world) with circumfrence, length, orientation, terrain and room template supplied by the builder.
+This autobuilder template will return a cylinder area of linked rooms (like the inside of a ring world) with circumfrence, length, orientation, terrain and room template supplied by the builder.
 
 It {(ConnectRingsAlongLengthOfCylinder ? "will".Colour(Telnet.Green) : "will not".Colour(Telnet.Red))} connect the rooms on the ring along the length.
 It {(ConnectRoomsWithDiagonalExits ? "will".Colour(Telnet.Green) : "will not".Colour(Telnet.Red))} connect the rooms in diagonals.";

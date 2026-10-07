@@ -9,8 +9,8 @@ using MudSharp.Vehicles;
 namespace MudSharp.Movement;
 
 /// <summary>
-/// Publishes longitudinal movement phases without widening a local RouteCell event to the
-/// entire linear cell. Vehicle exterior and hosted-interior audiences are deliberately separate.
+/// Publishes longitudinal movement phases without widening a local RouteRoom event to the
+/// entire linear room. Vehicle exterior and hosted-interior audiences are deliberately separate.
 /// </summary>
 public static class RouteMovementOutput
 {

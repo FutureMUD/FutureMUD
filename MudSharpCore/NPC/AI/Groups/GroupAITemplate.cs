@@ -719,7 +719,7 @@ public class GroupAITemplate : SaveableItem, IGroupAITemplate
         if (command.IsFinished)
         {
             actor.OutputHandler.Send(
-                "You must either specify a prog for the Avoid Cell routine or use 'none' to clear an existing one.");
+                "You must either specify a prog for the Avoid Room routine or use 'none' to clear an existing one.");
             return false;
         }
 
@@ -730,7 +730,7 @@ public class GroupAITemplate : SaveableItem, IGroupAITemplate
             _avoidRoomInvoker = null;
             Changed = true;
             actor.OutputHandler.Send(
-                $"You clear the Avoid Cell Prog for Group AI Template {Name.Colour(Telnet.Cyan)}.");
+                $"You clear the Avoid Room Prog for Group AI Template {Name.Colour(Telnet.Cyan)}.");
             return true;
         }
 
@@ -761,7 +761,7 @@ public class GroupAITemplate : SaveableItem, IGroupAITemplate
         _avoidRoomProg = prog;
         Changed = true;
         actor.OutputHandler.Send(
-            $"The Group AI Template {Name.Colour(Telnet.Cyan)} will now use the {_avoidRoomProg.MXPClickableFunctionName()} prog for its Avoid Cell routine.");
+            $"The Group AI Template {Name.Colour(Telnet.Cyan)} will now use the {_avoidRoomProg.MXPClickableFunctionName()} prog for its Avoid Room routine.");
         return true;
     }
 

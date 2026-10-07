@@ -860,8 +860,8 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
 	}
 
 	/// <summary>
-	/// Finds a typed path to an exact spatial destination. Unlike the cell overload, this preserves
-	/// the target's RouteCell coordinate and layer rather than resolving to the cell default.
+	/// Finds a typed path to an exact spatial destination. Unlike the room overload, this preserves
+	/// the target's RouteRoom coordinate and layer rather than resolving to the room default.
 	/// </summary>
 	protected bool TryFindSpatialPath(
 		ICharacter ch,

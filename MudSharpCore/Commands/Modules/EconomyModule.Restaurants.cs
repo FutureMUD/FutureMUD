@@ -22,7 +22,7 @@ internal partial class EconomyModule
 
 	Use #3menu#0 to see each item, its price, dine-in/takeaway availability and current estimated wait.";
 
-	private const string OrderHelp = @"The #6order#0 command is used to begin table service or place cafe and restaurant orders. Moving within any cell assigned to the restaurant keeps your accepted table participation; leaving the restaurant ends it.
+	private const string OrderHelp = @"The #6order#0 command is used to begin table service or place cafe and restaurant orders. Moving within any room assigned to the restaurant keeps your accepted table participation; leaving the restaurant ends it.
 
 The syntax is as follows:
 
@@ -59,7 +59,7 @@ For employees, the syntax is as follows:
 For restaurant managers and proprietors, the syntax is as follows:
 
 	#3restaurant#0 - shows the configuration of the restaurant in your current location
-	#3restaurant cell add|remove <service|internal|kitchen> [here|<cell>]#0 - extends the restaurant to another cell, or removes a cell
+	#3restaurant room add|remove <service|internal|kitchen> [here|<room>]#0 - extends the restaurant to another room, or removes a room
 	#3restaurant table add|remove <item>#0 - adds or removes a designated restaurant table
 	#3restaurant menu add|remove <item>#0 - adds or removes a shop merchandise item from the menu
 	#3restaurant menu show <item>#0 - reviews a menu item's service configuration and validation
@@ -253,6 +253,7 @@ Administrators have the following additional syntax options:
 
 		switch (subcommand)
 		{
+			case "room":
 			case "cell":
 				RestaurantRoom(actor, restaurant, ss);
 				return;
@@ -424,7 +425,7 @@ Administrators have the following additional syntax options:
 
 		if (actor.Location.Shop is not null)
 		{
-			actor.OutputHandler.Send("This cell is already part of a shop.");
+			actor.OutputHandler.Send("This room is already part of a shop.");
 			return;
 		}
 
@@ -461,13 +462,13 @@ Administrators have the following additional syntax options:
 		var action = ss.PopSpeech().CollapseString().ToLowerInvariant();
 		if (action is not ("add" or "remove" or "rem"))
 		{
-			actor.OutputHandler.Send("Use RESTAURANT CELL ADD|REMOVE <service|internal|kitchen> [here|<cell id>].");
+			actor.OutputHandler.Send("Use RESTAURANT CELL ADD|REMOVE <service|internal|kitchen> [here|<room id>].");
 			return;
 		}
 
 		if (!TryParseRestaurantRoomRole(ss.PopSpeech(), out var role))
 		{
-			actor.OutputHandler.Send("Which restaurant cell role do you want to use? Valid roles are SERVICE, INTERNAL and KITCHEN.\n\n\tRESTAURANT CELL ADD|REMOVE <service|internal|kitchen> [here|<cell id>]");
+			actor.OutputHandler.Send("Which restaurant room role do you want to use? Valid roles are SERVICE, INTERNAL and KITCHEN.\n\n\tRESTAURANT CELL ADD|REMOVE <service|internal|kitchen> [here|<room id>]");
 			return;
 		}
 
@@ -486,7 +487,7 @@ Administrators have the following additional syntax options:
 
 		if (room is null)
 		{
-			actor.OutputHandler.Send("There is no such cell.");
+			actor.OutputHandler.Send("There is no such room.");
 			return;
 		}
 
@@ -1127,9 +1128,9 @@ Administrators have the following additional syntax options:
 		sb.AppendLine($"Maximum Batch Wait: {restaurant.MaximumBatchWait.Describe(actor).ColourValue()}");
 		sb.AppendLine($"Table Cleanup Cadence: {restaurant.TableCleanupInterval.Describe(actor).ColourValue()}");
 		sb.AppendLine("Service Emotes: #3RESTAURANT EMOTE LIST#0".SubstituteANSIColour());
-		sb.AppendLine($"Service Cells: {restaurant.ServiceRooms.Select(x => x.GetFriendlyReference(actor)).ListToString()}");
-		sb.AppendLine($"Internal Cells: {restaurant.InternalRooms.Select(x => x.GetFriendlyReference(actor)).ListToString()}");
-		sb.AppendLine($"Kitchen Cells: {restaurant.KitchenRooms.Select(x => x.GetFriendlyReference(actor)).ListToString()}");
+		sb.AppendLine($"Service Rooms: {restaurant.ServiceRooms.Select(x => x.GetFriendlyReference(actor)).ListToString()}");
+		sb.AppendLine($"Internal Rooms: {restaurant.InternalRooms.Select(x => x.GetFriendlyReference(actor)).ListToString()}");
+		sb.AppendLine($"Kitchen Rooms: {restaurant.KitchenRooms.Select(x => x.GetFriendlyReference(actor)).ListToString()}");
 		sb.AppendLine($"Tables: {restaurant.RestaurantTables.Select(x => x.HowSeen(actor)).ListToString()}");
 		sb.AppendLine($"Takeaway Bag: {restaurant.TakeawayBagPrototype?.EditHeader().ColourName() ?? "None".ColourError()}");
 		sb.AppendLine($"Storage: {(restaurant.StorageContainers.Any()

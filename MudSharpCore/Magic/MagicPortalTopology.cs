@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
@@ -168,7 +168,7 @@ public class MagicPortalNetwork : SaveableItem, IMagicPortalNetwork
 	#3outdesc <text>#0 - sets the outbound movement preposition
 	#3indesc <text>#0 - sets the inbound movement preposition
 	#3speed <multiplier>#0 - sets the movement time multiplier
-	#3endpoint add room <key> <cell|here> [name]#0 - adds or replaces a room endpoint
+	#3endpoint add room <key> <room|here> [name]#0 - adds or replaces a room endpoint
 	#3endpoint add item <key> <item id> [name]#0 - adds or replaces a directly placed item endpoint
 	#3endpoint remove <key|id>#0 - removes an endpoint and its links
 	#3endpoint active <key|id>#0 - toggles an endpoint
@@ -353,7 +353,7 @@ public class MagicPortalNetwork : SaveableItem, IMagicPortalNetwork
 		var key = command.PopSpeech().ToLowerInvariant();
 		if (command.IsFinished)
 		{
-			actor.OutputHandler.Send("Which room/cell or item should this endpoint use?");
+			actor.OutputHandler.Send("Which room or item should this endpoint use?");
 			return false;
 		}
 
@@ -367,7 +367,7 @@ public class MagicPortalNetwork : SaveableItem, IMagicPortalNetwork
 			room = targetText.EqualTo("here") ? actor.Location : long.TryParse(targetText, out var id) ? Gameworld.Rooms.Get(id) : null;
 			if (room is null)
 			{
-				actor.OutputHandler.Send("There is no such cell.");
+				actor.OutputHandler.Send("There is no such room.");
 				return false;
 			}
 		}
@@ -614,7 +614,7 @@ public class MagicPortalNetwork : SaveableItem, IMagicPortalNetwork
 		return endpoint.EndpointType switch
 		{
 			MagicPortalEndpointType.Room => endpoint.CurrentRoom is null
-				? $"missing cell #{endpoint.RoomId?.ToString("N0", voyeur) ?? "0"}".ColourError()
+				? $"missing room #{endpoint.RoomId?.ToString("N0", voyeur) ?? "0"}".ColourError()
 				: $"room #{endpoint.CurrentRoom.Id.ToString("N0", voyeur)} {endpoint.CurrentRoom.Name.ColourName()}",
 			MagicPortalEndpointType.Item => endpoint.CurrentRoom is null
 				? $"item #{endpoint.GameItemId?.ToString("N0", voyeur) ?? "0"} not directly placed".ColourError()
@@ -757,8 +757,8 @@ public class MagicPortalEndpoint : FrameworkItem, IMagicPortalEndpoint
 
 			return EndpointType switch
 			{
-				MagicPortalEndpointType.Room when !RoomId.HasValue => "cell endpoint has no cell id",
-				MagicPortalEndpointType.Room when Gameworld.Rooms.Get(RoomId!.Value) is null => "the target cell is missing",
+				MagicPortalEndpointType.Room when !RoomId.HasValue => "room endpoint has no room id",
+				MagicPortalEndpointType.Room when Gameworld.Rooms.Get(RoomId!.Value) is null => "the target room is missing",
 				_ => string.Empty
 			};
 		}
@@ -1040,7 +1040,7 @@ public class MagicPortalTopologyService : IMagicPortalTopologyService
 
 		if (endpointType == MagicPortalEndpointType.Room && room is null)
 		{
-			reason = "Cell endpoints must reference a room.";
+			reason = "Room endpoints must reference a room.";
 			return null;
 		}
 

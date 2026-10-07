@@ -153,7 +153,7 @@ public class AutobuilderRoomSimple : AutobuilderRoomBase
 	public override string Show(ICharacter builder)
 	{
 		return
-			$"{$"Autobuilder Room Template #{Id} ({Name})".Colour(Telnet.Cyan)}\n\nThis template will create the same cell every time. This particular template creates cells with terrain type {DefaultTerrain.Name.Colour(Telnet.Green)}, outdoors type {OutdoorsType.Describe().Colour(Telnet.Green)} and Ambient Light Factor {AmbientLightFactor:N3}. {(ForagableProfile == null ? "It does not have a foragable profile set." : $"It will use the {ForagableProfile.Name.Colour(Telnet.Green)} foragable profile.")}\n\nCell Name: {RoomName}\nCell Description:\n\n{RoomDescription.Wrap(builder.InnerLineFormatLength, "\t")}";
+			$"{$"Autobuilder Room Template #{Id} ({Name})".Colour(Telnet.Cyan)}\n\nThis template will create the same room every time. This particular template creates rooms with terrain type {DefaultTerrain.Name.Colour(Telnet.Green)}, outdoors type {OutdoorsType.Describe().Colour(Telnet.Green)} and Ambient Light Factor {AmbientLightFactor:N3}. {(ForagableProfile == null ? "It does not have a foragable profile set." : $"It will use the {ForagableProfile.Name.Colour(Telnet.Green)} foragable profile.")}\n\nCell Name: {RoomName}\nCell Description:\n\n{RoomDescription.Wrap(builder.InnerLineFormatLength, "\t")}";
 	}
 
     public override bool BuildingCommand(ICharacter actor, StringStack command)

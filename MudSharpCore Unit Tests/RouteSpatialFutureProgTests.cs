@@ -17,7 +17,7 @@ public class RouteSpatialFutureProgTests
 		FutureProgTestBootstrap.EnsureInitialised();
 
 		var names = FutureProg.GetFunctionCompilerInformations()
-			.Where(x => x.Category.EqualTo("RouteCells"))
+			.Where(x => x.Category.EqualTo("RouteRooms"))
 			.Select(x => x.FunctionName.ToLowerInvariant())
 			.ToHashSet();
 
@@ -34,7 +34,7 @@ public class RouteSpatialFutureProgTests
 			         "routeportalaccessible"
 		         })
 		{
-			Assert.IsTrue(names.Contains(expected), $"Missing FutureProg RouteCell function {expected}.");
+			Assert.IsTrue(names.Contains(expected), $"Missing FutureProg RouteRoom function {expected}.");
 		}
 	}
 }

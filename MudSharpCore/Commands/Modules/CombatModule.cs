@@ -3278,14 +3278,14 @@ The syntax is:
 				{
 					if (!long.TryParse(arguments.PopSpeech(), out var cellId) || cellId <= 0)
 					{
-						actor.Send("Every indirect firing-path entry must be a positive cell ID.");
+						actor.Send("Every indirect firing-path entry must be a positive room ID.");
 						return;
 					}
 					rooms.Add(cellId);
 				}
 				if (rooms.Count == 0)
 				{
-					actor.Send("An indirect firing solution requires at least one reachable cell.");
+					actor.Send("An indirect firing solution requires at least one reachable room.");
 					return;
 				}
 				if (!piece.SetFiringSolution(actor,
@@ -3294,7 +3294,7 @@ The syntax is:
 					actor.Send(pathReason);
 					return;
 				}
-				actor.Send($"You set an indirect firing path for {item.HowSeen(actor)} through {rooms.Count.ToString(actor).ColourValue()} cell{(rooms.Count == 1 ? string.Empty : "s")}.");
+				actor.Send($"You set an indirect firing path for {item.HowSeen(actor)} through {rooms.Count.ToString(actor).ColourValue()} room{(rooms.Count == 1 ? string.Empty : "s")}.");
 				return;
 			}
 			case "fuse":

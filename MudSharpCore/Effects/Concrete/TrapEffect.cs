@@ -121,7 +121,7 @@ public sealed class TrapComponentBinding : ITrapComponentBinding
 }
 
 /// <summary>
-/// The persisted runtime trap. It is an effect on an item or cell instead of a new item type, so traps can be
+/// The persisted runtime trap. It is an effect on an item or room instead of a new item type, so traps can be
 /// physical, magical, or natural without duplicating the engine's item, spell, and world-object persistence paths.
 /// </summary>
 public sealed class TrapEffect : Effect, ITrap, IHandleEventsEffect, IEvaluateDescriptionAdditionEffect
@@ -278,14 +278,14 @@ public sealed class TrapEffect : Effect, ITrap, IHandleEventsEffect, IEvaluateDe
 	public override void Login()
 	{
 		base.Login();
-		// Item effects can be hydrated before their owner is placed in a cell. Reindex
+		// Item effects can be hydrated before their owner is placed in a room. Reindex
 		// the receiver now that placement is complete, including repeated login cycles.
 		UnsubscribeProximityTriggers();
 		InitialiseRuntime(deferRoomInitialisation: true);
 	}
 
 	/// <summary>
-	/// Cell effects are hydrated with the world, before trap templates and game item prototypes. Complete their
+	/// Room effects are hydrated with the world, before trap templates and game item prototypes. Complete their
 	/// dependency-sensitive initialisation once world items have loaded. Item- and character-owned traps already
 	/// load after those dependencies and use the ordinary effect lifecycle.
 	/// </summary>
@@ -660,7 +660,7 @@ public sealed class TrapEffect : Effect, ITrap, IHandleEventsEffect, IEvaluateDe
 					return (Proximity)previous > maximumProximity && (Proximity)current <= maximumProximity;
 				}
 
-				// Existing cell-owned proximity traps pre-date spatial anchors. Retain their cell-entry behaviour while
+				// Existing room-owned proximity traps pre-date spatial anchors. Retain their room-entry behaviour while
 				// preventing new trap placements from creating more of them.
 				return Owner is IRoom && TrapEventRouting.IsRoomArrivalWitness(eventType) && arguments.Length >= 2 &&
 				       arguments[1] is IRoom proximityDestination && arguments[0] is ICharacter proximityCharacter &&

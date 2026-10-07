@@ -185,8 +185,8 @@ public class HotelRoom : IHotelRoom
 	private readonly Property _property;
 	private readonly List<long> _keyIds = new();
 	private readonly List<IHotelFurnishing> _furnishings = new();
-	private long _cellId;
-	private IRoom _cell;
+	private long _roomId;
+	private IRoom _room;
 	private string _name;
 	private bool _listed;
 	private decimal _pricePerDay;
@@ -200,7 +200,7 @@ public class HotelRoom : IHotelRoom
 	{
 		_property = property;
 		DatabaseId = record.Id;
-		_cellId = record.RoomId;
+		_roomId = record.RoomId;
 		_name = NormaliseName(record.Name);
 		_listed = record.Listed;
 		_pricePerDay = Math.Max(0.0M, record.PricePerDay);
@@ -223,8 +223,8 @@ public class HotelRoom : IHotelRoom
 		TimeSpan minimumDuration, TimeSpan maximumDuration)
 	{
 		_property = property;
-		_cell = room;
-		_cellId = room.Id;
+		_room = room;
+		_roomId = room.Id;
 		_name = NormaliseName(name);
 		_listed = true;
 		_pricePerDay = Math.Max(0.0M, pricePerDay);
@@ -234,7 +234,7 @@ public class HotelRoom : IHotelRoom
 	}
 
 	public IProperty Property => _property;
-	public IRoom Room => _cell ??= Property.Gameworld.Rooms.Get(_cellId);
+	public IRoom Room => _room ??= Property.Gameworld.Rooms.Get(_roomId);
 
 	public string Name
 	{

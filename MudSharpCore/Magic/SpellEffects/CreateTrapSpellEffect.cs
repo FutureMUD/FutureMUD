@@ -26,7 +26,7 @@ public sealed class CreateTrapSpellEffect : IMagicSpellEffectTemplate
 		SpellEffectFactory.RegisterBuilderFactory(
 			"createtrap",
 			BuilderFactory,
-			"Installs a configured magical trap template on an item or cell",
+			"Installs a configured magical trap template on an item or room",
 			"Use template <traptemplate> to choose a current magical template.",
 			true,
 			true,
@@ -36,7 +36,7 @@ public sealed class CreateTrapSpellEffect : IMagicSpellEffectTemplate
 		SpellEffectFactory.RegisterBuilderFactory(
 			"placetrap",
 			BuilderFactory,
-			"Installs a configured magical trap template on an item or cell",
+			"Installs a configured magical trap template on an item or room",
 			"Use template <traptemplate> to choose a current magical template.",
 			true,
 			true,

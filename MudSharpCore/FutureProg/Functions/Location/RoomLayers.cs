@@ -18,7 +18,7 @@ internal class RoomLayers : BuiltInFunction
                 (pars, gameworld) => new RoomLayers(pars, gameworld),
                 new List<string> { "Location" },
                 new List<string> { "The location whose layers you want to determine" },
-                "This function returns a collection of text values representing all the layers in the specified cell. Possible values for layers are VeryDeepUnderwater, DeepUnderwater, Underwater, GroundLevel, OnRooftops, InTrees, HighInTrees, InAir, HighInAir.",
+                "This function returns a collection of text values representing all the layers in the specified room. Possible values for layers are VeryDeepUnderwater, DeepUnderwater, Underwater, GroundLevel, OnRooftops, InTrees, HighInTrees, InAir, HighInAir.",
                 "Rooms",
                 ProgVariableTypes.Text | ProgVariableTypes.Collection
             )
@@ -35,7 +35,7 @@ internal class RoomLayers : BuiltInFunction
                     "The location whose layers you want to determine",
                     "The package you want to use to evaluate what terrain type this location is"
                 },
-                "This function returns a collection of text values representing all the layers in the specified cell. Possible values for layers are VeryDeepUnderwater, DeepUnderwater, Underwater, GroundLevel, OnRooftops, InTrees, HighInTrees, InAir, HighInAir.",
+                "This function returns a collection of text values representing all the layers in the specified room. Possible values for layers are VeryDeepUnderwater, DeepUnderwater, Underwater, GroundLevel, OnRooftops, InTrees, HighInTrees, InAir, HighInAir.",
                 "Rooms",
                 ProgVariableTypes.Text | ProgVariableTypes.Collection
             )

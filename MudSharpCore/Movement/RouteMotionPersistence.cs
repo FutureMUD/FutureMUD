@@ -126,7 +126,7 @@ public interface IRouteMotionPersistence
 }
 
 /// <summary>
-/// Production EF-backed persistence for active character RouteCell motion.
+/// Production EF-backed persistence for active character RouteRoom motion.
 /// The callback is invoked only for newly-ledgered charges, and only affected bodies are saved
 /// inside the same database transaction as the durable coordinate checkpoint.
 /// </summary>
@@ -150,7 +150,7 @@ public sealed class DatabaseRouteMotionPersistence : IRouteMotionPersistence
 		ArgumentNullException.ThrowIfNull(rootMover);
 		ArgumentNullException.ThrowIfNull(segment);
 		var route = segment.Origin.Room.RouteDefinition ??
-		            throw new InvalidOperationException("Active route motion requires a RouteCell definition.");
+		            throw new InvalidOperationException("Active route motion requires a RouteRoom definition.");
 		var operationKey = operationId.ToString("N");
 		var now = DateTime.UtcNow;
 

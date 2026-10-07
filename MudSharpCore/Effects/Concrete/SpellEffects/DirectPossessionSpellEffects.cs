@@ -400,7 +400,7 @@ public sealed class SpellCorpsePossessionEffect : SimpleSpellStatusEffectBase, I
 		if (location is null)
 		{
 			Gameworld.SystemMessage(
-				$"Could not restore corpse item #{CorpseItemId.ToString("N0")} after possession: cell #{OriginalLocationId.ToString("N0")} could not be resolved.",
+				$"Could not restore corpse item #{CorpseItemId.ToString("N0")} after possession: room #{OriginalLocationId.ToString("N0")} could not be resolved.",
 				true);
 			return;
 		}
@@ -757,7 +757,7 @@ public sealed class SpellAnimatedCorpseEffect : SimpleSpellStatusEffectBase, IAn
 		if (location is null)
 		{
 			Gameworld.SystemMessage(
-				$"Could not restore corpse item #{CorpseItemId.ToString("N0")} after corpse animation: cell #{OriginalLocationId.ToString("N0")} could not be resolved.",
+				$"Could not restore corpse item #{CorpseItemId.ToString("N0")} after corpse animation: room #{OriginalLocationId.ToString("N0")} could not be resolved.",
 				true);
 			return;
 		}

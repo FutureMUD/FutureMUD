@@ -151,7 +151,7 @@ public class SimpleGameItemGroupForm : GameItemGroupForm
                 : "not set".Colour(Telnet.Red));
         if (Rooms.Any())
         {
-            sb.AppendLine("This form only activates in the following cells:");
+            sb.AppendLine("This form only activates in the following rooms:");
             foreach (IRoom room in Rooms)
             {
                 sb.AppendLineFormat("\tId {0}\t{1}", room.Id, room.HowSeen(voyeur));
@@ -159,7 +159,7 @@ public class SimpleGameItemGroupForm : GameItemGroupForm
         }
         else
         {
-            sb.AppendLine("This form will activate in any cell.");
+            sb.AppendLine("This form will activate in any room.");
         }
 
         sb.AppendLine();

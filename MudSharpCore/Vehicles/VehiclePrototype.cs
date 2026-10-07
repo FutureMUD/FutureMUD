@@ -200,7 +200,7 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 		if (!_movementProfiles.Any(x => x.MovementType is VehicleMovementProfileType.RoomExit or
 			    VehicleMovementProfileType.Route))
 		{
-			reason = "This vehicle prototype does not define a cell-exit or RouteCell movement profile.";
+			reason = "This vehicle prototype does not define a room-exit or RouteRoom movement profile.";
 			return false;
 		}
 
@@ -228,21 +228,21 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 				    !double.IsFinite(movementProfile.RoutePowerDrawWatts) ||
 				    movementProfile.RoutePowerDrawWatts < 0.0)
 				{
-					reason = $"The {movementProfile.Name} RouteCell movement profile has invalid speed, propulsion, fuel, or power settings.";
+					reason = $"The {movementProfile.Name} RouteRoom movement profile has invalid speed, propulsion, fuel, or power settings.";
 					return false;
 				}
 
 				if (movementProfile.AutomaticOperationCapable &&
 				    movementProfile.RoutePropulsionMode != RouteVehiclePropulsionMode.Powered)
 				{
-					reason = $"The {movementProfile.Name} RouteCell movement profile can only be automatic-capable when powered.";
+					reason = $"The {movementProfile.Name} RouteRoom movement profile can only be automatic-capable when powered.";
 					return false;
 				}
 
 				if (movementProfile.RoutePropulsionMode == RouteVehiclePropulsionMode.EnginePowered &&
 				    movementProfile.MinimumEnginePowerInWatts <= 0.0)
 				{
-					reason = $"The {movementProfile.Name} engine-powered RouteCell profile must specify minimum engine power.";
+					reason = $"The {movementProfile.Name} engine-powered RouteRoom profile must specify minimum engine power.";
 					return false;
 				}
 			}
@@ -251,14 +251,14 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 			if (movementProfile.MovementEnvironment == VehicleMovementEnvironment.SurfaceWater &&
 			    movementProfile.MovementType != VehicleMovementProfileType.RoomExit)
 			{
-				reason = $"The {movementProfile.Name} movement profile uses surface water but is not a cell-exit profile.";
+				reason = $"The {movementProfile.Name} movement profile uses surface water but is not a room-exit profile.";
 				return false;
 			}
 
 			if (propulsionProfiles.Any() &&
 			    movementProfile.MovementType != VehicleMovementProfileType.RoomExit)
 			{
-				reason = $"The {movementProfile.Name} movement profile has propulsion modes but is not a cell-exit profile.";
+				reason = $"The {movementProfile.Name} movement profile has propulsion modes but is not a room-exit profile.";
 				return false;
 			}
 
@@ -716,11 +716,11 @@ All options below are used as #3vehicleproto set <option> ...#0 while editing a 
 
 #5Compartments, Occupants And Control#0
 
-A compartment groups seats and controls. It becomes a persistent walkable interior cell only for #3roomscale#0 vehicles; for ItemScale and RoomContainer vehicles it still keeps the vehicle's authoring structure organised.
+A compartment groups seats and controls. It becomes a persistent walkable interior room only for #3roomscale#0 vehicles; for ItemScale and RoomContainer vehicles it still keeps the vehicle's authoring structure organised.
 
 	#3compartment add <name>#0 - adds a compartment
 	#3compartment remove <id>#0 - removes a compartment and its dependent definitions
-	#3compartment interior <id> <terrain id|name> <indoors|windows|outdoors|dark|climateexposed>#0 - sets the hosted interior cell's terrain and exposure; required for RoomScale interiors
+	#3compartment interior <id> <terrain id|name> <indoors|windows|outdoors|dark|climateexposed>#0 - sets the hosted interior room's terrain and exposure; required for RoomScale interiors
 	#3compartment link add <source id> <destination id> <out direction> <in direction> ""<out target>"" ""<in target>""#0 - adds a two-way walkable link between RoomScale compartments
 	#3compartment link remove <id>#0 - removes an authored compartment link
 
@@ -737,24 +737,24 @@ Slots determine where occupants ride. A driver slot with a control station can t
 
 #5Movement Profiles#0
 
-A profile defines how the vehicle moves. A #3cell#0 profile drives through ordinary cell exits; a #3route#0 profile moves longitudinally along RouteCells. The same prototype may have one of each. New cell-exit vehicles need a cell profile and at least one compatible propulsion mode before they can be submitted.
+A profile defines how the vehicle moves. A #3room#0 profile drives through ordinary room exits; a #3route#0 profile moves longitudinally along RouteRooms. The same prototype may have one of each. New room-exit vehicles need a room profile and at least one compatible propulsion mode before they can be submitted.
 
-	#3movement cell#0 - adds the ordinary cell-exit movement profile
-	#3movement route#0 - adds the longitudinal RouteCell movement profile
+	#3movement room#0 - adds the ordinary room-exit movement profile
+	#3movement route#0 - adds the longitudinal RouteRoom movement profile
 	#3movement remove <id>#0 - removes a movement profile
-	#3movement fuel <id> <liquid id|none> <volume>#0 - sets or clears cell-exit fuel consumed by a movement
-	#3movement power <id> <watts>#0 - sets the cell-exit electrical power spike needed by a movement
+	#3movement fuel <id> <liquid id|none> <volume>#0 - sets or clears room-exit fuel consumed by a movement
+	#3movement power <id> <watts>#0 - sets the room-exit electrical power spike needed by a movement
 	#3movement enginepower <id> <watts>#0 - sets the minimum aggregate installed mechanical engine power for an engine-driven profile
 	#3movement role <id> <role|none>#0 - sets or clears the installed module role required to move
 	#3movement access <id>#0 - toggles whether applicable access points must be closed before movement
 	#3movement tow <id>#0 - toggles whether a valid tow link is required before movement
 
-Cell-exit environments govern where a profile can travel. #3surfacewater#0 requires surface water at ground level at both ends. #3protected#0 keeps occupants out of normal immersion; #3exposed#0 suits open craft such as boards.
+Room-exit environments govern where a profile can travel. #3surfacewater#0 requires surface water at ground level at both ends. #3protected#0 keeps occupants out of normal immersion; #3exposed#0 suits open craft such as boards.
 
-	#3movement environment <id> <unrestricted|surfacewater>#0 - sets the cell-exit movement environment
+	#3movement environment <id> <unrestricted|surfacewater>#0 - sets the room-exit movement environment
 	#3movement waterexposure <id> <protected|exposed>#0 - sets the surface-water occupant exposure policy
 
-RouteCell profiles are for trains, large platforms and other travel along metre-based route cells:
+RouteRoom profiles are for trains, large platforms and other travel along metre-based route rooms:
 
 	#3movement route speed <distance>/<time>#0 - sets longitudinal speed, for example #310m/2s#0
 	#3movement route propulsion <powered|externallypulled|enginepowered>#0 - selects route propulsion and its readiness model
@@ -762,7 +762,7 @@ RouteCell profiles are for trains, large platforms and other travel along metre-
 	#3movement route power <watts>#0 - sets continuous route electrical power draw
 	#3movement route automatic#0 - toggles automatic-operation capability; only powered routes can be automatic
 
-#5Cell-Exit Propulsion#0
+#5Room-Exit Propulsion#0
 
 Propulsion rows are selectable runtime modes. The controller uses #3vehiclepropulsion#0 while stationary to inspect or select an authored mode; movement never silently switches to another one. Surface-water profiles support #3selfpowered#0, #3rowed#0, #3sail#0, #3outboard#0 or exclusive #3none#0. Unrestricted terrestrial profiles support #3engine#0, #3externallypulled#0, #3riderpowered#0 or exclusive #3none#0.
 
@@ -1395,11 +1395,13 @@ Use #3hitch#0/#3unhitch#0 to create or remove live tow links, #3vehicle repair#0
 	{
 		switch (command.PopSpeech().ToLowerInvariant())
 		{
+			case "room":
+			case "roomexit":
 			case "cell":
 			case "cellexit":
 				if (_movementProfiles.Any(x => x.MovementType == VehicleMovementProfileType.RoomExit))
 				{
-					actor.OutputHandler.Send("This vehicle prototype already has a cell-exit movement profile.");
+					actor.OutputHandler.Send("This vehicle prototype already has a room-exit movement profile.");
 					return false;
 				}
 
@@ -1409,7 +1411,7 @@ Use #3hitch#0/#3unhitch#0 to create or remove live tow links, #3vehicle repair#0
 					{
 						VehicleProtoId = Id,
 						VehicleProtoRevision = RevisionNumber,
-						Name = "Cell Exit Movement",
+						Name = "Room Exit Movement",
 						MovementType = (int)VehicleMovementProfileType.RoomExit,
 						IsDefault = !_movementProfiles.Any(),
 						RequiredInstalledRole = string.Empty
@@ -1419,7 +1421,7 @@ Use #3hitch#0/#3unhitch#0 to create or remove live tow links, #3vehicle repair#0
 					_movementProfiles.Add(new VehicleMovementProfilePrototype(dbitem, Gameworld));
 				}
 
-				actor.OutputHandler.Send("You add a cell-exit movement profile.");
+				actor.OutputHandler.Send("You add a room-exit movement profile.");
 				return true;
 			case "route":
 				return BuildingCommandMovementRoute(actor, command);
@@ -1486,7 +1488,7 @@ Use #3hitch#0/#3unhitch#0 to create or remove live tow links, #3vehicle repair#0
 		{
 			if (profile is not null)
 			{
-				actor.OutputHandler.Send("This vehicle prototype already has a RouteCell movement profile.");
+				actor.OutputHandler.Send("This vehicle prototype already has a RouteRoom movement profile.");
 				return false;
 			}
 
@@ -1496,7 +1498,7 @@ Use #3hitch#0/#3unhitch#0 to create or remove live tow links, #3vehicle repair#0
 				{
 					VehicleProtoId = Id,
 					VehicleProtoRevision = RevisionNumber,
-					Name = "RouteCell Movement",
+					Name = "RouteRoom Movement",
 					MovementType = (int)VehicleMovementProfileType.Route,
 					MovementEnvironment = (int)VehicleMovementEnvironment.Unrestricted,
 					IsDefault = !_movementProfiles.Any(),
@@ -1509,13 +1511,13 @@ Use #3hitch#0/#3unhitch#0 to create or remove live tow links, #3vehicle repair#0
 				_movementProfiles.Add(new VehicleMovementProfilePrototype(dbitem, Gameworld));
 			}
 
-			actor.OutputHandler.Send("You add a RouteCell movement profile with a default speed of one metre per second.");
+			actor.OutputHandler.Send("You add a RouteRoom movement profile with a default speed of one metre per second.");
 			return true;
 		}
 
 		if (profile is null)
 		{
-			actor.OutputHandler.Send("Add the RouteCell movement profile with #3movement route#0 first."
+			actor.OutputHandler.Send("Add the RouteRoom movement profile with #3movement route#0 first."
 				.SubstituteANSIColour());
 			return false;
 		}
@@ -1537,7 +1539,7 @@ Use #3hitch#0/#3unhitch#0 to create or remove live tow links, #3vehicle repair#0
 					FMDB.Context.SaveChanges();
 				}
 				ReloadChildDefinitions();
-				actor.OutputHandler.Send($"That vehicle now travels along RouteCells at {speed.ToString("N3", actor).ColourValue()} metres per second.");
+				actor.OutputHandler.Send($"That vehicle now travels along RouteRooms at {speed.ToString("N3", actor).ColourValue()} metres per second.");
 				return true;
 			case "propulsion":
 			case "propel":
@@ -1566,7 +1568,7 @@ Use #3hitch#0/#3unhitch#0 to create or remove live tow links, #3vehicle repair#0
 					FMDB.Context.SaveChanges();
 				}
 				ReloadChildDefinitions();
-				actor.OutputHandler.Send($"That RouteCell movement profile is now {propulsion.Value.DescribeEnum().ColourName()}.");
+				actor.OutputHandler.Send($"That RouteRoom movement profile is now {propulsion.Value.DescribeEnum().ColourName()}.");
 				return true;
 			case "fuel":
 				return BuildingCommandMovementRouteFuel(actor, command, profile);
@@ -1584,13 +1586,13 @@ Use #3hitch#0/#3unhitch#0 to create or remove live tow links, #3vehicle repair#0
 					FMDB.Context.SaveChanges();
 				}
 				ReloadChildDefinitions();
-				actor.OutputHandler.Send($"That RouteCell movement profile now draws {watts.ToString("N2", actor).ColourValue()} watts while moving.");
+				actor.OutputHandler.Send($"That RouteRoom movement profile now draws {watts.ToString("N2", actor).ColourValue()} watts while moving.");
 				return true;
 			case "automatic":
 			case "auto":
 				if (profile.RoutePropulsionMode != RouteVehiclePropulsionMode.Powered)
 				{
-					actor.OutputHandler.Send("Only powered RouteCell movement profiles can be automatic-capable.");
+					actor.OutputHandler.Send("Only powered RouteRoom movement profiles can be automatic-capable.");
 					return false;
 				}
 
@@ -1601,7 +1603,7 @@ Use #3hitch#0/#3unhitch#0 to create or remove live tow links, #3vehicle repair#0
 					FMDB.Context.SaveChanges();
 				}
 				ReloadChildDefinitions();
-				actor.OutputHandler.Send($"That RouteCell movement profile is {(profile.AutomaticOperationCapable ? "no longer" : "now")} automatic-capable.");
+				actor.OutputHandler.Send($"That RouteRoom movement profile is {(profile.AutomaticOperationCapable ? "no longer" : "now")} automatic-capable.");
 				return true;
 			default:
 				actor.OutputHandler.Send(BuildingHelp.SubstituteANSIColour());
@@ -1630,7 +1632,7 @@ Use #3hitch#0/#3unhitch#0 to create or remove live tow links, #3vehicle repair#0
 				FMDB.Context.SaveChanges();
 			}
 			ReloadChildDefinitions();
-			actor.OutputHandler.Send("That RouteCell movement profile no longer consumes liquid fuel.");
+			actor.OutputHandler.Send("That RouteRoom movement profile no longer consumes liquid fuel.");
 			return true;
 		}
 
@@ -1650,7 +1652,7 @@ Use #3hitch#0/#3unhitch#0 to create or remove live tow links, #3vehicle repair#0
 			FMDB.Context.SaveChanges();
 		}
 		ReloadChildDefinitions();
-		actor.OutputHandler.Send($"That RouteCell movement profile now consumes {volumePerMetre.ToString("N8", actor).ColourValue()} base-volume units per metre of {liquid.Name.ColourName()}.");
+		actor.OutputHandler.Send($"That RouteRoom movement profile now consumes {volumePerMetre.ToString("N8", actor).ColourValue()} base-volume units per metre of {liquid.Name.ColourName()}.");
 		return true;
 	}
 
@@ -1890,7 +1892,7 @@ Use #3hitch#0/#3unhitch#0 to create or remove live tow links, #3vehicle repair#0
 
 			if ((VehicleMovementProfileType)movement.MovementType != VehicleMovementProfileType.RoomExit)
 			{
-				actor.OutputHandler.Send("Propulsion modes can only be added to a cell-exit movement profile.");
+				actor.OutputHandler.Send("Propulsion modes can only be added to a room-exit movement profile.");
 				return false;
 			}
 
@@ -2551,7 +2553,7 @@ Use #3hitch#0/#3unhitch#0 to create or remove live tow links, #3vehicle repair#0
 			if (environment == VehicleMovementEnvironment.SurfaceWater &&
 			    (VehicleMovementProfileType)dbitem.MovementType != VehicleMovementProfileType.RoomExit)
 			{
-				actor.OutputHandler.Send("Only a cell-exit movement profile can use the surface-water environment.");
+				actor.OutputHandler.Send("Only a room-exit movement profile can use the surface-water environment.");
 				return false;
 			}
 

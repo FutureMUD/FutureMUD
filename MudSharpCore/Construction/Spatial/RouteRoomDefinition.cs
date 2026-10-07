@@ -7,7 +7,7 @@ using MudSharp.Framework;
 namespace MudSharp.Construction;
 
 /// <summary>
-/// An immutable runtime snapshot of a persisted linear route-cell definition.
+/// An immutable runtime snapshot of a persisted linear route-room definition.
 /// </summary>
 public sealed class RouteRoomDefinition : IRouteRoomDefinition
 {
@@ -22,7 +22,7 @@ public sealed class RouteRoomDefinition : IRouteRoomDefinition
 		if (model.RoomId != room.Id)
 		{
 			throw new InvalidDataException(
-				$"RouteCell #{model.RoomId:N0} cannot be attached to Cell #{room.Id:N0}.");
+				$"RouteRoom #{model.RoomId:N0} cannot be attached to Room #{room.Id:N0}.");
 		}
 
 		Room = room;
@@ -77,7 +77,7 @@ public sealed class RouteRoomDefinition : IRouteRoomDefinition
 		if (!double.IsFinite(LengthMetres) || LengthMetres <= 0.0)
 		{
 			throw new InvalidDataException(
-				$"RouteCell for Cell #{Room.Id:N0} has invalid length {LengthMetres} metres.");
+				$"RouteRoom for Room #{Room.Id:N0} has invalid length {LengthMetres} metres.");
 		}
 
 		if (!double.IsFinite(DefaultPositionMetres) ||
@@ -85,20 +85,20 @@ public sealed class RouteRoomDefinition : IRouteRoomDefinition
 			DefaultPositionMetres > LengthMetres)
 		{
 			throw new InvalidDataException(
-				$"RouteCell for Cell #{Room.Id:N0} has invalid default position {DefaultPositionMetres} metres.");
+				$"RouteRoom for Room #{Room.Id:N0} has invalid default position {DefaultPositionMetres} metres.");
 		}
 
 		if (!double.IsFinite(MetresPerRoomEquivalent) || MetresPerRoomEquivalent <= 0.0)
 		{
 			throw new InvalidDataException(
-				$"RouteCell for Cell #{Room.Id:N0} has invalid room-equivalent length {MetresPerRoomEquivalent} metres.");
+				$"RouteRoom for Room #{Room.Id:N0} has invalid room-equivalent length {MetresPerRoomEquivalent} metres.");
 		}
 
 		if (string.IsNullOrWhiteSpace(PositiveDirectionName) ||
 			string.IsNullOrWhiteSpace(NegativeDirectionName))
 		{
 			throw new InvalidDataException(
-				$"RouteCell for Cell #{Room.Id:N0} must have names for both directions.");
+				$"RouteRoom for Room #{Room.Id:N0} must have names for both directions.");
 		}
 	}
 }
@@ -130,7 +130,7 @@ public sealed class RouteRoomLandmark : FrameworkItem, IRouteRoomLandmark
 			PositionMetres > routeRoom.LengthMetres)
 		{
 			throw new InvalidDataException(
-				$"RouteCell landmark #{Id:N0} has invalid name or position {PositionMetres} metres.");
+				$"RouteRoom landmark #{Id:N0} has invalid name or position {PositionMetres} metres.");
 		}
 	}
 
@@ -170,7 +170,7 @@ public sealed class RouteRoomExitAnchor : IRouteExitAnchor
 			ArrivalPositionMetres > MaximumPositionMetres)
 		{
 			throw new InvalidDataException(
-				$"Exit #{ExitId:N0} has an invalid anchor in RouteCell #{routeRoom.Room.Id:N0}.");
+				$"Exit #{ExitId:N0} has an invalid anchor in RouteRoom #{routeRoom.Room.Id:N0}.");
 		}
 	}
 
@@ -183,7 +183,7 @@ public sealed class RouteRoomExitAnchor : IRouteExitAnchor
 		{
 			var exit = Room.Gameworld.ExitManager.GetExitByID(ExitId);
 			return exit?.RoomExitFor(Room) ?? throw new InvalidOperationException(
-				$"Exit #{ExitId:N0} for RouteCell #{Room.Id:N0} has not been loaded.");
+				$"Exit #{ExitId:N0} for RouteRoom #{Room.Id:N0} has not been loaded.");
 		}
 	}
 

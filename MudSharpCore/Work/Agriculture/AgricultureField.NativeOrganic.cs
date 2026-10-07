@@ -333,7 +333,7 @@ public partial class AgricultureField
 		var state = AccountingFor(kind);
 		var isLiving = IsLivingSource(kind);
 		var lifecycle = isLiving
-			? new NativeOrganicLifecycleIdentity(_cellId, Id, state.Generation, DefinitionIdFor(kind), null, 0, 0L)
+			? new NativeOrganicLifecycleIdentity(_roomId, Id, state.Generation, DefinitionIdFor(kind), null, 0, 0L)
 			: null;
 		var stock = NativeStockFor(kind);
 		var status = state.IsInvalid || kind == NativeOrganicSourceKind.Pasture && _pendingPastureAssessment && isLiving
@@ -454,7 +454,7 @@ public partial class AgricultureField
 	{
 		if (kind == NativeOrganicSourceKind.Forage)
 		{
-			result = "Forage accounting belongs to the cell rather than the agriculture field.";
+			result = "Forage accounting belongs to the room rather than the agriculture field.";
 			return false;
 		}
 

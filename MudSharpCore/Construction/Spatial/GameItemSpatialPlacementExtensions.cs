@@ -37,8 +37,8 @@ public static class GameItemSpatialPlacementExtensions
 	}
 
 	/// <summary>
-	/// Inserts an item into the source's effective cell, inheriting the source's effective
-	/// RouteCell coordinate when applicable. Ordinary-cell insertion remains unchanged.
+	/// Inserts an item into the source's effective room, inheriting the source's effective
+	/// RouteRoom coordinate when applicable. Ordinary-room insertion remains unchanged.
 	/// </summary>
 	public static void InsertAtSource(
 		this IGameItem item,
@@ -63,13 +63,13 @@ public static class GameItemSpatialPlacementExtensions
 		var effectiveLocation = service.GetEffectiveLocation(source);
 		if (effectiveLocation.Room is null)
 		{
-			throw new InvalidOperationException("The placement source does not have a valid cell.");
+			throw new InvalidOperationException("The placement source does not have a valid room.");
 		}
 
 		if (sourceRoom is not null && !ReferenceEquals(sourceRoom, effectiveLocation.Room))
 		{
 			throw new InvalidOperationException(
-				"The placement source's effective spatial cell does not match its reported location.");
+				"The placement source's effective spatial room does not match its reported location.");
 		}
 
 		item.InsertAtSpatialLocation(new SpatialLocation(

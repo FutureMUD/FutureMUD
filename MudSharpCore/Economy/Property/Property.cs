@@ -66,7 +66,7 @@ public partial class Property : SaveableItem, IProperty
     {
         if (_propertyLocations.Count <= 1)
         {
-            response.RejectWithReason($"That room is the last property cell for property #{Id:N0} ({Name.ColourName()}).");
+            response.RejectWithReason($"That room is the last property room for property #{Id:N0} ({Name.ColourName()}).");
             return;
         }
     }
@@ -218,7 +218,7 @@ public partial class Property : SaveableItem, IProperty
                 ["id"] = "The stable property identity.",
                 ["name"] = "The property name.",
                 ["economiczone"] = "The economic zone that governs this property.",
-                ["locations"] = "The cells assigned to this property.",
+                ["locations"] = "The rooms assigned to this property.",
                 ["detaileddescription"] = "The builder-authored detailed property description.",
                 ["lastchangeofownership"] = "The in-world time when ownership last changed.",
                 ["lastsalevalue"] = "The last recorded sale value.",
@@ -421,7 +421,7 @@ public partial class Property : SaveableItem, IProperty
             if (_propertyLocations.Count == 1)
             {
                 actor.OutputHandler.Send(
-                    "You cannot remove the last location from a property. You must first give it another property cell.");
+                    "You cannot remove the last location from a property. You must first give it another property room.");
                 return false;
             }
 

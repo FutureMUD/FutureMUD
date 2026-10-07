@@ -135,7 +135,7 @@ public class DwellingGameItemComponentProto : GameItemComponentProto
     #region Overrides of GameItemComponentProto
 
     private const string BuildingHelpText =
-        "You can use the following options with this component:\n\tname <name> - sets the name of the component\n\tdesc <desc> - sets the description of the component\n\tentry <id> - the cell that is in the template that will be used for the entry\n\tkeyword <keyword> - the keyword that will be used for the external entrance\n\tdoor <item>|none - sets the item template that loads up as a door by default\n\tsize <item size> - sets the size of the door that fits in the entrance.";
+        "You can use the following options with this component:\n\tname <name> - sets the name of the component\n\tdesc <desc> - sets the description of the component\n\tentry <id> - the room that is in the template that will be used for the entry\n\tkeyword <keyword> - the keyword that will be used for the external entrance\n\tdoor <item>|none - sets the item template that loads up as a door by default\n\tsize <item size> - sets the size of the door that fits in the entrance.";
 
     public override string ShowBuildingHelp => BuildingHelpText;
 
@@ -157,7 +157,7 @@ public class DwellingGameItemComponentProto : GameItemComponentProto
     {
         if (TemplateEntryRoom == null)
         {
-            return "You must set a cell as the entry cell for the template before you can submit.";
+            return "You must set a room as the entry room for the template before you can submit.";
         }
 
         return base.WhyCannotSubmit();
@@ -276,27 +276,27 @@ public class DwellingGameItemComponentProto : GameItemComponentProto
     {
         if (command.IsFinished)
         {
-            actor.Send("You must specify a cell to act as the entryway for the template area for your dwelling.");
+            actor.Send("You must specify a room to act as the entryway for the template area for your dwelling.");
             return false;
         }
 
         if (!long.TryParse(command.PopSpeech(), out long value))
         {
-            actor.Send("You must specify a valid ID number for the cell you want to set as the entryway.");
+            actor.Send("You must specify a valid ID number for the room you want to set as the entryway.");
             return false;
         }
 
         IRoom room = Gameworld.Rooms.Get(value);
         if (room == null)
         {
-            actor.Send("There is no such cell to use as the entryway.");
+            actor.Send("There is no such room to use as the entryway.");
             return false;
         }
 
         Changed = true;
         TemplateEntryRoom = room;
         actor.Send(
-            $"You set the entryway cell for this dwelling to cell #{room.Id} ({room.CurrentOverlay.RoomName}).\nIt is connected to {GetTemplateRooms.Count() - 1:N0} rooms.");
+            $"You set the entryway room for this dwelling to room #{room.Id} ({room.CurrentOverlay.RoomName}).\nIt is connected to {GetTemplateRooms.Count() - 1:N0} rooms.");
         return true;
     }
 
@@ -310,7 +310,7 @@ public class DwellingGameItemComponentProto : GameItemComponentProto
     public override string ComponentDescriptionOLC(ICharacter actor)
     {
         return string.Format(actor,
-            "{0} (#{1:N0}r{2:N0}, {3})\r\n\r\nThis item is a dwelling; an item that creates an internal set of rooms when it is loaded, and destroys them when it is destroyed. It uses cell {4} as its template, which is connected to {5:N0} other rooms. {6}. It uses the keyword {7} for its external exit.",
+            "{0} (#{1:N0}r{2:N0}, {3})\r\n\r\nThis item is a dwelling; an item that creates an internal set of rooms when it is loaded, and destroys them when it is destroyed. It uses room {4} as its template, which is connected to {5:N0} other rooms. {6}. It uses the keyword {7} for its external exit.",
             "Dwelling Game Item Component".Colour(Telnet.Cyan),
             Id,
             RevisionNumber,

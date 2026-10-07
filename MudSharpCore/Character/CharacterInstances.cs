@@ -55,7 +55,7 @@ public partial class Character
 	public virtual bool IsControllable => _isControllable;
 	public virtual bool IsEmbodied => _isEmbodied;
 
-	// Secondary instances are intentionally identity-local and cell-local; do not add them to global actor caches.
+	// Secondary instances are intentionally identity-local and room-local; do not add them to global actor caches.
 	public virtual IEnumerable<ICharacterInstance> Instances =>
 		Enumerable.Repeat<ICharacterInstance>(this, 1).Concat(_secondaryInstances);
 	public virtual ICharacterInstance PrimaryInstance => this;

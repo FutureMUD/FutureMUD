@@ -242,7 +242,7 @@ public class CharacterInstanceServiceTests
 		Assert.IsFalse(missingResult.Success);
 		StringAssert.Contains(missingResult.Message, "requires a route coordinate");
 		Assert.IsFalse(outOfBoundsResult.Success);
-		StringAssert.Contains(outOfBoundsResult.Message, "outside RouteCell");
+		StringAssert.Contains(outOfBoundsResult.Message, "outside RouteRoom");
 	}
 
 	[TestMethod]

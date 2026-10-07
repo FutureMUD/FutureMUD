@@ -207,7 +207,7 @@ public partial class Character
 			if (displacement is not null && !displacement.Continue()) return;
             sourceLocation?.Extract(item);
         }
-        // Cell entry publishes the destination cell, layer and route position together.
+        // Room entry publishes the destination room, layer and route position together.
         // Keep the captured source position intact while the membership receipt is leaving.
         if (displacement is null) RoomLayer = layer;
         Dictionary<ICharacter, IRoom> moverOrigins = new();
@@ -965,7 +965,7 @@ public partial class Character
 
 	private CanMoveResponse CanMoveThroughExit(IRoomExit exit, CanMoveFlags flags, bool requireCurrentOrigin)
     {
-        // Execution remains anchored to this cell, including for Immwalk. Planning may inspect
+        // Execution remains anchored to this room, including for Immwalk. Planning may inspect
         // a later edge without relocating the character; all other current-state checks remain
         // shared, and normal movement must revalidate the edge when the character reaches it.
         if (exit is null ||
@@ -1509,7 +1509,7 @@ public partial class Character
     {
 		if (args.Movement.Exit is null)
 		{
-			// Linear RouteCell movements form their following/party cohort before OnStartMove.
+			// Linear RouteRoom movements form their following/party cohort before OnStartMove.
 			// There is no boundary direction to replay as an ordinary movement command.
 			return;
 		}

@@ -92,7 +92,7 @@ public static class RestaurantServiceRules
 
 	/// <summary>
 	/// Calculates how much of a stack appeared after the restaurant captured its pre-craft snapshot.
-	/// This preserves a real craft result even when the cell's normal stack-merging rules combine it
+	/// This preserves a real craft result even when the room's normal stack-merging rules combine it
 	/// with existing restaurant stock.
 	/// </summary>
 	public static int NewlyProducedQuantity(int currentQuantity, int quantityBeforeCraft)

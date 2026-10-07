@@ -85,7 +85,7 @@ public sealed class NpcKnownWaterLocationsEffect : Effect
 
 	public override string Describe(IPerceiver voyeur)
 	{
-		return $"NPC remembers water in cells {_knownWaterRoomIds.Select(x => x.ToString("N0", voyeur)).ListToCommaSeparatedValues()}.";
+		return $"NPC remembers water in rooms {_knownWaterRoomIds.Select(x => x.ToString("N0", voyeur)).ListToCommaSeparatedValues()}.";
 	}
 
 	public override bool SavingEffect => true;

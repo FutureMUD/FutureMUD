@@ -52,7 +52,7 @@ namespace MudSharp_Unit_Tests.Economy.Employment;
 
 [TestClass]
 [DoNotParallelize]
-public class UnifiedEmploymentDispatchTests
+public partial class UnifiedEmploymentDispatchTests
 {
 	private sealed record FMDBState(FuturemudDatabaseContext? Context, object? Connection, uint InstanceCount);
 
@@ -9598,7 +9598,7 @@ public class UnifiedEmploymentDispatchTests
 			{
 				Version = "craft-station-v1",
 				Selector = "forge",
-				RoomId = 1L,
+				CellId = 1L,
 				ItemId = stationItemId,
 				Description = "reserved forge",
 				ReservedAt = reservedAt,

@@ -1,6 +1,8 @@
 # FutureMUD Economy System: Runtime
 
 ## Scope
+Persisted employment action payloads retain their historical `DestinationCellId` and `RoomCellId` JSON fields while code uses Room names. Craft station version 1 likewise retains `CellId`, including inside craft-v2 reservations; new typed craft location references use `Room:v2`. These spellings preserve saved plans and reservations rather than introducing another live location type.
+
 This document explains the verified current runtime implementation of the FutureMUD economy system.
 
 It focuses on the code centred on `MudSharp.Economy`, but also includes the adjacent runtime surfaces that are required to understand or extend that subsystem:

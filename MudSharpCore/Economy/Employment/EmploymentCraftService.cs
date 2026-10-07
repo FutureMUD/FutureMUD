@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using System.Text.Json.Serialization;
 using MudSharp.Construction;
 using MudSharp.Effects.Concrete;
 using MudSharp.GameItems;
@@ -919,7 +920,7 @@ internal static class EmploymentCraftService
 	private sealed record CraftStationReservation(
 		string Version,
 		string Selector,
-		long? RoomId,
+		[property: JsonPropertyName("CellId")] long? RoomId,
 		long? ItemId,
 		string Description,
 		DateTimeOffset ReservedAt,

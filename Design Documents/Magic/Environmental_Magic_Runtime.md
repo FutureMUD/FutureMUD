@@ -4,6 +4,8 @@ Environmental magic is an opt-in physical-cell resource producer. Its reusable d
 
 ## Ownership and persistence
 
+The Room terminology change preserves the version-1 rejuvenation checkpoint wire field `CellId` and native-organic lifecycle JSON field `CellId`. Their CLR members are `RoomId`; existing saved treatment budgets, revisions, pending work and receipt provenance retain their original location identity.
+
 `Cell.EnvironmentBindingMode` resolves an explicit profile, explicit disabled state, or the current physical overlay's terrain default. An observer's draft overlay and room layer do not create separate pools. Assignments survive restart. Missing profiles, resources, incompatible holders, invalid definitions, and calculation failures remain diagnosable; they do not select a replacement.
 
 Balances remain in `Cell.MagicResourceAmounts` / `CellsMagicResources`. First attachment of an output starts at zero unless the cell already has that resource, including an explicitly saved zero. Removing or replacing a profile preserves balances. Environmental definitions never acquire a base-generator per-holder delegate; character and item attachment is refused. Existing `linear` and `state` scheduling and unbound resource policies retain their previous behaviour.

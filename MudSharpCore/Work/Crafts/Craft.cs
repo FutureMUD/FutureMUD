@@ -923,7 +923,7 @@ public class Craft : Framework.Revision.EditableItem, ICraft
                                     x.Input.Name,
                                     x.Input.InputType,
                                     x.Target.Id,
-                                    x.Target.FrameworkItemType,
+                                    x.Target.GetPersistedReferenceType(),
                                     x.Target.HowSeen(character),
                                     _craftInputConsumedPhases.TryGetValue(x.Input.Id, out var consumedPhase) ? consumedPhase : 0,
                                     ItemIdsForReservation(x.Target)))

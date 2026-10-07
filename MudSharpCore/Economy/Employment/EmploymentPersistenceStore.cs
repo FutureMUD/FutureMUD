@@ -87,11 +87,11 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 
 	private sealed record ItemSelectorPayload(string Kind, long? Id, string? Text);
 
-	private sealed record DeliverItemsStepPayload(long DestinationRoomId, long? ContainerId = null,
+	private sealed record DeliverItemsStepPayload([property: JsonPropertyName("DestinationCellId")] long DestinationRoomId, long? ContainerId = null,
 		string? ContainerTag = null, ItemSelectorPayload? ContainerSelector = null);
 
 	private sealed record ShopStockTransferStepPayload(long SourceShopId, long TargetShopId, long TargetMerchandiseId,
-		long DestinationRoomId, long? ContainerId = null, string? ContainerTag = null,
+		[property: JsonPropertyName("DestinationCellId")] long DestinationRoomId, long? ContainerId = null, string? ContainerTag = null,
 		ItemSelectorPayload? ContainerSelector = null);
 
 	private sealed record AuctionLotListingStepPayload(long AuctionHouseId, ItemSelectorPayload ItemSelector,
@@ -118,19 +118,19 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 	private sealed record UnloadItemsStepPayload(long? ContainerId = null, string? ContainerTag = null,
 		long? SourceLocationId = null, ItemSelectorPayload? ContainerSelector = null);
 
-	private sealed record ReturnAssetStepPayload(long? ContainerId, string? ContainerTag, long DestinationRoomId,
+	private sealed record ReturnAssetStepPayload(long? ContainerId, string? ContainerTag, [property: JsonPropertyName("DestinationCellId")] long DestinationRoomId,
 		long? DestinationContainerId, string? DestinationContainerTag, ItemSelectorPayload? ContainerSelector = null,
 		ItemSelectorPayload? DestinationContainerSelector = null);
 
 	private sealed record VehicleOperationStepPayload(long VehicleId, long? CargoSpaceId = null, string Operation = "cargo");
 
 	private sealed record StableAnimalOperationStepPayload(string Operation, long? MountId = null, long? StableId = null,
-		long? StayId = null, long? DestinationRoomId = null, bool WaiveFees = false);
+		long? StayId = null, [property: JsonPropertyName("DestinationCellId")] long? DestinationRoomId = null, bool WaiveFees = false);
 
 	private sealed record StableAdministrationStepPayload(string Operation, long StableId, long? StayId = null,
 		long? AccountId = null, string? Note = null);
 
-	private sealed record HotelAdministrationStepPayload(string Operation, long PropertyId, long? RoomRoomId = null,
+	private sealed record HotelAdministrationStepPayload(string Operation, long PropertyId, [property: JsonPropertyName("RoomCellId")] long? RoomRoomId = null,
 		long? LostPropertyBundleId = null, long? PatronId = null, string? PatronSelector = null, string? Note = null);
 
 	private sealed record HospitalServiceStepPayload(long HospitalId, long RequestId);

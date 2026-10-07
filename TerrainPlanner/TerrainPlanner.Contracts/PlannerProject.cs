@@ -11,6 +11,7 @@ public sealed class PlannerProject
 	public int Width { get; set; } = 5;
 	public int Height { get; set; } = 5;
 	public string? CatalogueRevision { get; set; }
+	[JsonPropertyName("cells")]
 	public List<PlannerProjectRoom> Rooms { get; set; } = [];
 	public Dictionary<long, string> TagColours { get; set; } = [];
 

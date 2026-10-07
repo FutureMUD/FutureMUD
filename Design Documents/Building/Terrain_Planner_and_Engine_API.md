@@ -1,5 +1,7 @@
 # Terrain Planner and Engine API
 
+Planner project schema 1 retains the browser JSON field `cells` for its location records. The CLR collection is `Rooms`; loading and saving historical projects preserves tile terrain, tags, unresolved features and colours without a schema-version change.
+
 ## Product boundary
 
 FutureMUD Terrain Planner & Engine API 2.x is one hosted product under `TerrainPlanner/`. `TerrainPlanner.Server` is the ASP.NET Core host and read-only Engine API, `TerrainPlanner.Client` is the Interactive WebAssembly UI, `TerrainPlanner.Contracts` owns transport and map contracts, and `TerrainPlanner.Deployment` verifies signed releases. The old desktop planner, unfinished Blazor experiments, and standalone Terrain API are retired.

@@ -215,6 +215,54 @@ public class RoomTerminologyCheckConstraintTests
 	}
 
 	[TestMethod]
+	public void Naming_EscapedIdentifierCollision_HasDifferentColumnSemanticsAndRefusesBothPhases()
+	{
+		const string ordinary = "(`TopologyVersion` >= 1)";
+		const string escaped = "(`Topology``Version` >= 1)";
+		Assert.AreEqual(Signature(ordinary), Signature(escaped), "This fixture reproduces the old normalization collision.");
+		using var table = new DataTable();
+		table.Columns.Add("TopologyVersion", typeof(int));
+		table.Columns.Add("Topology`Version", typeof(int));
+		table.Rows.Add(1, 0);
+		// Decode MySQL doubled delimiters as an embedded character. Never erase
+		// them: the independent row oracle must keep the two columns distinct.
+		static string FixtureExpression(string value) => Regex.Replace(value, "`((?:``|[^`])+)`",
+			m => "[" + m.Groups[1].Value.Replace("``", "`") + "]");
+		Assert.AreEqual(1, table.Select(FixtureExpression(ordinary)).Length);
+		Assert.AreEqual(0, table.Select(FixtureExpression(escaped)).Length);
+		const string name = "CK_RouteCells_TopologyVersion";
+		Assert.IsFalse(EmittedShapeRefuses(ordinary, "YES", null, false, name));
+		Assert.IsTrue(EmittedShapeRefuses(escaped, "YES", null, false, name));
+		Assert.IsFalse(EmittedShapeRefuses(ordinary, "NO", "NO", true, name));
+		Assert.IsTrue(EmittedShapeRefuses(escaped, "NO", "NO", true, name));
+		Assert.IsFalse(EmittedShapeRefuses(escaped, "YES", null, false, name, omitEscapeGuard: true),
+			"Removing the emitted guard must reproduce the preflight bug.");
+		Assert.IsFalse(EmittedShapeRefuses(escaped, "NO", "NO", true, name, omitEscapeGuard: true),
+			"Removing the emitted guard must reproduce the postflight bug.");
+		Assert.AreEqual(2, Regex.Matches(GeneratedSql.Value, @"OR LOCATE\('``',c.CHECK_CLAUSE\)>0").Count);
+	}
+
+	[DataTestMethod]
+	[DataRow(false, "`TopologyVersion` >= 1", false)]
+	[DataRow(false, "TopologyVersion >= 1", false)]
+	[DataRow(false, "(`TopologyVersion` >= 1)", false)]
+	[DataRow(false, "(TopologyVersion >= 1)", false)]
+	[DataRow(false, "`Topology``Version` >= 1", true)]
+	[DataRow(false, "(`Topology``Version` >= 1)", true)]
+	[DataRow(true, "`TopologyVersion` >= 1", false)]
+	[DataRow(true, "TopologyVersion >= 1", false)]
+	[DataRow(true, "(`TopologyVersion` >= 1)", false)]
+	[DataRow(true, "(TopologyVersion >= 1)", false)]
+	[DataRow(true, "`Topology``Version` >= 1", true)]
+	[DataRow(true, "(`Topology``Version` >= 1)", true)]
+	public void Naming_EscapedBackticks_RefuseWithoutRejectingOrdinaryIdentifiers(bool postflight,
+		string clause, bool refused)
+	{
+		Assert.AreEqual(refused, EmittedShapeRefuses(clause, "YES", postflight ? "YES" : null,
+			postflight, "CK_RouteCells_TopologyVersion"));
+	}
+
+	[TestMethod]
 	public void Naming_AllScopedChecks_ValidateBothReviewedFormsAndPreserveUntouchedEnforcement()
 	{
 		foreach (var capture in Captures.Value.Values)
@@ -362,16 +410,22 @@ public class RoomTerminologyCheckConstraintTests
 
 	// Evaluate the actual emitted OR predicate against managed metadata fixtures.
 	// MySQL parser, session and physical DDL still need native qualification.
-	private static bool EmittedShapeRefuses(string? clause, string? flag, string? original, bool postflight, string captureName = PayloadName)
+	private static bool EmittedShapeRefuses(string? clause, string? flag, string? original, bool postflight,
+		string captureName = PayloadName, bool omitEscapeGuard = false)
 	{
 		var guards = Regex.Matches(GeneratedSql.Value, @"WHERE c.CHECK_CLAUSE IS NULL[\s\S]+?   LIMIT 1;");
 		Assert.AreEqual(2, guards.Count);
 		var expression = guards[postflight ? 1 : 0].Value.Replace("WHERE ", "").Replace("   LIMIT 1;", "");
+		if (omitEscapeGuard) expression = expression.Replace("OR LOCATE('``',c.CHECK_CLAUSE)>0", "");
 		var capture = Captures.Value[captureName];
 		var phase = postflight ? "Target" : "Source";
 		var model = postflight ? capture.TargetSignature : capture.SourceSignature;
 		var native = postflight ? capture.TargetNativeSignature : capture.SourceNativeSignature;
 		var invalidTokens = clause is not null && Regex.IsMatch(Regex.Replace(clause, "`[A-Za-z_][A-Za-z0-9_]*`", ""), "[`'\"]");
+		// Fold the emitted literal search independently of the signature/regex
+		// adapter. If the production guard disappears these collision tests fail.
+		expression = expression.Replace("LOCATE('``',c.CHECK_CLAUSE)>0",
+			clause?.IndexOf("``", StringComparison.Ordinal) >= 0 ? "TRUE" : "FALSE");
 		expression = Regex.Replace(expression, @"REGEXP_LIKE\(REGEXP_REPLACE\(c.CHECK_CLAUSE,[^\n]+\)", invalidTokens ? "TRUE" : "FALSE");
 		// SQL NULL comparison is UNKNOWN. Each such term has an explicit IS NULL
 		// refusal in the same OR predicate; fold UNKNOWN to FALSE for this adapter.

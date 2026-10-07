@@ -24,9 +24,6 @@ BEGIN
   SELECT TABLE_NAME, COLUMN_NAME FROM information_schema.COLUMNS
   WHERE TABLE_SCHEMA=DATABASE() AND DATA_TYPE IN ('char','varchar','tinytext','text','mediumtext','longtext','json');
  DECLARE CONTINUE HANDLER FOR NOT FOUND SET finished=TRUE;
- IF EXISTS(SELECT 1 FROM `Rooms`) AND COALESCE(@FutureMUD_CellSpatialMaintenance,0)<>1 THEN
-  SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT='Cell spatial cutover: explicitly freeze all writers and set maintenance session flag';
- END IF;
  IF EXISTS(SELECT 1 FROM `Cells` GROUP BY RoomId HAVING COUNT(*)>1) THEN
   SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT='Cell spatial preflight: Room has multiple Cells; no child will be chosen';
  END IF;

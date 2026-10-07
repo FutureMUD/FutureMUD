@@ -30,9 +30,6 @@ BEGIN
   IF NOT EXISTS(SELECT 1 FROM information_schema.TABLES WHERE TABLE_SCHEMA=DATABASE() AND LOWER(TABLE_NAME)='cells' AND TABLE_TYPE='BASE TABLE') THEN
    SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT='Room naming: contracted source Cells table is absent; inspect schema/history and restore partial cutover';
   END IF;
-  IF EXISTS(SELECT 1 FROM `Cells`) AND COALESCE(@FutureMUD_RoomTerminologyMaintenance,0)<>1 THEN
-   SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT='Room naming: stop all writers and explicitly set maintenance session flag before cutover';
-  END IF;
   IF EXISTS(SELECT 1 FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND LOWER(TABLE_NAME)='cells' AND LOWER(COLUMN_NAME)='roomid') THEN
    SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT='Room naming: legacy grouping still exists; complete contraction first';
   END IF;

@@ -1008,7 +1008,7 @@ BEGIN
   IF EXISTS(SELECT 1 FROM information_schema.TABLE_CONSTRAINTS WHERE CONSTRAINT_SCHEMA=DATABASE() AND LOWER(CONSTRAINT_NAME)='fk_rooms_tags_tags' AND CONSTRAINT_TYPE='FOREIGN KEY') THEN
    SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT='Room naming: colliding target foreign key FK_Rooms_Tags_Tags';
   END IF;
-  IF (SELECT COUNT(*) FROM information_schema.KEY_COLUMN_USAGE WHERE TABLE_SCHEMA=DATABASE() AND LOWER(TABLE_NAME)='characterinstances' AND LOWER(CONSTRAINT_NAME)='fk_characterinstances_cells')<>1 OR (SELECT COUNT(*) FROM information_schema.KEY_COLUMN_USAGE WHERE TABLE_SCHEMA=DATABASE() AND LOWER(TABLE_NAME)='characterinstances' AND LOWER(CONSTRAINT_NAME)='fk_characterinstances_cells' AND ((ORDINAL_POSITION=1 AND LOWER(COLUMN_NAME)='locationid' AND REFERENCED_TABLE_SCHEMA=DATABASE() AND LOWER(REFERENCED_TABLE_NAME)='cells' AND LOWER(REFERENCED_COLUMN_NAME)='id')))<>1 OR NOT EXISTS(SELECT 1 FROM information_schema.REFERENTIAL_CONSTRAINTS WHERE CONSTRAINT_SCHEMA=DATABASE() AND LOWER(TABLE_NAME)='characterinstances' AND LOWER(CONSTRAINT_NAME)='fk_characterinstances_cells' AND DELETE_RULE IN ('SET NULL') AND UPDATE_RULE IN ('NO ACTION','RESTRICT')) THEN
+  IF EXISTS(SELECT 1 FROM information_schema.TABLE_CONSTRAINTS WHERE CONSTRAINT_SCHEMA=DATABASE() AND LOWER(CONSTRAINT_NAME)='fk_characterinstances_cells' AND CONSTRAINT_TYPE='FOREIGN KEY') AND ((SELECT COUNT(*) FROM information_schema.KEY_COLUMN_USAGE WHERE TABLE_SCHEMA=DATABASE() AND LOWER(TABLE_NAME)='characterinstances' AND LOWER(CONSTRAINT_NAME)='fk_characterinstances_cells')<>1 OR (SELECT COUNT(*) FROM information_schema.KEY_COLUMN_USAGE WHERE TABLE_SCHEMA=DATABASE() AND LOWER(TABLE_NAME)='characterinstances' AND LOWER(CONSTRAINT_NAME)='fk_characterinstances_cells' AND ((ORDINAL_POSITION=1 AND LOWER(COLUMN_NAME)='locationid' AND REFERENCED_TABLE_SCHEMA=DATABASE() AND LOWER(REFERENCED_TABLE_NAME)='cells' AND LOWER(REFERENCED_COLUMN_NAME)='id')))<>1 OR NOT EXISTS(SELECT 1 FROM information_schema.REFERENTIAL_CONSTRAINTS WHERE CONSTRAINT_SCHEMA=DATABASE() AND LOWER(TABLE_NAME)='characterinstances' AND LOWER(CONSTRAINT_NAME)='fk_characterinstances_cells' AND DELETE_RULE IN ('SET NULL') AND UPDATE_RULE IN ('NO ACTION','RESTRICT'))) THEN
    SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT='Room naming: foreign-key shape differs FK_CharacterInstances_Cells';
   END IF;
   IF EXISTS(SELECT 1 FROM information_schema.TABLE_CONSTRAINTS WHERE CONSTRAINT_SCHEMA=DATABASE() AND LOWER(CONSTRAINT_NAME)='fk_characterinstances_rooms' AND CONSTRAINT_TYPE='FOREIGN KEY') THEN
@@ -1461,6 +1461,22 @@ BEGIN
   IF (SELECT COUNT(*) FROM `fm_room_naming_fk_actions_20261007043900`)<>18 THEN
    SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT='Room naming: legacy foreign-key action capture is incomplete';
   END IF;
+  -- CharacterInstances intentionally omitted physical FKs in its first-upgrade
+  -- migration. Preserve that absence as well as supported installed actions.
+  CREATE TEMPORARY TABLE `fm_room_naming_optional_fk_20261007043900`(
+   ConstraintName VARCHAR(64) NOT NULL PRIMARY KEY,
+   IsPresent BOOL NOT NULL,
+   UpdateRule VARCHAR(12) NULL,
+   DeleteRule VARCHAR(12) NULL);
+  INSERT INTO `fm_room_naming_optional_fk_20261007043900`(ConstraintName,IsPresent,UpdateRule,DeleteRule)
+  SELECT 'FK_CharacterInstances_Rooms',original.CONSTRAINT_NAME IS NOT NULL,original.UPDATE_RULE,original.DELETE_RULE
+  FROM (SELECT 1 AS singleton) singleton
+  LEFT JOIN information_schema.REFERENTIAL_CONSTRAINTS original
+   ON original.CONSTRAINT_SCHEMA=DATABASE() AND LOWER(original.TABLE_NAME)='characterinstances'
+    AND LOWER(original.CONSTRAINT_NAME)='fk_characterinstances_cells';
+  IF (SELECT COUNT(*) FROM `fm_room_naming_optional_fk_20261007043900`)<>1 THEN
+   SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT='Room naming: optional foreign-key capture is incomplete';
+  END IF;
   CREATE TEMPORARY TABLE `fm_room_naming_counts_20261007043900`(TableName VARCHAR(64) NOT NULL PRIMARY KEY,BeforeCount BIGINT NOT NULL);
   INSERT INTO `fm_room_naming_counts_20261007043900` SELECT 'Areas_Rooms',COUNT(*) FROM `Areas_Cells`;
   INSERT INTO `fm_room_naming_counts_20261007043900` SELECT 'ArenaRooms',COUNT(*) FROM `ArenaCells`;
@@ -1489,6 +1505,28 @@ BEGIN
   INSERT INTO `fm_room_naming_counts_20261007043900` SELECT 'RouteRooms',COUNT(*) FROM `RouteCells`;
   INSERT INTO `fm_room_naming_counts_20261007043900` SELECT 'Shops_StoreroomRooms',COUNT(*) FROM `Shops_StoreroomCells`;
  ELSE
+  IF (SELECT COUNT(*) FROM `fm_room_naming_optional_fk_20261007043900`)<>1 THEN
+   SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT='Room naming: optional foreign-key capture changed after rename';
+  END IF;
+  IF EXISTS(
+   SELECT 1 FROM `fm_room_naming_optional_fk_20261007043900` original
+   LEFT JOIN information_schema.REFERENTIAL_CONSTRAINTS current_rule
+    ON current_rule.CONSTRAINT_SCHEMA=DATABASE() AND LOWER(current_rule.TABLE_NAME)='characterinstances'
+     AND LOWER(current_rule.CONSTRAINT_NAME)='fk_characterinstances_rooms'
+   WHERE original.ConstraintName<>'FK_CharacterInstances_Rooms' OR original.IsPresent NOT IN (0,1)
+    OR (SELECT COUNT(*) FROM information_schema.TABLE_CONSTRAINTS WHERE CONSTRAINT_SCHEMA=DATABASE() AND LOWER(CONSTRAINT_NAME)='fk_characterinstances_rooms' AND CONSTRAINT_TYPE='FOREIGN KEY')<>original.IsPresent
+    OR (original.IsPresent=0 AND (original.UpdateRule IS NOT NULL OR original.DeleteRule IS NOT NULL))
+    OR (original.IsPresent=1 AND (original.UpdateRule IS NULL OR original.DeleteRule IS NULL
+     OR original.UpdateRule NOT IN ('NO ACTION','RESTRICT') OR original.DeleteRule<>'SET NULL'
+     OR current_rule.CONSTRAINT_NAME IS NULL OR current_rule.UPDATE_RULE<>original.UpdateRule
+     OR current_rule.DELETE_RULE<>original.DeleteRule
+     OR (SELECT COUNT(*) FROM information_schema.KEY_COLUMN_USAGE WHERE TABLE_SCHEMA=DATABASE() AND LOWER(TABLE_NAME)='characterinstances' AND LOWER(CONSTRAINT_NAME)='fk_characterinstances_rooms')<>1
+     OR (SELECT COUNT(*) FROM information_schema.KEY_COLUMN_USAGE WHERE TABLE_SCHEMA=DATABASE() AND LOWER(TABLE_NAME)='characterinstances' AND LOWER(CONSTRAINT_NAME)='fk_characterinstances_rooms' AND ORDINAL_POSITION=1 AND LOWER(COLUMN_NAME)='locationid' AND REFERENCED_TABLE_SCHEMA=DATABASE() AND LOWER(REFERENCED_TABLE_NAME)='rooms' AND LOWER(REFERENCED_COLUMN_NAME)='id')<>1))) THEN
+   SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT='Room naming: optional foreign-key presence, shape or actions changed';
+  END IF;
+  IF EXISTS(SELECT 1 FROM information_schema.TABLE_CONSTRAINTS WHERE CONSTRAINT_SCHEMA=DATABASE() AND LOWER(CONSTRAINT_NAME)='fk_characterinstances_cells' AND CONSTRAINT_TYPE='FOREIGN KEY') THEN
+   SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT='Room naming: old optional foreign-key name remains';
+  END IF;
   IF (SELECT COUNT(*) FROM `fm_room_naming_fk_actions_20261007043900`)<>18 THEN
    SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT='Room naming: legacy foreign-key action capture changed after rename';
   END IF;
@@ -1586,6 +1624,7 @@ BEGIN
   END IF;
   DROP TEMPORARY TABLE `fm_room_naming_counts_20261007043900`;
   DROP TEMPORARY TABLE `fm_room_naming_fk_actions_20261007043900`;
+  DROP TEMPORARY TABLE `fm_room_naming_optional_fk_20261007043900`;
  END IF;
 END;
 """, suppressTransaction: true);
@@ -1621,7 +1660,7 @@ END;
 			migrationBuilder.DropForeignKey(name: "FK_Cells_RangedCovers_RangedCovers", table: "Cells_RangedCovers");
 			migrationBuilder.DropForeignKey(name: "FK_Cells_Tags_Cells", table: "Cells_Tags");
 			migrationBuilder.DropForeignKey(name: "FK_Cells_Tags_Tags", table: "Cells_Tags");
-			migrationBuilder.DropForeignKey(name: "FK_CharacterInstances_Cells", table: "CharacterInstances");
+			ChangeOptionalCharacterInstanceForeignKey(migrationBuilder, restore: false);
 			migrationBuilder.DropForeignKey(name: "FK_CharacterLog_Cells", table: "CharacterLog");
 			migrationBuilder.DropForeignKey(name: "FK_Characters_Cells", table: "Characters");
 			migrationBuilder.DropForeignKey(name: "FK_Clans_AdministrationCells_Cells", table: "Clans_AdministrationCells");
@@ -1913,7 +1952,7 @@ END;
 			migrationBuilder.AddForeignKey(name: "FK_Rooms_Tags_Rooms", table: "Rooms_Tags", columns: new[] { "RoomId" }, principalTable: "Rooms", principalColumns: new[] { "Id" }, onDelete: ReferentialAction.Cascade);
 
 			AddForeignKeyWithPreservedActions(migrationBuilder, "FK_Rooms_Tags_Tags", "ALTER TABLE `Rooms_Tags` ADD CONSTRAINT `FK_Rooms_Tags_Tags` FOREIGN KEY (`TagId`) REFERENCES `Tags` (`Id`)");
-			migrationBuilder.AddForeignKey(name: "FK_CharacterInstances_Rooms", table: "CharacterInstances", columns: new[] { "LocationId" }, principalTable: "Rooms", principalColumns: new[] { "Id" }, onDelete: ReferentialAction.SetNull);
+			ChangeOptionalCharacterInstanceForeignKey(migrationBuilder, restore: true);
 
 			AddForeignKeyWithPreservedActions(migrationBuilder, "FK_CharacterLog_Rooms", "ALTER TABLE `CharacterLog` ADD CONSTRAINT `FK_CharacterLog_Rooms` FOREIGN KEY (`RoomId`) REFERENCES `Rooms` (`Id`)");
 			migrationBuilder.AddForeignKey(name: "FK_Characters_Rooms", table: "Characters", columns: new[] { "Location" }, principalTable: "Rooms", principalColumns: new[] { "Id" }, onDelete: ReferentialAction.NoAction);
@@ -2003,6 +2042,25 @@ END;
   migrationBuilder.Sql("CALL `fm_room_terminology_20261007043900`(TRUE);", suppressTransaction: true);
   migrationBuilder.Sql("DROP PROCEDURE `fm_room_terminology_20261007043900`;", suppressTransaction: true);
  }
+
+	private static void ChangeOptionalCharacterInstanceForeignKey(MigrationBuilder migrationBuilder, bool restore)
+	{
+		var statement = restore
+			? "CONCAT('ALTER TABLE `CharacterInstances` ADD CONSTRAINT `FK_CharacterInstances_Rooms` FOREIGN KEY (`LocationId`) REFERENCES `Rooms` (`Id`) ON DELETE ',DeleteRule,' ON UPDATE ',UpdateRule)"
+			: "'ALTER TABLE `CharacterInstances` DROP FOREIGN KEY `FK_CharacterInstances_Cells`'";
+		migrationBuilder.Sql($"""
+SET @fm_room_naming_optional_statement_20261007043900 = (
+ SELECT CASE IsPresent WHEN 0 THEN 'DO 0' WHEN 1 THEN {statement} END
+ FROM `fm_room_naming_optional_fk_20261007043900`
+ WHERE ConstraintName='FK_CharacterInstances_Rooms'
+  AND ((IsPresent=0 AND UpdateRule IS NULL AND DeleteRule IS NULL)
+   OR (IsPresent=1 AND UpdateRule IN ('NO ACTION','RESTRICT') AND DeleteRule='SET NULL')));
+PREPARE fm_room_naming_optional_statement_20261007043900 FROM @fm_room_naming_optional_statement_20261007043900;
+EXECUTE fm_room_naming_optional_statement_20261007043900;
+DEALLOCATE PREPARE fm_room_naming_optional_statement_20261007043900;
+SET @fm_room_naming_optional_statement_20261007043900 = NULL;
+""", suppressTransaction: true);
+	}
 
 	/// <summary>
 	/// Recreates a reviewed renamed constraint using its validated source actions.

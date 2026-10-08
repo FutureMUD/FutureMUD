@@ -17,6 +17,8 @@ using MudSharp.Events;
 using MudSharp.Framework;
 using MudSharp.Framework.Scheduling;
 using MudSharp.FutureProg;
+using MudSharp.FutureProg.Variables;
+using MudSharp.Body.Traits;
 using MudSharp.Form.Shape;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.RPG.Checks;
@@ -26,6 +28,62 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class EmotionalCombatHooksTests
 {
+	[TestMethod]
+	public void StartCombat_ValidParticipantsSchedulesBothAndCallsJoinInOrder()
+	{
+		FutureProgTestBootstrap.EnsureInitialised();
+		var f = new Fixture();
+		f.A.Combat = null!;
+		f.B.Combat = null!;
+		f.Scheduler.Destroy(f.A, ScheduleType.Combat);
+		f.Scheduler.Destroy(f.B, ScheduleType.Combat);
+		var calls = new List<IPerceiver>();
+		var join = new Mock<IFutureProg>();
+		join.Setup(x => x.MatchesParameters(It.IsAny<IEnumerable<ProgVariableTypes>>())).Returns(true);
+		join.Setup(x => x.Execute(It.IsAny<object[]>())).Callback<object[]>(args =>
+		{
+			Assert.AreEqual("native-regression", args[1]);
+			var actor = (IPerceiver)args[0];
+			Assert.IsNotNull(actor.Combat);
+			Assert.AreNotEqual(TimeSpan.MinValue, f.Scheduler.RemainingDuration(actor, ScheduleType.Combat));
+			calls.Add(actor);
+		});
+		var progs = new Mock<IUneditableAll<IFutureProg>>();
+		progs.Setup(x => x.GetByName("join")).Returns(join.Object);
+		f.World.SetupGet(x => x.FutureProgs).Returns(progs.Object);
+		IFunction Constant(object value, ProgVariableTypes type)
+		{
+			var function = new Mock<IFunction>();
+			IProgVariable variable = type == ProgVariableTypes.Text ? new TextVariable((string)value) :
+				type == ProgVariableTypes.Boolean ? new BooleanVariable((bool)value) : (IProgVariable)value;
+			function.SetupGet(x => x.Result).Returns(variable);
+			function.Setup(x => x.Execute(It.IsAny<IVariableSpace>())).Returns(StatementResult.Normal);
+			return function.Object;
+		}
+		var compiler = FutureProg.GetFunctionCompilerInformations().Single(x => x.FunctionName == "startcombat");
+		var function = compiler.CompilerFunction([
+			Constant("native-regression", ProgVariableTypes.Text), Constant("test", ProgVariableTypes.Text),
+			Constant("sparring", ProgVariableTypes.Text), Constant(true, ProgVariableTypes.Boolean),
+			Constant(f.A, ProgVariableTypes.Character), Constant(f.B, ProgVariableTypes.Character),
+			Constant("join", ProgVariableTypes.Text), Constant("absent", ProgVariableTypes.Text),
+			Constant("absent", ProgVariableTypes.Text), Constant("absent", ProgVariableTypes.Text),
+			Constant("absent", ProgVariableTypes.Text)], f.World.Object);
+		var recovery = typeof(CombatBase).GetProperty("RecoveryTimeExpression", BindingFlags.NonPublic | BindingFlags.Static)!;
+		var previous = recovery.GetValue(null);
+		recovery.SetValue(null, new TraitExpression("1", f.World.Object));
+		try
+		{
+			Assert.AreEqual(StatementResult.Normal, function.Execute(new VariableSpace()));
+			Assert.AreEqual(true, function.Result.GetObject);
+			Assert.IsInstanceOfType(f.A.Combat, typeof(ProgCombat));
+			Assert.AreSame(f.A.Combat, f.B.Combat);
+			Assert.AreSame(f.World.Object, ((ProgCombat)f.A.Combat).Gameworld);
+			CollectionAssert.AreEqual(new IPerceiver[] { f.A, f.B }, calls);
+			Assert.AreEqual(2, f.A.Combat.Combatants.Count());
+		}
+		finally { recovery.SetValue(null, previous); }
+	}
+
 	[DataTestMethod]
 	[DataRow(false)]
 	[DataRow(true)]

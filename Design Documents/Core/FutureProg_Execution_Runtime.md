@@ -103,6 +103,8 @@ The baseline nested-call benchmark could not complete because the old recursion 
 
 ## Performance Invariants
 
+The `startcombat` built-in assigns its world to the new `ProgCombat` before joining either participant. Each join uses that world's scheduler before invoking the join callback. A regression checks both schedules, the shared combat and one callback per participant in order. Optional callback name lookup retains the existing abbreviation semantics; callers can use an explicitly absent name when no callback is desired.
+
 - Script syntax, typing, persistence, null/error behaviour, and built-in semantics remain compatible.
 - Parameter/local lookup and direct dot-property access remain case insensitive.
 - `FullyStatic` caches successful value and null results; failed executions remain retryable.

@@ -167,6 +167,27 @@ def remove_emotions(name):
     raise AssertionError('Emotional fixture cleanup exceeded its bounded parent count')
 
 
+def wait_npc_retired(identifier, character, body):
+    limit = time.monotonic() + 120
+    while time.monotonic() < limit:
+        current = sql(f"SELECT State,Reason,Diagnostic FROM MagicSpellLifecycles WHERE Id='{identifier}'")
+        if current.split('\t')[0] == '3' or 'Native retirement held:' in current:
+            break
+        session.read_for(.5)
+    row = sql(f"SELECT State,Reason,Diagnostic FROM MagicSpellLifecycles WHERE Id='{identifier}'")
+    report.setdefault('retirementObservations', []).append(dict(id=identifier, row=row))
+    check('real native scheduled expiry completes without a hold', row.split('\t')[:2] == ['3', '0'], row)
+    check('retired owned NPC is absent from the live NPC table',
+            sql(f"SELECT COUNT(*) FROM Npcs n JOIN MagicSpellOwnedEntities e ON e.EntityId=n.CharacterId AND e.Kind=1 WHERE e.LifecycleId='{identifier}'") == '0')
+    check('exact physical body and instances released',
+            sql(f'SELECT (SELECT COUNT(*) FROM Bodies WHERE Id={body}),(SELECT COUNT(*) FROM CharacterInstances WHERE CharacterId={character} OR BodyId={body})') == '0\t0')
+    check('exact lightweight archived character identity retained',
+            sql(f'SELECT IsArchived,BodyId FROM Characters WHERE Id={character}') == '1\tNULL')
+    check('archive preserves exact original body and lifecycle attribution',
+            sql(f"SELECT OriginalBodyId,LifecycleId FROM CharacterArchives WHERE CharacterId={character}") == f'{body}\t{identifier}')
+
+
+
 def finish():
     global process, session
     if session:

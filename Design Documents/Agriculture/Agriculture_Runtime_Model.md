@@ -16,6 +16,15 @@ The agriculture tables live in `MudsharpDatabaseLibrary`:
 
 `AgricultureFields.CellId` is unique, enforcing one field per cell. `Terrains.DefaultAgricultureFieldProfileId` stores the terrain-level default profile. `AgricultureProjectContexts.ActiveProjectId` links a live local project to its dynamic field operation context.
 
+Canonical NPC archival classifies only the known `AgricultureOperations.Definition`
+Operation XML, `AgricultureCropDefinitions.Definition` Crop XML and
+`AgricultureFieldProfiles.Definition` Profile XML as scalars and static
+builder names. Numeric material, tag, score and planting-window names do not identify live
+characters or bodies. Unknown or malformed XML shapes retain the physical graph, including
+future fields that ordinary Agriculture loaders might ignore. Other Agriculture serialized
+columns and typed relationships retain their existing reference checks. See the
+[archival contract](../Magic/Spell_Owned_Lifecycle.md#canonical-npc-archival-boundary).
+
 ## Field Scores
 Fields store these 0-100 scores:
 

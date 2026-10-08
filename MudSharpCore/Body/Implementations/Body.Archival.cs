@@ -10,7 +10,7 @@ public partial class Body
 		Changed = false;
 		EndStaminaTick(true);
 		EndDrugTick();
-		EndHealthTick();
+		EndHealthTickRegistration();
 		foreach (var wound in Wounds) Gameworld.SaveManager.Abort(wound);
 		Gameworld.SaveManager.Abort(this);
 		Gameworld.EffectScheduler.Destroy(this);

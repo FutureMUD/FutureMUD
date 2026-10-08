@@ -12,6 +12,11 @@ spec.loader.exec_module(s)
 s.report['scope'] = 'known-invalid NPC lifetime refusal before payment and real selected-grade creation/expiry'
 s.report['qualificationMarker'] = 'npc-admission-passed.json'
 s.report['inputs'][str(pathlib.Path(__file__).relative_to(s.repo))] = hashlib.sha256(pathlib.Path(__file__).read_bytes()).hexdigest()
+s.report['archiveClassificationInputs'] = {
+    name: hashlib.sha256((s.repo / name).read_bytes()).hexdigest() for name in [
+        'MudSharpCore/Character/CharacterArchiveService.cs',
+        'MudSharpCore/Character/NpcArchiveReferencePolicy.cs',
+        'MudSharpCore/Character/NpcArchiveReferencePolicy.Agriculture.cs']}
 original_hex = None
 family = 'qa-npc-' + s.runtime.name.split('-')[-1]
 
@@ -61,25 +66,7 @@ def snapshot():
     return dict(counts=counts, records=records)
 
 
-def wait_retired(identifier, character, body):
-    limit = time.monotonic() + 120
-    while time.monotonic() < limit:
-        current = s.sql(f"SELECT State,Reason,Diagnostic FROM MagicSpellLifecycles WHERE Id='{identifier}'")
-        if current.split('\t')[0] == '3' or 'Native retirement held:' in current:
-            break
-        s.session.read_for(.5)
-    row = s.sql(f"SELECT State,Reason,Diagnostic FROM MagicSpellLifecycles WHERE Id='{identifier}'")
-    s.report.setdefault('retirementObservations', []).append(dict(id=identifier, row=row))
-    s.check('real native scheduled expiry completes without a hold', row.split('\t')[:2] == ['3', '0'], row)
-    s.check('retired owned NPC is absent from the live NPC table',
-            s.sql(f"SELECT COUNT(*) FROM Npcs n JOIN MagicSpellOwnedEntities e ON e.EntityId=n.CharacterId AND e.Kind=1 WHERE e.LifecycleId='{identifier}'") == '0')
-    s.check('exact physical body and instances released',
-            s.sql(f'SELECT (SELECT COUNT(*) FROM Bodies WHERE Id={body}),(SELECT COUNT(*) FROM CharacterInstances WHERE CharacterId={character} OR BodyId={body})') == '0\t0')
-    s.check('exact lightweight archived character identity retained',
-            s.sql(f'SELECT IsArchived,BodyId FROM Characters WHERE Id={character}') == '1\tNULL')
-    s.check('archive preserves exact original body and lifecycle attribution',
-            s.sql(f"SELECT OriginalBodyId,LifecycleId FROM CharacterArchives WHERE CharacterId={character}") == f'{body}\t{identifier}')
-
+wait_retired = s.wait_npc_retired
 
 try:
     for marker in ['fury-calm-slice-passed.json', 'fury-calm-installer-failures-passed.json',
@@ -100,6 +87,7 @@ try:
     (s.runtime / 'original-fury.xml').write_bytes(bytes.fromhex(original_hex))
     s.report['originalDefinitionSha256'] = hashlib.sha256(bytes.fromhex(original_hex)).hexdigest()
     s.report['archiveReferenceEvidence'] = s.sql('SELECT Id,HEX(Definition) FROM AgricultureOperations ORDER BY Id')
+    s.report['archiveCropReferenceEvidence'] = s.sql('SELECT Id,HEX(Definition) FROM AgricultureCropDefinitions ORDER BY Id')
     s.start()
     candidates = s.sql("SELECT DISTINCT Id FROM NpcTemplates WHERE Name='qaspawn'").splitlines()
     s.check('unique private native template', len(candidates) <= 1)

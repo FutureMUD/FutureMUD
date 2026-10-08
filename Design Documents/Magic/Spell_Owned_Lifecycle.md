@@ -242,6 +242,30 @@ This is explicit support for the audited persisted surfaces, not proof about arb
 extension encodings. New identity-bearing surfaces require classification before enabling
 compaction for them.
 
+The exact `AgricultureOperation.Definition`, `AgricultureCropDefinition.Definition` and
+`AgricultureFieldProfile.Definition` contracts have schema-aware classification.
+Recognized Operation/Crop/Profile XML contains tuning
+scalars and static score/material/tag/planting-window names, so coincident character, body,
+instance or wound numbers in those fields are not physical references. Empty legacy defaults
+are supported. Unknown roots, nodes, attributes, namespaces, duplicate singleton containers,
+mixed text and invalid scalar values hold even without a matching ID. Other Agriculture
+columns retain the generic scan; row-count and payload-size limits remain authoritative.
+
+`ArmourType.Definition` also classifies its exact current codec and seeded `ArmourType`
+root alongside the runtime writer's `Definition` root: six scalar expression
+maps and damage/severity enum transformations. Formula text is parsed without execution;
+only the existing scalar combat inputs and supported expression functions are recognized.
+Unknown shape, invalid enums/formulas, duplicate keys or additional inputs retain a hold.
+Damage-type values such as 10/11 and numeric formula literals are not physical identities.
+An armour hold reports the rejected section, integer damage type and validation category;
+it does not expose formula contents or execute them to diagnose the failure.
+
+Physical holds identify the first retained condition, distinguishing runtime effects from
+persisted or unrecognized effect XML. NPC Quit and post-archive body release unregister
+health heartbeats without generating fresh damage effects during teardown. Existing
+effects, possessions, forms, body users and owned remains still hold archival; shutdown
+does not clear those guards.
+
 Unmapped numeric ID properties are checked as well; non-receipt references without a
 classified FK/key hold rather than relying on their field name to imply ownership.
 The instance's generated `EmbodiedBodyId` and `PrimaryCharacterId` uniqueness keys are

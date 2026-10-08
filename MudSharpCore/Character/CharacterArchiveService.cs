@@ -122,15 +122,18 @@ public sealed class CharacterArchiveService : ICharacterArchiveService
 					return Hold("A runtime group, guard, movement, mount, combat or position relationship retains the NPC.");
 				if (context.Crimes.Any(x => x.CriminalId == character.Id && !x.IsFinalised))
 					return Hold("Unresolved enforcement still requires a physical criminal; preserve the NPC graph.");
-				if (character.Body.AllItems.Any() || character.Bodies.Any(x => x.Id != bodyId) ||
-				    character.Effects.Any() || character.Body.Effects.Any() ||
-				    character.Gameworld.Characters.Any(x => x.Id != character.Id && x.Body?.Id == bodyId) ||
-				    !NpcArchiveReferencePolicy.IsEmptyEffects(identity.EffectData) ||
-				    !NpcArchiveReferencePolicy.IsEmptyEffects(body.EffectData) ||
-				    claims.Any(x => x.Kind == SpellOwnedEntityKind.GameItem && context.GameItems.Any(y => y.Id == x.Id)) ||
-				    lifecycle.RemainsItemId is { } remains && context.GameItems.Any(x => x.Id == remains))
+				var physicalHold = character.Body.AllItems.Any() ? "physical possessions" :
+					character.Bodies.Any(x => x.Id != bodyId) ? "other body forms" :
+					character.Effects.Any() ? "runtime character effects" :
+					character.Body.Effects.Any() ? "runtime body effects" :
+					character.Gameworld.Characters.Any(x => x.Id != character.Id && x.Body?.Id == bodyId) ? "another live actor using this body" :
+					!NpcArchiveReferencePolicy.IsEmptyEffects(identity.EffectData) ? "persisted character effects or unrecognized effect XML" :
+					!NpcArchiveReferencePolicy.IsEmptyEffects(body.EffectData) ? "persisted body effects or unrecognized effect XML" :
+					claims.Any(x => x.Kind == SpellOwnedEntityKind.GameItem && context.GameItems.Any(y => y.Id == x.Id)) ? "dependent owned items" :
+					lifecycle.RemainsItemId is { } remains && context.GameItems.Any(x => x.Id == remains) ? "persisted remains" : null;
+				if (physicalHold is not null)
 				{
-					return Hold("Physical possessions, effects, other forms, live bodies or dependent owned entities remain.");
+					return Hold($"Physical archival held: {physicalHold} remain; retain the physical graph.");
 				}
 				if (context.CharacterInstances.Any(x => x.CharacterId == character.Id &&
 					    (!x.IsPrimary || x.BodyId != bodyId || !((CharacterState)x.State).HasFlag(CharacterState.Dead))) ||
@@ -292,10 +295,13 @@ public sealed class CharacterArchiveService : ICharacterArchiveService
 				var select = Expression.Call(typeof(Queryable), nameof(Queryable.Select), [type.ClrType, typeof(string)],
 					query.Expression, Expression.Quote(Expression.Lambda(Expression.Property(parameter, property.Name), parameter)));
 				var values = query.Provider.CreateQuery<string?>(select).Take(RowLimit + 1).ToArray();
+				var contractDiagnostic = string.Empty;
 				if (values.Length > RowLimit || values.Any(x => x?.Length > 1048576 ||
-				    NpcArchiveReferencePolicy.HasReferenceOrUncertainty(x, characterId, bodyId, additionalPhysicalIds)))
+				    NpcArchiveReferencePolicy.HasReferenceOrUncertainty(type.ClrType, property.Name, x,
+					    characterId, bodyId, out contractDiagnostic, additionalPhysicalIds)))
 				{
-					diagnostic = $"Unresolved serialized reference or scan limit in {type.ClrType.Name}.{property.Name}; retain the physical graph.";
+					diagnostic = $"Unresolved serialized reference or scan limit in {type.ClrType.Name}.{property.Name}; retain the physical graph." +
+					             (string.IsNullOrEmpty(contractDiagnostic) ? string.Empty : $" {contractDiagnostic}.");
 					return false;
 				}
 			}

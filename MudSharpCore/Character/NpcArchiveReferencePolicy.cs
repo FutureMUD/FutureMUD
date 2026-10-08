@@ -9,7 +9,7 @@ using System.Xml.Linq;
 namespace MudSharp.Character;
 
 /// <summary>Unclassified serialized references hold compaction; ownership is not reference proof.</summary>
-public static class NpcArchiveReferencePolicy
+public static partial class NpcArchiveReferencePolicy
 {
 	public static bool HasReferenceOrUncertainty(string? value, long characterId, long bodyId,
 		params long[] additionalPhysicalIds)

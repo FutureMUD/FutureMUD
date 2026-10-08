@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "date": "2026-10-08",
-  "status": "PASS_BOUNDED_FURY_CALM_NATIVE_MILESTONE",
+  "status": "MANAGED_PASS_NATIVE_RETIREMENT_BLOCKED_MALFORMED_ARMOUR",
   "branch": "codex/armageddon-continuation-20261008",
   "base_master": "07146cdc8a38fd23040281b58c6544d45f260cd2",
   "restored_groundwork_head": "83509243cfceb62811e002fca14b4d9de96d2574",
@@ -6413,6 +6413,236 @@
         "DatabaseSeeder": 1611
       },
       "attribution": "Final combined run on the implementation commit; only receipt/document metadata is added afterward. Production/test source is unchanged."
-    }
+    },
+    "superseded_by": "Armageddon_Npc_Archival_Checkpoint_20261009.json"
+  },
+  "npc_archival_continuation_20261009": {
+    "status": "MANAGED_PASS_NATIVE_RETIREMENT_BLOCKED_MALFORMED_ARMOUR",
+    "receipt": "Armageddon_Npc_Archival_Checkpoint_20261009.json",
+    "implementation_commit": "ee9056df3be48f25081e946de15e55e02990404d",
+    "managed": {
+      "receipt": {
+        "path": ".artifacts/armageddon-npc-archive-20261009/core-acceptance/20261008T213247Z-75e88331ffa4/summary.json",
+        "sha256": "6ed279967880349857197f14e55785fb6631fc198bfada7ab394559c9e3dab15"
+      },
+      "run": "20261008T213247Z-75e88331ffa4",
+      "status": "PASS",
+      "configuration": "Debug",
+      "scope": "MudSharpCore Unit Tests only",
+      "head_during_execution": "c4f6896c05199169f47e0ea3f47c512440bea02f",
+      "counts": {
+        "executed": 5980,
+        "passed": 5980,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 5980
+      },
+      "source_start": "7e4cc396e849f631725230fa84b3803ce43c030b5002c23c929819d6c4e8e65c",
+      "source_end": "7e4cc396e849f631725230fa84b3803ce43c030b5002c23c929819d6c4e8e65c",
+      "source_stable": true,
+      "execution_complete": true,
+      "counts_complete": true,
+      "projects": [
+        "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+      ],
+      "invocations": [
+        {
+          "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+          "framework": "net10.0",
+          "attempt": 1,
+          "status": "PASS",
+          "reason": null,
+          "build": {
+            "name": "build",
+            "arguments": [
+              "build",
+              "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+              "-c",
+              "Debug",
+              "-m:1",
+              "-p:RestoreBuildInParallel=false",
+              "-p:NuGetAudit=false",
+              "-p:NoWarn=NU1902%3BNU1510",
+              "--no-restore"
+            ],
+            "started_utc": "2026-10-08T21:32:48.1915232+00:00",
+            "ended_utc": "2026-10-08T21:33:55.2063526+00:00",
+            "exit_code": 0,
+            "termination_reason": null,
+            "stdout": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\.artifacts\\armageddon-npc-archive-20261009\\core-acceptance\\20261008T213247Z-75e88331ffa4\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\build\\build.stdout.log",
+            "stderr": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\.artifacts\\armageddon-npc-archive-20261009\\core-acceptance\\20261008T213247Z-75e88331ffa4\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\build\\build.stderr.log"
+          },
+          "test": {
+            "name": "test",
+            "arguments": [
+              "test",
+              "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+              "-c",
+              "Debug",
+              "--no-build",
+              "--no-restore",
+              "-m:1",
+              "-f",
+              "net10.0",
+              "-p:NoWarn=NU1902%3BNU1510",
+              "--logger",
+              "trx;LogFileName=results.trx",
+              "--results-directory",
+              "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\.artifacts\\armageddon-npc-archive-20261009\\core-acceptance\\20261008T213247Z-75e88331ffa4\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\net10-41544e89\\1"
+            ],
+            "started_utc": "2026-10-08T21:33:55.2093689+00:00",
+            "ended_utc": "2026-10-08T21:35:05.5937272+00:00",
+            "exit_code": 0,
+            "termination_reason": null,
+            "stdout": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\.artifacts\\armageddon-npc-archive-20261009\\core-acceptance\\20261008T213247Z-75e88331ffa4\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\net10-41544e89\\1\\test.stdout.log",
+            "stderr": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\.artifacts\\armageddon-npc-archive-20261009\\core-acceptance\\20261008T213247Z-75e88331ffa4\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\net10-41544e89\\1\\test.stderr.log"
+          },
+          "report": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\.artifacts\\armageddon-npc-archive-20261009\\core-acceptance\\20261008T213247Z-75e88331ffa4\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\net10-41544e89\\1\\results.trx",
+          "binary": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\MudSharpCore Unit Tests\\bin\\Debug\\net10.0\\MudSharpCore Unit Tests.dll",
+          "counts": {
+            "executed": 5980,
+            "passed": 5980,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 5980
+          },
+          "native_counters": {
+            "total": "5980",
+            "executed": "5980",
+            "passed": "5980",
+            "failed": "0",
+            "error": "0",
+            "timeout": "0",
+            "aborted": "0",
+            "inconclusive": "0",
+            "passedButRunAborted": "0",
+            "notRunnable": "0",
+            "notExecuted": "0",
+            "disconnected": "0",
+            "warning": "0",
+            "completed": "0",
+            "inProgress": "0",
+            "pending": "0"
+          }
+        }
+      ]
+    },
+    "native_retirement_qualified": false,
+    "next_bounded_milestone": "Repair the inherited chopping-damage formula in the Human/Animal armour seed content, reconcile only exact known old stock values in the owned disposable world while preserving builder edits, then rerun the unchanged physical-release gate for retained characters/bodies 10 and 11. Classify further observed contracts only as required; unknown/malformed holds stay enabled."
+  },
+  "current_managed": {
+    "receipt": {
+      "path": ".artifacts/armageddon-npc-archive-20261009/core-acceptance/20261008T213247Z-75e88331ffa4/summary.json",
+      "sha256": "6ed279967880349857197f14e55785fb6631fc198bfada7ab394559c9e3dab15"
+    },
+    "run": "20261008T213247Z-75e88331ffa4",
+    "status": "PASS",
+    "configuration": "Debug",
+    "scope": "MudSharpCore Unit Tests only",
+    "head_during_execution": "c4f6896c05199169f47e0ea3f47c512440bea02f",
+    "counts": {
+      "executed": 5980,
+      "passed": 5980,
+      "failed": 0,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 5980
+    },
+    "source_start": "7e4cc396e849f631725230fa84b3803ce43c030b5002c23c929819d6c4e8e65c",
+    "source_end": "7e4cc396e849f631725230fa84b3803ce43c030b5002c23c929819d6c4e8e65c",
+    "source_stable": true,
+    "execution_complete": true,
+    "counts_complete": true,
+    "projects": [
+      "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+    ],
+    "invocations": [
+      {
+        "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+        "framework": "net10.0",
+        "attempt": 1,
+        "status": "PASS",
+        "reason": null,
+        "build": {
+          "name": "build",
+          "arguments": [
+            "build",
+            "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+            "-c",
+            "Debug",
+            "-m:1",
+            "-p:RestoreBuildInParallel=false",
+            "-p:NuGetAudit=false",
+            "-p:NoWarn=NU1902%3BNU1510",
+            "--no-restore"
+          ],
+          "started_utc": "2026-10-08T21:32:48.1915232+00:00",
+          "ended_utc": "2026-10-08T21:33:55.2063526+00:00",
+          "exit_code": 0,
+          "termination_reason": null,
+          "stdout": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\.artifacts\\armageddon-npc-archive-20261009\\core-acceptance\\20261008T213247Z-75e88331ffa4\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\build\\build.stdout.log",
+          "stderr": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\.artifacts\\armageddon-npc-archive-20261009\\core-acceptance\\20261008T213247Z-75e88331ffa4\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\build\\build.stderr.log"
+        },
+        "test": {
+          "name": "test",
+          "arguments": [
+            "test",
+            "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+            "-c",
+            "Debug",
+            "--no-build",
+            "--no-restore",
+            "-m:1",
+            "-f",
+            "net10.0",
+            "-p:NoWarn=NU1902%3BNU1510",
+            "--logger",
+            "trx;LogFileName=results.trx",
+            "--results-directory",
+            "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\.artifacts\\armageddon-npc-archive-20261009\\core-acceptance\\20261008T213247Z-75e88331ffa4\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\net10-41544e89\\1"
+          ],
+          "started_utc": "2026-10-08T21:33:55.2093689+00:00",
+          "ended_utc": "2026-10-08T21:35:05.5937272+00:00",
+          "exit_code": 0,
+          "termination_reason": null,
+          "stdout": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\.artifacts\\armageddon-npc-archive-20261009\\core-acceptance\\20261008T213247Z-75e88331ffa4\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\net10-41544e89\\1\\test.stdout.log",
+          "stderr": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\.artifacts\\armageddon-npc-archive-20261009\\core-acceptance\\20261008T213247Z-75e88331ffa4\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\net10-41544e89\\1\\test.stderr.log"
+        },
+        "report": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\.artifacts\\armageddon-npc-archive-20261009\\core-acceptance\\20261008T213247Z-75e88331ffa4\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\net10-41544e89\\1\\results.trx",
+        "binary": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\MudSharpCore Unit Tests\\bin\\Debug\\net10.0\\MudSharpCore Unit Tests.dll",
+        "counts": {
+          "executed": 5980,
+          "passed": 5980,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 5980
+        },
+        "native_counters": {
+          "total": "5980",
+          "executed": "5980",
+          "passed": "5980",
+          "failed": "0",
+          "error": "0",
+          "timeout": "0",
+          "aborted": "0",
+          "inconclusive": "0",
+          "passedButRunAborted": "0",
+          "notRunnable": "0",
+          "notExecuted": "0",
+          "disconnected": "0",
+          "warning": "0",
+          "completed": "0",
+          "inProgress": "0",
+          "pending": "0"
+        }
+      }
+    ]
   }
 }

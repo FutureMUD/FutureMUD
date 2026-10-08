@@ -46,9 +46,11 @@ resolved again at application, preserving clock-based effective movement rather 
 a prepared coordinate. Legacy creation and permanent lifetimes retain their existing policy.
 The [NPC prepayment checkpoint](Armageddon_Npc_Prepayment_Checkpoint_20261009.json) records 152
 focused managed passes and real payment/refusal/creation cases in the owned restored world.
-Its unchanged native physical retirement gate fails on Agriculture Operation/Crop serialized-reference
-uncertainty; held graphs remain, and body/instance release is unqualified. Earlier creation/retirement
-receipts do not clear this installed-world hold or establish full current lifecycle readiness.
+The [archival continuation](Armageddon_Npc_Archival_Checkpoint_20261009.json) adds verified Agriculture/Armour
+codecs and registration-only Body shutdown, with 5,980 current Core passes. Its unchanged
+native physical-release gate remains held by two malformed seeded chopping-damage formulas.
+Both heavy graphs remain; physical release and completed cold-retry proof are unqualified.
+Earlier creation/retirement receipts do not establish full current lifecycle readiness.
 
 Preparation allocates a stable creation key and canonical creator ID. A fresh serializable
 transaction inserts the production NPC/Character/Body/primary instance graph and exact

@@ -63,6 +63,8 @@ try:
     s.report['archiveReferenceEvidence'] = {
         table: s.sql(f'SELECT Id,HEX(Definition) FROM {table} ORDER BY Id') for table in
         ['AgricultureOperations', 'AgricultureCropDefinitions', 'AgricultureFieldProfiles', 'ArmourTypes']}
+    s.report['observedAiDefinitions'] = s.sql(
+        'SELECT Id,HEX(Name),HEX(Type),HEX(Definition) FROM ArtificialIntelligences ORDER BY Id')
     # Diagnostic census only: these digit collisions do not classify or exempt any column.
     # Keep values out of the receipt; the runtime's typed reference policy remains authoritative.
     columns = s.sql("SELECT TABLE_NAME,COLUMN_NAME FROM information_schema.COLUMNS "

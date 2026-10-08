@@ -51,13 +51,15 @@ codecs and registration-only Body shutdown, retaining its historical 5,980 Core 
 The [stock armour repair checkpoint](Armageddon_Npc_Armour_Repair_Checkpoint_20261009.json)
 fixes both seeded chopping defaults and qualifies their exact owned-world correction with
 1,613 Seeder and 102 focused Core passes plus native transaction/preservation checks.
-The [AI reference checkpoint](Armageddon_Npc_AI_Reference_Checkpoint_20261009.json) adds strict
-row-Type-aware Judge/Mount/Animal/Monster classification, with 6,038 full Core passes.
-The unchanged native gate clears the AI hold and next holds on
-`AutobuilderAreaTemplate.Definition`. Both heavy graphs remain; physical release and the
-completed cold retry remain unqualified. Exact observed Autobuilder contracts are the
-next bounded investigation; unknown/malformed holds and all original retirement assertions
-remain enabled. Previous failed receipts remain historical evidence.
+The [AI reference checkpoint](Armageddon_Npc_AI_Reference_Checkpoint_20261009.json) records
+historical Judge/Mount/Animal/Monster classification and 6,038 full Core passes. Its native
+gate clears the AI hold and next holds on `AutobuilderAreaTemplate.Definition`; both heavy
+graphs remain and physical release/completed cold retry remain unqualified. The current
+user direction supersedes the static-schema exemption approach. The next milestone is
+the [code-proven reference replacement](Armageddon_Typed_Reference_Review_20261009.md),
+covering NPC archival, shared retired-body cleanup, remains recovery and corpse provenance.
+No Autobuilder classifier is planned. Runtime changes and new qualification remain pending;
+previous receipts and original retirement assertions remain preserved.
 Earlier creation/retirement receipts do not establish full current lifecycle readiness.
 
 Preparation allocates a stable creation key and canonical creator ID. A fresh serializable
@@ -243,7 +245,15 @@ nickname-inclusive archive display name. Anonymous/printed writing keeps its con
 provenance. Accountless live NPC
 authors display without requiring an account.
 
-The bounded serialized scan covers definitions, effects, data/value fields, route motion,
+The following scan/classifier paragraphs describe the **legacy implementation pending
+replacement**, not the approved reference contract. The
+[9 October source review](Armageddon_Typed_Reference_Review_20261009.md) requires actual
+foreign keys, typed scalar pairs and exact identity fields established by concrete loaders.
+It prohibits numeric-text searches and field-name guesses. Static configuration validation
+must leave the archival pipeline. Known malformed identity-bearing fields can still hold;
+unrelated malformed configuration is outside the retirement decision.
+
+The legacy bounded serialized scan covers definitions, effects, data/value fields, route motion,
 computer process state/result/wait arguments, tattoos, injury extras, procedure parameters,
 employment payload/arguments, strategy data and land-detail JSON. XML leaf/attribute values
 and decoded JSON values/keys are checked for canonical/body/instance/wound references;
@@ -293,8 +303,9 @@ health heartbeats without generating fresh damage effects during teardown. Exist
 effects, possessions, forms, body users and owned remains still hold archival; shutdown
 does not clear those guards.
 
-Unmapped numeric ID properties are checked as well; non-receipt references without a
-classified FK/key hold rather than relying on their field name to imply ownership.
+The legacy implementation also checks unmapped numeric `*Id` properties without proving
+their identity domain. This suffix-based guard must be replaced by exact code-proven
+relationships alongside the text matcher.
 The instance's generated `EmbodiedBodyId` and `PrimaryCharacterId` uniqueness keys are
 classified only when every matching row is already in the audited removal set.
 

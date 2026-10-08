@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "date": "2026-10-08",
-  "status": "AI_CONTRACTS_QUALIFIED_NATIVE_RETIREMENT_BLOCKED_AUTOBUILDER_REFERENCES",
+  "status": "TYPED_REFERENCE_REVIEW_COMPLETE_IMPLEMENTATION_PENDING",
   "branch": "codex/armageddon-continuation-20261008",
   "base_master": "07146cdc8a38fd23040281b58c6544d45f260cd2",
   "restored_groundwork_head": "83509243cfceb62811e002fca14b4d9de96d2574",
@@ -6892,6 +6892,41 @@
       "autobuilder_evidence_boundary": "Census identifies one area and one room Definition with a 10/11 collision. Their exact persisted TemplateType/XML were not captured; source mapping suggests static Terrain references or tuning, but does not establish the held literal provenance."
     },
     "next_bounded_milestone": "Capture the exact observed Autobuilder area and room TemplateType/Definition rows in the owned disposable world; map only those concrete codecs, classify verified static terrain/tuning/narrative contracts with unknown/malformed holds, then rerun the unchanged physical-release and completed cold-retry gates. Area digit collisions are observed, but exact held XML/type and literal provenance remain uncaptured.",
+    "full_plan_complete": false,
+    "package_release_enabled": false,
+    "publication_authorized": false
+  },
+  "next_bounded_milestone": "Replace NPC archival and shared retired-body reference heuristics with actual EF foreign keys, typed scalar/discriminator pairs and exact identity fields proven by concrete loaders. Include completed remains recovery and corpse-animation provenance checks; remove numeric-text searches, guessed *Id checks and archive-only static-schema classifiers. Preserve valid stock armour repair, registration-only Body shutdown, ownership, custody and canonical history. Qualify the replacement, then rerun unchanged physical-release and separate-process completed cold-retry gates for both retained NPCs. The Autobuilder classifier milestone is superseded.",
+  "npc_typed_reference_review_20261009": {
+    "date": "2026-10-09",
+    "status": "TYPED_REFERENCE_REVIEW_COMPLETE_IMPLEMENTATION_PENDING",
+    "reviewed_head": "81b9b6d1a04bff63389477be5f035ca6cf9bb1e9",
+    "review": "Design Documents/Magic/Armageddon_Typed_Reference_Review_20261009.md",
+    "authority": "Latest user direction: only known, provable links from code; no text scans looking for IDs.",
+    "runtime_implementation_changed": false,
+    "new_managed_tests_executed": false,
+    "new_native_checks_executed": false,
+    "next_bounded_milestone": "Replace NPC archival and shared retired-body reference heuristics with actual EF foreign keys, typed scalar/discriminator pairs and exact identity fields proven by concrete loaders. Include completed remains recovery and corpse-animation provenance checks; remove numeric-text searches, guessed *Id checks and archive-only static-schema classifiers. Preserve valid stock armour repair, registration-only Body shutdown, ownership, custody and canonical history. Qualify the replacement, then rerun unchanged physical-release and separate-process completed cold-retry gates for both retained NPCs. The Autobuilder classifier milestone is superseded.",
+    "superseded_milestone": "Autobuilder area/room static-schema classification for NPC archival",
+    "historical_ai_checkpoint": "Armageddon_Npc_AI_Reference_Checkpoint_20261009.json",
+    "historical_evidence_boundary": "The 6038 full Core passes and 164-test subset qualified the previous implementation. The native 15-pass/one-fail Autobuilder hold remains failed; both physical graphs are retained and the completed cold retry was not reached. None qualifies the new reference contract.",
+    "completed_work_to_replace": [
+      "NpcArchiveReferencePolicy generic XML/JSON/raw-text number matching",
+      "CharacterArchiveService serialized-property discovery and unmapped *Id matching",
+      "Archive-only Agriculture/Armour/AI schema classifiers and matching tests",
+      "RetiredBodyReferencePolicy field-name heuristics and effect-save inspection",
+      "SpellOwnedNpcService numeric Definition.Contains remains candidate filter",
+      "Corpse-animation provenance ID substring checks",
+      "Future native diagnostic digit-collision census and stock-repair coupling to archive classifier"
+    ],
+    "completed_work_to_keep": [
+      "Actual stock bone-armour formula correction and transactional builder-preservation repair",
+      "Registration-only Body shutdown",
+      "Prepayment, lifetime and spawn-admission proof",
+      "Exact ownership claims, real foreign keys and typed item custody",
+      "Canonical historical identity, idempotency and post-commit runtime release"
+    ],
+    "later_milestone_rule": "N14/N15/N16 and subsequent summon/projection/possession/corpse/control/topology work use the same code-proven reference contracts. No sequence of static configuration exemptions.",
     "full_plan_complete": false,
     "package_release_enabled": false,
     "publication_authorized": false

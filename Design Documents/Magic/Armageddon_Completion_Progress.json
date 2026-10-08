@@ -39,7 +39,7 @@
   "preparation_baseline": "b0e4339d57bf15bc6e6a6f21fbdd5edc73006e38",
   "implementation_branch": "codex/armageddon-continuation-20261008",
   "authorised_scope": "Complete plan in coherent stages; local commits; no publication, merge, deploy or shared/production DB",
-  "selected_stage": "Natural bone armour source and exact owned-world repair qualified; native NPC physical retirement held by observed AI Definition contract.",
+  "selected_stage": "Source review complete; replace retirement heuristics with code-proven links. Runtime implementation unchanged and new qualification pending.",
   "phase1_remaining": [
     "Stock installer selects and qualifies the mental/spiritual native attribute, capacity expression/basis and authored energy coefficients.",
     "Complete installed source/support/crafting/chargen wiring and gathering restrictions/environmental accounting remain later stock/native gates.",
@@ -3736,7 +3736,7 @@
     }
   ],
   "next_checkpoint": {
-    "status": "AI_CONTRACTS_QUALIFIED_NATIVE_RETIREMENT_BLOCKED_AUTOBUILDER_REFERENCES",
+    "status": "TYPED_REFERENCE_REVIEW_COMPLETE_IMPLEMENTATION_PENDING",
     "receipt": "Design Documents/Magic/Armageddon_Continuation_20261008.json",
     "remaining": [
       {
@@ -3785,7 +3785,8 @@
     "implementation_commit": "6c41c629b5a99389631949661d3c9e7992d048a7",
     "qualification_receipt": "Design Documents/Magic/Armageddon_Fury_Calm_Native_Qualification_20261009.json",
     "current_npc_archival_receipt": "Armageddon_Npc_AI_Reference_Checkpoint_20261009.json",
-    "next_bounded_milestone": "Capture the exact observed Autobuilder area and room TemplateType/Definition rows in the owned disposable world; map only those concrete codecs, classify verified static terrain/tuning/narrative contracts with unknown/malformed holds, then rerun the unchanged physical-release and completed cold-retry gates. Area digit collisions are observed, but exact held XML/type and literal provenance remain uncaptured."
+    "next_bounded_milestone": "Replace NPC archival and shared retired-body reference heuristics with actual EF foreign keys, typed scalar/discriminator pairs and exact identity fields proven by concrete loaders. Include completed remains recovery and corpse-animation provenance checks; remove numeric-text searches, guessed *Id checks and archive-only static-schema classifiers. Preserve valid stock armour repair, registration-only Body shutdown, ownership, custody and canonical history. Qualify the replacement, then rerun unchanged physical-release and separate-process completed cold-retry gates for both retained NPCs. The Autobuilder classifier milestone is superseded.",
+    "current_npc_reference_review": "Design Documents/Magic/Armageddon_Typed_Reference_Review_20261009.md"
   },
   "deferred_consultation": {
     "source_task": "01a0fc1f-ccd4-7359-95f2-f8c03724b0b1",
@@ -3809,7 +3810,7 @@
     "Complete generated-possession economy/salvage and occupant/cross-body detachment/replacement-morph adapters plus approved per-cast counts, Gate follower-risk/control, Guardian guarding, Mount riding and Courier delivery. Safe destinations must use configured fallback OR recoverable holding with diagnostics (brief255); automatic fallback is not mandatory.",
     "Complete installed stock command/world N14/N15 and high-volume N16 with per-cycle restart; controlled native early death/decay/restart, same-template modes and sixteen heavy/runtime cycles are verified.",
     "Implement remaining reusable effects and all eight approved larger features; later charm must retain the per-spell PC toggle, resolved executable whitelist and queued-action provenance.",
-    "NPC fixed-input lifetime/spawn admission retains bounded managed/native proof. Stock bone-armour repair passes fresh Seeder/contract and owned transactional checks. Physical retirement now holds on ArtificialIntelligence.Definition; add strict row-Type-aware Judge/Mount/Animal/Monster classification before retrying, preserving unknown/malformed holds.",
+    "NPC fixed-input lifetime/spawn admission and stock armour repair retain their bounded proof. Replace NPC archival/body cleanup/remains/corpse provenance heuristics with code-proven references; remove numeric-text searches, guessed *Id checks and archive-only static classifiers. The planned Autobuilder classifier is superseded. Physical release and completed cold retry remain unqualified.",
     "Raise Servitor queued/selected deadline crossing is implemented and bounded historical native evidence is retained in Armageddon_QueuedCommand_Authority_Verification.json. Do not reimplement this gap. Actual damage/defence, comprehensive authority, later-family guard/rescue, PC-corpse, full installed boot and concurrency remain required."
   ],
   "phase3_dependency_checklist": [
@@ -3899,10 +3900,11 @@
     },
     {
       "id": "npc_prepayment_lifetime_spawn_admission",
-      "status": "AI_CONTRACTS_QUALIFIED_NATIVE_RETIREMENT_BLOCKED_AUTOBUILDER_REFERENCES",
+      "status": "TYPED_REFERENCE_REVIEW_COMPLETE_IMPLEMENTATION_PENDING",
       "receipt": "Armageddon_Npc_AI_Reference_Checkpoint_20261009.json",
-      "acceptance": "Fixed lifetime/spawn admission and prior native payment/creation retained. Stock armour qualified; observed AI contracts now clear. Physical release next holds on AutobuilderAreaTemplate.Definition. Original retirement assertions remain unchanged.",
-      "prepayment_receipt": "Armageddon_Npc_Prepayment_Checkpoint_20261009.json"
+      "acceptance": "Retain fixed lifetime/spawn admission, payment/creation, valid stock armour repair and original retirement assertions. Replace heuristic reference checks with actual typed links across current and completed cleanup paths; then qualify real physical release and completed cold retry.",
+      "prepayment_receipt": "Armageddon_Npc_Prepayment_Checkpoint_20261009.json",
+      "reference_review": "Design Documents/Magic/Armageddon_Typed_Reference_Review_20261009.md"
     }
   ],
   "checkpoint_history": [
@@ -6123,6 +6125,40 @@
       "autobuilder_evidence_boundary": "Census identifies one area and one room Definition with a 10/11 collision. Their exact persisted TemplateType/XML were not captured; source mapping suggests static Terrain references or tuning, but does not establish the held literal provenance."
     },
     "next_bounded_milestone": "Capture the exact observed Autobuilder area and room TemplateType/Definition rows in the owned disposable world; map only those concrete codecs, classify verified static terrain/tuning/narrative contracts with unknown/malformed holds, then rerun the unchanged physical-release and completed cold-retry gates. Area digit collisions are observed, but exact held XML/type and literal provenance remain uncaptured.",
+    "full_plan_complete": false,
+    "package_release_enabled": false,
+    "publication_authorized": false
+  },
+  "npc_typed_reference_review_20261009": {
+    "date": "2026-10-09",
+    "status": "TYPED_REFERENCE_REVIEW_COMPLETE_IMPLEMENTATION_PENDING",
+    "reviewed_head": "81b9b6d1a04bff63389477be5f035ca6cf9bb1e9",
+    "review": "Design Documents/Magic/Armageddon_Typed_Reference_Review_20261009.md",
+    "authority": "Latest user direction: only known, provable links from code; no text scans looking for IDs.",
+    "runtime_implementation_changed": false,
+    "new_managed_tests_executed": false,
+    "new_native_checks_executed": false,
+    "next_bounded_milestone": "Replace NPC archival and shared retired-body reference heuristics with actual EF foreign keys, typed scalar/discriminator pairs and exact identity fields proven by concrete loaders. Include completed remains recovery and corpse-animation provenance checks; remove numeric-text searches, guessed *Id checks and archive-only static-schema classifiers. Preserve valid stock armour repair, registration-only Body shutdown, ownership, custody and canonical history. Qualify the replacement, then rerun unchanged physical-release and separate-process completed cold-retry gates for both retained NPCs. The Autobuilder classifier milestone is superseded.",
+    "superseded_milestone": "Autobuilder area/room static-schema classification for NPC archival",
+    "historical_ai_checkpoint": "Armageddon_Npc_AI_Reference_Checkpoint_20261009.json",
+    "historical_evidence_boundary": "The 6038 full Core passes and 164-test subset qualified the previous implementation. The native 15-pass/one-fail Autobuilder hold remains failed; both physical graphs are retained and the completed cold retry was not reached. None qualifies the new reference contract.",
+    "completed_work_to_replace": [
+      "NpcArchiveReferencePolicy generic XML/JSON/raw-text number matching",
+      "CharacterArchiveService serialized-property discovery and unmapped *Id matching",
+      "Archive-only Agriculture/Armour/AI schema classifiers and matching tests",
+      "RetiredBodyReferencePolicy field-name heuristics and effect-save inspection",
+      "SpellOwnedNpcService numeric Definition.Contains remains candidate filter",
+      "Corpse-animation provenance ID substring checks",
+      "Future native diagnostic digit-collision census and stock-repair coupling to archive classifier"
+    ],
+    "completed_work_to_keep": [
+      "Actual stock bone-armour formula correction and transactional builder-preservation repair",
+      "Registration-only Body shutdown",
+      "Prepayment, lifetime and spawn-admission proof",
+      "Exact ownership claims, real foreign keys and typed item custody",
+      "Canonical historical identity, idempotency and post-commit runtime release"
+    ],
+    "later_milestone_rule": "N14/N15/N16 and subsequent summon/projection/possession/corpse/control/topology work use the same code-proven reference contracts. No sequence of static configuration exemptions.",
     "full_plan_complete": false,
     "package_release_enabled": false,
     "publication_authorized": false

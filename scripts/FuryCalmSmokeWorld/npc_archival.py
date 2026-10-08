@@ -17,7 +17,8 @@ for name in ['scripts/FuryCalmSmokeWorld/npc_archival.py', 'MudSharpCore/Charact
              'DatabaseSeeder/Seeders/HumanSeeder/HumanSeeder.Bodyparts.cs',
              'DatabaseSeeder/Seeders/AnimalSeeder/AnimalSeeder.Races.cs',
              'MudSharpCore/Character/NpcArchiveReferencePolicy.cs', 'MudSharpCore/Character/NpcArchiveReferencePolicy.Agriculture.cs',
-             'MudSharpCore/Character/NpcArchiveReferencePolicy.Combat.cs', 'MudSharpCore/Body/Implementations/Body.cs',
+             'MudSharpCore/Character/NpcArchiveReferencePolicy.Combat.cs',
+             'MudSharpCore/Character/NpcArchiveReferencePolicy.ArtificialIntelligence.cs', 'MudSharpCore/Body/Implementations/Body.cs',
              'MudSharpCore/Body/Implementations/Body.Archival.cs']:
     s.report['inputs'][name] = hashlib.sha256((s.repo / name).read_bytes()).hexdigest()
 

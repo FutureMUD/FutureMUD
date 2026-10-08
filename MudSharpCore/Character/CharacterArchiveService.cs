@@ -290,15 +290,29 @@ public sealed class CharacterArchiveService : ICharacterArchiveService
 			{
 				// Writing content is historical narrative, not a serialized runtime actor or physical reference.
 				if (type.ClrType == typeof(Db.Writing) && property.Name == "Definition") continue;
-				var query = (IQueryable)SetMethod.MakeGenericMethod(type.ClrType).Invoke(context, null)!;
-				var parameter = Expression.Parameter(type.ClrType, "row");
-				var select = Expression.Call(typeof(Queryable), nameof(Queryable.Select), [type.ClrType, typeof(string)],
-					query.Expression, Expression.Quote(Expression.Lambda(Expression.Property(parameter, property.Name), parameter)));
-				var values = query.Provider.CreateQuery<string?>(select).Take(RowLimit + 1).ToArray();
 				var contractDiagnostic = string.Empty;
-				if (values.Length > RowLimit || values.Any(x => x?.Length > 1048576 ||
-				    NpcArchiveReferencePolicy.HasReferenceOrUncertainty(type.ClrType, property.Name, x,
-					    characterId, bodyId, out contractDiagnostic, additionalPhysicalIds)))
+				bool held;
+				if (type.ClrType == typeof(Db.ArtificialIntelligence) && property.Name == nameof(Db.ArtificialIntelligence.Definition))
+				{
+					// Keep the loader discriminator paired with its payload, under the same scan bounds.
+					var rows = context.Set<Db.ArtificialIntelligence>().AsNoTracking()
+						.Select(x => new Db.ArtificialIntelligence { Type = x.Type, Definition = x.Definition })
+						.Take(RowLimit + 1).ToArray();
+					held = rows.Length > RowLimit || rows.Any(x => x.Definition?.Length > 1048576 ||
+						NpcArchiveReferencePolicy.HasReferenceOrUncertainty(x, characterId, bodyId, out contractDiagnostic, additionalPhysicalIds));
+				}
+				else
+				{
+					var query = (IQueryable)SetMethod.MakeGenericMethod(type.ClrType).Invoke(context, null)!;
+					var parameter = Expression.Parameter(type.ClrType, "row");
+					var select = Expression.Call(typeof(Queryable), nameof(Queryable.Select), [type.ClrType, typeof(string)],
+						query.Expression, Expression.Quote(Expression.Lambda(Expression.Property(parameter, property.Name), parameter)));
+					var values = query.Provider.CreateQuery<string?>(select).Take(RowLimit + 1).ToArray();
+					held = values.Length > RowLimit || values.Any(x => x?.Length > 1048576 ||
+						NpcArchiveReferencePolicy.HasReferenceOrUncertainty(type.ClrType, property.Name, x,
+							characterId, bodyId, out contractDiagnostic, additionalPhysicalIds));
+				}
+				if (held)
 				{
 					diagnostic = $"Unresolved serialized reference or scan limit in {type.ClrType.Name}.{property.Name}; retain the physical graph." +
 					             (string.IsNullOrEmpty(contractDiagnostic) ? string.Empty : $" {contractDiagnostic}.");

@@ -267,6 +267,23 @@ Damage-type values such as 10/11 and numeric formula literals are not physical i
 An armour hold reports the rejected section, integer damage type and validation category;
 it does not expose formula contents or execute them to diagnose the failure.
 
+The observed `ArtificialIntelligence.Definition` codecs for exact row `Type` values
+`Judge`, `Mount`, `Animal` and `Monster` also have schema-aware classification. The bounded
+query keeps each discriminator paired with its definition; the common `Definition` root
+alone cannot select a codec. These configurations contain static prog, race, craft,
+calendar and celestial references, tuning values, dice expressions and narrative text.
+Live actors are supplied at runtime. Consequently, matching numbers in those verified
+fields do not retain an otherwise qualified physical graph. Judge supports its loader's
+legacy prog-name fields; Animal/Monster preserve absent optional sections and legacy
+Water `enabled` configuration. Current version 1 and unversioned legacy containers are
+supported where the loader supports them. Required Judge/Mount fields, leaf-only text,
+finite numbers, defined enums, parse-only dice syntax and known nested/list contracts are
+validated. Unknown structure, malformed values and unsupported versions hold, including
+payloads without matching IDs. Other AI types retain the generic reference scan. Actor
+effects, runtime dependants, row-count and payload-size limits remain authoritative;
+this classification neither executes progs nor asserts that an AI's external static
+definitions exist or that its gameplay configuration is ready.
+
 Physical holds identify the first retained condition, distinguishing runtime effects from
 persisted or unrecognized effect XML. NPC Quit and post-archive body release unregister
 health heartbeats without generating fresh damage effects during teardown. Existing

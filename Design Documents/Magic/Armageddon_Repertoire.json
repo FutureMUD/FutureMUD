@@ -4480,7 +4480,9 @@
         "receipt": "Armageddon_Continuation_20261008.json",
         "status": "bounded_paid_runtime_and_optional_installer_managed",
         "native": "NOT_RUN_PLATFORM_RESTRICTION",
-        "whole_candidate_complete": false
+        "whole_candidate_complete": false,
+        "implementation_commit": "6c41c629b5a99389631949661d3c9e7992d048a7",
+        "managed_run": "20261008T073200Z-d2f3219192f7"
       }
     },
     {
@@ -9259,7 +9261,9 @@
         "receipt": "Armageddon_Continuation_20261008.json",
         "status": "bounded_paid_runtime_and_optional_installer_managed",
         "native": "NOT_RUN_PLATFORM_RESTRICTION",
-        "whole_candidate_complete": false
+        "whole_candidate_complete": false,
+        "implementation_commit": "6c41c629b5a99389631949661d3c9e7992d048a7",
+        "managed_run": "20261008T073200Z-d2f3219192f7"
       }
     },
     {

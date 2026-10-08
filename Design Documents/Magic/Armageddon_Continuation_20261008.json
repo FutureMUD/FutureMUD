@@ -5,7 +5,7 @@
   "branch": "codex/armageddon-continuation-20261008",
   "base_master": "07146cdc8a38fd23040281b58c6544d45f260cd2",
   "restored_groundwork_head": "83509243cfceb62811e002fca14b4d9de96d2574",
-  "implementation_commit": null,
+  "implementation_commit": "6c41c629b5a99389631949661d3c9e7992d048a7",
   "source_brief": {
     "path": "C:/Users/luker/Downloads/Armageddon_Magic_Completion_Implementation_Brief.md",
     "sha256": "16B67175354DA916DA20A388895C7FADAB77FB452C63D47B40DD1D03A2A51B42",
@@ -6261,5 +6261,7 @@
     "ef_generation_required": false,
     "room_compatibility_change": "Two explicit built-in effect names added to the audited inventory; scalar and narrative payload bytes are preserved in direct and nested envelopes."
   },
-  "validation_boundary": "Managed runs used frozen uncommitted implementation on restored HEAD 83509243cfceb62811e002fca14b4d9de96d2574. Only documentation/receipt updates followed before local checkpoint commits. Native gates remain NOT_RUN."
+  "validation_boundary": "Managed runs used frozen uncommitted implementation on restored HEAD 83509243cfceb62811e002fca14b4d9de96d2574. Only documentation/receipt updates followed before local checkpoint commits. Native gates remain NOT_RUN.",
+  "code_changed_after_final_checks": false,
+  "local_checkpoint_only": true
 }

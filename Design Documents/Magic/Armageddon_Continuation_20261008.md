@@ -8,7 +8,7 @@ Continuation branch: `codex/armageddon-continuation-20261008`. Base: current fet
 
 The historical phase1 and shared emotional-hook branches have no unique commits left. Water/See stock and installer work is already in master; the two historical integrated stock commits are patch-equivalent and were not applied again. A separate historical stock lane retained ten unique Fury/Calm groundwork commits. Those were restored with `cherry-pick -x`, yielding `83509243cfceb62811e002fca14b4d9de96d2574` before this implementation. Existing branches, worktrees, user changes and untracked artifacts were retained.
 
-Implementation commit and final verification are recorded in the JSON receipt after local checkpointing. Publication, release, deployment and live-world writes remain unauthorized and were not performed.
+Implementation commit: `6c41c629b5a99389631949661d3c9e7992d048a7` (`Implement paid Fury and Calm with optional owned mappings`). This receipt update follows in a separate documentation commit; implementation code has not changed since the final frozen-source checks. Publication, release, deployment and live-world writes remain unauthorized and were not performed.
 
 ## Reconciled inventory
 

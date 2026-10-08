@@ -818,9 +818,11 @@
       "status": "bounded_paid_runtime_optional_installer_managed_checkpoint_native_acceptance_pending",
       "evidence": [
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending",
-        "Armageddon_Continuation_20261008.json: current continuation managed runtime/installer; native NOT_RUN"
+        "Armageddon_Continuation_20261008.json: current continuation managed runtime/installer; native NOT_RUN",
+        "Final continuation run 20261008T073200Z-d2f3219192f7: 8412 passed/four inherited blank-snapshot failures/zero skipped; native NOT_RUN."
       ],
-      "historical_status": "pending_runtime_stock_and_native_acceptance"
+      "historical_status": "pending_runtime_stock_and_native_acceptance",
+      "implementation_commit": "6c41c629b5a99389631949661d3c9e7992d048a7"
     },
     {
       "key": "arm.spell.spring_haven",
@@ -1120,9 +1122,11 @@
       "status": "bounded_paid_runtime_optional_installer_managed_checkpoint_native_acceptance_pending",
       "evidence": [
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending",
-        "Armageddon_Continuation_20261008.json: current continuation managed runtime/installer; native NOT_RUN"
+        "Armageddon_Continuation_20261008.json: current continuation managed runtime/installer; native NOT_RUN",
+        "Final continuation run 20261008T073200Z-d2f3219192f7: 8412 passed/four inherited blank-snapshot failures/zero skipped; native NOT_RUN."
       ],
-      "historical_status": "pending_runtime_stock_and_native_acceptance"
+      "historical_status": "pending_runtime_stock_and_native_acceptance",
+      "implementation_commit": "6c41c629b5a99389631949661d3c9e7992d048a7"
     },
     {
       "key": "arm.spell.earth_mount",
@@ -3698,6 +3702,10 @@
     {
       "sha": "b4237365b6b1d26cf4f9ca37ee300d60e1255664",
       "subject": "Add durable final-corpse animation and conserved restoration"
+    },
+    {
+      "sha": "6c41c629b5a99389631949661d3c9e7992d048a7",
+      "subject": "Implement paid Fury and Calm with optional owned mappings"
     }
   ],
   "next_checkpoint": {
@@ -3745,7 +3753,8 @@
       }
     ],
     "full_plan_complete": false,
-    "publication_authorized": false
+    "publication_authorized": false,
+    "implementation_commit": "6c41c629b5a99389631949661d3c9e7992d048a7"
   },
   "deferred_consultation": {
     "source_task": "01a0fc1f-ccd4-7359-95f2-f8c03724b0b1",
@@ -5438,6 +5447,7 @@
       "failed": 0,
       "skipped": 0,
       "source_stable": true
-    }
+    },
+    "implementation_commit": "6c41c629b5a99389631949661d3c9e7992d048a7"
   }
 }

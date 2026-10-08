@@ -114,6 +114,8 @@ Clock dependencies resolve by clock alias. A timezone resolves by alias or descr
 
 ## Integrity and Validation
 
+New exports use explicit CRLF formatting for indented canonical JSON on every operating system, preserving the original Windows archive form. SHA-256 covers the version-specific canonical model with `IntegritySha256` empty. Readers for versions 1 through 5 verify either historical Windows CRLF or Unix LF canonical formatting before any Room-property conversion or topology normalization; they do not hash a converted model or rewrite the input to make it pass. Only the canonical JSON's formatting whitespace differs between those two candidates. Escaped newlines inside user-authored strings remain part of the signed payload, and changing them still fails integrity verification. The frozen version 1–3 fixtures and their pinned original checksums remain unchanged.
+
 Validation occurs before any database write and checks:
 
 - file containment and the 16 MiB size limit;

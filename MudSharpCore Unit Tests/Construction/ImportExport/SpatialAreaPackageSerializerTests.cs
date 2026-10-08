@@ -18,6 +18,19 @@ public class SpatialAreaPackageSerializerTests
 		var current=CreateValidPackage();
 		current.Rooms[0].SourceId=8101;
 		current.Rooms[0].Overlay.RoomDescription="Cell is user-authored text and stays unchanged.";
+		var (archive, checksum) = CreateVersion4Archive(current);
+		var read=SpatialAreaPackageSerializer.Deserialize(archive);
+		Assert.IsTrue(read.Success,string.Join("; ",read.Diagnostics.Select(x=>x.Message)));
+		Assert.AreEqual(4,read.SourceVersion);
+		Assert.AreEqual(checksum,read.SourceIntegritySha256);
+		Assert.AreEqual(5,read.Package!.Version);
+		Assert.AreEqual(8101L,read.Package.Rooms[0].SourceId);
+		Assert.AreEqual(current.Rooms[0].Overlay.RoomDescription,read.Package.Rooms[0].Overlay.RoomDescription);
+		Assert.IsFalse(SpatialAreaPackageSerializer.Deserialize(archive.Replace("user-authored","tampered",StringComparison.Ordinal)).Success);
+	}
+
+	internal static (string Archive, string Checksum) CreateVersion4Archive(SpatialAreaPackage current)
+	{
 		var node=JsonNode.Parse(SpatialAreaPackageSerializer.Serialize(current))!;
 		var names=new System.Collections.Generic.Dictionary<string,string>
 		{
@@ -38,14 +51,7 @@ public class SpatialAreaPackageSerializerTests
 		OldNames(node);node["Version"]=4;
 		var original=JsonSerializer.Deserialize<MudSharp.Construction.ImportExport.LegacyV4.SpatialAreaPackage>(node.ToJsonString())!;
 		var archive=MudSharp.Construction.ImportExport.LegacyV4.SpatialAreaPackageSerializer.Serialize(original);
-		var read=SpatialAreaPackageSerializer.Deserialize(archive);
-		Assert.IsTrue(read.Success,string.Join("; ",read.Diagnostics.Select(x=>x.Message)));
-		Assert.AreEqual(4,read.SourceVersion);
-		Assert.AreEqual(original.IntegritySha256,read.SourceIntegritySha256);
-		Assert.AreEqual(5,read.Package!.Version);
-		Assert.AreEqual(8101L,read.Package.Rooms[0].SourceId);
-		Assert.AreEqual(current.Rooms[0].Overlay.RoomDescription,read.Package.Rooms[0].Overlay.RoomDescription);
-		Assert.IsFalse(SpatialAreaPackageSerializer.Deserialize(archive.Replace("user-authored","tampered",StringComparison.Ordinal)).Success);
+		return (archive, original.IntegritySha256);
 	}
 	[TestMethod]
 	public void SerializeDeserialize_ValidPackage_RoundTripsWithIntegrity()
@@ -273,7 +279,7 @@ public class SpatialAreaPackageSerializerTests
 		Assert.AreEqual("exit-00001", result.Package.Rooms[0].RouteRoom?.ExitAnchors.Single().ExitKey);
 	}
 
-	private static SpatialAreaPackage CreateValidPackage()
+	internal static SpatialAreaPackage CreateValidPackage()
 	{
 		var package = new SpatialAreaPackage
 		{

@@ -1,6 +1,5 @@
 #nullable enable
 
-using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -30,7 +29,8 @@ public static partial class SpatialAreaPackageSerializer
 		PropertyNameCaseInsensitive = false,
 		ReadCommentHandling = JsonCommentHandling.Disallow,
 		UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
-		WriteIndented = true
+		WriteIndented = true,
+		NewLine = "\r\n"
 	};
 
 	public static string Serialize(SpatialAreaPackage package)
@@ -90,12 +90,9 @@ public static partial class SpatialAreaPackageSerializer
 
 		var suppliedHash = package.IntegritySha256;
 		package.IntegritySha256 = string.Empty;
-		var expectedHash = ComputeHash(SerializeForVersion(package));
+		var canonicalJson = SerializeForVersion(package);
 		package.IntegritySha256 = suppliedHash;
-		if (string.IsNullOrWhiteSpace(suppliedHash) ||
-		    !CryptographicOperations.FixedTimeEquals(
-			    Encoding.ASCII.GetBytes(suppliedHash.ToLowerInvariant()),
-			    Encoding.ASCII.GetBytes(expectedHash)))
+		if (!SpatialAreaPackageIntegrity.Matches(suppliedHash, canonicalJson))
 		{
 			diagnostics.Add(Error("integrity-failed",
 				"The package SHA-256 integrity value does not match its contents."));
@@ -620,7 +617,7 @@ public static partial class SpatialAreaPackageSerializer
 
 	private static string ComputeHash(string text)
 	{
-		return Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(text)));
+		return SpatialAreaPackageIntegrity.ComputeHash(text);
 	}
 
 	private static string SerializeForVersion(SpatialAreaPackage package) => JsonSerializer.Serialize(package, Options);

@@ -4475,7 +4475,13 @@
         ],
         "boundary_assertion": "No blanket stripping of all rage, insomnia or speed effects unless separately configured."
       },
-      "completion_contract": "Apply native pacifism to suppress aggressive behaviour for a duration."
+      "completion_contract": "Apply native pacifism to suppress aggressive behaviour for a duration.",
+      "current_continuation_evidence": {
+        "receipt": "Armageddon_Continuation_20261008.json",
+        "status": "bounded_paid_runtime_and_optional_installer_managed",
+        "native": "NOT_RUN_PLATFORM_RESTRICTION",
+        "whole_candidate_complete": false
+      }
     },
     {
       "key": "arm.spell.spring_haven",
@@ -9248,7 +9254,13 @@
         ],
         "boundary_assertion": "Do not assume the exact historical aggression or charm flags."
       },
-      "completion_contract": "Apply native rage intensity for a duration."
+      "completion_contract": "Apply native rage intensity for a duration.",
+      "current_continuation_evidence": {
+        "receipt": "Armageddon_Continuation_20261008.json",
+        "status": "bounded_paid_runtime_and_optional_installer_managed",
+        "native": "NOT_RUN_PLATFORM_RESTRICTION",
+        "whole_candidate_complete": false
+      }
     },
     {
       "key": "arm.spell.earth_mount",
@@ -25741,5 +25753,7 @@
     "acceptance_ledger": "Armageddon_Completion_Progress.json"
   },
   "revision_kind": "historical_inventory_preparation",
-  "implementation_baseline": "b0e4339d57bf15bc6e6a6f21fbdd5edc73006e38"
+  "implementation_baseline": "b0e4339d57bf15bc6e6a6f21fbdd5edc73006e38",
+  "current_continuation_receipt": "Armageddon_Continuation_20261008.json",
+  "historical_status_fields_note": "Uniform legacy runtime/practice/native fields remain original proposal provenance. Current evidence is reconciled in Armageddon_Completion_Progress.json and the continuation overlay; classification and per-membership prerequisites stay authoritative. No all-candidate completion is claimed."
 }

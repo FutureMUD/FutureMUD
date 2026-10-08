@@ -31,6 +31,7 @@ public static class ScrollSpellCompatibility
 		Add("executeprog forcecommand reciteproxy", "Arbitrary script/command effects have no typed numerical snapshot adapter.");
 		Add("rejuvenateland", "Bounded scar treatment has no stored capture, dose or retained-lifecycle adapter; direct invocation only.");
 		Add("sourcewaterbreathing", "Source-specific random accumulated lifetime and explicit native water scope are not qualified for stored scroll delivery; ordinary direct invocation only.");
+		Add("sourcefury sourcecalm", "Source-ordered emotional counters, residual saves, retained attribute state and prepared selective combat cessation require character/self invocation; stored scroll delivery is unsupported.");
 		Add("changecharacteristic", "Characteristic profile/value selection and its live referenced definitions require a dedicated compatibility adapter.");
 		Add("astralprojection bodybackup createclone createcopy animatecorpse possesscorpse seizebody possessbody resurrect transformform", "Identity/body lifecycle and control-transfer configuration requires a dedicated snapshot adapter.");
 		Add("createitem createliquid createnpc corpsespawn", "Creation/template callbacks and referenced prototype lifecycle require a dedicated adapter.");

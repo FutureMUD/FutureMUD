@@ -205,6 +205,8 @@ SpellRoomWardTag
 SpellScopedWaterBreathing
 SpellSilence
 SpellSleep
+SpellSourceCalm
+SpellSourceFury
 SpellStaminaExpenditure
 SpellStaminaRegen
 SpellSubjectiveDescription

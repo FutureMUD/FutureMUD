@@ -8,7 +8,7 @@ namespace MudSharp.Magic;
 public sealed record RousedFuryTerrainBindings(long Air, long City, long Inside, long Hills,
 	long Mountain, long Thornlands, long Earth);
 
-/// <summary>Independent editable definition; construction/paid runtime awaits main-owned hook allocation.</summary>
+/// <summary>Editable source profile for paid character/self invocation and retained Fury effects.</summary>
 public static class ArmageddonRousedFuryStock
 {
 	public const string Key = "arm.spell.roused_fury";

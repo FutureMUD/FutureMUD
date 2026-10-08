@@ -37,9 +37,9 @@
     "rendered_content_utf8_bytes": 131070
   },
   "preparation_baseline": "b0e4339d57bf15bc6e6a6f21fbdd5edc73006e38",
-  "implementation_branch": "codex/armageddon-completion-phase1",
+  "implementation_branch": "codex/armageddon-continuation-20261008",
   "authorised_scope": "Complete plan in coherent stages; local commits; no publication, merge, deploy or shared/production DB",
-  "selected_stage": "Bounded active-Sense food repair verified against cleared installer37de; local checkpoint for parent review; whole plan incomplete",
+  "selected_stage": "Fury/Calm paid character runtime and optional installer managed checkpoint verified with four inherited snapshot failures; native acceptance unrun under platform restriction",
   "phase1_remaining": [
     "Stock installer selects and qualifies the mental/spiritual native attribute, capacity expression/basis and authored energy coefficients.",
     "Complete installed source/support/crafting/chargen wiring and gathering restrictions/environmental accounting remain later stock/native gates.",
@@ -51,7 +51,7 @@
       "name": "Rebase and reconcile",
       "scope": "Current `master`, `Design Documents/Magic/Armageddon_Casting_*.md`, `Armageddon_Repertoire.json/.md`, existing A-D10 work if landed",
       "exit_evidence": "Current commit and delivery matrix; no redo of PR771/778; complete 154 disposition plus exact 82 membership",
-      "status": "completed"
+      "status": "reconciled_current_master_07146cdc_and_unique_fury_calm_groundwork_20261008"
     },
     {
       "id": 1,
@@ -79,14 +79,14 @@
       "name": "Finish portable production",
       "scope": "`MagicSpell.Production.cs`, existing snapshot compatibility and numerical context, game-item component/prototype families, substance machinery",
       "exit_evidence": "Focus/charged separation, caster-only stock, configurable eligibility, reproduce-power recharge, no stock scroll dependency",
-      "status": "pending"
+      "status": "bounded_charged_devices_and_five_stock_consolidation_implemented_larger_portable_catalogue_native_readiness_pending"
     },
     {
       "id": 5,
       "name": "Author full stock and installer",
       "scope": "New owning `DatabaseSeeder/Seeders/ArmageddonMagicSeeder/` or equivalent agreed name; shared ownership framework; manifests; replay metadata and profiles",
       "exit_evidence": "Complete usable stock, exact 82, classless and optional-class installs, safe reruns and conflict receipts",
-      "status": "pending"
+      "status": "partial_optional_installer_utilities_provisions_pierce_water_see_and_fury_calm_managed_checkpoint_full_stock_pending"
     },
     {
       "id": 6,
@@ -813,12 +813,14 @@
       "key": "arm.spell.still_anger",
       "name": "Still Anger",
       "group": "Policy",
-      "required_behavior": "Apply native pacifism to suppress aggressive behaviour for a duration.",
+      "required_behavior": "Source-grade reciprocal counters, residual-grade save, prepared selective cessation and admitted incoming hostile-attack break, with retained bounded lifetime.",
       "selected_sorcerer": true,
-      "status": "pending_runtime_stock_and_native_acceptance",
+      "status": "bounded_paid_runtime_optional_installer_managed_checkpoint_native_acceptance_pending",
       "evidence": [
-        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
-      ]
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending",
+        "Armageddon_Continuation_20261008.json: current continuation managed runtime/installer; native NOT_RUN"
+      ],
+      "historical_status": "pending_runtime_stock_and_native_acceptance"
     },
     {
       "key": "arm.spell.spring_haven",
@@ -1113,12 +1115,14 @@
       "key": "arm.spell.roused_fury",
       "name": "Roused Fury",
       "group": "Primitive",
-      "required_behavior": "Apply native rage intensity for a duration.",
+      "required_behavior": "Source-grade reciprocal counters and configurable ordinary attribute bonus without stamina refill, retained source/native state and bounded lifetime.",
       "selected_sorcerer": true,
-      "status": "pending_runtime_stock_and_native_acceptance",
+      "status": "bounded_paid_runtime_optional_installer_managed_checkpoint_native_acceptance_pending",
       "evidence": [
-        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
-      ]
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending",
+        "Armageddon_Continuation_20261008.json: current continuation managed runtime/installer; native NOT_RUN"
+      ],
+      "historical_status": "pending_runtime_stock_and_native_acceptance"
     },
     {
       "key": "arm.spell.earth_mount",
@@ -3697,45 +3701,51 @@
     }
   ],
   "next_checkpoint": {
-    "status": "SENSE_FOOD_BOUNDED_REPAIR_PARENT_REVIEW_PENDING",
-    "receipt": "Design Documents/Magic/Armageddon_OrderedNpc_CheckStaleWrite_Verification.json",
+    "status": "MANAGED_CHECKPOINT_VERIFIED_WITH_INHERITED_FAILURES_NATIVE_GATE_UNRUN",
+    "receipt": "Design Documents/Magic/Armageddon_Continuation_20261008.json",
     "remaining": [
       {
-        "id": "historical-stack-conservation",
-        "status": "OPEN_NOT_QUALIFIED",
-        "scope": "Ordinary valid merge absorbed-source cleanup, native total quantity/title/custody and cold reader"
+        "stage": "Fury/Calm native gate",
+        "status": "NOT_RUN_PLATFORM_RESTRICTION",
+        "scope": "Installed ordinary casting, physical attribute capacity/no refill, actual missed/admitted attack, selective cessation/third party/callback replacement, independent MySQL reads, cold restart and high-volume lifecycle. Do not bypass the inherited restriction."
       },
       {
-        "id": "eat-with-detection",
-        "status": "BOUNDED_NATIVE_REPAIR_PASS_PARENT_REVIEW_PENDING",
-        "scope": "Admit ordinary Sense/detection in spell item removal; preserve custody/reacquisition/dependency refusal and commit-safe persistence/rollback"
+        "stage": "Remaining reusable dependencies",
+        "status": "PENDING",
+        "scope": "Follow phase3_remaining and phase3_dependency_checklist: safe NPC/possession/corpse/control/queued authority, history/custody, guarded source lifetime admission, topology and native need-driven stock dependencies."
       },
       {
-        "id": "component-boarding-countershot",
-        "status": "NOT_COMPLETE",
-        "scope": "Representative gun families load/chamber/unready/unload/fire, accepted-shot costs, boarding and actual independent defender countershot"
+        "stage": "Required larger features",
+        "status": "PENDING",
+        "scope": [
+          "Spring Haven",
+          "Burrow Refuge",
+          "Sand Shelter",
+          "Sand Effigy",
+          "Walking Shadow",
+          "Severing Refuge",
+          "Apex Bane",
+          "Folded Pocket"
+        ]
       },
       {
-        "id": "selected-melee-check-fault",
-        "status": "NATIVE_NOT_RUN",
-        "scope": "Actual selected melee attack with native scoring-merit fault; prior native Check fixture dispatch and explicit casting scope do not qualify this"
+        "stage": "Catalogue and portable production",
+        "status": "PARTIAL",
+        "scope": "Use all 154 existing candidate dispositions and per-membership prerequisites. Preserve exactly 82 Sorcerer spells/four roots/12 supports; Wardcraft and Renew Earth stay optional outside that roster. Qualify each actual effect family before charged storage; no stock scrolls."
       },
       {
-        "id": "fury-calm-hooks",
-        "status": "NOT_ALLOCATED_OR_INTEGRATED",
-        "scope": "Stock da9af18a departing-Fury stamina correction independently cleared. Native victim LeaveCombat may retarget caster via AcquireTarget; pair cessation must inspect current post-removal opponent, with another-opponent shared-combat regression. Endurance defaults and Calm break behavior await Luke. Live shared combat hooks untouched"
+        "stage": "Stock/support/crafting/supply/capability/merits",
+        "status": "PARTIAL",
+        "scope": "Expand stable-owned optional modules in dependency order; classless and optional-class paths, chargen controls/NPC placement, preserving builder edits and all player state."
       },
       {
-        "id": "whole-plan-release",
-        "status": "OPEN",
-        "scope": "PC charm N13, stock/device/provision integration, eight larger features, production/repertoire/installer and all remaining native release gates. Sibling installer reports Pierce and seven of82 closed admissions, prepared-world entry/guide only; new provision installation remains gated on active-Sense persisted removal repair. Installer owns SeederMetadataRegistry.cs and DebugSeederReplay.cs; no runtime overlap"
+        "stage": "Production readiness",
+        "status": "PENDING",
+        "scope": "Installed-world per-spell proof, affordability/balance, high-volume restart and all 25 acceptance scenarios; retain Release disable until real readiness gates pass."
       }
     ],
-    "priority_after_review": "Persisted active-Sense food consumption/removal before broader optional authority coverage",
-    "exact_local_commit_receipt": "Task Armageddon_check_CommitReceipt.json",
     "full_plan_complete": false,
-    "publication_authorized": false,
-    "comprehensive_queued_authority_cleared": false
+    "publication_authorized": false
   },
   "deferred_consultation": {
     "source_task": "01a0fc1f-ccd4-7359-95f2-f8c03724b0b1",
@@ -5302,7 +5312,7 @@
     "native_attack_controls": 18,
     "receipt": "Design Documents/Magic/Armageddon_EmotionalCombatHooks_Verification.json",
     "contract": "Design Documents/Magic/Armageddon_Emotional_Combat_Hooks.md",
-    "next_gate": "Parent/stock integration of actual Fury/Calm effects and paid bridge, with unsupported cessation refused before payment",
+    "next_gate": "Paid stock bridge and optional mapping now implemented with bounded managed checks; installed-world/cold restart native acceptance remains unrun under platform restriction.",
     "whole_plan_complete": false,
     "package_enabled": false,
     "limits": [
@@ -5313,7 +5323,9 @@
       "Observer exceptions propagate after consumed-ticket committed detach. Captured old Aim releases across removal failure; arbitrary later callback continuation is not universally promised.",
       "Full Fast, full-world/Telnet, stock emotional activation/reload and exhaustive family acceptance are NOT_RUN here.",
       "Historical Musket/artillery continuation is deferred by the current allocation; no issues780-783 fix, version change, publication, merge, deployment or shared/production database work."
-    ]
+    ],
+    "continuation_receipt": "Design Documents/Magic/Armageddon_Continuation_20261008.json",
+    "historical_next_gate": "Parent/stock integration of actual Fury/Calm effects and paid bridge, with unsupported cessation refused before payment"
   },
   "emotional_shot_refusal_correction": {
     "baseline": "9353e2ad4b0d0e95289069dc166a52ad6db45c71",
@@ -5335,5 +5347,97 @@
     "native_cases": 9,
     "fresh_readers": 23,
     "receipt": "Design Documents/Magic/Armageddon_EmotionalShotRefusal_Verification.json"
+  },
+  "superseded_central_status": [
+    {
+      "date": "2026-10-08",
+      "implementation_branch": "codex/armageddon-completion-phase1",
+      "selected_stage": "Bounded active-Sense food repair verified against cleared installer37de; local checkpoint for parent review; whole plan incomplete",
+      "next_checkpoint": {
+        "status": "SENSE_FOOD_BOUNDED_REPAIR_PARENT_REVIEW_PENDING",
+        "receipt": "Design Documents/Magic/Armageddon_OrderedNpc_CheckStaleWrite_Verification.json",
+        "remaining": [
+          {
+            "id": "historical-stack-conservation",
+            "status": "OPEN_NOT_QUALIFIED",
+            "scope": "Ordinary valid merge absorbed-source cleanup, native total quantity/title/custody and cold reader"
+          },
+          {
+            "id": "eat-with-detection",
+            "status": "BOUNDED_NATIVE_REPAIR_PASS_PARENT_REVIEW_PENDING",
+            "scope": "Admit ordinary Sense/detection in spell item removal; preserve custody/reacquisition/dependency refusal and commit-safe persistence/rollback"
+          },
+          {
+            "id": "component-boarding-countershot",
+            "status": "NOT_COMPLETE",
+            "scope": "Representative gun families load/chamber/unready/unload/fire, accepted-shot costs, boarding and actual independent defender countershot"
+          },
+          {
+            "id": "selected-melee-check-fault",
+            "status": "NATIVE_NOT_RUN",
+            "scope": "Actual selected melee attack with native scoring-merit fault; prior native Check fixture dispatch and explicit casting scope do not qualify this"
+          },
+          {
+            "id": "fury-calm-hooks",
+            "status": "NOT_ALLOCATED_OR_INTEGRATED",
+            "scope": "Stock da9af18a departing-Fury stamina correction independently cleared. Native victim LeaveCombat may retarget caster via AcquireTarget; pair cessation must inspect current post-removal opponent, with another-opponent shared-combat regression. Endurance defaults and Calm break behavior await Luke. Live shared combat hooks untouched"
+          },
+          {
+            "id": "whole-plan-release",
+            "status": "OPEN",
+            "scope": "PC charm N13, stock/device/provision integration, eight larger features, production/repertoire/installer and all remaining native release gates. Sibling installer reports Pierce and seven of82 closed admissions, prepared-world entry/guide only; new provision installation remains gated on active-Sense persisted removal repair. Installer owns SeederMetadataRegistry.cs and DebugSeederReplay.cs; no runtime overlap"
+          }
+        ],
+        "priority_after_review": "Persisted active-Sense food consumption/removal before broader optional authority coverage",
+        "exact_local_commit_receipt": "Task Armageddon_check_CommitReceipt.json",
+        "full_plan_complete": false,
+        "publication_authorized": false,
+        "comprehensive_queued_authority_cleared": false
+      },
+      "reason": "Old central checkpoint was superseded by later accepted hook/device/installer/Sense receipts and this reconciled continuation."
+    }
+  ],
+  "continuation_20261008": {
+    "receipt": "Design Documents/Magic/Armageddon_Continuation_20261008.json",
+    "master": "07146cdc8a38fd23040281b58c6544d45f260cd2",
+    "status": "MANAGED_CHECKPOINT_VERIFIED_WITH_INHERITED_FAILURES_NATIVE_GATE_UNRUN",
+    "full_plan_complete": false,
+    "native": {
+      "status": "NOT_RUN_PLATFORM_RESTRICTION",
+      "bypass_authorized": false,
+      "process_database_telnet_checks_executed": false,
+      "historical_receipts_remain_historical": true,
+      "xml_loader_and_inmemory_tests_are_not_cold_restart_or_mysql_proof": true
+    },
+    "installer_coverage": {
+      "historical_selected_provisions_water_see": {
+        "managed_records": 211,
+        "payload_definitions": 10,
+        "admissions_per_variant": 9,
+        "sorcerer_without_admission": 73
+      },
+      "selected_provisions_water_see_emotions": {
+        "managed_records": 217,
+        "payload_definitions": 12,
+        "admissions_per_variant": 12,
+        "sorcerer_without_admission": 70
+      },
+      "kind": "Managed composition counts, not character acquisitions or whole catalogue completion."
+    },
+    "final_managed": {
+      "run": "20261008T073200Z-d2f3219192f7",
+      "passed": 8412,
+      "failed": 4,
+      "skipped": 0,
+      "source_stable": true,
+      "failure_classification": "Exactly the four inherited master blank-snapshot failures; zero new failures."
+    },
+    "release_disabled_assertions": {
+      "run": "20261008T073706Z-a6838db00122",
+      "passed": 3,
+      "failed": 0,
+      "skipped": 0,
+      "source_stable": true
+    }
   }
 }

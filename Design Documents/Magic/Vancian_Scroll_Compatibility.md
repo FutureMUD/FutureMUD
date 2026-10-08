@@ -8,6 +8,7 @@ Inscription checks both target and caster templates before reserving or paying. 
 
 | Family | Captured fields | Live context |
 | --- | --- | --- |
+| `sourcecalm`, `sourcefury` | Unsupported | Source counters, residual saves, retained attributes and prepared selective cessation require character/self invocation; stored scroll delivery is unsupported. |
 | Damage and self damage | `DamageExpression`, creator trait bindings | Current target, body applicability, opposed outcome, damage origin is reader |
 | Heal and mend | `HealingAmount`, creator trait bindings | Current wounds and opposed outcome |
 | Stamina and magic resource delta | `Formula`, creator trait bindings | Target's current stamina/resource; referenced resource must exist |

@@ -4,6 +4,8 @@ using MudSharp.Body.Traits;
 using System.Globalization;
 using MudSharp.Magic.Emotions;
 using MudSharp.Magic.SpellEffects;
+using MudSharp.Combat;
+using MudSharp.Effects.Interfaces;
 
 namespace MudSharp.Effects.Concrete.SpellEffects;
 
@@ -45,6 +47,17 @@ public abstract class SpellEmotionalEffect : MagicSpellEffectBase
 	public EmotionalRetainedState State { get; private set; }
 	public string? DefinitionError { get; protected set; }
 	public abstract EmotionalSpellKind Kind { get; }
+	public override void InitialEffect()
+	{
+		// EffectHandler has inserted this child before invoking InitialEffect. Only now may
+		// its scheduled wrapper serialize it; earlier environmental callbacks see an empty wrapper.
+		if (ParentEffect is { } parent && ReferenceEquals(parent.Owner, Owner) &&
+			Owner.Effects.Contains(this) && Owner.Effects.Contains(parent) && !parent.SpellEffects.Contains(this))
+		{
+			parent.AddSpellEffect(this);
+			Owner.EffectsChanged = true;
+		}
+	}
 	public void ReduceSourceGrade(int amount)
 	{
 		if (DefinitionError is not null || amount <= 0 || amount >= State.SourceGrade)
@@ -61,15 +74,34 @@ public abstract class SpellEmotionalEffect : MagicSpellEffectBase
 	public override string Describe(IPerceiver voyeur) => $"{Kind}: source grade {State.SourceGrade.ToString("N0", voyeur)}, intensity {State.Intensity.ToString("N2", voyeur)}.";
 }
 
-public sealed class SpellSourceCalmEffect : SpellEmotionalEffect, IPacifismEffect
+public sealed class SpellSourceCalmEffect : SpellEmotionalEffect, IPacifismEffect, IAdmittedHostileAttackEffect
 {
 	public SpellSourceCalmEffect(IPerceivable owner, IMagicSpellEffectParent parent, string group,
-		int unitSeconds, int capUnits, EmotionalRetainedState state) : base(owner, parent, group, unitSeconds, capUnits, state) { }
-	private SpellSourceCalmEffect(XElement xml, IPerceivable owner) : base(xml, owner) { }
+		int unitSeconds, int capUnits, EmotionalRetainedState state, bool breakOnAdmittedAttack = true)
+		: base(owner, parent, group, unitSeconds, capUnits, state) { BreakOnAdmittedAttack = breakOnAdmittedAttack; }
+	private SpellSourceCalmEffect(XElement xml, IPerceivable owner) : base(xml, owner)
+	{
+		var value = (string?)xml.Element("Effect")?.Attribute("attackbreak");
+		if (value is null) BreakOnAdmittedAttack = true; // Version-one preparation effects had the stock default.
+		else if (bool.TryParse(value, out var enabled)) BreakOnAdmittedAttack = enabled;
+		else DefinitionError ??= "Invalid admitted-attack break policy.";
+	}
+	public bool BreakOnAdmittedAttack { get; }
 	public static void InitialiseEffectType() => RegisterFactory("SpellSourceCalm", (xml, owner) => new SpellSourceCalmEffect(xml, owner));
 	public override EmotionalSpellKind Kind => EmotionalSpellKind.Calm;
 	protected override string SpecificEffectType => "SpellSourceCalm";
-	protected override XElement SaveDefinition() => SaveEmotionalDefinition();
+	protected override XElement SaveDefinition()
+	{
+		var result = SaveEmotionalDefinition();
+		if (DefinitionError is null) result.SetAttributeValue("attackbreak", BreakOnAdmittedAttack);
+		return result;
+	}
+	public void OnAdmittedHostileAttack(AdmittedHostileAttack attack)
+	{
+		if (BreakOnAdmittedAttack && DefinitionError is null && ReferenceEquals(attack.Recipient, Owner) &&
+			Owner.Effects.Contains(this) && ParentEffect?.SpellEffects.Contains(this) == true)
+			Owner.RemoveEffect(this, true);
+	}
 	public bool IsPeaceful => DefinitionError is not null || State.Intensity > 5;
 	public bool IsSuperPeaceful => DefinitionError is not null || State.Intensity > 10;
 }
@@ -100,7 +132,7 @@ public sealed class SpellSourceFuryEffect : SpellEmotionalEffect, IRageEffect, I
 	protected override string SpecificEffectType => "SpellSourceFury";
 	public ITraitDefinition? EnduranceTrait { get; }
 	public double UnitsPerSourcePoint { get; }
-	public override void InitialEffect() { _removing = false; ReconcileStamina(); }
+	public override void InitialEffect() { base.InitialEffect(); _removing = false; ReconcileStamina(); }
 	public override void Login() { _removing = false; ReconcileStamina(); }
 	public override void RemovalEffect()
 	{

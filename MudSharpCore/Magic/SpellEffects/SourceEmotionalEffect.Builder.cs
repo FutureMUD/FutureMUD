@@ -11,7 +11,7 @@ namespace MudSharp.Magic.SpellEffects;
 
 public abstract partial class SourceEmotionalEffect
 {
-	public const string BuilderHelp = "Use intensity <number>, eligibility <prog>, lifetime <group> <seconds> <cap>, reset (discard the profile for repair); Fury: attribute <trait>, units <number>, terrain <ID> <numerator> <denominator> <bonus>, terrain remove <ID>, fallback <numerator> <denominator> <bonus>; Calm: savetrait <trait>, save <grade> <difficulty>, attackbreak on|off. These profiles cannot cast until runtime integration.";
+	public const string BuilderHelp = "Use intensity <number>, eligibility <prog>, lifetime <group> <seconds> <cap>, reset (discard the profile for repair); Fury: attribute <trait>, units <number>, terrain <ID> <numerator> <denominator> <bonus>, terrain remove <ID>, fallback <numerator> <denominator> <bonus>; Calm: savetrait <trait>, save <grade> <difficulty>, attackbreak on|off. Use one exclusive target effect, character/self trigger, duration expression 0 and no ordinary opposed trait.";
 
 	public bool BuildingCommand(ICharacter actor, StringStack command)
 	{

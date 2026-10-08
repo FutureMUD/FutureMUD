@@ -6,7 +6,7 @@ using MudSharp.RPG.Checks;
 
 namespace MudSharp.Magic;
 
-/// <summary>Independent editable definition; construction/paid runtime awaits main-owned hook allocation.</summary>
+/// <summary>Editable source profile for paid character/self invocation and selective Calm cessation.</summary>
 public static class ArmageddonStillAngerStock
 {
 	public const string Key = "arm.spell.still_anger";

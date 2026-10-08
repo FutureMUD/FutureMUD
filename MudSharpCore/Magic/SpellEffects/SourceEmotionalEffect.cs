@@ -7,11 +7,13 @@ using MudSharp.RPG.Checks;
 
 namespace MudSharp.Magic.SpellEffects;
 
-/// <summary>Editable staged content. All execution routes refuse until main allocates the actual hooks.</summary>
+/// <summary>Source emotional content admitted by the character casting pipeline.</summary>
 public abstract partial class SourceEmotionalEffect : IMagicSpellEffectTemplate,
 	IMagicSpellEffectPreparedSelection, IMagicSpellEffectOperation
 {
-	public const string RuntimeIntegrationError = "Fury/Calm runtime integration is not allocated: paid casting, admitted attack notification and exact-pair cessation remain unqualified.";
+	public const string RuntimeIntegrationError = "Source emotions require a prepared character/self invocation; direct effect and prepared payload application are unsupported.";
+	private IMagicSpellEffectPreparedSelectionToken? _selection;
+	internal IMagicSpellEffectPreparedSelectionToken? Selection => _selection;
 	private XElement _profileXml;
 	protected SourceEmotionalEffect(XElement root, IMagicSpell spell, EmotionalSpellKind kind)
 	{
@@ -57,12 +59,28 @@ public abstract partial class SourceEmotionalEffect : IMagicSpellEffectTemplate,
 	public MagicEffectOperation Apply(ICharacter caster, IPerceivable? target, OpposedOutcomeDegree outcome,
 		SpellPower power, IMagicSpellEffectParent parent, SpellAdditionalParameter[] additionalParameters) =>
 		throw new InvalidOperationException(RuntimeIntegrationError);
-	public IMagicSpellEffectPreparedSelectionToken? CapturePreparedSelection(ICharacter caster, IPerceivable recipient) =>
-		throw new InvalidOperationException(RuntimeIntegrationError);
+	public IMagicSpellEffectPreparedSelectionToken CapturePreparedSelection(ICharacter caster, IPerceivable recipient) =>
+		_selection = ((MagicSpell)Spell).CaptureEmotionalSelection(this, caster, recipient, _selection);
 	public bool TryReusePreparedSelection(IMagicSpellEffectPreparedSelectionToken selection, ICharacter caster,
-		IPerceivable recipient, out string? error) { error = RuntimeIntegrationError; return false; }
+		IPerceivable recipient, out string? error)
+	{
+		try
+		{
+			((MagicSpell)Spell).CaptureEmotionalSelection(this, caster, recipient, selection);
+			_selection = selection; error = null; return true;
+		}
+		catch (InvalidOperationException exception) { error = exception.Message; return false; }
+	}
 	public bool TryConfirmPreparedSelection(ICharacter caster, IPerceivable recipient, out string? error)
-	{ error = RuntimeIntegrationError; return false; }
+	{
+		try
+		{
+			if (_selection is null) throw new InvalidOperationException(RuntimeIntegrationError);
+			((MagicSpell)Spell).CaptureEmotionalSelection(this, caster, recipient, _selection);
+			error = null; return true;
+		}
+		catch (InvalidOperationException exception) { error = exception.Message; return false; }
+	}
 
 	private static XElement EmptyProfile(EmotionalSpellKind kind) => new("SourceProfile",
 		new XAttribute("version", 1), new XAttribute("kind", kind), new XAttribute("eligibility", 0),
@@ -77,30 +95,30 @@ public abstract partial class SourceEmotionalEffect : IMagicSpellEffectTemplate,
 
 public sealed class SourceFuryEffect : SourceEmotionalEffect
 {
+	public static void RegisterPreparationFactory() => RegisterFactory();
 	public SourceFuryEffect(XElement root, IMagicSpell spell) : base(root, spell, EmotionalSpellKind.Fury) { }
 	protected override string EffectType => "sourcefury";
 	public override IMagicSpellEffectTemplate Clone() => new SourceFuryEffect(SaveToXml(), Spell);
-	// Deliberately not auto-discovered as RegisterFactory until compatibility/hook allocation.
-	public static void RegisterPreparationFactory()
+	public static void RegisterFactory()
 	{
 		SpellEffectFactory.RegisterLoadTimeFactory("sourcefury", (root, spell) => new SourceFuryEffect(root, spell));
 		SpellEffectFactory.RegisterBuilderFactory("sourcefury", (_, spell) =>
-			(new SourceFuryEffect(new XElement("Effect"), spell), string.Empty), "Staged source Fury profile; casting unavailable",
+			(new SourceFuryEffect(new XElement("Effect"), spell), string.Empty), "Source Fury with explicit attribute and terrain mappings",
 			BuilderHelp, false, true, ["character", "self"]);
 	}
 }
 
 public sealed class SourceCalmEffect : SourceEmotionalEffect
 {
+	public static void RegisterPreparationFactory() => RegisterFactory();
 	public SourceCalmEffect(XElement root, IMagicSpell spell) : base(root, spell, EmotionalSpellKind.Calm) { }
 	protected override string EffectType => "sourcecalm";
 	public override IMagicSpellEffectTemplate Clone() => new SourceCalmEffect(SaveToXml(), Spell);
-	// Deliberately not auto-discovered as RegisterFactory until compatibility/hook allocation.
-	public static void RegisterPreparationFactory()
+	public static void RegisterFactory()
 	{
 		SpellEffectFactory.RegisterLoadTimeFactory("sourcecalm", (root, spell) => new SourceCalmEffect(root, spell));
 		SpellEffectFactory.RegisterBuilderFactory("sourcecalm", (_, spell) =>
-			(new SourceCalmEffect(new XElement("Effect"), spell), string.Empty), "Staged source Calm profile; casting unavailable",
+			(new SourceCalmEffect(new XElement("Effect"), spell), string.Empty), "Source Calm with selective cessation and admitted attack break",
 			BuilderHelp, false, true, ["character", "self"]);
 	}
 }

@@ -55,6 +55,24 @@ The existing owned spell-skill definitions are configuration records, not player
 
 ## Binding document
 
+### Optional Fury/Calm mappings
+
+The bounded [Fury/Calm runtime](Armageddon_Fury_Calm_Runtime.md) adds optional `Emotions` to the same binding JSON. Leave it omitted/null to preserve an existing six-record owned module without running it. To select it, provide:
+
+| Field | Required selection |
+| --- | --- |
+| `FuryAttribute` | Positive ordinary body-owned attribute ID, or null when exactly one Constitution/Physique/Endurance/Body attribute exists. Missing, ambiguous and derived-only inference refuses. |
+| `UnitsPerSourcePoint` | Authored finite positive attribute units per source endurance point; no inferred numerical scale. |
+| `FuryIntensity`, `CalmIntensity` | Authored finite nonnegative native intensity values. |
+| `FuryEligibilityProg`, `CalmEligibilityProg` | Existing compiled Boolean progs with `(target character, caster character)` parameters. These remain builder-owned. |
+| `CalmSaveTrait` | Existing native character skill or body attribute used for the opposed save. |
+| `CalmSaves` | Exactly seven named native `Difficulty` values, in source grades 1–7 order. Numeric enums are rejected. |
+| `Terrains` | Object containing `Air`, `City`, `Inside`, `Hills`, `Mountain`, `Thornlands`, `Earth`, each a distinct positive existing terrain ID. |
+
+These selections extend the source Unravel → Fury → Calm → Mend path using owned tradition skills. The six new owned rows are two spells and their duration/cost expressions. With provisions and Water/See also selected, managed composition is 217 records, 12 payload definitions and 12 stored source admissions per variant, leaving 70 of 82 unavailable. Native installed-world/restart acceptance remains unrun; this does not enable the full Release package. No player state is granted/refreshed. Explicit stock/profile, expression and capability edits remain preserved on selected and null reruns.
+
+### Existing binding schema
+
 Use one JSON line at the prompt. This formatted schema is deliberately **not runnable**: replace every zero ID with
 the selected actual ID, use the approved revision numbers (zero is a valid revision), and keep `Install` true.
 No examples are silently used as defaults. Unknown/duplicate properties, numeric enum values, invalid IDs and oversized

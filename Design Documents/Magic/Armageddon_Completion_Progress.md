@@ -1,5 +1,7 @@
 # Armageddon completion implementation progress
 
+Current continuation: [2026-10-08 checkpoint](Armageddon_Continuation_20261008.md) and [machine-readable inventory/evidence](Armageddon_Continuation_20261008.json). Current branch is `codex/armageddon-continuation-20261008`, based on Room master `07146cdc8a38fd23040281b58c6544d45f260cd2`. Old baseline, device/installer pending fields and unresolved Fury allocation statements below are historical; later receipts and the current ledger supersede them. The exact 154 dispositions and 82 Sorcerer memberships remain in scope. Full programme and native readiness are incomplete.
+
 Authority: Library `libfile_a4606cd0097081918d6c9d9e220e6da0`, version 0,
 `Armageddon_Magic_Completion_Implementation_Brief.md`, reported 131071 bytes.
 All 905 lines were read through supported Library content reads in contiguous windows

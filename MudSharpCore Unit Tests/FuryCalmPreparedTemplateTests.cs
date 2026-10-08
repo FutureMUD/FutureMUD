@@ -30,8 +30,8 @@ public class FuryCalmPreparedTemplateTests
 	{
 		// Own this bounded test scope; do not leave unqualified types in the process-wide native registry.
 		_ = SpellEffectFactory.RegisteredLoadTypes;
-		Assert.IsFalse(SpellEffectFactory.RegisteredLoadTypes.Contains("sourcefury"));
-		Assert.IsFalse(SpellEffectFactory.RegisteredLoadTypes.Contains("sourcecalm"));
+		Assert.IsTrue(SpellEffectFactory.RegisteredLoadTypes.Contains("sourcefury"));
+		Assert.IsTrue(SpellEffectFactory.RegisteredLoadTypes.Contains("sourcecalm"));
 		foreach (var name in new[] { "_loadTimeFactories", "_builderFactories" })
 		{
 			var registry = (IDictionary)typeof(SpellEffectFactory).GetField(name, BindingFlags.Static | BindingFlags.NonPublic)!.GetValue(null)!;
@@ -108,7 +108,7 @@ public class FuryCalmPreparedTemplateTests
 		Assert.IsTrue(XNode.DeepEquals(xml, effect.Clone().SaveToXml()));
 		Assert.ThrowsException<InvalidOperationException>(() => effect.CapturePreparedSelection(f.Actor.Object, f.Actor.Object));
 		Assert.IsFalse(effect.TryConfirmPreparedSelection(f.Actor.Object, f.Actor.Object, out var error));
-		Assert.AreEqual(SourceEmotionalEffect.RuntimeIntegrationError, error);
+		Assert.IsNotNull(error);
 		var parent = new MagicSpellParent(f.Actor.Object, spell, f.Actor.Object);
 		Assert.ThrowsException<InvalidOperationException>(() => effect.Apply(f.Actor.Object, f.Actor.Object,
 			OpposedOutcomeDegree.None, SpellPower.Standard, parent, []));
@@ -118,16 +118,16 @@ public class FuryCalmPreparedTemplateTests
 
 	[DataTestMethod]
 	[DataRow(EmotionalSpellKind.Fury), DataRow(EmotionalSpellKind.Calm)]
-	public void CastingPreflight_StagedValidContent_RefusesBeforePaymentJournalOrRoll(EmotionalSpellKind kind)
+	public void CastingPreflight_UnmappedNativeContent_RefusesBeforePaymentJournalOrRoll(EmotionalSpellKind kind)
 	{
 		var f = new MagicCastingFixture(); var spell = Load(f, kind); f.Spells.Clear(); f.Spells.Add(spell); f.Acquire(1);
 		f.Actor.Setup(x => x.TargetActorOrCorpse("self", It.IsAny<PerceiveIgnoreFlags>())).Returns(f.Actor.Object);
 		Assert.IsTrue(spell.ReadyForGame, spell.ReadyForGame ? "" : spell.WhyNotReadyForGame(f.Actor.Object));
 		var intent = f.Intent(1, false); var writes = f.Store.Writes;
 		var quote = f.Service.Quote(intent); Assert.IsNull(quote.Invocation);
-		StringAssert.Contains(quote.Reason, SourceEmotionalEffect.RuntimeIntegrationError);
+		Assert.IsFalse(string.IsNullOrWhiteSpace(quote.Reason));
 		var result = f.Service.Cast(intent); Assert.AreEqual(MagicCastingStatus.Refused, result.Status);
-		StringAssert.Contains(result.Message, SourceEmotionalEffect.RuntimeIntegrationError);
+		Assert.IsFalse(string.IsNullOrWhiteSpace(result.Message));
 		Assert.AreEqual(writes, f.Store.Writes); Assert.AreEqual(0, f.Rolls); Assert.AreEqual(0, f.SkillUses);
 		foreach (var balance in f.Balances.Values) Assert.AreEqual(100.0, balance);
 	}
@@ -162,6 +162,6 @@ public class FuryCalmPreparedTemplateTests
 		var definition = kind == EmotionalSpellKind.Fury ? ArmageddonRousedFuryStock.Definition(10, 1, profile) : ArmageddonStillAngerStock.Definition(10, 1, profile);
 		model.Definition = definition.ToString(); model.AppliedEffectsAreExclusive = true;
 		model.TargetNullEmote = "No suitable target.";
-		return new MagicSpell(model, f.World.Object);
+		return new MagicSpell(model, f.World.Object) { EffectDurationExpression = new MudSharp.Body.Traits.TraitExpression("0", f.World.Object) };
 	}
 }

@@ -1678,6 +1678,7 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
 				CaptureLifetimeAdmission(magician, magician, _spellEffects, power) is { } reflectedAdmission)
 				lifetimeAdmissions.Add(magician, reflectedAdmission);
 			if (CaptureLifetimeAdmission(magician, magician, _casterSpellEffects, power) is { } casterAdmission) lifetimeAdmissions.Add(magician, casterAdmission);
+			PrepareEmotionalInvocation(magician, target, power);
 		}
 		catch (Exception error)
 		{
@@ -1687,6 +1688,7 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
 		void Pay()
 		{
 			ConfirmPendingLifetimeAdmissions();
+			ConfirmPendingEmotionalAdmissions();
 			if (invocation?.Configured is { } configured)
 			{
 				foreach (var payment in configured.Payments)
@@ -1899,17 +1901,20 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
 					: "Your ward turns the magic aside.");
 		}
 
-		bool TargetResisted(IPerceivable spellTarget, out OpposedOutcome outcome, bool reflected = false)
+		bool TargetResisted(IPerceivable spellTarget, out OpposedOutcome outcome, bool reflected = false,
+			ITraitDefinition? sourceSaveTrait = null, Difficulty? sourceSaveDifficulty = null)
 		{
 			outcome = baseOutcome;
-			if (OpposedTrait is null || spellTarget is not ICharacter tch || (tch == magician && !reflected))
+			var trait = sourceSaveTrait ?? OpposedTrait;
+			var difficulty = sourceSaveDifficulty ?? OpposedDifficulty ?? Difficulty.Normal;
+			if (trait is null || spellTarget is not ICharacter tch || (tch == magician && !reflected && sourceSaveTrait is null))
 			{
 				return false;
 			}
 
 			Dictionary<Difficulty, CheckOutcome> resist =
-				resistCheck.CheckAgainstAllDifficulties(tch, OpposedDifficulty ?? Difficulty.Normal, OpposedTrait, magician);
-			outcome = new OpposedOutcome(result, resist, CastingDifficulty, OpposedDifficulty ?? Difficulty.Normal);
+				resistCheck.CheckAgainstAllDifficulties(tch, difficulty, trait, magician);
+			outcome = new OpposedOutcome(result, resist, CastingDifficulty, difficulty);
 			if (outcome.Outcome != OpposedOutcomeDirection.Opponent)
 			{
 				return false;
@@ -1939,6 +1944,21 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
 			{
 				EchoInterdiction(originalTarget, interdiction, false);
 				return true;
+			}
+			if (EmotionalTemplate is { } emotional)
+			{
+				if (interdiction is not null) EchoInterdiction(originalTarget, interdiction, true);
+				if (!string.IsNullOrEmpty(TargetEmote))
+					actualTarget.OutputHandler.Handle(new EmoteOutput(new Emote(TargetEmote, magician, magician, actualTarget), flags: TargetEmoteFlags));
+				var phase = BeginEmotionalResolution(magician, (ICharacter)actualTarget);
+				var sourceOutcome = baseOutcome;
+				var saved = phase.Recipient.Counter.Continue && emotional.Kind == Emotions.EmotionalSpellKind.Calm &&
+					TargetResisted(actualTarget, out sourceOutcome, reflected, phase.Selection.Trait,
+						emotional.Profile!.SaveDifficulty(phase.Recipient.Counter.RemainingIncomingGrade));
+				var report = CompleteEmotionalResolution(phase, saved, sourceOutcome.Degree);
+				if (!reflected && report.Status == MagicEffectOperationStatus.Applied && invocation?.Configured is { } reporting)
+					reporting.AppliedIntendedOperation = true;
+				return report.Status == MagicEffectOperationStatus.Rejected;
 			}
 
 			if (TargetResisted(actualTarget, out OpposedOutcome outcome, reflected))
@@ -2022,6 +2042,7 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
 	private void ResolvePreparedSpell(ICharacter magician, IPerceivable target, SpellPower power, CheckOutcome attackOutcome, bool attackPayload = false)
 	{
 		using var capacityChanges = new SpellCapacityBatch();
+		if (EmotionalTemplate is not null) throw new InvalidOperationException(MudSharp.Magic.SpellEffects.SourceEmotionalEffect.RuntimeIntegrationError);
 		if (LifetimeConfigurationError is { } lifetimeError) throw new InvalidOperationException(lifetimeError);
 		var lifetimeParents = new HashSet<MagicSpellParent>(ReferenceEqualityComparer.Instance);
 		if (target is null && _spellEffects.Any(x => x.RequiresTarget))

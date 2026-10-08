@@ -37,7 +37,7 @@ public static partial class ArmageddonPreparedWorldInstaller
 	{
 		var receipts = new List<ArmageddonModuleReceipt>();
 		var availability = new List<ArmageddonPersistedAvailability>();
-		var messages = new List<string> { ProvisionReadiness, WaterSeeReadiness };
+		var messages = new List<string> { ProvisionReadiness, WaterSeeReadiness, EmotionalReadiness };
 		var definitionsCommitted = false;
 		ArmageddonPreparedWorldInstallResult Result(ArmageddonInstallStatus status) =>
 			new(status, receipts.ToArray(), availability.ToArray(), messages.Concat(status != ArmageddonInstallStatus.Completed && receipts.Count > 0
@@ -51,10 +51,14 @@ public static partial class ArmageddonPreparedWorldInstaller
 		try
 		{
 			bindings = FreezeWaterSeeBindings(bindings);
+			if (bindings.Emotions?.CalmSaves is { } saves)
+				bindings = bindings with { Emotions = bindings.Emotions with { CalmSaves = saves.ToArray() } };
 			using (var db = freshContext())
 			{
 				var errors = Validate(db, bindings);
 				if (errors.Count != 0) { messages.AddRange(errors); return Result(ArmageddonInstallStatus.Blocked); }
+				if (bindings.Emotions is { } emotions)
+					bindings = bindings with { Emotions = emotions with { FuryAttribute = ArmageddonEmotionalInstaller.ResolveAttribute(db, emotions.FuryAttribute) } };
 			}
 			ArmageddonInstallResult utilities;
 			using (var db = freshContext()) utilities = ArmageddonMagicInstaller.Install(db, bindings.Utilities,
@@ -65,6 +69,7 @@ public static partial class ArmageddonPreparedWorldInstaller
 			{
 				foreach (var spell in PreservedProvisionSpells(db)) spells.Add(spell.Key, spell.Value);
 				foreach (var spell in PreservedWaterSeeSpells(db)) spells.Add(spell.Key, spell.Value);
+				foreach (var spell in ArmageddonEmotionalInstaller.PreservedSpells(db)) spells.Add(spell.Key, spell.Value);
 				messages.Add(spells.ContainsKey(ArmageddonReviewedProvisionContent.SustainMealKey) ? "Retained existing owned provision spell identities for composition." : "No existing owned provision definitions.");
 			}
 			var plan = new ArmageddonTraditionInstallPlan(true, bindings.Utilities.School, bindings.Utilities.Resource,
@@ -105,12 +110,25 @@ public static partial class ArmageddonPreparedWorldInstaller
 				if (!Record(ArmageddonWaterSeeInstaller.Module, contribution.Status, contribution.Messages, contribution.Identities)) return Result(contribution.Status);
 				foreach (var key in ArmageddonWaterSeeInstaller.SpellKeys) spells[key] = contribution.Identities[key];
 			}
+			if (bindings.Emotions is { } emotionalBindings)
+			{
+				ArmageddonInstallResult contribution;
+				using (var db = freshContext()) contribution = ArmageddonEmotionalInstaller.Install(db,
+					new(true, bindings.Utilities.School, bindings.Utilities.Resource, bindings.Utilities.AlwaysFalseProg,
+						traditions.Identities[ArmageddonEmotionalInstaller.FuryKey + ".skill"],
+						traditions.Identities[ArmageddonEmotionalInstaller.CalmKey + ".skill"], emotionalBindings),
+					x => checkpoint?.Invoke(ArmageddonEmotionalInstaller.Module, x));
+				if (!Record(ArmageddonEmotionalInstaller.Module, contribution.Status, contribution.Messages, contribution.Identities)) return Result(contribution.Status);
+				foreach (var key in ArmageddonEmotionalInstaller.SpellKeys) spells[key] = contribution.Identities[key];
+			}
 			using (var db = freshContext()) traditions = ArmageddonTraditionInstaller.Install(db, plan with { ImplementedSpells = spells },
 				x => checkpoint?.Invoke(ArmageddonTraditionInstaller.Module + ":admissions", x));
 			if (!Record(ArmageddonTraditionInstaller.Module + ":admissions", traditions.Status, traditions.Messages, traditions.Identities)) return Result(traditions.Status);
 			definitionsCommitted = true;
 			using (var db = freshContext()) availability.AddRange(ReadAvailability(db, traditions.Identities));
-			messages.Add("Mend Flesh's definition exists but its source prerequisite path is unavailable. Blank device templates contain no charges; stock Mend-only production/recharge remains unattainable through this partial source graph.");
+			messages.Add(spells.ContainsKey(ArmageddonEmotionalInstaller.FuryKey) && spells.ContainsKey(ArmageddonEmotionalInstaller.CalmKey)
+				? "Fury/Calm definitions extend the source path to Mend Flesh. Stored admissions are reported from actual preserved capability XML; they do not grant player acquisition or qualify device use."
+				: "Mend Flesh's definition exists but its source prerequisite path is unavailable. Blank device templates contain no charges; stock Mend-only production/recharge remains unattainable through this partial source graph.");
 			messages.Add("No new prerequisites, character acquisition/mastery, enrolment, classes, item instances, charge banks or reserve refills. Direct casting and device use still require live runtime eligibility, payment and current entitlement.");
 			return Result(ArmageddonInstallStatus.Completed);
 		}

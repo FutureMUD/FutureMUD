@@ -1,5 +1,7 @@
 # Fury and Calm: final integration proposal
 
+Historical preparation/planning record. Its allocation/refusal statements describe that checkpoint. Current paid runtime, factory registration and optional installer mappings are documented in [Fury/Calm runtime](Armageddon_Fury_Calm_Runtime.md) and the [2026-10-08 continuation](Armageddon_Continuation_20261008.md). Native acceptance remains unrun; old receipts are preserved as history.
+
 This is a proposal-only checkpoint on the isolated `codex/armageddon-five-stock-spells` lane, based on `e380f3ebc03eff886092639ccc79e361f328d1c4`. No live casting, combat, effect, seeder, installer or harness callsite is changed. The coordinator independently cleared See the Unbodied code `25446524` and receipt `e380f3eb`; that is the immutable cleared content boundary. This later plan is not a release-qualified Fury/Calm implementation and must not enter a release candidate by pulling the lane tip wholesale.
 
 The authoritative completion brief was previously read through supported Library access (`libfile_a4606cd0097081918d6c9d9e220e6da0`, `Armageddon_Magic_Completion_Implementation_Brief.md`). Historical rules below use the supplied `codedump.c`, Library `libfile_befb4ae78d1c8191aaa2640c49912d9d`, file `file_00000000438871faac40c5042679ce3a`. This plan needs no new transfer and claims no executor-local cloud path. Committed completion progress remains historical evidence and is unchanged.

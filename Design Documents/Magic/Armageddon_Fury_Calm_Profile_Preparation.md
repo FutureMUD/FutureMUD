@@ -1,5 +1,7 @@
 # Fury and Calm: independent profile preparation
 
+Historical preparation/planning record. Its allocation/refusal statements describe that checkpoint. Current paid runtime, factory registration and optional installer mappings are documented in [Fury/Calm runtime](Armageddon_Fury_Calm_Runtime.md) and the [2026-10-08 continuation](Armageddon_Continuation_20261008.md). Native acceptance remains unrun; old receipts are preserved as history.
+
 This checkpoint follows the proposal at `cc4ca6570408b84334d07609e6379b2f8054120b` and the coordinator's authorization for independent catalogue work. Cleared content `e380f3ebc03eff886092639ccc79e361f328d1c4` remains available unchanged in history. **The magic package is disabled for release until ready.** These new definitions/templates are preparation, not usable Fury/Calm stock or permission to enable that package.
 
 ## Implemented independently

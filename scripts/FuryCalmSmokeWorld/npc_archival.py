@@ -13,6 +13,9 @@ spec.loader.exec_module(s)
 s.report['scope'] = 'retained paid NPC expiry/archival retry and a separate-process completed retry'
 s.report['qualificationMarker'] = 'npc-archival-passed.json'
 for name in ['scripts/FuryCalmSmokeWorld/npc_archival.py', 'MudSharpCore/Character/CharacterArchiveService.cs',
+             'scripts/FuryCalmSmokeWorld/OwnedBoneArmourRepair.cs',
+             'DatabaseSeeder/Seeders/HumanSeeder/HumanSeeder.Bodyparts.cs',
+             'DatabaseSeeder/Seeders/AnimalSeeder/AnimalSeeder.Races.cs',
              'MudSharpCore/Character/NpcArchiveReferencePolicy.cs', 'MudSharpCore/Character/NpcArchiveReferencePolicy.Agriculture.cs',
              'MudSharpCore/Character/NpcArchiveReferencePolicy.Combat.cs', 'MudSharpCore/Body/Implementations/Body.cs',
              'MudSharpCore/Body/Implementations/Body.Archival.cs']:
@@ -47,6 +50,14 @@ try:
     original_hex = s.sql(f'SELECT HEX(Definition) FROM MagicSpells WHERE Id={s.fury_id}')
     s.check('original Fury definition matches the failed receipt restoration',
             hashlib.sha256(bytes.fromhex(original_hex)).hexdigest() == prior['originalDefinitionSha256'])
+    if os.environ.get('FUTUREMUD_NPC_ARMOUR_SOURCE_RECEIPT'):
+        repair = s.fixture('armour-repair')
+        s.check('exact owned bone-armour repair passed with an idempotent rerun',
+                repair['Status'] == 'PASS' and repair['ChangedRows'] in (0, 2) and repair['RerunChangedRows'] == 0)
+        s.report['boneArmourRepair'] = {key: repair[key] for key in
+                                      ['Status', 'SourceReceipt', 'SourceReceiptSha256', 'ChangedRows',
+                                       'BuilderEditRefusals', 'RollbackProbe', 'RerunChangedRows']}
+        s.report['boneArmourRepair']['receipt'] = str(s.runtime / 'fixture-armour-repair.json')
     s.report['archiveReferenceEvidence'] = {
         table: s.sql(f'SELECT Id,HEX(Definition) FROM {table} ORDER BY Id') for table in
         ['AgricultureOperations', 'AgricultureCropDefinitions', 'AgricultureFieldProfiles', 'ArmourTypes']}

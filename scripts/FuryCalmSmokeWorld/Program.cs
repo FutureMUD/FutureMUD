@@ -20,7 +20,7 @@ using MagicSchool = MudSharp.Models.MagicSchool;
 
 // Invoked only by the repository's disposable-world orchestrator, while its MUD is stopped.
 // Test selections are authored here and exported, never added as installer defaults.
-if (args.Length != 3) throw new ArgumentException("Use <owned data directory> <receipt> provision|rerun|restore|failure-cases.");
+if (args.Length != 3) throw new ArgumentException("Use <owned data directory> <receipt> provision|rerun|restore|failure-cases|armour-repair.");
 var connection = Environment.GetEnvironmentVariable("FURY_CALM_SMOKE_CONNECTION")
 	?? throw new InvalidOperationException("Missing owned connection.");
 var cs = new MySqlConnectionStringBuilder(connection);
@@ -99,6 +99,11 @@ if (args[2] == "restore")
 	Require(before == after, "Full database checksums changed across production backup/restore.");
 	File.WriteAllText(receiptPath, JsonSerializer.Serialize(new { Status = "PASS", Backup = backup,
 		DigestBefore = before, DigestAfter = after, Target = cs.Database, OwnedData = expectedData }, jsonOptions));
+	return;
+}
+if (args[2] == "armour-repair")
+{
+	OwnedBoneArmourRepair.Run(sql, runRoot, receiptPath, TableChecksums);
 	return;
 }
 ArmageddonPreparedWorldBindings bindings;

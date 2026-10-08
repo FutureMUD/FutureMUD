@@ -36,6 +36,8 @@ The trace above describes actual identity, write and transaction behavior. Metad
 
 ## Verification and related references
 
+`SetupArmourTypes` emits `Non-Human Natural Bone Armour`. Its chopping dissipation formula is `max(damage*0.1,damage-(quality * 2 * strength/115000))`, matching the existing slashing/piercing reduction and retaining the 10% floor. The previous default's surplus closing parenthesis is corrected at source. [NaturalBoneArmourSeederTests](../../../DatabaseSeeder%20Unit%20Tests/NaturalBoneArmourSeederTests.cs) executes this armour setup against an in-memory context, loads all six runtime formula maps and checks chopping evaluation. The source correction does not overwrite existing builder edits. The exact retained disposable-world repair and its ownership boundary are described in [HumanSeeder](HumanSeeder.md#verification-and-related-references).
+
 The example was checked against source at the pinned baseline. No build, database or gameplay result is claimed. For a future addition, verify first install, selected-path admission, rerun and builder customization boundaries using the owning focused suite; inspect failure and partial-install behavior rather than assuming the success message proves completeness. Follow the [verification map](../../../.codex/references/verification-and-docs.md).
 
 Related source tests and design references:

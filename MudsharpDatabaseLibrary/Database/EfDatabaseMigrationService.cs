@@ -41,7 +41,7 @@ public sealed class EfDatabaseMigrationService : IDatabaseMigrationService
                 TotalMigrations = migrationNames.Count
             });
             migrationIndex++;
-        });
+        }, new CellSpatialRegexFailureInterceptor());
         IMigrator migrator = context.GetService<IMigrator>();
         MigrateToLatest(migrator);
     }
@@ -58,10 +58,15 @@ public sealed class EfDatabaseMigrationService : IDatabaseMigrationService
     }
 
     private static FuturemudDatabaseContext CreateContext(string connectionString,
-        Action<EventData>? migrationApplyingAction = null)
+        Action<EventData>? migrationApplyingAction = null,
+        DbCommandInterceptor? commandFailureInterceptor = null)
     {
         DbContextOptionsBuilder<FuturemudDatabaseContext> optionsBuilder = new();
         optionsBuilder.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
+        if (commandFailureInterceptor is not null)
+        {
+            optionsBuilder.AddInterceptors(commandFailureInterceptor);
+        }
         if (migrationApplyingAction is not null)
         {
             optionsBuilder.LogTo(

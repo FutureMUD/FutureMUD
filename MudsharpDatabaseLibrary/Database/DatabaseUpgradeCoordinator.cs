@@ -128,7 +128,7 @@ public sealed class DatabaseUpgradeCoordinator : IDatabaseUpgradeCoordinator
             TargetMigration = preparation.TargetMigration,
             MigrationAttempted = true
         };
-        state.LastError = exception?.ToString();
+        state.LastError = CellSpatialRegexFailureInterceptor.FormatFailure(exception);
         state.LastFailureUtc = DateTime.UtcNow;
         SaveState(preparation.StateFilePath, state);
 

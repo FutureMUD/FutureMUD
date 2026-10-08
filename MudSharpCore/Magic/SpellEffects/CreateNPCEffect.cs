@@ -15,7 +15,7 @@ using MudSharp.Magic.Lifecycle;
 
 namespace MudSharp.Magic.SpellEffects;
 
-public sealed class CreateNPCEffect : IMagicSpellEffectTemplate, IMagicSpellEffectAdmission
+public sealed partial class CreateNPCEffect : IMagicSpellEffectTemplate, IMagicSpellEffectAdmission, IMagicSpellEffectPreparedSelection
 {
     public static void RegisterFactory()
     {
@@ -170,6 +170,7 @@ public sealed class CreateNPCEffect : IMagicSpellEffectTemplate, IMagicSpellEffe
 		{ error = "Lifecycle NPC creation requires a configured selected-grade native casting invocation."; return false; }
 		if (NPCTemplate is not { } template || template.Status != RevisionStatus.Current)
 		{ error = "The NPC template is missing or not approved."; return false; }
+		if (_preparedSelections.ContainsKey(target) && !TryConfirmPreparedSelection(caster, target, out error)) return false;
 		var casterLocation = RouteSpatialService.Instance.GetEffectiveLocation(caster);
 		var room = target as IRoom ?? casterLocation.Room;
 		var location = ReferenceEquals(room, casterLocation.Room) ? casterLocation : CharacterInstanceService.CreateDefaultSpawnLocation(room, RoomLayer.GroundLevel);
@@ -182,9 +183,7 @@ public sealed class CreateNPCEffect : IMagicSpellEffectTemplate, IMagicSpellEffe
 			{
 				seconds = LifetimeExpression!.EvaluateWith(caster, native.CastingTrait, TraitBonusContext.SpellDuration,
 					("power", (int)power), ("outcome", (int)outcome));
-				if (!double.IsFinite(seconds.Value) || seconds <= 0 || seconds > (DateTime.MaxValue - RuntimeClock.UtcNow).TotalSeconds ||
-					TimeSpan.FromSeconds(seconds.Value) <= TimeSpan.Zero)
-				{ error = "The NPC lifetime must be finite, positive and representable as an absolute UTC deadline."; return false; }
+				if (!ValidLifetime(seconds.Value, out error)) return false;
 			}
 			application = new NativeCreation(Guid.NewGuid(), this, template, caster, location, grade, CharacterInstanceIdentityComparer.IdentityId(caster),
 				seconds, native.InvocationOriginId);

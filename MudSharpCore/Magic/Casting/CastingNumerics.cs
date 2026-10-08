@@ -11,6 +11,26 @@ internal sealed class CastingExpression(ITraitExpression source, ITraitDefinitio
 {
 	private readonly TraitExpression _expression = Snapshot(source, gameworld, location);
 
+	/// <summary>Null means deferred. Never read traits or run functions before the casting roll.</summary>
+	internal bool TryEvaluateFixedInputs(out double? value, out string? error)
+	{
+		value = null;
+		error = null;
+		var inputs = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase)
+		{
+			["grade"] = grade, ["power"] = (int)power, ["mastery"] = controlledGrade
+		};
+		if (_expression.Parameters.Count != 0 || _expression.Formula.FunctionNames.Any() ||
+			_expression.Formula.ParameterNames.Any(name => !inputs.ContainsKey(name))) return true;
+		if (!_expression.Formula.TryEvaluateDoubleWith(inputs, out var result, out var diagnostic))
+		{
+			error = $"{location}: {diagnostic}";
+			return false;
+		}
+		value = result;
+		return true;
+	}
+
 	private static TraitExpression Snapshot(ITraitExpression expression, IFuturemud world, string field)
 	{
 		if (expression is not TraitExpression native)

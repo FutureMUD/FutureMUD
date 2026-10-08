@@ -39,7 +39,7 @@
   "preparation_baseline": "b0e4339d57bf15bc6e6a6f21fbdd5edc73006e38",
   "implementation_branch": "codex/armageddon-continuation-20261008",
   "authorised_scope": "Complete plan in coherent stages; local commits; no publication, merge, deploy or shared/production DB",
-  "selected_stage": "Fury/Calm paid character runtime and optional installer managed checkpoint verified with four inherited snapshot failures; native acceptance unrun under platform restriction",
+  "selected_stage": "Fury/Calm native milestone qualified; NPC prepayment implemented/managed and bounded native cases pass; physical retirement blocked by serialized-reference classification.",
   "phase1_remaining": [
     "Stock installer selects and qualifies the mental/spiritual native attribute, capacity expression/basis and authored energy coefficients.",
     "Complete installed source/support/crafting/chargen wiring and gathering restrictions/environmental accounting remain later stock/native gates.",
@@ -3791,7 +3791,7 @@
     "Complete generated-possession economy/salvage and occupant/cross-body detachment/replacement-morph adapters plus approved per-cast counts, Gate follower-risk/control, Guardian guarding, Mount riding and Courier delivery. Safe destinations must use configured fallback OR recoverable holding with diagnostics (brief255); automatic fallback is not mandatory.",
     "Complete installed stock command/world N14/N15 and high-volume N16 with per-cycle restart; controlled native early death/decay/restart, same-template modes and sixteen heavy/runtime cycles are verified.",
     "Implement remaining reusable effects and all eight approved larger features; later charm must retain the per-spell PC toggle, resolved executable whitelist and queued-action provenance.",
-    "Created leaf items now prepare and bind their finite positive selected-grade lifetime before payment. NPC resolved lifetime (including known constant-zero invalid lifetime) and dynamic spawn validation remain post-check application refusals; qualify their prepayment treatment without changing opposed-outcome semantics in a separate boundary.",
+    "NPC fixed-input lifetime and spawn prepayment admission is implemented and bounded managed/native cases pass. Outcome/trait/function evaluation remains post-roll. Native physical retirement is held by Agriculture Operation/Crop serialized-reference classification; qualify that unchanged gate before expanding lifecycle content.",
     "Raise Servitor queued/selected deadline crossing is implemented and bounded historical native evidence is retained in Armageddon_QueuedCommand_Authority_Verification.json. Do not reimplement this gap. Actual damage/defence, comprehensive authority, later-family guard/rescue, PC-corpse, full installed boot and concurrency remain required."
   ],
   "phase3_dependency_checklist": [
@@ -3878,6 +3878,12 @@
         "receipt": "Armageddon_QueuedCommand_Authority_Verification.json",
         "fresh_execution": false
       }
+    },
+    {
+      "id": "npc_prepayment_lifetime_spawn_admission",
+      "status": "MANAGED_PASS_NATIVE_PREPAYMENT_PASS_RETIREMENT_BLOCKED",
+      "receipt": "Armageddon_Npc_Prepayment_Checkpoint_20261009.json",
+      "acceptance": "Known-invalid fixed lifetime/spawn refuses before payment; dynamic timing preserved; native physical retirement remains failed/unqualified."
     }
   ],
   "checkpoint_history": [
@@ -5571,5 +5577,12 @@
       },
       "snapshot_failures_repaired": true
     }
+  },
+  "npc_prepayment_continuation_20261009": {
+    "status": "MANAGED_PASS_NATIVE_PREPAYMENT_PASS_RETIREMENT_BLOCKED",
+    "receipt": "Armageddon_Npc_Prepayment_Checkpoint_20261009.json",
+    "native_prepayment_cases_passed": true,
+    "native_retirement_qualified": false,
+    "next_bounded_milestone": "Classify known serialized-reference contracts at NPC archival and rerun the unchanged physical-release gate; preserve actual, malformed and unknown-reference holds."
   }
 }

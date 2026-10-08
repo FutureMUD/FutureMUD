@@ -1,0 +1,226 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-09",
+  "status": "MANAGED_PASS_NATIVE_PREPAYMENT_PASS_RETIREMENT_BLOCKED",
+  "branch": "codex/armageddon-continuation-20261008",
+  "parent_commit": "703da3c7a4b2e852ad7989ae65ab18cfa584202b",
+  "full_plan_complete": false,
+  "release_enabled": false,
+  "fury_calm_qualified_receipt": "Armageddon_Fury_Calm_Native_Qualification_20261009.json",
+  "contract": [
+    "Fixed grade/power/mastery formulas with no functions or trait parameters: pure strict finite/positive/UTC-deadline validation before payment, roll, opportunity or reservation.",
+    "Outcome/variable/traits/functions defer; all formulas retain post-roll native evaluation and trait-read timing.",
+    "Per-recipient native template and caster/spawn tokens, fresh-copy reuse and final callback-free fences after all selection confirmations.",
+    "Captured fixed seconds are rechecked against one UTC sample at the final fence; effective route movement is resolved at application.",
+    "Permanent and legacy creation policies preserved; no persistence/schema/snapshot change in this increment."
+  ],
+  "managed": {
+    "focused": {
+      "path": ".artifacts/armageddon-npc-admission-20261009/managed/20261008T155216Z-7b704ab91827/summary.json",
+      "sha256": "504223edb8b7c6bcbed68d5412b8d9363c588793d62f74df6fbbae3a95fb0757"
+    },
+    "counts": {
+      "executed": 152,
+      "passed": 152,
+      "failed": 0,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 152
+    },
+    "source_start": "a68aa682b79904936c837c36624652ac1c0a459a7d44b933fea5de73efaa9f24",
+    "source_end": "a68aa682b79904936c837c36624652ac1c0a459a7d44b933fea5de73efaa9f24",
+    "source_stable": true,
+    "failed_compile_run": ".artifacts/armageddon-npc-admission-20261009/managed/20261008T154319Z-09a9e70994ce/summary.json",
+    "failed_compile_tests_executed": 0,
+    "combined_status": "NOT_RUN"
+  },
+  "native": {
+    "status": "FAIL",
+    "prepayment_cases_passed": true,
+    "qualified_full_npc_milestone": false,
+    "runner": {
+      "path": ".artifacts/authored-celestials/run-8f52a54633e3/smoke-invocation-a4c909cbbbd7/receipt.json",
+      "sha256": "4d89d5e60f05a10acd14b348f3a210c33831168c489d2916d1e3968f16628978"
+    },
+    "runtime": {
+      "path": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-654e9be2/receipt.json",
+      "sha256": "6d0957df95dc946eadbea5addfbbdfd6ce2d4978229b0febebc9cc57bd5a5e8a"
+    },
+    "inputs": {
+      "scripts\\FuryCalmSmokeWorld\\smoke.py": "d6ad52fd36f451976879d99c7d9a0ecfb7adb4b7acaa7d59ce1ab434c71e5afe",
+      "scripts\\FuryCalmSmokeWorld\\Program.cs": "bf381cbeda7eac3d07e3215ea7665bdb37cab081f0c14babdf84ec0739b0615a",
+      "scripts\\AuthoredCelestialSmokeWorld\\native.py": "21ef19f7fa888edf402f14b43d8bfce17d02b3ffb06072b5651518f3d3eb8227",
+      "scripts\\FuryCalmSmokeWorld\\bin\\Debug\\net10.0\\FuryCalmSmokeWorld.dll": "78ec2c1530b4872231d0e32c23dd3f6563086096faf4bd4d70ae9db69f0ff72e",
+      "scripts\\FuryCalmSmokeWorld\\bin\\Debug\\net10.0\\DatabaseSeeder.dll": "85e0007f545e94abf08e0cbdff7b3b9c54c96b918a921bfaca7c7d88bf02201e",
+      "MudSharpCore\\bin\\Debug\\net10.0\\MudSharp.dll": "67b79d2c987a97a23b60ee63f29afe05d935f03f903aa45f1c490be930f2b7bb",
+      "DatabaseSeeder\\Assets\\Database\\BlankDatabaseSnapshot.sql": "0ff4eaed304cf9ce1ab842184f08dc3fc604d86946b023dc50a37a27bde4c3fd",
+      "DatabaseSeeder\\Assets\\Database\\BlankDatabaseSnapshot.manifest.json": "05efa4885d324eb4aa73a14bfe7d61289a2321ea312743849b77ad5c45f4aab1",
+      "scripts\\FuryCalmSmokeWorld\\npc_admission.py": "ae31f780005e22bbd9c96e5bed29d49620e7df7d08f63e5afcd2559419da18e4"
+    },
+    "database": "authored_celestial_smoke",
+    "host": "127.0.0.1",
+    "port": 58998,
+    "owned_root": ".artifacts/authored-celestials/run-8f52a54633e3",
+    "assertions": 92,
+    "passed": 91,
+    "failed": 1,
+    "invalid_formulas": [
+      "0",
+      "-1",
+      "1/0",
+      "1e30"
+    ],
+    "invalid_snapshot_sha256": [
+      {
+        "formula": "0",
+        "sha256": "5eb4ea63a80a403ab12210ca8fd1d5df0aee27e89822b52f0749bda7f6c1e11c",
+        "unchanged": true
+      },
+      {
+        "formula": "-1",
+        "sha256": "5eb4ea63a80a403ab12210ca8fd1d5df0aee27e89822b52f0749bda7f6c1e11c",
+        "unchanged": true
+      },
+      {
+        "formula": "1/0",
+        "sha256": "5eb4ea63a80a403ab12210ca8fd1d5df0aee27e89822b52f0749bda7f6c1e11c",
+        "unchanged": true
+      },
+      {
+        "formula": "1e30",
+        "sha256": "5eb4ea63a80a403ab12210ca8fd1d5df0aee27e89822b52f0749bda7f6c1e11c",
+        "unchanged": true
+      }
+    ],
+    "created_lifecycles": [
+      {
+        "id": "2ae0f792-6c94-4989-862d-43fc9cb8a51a",
+        "formula": "grade*45",
+        "seconds": 45.0,
+        "character": 8,
+        "body": 8
+      },
+      {
+        "id": "ec7bcc3e-6ca0-4d68-9c7e-13ea5c740803",
+        "formula": "45+outcome*5",
+        "seconds": 70.0,
+        "character": 9,
+        "body": 9
+      }
+    ],
+    "original_fury_definition_sha256": "57aee16b8c37991d4c54997c3c3e63719baa771a72ecada9f6d5223b42541b71",
+    "restoration": "PASS: exact original Fury definition restored; payments retained",
+    "restored_runtime_reload": true,
+    "payments_retained": true,
+    "server_processes": [
+      {
+        "output": "server-output-0.log",
+        "returncode": 0,
+        "collectorStopped": true
+      },
+      {
+        "output": "server-output-1.log",
+        "returncode": 0,
+        "collectorStopped": true
+      },
+      {
+        "output": "server-output-2.log",
+        "returncode": 0,
+        "collectorStopped": true
+      },
+      {
+        "output": "server-output-3.log",
+        "returncode": 0,
+        "collectorStopped": true
+      },
+      {
+        "output": "server-output-4.log",
+        "returncode": 0,
+        "collectorStopped": true
+      },
+      {
+        "output": "server-output-5.log",
+        "returncode": 0,
+        "collectorStopped": true
+      },
+      {
+        "output": "server-output-6.log",
+        "returncode": 0,
+        "collectorStopped": true
+      },
+      {
+        "output": "server-output-7.log",
+        "returncode": 0,
+        "collectorStopped": true
+      },
+      {
+        "output": "server-output-8.log",
+        "returncode": 0,
+        "collectorStopped": true
+      }
+    ],
+    "cleanup": {
+      "mysqlStopped": true,
+      "dataPreserved": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\.artifacts\\authored-celestials\\run-8f52a54633e3\\mysql\\data"
+    },
+    "failed_gate": "real native scheduled expiry completes without a hold: 2\t0\tNative retirement held: Unresolved serialized reference or scan limit in AgricultureCropDefinition.Definition; retain the physical graph.",
+    "retirement_observations": [
+      {
+        "id": "2ae0f792-6c94-4989-862d-43fc9cb8a51a",
+        "row": "2\t0\tNative retirement held: Unresolved serialized reference or scan limit in AgricultureCropDefinition.Definition; retain the physical graph."
+      }
+    ],
+    "unexecuted_after_failure": [
+      "first-created physical body/instance release and archive assertions",
+      "second-created lifecycle completion/physical graph release assertions"
+    ],
+    "retained_failures": [
+      "smoke-invocation-e241051a1553/receipt.json: fixture optional-metadata KeyError before MUD or payload mutation",
+      "smoke-invocation-48977a928900/receipt.json: paid creation succeeded; AgricultureOperation.Definition archival hold; exact Fury restoration and six clean MUD exits"
+    ]
+  },
+  "independent_review": {
+    "runtime": "Two read-only passes; no established remaining P1/P2 in fixed/deferred evaluation, deadline fence, movement, permanent/legacy or callback order.",
+    "native": "Count-only/physical-release evidence gaps repaired; final review found no actionable defect. Held retirement still fails gate; reviewer executed no tests."
+  },
+  "restriction": {
+    "current_denial": false,
+    "original_denied_command_unknown": true,
+    "historical_blanket_scope_established": false,
+    "identifiable_denial_cleared": false,
+    "bypass": false
+  },
+  "blocker": {
+    "scope": "Native NPC physical retirement/archival, not prepayment or Fury/Calm qualification.",
+    "confirmed_columns": [
+      "AgricultureOperation.Definition",
+      "AgricultureCropDefinition.Definition"
+    ],
+    "source": [
+      "MudSharpCore/Character/CharacterArchiveService.cs:277",
+      "MudSharpCore/Character/NpcArchiveReferencePolicy.cs:13"
+    ],
+    "evidence": "Generic numeric-token scan conservatively retains physical graph. AgricultureOperation schema has no physical-reference slots; Crop definition adapter is not investigated or implemented here.",
+    "correction": "No row deletion, generic-scan exemption or assertion weakening performed.",
+    "next_bounded_milestone": "Classify known serialized-reference contracts at NPC archival and rerun the unchanged physical-release gate; preserve actual, malformed and unknown-reference holds."
+  },
+  "inventory": {
+    "tracked": 154,
+    "required": 152,
+    "optional": 2,
+    "sorcerer": 82,
+    "roots": 4,
+    "support_rows": 12,
+    "required_larger_features": [
+      "Spring Haven",
+      "Burrow Refuge",
+      "Sand Shelter",
+      "Sand Effigy",
+      "Walking Shadow",
+      "Severing Refuge",
+      "Apex Bane",
+      "Folded Pocket"
+    ]
+  }
+}

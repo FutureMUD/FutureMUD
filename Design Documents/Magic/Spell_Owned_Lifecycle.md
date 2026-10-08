@@ -29,9 +29,26 @@ additional-body guard. Withdrawn approval, a mismatched template world and an un
 native lifecycle service also refuse during configuration validation. Ordinary creation keeps
 its existing role/trait timing and merit composition; extra-body ownership remains deferred.
 
-Resolved temporary lifetime and spawn validation remain effect-application checks after the
-casting result. Lifetime expressions may depend on opposed outcome. This admission correction
-does not move their evaluation or qualify a complete installed gameplay session.
+Configured lifecycle NPC casting now prepares an invocation-local token for each recipient.
+Known invalid spawn rooms, route coordinates and world identity refuse before payment. The
+token retains the approved native template identity/revision/definition, lifecycle service,
+caster body/instance and raw room/layer/route/movement frame. Fresh casting copies reuse those
+tokens. Callback-free structural fences run after all live selection confirmations so a later
+confirmation cannot invalidate an earlier NPC admission and still take payment.
+
+Temporary lifetime preflight uses the casting copy's actual captured expression. Only formulas
+whose parsed inputs are fixed grade, power and mastery, with no trait parameters or functions,
+are evaluated before the roll. Nonpositive, nonfinite, strict-evaluation failures and unrepresentable
+UTC deadlines refuse before payment/reservation/proficiency. Outcome, variable/trait and function
+formulas remain deferred. All formulas retain their existing post-roll evaluation and native
+trait-read timing; the pure precheck does not substitute a cached lifetime. Spawn position is
+resolved again at application, preserving clock-based effective movement rather than freezing
+a prepared coordinate. Legacy creation and permanent lifetimes retain their existing policy.
+The [NPC prepayment checkpoint](Armageddon_Npc_Prepayment_Checkpoint_20261009.json) records 152
+focused managed passes and real payment/refusal/creation cases in the owned restored world.
+Its unchanged native physical retirement gate fails on Agriculture Operation/Crop serialized-reference
+uncertainty; held graphs remain, and body/instance release is unqualified. Earlier creation/retirement
+receipts do not clear this installed-world hold or establish full current lifecycle readiness.
 
 Preparation allocates a stable creation key and canonical creator ID. A fresh serializable
 transaction inserts the production NPC/Character/Body/primary instance graph and exact

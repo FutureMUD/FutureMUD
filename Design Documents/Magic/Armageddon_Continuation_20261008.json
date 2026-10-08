@@ -6375,5 +6375,12 @@
       "evidence": "Available Platform-Restriction-Evidence.md lacks original denied command/reason; original thread unavailable. Current owned workflow completed without denial."
     },
     "snapshot_failures_repaired": true
+  },
+  "npc_prepayment_continuation_20261009": {
+    "status": "MANAGED_PASS_NATIVE_PREPAYMENT_PASS_RETIREMENT_BLOCKED",
+    "receipt": "Armageddon_Npc_Prepayment_Checkpoint_20261009.json",
+    "native_prepayment_cases_passed": true,
+    "native_retirement_qualified": false,
+    "next_bounded_milestone": "Classify known serialized-reference contracts at NPC archival and rerun the unchanged physical-release gate; preserve actual, malformed and unknown-reference holds."
   }
 }

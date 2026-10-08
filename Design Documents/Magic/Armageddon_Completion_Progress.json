@@ -5583,6 +5583,38 @@
     "receipt": "Armageddon_Npc_Prepayment_Checkpoint_20261009.json",
     "native_prepayment_cases_passed": true,
     "native_retirement_qualified": false,
-    "next_bounded_milestone": "Classify known serialized-reference contracts at NPC archival and rerun the unchanged physical-release gate; preserve actual, malformed and unknown-reference holds."
+    "next_bounded_milestone": "Classify known serialized-reference contracts at NPC archival and rerun the unchanged physical-release gate; preserve actual, malformed and unknown-reference holds.",
+    "combined_managed": {
+      "receipt": ".artifacts/armageddon-npc-admission-20261009/combined/20261008T161736Z-8de132824515/summary.json",
+      "sha256": "e17591f90c6ef5a43e9bb2b07c785352b6d0fdd5dc43ab0bec000d6c1fb3b75d",
+      "run": "20261008T161736Z-8de132824515",
+      "head": "7046c8a94e69d2e14dc0950f42dda6b07c942a0b",
+      "counts": {
+        "executed": 8445,
+        "passed": 8445,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 8445
+      },
+      "projects": [
+        "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+        "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+        "MudsharpDatabaseLibrary Unit Tests/MudsharpDatabaseLibrary Unit Tests.csproj",
+        "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj"
+      ],
+      "source_start": "a7b26dd12972a0dcbd21201c345a271f4ca1624b868dedc34b47429e7d3b37d2",
+      "source_end": "a7b26dd12972a0dcbd21201c345a271f4ca1624b868dedc34b47429e7d3b37d2",
+      "source_stable": true,
+      "status": "PASS",
+      "per_project": {
+        "MudSharpCore": 5902,
+        "FutureMUDLibrary": 668,
+        "MudsharpDatabaseLibrary": 264,
+        "DatabaseSeeder": 1611
+      },
+      "attribution": "Final combined run on the implementation commit; only receipt/document metadata is added afterward. Production/test source is unchanged."
+    }
   }
 }

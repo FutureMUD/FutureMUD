@@ -33,7 +33,39 @@
     "source_stable": true,
     "failed_compile_run": ".artifacts/armageddon-npc-admission-20261009/managed/20261008T154319Z-09a9e70994ce/summary.json",
     "failed_compile_tests_executed": 0,
-    "combined_status": "NOT_RUN"
+    "combined_status": "PASS",
+    "combined": {
+      "receipt": ".artifacts/armageddon-npc-admission-20261009/combined/20261008T161736Z-8de132824515/summary.json",
+      "sha256": "e17591f90c6ef5a43e9bb2b07c785352b6d0fdd5dc43ab0bec000d6c1fb3b75d",
+      "run": "20261008T161736Z-8de132824515",
+      "head": "7046c8a94e69d2e14dc0950f42dda6b07c942a0b",
+      "counts": {
+        "executed": 8445,
+        "passed": 8445,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 8445
+      },
+      "projects": [
+        "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+        "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+        "MudsharpDatabaseLibrary Unit Tests/MudsharpDatabaseLibrary Unit Tests.csproj",
+        "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj"
+      ],
+      "source_start": "a7b26dd12972a0dcbd21201c345a271f4ca1624b868dedc34b47429e7d3b37d2",
+      "source_end": "a7b26dd12972a0dcbd21201c345a271f4ca1624b868dedc34b47429e7d3b37d2",
+      "source_stable": true,
+      "status": "PASS",
+      "per_project": {
+        "MudSharpCore": 5902,
+        "FutureMUDLibrary": 668,
+        "MudsharpDatabaseLibrary": 264,
+        "DatabaseSeeder": 1611
+      },
+      "attribution": "Final combined run on the implementation commit; only receipt/document metadata is added afterward. Production/test source is unchanged."
+    }
   },
   "native": {
     "status": "FAIL",
@@ -178,6 +210,11 @@
     "retained_failures": [
       "smoke-invocation-e241051a1553/receipt.json: fixture optional-metadata KeyError before MUD or payload mutation",
       "smoke-invocation-48977a928900/receipt.json: paid creation succeeded; AgricultureOperation.Definition archival hold; exact Fury restoration and six clean MUD exits"
+    ],
+    "limits": [
+      "Native cases temporarily replace only the owned Fury fixture payload and restore its exact original bytes; no new catalogue NPC stock is claimed.",
+      "Route movement, callback invalidation, permanent/legacy and trait/RNG evaluation timing have managed coverage in this increment; no corresponding native qualification claimed.",
+      "Current physical retirement is failed/unqualified; high-volume restart and full N14-N16 remain pending."
     ]
   },
   "independent_review": {
@@ -222,5 +259,6 @@
       "Apex Bane",
       "Folded Pocket"
     ]
-  }
+  },
+  "implementation_commit": "7046c8a94e69d2e14dc0950f42dda6b07c942a0b"
 }

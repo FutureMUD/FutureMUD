@@ -1,5 +1,7 @@
 # Armageddon continuation checkpoint — 8 October 2026
 
+Current combined managed validation: **8,445 passed / 0 failed / 0 skipped** on stable implementation `7046c8a94e69d2e14dc0950f42dda6b07c942a0b` (Core 5,902; Library 668; Database 264; Seeder 1,611). All four builds/test hosts exited zero. This clears the inherited snapshot debt in a fresh combined run; the separate native NPC archival failure remains open. The checkpoint records exact source fingerprints and local receipts.
+
 The current user request authorizes staged local implementation and branch integration. The original 905-line completion brief is scope authority, with current user instructions taking precedence over its older design-only workflow. The brief was read in full from the supplied Downloads file; its SHA-256 and the exact candidate inventory are in the [machine-readable checkpoint](Armageddon_Continuation_20261008.json).
 
 ## Branch reconciliation

@@ -102,6 +102,7 @@ public class ItemOwnershipDurabilityTests
 		gameworld.SetupGet(x => x.SaveManager).Returns(saveManager.Object);
 
 		var stack = new Mock<IStackable>();
+		stack.SetupGet(x => x.Quantity).Returns(1);
 		stack.Setup(x => x.PreventsMerging(It.IsAny<IGameItemComponent>())).Returns(false);
 		stack.Setup(x => x.FinaliseLoad());
 		var componentProto = new Mock<IGameItemComponentProto>();

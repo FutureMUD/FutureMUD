@@ -6,6 +6,7 @@ using MudSharp.Accounts;
 using MudSharp.Character;
 using MudSharp.Framework;
 using MudSharp.Network;
+using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Handlers;
 using System;
 using System.Collections.Generic;
@@ -15,6 +16,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using System.Threading.Channels;
 using System.Threading.Tasks;
 
 namespace MudSharp_Unit_Tests;
@@ -22,6 +24,55 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class NetworkWorkflowTests
 {
+	[DataTestMethod]
+	[DataRow(false)]
+	[DataRow(true)]
+	public async Task AttemptCommand_FailureClosesOnlyOffendingConnectionEvenIfLoggingFails(bool loggingFails)
+	{
+		var failedTransport = new TestConnectionTransport();
+		var logs = new List<string>();
+		using var failed = new PlayerConnection(failedTransport, TimeProvider.System, new TestNetworkTelemetry(), log =>
+		{
+			logs.Add(log);
+			if (loggingFails) throw new System.IO.IOException("fixture log failure");
+		});
+		var failedContext = CreateControlContext(new List<string>());
+		var failedOutput = new Mock<IOutputHandler>();
+		failedOutput.SetupGet(x => x.HasBufferedOutput).Returns(true);
+		failedContext.SetupGet(x => x.OutputHandler).Returns(failedOutput.Object);
+		failedContext.Setup(x => x.CuePrompt()).Throws(new InvalidOperationException("fixture failed prompt"));
+		failedContext.Setup(x => x.HandleCommand("get empty-stack"))
+			.Throws(new InvalidOperationException("fixture command failure"));
+		failed.Bind(failedContext.Object);
+		failed.StartTransport();
+		var healthyTransport = new TestConnectionTransport();
+		using var healthy = new PlayerConnection(healthyTransport, TimeProvider.System, new TestNetworkTelemetry());
+		var healthyCommands = new List<string>();
+		healthy.Bind(CreateControlContext(healthyCommands).Object);
+		healthy.StartTransport();
+		failedTransport.QueueInput("get empty-stack\rqueued-command\r");
+		healthyTransport.QueueInput("look\r");
+		await WaitUntil(() => failed.HasIncomingCommands && healthy.HasIncomingCommands);
+
+		failed.AttemptCommand();
+		failed.AttemptCommand();
+		failed.PrepareOutgoing();
+		healthy.AttemptCommand();
+
+		Assert.AreEqual(ConnectionState.Closing, failed.State);
+		Assert.IsTrue(failed.IsReadyForDisposal);
+		failedContext.Verify(x => x.HandleCommand("get empty-stack"), Times.Once);
+		failedContext.Verify(x => x.HandleCommand("queued-command"), Times.Never);
+		failedContext.Verify(x => x.CuePrompt(), Times.Never);
+		failedContext.Verify(x => x.UpdateObservers(), Times.Never);
+		Assert.AreEqual(1, logs.Count);
+		StringAssert.Contains(logs[0], "get empty-stack");
+		StringAssert.Contains(logs[0], "fixture command failure");
+		CollectionAssert.AreEqual(new[] { "look" }, healthyCommands);
+		Assert.AreEqual(ConnectionState.Open, healthy.State);
+		await failed.TransportCompletion.WaitAsync(TimeSpan.FromSeconds(2));
+	}
+
 	[TestMethod]
 	public async Task PlayerConnection_DoesNotEnqueuePartialCommandBeforeLineEnding()
 	{
@@ -548,6 +599,9 @@ public class NetworkWorkflowTests
 	private sealed class TestConnectionTransport(int maximumWriteSize = int.MaxValue) : IConnectionTransport
 	{
 		private readonly List<byte> _output = [];
+		private readonly Channel<byte[]> _input = Channel.CreateUnbounded<byte[]>();
+
+		public void QueueInput(string text) => _input.Writer.TryWrite(Encoding.ASCII.GetBytes(text));
 
 		public string IP => IPAddress.Loopback.ToString();
 		public EndPoint RemoteEndPoint => new IPEndPoint(IPAddress.Loopback, 4000);
@@ -564,8 +618,9 @@ public class NetworkWorkflowTests
 
 		public async ValueTask<int> ReceiveAsync(Memory<byte> buffer, CancellationToken cancellationToken)
 		{
-			await Task.Delay(Timeout.InfiniteTimeSpan, cancellationToken);
-			return 0;
+			var input = await _input.Reader.ReadAsync(cancellationToken);
+			input.AsMemory().CopyTo(buffer);
+			return input.Length;
 		}
 
 		public ValueTask<int> SendAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken)

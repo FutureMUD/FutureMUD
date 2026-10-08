@@ -2424,7 +2424,8 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
     public bool CanMerge(IGameItem otherItem)
     {
 		if (SpellCreationOrigin?.IsTemporary == true || otherItem.SpellCreationOrigin?.IsTemporary == true) return false;
-        if (Deleted)
+        if (Deleted || Destroyed || otherItem.Deleted || otherItem.Destroyed ||
+			GetItemType<IStackable>() is { Quantity: <= 0 } || otherItem.GetItemType<IStackable>() is { Quantity: <= 0 })
         {
             return false;
         }
@@ -2587,6 +2588,11 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 
     public ItemGetResponse CanGet(ItemCanGetIgnore ignoreFlags = ItemCanGetIgnore.None)
     {
+		if (Deleted || Destroyed || GetItemType<IStackable>() is { Quantity: <= 0 })
+		{
+			return ItemGetResponse.Unpositionable;
+		}
+
         if (!IsItemType<IHoldable>() || !GetItemType<IHoldable>().IsHoldable)
         {
             return ItemGetResponse.NotIHoldable;
@@ -2726,6 +2732,9 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
                   !ReferenceEquals(ContainedIn, sourceContainer) || !ReferenceEquals(holdable?.HeldBy, sourceHolder) ||
 				RoomLayer != sourceLayer || RoutePositionMetres != sourceRoutePosition) return false;
         }
+
+		// Prepared recovery must not publish a floor claim for a stack emptied by Taken callbacks.
+		if (destination is not null && GetItemType<IStackable>() is { Quantity: <= 0 }) return false;
 
         holdable?.HeldBy = null;
 

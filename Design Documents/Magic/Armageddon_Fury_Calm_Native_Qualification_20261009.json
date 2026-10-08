@@ -1,0 +1,395 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-09",
+  "status": "PASS_BOUNDED_FURY_CALM_NATIVE_MILESTONE",
+  "qualification_scope": "Named installed Fury/Calm gates; not full programme readiness or balance",
+  "release_disabled": true,
+  "full_plan_complete": false,
+  "baseline_checkpoint": "26e20fe500345f1f310c308e6c385464817706c4",
+  "managed": [
+    {
+      "scope": "snapshot-managed",
+      "receipt": ".artifacts/fury-calm-native-20261008/snapshot-managed/20261008T115600Z-d10d334cf566/summary.json",
+      "run": "20261008T115600Z-d10d334cf566",
+      "configuration": "Debug",
+      "counts": {
+        "executed": 7,
+        "passed": 7,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 7
+      },
+      "source_start": "9a05171f1d0e2384f5bbc3c751f177e0126f14f8d8332cbc106148c737420fe3",
+      "source_end": "9a05171f1d0e2384f5bbc3c751f177e0126f14f8d8332cbc106148c737420fe3",
+      "source_stable": true
+    },
+    {
+      "scope": "seeder-repair-managed",
+      "receipt": ".artifacts/fury-calm-native-20261008/seeder-repair-managed/20261008T123447Z-532149f4d090/summary.json",
+      "run": "20261008T123447Z-532149f4d090",
+      "configuration": "Debug",
+      "counts": {
+        "executed": 1608,
+        "passed": 1608,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 1608
+      },
+      "source_start": "5bca95344dbfbbb444ae40eed3e569178efcd777afb64f31924ffd94a900adb9",
+      "source_end": "5bca95344dbfbbb444ae40eed3e569178efcd777afb64f31924ffd94a900adb9",
+      "source_stable": true
+    },
+    {
+      "scope": "retained-pierce-managed",
+      "receipt": ".artifacts/fury-calm-native-20261008/retained-pierce-managed/20261008T133555Z-2b5c1f41721d/summary.json",
+      "run": "20261008T133555Z-2b5c1f41721d",
+      "configuration": "Debug",
+      "counts": {
+        "executed": 3,
+        "passed": 3,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 3
+      },
+      "source_start": "fc603f67eca21519796801594c4e7b9f23f32d3b6ccb03678b7d749ee42cb072",
+      "source_end": "fc603f67eca21519796801594c4e7b9f23f32d3b6ccb03678b7d749ee42cb072",
+      "source_stable": true
+    },
+    {
+      "scope": "release-disabled",
+      "receipt": ".artifacts/fury-calm-native-20261008/release-disabled/20261008T133640Z-c6510b18cb8c/summary.json",
+      "run": "20261008T133640Z-c6510b18cb8c",
+      "configuration": "Release",
+      "counts": {
+        "executed": 3,
+        "passed": 3,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 3
+      },
+      "source_start": "fc603f67eca21519796801594c4e7b9f23f32d3b6ccb03678b7d749ee42cb072",
+      "source_end": "fc603f67eca21519796801594c4e7b9f23f32d3b6ccb03678b7d749ee42cb072",
+      "source_stable": true
+    },
+    {
+      "scope": "startcombat-managed",
+      "receipt": ".artifacts/fury-calm-native-20261008/startcombat-managed/20261008T152034Z-db03ecae1512/summary.json",
+      "run": "20261008T152034Z-db03ecae1512",
+      "configuration": "Debug",
+      "counts": {
+        "executed": 24,
+        "passed": 24,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 24
+      },
+      "source_start": "360c3a4bce0aea0342e6196ccb133c50d2b0e12b4286fb2fe16d56882f25d218",
+      "source_end": "360c3a4bce0aea0342e6196ccb133c50d2b0e12b4286fb2fe16d56882f25d218",
+      "source_stable": true
+    }
+  ],
+  "native_phases": [
+    {
+      "phase": "slice",
+      "receipt": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-slice-passed.json",
+      "sha256": "8a1ac84e6ef3ff5983992c5190345eb1e74a8e07e6adb0a2a655815d42c7c3d1",
+      "invocation_receipt": ".artifacts/authored-celestials/run-8f52a54633e3/smoke-invocation-5247189c0736/receipt.json",
+      "status": "PASS",
+      "assertions": 47,
+      "revision": "26e20fe500345f1f310c308e6c385464817706c4",
+      "inputs": {
+        "scripts\\FuryCalmSmokeWorld\\smoke.py": "788ab013970aa2bf383745ec50a1d60417b2c092f18f439465ff1ffcfeb4339c",
+        "scripts\\FuryCalmSmokeWorld\\Program.cs": "876b357e7b80c3653bf250218c57f03aed4e0207e786319c8a385ed0afc8b18c",
+        "scripts\\AuthoredCelestialSmokeWorld\\native.py": "c6931954764038d33992a80accbe4819c04c240ba853b0e314d610daee6b0887",
+        "scripts\\FuryCalmSmokeWorld\\bin\\Debug\\net10.0\\FuryCalmSmokeWorld.dll": "d02f50e925b1ea7cba5b9c1bc54fdc503d530aa32e1cf17bd3b61171da79cdc2",
+        "scripts\\FuryCalmSmokeWorld\\bin\\Debug\\net10.0\\DatabaseSeeder.dll": "85e0007f545e94abf08e0cbdff7b3b9c54c96b918a921bfaca7c7d88bf02201e",
+        "MudSharpCore\\bin\\Debug\\net10.0\\MudSharp.dll": "8bd467f72d37c914b01fd596d5e02b18d93b2fc0a3d99ea2460dd22ab1306e63",
+        "DatabaseSeeder\\Assets\\Database\\BlankDatabaseSnapshot.sql": "0ff4eaed304cf9ce1ab842184f08dc3fc604d86946b023dc50a37a27bde4c3fd",
+        "DatabaseSeeder\\Assets\\Database\\BlankDatabaseSnapshot.manifest.json": "05efa4885d324eb4aa73a14bfe7d61289a2321ea312743849b77ad5c45f4aab1"
+      },
+      "cleanup": {
+        "mysqlStopped": true,
+        "dataPreserved": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\.artifacts\\authored-celestials\\run-8f52a54633e3\\mysql\\data"
+      }
+    },
+    {
+      "phase": "installer-failures",
+      "receipt": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-installer-failures-passed.json",
+      "sha256": "30ee58a0cc7dae3eb36c672bf46023b0dfc48aac87fc9e107acbc3b7041f521b",
+      "invocation_receipt": ".artifacts/authored-celestials/run-8f52a54633e3/smoke-invocation-8fdc5929e71d/receipt.json",
+      "status": "PASS",
+      "assertions": 3,
+      "revision": "26e20fe500345f1f310c308e6c385464817706c4",
+      "inputs": {
+        "scripts\\FuryCalmSmokeWorld\\smoke.py": "788ab013970aa2bf383745ec50a1d60417b2c092f18f439465ff1ffcfeb4339c",
+        "scripts\\FuryCalmSmokeWorld\\Program.cs": "bf381cbeda7eac3d07e3215ea7665bdb37cab081f0c14babdf84ec0739b0615a",
+        "scripts\\AuthoredCelestialSmokeWorld\\native.py": "21ef19f7fa888edf402f14b43d8bfce17d02b3ffb06072b5651518f3d3eb8227",
+        "scripts\\FuryCalmSmokeWorld\\bin\\Debug\\net10.0\\FuryCalmSmokeWorld.dll": "78ec2c1530b4872231d0e32c23dd3f6563086096faf4bd4d70ae9db69f0ff72e",
+        "scripts\\FuryCalmSmokeWorld\\bin\\Debug\\net10.0\\DatabaseSeeder.dll": "85e0007f545e94abf08e0cbdff7b3b9c54c96b918a921bfaca7c7d88bf02201e",
+        "MudSharpCore\\bin\\Debug\\net10.0\\MudSharp.dll": "8bd467f72d37c914b01fd596d5e02b18d93b2fc0a3d99ea2460dd22ab1306e63",
+        "DatabaseSeeder\\Assets\\Database\\BlankDatabaseSnapshot.sql": "0ff4eaed304cf9ce1ab842184f08dc3fc604d86946b023dc50a37a27bde4c3fd",
+        "DatabaseSeeder\\Assets\\Database\\BlankDatabaseSnapshot.manifest.json": "05efa4885d324eb4aa73a14bfe7d61289a2321ea312743849b77ad5c45f4aab1",
+        "scripts\\FuryCalmSmokeWorld\\installer_failures.py": "5fb174dfbf65df6ac2694dfe6bb1eb216b4de1122f09bd56daf43fb6ed32b8c9"
+      },
+      "cleanup": {
+        "mysqlStopped": true,
+        "dataPreserved": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\.artifacts\\authored-celestials\\run-8f52a54633e3\\mysql\\data"
+      }
+    },
+    {
+      "phase": "lifecycle",
+      "receipt": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-lifecycle-passed.json",
+      "sha256": "948553ba45b90b0ab8b86646752f381493b2fb067dd1d7a49b04e08d55717885",
+      "invocation_receipt": ".artifacts/authored-celestials/run-8f52a54633e3/smoke-invocation-50b7bf0db23e/receipt.json",
+      "status": "PASS",
+      "assertions": 167,
+      "revision": "26e20fe500345f1f310c308e6c385464817706c4",
+      "inputs": {
+        "scripts\\FuryCalmSmokeWorld\\smoke.py": "788ab013970aa2bf383745ec50a1d60417b2c092f18f439465ff1ffcfeb4339c",
+        "scripts\\FuryCalmSmokeWorld\\Program.cs": "bf381cbeda7eac3d07e3215ea7665bdb37cab081f0c14babdf84ec0739b0615a",
+        "scripts\\AuthoredCelestialSmokeWorld\\native.py": "21ef19f7fa888edf402f14b43d8bfce17d02b3ffb06072b5651518f3d3eb8227",
+        "scripts\\FuryCalmSmokeWorld\\bin\\Debug\\net10.0\\FuryCalmSmokeWorld.dll": "78ec2c1530b4872231d0e32c23dd3f6563086096faf4bd4d70ae9db69f0ff72e",
+        "scripts\\FuryCalmSmokeWorld\\bin\\Debug\\net10.0\\DatabaseSeeder.dll": "85e0007f545e94abf08e0cbdff7b3b9c54c96b918a921bfaca7c7d88bf02201e",
+        "MudSharpCore\\bin\\Debug\\net10.0\\MudSharp.dll": "8bd467f72d37c914b01fd596d5e02b18d93b2fc0a3d99ea2460dd22ab1306e63",
+        "DatabaseSeeder\\Assets\\Database\\BlankDatabaseSnapshot.sql": "0ff4eaed304cf9ce1ab842184f08dc3fc604d86946b023dc50a37a27bde4c3fd",
+        "DatabaseSeeder\\Assets\\Database\\BlankDatabaseSnapshot.manifest.json": "05efa4885d324eb4aa73a14bfe7d61289a2321ea312743849b77ad5c45f4aab1",
+        "scripts\\FuryCalmSmokeWorld\\lifecycle.py": "d06e4567384b6d13c0518b2ee508bfba650755f356ccfe747ae4d4229a2f0c34"
+      },
+      "cleanup": {
+        "mysqlStopped": true,
+        "dataPreserved": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\.artifacts\\authored-celestials\\run-8f52a54633e3\\mysql\\data"
+      }
+    },
+    {
+      "phase": "combat",
+      "receipt": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-combat-passed.json",
+      "sha256": "9dcfe451781ddaeb3f5e22da1a54a903767de621e4b6ac0bedb475644fc6ea04",
+      "invocation_receipt": ".artifacts/authored-celestials/run-8f52a54633e3/smoke-invocation-ebdf31f70bcb/receipt.json",
+      "status": "PASS",
+      "assertions": 294,
+      "revision": "26e20fe500345f1f310c308e6c385464817706c4",
+      "inputs": {
+        "scripts\\FuryCalmSmokeWorld\\smoke.py": "d6ad52fd36f451976879d99c7d9a0ecfb7adb4b7acaa7d59ce1ab434c71e5afe",
+        "scripts\\FuryCalmSmokeWorld\\Program.cs": "bf381cbeda7eac3d07e3215ea7665bdb37cab081f0c14babdf84ec0739b0615a",
+        "scripts\\AuthoredCelestialSmokeWorld\\native.py": "21ef19f7fa888edf402f14b43d8bfce17d02b3ffb06072b5651518f3d3eb8227",
+        "scripts\\FuryCalmSmokeWorld\\bin\\Debug\\net10.0\\FuryCalmSmokeWorld.dll": "78ec2c1530b4872231d0e32c23dd3f6563086096faf4bd4d70ae9db69f0ff72e",
+        "scripts\\FuryCalmSmokeWorld\\bin\\Debug\\net10.0\\DatabaseSeeder.dll": "85e0007f545e94abf08e0cbdff7b3b9c54c96b918a921bfaca7c7d88bf02201e",
+        "MudSharpCore\\bin\\Debug\\net10.0\\MudSharp.dll": "2bc765d3ef2f8420c0b24801710cab6bd8dd0caf5be823b70e16662413d1010f",
+        "DatabaseSeeder\\Assets\\Database\\BlankDatabaseSnapshot.sql": "0ff4eaed304cf9ce1ab842184f08dc3fc604d86946b023dc50a37a27bde4c3fd",
+        "DatabaseSeeder\\Assets\\Database\\BlankDatabaseSnapshot.manifest.json": "05efa4885d324eb4aa73a14bfe7d61289a2321ea312743849b77ad5c45f4aab1",
+        "scripts\\FuryCalmSmokeWorld\\combat.py": "3f62bf43c2cfac06f0aead6953bb1eeb2273789a128330ad08989c9ec67b1512"
+      },
+      "cleanup": {
+        "mysqlStopped": true,
+        "dataPreserved": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\.artifacts\\authored-celestials\\run-8f52a54633e3\\mysql\\data"
+      }
+    }
+  ],
+  "owned_world": ".artifacts/authored-celestials/run-8f52a54633e3",
+  "database": "authored_celestial_smoke",
+  "workflow": "Maintained AuthoredCelestialSmokeWorld runner, standard Debug replay, production MySqlDatabaseBackupService and skill Telnet helper",
+  "validation_boundary": "Each accepted phase records its own source/binary hashes and actual fresh scenario/cleanup receipt. The first three phases precede the narrow StartCombat world assignment; the combat phase and 24 managed regressions exercise that correction. Seeder binaries and snapshot match across the four accepted phases. After the first slice, the owned runner additionally retired stale markers before a new invocation; the shared smoke helper gained stdout retention before combat. Those evidence improvements do not replace earlier actual gameplay/restore observations. No single combined frozen-run total or rerun of earlier phases on the final Core binary is claimed.",
+  "reviewed_production_delta_after_first_three_phases": "Only StartCombat.cs assigns Gameworld to its new ProgCombat before joining; Fury/Calm, payment, lifecycle and persistence code are unchanged. Native callback phase exercises this factory. Independent focused review cleared the correction.",
+  "selected_bindings": {
+    "managed_records": 217,
+    "payloads": 12,
+    "admissions_per_variant": 12,
+    "universal_counts": false
+  },
+  "cleanup": {
+    "mysql_stopped": true,
+    "mud_stopped": true,
+    "disposable_data_retained": true,
+    "shared_or_production_mutations": false
+  },
+  "restriction": {
+    "current_denial": false,
+    "original_denied_command_unknown": true,
+    "historical_blanket_scope_established": false,
+    "identifiable_denial_cleared": false,
+    "bypass": false,
+    "evidence": "Available Platform-Restriction-Evidence.md lacks original denied command/reason; original thread unavailable. Current owned workflow completed without denial."
+  },
+  "retained_failed_attempts": [
+    {
+      "receipt": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-056fc11d/receipt.json",
+      "status": "FAIL",
+      "error": "prog execute qafc056fc11dtrait 3: You do not see anybody like that here to target at parameter 1.\n\n\n<You are currently in no pain>\n<Stamina: 350/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n",
+      "fixture_restoration": "PASS: temporary mappings and raw attribute restored; payment retained"
+    },
+    {
+      "receipt": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-17e76dd2/receipt.json",
+      "status": "FAIL",
+      "error": "native fixture rerun: ect, MethodInfo method, IArgumentProvider arguments)\n   at System.Linq.Expressions.Interpreter.LightCompiler.CompileConvertUnaryExpression(Expression expr)\n   at System.Linq.Expressions.Expression`1.Compile(Boolean preferInterpretation)\n   at Microsoft.EntityFrameworkCore.Query.Internal.ExpressionTreeFuncletizer.<Evaluate>g__EvaluateCore|75_0(Expression expression, String& parameterName, Boolean& isContextAccessor)\n   --- End of inner exception stack trace ---\n   at Microsoft.EntityFrameworkCore.Query.Internal.ExpressionTreeFuncletizer.<Evaluate>g__EvaluateCore|75_0(Expression expression, String& parameterName, Boolean& isContextAccessor)\n   at Microsoft.EntityFrameworkCore.Query.Internal.ExpressionTreeFuncletizer.ProcessEvaluatableRoot(Expression evaluatableRoot, State& state, Boolean forceEvaluation)\n   at Microsoft.EntityFrameworkCore.Query.Internal.ExpressionTreeFuncletizer.EvaluateList(IReadOnlyList`1 expressions, State[] expressionStates, List`1& children, Func`2 pathFromParentGenerator)\n   at Microsoft.EntityFrameworkCore.Query.Internal.ExpressionTreeFuncletizer.VisitMethodCall(MethodCallExpression methodCall)\n   at Microsoft.EntityFrameworkCore.Query.Internal.ExpressionTreeFuncletizer.VisitLambda[T](Expression`1 lambda)\n   at Microsoft.EntityFrameworkCore.Query.Internal.ExpressionTreeFuncletizer.VisitUnary(UnaryExpression unary)\n   at Microsoft.EntityFrameworkCore.Query.Internal.ExpressionTreeFuncletizer.VisitMethodCall(MethodCallExpression methodCall)\n   at Microsoft.EntityFrameworkCore.Query.Internal.ExpressionTreeFuncletizer.VisitMethodCall(MethodCallExpression methodCall)\n   at Microsoft.EntityFrameworkCore.Query.Internal.QueryCompiler.Execute[TResult](Expression query)\n   at Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1.GetEnumerator()\n   at System.Linq.Enumerable.<ToArray>g__EnumerableToArray|324_0[TSource](IEnumerable`1 source)\n   at Program.<>c__DisplayClass0_0.<<Main>$>g__InstallerRows|5(String suffix) in C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\scripts\\FuryCalmSmokeWorld\\Program.cs:line 71\n   at Program.<Main>$(String[] args) in C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\scripts\\FuryCalmSmokeWorld\\Program.cs:line 213\n",
+      "fixture_restoration": null
+    },
+    {
+      "receipt": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-238e2c5d/receipt.json",
+      "status": "FAIL",
+      "error": "prog execute qafc238e2c5dbegin qatarget: ",
+      "fixture_restoration": "FAIL: [WinError 10054] An existing connection was forcibly closed by the remote host"
+    },
+    {
+      "receipt": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-46696489/receipt.json",
+      "status": "FAIL",
+      "error": "ERROR 1146 (42S02) at line 1: Table 'authored_celestial_smoke.charactersmagicresources' doesn't exist\n",
+      "fixture_restoration": null
+    },
+    {
+      "receipt": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-4f4f3aad/receipt.json",
+      "status": "FAIL",
+      "error": "invalid literal for int() with base 10: ''",
+      "fixture_restoration": "PASS: temporary Calm settings and caster skill restored; payment retained"
+    },
+    {
+      "receipt": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-5712df98/receipt.json",
+      "status": "FAIL",
+      "error": "native combat skills resolve unambiguously: {\"settings\": \"1\\tMelee\\t\\u0001\\n2\\tMelee (Auto)\\t\\u0001\\n3\\tCautious Melee\\t\\u0001\\n4\\tCautious Melee (Auto)\\t\\u0001\\n5\\tJuggernaut\\t\\u0001\\n6\\tJuggernaut (Auto)\\t\\u0001\\n7\\tManual\\t\\u0001\\n8\\tShielder\\t\\u0001\\n9\\tShielder (Auto)\\t\\u0001\\n10\\tZweihander\\t\\u0001\\n11\\tZweihander (Auto)\\t\\u0001\\n12\\tClincher\\t\\u0001\\n13\\tClincher (Auto)\\t\\u0001\\n14\\tWarder\\t\\u0001\\n15\\tWarder (Auto)\\t\\u0001\\n16\\tDefender\\t\\u0001\\n17\\tDefender (Auto)\\t\\u0001\\n18\\tPistolier\\t\\u0001\\n19\\tPistolier (Auto)\\t\\u0001\\n20\\tMusketeer\\t\\u0001\\n21\\tMusketeer (Auto)\\t\\u0001\\n22\\tInfantryman\\t\\u0001\\n23\\tInfantryman (Auto)\\t\\u0001\\n24\\tSkirmisher\\t\\u0001\\n25\\tSkirmisher (Auto)\\t\\u0001\\n26\\tMarksman\\t\\u0001\\n27\\tMarksman (Auto)\\t\\u0001\\n28\\tBrawler\\t\\u0001\\n29\\tBrawler (Auto)\\t\\u0001\\n30\\tPitfighter\\t\\u0001\\n31\\tPitfighter (Auto)\\t\\u0001\\n32\\tSwarmer\\t\\u0001\\n33\\tSwarmer (Auto)\\t\\u0001\\n34\\tOutboxer\\t\\u0001\\n35\\tOutboxer (Auto)\\t\\u0001\\n36\\tGrappler\\t\\u0001\\n37\\tGrappler (Auto)\\t\\u0001\\n38\\tBonebreaker\\t\\u0001\\n39\\tBonebreaker (Auto)\\t\\u0001\\n40\\tStrangler\\t\\u0001\\n41\\tStrangler (Auto)\\t\\u0001\\n42\\tDual Wielder\\t\\u0001\\n43\\tDual Wielder (Auto)\\t\\u0001\\n44\\tDual Wield Clincher\\t\\u0001\\n45\\tDual Wield Clincher (Auto)\\t\\u0001\\n46\\tPolearm Warder\\t\\u0001\\n47\\tPolearm Warder (Auto)\\t\\u0001\\n48\\tSpear Warder\\t\\u0001\\n49\\tSpear Warder (Auto)\\t\\u0001\\n50\\tBeast Brawler\\t\\u0001\\n51\\tBeast Clincher\\t\\u0001\\n52\\tBeast Behemoth\\t\\u0001\\n53\\tBeast Skirmisher\\t\\u0001\\n54\\tBeast Swooper\\t\\u0001\\n55\\tBeast Drowner\\t\\u0001\\n56\\tBeast Dropper\\t\\u0001\\n57\\tBeast Physical Avoider\\t\\u0001\\n58\\tBeast Artillery\\t\\u0001\\n59\\tBeast Aquatic Brawler\\t\\u0001\\n60\\tBeast Aquatic Clincher\\t\\u0001\\n61\\tBeast Aquatic Behemoth\\t\\u0001\\n62\\tBeast Aquatic Skirmisher\\t\\u0001\\n63\\tBeast Aquatic Artillery\\t\\u0001\\n64\\tBeast Coward\\t\\u0001\\n65\\tConstruct Brawler\\t\\u0001\\n66\\tConstruct Skirmisher\\t\\u0001\\n67\\tConstruct Artillery\\t\\u0001\\n68\\tCavalry Charge\\t\\u0001\\n69\\tMounted Skirmisher\\t\\u0001\\n70\\tMounted Hit and Run\\t\\u0001\\n71\\tAnimal\\t\\u0001\\n72\\tBiter\\t\\u0001\\n73\\tBehemoth\\t\\u0001\\n74\\tSwooper\\t\\u0001\\n75\\tWimpy Animal\\t\\u0001\", \"skills\": \"108\\tDodge\\tNULL\\t0\\n109\\tBrawling\\tNULL\\t0\\n136\\tDodging\\tNULL\\t0\"}",
+      "fixture_restoration": "PASS: temporary Calm settings and caster skill restored; payment retained"
+    },
+    {
+      "receipt": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-5ab035d6/receipt.json",
+      "status": "FAIL",
+      "error": "prog execute qafc5ab035d6begin qatarget: Executing qafc5ab035d6begin (#3943) with the following parameters:\n\n  Character target: a qatarget human\n\n==================================================================\nIt returned False.\nIt took approximately 3,884,000 nanoseconds to execute.\n\n\n\n<You are currently in no pain>\n<Stamina: 350/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n",
+      "fixture_restoration": "PASS: temporary Calm settings and caster skill restored; payment retained"
+    },
+    {
+      "receipt": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-5d4de0bd/receipt.json",
+      "status": "FAIL",
+      "error": "equal reciprocal Calm counter removes Fury without installing Calm: ",
+      "fixture_restoration": null
+    },
+    {
+      "receipt": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-66b7ac7b/receipt.json",
+      "status": "FAIL",
+      "error": "could not convert string to float: '10.000.'",
+      "fixture_restoration": "PASS: temporary mappings and raw attribute restored; payment retained"
+    },
+    {
+      "receipt": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-6b6f6595/receipt.json",
+      "status": "FAIL",
+      "error": "npc edit submit: That NPC Template is not currently under design.\n\n\n<You are currently in no pain>\n<Stamina: 225/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n",
+      "fixture_restoration": null
+    },
+    {
+      "receipt": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-6cef5a24/receipt.json",
+      "status": "FAIL",
+      "error": "native fixture provision: Unhandled exception. System.InvalidOperationException: Selected rerun changed database content.\n   at Program.<<Main>$>g__Require|0_2(Boolean test, String reason) in C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\scripts\\FuryCalmSmokeWorld\\Program.cs:line 47\n   at Program.<Main>$(String[] args) in C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\scripts\\FuryCalmSmokeWorld\\Program.cs:line 201\n",
+      "fixture_restoration": null
+    },
+    {
+      "receipt": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-6e2fa1a4/receipt.json",
+      "status": "FAIL",
+      "error": "native fixture rerun: Unhandled exception. System.InvalidOperationException: Selected rerun changed database content.\n   at Program.<<Main>$>g__Require|0_2(Boolean test, String reason) in C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\scripts\\FuryCalmSmokeWorld\\Program.cs:line 47\n   at Program.<Main>$(String[] args) in C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\scripts\\FuryCalmSmokeWorld\\Program.cs:line 220\n",
+      "fixture_restoration": null
+    },
+    {
+      "receipt": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-74f520c5/receipt.json",
+      "status": "FAIL",
+      "error": "native fixture provision: Unhandled exception. System.InvalidOperationException: Armageddon partial prepared-world installer: Blocked.\nOptional provisions require explicit native food profiles, wine recipes and existing spell-skill bindings. Leaving Provisions null preserves owned provision definitions without reconciling that module.\nOptional Water/See requires explicit water-liquid IDs, Silt/Shadow terrains, ordered Divination rank0-4 tags and an owned Draw Wine prerequisite path. Null preserves owned Water/See content without reconciling it.\nOptional Emotions requires unambiguous or explicitly selected Fury attribute, attribute units, native terrains, seven Calm saves and authored boolean(target, caster) eligibility progs. Null preserves owned definitions. Native per-spell/restart acceptance remains unrun; the full package stays disabled.\nWater/See selection requires valid existing owned Draw Wine content or explicit Provisions bindings. No provisions or food/wine mappings are inferred.\n   at Program.<<Main>$>g__Require|0_2(Boolean test, String reason) in C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\scripts\\FuryCalmSmokeWorld\\Program.cs:line 47\n   at Program.<Main>$(String[] args) in C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\scripts\\FuryCalmSmokeWorld\\Program.cs:line 176\n",
+      "fixture_restoration": null
+    },
+    {
+      "receipt": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-813ed0b7/receipt.json",
+      "status": "FAIL",
+      "error": "native fixture failure-cases: \nCommitted four owned Pierce records. Dependencies remain builder-owned; no player refresh or admissions.\nModule reviewed-water-see: Completed; 8 identity receipts.\nCommitted eight owned Water/See records. External mappings remain builder-owned; no player refresh or admissions.\nModule reviewed-fury-calm: Failed; 0 identity receipts.\nMagicSpell arm.spell.roused_fury: preserved builder edit CastingDifficulty\nMagicSpell arm.spell.roused_fury: preserved builder edit Definition\nMagicSpell arm.spell.roused_fury: preserved builder edit ResistingDifficulty\nMagicSpell arm.spell.still_anger: preserved builder edit CastingDifficulty\nMagicSpell arm.spell.still_anger: preserved builder edit Definition\nMagicSpell arm.spell.still_anger: preserved builder edit ResistingDifficulty\nFailed before commit; batch rolled back on a relational provider. The interrupted transaction did not write its requested Fury mapping.\nOptional provisions require explicit native food profiles, wine recipes and existing spell-skill bindings. Leaving Provisions null preserves owned provision definitions without reconciling that module.\nOptional Water/See requires explicit water-liquid IDs, Silt/Shadow terrains, ordered Divination rank0-4 tags and an owned Draw Wine prerequisite path. Null preserves owned Water/See content without reconciling it.\nOptional Emotions requires unambiguous or explicitly selected Fury attribute, attribute units, native terrains, seven Calm saves and authored boolean(target, caster) eligibility progs. Null preserves owned definitions. Native per-spell/restart acceptance remains unrun; the full package stays disabled.\nRetained existing owned provision spell identities for composition.\nStopped at the first unsuccessful module/boundary; earlier completed modules remain committed. No automatic retry. Inspect ownership from a fresh connection before rerunning; do not replay player actions.\n   at Program.<<Main>$>g__Require|0_2(Boolean test, String reason) in C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\scripts\\FuryCalmSmokeWorld\\Program.cs:line 49\n   at Program.<Main>$(String[] args) in C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\scripts\\FuryCalmSmokeWorld\\Program.cs:line 246\n",
+      "fixture_restoration": null
+    },
+    {
+      "receipt": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-82bf3f74/receipt.json",
+      "status": "FAIL",
+      "error": "prog execute qafc82bf3f74begin qatarget: Executing qafc82bf3f74begin (#3941) with the following parameters:\n\n  Character target: a qatarget human\n\n==================================================================\nIt returned False.\nIt took approximately 2,656,800 nanoseconds to execute.\n\n\n\n<You are currently in no pain>\n<Stamina: 350/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n",
+      "fixture_restoration": "PASS: temporary Calm settings and caster skill restored; payment retained"
+    },
+    {
+      "receipt": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-84ad410e/receipt.json",
+      "status": "FAIL",
+      "error": "npc set birthday random 30: This NPC was now born on Wednesday the 6th of February, 1269 A.D.\n\n\n<You are currently in no pain>\n<Stamina: 125/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n",
+      "fixture_restoration": null
+    },
+    {
+      "receipt": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-8da6f779/receipt.json",
+      "status": "FAIL",
+      "error": "@: You change the function text of prog qafc8da6f779join (#3939).\nIt failed to compile, with the following error:\n  Line 1: Syntax error in statement: Error with LHS of ==:\nError with LHS of dot-reference function:\nLine does not match known syntax\n\nThe Guest Lounge\nID[1] | Terrain[Void] | [NoQuit] | Overlay[CoreData Autogenerated (#1r0)] | Coordinates[0,0,0]\nExits: \n\n  This is the guest lounge, where guests to the MUD can log in and chat with\nguides, administrators or each other as well as test out features of the engine\nbefore their first character is approved.\n\n  Currently, it is pitch black here.\n\nA qacaster human is standing here.\nA qatarget human is standing here.\nA qaother human is standing here.\nA qaenemy human is standing here.\nA qaguard human is standing here.\n\n\n<You are currently in no pain>\n<Stamina: 350/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n",
+      "fixture_restoration": "PASS: temporary Calm settings and caster skill restored; payment retained"
+    },
+    {
+      "receipt": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-9cf97a7a/receipt.json",
+      "status": "FAIL",
+      "error": "magic spell set difficulty automatic: It will now be Automatic to cast this spell.\n\n\n<You are currently in no pain>\n<Stamina: 350/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n",
+      "fixture_restoration": null
+    },
+    {
+      "receipt": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-9f36426c/receipt.json",
+      "status": "FAIL",
+      "error": "fixture callback mutation restored by native command: ",
+      "fixture_restoration": "PASS: temporary mappings and raw attribute restored; payment retained"
+    },
+    {
+      "receipt": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-ad896520/receipt.json",
+      "status": "FAIL",
+      "error": "observed first completed admitted attack: This command is only usable when you are in combat.\n\n<You are currently in no pain>\n<Stamina: 200/200 | Exertion: Low | Status: Awake>\n\nYou can once again engage in combat freely.\n\n<You are currently in no pain>\n<Stamina: 200/200 | Exertion: Low | Status: Awake>\n\n",
+      "fixture_restoration": "PASS: temporary Calm settings and caster skill restored; payment retained"
+    },
+    {
+      "receipt": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-c044aed3/receipt.json",
+      "status": "FAIL",
+      "error": "exact paid Roused Fury grade 1 cost 20: You don't see anyone like that to target.\nNo valid target was resolved.\n\n<You are currently in no pain>\n<Stamina: 200/200 | Exertion: Low | Status: Awake>\n\n",
+      "fixture_restoration": "PASS: temporary mappings and raw attribute restored; payment retained"
+    },
+    {
+      "receipt": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-c045657e/receipt.json",
+      "status": "FAIL",
+      "error": "givemerit qacaster 89:  - Armageddon partial sorcerer caster granted to a qacaster human.\n\n\n<You are currently in no pain>\n<Stamina: 350/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n",
+      "fixture_restoration": null
+    },
+    {
+      "receipt": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-c59b7eb4/receipt.json",
+      "status": "FAIL",
+      "error": "native combat skills resolve unambiguously: {\"settings\": \"1\\tMelee\\t\\u0001\\n2\\tMelee (Auto)\\t\\u0001\\n3\\tCautious Melee\\t\\u0001\\n4\\tCautious Melee (Auto)\\t\\u0001\\n5\\tJuggernaut\\t\\u0001\\n6\\tJuggernaut (Auto)\\t\\u0001\\n7\\tManual\\t\\u0001\\n8\\tShielder\\t\\u0001\\n9\\tShielder (Auto)\\t\\u0001\\n10\\tZweihander\\t\\u0001\\n11\\tZweihander (Auto)\\t\\u0001\\n12\\tClincher\\t\\u0001\\n13\\tClincher (Auto)\\t\\u0001\\n14\\tWarder\\t\\u0001\\n15\\tWarder (Auto)\\t\\u0001\\n16\\tDefender\\t\\u0001\\n17\\tDefender (Auto)\\t\\u0001\\n18\\tPistolier\\t\\u0001\\n19\\tPistolier (Auto)\\t\\u0001\\n20\\tMusketeer\\t\\u0001\\n21\\tMusketeer (Auto)\\t\\u0001\\n22\\tInfantryman\\t\\u0001\\n23\\tInfantryman (Auto)\\t\\u0001\\n24\\tSkirmisher\\t\\u0001\\n25\\tSkirmisher (Auto)\\t\\u0001\\n26\\tMarksman\\t\\u0001\\n27\\tMarksman (Auto)\\t\\u0001\\n28\\tBrawler\\t\\u0001\\n29\\tBrawler (Auto)\\t\\u0001\\n30\\tPitfighter\\t\\u0001\\n31\\tPitfighter (Auto)\\t\\u0001\\n32\\tSwarmer\\t\\u0001\\n33\\tSwarmer (Auto)\\t\\u0001\\n34\\tOutboxer\\t\\u0001\\n35\\tOutboxer (Auto)\\t\\u0001\\n36\\tGrappler\\t\\u0001\\n37\\tGrappler (Auto)\\t\\u0001\\n38\\tBonebreaker\\t\\u0001\\n39\\tBonebreaker (Auto)\\t\\u0001\\n40\\tStrangler\\t\\u0001\\n41\\tStrangler (Auto)\\t\\u0001\\n42\\tDual Wielder\\t\\u0001\\n43\\tDual Wielder (Auto)\\t\\u0001\\n44\\tDual Wield Clincher\\t\\u0001\\n45\\tDual Wield Clincher (Auto)\\t\\u0001\\n46\\tPolearm Warder\\t\\u0001\\n47\\tPolearm Warder (Auto)\\t\\u0001\\n48\\tSpear Warder\\t\\u0001\\n49\\tSpear Warder (Auto)\\t\\u0001\\n50\\tBeast Brawler\\t\\u0001\\n51\\tBeast Clincher\\t\\u0001\\n52\\tBeast Behemoth\\t\\u0001\\n53\\tBeast Skirmisher\\t\\u0001\\n54\\tBeast Swooper\\t\\u0001\\n55\\tBeast Drowner\\t\\u0001\\n56\\tBeast Dropper\\t\\u0001\\n57\\tBeast Physical Avoider\\t\\u0001\\n58\\tBeast Artillery\\t\\u0001\\n59\\tBeast Aquatic Brawler\\t\\u0001\\n60\\tBeast Aquatic Clincher\\t\\u0001\\n61\\tBeast Aquatic Behemoth\\t\\u0001\\n62\\tBeast Aquatic Skirmisher\\t\\u0001\\n63\\tBeast Aquatic Artillery\\t\\u0001\\n64\\tBeast Coward\\t\\u0001\\n65\\tConstruct Brawler\\t\\u0001\\n66\\tConstruct Skirmisher\\t\\u0001\\n67\\tConstruct Artillery\\t\\u0001\\n68\\tCavalry Charge\\t\\u0001\\n69\\tMounted Skirmisher\\t\\u0001\\n70\\tMounted Hit and Run\\t\\u0001\\n71\\tAnimal\\t\\u0001\\n72\\tBiter\\t\\u0001\\n73\\tBehemoth\\t\\u0001\\n74\\tSwooper\\t\\u0001\\n75\\tWimpy Animal\\t\\u0001\", \"skills\": \"\"}",
+      "fixture_restoration": "PASS: temporary Calm settings and caster skill restored; payment retained"
+    },
+    {
+      "receipt": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-e0c8c69a/receipt.json",
+      "status": "FAIL",
+      "error": "ERROR 1146 (42S02) at line 1: Table 'authored_celestial_smoke.traitexpressions' doesn't exist\n",
+      "fixture_restoration": "PASS: temporary Calm settings and caster skill restored; payment retained"
+    },
+    {
+      "receipt": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-ff1d8f4f/receipt.json",
+      "status": "FAIL",
+      "error": "invalid literal for int() with base 10: '3\\n3'",
+      "fixture_restoration": null
+    }
+  ],
+  "superseded_cleanup_claims": [
+    "fury-calm-9f36426c reports fixtureRestoration PASS although numeric SETATTRIBUTE did not restore the raw trait. Not accepted cleanup evidence. Subsequent lifecycle phase restores Constitution10 by name and verifies the probe.",
+    "Earlier combat attempts checked skill restoration in body Traits, although effective skill ownership is CharacterTraits. Their cleanup claims do not prove original skill values. Failed ninth attempt explicitly reports restoration FAIL. Final combat uses owner-aware assertions and records explicit controlled fixture recovery; historical exact skill restoration is not claimed."
+  ],
+  "limits": [
+    "Selected fixture uses Automatic casting, controlled grade7, explicitly authored energy1000, native attribute units and terrain proxies; not mastery, economy or balance proof.",
+    "High-volume restart, all25 full programme scenarios and historical Undead/Quickening/Insomnia/Mul/Thodeliv parity remain pending.",
+    "Existing specialized attack exclusions, portable emotional adapters, PC charm/possession, 154-candidate completion and all8 larger systems remain pending."
+  ],
+  "correction_commits": {
+    "snapshot": "04aea023415630496bc9e61aca98048b6a0a6fcb",
+    "retained_pierce": "eea91fd89d502d80dd02b449a0a51975d782fae5",
+    "startcombat": "694743949fb61edc0808c426eb914c10435da339"
+  },
+  "independent_review": "Required production corrections, fixture restoration, phase receipt hashes and bounded ledgers reviewed; optional two candidates preserved. No remaining established P1/P2 in this scope.",
+  "runner_regressions": {
+    "passed": 4,
+    "failed": 0,
+    "receipt": ".artifacts/fury-calm-native-20261008/cleanup-tests-qualified-owned.log"
+  }
+}

@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "date": "2026-10-08",
-  "status": "MANAGED_CHECKPOINT_VERIFIED_WITH_INHERITED_FAILURES_NATIVE_GATE_UNRUN",
+  "status": "PASS_BOUNDED_FURY_CALM_NATIVE_MILESTONE",
   "branch": "codex/armageddon-continuation-20261008",
   "base_master": "07146cdc8a38fd23040281b58c6544d45f260cd2",
   "restored_groundwork_head": "83509243cfceb62811e002fca14b4d9de96d2574",
@@ -105,11 +105,11 @@
     "kind": "Managed composition counts, not character acquisitions or whole catalogue completion."
   },
   "native": {
-    "status": "NOT_RUN_PLATFORM_RESTRICTION",
-    "bypass_authorized": false,
-    "process_database_telnet_checks_executed": false,
-    "historical_receipts_remain_historical": true,
-    "xml_loader_and_inmemory_tests_are_not_cold_restart_or_mysql_proof": true
+    "status": "PASS_BOUNDED_FURY_CALM_NATIVE_MILESTONE",
+    "receipt": "Design Documents/Magic/Armageddon_Fury_Calm_Native_Qualification_20261009.json",
+    "process_database_telnet_checks_executed": true,
+    "owned_disposable_only": true,
+    "full_plan_complete": false
   },
   "limits": [
     "Historical Undead/Quickening/Insomnia/Mul/Thodeliv exceptions explicitly unmapped; builder policy and actual world qualification remain required.",
@@ -119,9 +119,10 @@
   ],
   "remaining_stages": [
     {
-      "stage": "Fury/Calm native gate",
-      "status": "NOT_RUN_PLATFORM_RESTRICTION",
-      "scope": "Installed ordinary casting, physical attribute capacity/no refill, actual missed/admitted attack, selective cessation/third party/callback replacement, independent MySQL reads, cold restart and high-volume lifecycle. Do not bypass the inherited restriction."
+      "stage": "Fury/Calm bounded native gate",
+      "status": "PASS",
+      "receipt": "Design Documents/Magic/Armageddon_Fury_Calm_Native_Qualification_20261009.json",
+      "scope": "Installed paid casting, trait/no refill, counters, admitted missed attack, selective combat/callbacks, lifecycle, cold restart, restore and selected/null rerun preservation. High-volume/balance remain production-readiness gates."
     },
     {
       "stage": "Remaining reusable dependencies",
@@ -6261,7 +6262,118 @@
     "ef_generation_required": false,
     "room_compatibility_change": "Two explicit built-in effect names added to the audited inventory; scalar and narrative payload bytes are preserved in direct and nested envelopes."
   },
-  "validation_boundary": "Managed runs used frozen uncommitted implementation on restored HEAD 83509243cfceb62811e002fca14b4d9de96d2574. Only documentation/receipt updates followed before local checkpoint commits. Native gates remain NOT_RUN.",
+  "validation_boundary": "Managed runs used frozen uncommitted implementation on restored HEAD 83509243cfceb62811e002fca14b4d9de96d2574. Only documentation/receipt updates followed before local checkpoint commits. Native gates remain NOT_RUN. Superseded for the named native milestone by the fresh 2026-10-09 qualification receipt; original managed runs remain historical.",
   "code_changed_after_final_checks": false,
-  "local_checkpoint_only": true
+  "local_checkpoint_only": true,
+  "historical_native_checkpoint": {
+    "status": "NOT_RUN_PLATFORM_RESTRICTION",
+    "bypass_authorized": false,
+    "process_database_telnet_checks_executed": false,
+    "historical_receipts_remain_historical": true,
+    "xml_loader_and_inmemory_tests_are_not_cold_restart_or_mysql_proof": true
+  },
+  "qualification_20261009": {
+    "receipt": "Design Documents/Magic/Armageddon_Fury_Calm_Native_Qualification_20261009.json",
+    "managed": [
+      {
+        "scope": "snapshot-managed",
+        "receipt": ".artifacts/fury-calm-native-20261008/snapshot-managed/20261008T115600Z-d10d334cf566/summary.json",
+        "run": "20261008T115600Z-d10d334cf566",
+        "configuration": "Debug",
+        "counts": {
+          "executed": 7,
+          "passed": 7,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 7
+        },
+        "source_start": "9a05171f1d0e2384f5bbc3c751f177e0126f14f8d8332cbc106148c737420fe3",
+        "source_end": "9a05171f1d0e2384f5bbc3c751f177e0126f14f8d8332cbc106148c737420fe3",
+        "source_stable": true
+      },
+      {
+        "scope": "seeder-repair-managed",
+        "receipt": ".artifacts/fury-calm-native-20261008/seeder-repair-managed/20261008T123447Z-532149f4d090/summary.json",
+        "run": "20261008T123447Z-532149f4d090",
+        "configuration": "Debug",
+        "counts": {
+          "executed": 1608,
+          "passed": 1608,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 1608
+        },
+        "source_start": "5bca95344dbfbbb444ae40eed3e569178efcd777afb64f31924ffd94a900adb9",
+        "source_end": "5bca95344dbfbbb444ae40eed3e569178efcd777afb64f31924ffd94a900adb9",
+        "source_stable": true
+      },
+      {
+        "scope": "retained-pierce-managed",
+        "receipt": ".artifacts/fury-calm-native-20261008/retained-pierce-managed/20261008T133555Z-2b5c1f41721d/summary.json",
+        "run": "20261008T133555Z-2b5c1f41721d",
+        "configuration": "Debug",
+        "counts": {
+          "executed": 3,
+          "passed": 3,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 3
+        },
+        "source_start": "fc603f67eca21519796801594c4e7b9f23f32d3b6ccb03678b7d749ee42cb072",
+        "source_end": "fc603f67eca21519796801594c4e7b9f23f32d3b6ccb03678b7d749ee42cb072",
+        "source_stable": true
+      },
+      {
+        "scope": "release-disabled",
+        "receipt": ".artifacts/fury-calm-native-20261008/release-disabled/20261008T133640Z-c6510b18cb8c/summary.json",
+        "run": "20261008T133640Z-c6510b18cb8c",
+        "configuration": "Release",
+        "counts": {
+          "executed": 3,
+          "passed": 3,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 3
+        },
+        "source_start": "fc603f67eca21519796801594c4e7b9f23f32d3b6ccb03678b7d749ee42cb072",
+        "source_end": "fc603f67eca21519796801594c4e7b9f23f32d3b6ccb03678b7d749ee42cb072",
+        "source_stable": true
+      },
+      {
+        "scope": "startcombat-managed",
+        "receipt": ".artifacts/fury-calm-native-20261008/startcombat-managed/20261008T152034Z-db03ecae1512/summary.json",
+        "run": "20261008T152034Z-db03ecae1512",
+        "configuration": "Debug",
+        "counts": {
+          "executed": 24,
+          "passed": 24,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 24
+        },
+        "source_start": "360c3a4bce0aea0342e6196ccb133c50d2b0e12b4286fb2fe16d56882f25d218",
+        "source_end": "360c3a4bce0aea0342e6196ccb133c50d2b0e12b4286fb2fe16d56882f25d218",
+        "source_stable": true
+      }
+    ],
+    "restriction": {
+      "current_denial": false,
+      "original_denied_command_unknown": true,
+      "historical_blanket_scope_established": false,
+      "identifiable_denial_cleared": false,
+      "bypass": false,
+      "evidence": "Available Platform-Restriction-Evidence.md lacks original denied command/reason; original thread unavailable. Current owned workflow completed without denial."
+    },
+    "snapshot_failures_repaired": true
+  }
 }

@@ -3469,7 +3469,7 @@
     },
     {
       "id": "servitor_queued_control_execution_gap",
-      "status": "required_before_full_queued_control_qualification",
+      "status": "bounded_deadline_gap_closed_existing_implementation",
       "finding": "CommandableAI authorizes order acceptance, but queued SelectedCombatAction can execute after the control deadline while animation remains alive.",
       "required_changes": [
         "Preserve immutable controller/grant/action provenance through queued selected combat actions.",
@@ -3485,7 +3485,18 @@
         "Complete actual servitor damage/defence and historical aggression.",
         "Guard/rescue repairs and qualification for later guard families.",
         "PC-corpse, full boot/Telnet and concurrency release qualification."
-      ]
+      ],
+      "resolution_20261009": {
+        "receipt": "Armageddon_QueuedCommand_Authority_Verification.json",
+        "source_map": "CommandableAI -> CommandExecutionAuthority -> SelectedCombatAction -> CombatBase/CombatMoveBase execution fence",
+        "historical_native_markers": [
+          "ARMQueued-expired-queue",
+          "ARMQueued-expired-selected"
+        ],
+        "fresh_execution": false,
+        "comprehensive_authority_cleared": false,
+        "scope": "Existing immutable grant provenance and execution-time deadline checks close this particular gap; broader combat/authority/installed acceptance remains pending."
+      }
     },
     {
       "id": "storm_spear_restart_pause_20261004",
@@ -3709,13 +3720,14 @@
     }
   ],
   "next_checkpoint": {
-    "status": "MANAGED_CHECKPOINT_VERIFIED_WITH_INHERITED_FAILURES_NATIVE_GATE_UNRUN",
+    "status": "PASS_BOUNDED_FURY_CALM_NATIVE_MILESTONE",
     "receipt": "Design Documents/Magic/Armageddon_Continuation_20261008.json",
     "remaining": [
       {
-        "stage": "Fury/Calm native gate",
-        "status": "NOT_RUN_PLATFORM_RESTRICTION",
-        "scope": "Installed ordinary casting, physical attribute capacity/no refill, actual missed/admitted attack, selective cessation/third party/callback replacement, independent MySQL reads, cold restart and high-volume lifecycle. Do not bypass the inherited restriction."
+        "stage": "Fury/Calm bounded native gate",
+        "status": "PASS",
+        "receipt": "Design Documents/Magic/Armageddon_Fury_Calm_Native_Qualification_20261009.json",
+        "scope": "Installed paid casting, trait/no refill, counters, admitted missed attack, selective combat/callbacks, lifecycle, cold restart, restore and selected/null rerun preservation. High-volume/balance remain production-readiness gates."
       },
       {
         "stage": "Remaining reusable dependencies",
@@ -3754,7 +3766,8 @@
     ],
     "full_plan_complete": false,
     "publication_authorized": false,
-    "implementation_commit": "6c41c629b5a99389631949661d3c9e7992d048a7"
+    "implementation_commit": "6c41c629b5a99389631949661d3c9e7992d048a7",
+    "qualification_receipt": "Design Documents/Magic/Armageddon_Fury_Calm_Native_Qualification_20261009.json"
   },
   "deferred_consultation": {
     "source_task": "01a0fc1f-ccd4-7359-95f2-f8c03724b0b1",
@@ -3779,7 +3792,7 @@
     "Complete installed stock command/world N14/N15 and high-volume N16 with per-cycle restart; controlled native early death/decay/restart, same-template modes and sixteen heavy/runtime cycles are verified.",
     "Implement remaining reusable effects and all eight approved larger features; later charm must retain the per-spell PC toggle, resolved executable whitelist and queued-action provenance.",
     "Created leaf items now prepare and bind their finite positive selected-grade lifetime before payment. NPC resolved lifetime (including known constant-zero invalid lifetime) and dynamic spawn validation remain post-check application refusals; qualify their prepayment treatment without changing opposed-outcome semantics in a separate boundary.",
-    "Raise Servitor queued SelectedCombatAction requires immutable command/grant provenance and execution-time authorization. Test an accepted action crossing the control deadline while animation survives, preserving independent following. Actual damage/defence and historical aggression, later-family guard/rescue, PC-corpse, full boot and concurrency remain required."
+    "Raise Servitor queued/selected deadline crossing is implemented and bounded historical native evidence is retained in Armageddon_QueuedCommand_Authority_Verification.json. Do not reimplement this gap. Actual damage/defence, comprehensive authority, later-family guard/rescue, PC-corpse, full installed boot and concurrency remain required."
   ],
   "phase3_dependency_checklist": [
     {
@@ -3859,7 +3872,12 @@
       "stock_receipt": "Armageddon_Stage3D1Stock_RaiseServitor_Verification.json",
       "parent_verified_morph_restart_head": "812020244974323bcc75b2dee2e212e3110ff101",
       "security_integration_receipt": "Armageddon_SecurityMaster_Integration_Verification.json",
-      "required_queued_control_check": "servitor_queued_control_execution_gap"
+      "required_queued_control_check": "servitor_queued_control_execution_gap",
+      "queued_deadline_gap": {
+        "status": "bounded_gap_closed_existing_implementation",
+        "receipt": "Armageddon_QueuedCommand_Authority_Verification.json",
+        "fresh_execution": false
+      }
     }
   ],
   "checkpoint_history": [
@@ -5409,14 +5427,14 @@
   "continuation_20261008": {
     "receipt": "Design Documents/Magic/Armageddon_Continuation_20261008.json",
     "master": "07146cdc8a38fd23040281b58c6544d45f260cd2",
-    "status": "MANAGED_CHECKPOINT_VERIFIED_WITH_INHERITED_FAILURES_NATIVE_GATE_UNRUN",
+    "status": "PASS_BOUNDED_FURY_CALM_NATIVE_MILESTONE",
     "full_plan_complete": false,
     "native": {
-      "status": "NOT_RUN_PLATFORM_RESTRICTION",
-      "bypass_authorized": false,
-      "process_database_telnet_checks_executed": false,
-      "historical_receipts_remain_historical": true,
-      "xml_loader_and_inmemory_tests_are_not_cold_restart_or_mysql_proof": true
+      "status": "PASS_BOUNDED_FURY_CALM_NATIVE_MILESTONE",
+      "receipt": "Design Documents/Magic/Armageddon_Fury_Calm_Native_Qualification_20261009.json",
+      "process_database_telnet_checks_executed": true,
+      "owned_disposable_only": true,
+      "full_plan_complete": false
     },
     "installer_coverage": {
       "historical_selected_provisions_water_see": {
@@ -5448,6 +5466,110 @@
       "skipped": 0,
       "source_stable": true
     },
-    "implementation_commit": "6c41c629b5a99389631949661d3c9e7992d048a7"
+    "implementation_commit": "6c41c629b5a99389631949661d3c9e7992d048a7",
+    "qualification_20261009": {
+      "receipt": "Design Documents/Magic/Armageddon_Fury_Calm_Native_Qualification_20261009.json",
+      "managed": [
+        {
+          "scope": "snapshot-managed",
+          "receipt": ".artifacts/fury-calm-native-20261008/snapshot-managed/20261008T115600Z-d10d334cf566/summary.json",
+          "run": "20261008T115600Z-d10d334cf566",
+          "configuration": "Debug",
+          "counts": {
+            "executed": 7,
+            "passed": 7,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 7
+          },
+          "source_start": "9a05171f1d0e2384f5bbc3c751f177e0126f14f8d8332cbc106148c737420fe3",
+          "source_end": "9a05171f1d0e2384f5bbc3c751f177e0126f14f8d8332cbc106148c737420fe3",
+          "source_stable": true
+        },
+        {
+          "scope": "seeder-repair-managed",
+          "receipt": ".artifacts/fury-calm-native-20261008/seeder-repair-managed/20261008T123447Z-532149f4d090/summary.json",
+          "run": "20261008T123447Z-532149f4d090",
+          "configuration": "Debug",
+          "counts": {
+            "executed": 1608,
+            "passed": 1608,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 1608
+          },
+          "source_start": "5bca95344dbfbbb444ae40eed3e569178efcd777afb64f31924ffd94a900adb9",
+          "source_end": "5bca95344dbfbbb444ae40eed3e569178efcd777afb64f31924ffd94a900adb9",
+          "source_stable": true
+        },
+        {
+          "scope": "retained-pierce-managed",
+          "receipt": ".artifacts/fury-calm-native-20261008/retained-pierce-managed/20261008T133555Z-2b5c1f41721d/summary.json",
+          "run": "20261008T133555Z-2b5c1f41721d",
+          "configuration": "Debug",
+          "counts": {
+            "executed": 3,
+            "passed": 3,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 3
+          },
+          "source_start": "fc603f67eca21519796801594c4e7b9f23f32d3b6ccb03678b7d749ee42cb072",
+          "source_end": "fc603f67eca21519796801594c4e7b9f23f32d3b6ccb03678b7d749ee42cb072",
+          "source_stable": true
+        },
+        {
+          "scope": "release-disabled",
+          "receipt": ".artifacts/fury-calm-native-20261008/release-disabled/20261008T133640Z-c6510b18cb8c/summary.json",
+          "run": "20261008T133640Z-c6510b18cb8c",
+          "configuration": "Release",
+          "counts": {
+            "executed": 3,
+            "passed": 3,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 3
+          },
+          "source_start": "fc603f67eca21519796801594c4e7b9f23f32d3b6ccb03678b7d749ee42cb072",
+          "source_end": "fc603f67eca21519796801594c4e7b9f23f32d3b6ccb03678b7d749ee42cb072",
+          "source_stable": true
+        },
+        {
+          "scope": "startcombat-managed",
+          "receipt": ".artifacts/fury-calm-native-20261008/startcombat-managed/20261008T152034Z-db03ecae1512/summary.json",
+          "run": "20261008T152034Z-db03ecae1512",
+          "configuration": "Debug",
+          "counts": {
+            "executed": 24,
+            "passed": 24,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 24
+          },
+          "source_start": "360c3a4bce0aea0342e6196ccb133c50d2b0e12b4286fb2fe16d56882f25d218",
+          "source_end": "360c3a4bce0aea0342e6196ccb133c50d2b0e12b4286fb2fe16d56882f25d218",
+          "source_stable": true
+        }
+      ],
+      "restriction": {
+        "current_denial": false,
+        "original_denied_command_unknown": true,
+        "historical_blanket_scope_established": false,
+        "identifiable_denial_cleared": false,
+        "bypass": false,
+        "evidence": "Available Platform-Restriction-Evidence.md lacks original denied command/reason; original thread unavailable. Current owned workflow completed without denial."
+      },
+      "snapshot_failures_repaired": true
+    }
   }
 }

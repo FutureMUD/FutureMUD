@@ -1,5 +1,8 @@
 # Armageddon completion implementation progress
 
+Current continuation: the bounded installed Fury/Calm milestone passed on 9 October 2026. The [qualification receipt](Armageddon_Fury_Calm_Native_Qualification_20261009.json) records four native phases, production backup/restore, cold restart, exact selected 217/12/12 composition and owned cleanup. The four inherited snapshot failures are repaired; historical failed receipts remain historical. Release remains disabled and 154 candidates remain tracked (152 required, two optional), and eight larger systems remain required. Continue with NPC lifetime/spawn admission before payment; existing queued-command deadline enforcement is already implemented and must not be duplicated.
+
+
 Current continuation: [2026-10-08 checkpoint](Armageddon_Continuation_20261008.md) and [machine-readable inventory/evidence](Armageddon_Continuation_20261008.json). Current branch is `codex/armageddon-continuation-20261008`, based on Room master `07146cdc8a38fd23040281b58c6544d45f260cd2`. Old baseline, device/installer pending fields and unresolved Fury allocation statements below are historical; later receipts and the current ledger supersede them. The exact 154 dispositions and 82 Sorcerer memberships remain in scope. Full programme and native readiness are incomplete.
 
 Authority: Library `libfile_a4606cd0097081918d6c9d9e220e6da0`, version 0,

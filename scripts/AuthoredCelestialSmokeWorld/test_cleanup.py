@@ -5,7 +5,7 @@ import tempfile
 import unittest
 from unittest.mock import Mock
 
-from native import stop_owned_mysql
+from native import begin_smoke_invocation, stop_owned_mysql
 
 
 class CleanupTests(unittest.TestCase):
@@ -14,6 +14,16 @@ class CleanupTests(unittest.TestCase):
         self.addCleanup(self.directory.cleanup)
         self.root = pathlib.Path(self.directory.name)
         self.instance = {'data': str(self.root / 'data'), 'client': ['mysql.exe', '--batch']}
+
+    def test_requalification_retires_old_success_before_restart_can_fail(self):
+        (self.root / 'phase.json').write_text('{"status":"PASS"}')
+        (self.root / 'smoke-latest.json').write_text('{"status":"PASS"}')
+        invocation, marker, latest = begin_smoke_invocation(self.root, 'phase.json')
+        # A subsequent startup exception cannot expose either old file as current proof.
+        self.assertFalse(marker.exists())
+        self.assertFalse(latest.exists())
+        self.assertEqual(json.loads((invocation / 'prior-phase-marker.json').read_text())['status'], 'PASS')
+        self.assertEqual(json.loads((invocation / 'prior-receipt.json').read_text())['status'], 'PASS')
 
     def test_failed_identity_still_stops_newly_spawned_child(self):
         process = Mock()

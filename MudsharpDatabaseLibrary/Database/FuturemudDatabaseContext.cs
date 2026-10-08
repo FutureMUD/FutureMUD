@@ -26,6 +26,9 @@ namespace MudSharp.Database
                 optionsBuilder.LogTo(Console.WriteLine, new[] { DbLoggerCategory.Migrations.Name });
                 optionsBuilder.EnableSensitiveDataLogging();
             }
+
+			// Register for startup, installer and direct EF APIs, including configured contexts.
+			optionsBuilder.AddInterceptors(new RoomReferenceMigrationInterceptor());
         }
 
         public string ConnectionString { get; set; } = "server=localhost;port=3306;database=dbo;uid=futuremud;password=rpiengine2020";

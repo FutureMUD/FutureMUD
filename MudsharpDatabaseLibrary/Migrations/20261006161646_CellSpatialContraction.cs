@@ -27,9 +27,6 @@ BEGIN
    WHERE ROUTINE_SCHEMA=DATABASE() AND ROUTINE_NAME <> 'fm_cell_spatial_contract_20261006161646'
   UNION ALL SELECT 'trigger', TRIGGER_NAME, ACTION_STATEMENT FROM information_schema.TRIGGERS WHERE TRIGGER_SCHEMA=DATABASE()
   UNION ALL SELECT 'event', EVENT_NAME, EVENT_DEFINITION FROM information_schema.EVENTS WHERE EVENT_SCHEMA=DATABASE();
- DECLARE candidate_columns CURSOR FOR
-  SELECT TABLE_NAME, COLUMN_NAME FROM information_schema.COLUMNS
-  WHERE TABLE_SCHEMA=DATABASE() AND DATA_TYPE IN ('char','varchar','tinytext','text','mediumtext','longtext','json');
  DECLARE CONTINUE HANDLER FOR NOT FOUND SET finished=TRUE;
  IF EXISTS(SELECT 1 FROM `Cells` GROUP BY RoomId HAVING COUNT(*)>1) THEN
   SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT='Cell spatial preflight: Room has multiple Cells; no child will be chosen';
@@ -117,30 +114,10 @@ BEGIN
    SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT='Cell contraction: final provenance or complete mapping invariant failed; no Room data may be dropped';
   END IF;
  END IF;
- OPEN candidate_columns;
- scan_columns: LOOP
-  FETCH candidate_columns INTO table_name_value,column_name_value;
-  IF finished THEN LEAVE scan_columns; END IF;
-  SET @fm_cell_spatial_hits=0;
-  IF LOWER(column_name_value) LIKE '%type' THEN
-   SET @fm_cell_spatial_pattern='^[[:space:]]*Room[[:space:]]*$';
-  ELSE
-   SET @fm_cell_spatial_pattern='(Type["'']?[[:space:]]*[:=][[:space:]]*["'']Room["'']|<([[:alnum:]_]*Type)>[[:space:]]*Room[[:space:]]*</)';
-  END IF;
-  SET @fm_cell_spatial_query=CONCAT('SELECT COUNT(*) INTO @fm_cell_spatial_hits FROM `',REPLACE(table_name_value,'`','``'),
-   '` WHERE REGEXP_LIKE(`',REPLACE(column_name_value,'`','``'),'`, ?, ''i'')');
-  PREPARE fm_cell_spatial_statement FROM @fm_cell_spatial_query;
-  EXECUTE fm_cell_spatial_statement USING @fm_cell_spatial_pattern;
-  DEALLOCATE PREPARE fm_cell_spatial_statement;
-  IF @fm_cell_spatial_hits>0 THEN
-   SET diagnostic=LEFT(CONCAT('Cell spatial preflight: Room reference in ',table_name_value,'.',column_name_value,'; review required'),128);
-   SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT=diagnostic;
-  END IF;
- END LOOP;
- CLOSE candidate_columns;
 END;
 """, suppressTransaction: true);
 			migrationBuilder.Sql("CALL `fm_cell_spatial_contract_20261006161646`(FALSE);", suppressTransaction: true);
+			migrationBuilder.Sql(MudSharp.Database.RoomReferenceMigrationInterceptor.Contraction, suppressTransaction: true);
             migrationBuilder.CreateTable(
                 name: "CellRoomAreaContractionLedger",
                 columns: table => new
@@ -190,6 +167,7 @@ LEFT JOIN Areas_Cells n ON n.AreaId=a.AreaId AND n.CellId=c.Id WHERE n.CellId IS
 COMMIT;
 """, suppressTransaction: true);
 			migrationBuilder.Sql("CALL `fm_cell_spatial_contract_20261006161646`(TRUE);", suppressTransaction: true);
+			migrationBuilder.Sql(MudSharp.Database.RoomReferenceMigrationInterceptor.Verify, suppressTransaction: true);
 			migrationBuilder.Sql("DROP PROCEDURE `fm_cell_spatial_contract_20261006161646`;", suppressTransaction: true);
             migrationBuilder.DropForeignKey(
                 name: "FK_Cells_Rooms",

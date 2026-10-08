@@ -20,9 +20,6 @@ BEGIN
  DECLARE table_name_value VARCHAR(64);
  DECLARE column_name_value VARCHAR(64);
  DECLARE diagnostic VARCHAR(128);
- DECLARE candidate_columns CURSOR FOR
-  SELECT TABLE_NAME, COLUMN_NAME FROM information_schema.COLUMNS
-  WHERE TABLE_SCHEMA=DATABASE() AND DATA_TYPE IN ('char','varchar','tinytext','text','mediumtext','longtext','json');
  DECLARE CONTINUE HANDLER FOR NOT FOUND SET finished=TRUE;
  IF EXISTS(SELECT 1 FROM `Cells` GROUP BY RoomId HAVING COUNT(*)>1) THEN
   SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT='Cell spatial preflight: Room has multiple Cells; no child will be chosen';
@@ -54,31 +51,11 @@ BEGIN
            AND LOWER(TABLE_NAME) NOT IN ('cells','areas_rooms','aistorytellersituations')) THEN
   SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT='Cell spatial preflight: unclassified RoomId column';
  END IF;
- OPEN candidate_columns;
- scan_columns: LOOP
-  FETCH candidate_columns INTO table_name_value,column_name_value;
-  IF finished THEN LEAVE scan_columns; END IF;
-  SET @fm_cell_spatial_hits=0;
-  IF LOWER(column_name_value) LIKE '%type' THEN
-   SET @fm_cell_spatial_pattern='^[[:space:]]*Room[[:space:]]*$';
-  ELSE
-   SET @fm_cell_spatial_pattern='(Type["'']?[[:space:]]*[:=][[:space:]]*["'']Room["'']|<([[:alnum:]_]*Type)>[[:space:]]*Room[[:space:]]*</)';
-  END IF;
-  SET @fm_cell_spatial_query=CONCAT('SELECT COUNT(*) INTO @fm_cell_spatial_hits FROM `',REPLACE(table_name_value,'`','``'),
-   '` WHERE REGEXP_LIKE(`',REPLACE(column_name_value,'`','``'),'`, ?, ''i'')');
-  PREPARE fm_cell_spatial_statement FROM @fm_cell_spatial_query;
-  EXECUTE fm_cell_spatial_statement USING @fm_cell_spatial_pattern;
-  DEALLOCATE PREPARE fm_cell_spatial_statement;
-  IF @fm_cell_spatial_hits>0 THEN
-   SET diagnostic=LEFT(CONCAT('Cell spatial preflight: Room reference in ',table_name_value,'.',column_name_value,'; review required'),128);
-   SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT=diagnostic;
-  END IF;
- END LOOP;
- CLOSE candidate_columns;
 END;
 """, suppressTransaction: true);
 			migrationBuilder.Sql("CALL `fm_cell_spatial_preflight_20261006143539`();", suppressTransaction: true);
 			migrationBuilder.Sql("DROP PROCEDURE `fm_cell_spatial_preflight_20261006143539`;", suppressTransaction: true);
+			migrationBuilder.Sql(MudSharp.Database.RoomReferenceMigrationInterceptor.Expansion, suppressTransaction: true);
             migrationBuilder.AddColumn<int>(
                 name: "X",
                 table: "Cells",

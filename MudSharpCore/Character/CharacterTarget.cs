@@ -51,18 +51,21 @@ public partial class Character : ITarget
 	internal static IEnumerable<IGameItem> IncludeTargetProjections(IEnumerable<IGameItem> localItems)
 	{
 		var items = localItems
-		            .Where(x => x is not null && !x.Deleted && !x.Destroyed)
+		            .Where(IsLiveTarget)
 		            .Distinct()
 		            .ToList();
 		var projections = items
 		                  .SelectMany(x => x.Components
 		                                    .OfType<IProvideItemTargetProjections>()
 		                                    .SelectMany(y => y.TargetProjections))
-		                  .Where(x => x is not null && !x.Deleted && !x.Destroyed);
+		                  .Where(IsLiveTarget);
 
 		return items
 		       .Concat(projections)
 		       .Distinct();
+
+		static bool IsLiveTarget(IGameItem item) => item is not null && !item.Deleted && !item.Destroyed &&
+			item.GetItemType<IStackable>() is not { Quantity: <= 0 };
 	}
 
     private IGameItem? TargetItemWithinItem(IGameItem itemTarget, string keyword)

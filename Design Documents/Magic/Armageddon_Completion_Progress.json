@@ -3729,10 +3729,14 @@
     {
       "sha": "baa4ad851c998b7e83863b8bcbf84e2ba3d4d5a6",
       "subject": "Retain concrete AI definitions in NPC archival diagnostics"
+    },
+    {
+      "sha": "3b69a93860dd6d7ded5eb8960122b9ffc5a1ba59",
+      "subject": "Classify observed AI definitions for conservative NPC archival"
     }
   ],
   "next_checkpoint": {
-    "status": "STOCK_ARMOUR_REPAIRED_NATIVE_RETIREMENT_BLOCKED_AI_REFERENCES",
+    "status": "AI_CONTRACTS_QUALIFIED_NATIVE_RETIREMENT_BLOCKED_AUTOBUILDER_REFERENCES",
     "receipt": "Design Documents/Magic/Armageddon_Continuation_20261008.json",
     "remaining": [
       {
@@ -3780,8 +3784,8 @@
     "publication_authorized": false,
     "implementation_commit": "6c41c629b5a99389631949661d3c9e7992d048a7",
     "qualification_receipt": "Design Documents/Magic/Armageddon_Fury_Calm_Native_Qualification_20261009.json",
-    "current_npc_archival_receipt": "Armageddon_Npc_Armour_Repair_Checkpoint_20261009.json",
-    "next_bounded_milestone": "Add discriminator-aware strict classification for the observed Judge, Mount, Animal and Monster AI Definition codecs, with collision/unknown/malformed regression coverage, then rerun the unchanged physical-release and completed cold-retry gates for both retained NPCs. Preserve every unknown/malformed hold and all other serialized contracts."
+    "current_npc_archival_receipt": "Armageddon_Npc_AI_Reference_Checkpoint_20261009.json",
+    "next_bounded_milestone": "Capture the exact observed Autobuilder area and room TemplateType/Definition rows in the owned disposable world; map only those concrete codecs, classify verified static terrain/tuning/narrative contracts with unknown/malformed holds, then rerun the unchanged physical-release and completed cold-retry gates. Area digit collisions are observed, but exact held XML/type and literal provenance remain uncaptured."
   },
   "deferred_consultation": {
     "source_task": "01a0fc1f-ccd4-7359-95f2-f8c03724b0b1",
@@ -3895,9 +3899,9 @@
     },
     {
       "id": "npc_prepayment_lifetime_spawn_admission",
-      "status": "STOCK_ARMOUR_REPAIRED_NATIVE_RETIREMENT_BLOCKED_AI_REFERENCES",
-      "receipt": "Armageddon_Npc_Armour_Repair_Checkpoint_20261009.json",
-      "acceptance": "Fixed lifetime/spawn admission and prior native payment/creation retained. Stock bone armour source/owned repair qualified; physical release held by AI Definition collisions. No release assertion weakened.",
+      "status": "AI_CONTRACTS_QUALIFIED_NATIVE_RETIREMENT_BLOCKED_AUTOBUILDER_REFERENCES",
+      "receipt": "Armageddon_Npc_AI_Reference_Checkpoint_20261009.json",
+      "acceptance": "Fixed lifetime/spawn admission and prior native payment/creation retained. Stock armour qualified; observed AI contracts now clear. Physical release next holds on AutobuilderAreaTemplate.Definition. Original retirement assertions remain unchanged.",
       "prepayment_receipt": "Armageddon_Npc_Prepayment_Checkpoint_20261009.json"
     }
   ],
@@ -4097,6 +4101,13 @@
         "N13 PC charm remains not_run. Seven phases,16 decisions,154 candidates,82 Sorcerer plus12 support rows,25 native scenarios and all eight feature packages/devices/installer/full installed-world gates remain open. All previous qualification limits and immutable receipts/helpers/closing proofs remain.",
         "Local commit only; primary master preserved; no publication, remote merge, deployment, shared/production database or model/billing change. Stop for parent independent re-review."
       ]
+    },
+    {
+      "status": "AI_CONTRACTS_QUALIFIED_NATIVE_RETIREMENT_BLOCKED_AUTOBUILDER_REFERENCES",
+      "receipt": "Armageddon_Npc_AI_Reference_Checkpoint_20261009.json",
+      "implementation_commit": "3b69a93860dd6d7ded5eb8960122b9ffc5a1ba59",
+      "managed_full_core_passed": 6038,
+      "native_retirement_qualified": false
     }
   ],
   "queued_command_authority": {
@@ -5754,61 +5765,30 @@
   },
   "current_managed": {
     "status": "PASS",
-    "scope": "Separate fresh full Seeder and focused Core contract runs",
+    "scope": "Full Core with focused subset",
     "runs": [
       {
         "receipt": {
-          "path": ".artifacts/armageddon-npc-armour-repair-20261009/seeder-tests/20261008T215709Z-68a06ebd0820/summary.json",
-          "sha256": "5cf889e8a53e92b26010e88182ada4377b236dbf80377611f3461cbca0140c9a"
+          "path": ".artifacts/armageddon-npc-ai-20261009/core-full/20261008T224505Z-9047a8c2c877/summary.json",
+          "sha256": "05ca99996447c90f6a2a1883fa04b09c9bc97d70706c61d9e0f9b6c41d0067fe"
         },
-        "run": "20261008T215709Z-68a06ebd0820",
+        "run": "20261008T224505Z-9047a8c2c877",
         "status": "PASS",
-        "scope": "Full DatabaseSeeder Unit Tests",
+        "scope": "Full MudSharpCore Unit Tests",
         "configuration": "Debug",
         "filter": null,
-        "head_during_execution": "13658ca1e6926a378ea716579bd35be40f36b94b",
+        "head_during_execution": "5177f11b3b269cd54df41b463e81756df15da0ce",
         "counts": {
-          "executed": 1613,
-          "passed": 1613,
+          "executed": 6038,
+          "passed": 6038,
           "failed": 0,
           "skipped": 0,
           "inconclusive": 0,
           "other": 0,
-          "total": 1613
+          "total": 6038
         },
-        "source_start": "173687737dacc558c1f205b90d412e28374c26f33d789046de9c62fd25537cab",
-        "source_end": "173687737dacc558c1f205b90d412e28374c26f33d789046de9c62fd25537cab",
-        "source_stable": true,
-        "process_exit_codes": [
-          {
-            "project": "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
-            "build": 0,
-            "test": 0
-          }
-        ]
-      },
-      {
-        "receipt": {
-          "path": ".artifacts/armageddon-npc-armour-repair-20261009/core-contract-tests/20261008T220412Z-66b9a95c6eb3/summary.json",
-          "sha256": "b1ff6cb637613c3c748bd75a2559f3977af8611e2f404b99c74046e026739ddc"
-        },
-        "run": "20261008T220412Z-66b9a95c6eb3",
-        "status": "PASS",
-        "scope": "NpcArchiveReferencePolicyTests and BodyShutdownHealthTests only",
-        "configuration": "Debug",
-        "filter": "FullyQualifiedName~NpcArchiveReferencePolicyTests|FullyQualifiedName~BodyShutdownHealthTests",
-        "head_during_execution": "13658ca1e6926a378ea716579bd35be40f36b94b",
-        "counts": {
-          "executed": 102,
-          "passed": 102,
-          "failed": 0,
-          "skipped": 0,
-          "inconclusive": 0,
-          "other": 0,
-          "total": 102
-        },
-        "source_start": "a732c451c80852021d2bc334d69e32d0555a727daf5235130f2661e45835a7ee",
-        "source_end": "a732c451c80852021d2bc334d69e32d0555a727daf5235130f2661e45835a7ee",
+        "source_start": "299a31fded8a728b6dcdc74f6a60da4647e6f7988431662b7354939e76ef0860",
+        "source_end": "299a31fded8a728b6dcdc74f6a60da4647e6f7988431662b7354939e76ef0860",
         "source_stable": true,
         "process_exit_codes": [
           {
@@ -5819,11 +5799,39 @@
         ]
       }
     ],
-    "total_passes_across_separate_runs": 1715,
-    "failed": 0,
-    "skipped": 0,
-    "combined_run": false,
-    "attribution": "Separate fresh runs on HEAD13658ca1 plus the subsequently committed unchanged Seeder sources/tests. Later changes affect only the owned fixture/Python diagnostics. Full Core and combined suites were not rerun for this stage."
+    "diagnostic_subset": {
+      "receipt": {
+        "path": ".artifacts/armageddon-npc-ai-20261009/core-focused/20261008T224044Z-e235ce6f1b73/summary.json",
+        "sha256": "3ea6845a8f1aa4f57518a3eaa18ade15f550c68aca55e569d12e5fe71f3deb1b"
+      },
+      "run": "20261008T224044Z-e235ce6f1b73",
+      "status": "PASS",
+      "scope": "NpcArchiveAiReferencePolicyTests, NpcArchiveReferencePolicyTests, NpcArchiveRuntimeTests and BodyShutdownHealthTests",
+      "configuration": "Debug",
+      "filter": "FullyQualifiedName~NpcArchiveAiReferencePolicyTests|FullyQualifiedName~NpcArchiveReferencePolicyTests|FullyQualifiedName~NpcArchiveRuntimeTests|FullyQualifiedName~BodyShutdownHealthTests",
+      "head_during_execution": "5177f11b3b269cd54df41b463e81756df15da0ce",
+      "counts": {
+        "executed": 164,
+        "passed": 164,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 164
+      },
+      "source_start": "299a31fded8a728b6dcdc74f6a60da4647e6f7988431662b7354939e76ef0860",
+      "source_end": "299a31fded8a728b6dcdc74f6a60da4647e6f7988431662b7354939e76ef0860",
+      "source_stable": true,
+      "process_exit_codes": [
+        {
+          "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+          "build": 0,
+          "test": 0
+        }
+      ]
+    },
+    "authoritative_passed": 6038,
+    "counts_are_not_added": true
   },
   "full_plan_complete": false,
   "package_release_enabled": false,
@@ -5911,6 +5919,212 @@
       "combined_run": false,
       "attribution": "Separate fresh runs on HEAD13658ca1 plus the subsequently committed unchanged Seeder sources/tests. Later changes affect only the owned fixture/Python diagnostics. Full Core and combined suites were not rerun for this stage."
     },
-    "next_bounded_milestone": "Add discriminator-aware strict classification for the observed Judge, Mount, Animal and Monster AI Definition codecs, with collision/unknown/malformed regression coverage, then rerun the unchanged physical-release and completed cold-retry gates for both retained NPCs. Preserve every unknown/malformed hold and all other serialized contracts."
+    "next_bounded_milestone": "Add discriminator-aware strict classification for the observed Judge, Mount, Animal and Monster AI Definition codecs, with collision/unknown/malformed regression coverage, then rerun the unchanged physical-release and completed cold-retry gates for both retained NPCs. Preserve every unknown/malformed hold and all other serialized contracts.",
+    "historical_for_current_stage": true,
+    "superseded_current_status_by": "Armageddon_Npc_AI_Reference_Checkpoint_20261009.json"
+  },
+  "npc_ai_reference_continuation_20261009": {
+    "status": "AI_CONTRACTS_QUALIFIED_NATIVE_RETIREMENT_BLOCKED_AUTOBUILDER_REFERENCES",
+    "receipt": "Armageddon_Npc_AI_Reference_Checkpoint_20261009.json",
+    "implementation_commits": [
+      "3b69a93860dd6d7ded5eb8960122b9ffc5a1ba59"
+    ],
+    "ai_definition_contracts_qualified": true,
+    "native_retirement_qualified": false,
+    "completed_cold_retry_qualified": false,
+    "managed": {
+      "status": "PASS",
+      "scope": "Full Core with focused subset",
+      "runs": [
+        {
+          "receipt": {
+            "path": ".artifacts/armageddon-npc-ai-20261009/core-full/20261008T224505Z-9047a8c2c877/summary.json",
+            "sha256": "05ca99996447c90f6a2a1883fa04b09c9bc97d70706c61d9e0f9b6c41d0067fe"
+          },
+          "run": "20261008T224505Z-9047a8c2c877",
+          "status": "PASS",
+          "scope": "Full MudSharpCore Unit Tests",
+          "configuration": "Debug",
+          "filter": null,
+          "head_during_execution": "5177f11b3b269cd54df41b463e81756df15da0ce",
+          "counts": {
+            "executed": 6038,
+            "passed": 6038,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 6038
+          },
+          "source_start": "299a31fded8a728b6dcdc74f6a60da4647e6f7988431662b7354939e76ef0860",
+          "source_end": "299a31fded8a728b6dcdc74f6a60da4647e6f7988431662b7354939e76ef0860",
+          "source_stable": true,
+          "process_exit_codes": [
+            {
+              "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+              "build": 0,
+              "test": 0
+            }
+          ]
+        }
+      ],
+      "diagnostic_subset": {
+        "receipt": {
+          "path": ".artifacts/armageddon-npc-ai-20261009/core-focused/20261008T224044Z-e235ce6f1b73/summary.json",
+          "sha256": "3ea6845a8f1aa4f57518a3eaa18ade15f550c68aca55e569d12e5fe71f3deb1b"
+        },
+        "run": "20261008T224044Z-e235ce6f1b73",
+        "status": "PASS",
+        "scope": "NpcArchiveAiReferencePolicyTests, NpcArchiveReferencePolicyTests, NpcArchiveRuntimeTests and BodyShutdownHealthTests",
+        "configuration": "Debug",
+        "filter": "FullyQualifiedName~NpcArchiveAiReferencePolicyTests|FullyQualifiedName~NpcArchiveReferencePolicyTests|FullyQualifiedName~NpcArchiveRuntimeTests|FullyQualifiedName~BodyShutdownHealthTests",
+        "head_during_execution": "5177f11b3b269cd54df41b463e81756df15da0ce",
+        "counts": {
+          "executed": 164,
+          "passed": 164,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 164
+        },
+        "source_start": "299a31fded8a728b6dcdc74f6a60da4647e6f7988431662b7354939e76ef0860",
+        "source_end": "299a31fded8a728b6dcdc74f6a60da4647e6f7988431662b7354939e76ef0860",
+        "source_stable": true,
+        "process_exit_codes": [
+          {
+            "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+            "build": 0,
+            "test": 0
+          }
+        ]
+      },
+      "authoritative_passed": 6038,
+      "counts_are_not_added": true
+    },
+    "native": {
+      "receipt": {
+        "path": ".artifacts/authored-celestials/run-8f52a54633e3/smoke-invocation-6cc55ecad542/receipt.json",
+        "sha256": "7aa90c7d5f1b9cd87bc9e40a31aa41dd70ca2a08d1cb024c10758013c4ccb287"
+      },
+      "status": "FAIL",
+      "assertions": {
+        "total": 16,
+        "passed": 15,
+        "failed": 1
+      },
+      "scope": "retained paid NPC expiry/archival retry and a separate-process completed retry",
+      "head_during_execution": "5177f11b3b269cd54df41b463e81756df15da0ce",
+      "source_receipt": {
+        "path": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\.artifacts\\authored-celestials\\run-8f52a54633e3\\smoke-invocation-aa55c6ee3866\\receipt.json",
+        "sha256": "428dd36fcfce5e0748700ee34a12f443211e60395f523788006912325f656297"
+      },
+      "error": "real native scheduled expiry completes without a hold: 2\t0\tNative retirement held: Unresolved serialized reference or scan limit in AutobuilderAreaTemplate.Definition; retain the physical graph.",
+      "first_retirement_attempt": [
+        {
+          "id": "476b6713-766b-4f23-b8e9-c1693c29220c",
+          "row": "2\t0\tNative retirement held: Unresolved serialized reference or scan limit in AutobuilderAreaTemplate.Definition; retain the physical graph."
+        }
+      ],
+      "ai_column_passed_for_first_retirement_attempt": true,
+      "observed_ai_rows": 112,
+      "observed_ai_types": {
+        "Enforcer": 1,
+        "Judge": 1,
+        "Lawyer": 1,
+        "Commandable": 2,
+        "Doorguard": 1,
+        "CombatEnd": 1,
+        "Wanderer": 1,
+        "Aggressor": 1,
+        "Rescuer": 1,
+        "Scavenge": 1,
+        "TrackingAggressor": 1,
+        "SelfCare": 1,
+        "Mount": 1,
+        "ArenaParticipant": 1,
+        "ArborealWanderer": 1,
+        "DenBuilder": 1,
+        "LairScavenger": 1,
+        "Animal": 80,
+        "Monster": 12,
+        "NaturalTrap": 2
+      },
+      "observed_ai_rows_unchanged": true,
+      "agriculture_and_armour_rows_unchanged": true,
+      "native_input_hashes_match_current_files": true,
+      "created_lifecycles": [
+        {
+          "id": "476b6713-766b-4f23-b8e9-c1693c29220c",
+          "formula": "grade*45",
+          "seconds": 45.0,
+          "character": 10,
+          "body": 10
+        },
+        {
+          "id": "9a536f89-f899-461b-9111-a11b2ede595b",
+          "formula": "45+outcome*5",
+          "seconds": 70.0,
+          "character": 11,
+          "body": 11
+        }
+      ],
+      "physical_evidence_after_failure": {
+        "476b6713-766b-4f23-b8e9-c1693c29220c": "2\t1\t0\t1\t1\t1\t1\t0",
+        "9a536f89-f899-461b-9111-a11b2ede595b": "2\t1\t0\t1\t1\t1\t1\t0"
+      },
+      "physical_evidence_columns": [
+        "State",
+        "Mode",
+        "Reason",
+        "NpcCount",
+        "BodyCount",
+        "InstanceCount",
+        "UnarchivedCanonicalWithExactBodyCount",
+        "ArchiveCount"
+      ],
+      "original_fury_preserved": true,
+      "server_processes": [
+        {
+          "output": "server-output-0.log",
+          "returncode": 0,
+          "collectorStopped": true
+        }
+      ],
+      "cleanup": {
+        "mysqlStopped": true,
+        "dataPreserved": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\.artifacts\\authored-celestials\\run-8f52a54633e3\\mysql\\data"
+      },
+      "world": {
+        "root": ".artifacts/authored-celestials/run-8f52a54633e3",
+        "database": "authored_celestial_smoke",
+        "endpoint": "127.0.0.1:58998",
+        "server_uuid": "ac3f13f9-c311-11f1-b8a6-30560f3c3fde",
+        "stopped": true,
+        "qualification_marker_promoted": false
+      },
+      "not_run": [
+        "Successful physical release",
+        "Second NPC successful retirement",
+        "Separate-process completed cold retry"
+      ],
+      "observed_autobuilder_collisions": [
+        {
+          "table": "autobuilderareatemplates",
+          "column": "Definition",
+          "rows": 1
+        },
+        {
+          "table": "autobuilderroomtemplates",
+          "column": "Definition",
+          "rows": 1
+        }
+      ],
+      "autobuilder_evidence_boundary": "Census identifies one area and one room Definition with a 10/11 collision. Their exact persisted TemplateType/XML were not captured; source mapping suggests static Terrain references or tuning, but does not establish the held literal provenance."
+    },
+    "next_bounded_milestone": "Capture the exact observed Autobuilder area and room TemplateType/Definition rows in the owned disposable world; map only those concrete codecs, classify verified static terrain/tuning/narrative contracts with unknown/malformed holds, then rerun the unchanged physical-release and completed cold-retry gates. Area digit collisions are observed, but exact held XML/type and literal provenance remain uncaptured.",
+    "full_plan_complete": false,
+    "package_release_enabled": false,
+    "publication_authorized": false
   }
 }

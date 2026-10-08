@@ -1,0 +1,252 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-09",
+  "status": "AI_CONTRACTS_QUALIFIED_NATIVE_RETIREMENT_BLOCKED_AUTOBUILDER_REFERENCES",
+  "branch": "codex/armageddon-continuation-20261008",
+  "user_request": "Continue with the suggested strict observed AI definition classification milestone and unchanged retirement retry.",
+  "previous_checkpoint": {
+    "path": "Design Documents/Magic/Armageddon_Npc_Armour_Repair_Checkpoint_20261009.json",
+    "sha256": "8cb122ba23c80054907a7fc451514b592ca154a4bfe6fb017004a555cc32c6a5"
+  },
+  "implementation_commits": [
+    {
+      "sha": "3b69a93860dd6d7ded5eb8960122b9ffc5a1ba59",
+      "subject": "Classify observed AI definitions for conservative NPC archival"
+    }
+  ],
+  "ai_definition_contracts_qualified": true,
+  "native_retirement_qualified": false,
+  "completed_cold_retry_qualified": false,
+  "full_plan_complete": false,
+  "package_release_enabled": false,
+  "publication_authorized": false,
+  "implementation": [
+    "Exact persisted Type dispatch for Judge, Mount, Animal and Monster; the common Definition XML root cannot select a codec.",
+    "Bounded EF projection pairs each Type with Definition. RowLimit+1 and 1 MiB payload bounds remain authoritative.",
+    "Known static prog/race/craft/calendar/celestial identifiers, finite tuning values, enums, parse-only dice and narrative fields are classified. Progs and dice are never executed.",
+    "Judge legacy named progs and unversioned/optional legacy creature sections are preserved; Judge/Mount required fields are checked.",
+    "Unknown roots, nodes, attributes, namespaces, duplicate singleton/list keys, hidden nested actor data, malformed scalars and unsupported versions hold even without a matching ID.",
+    "Other AI types keep the generic reference scan. Runtime dependants, persisted effects and every original retirement assertion remain unchanged.",
+    "58 new deterministic cases include actual runtime loader/writer round trips for all four types and EF global-scanner discriminator/payload pairing and oversized-payload checks.",
+    "Native diagnostic input hashes now include the AI classifier source. No AI, Agriculture or Armour row was modified during this milestone."
+  ],
+  "managed": [
+    {
+      "receipt": {
+        "path": ".artifacts/armageddon-npc-ai-20261009/core-focused/20261008T224044Z-e235ce6f1b73/summary.json",
+        "sha256": "3ea6845a8f1aa4f57518a3eaa18ade15f550c68aca55e569d12e5fe71f3deb1b"
+      },
+      "run": "20261008T224044Z-e235ce6f1b73",
+      "status": "PASS",
+      "scope": "NpcArchiveAiReferencePolicyTests, NpcArchiveReferencePolicyTests, NpcArchiveRuntimeTests and BodyShutdownHealthTests",
+      "configuration": "Debug",
+      "filter": "FullyQualifiedName~NpcArchiveAiReferencePolicyTests|FullyQualifiedName~NpcArchiveReferencePolicyTests|FullyQualifiedName~NpcArchiveRuntimeTests|FullyQualifiedName~BodyShutdownHealthTests",
+      "head_during_execution": "5177f11b3b269cd54df41b463e81756df15da0ce",
+      "counts": {
+        "executed": 164,
+        "passed": 164,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 164
+      },
+      "source_start": "299a31fded8a728b6dcdc74f6a60da4647e6f7988431662b7354939e76ef0860",
+      "source_end": "299a31fded8a728b6dcdc74f6a60da4647e6f7988431662b7354939e76ef0860",
+      "source_stable": true,
+      "process_exit_codes": [
+        {
+          "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+          "build": 0,
+          "test": 0
+        }
+      ]
+    },
+    {
+      "receipt": {
+        "path": ".artifacts/armageddon-npc-ai-20261009/core-full/20261008T224505Z-9047a8c2c877/summary.json",
+        "sha256": "05ca99996447c90f6a2a1883fa04b09c9bc97d70706c61d9e0f9b6c41d0067fe"
+      },
+      "run": "20261008T224505Z-9047a8c2c877",
+      "status": "PASS",
+      "scope": "Full MudSharpCore Unit Tests",
+      "configuration": "Debug",
+      "filter": null,
+      "head_during_execution": "5177f11b3b269cd54df41b463e81756df15da0ce",
+      "counts": {
+        "executed": 6038,
+        "passed": 6038,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 6038
+      },
+      "source_start": "299a31fded8a728b6dcdc74f6a60da4647e6f7988431662b7354939e76ef0860",
+      "source_end": "299a31fded8a728b6dcdc74f6a60da4647e6f7988431662b7354939e76ef0860",
+      "source_stable": true,
+      "process_exit_codes": [
+        {
+          "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+          "build": 0,
+          "test": 0
+        }
+      ]
+    }
+  ],
+  "managed_authoritative_passed": 6038,
+  "focused_count_is_subset": true,
+  "managed_boundary": "Both runs used frozen implementation on HEAD5177f11b3b269cd54df41b463e81756df15da0ce. Runtime, classifier, tests and native scenario remain byte-identical after validation; only documentation/ledger edits followed. Earlier Seeder runs remain historical evidence and were not repeated.",
+  "review": {
+    "status": "NO_ACTIONABLE_FINDINGS",
+    "agent": "fm_reviewer",
+    "scope": "Read-only exact codec, scanner bounds and acceptance coverage review",
+    "tests_executed_by_reviewer": false
+  },
+  "native": {
+    "receipt": {
+      "path": ".artifacts/authored-celestials/run-8f52a54633e3/smoke-invocation-6cc55ecad542/receipt.json",
+      "sha256": "7aa90c7d5f1b9cd87bc9e40a31aa41dd70ca2a08d1cb024c10758013c4ccb287"
+    },
+    "status": "FAIL",
+    "assertions": {
+      "total": 16,
+      "passed": 15,
+      "failed": 1
+    },
+    "scope": "retained paid NPC expiry/archival retry and a separate-process completed retry",
+    "head_during_execution": "5177f11b3b269cd54df41b463e81756df15da0ce",
+    "source_receipt": {
+      "path": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\.artifacts\\authored-celestials\\run-8f52a54633e3\\smoke-invocation-aa55c6ee3866\\receipt.json",
+      "sha256": "428dd36fcfce5e0748700ee34a12f443211e60395f523788006912325f656297"
+    },
+    "error": "real native scheduled expiry completes without a hold: 2\t0\tNative retirement held: Unresolved serialized reference or scan limit in AutobuilderAreaTemplate.Definition; retain the physical graph.",
+    "first_retirement_attempt": [
+      {
+        "id": "476b6713-766b-4f23-b8e9-c1693c29220c",
+        "row": "2\t0\tNative retirement held: Unresolved serialized reference or scan limit in AutobuilderAreaTemplate.Definition; retain the physical graph."
+      }
+    ],
+    "ai_column_passed_for_first_retirement_attempt": true,
+    "observed_ai_rows": 112,
+    "observed_ai_types": {
+      "Enforcer": 1,
+      "Judge": 1,
+      "Lawyer": 1,
+      "Commandable": 2,
+      "Doorguard": 1,
+      "CombatEnd": 1,
+      "Wanderer": 1,
+      "Aggressor": 1,
+      "Rescuer": 1,
+      "Scavenge": 1,
+      "TrackingAggressor": 1,
+      "SelfCare": 1,
+      "Mount": 1,
+      "ArenaParticipant": 1,
+      "ArborealWanderer": 1,
+      "DenBuilder": 1,
+      "LairScavenger": 1,
+      "Animal": 80,
+      "Monster": 12,
+      "NaturalTrap": 2
+    },
+    "observed_ai_rows_unchanged": true,
+    "agriculture_and_armour_rows_unchanged": true,
+    "native_input_hashes_match_current_files": true,
+    "created_lifecycles": [
+      {
+        "id": "476b6713-766b-4f23-b8e9-c1693c29220c",
+        "formula": "grade*45",
+        "seconds": 45.0,
+        "character": 10,
+        "body": 10
+      },
+      {
+        "id": "9a536f89-f899-461b-9111-a11b2ede595b",
+        "formula": "45+outcome*5",
+        "seconds": 70.0,
+        "character": 11,
+        "body": 11
+      }
+    ],
+    "physical_evidence_after_failure": {
+      "476b6713-766b-4f23-b8e9-c1693c29220c": "2\t1\t0\t1\t1\t1\t1\t0",
+      "9a536f89-f899-461b-9111-a11b2ede595b": "2\t1\t0\t1\t1\t1\t1\t0"
+    },
+    "physical_evidence_columns": [
+      "State",
+      "Mode",
+      "Reason",
+      "NpcCount",
+      "BodyCount",
+      "InstanceCount",
+      "UnarchivedCanonicalWithExactBodyCount",
+      "ArchiveCount"
+    ],
+    "original_fury_preserved": true,
+    "server_processes": [
+      {
+        "output": "server-output-0.log",
+        "returncode": 0,
+        "collectorStopped": true
+      }
+    ],
+    "cleanup": {
+      "mysqlStopped": true,
+      "dataPreserved": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\.artifacts\\authored-celestials\\run-8f52a54633e3\\mysql\\data"
+    },
+    "world": {
+      "root": ".artifacts/authored-celestials/run-8f52a54633e3",
+      "database": "authored_celestial_smoke",
+      "endpoint": "127.0.0.1:58998",
+      "server_uuid": "ac3f13f9-c311-11f1-b8a6-30560f3c3fde",
+      "stopped": true,
+      "qualification_marker_promoted": false
+    },
+    "not_run": [
+      "Successful physical release",
+      "Second NPC successful retirement",
+      "Separate-process completed cold retry"
+    ],
+    "observed_autobuilder_collisions": [
+      {
+        "table": "autobuilderareatemplates",
+        "column": "Definition",
+        "rows": 1
+      },
+      {
+        "table": "autobuilderroomtemplates",
+        "column": "Definition",
+        "rows": 1
+      }
+    ],
+    "autobuilder_evidence_boundary": "Census identifies one area and one room Definition with a 10/11 collision. Their exact persisted TemplateType/XML were not captured; source mapping suggests static Terrain references or tuning, but does not establish the held literal provenance."
+  },
+  "next_bounded_milestone": "Capture the exact observed Autobuilder area and room TemplateType/Definition rows in the owned disposable world; map only those concrete codecs, classify verified static terrain/tuning/narrative contracts with unknown/malformed holds, then rerun the unchanged physical-release and completed cold-retry gates. Area digit collisions are observed, but exact held XML/type and literal provenance remain uncaptured.",
+  "preserved_scope": {
+    "candidates": 154,
+    "required_candidates": 152,
+    "optional_candidates": 2,
+    "sorcerer_spells": 82,
+    "sorcerer_roots": 4,
+    "sorcerer_supports": 12,
+    "required_larger_features": [
+      "Spring Haven",
+      "Burrow Refuge",
+      "Sand Shelter",
+      "Sand Effigy",
+      "Walking Shadow",
+      "Severing Refuge",
+      "Apex Bane",
+      "Folded Pocket"
+    ]
+  },
+  "limits": [
+    "AI contract qualification does not assert external static definitions exist or that AI gameplay configuration is ready.",
+    "The unchanged native retirement gate remains failed on a newly exposed serialized contract; both physical graphs remain held.",
+    "Other collision-census entries are diagnostic candidates, not proven blockers or permission for blanket exemptions.",
+    "Historical failed receipts remain immutable. Full installed acceptance, high-volume N16 and programme readiness remain incomplete.",
+    "Local commits only; no PR, publication, merge, release, deployment or shared/production database writes."
+  ]
+}

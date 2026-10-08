@@ -51,10 +51,13 @@ codecs and registration-only Body shutdown, retaining its historical 5,980 Core 
 The [stock armour repair checkpoint](Armageddon_Npc_Armour_Repair_Checkpoint_20261009.json)
 fixes both seeded chopping defaults and qualifies their exact owned-world correction with
 1,613 Seeder and 102 focused Core passes plus native transaction/preservation checks.
-The unchanged physical-release gate now holds on `ArtificialIntelligence.Definition`;
-both heavy graphs remain, and physical release/completed cold retry remain unqualified.
-Only strict observed row-Type-aware AI codec classification is the next bounded stage;
-unknown/malformed reference holds and the original physical-release assertions remain enabled.
+The [AI reference checkpoint](Armageddon_Npc_AI_Reference_Checkpoint_20261009.json) adds strict
+row-Type-aware Judge/Mount/Animal/Monster classification, with 6,038 full Core passes.
+The unchanged native gate clears the AI hold and next holds on
+`AutobuilderAreaTemplate.Definition`. Both heavy graphs remain; physical release and the
+completed cold retry remain unqualified. Exact observed Autobuilder contracts are the
+next bounded investigation; unknown/malformed holds and all original retirement assertions
+remain enabled. Previous failed receipts remain historical evidence.
 Earlier creation/retirement receipts do not establish full current lifecycle readiness.
 
 Preparation allocates a stable creation key and canonical creator ID. A fresh serializable

@@ -164,7 +164,8 @@ public class RoomTerminologyTests
 		using var context = new FuturemudDatabaseContext(options);
 		var assemblyLatest = context.GetService<IMigrationsAssembly>().Migrations.Keys
 			.OrderBy(x=>x,StringComparer.Ordinal).Last();
-		Assert.AreEqual("20261007043900_RoomTerminology",assemblyLatest);
+		Assert.IsTrue(context.GetService<IMigrationsAssembly>().Migrations.ContainsKey("20261007043900_RoomTerminology"));
+		Assert.AreEqual("20261008024603_TargetedLegacyRoomReferences",assemblyLatest);
 		Assert.AreEqual(assemblyLatest,sourceLatest);
 	}
 

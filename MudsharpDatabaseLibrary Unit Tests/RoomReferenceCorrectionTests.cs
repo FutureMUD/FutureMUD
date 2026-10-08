@@ -106,10 +106,10 @@ public class RoomReferenceCorrectionTests
 	[DataTestMethod]
 	[DataRow("PrivateProperty")]
 	[DataRow("PermitWork")]
-	public void Controller_UnsupportedHistoricalRoom_RequiresExplicitDisposition(string kind)
+	public void Controller_HistoricallyUnsupportedParent_IsAnUnchangedInventoryExemption(string kind)
 	{
 		var xml = $"<Effects><Effect><Type>{kind}</Type><Effect><ControllerType>Room</ControllerType><ControllerId>9000</ControllerId></Effect></Effect></Effects>";
-		StringAssert.Contains(Assert.ThrowsException<InvalidOperationException>(() => RoomReferenceXml.Rewrite(xml, false, Map(), "Cells #8.EffectData")).Message, "controller loading");
+		Assert.AreSame(xml, RoomReferenceXml.Rewrite(xml, false, Map(), "Cells #8.EffectData"));
 	}
 
 	[TestMethod]

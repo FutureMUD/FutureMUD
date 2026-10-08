@@ -123,7 +123,7 @@ internal static class RoomReferenceXml
 			patches.Add((start, close - start, replacement));
 		}
 
-		void Pair(XObject? typeNode, XObject? idNode, string path, bool zeroIsAbsent = false, bool unsupported = false)
+		void Pair(XObject? typeNode, XObject? idNode, string path, bool zeroIsAbsent = false)
 		{
 			var type = typeNode switch { XAttribute a => a.Value, XElement e => e.Value, _ => null };
 			var idText = idNode switch { XAttribute a => a.Value, XElement e => e.Value, _ => null };
@@ -135,10 +135,6 @@ internal static class RoomReferenceXml
 			if (!long.TryParse(idText, NumberStyles.None, CultureInfo.InvariantCulture, out var id) || id <= 0)
 			{
 				throw new InvalidOperationException($"Room reference correction: {context}{path}: missing or malformed legacy Room ID.");
-			}
-			if (unsupported)
-			{
-				throw new InvalidOperationException($"Room reference correction: {context}{path}: legacy Room #{id} is unsupported by FrameworkItemReference controller loading; explicit disposition required.");
 			}
 			foreach (var node in new[] { typeNode, idNode })
 			{
@@ -179,7 +175,7 @@ internal static class RoomReferenceXml
 				var kind = Single(effect, "Type", path)?.Value;
 				if (!RoomReferenceEffectTypes.IsKnown(kind))
 					throw new InvalidOperationException($"Room reference correction: {context}{path}: missing/custom/unclassified effect factory; explicitly audit its serializer before cutover.");
-				if (kind is not ("ZeroGravityTether" or "SpellZeroGravityTether" or "OverrideDescFromProg" or "OverrideSDescFromProg" or "CheckResult" or "PrivateProperty" or "PermitWork" or "MagicSpellParent")) continue;
+				if (kind is not ("ZeroGravityTether" or "SpellZeroGravityTether" or "OverrideDescFromProg" or "OverrideSDescFromProg" or "CheckResult" or "MagicSpellParent")) continue;
 				var payload = Single(effect, "Effect", path) ?? throw new InvalidOperationException($"Room reference correction: {context}{path}: missing {kind} payload.");
 				if (kind == "MagicSpellParent")
 				{
@@ -205,10 +201,6 @@ internal static class RoomReferenceXml
 						throw new InvalidOperationException($"Room reference correction: {context}{path}: ambiguous historical CheckResult ToolType (older writer copied TargetType); explicit disposition required.");
 					Pair(payload.Attribute("TargetType"), payload.Attribute("TargetId"), path + "/Effect/@Target", true);
 					Pair(payload.Attribute("ToolType"), payload.Attribute("ToolId"), path + "/Effect/@Tool", true);
-				}
-				else
-				{
-					Pair(Single(payload, "ControllerType", path), Single(payload, "ControllerId", path), path + "/Effect/Controller", kind == "PermitWork", true);
 				}
 			}
 		}

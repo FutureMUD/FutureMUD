@@ -84,10 +84,26 @@ internal static class OwnedBoneArmourRepair
 			}
 		}
 
-		int Apply(bool failSecondCompare = false)
+		int Apply(bool failSecondCompare = false, bool exerciseCorrectedBaseline = false)
 		{
 			using var transaction = sql.BeginTransaction();
 			var lockedPlans = Plan(Read(transaction));
+			if (exerciseCorrectedBaseline)
+			{
+				Require(lockedPlans.All(x => !x.Changed), "Round-trip probe requires both exact corrected definitions.");
+				// Recreate the old input only inside this transaction, then exercise the real repair.
+				// A failure rolls back to the corrected committed baseline; malformed data is never committed.
+				foreach (var plan in lockedPlans)
+				{
+					using var command = new MySqlCommand("UPDATE ArmourTypes SET Definition=CONVERT(@definition USING utf8mb4) " +
+						"WHERE Id=@id AND BINARY Definition=@corrected", sql, transaction);
+					command.Parameters.AddWithValue("@id", plan.Id);
+					command.Parameters.AddWithValue("@definition", Convert.FromHexString(plan.OldHex));
+					command.Parameters.AddWithValue("@corrected", Convert.FromHexString(plan.NewHex));
+					Require(command.ExecuteNonQuery() == 1, "Corrected-baseline probe compare failed.");
+				}
+				lockedPlans = Plan(Read(transaction));
+			}
 			var changed = 0;
 			try
 			{
@@ -107,25 +123,35 @@ internal static class OwnedBoneArmourRepair
 			catch { transaction.Rollback(); throw; }
 		}
 
-		var rollbackProbe = "NOT_RUN_ALREADY_REPAIRED";
-		if (plans.All(x => x.Changed))
-		{
-			try { Apply(true); throw new Exception("Forced second compare unexpectedly succeeded."); }
-			catch (InvalidOperationException error) when (error.Message.StartsWith("Complete-definition compare failed", StringComparison.Ordinal)) { }
-			Require(Read().SequenceEqual(before) && Equal(beforeChecksums, checksums()), "Rollback probe changed the world.");
-			rollbackProbe = "PASS_SECOND_COMPARE_FAILED_FIRST_UPDATE_ROLLED_BACK";
-		}
+		var correctedBaseline = plans.All(x => !x.Changed);
+		try { Apply(true, correctedBaseline); throw new Exception("Forced second compare unexpectedly succeeded."); }
+		catch (InvalidOperationException error) when (error.Message.StartsWith("Complete-definition compare failed", StringComparison.Ordinal)) { }
+		Require(Read().SequenceEqual(before) && Equal(beforeChecksums, checksums()), "Rollback probe changed the world.");
+		var rollbackProbe = "PASS_SECOND_COMPARE_FAILED_FIRST_UPDATE_ROLLED_BACK";
+		var roundTripRows = correctedBaseline ? Apply(false, true) : 0;
+		Require(!correctedBaseline || roundTripRows == 2 && Read().SequenceEqual(before) && Equal(beforeChecksums, checksums()),
+			"Corrected-baseline round trip changed the committed world.");
 		var changedRows = Apply();
 		var after = Read();
 		Require(after.SequenceEqual(before.Select(row => plans.SingleOrDefault(x => x.Id == row.Id) is { } plan ?
 			row with { Hex = plan.NewHex } : row)), "Repair changed an unselected row or target metadata.");
 		var afterChecksums = checksums();
-		Require(Equal(beforeChecksums.Where(x => x.Key != "ArmourTypes"), afterChecksums.Where(x => x.Key != "ArmourTypes")),
+		var tableChanges = beforeChecksums.Keys.Union(afterChecksums.Keys).Where(key =>
+			beforeChecksums.GetValueOrDefault(key) != afterChecksums.GetValueOrDefault(key)).ToArray();
+		// Retain the complete diagnostics before a preservation assertion can fail.
+		File.WriteAllText(receiptPath, JsonSerializer.Serialize(new { Status = "CHECKING", SourceReceipt = sourcePath,
+			SourceReceiptSha256 = SourceHash, ChangedRows = changedRows, BuilderEditRefusals = preservedBuilderEdits,
+			RollbackProbe = rollbackProbe, CorrectedBaselineRoundTripRows = roundTripRows, RerunChangedRows = (int?)null,
+			Before = before, After = after, ChangedTables = tableChanges,
+			ChecksumsBefore = beforeChecksums, ChecksumsAfter = afterChecksums }, new JsonSerializerOptions { WriteIndented = true }));
+		Require(Equal(beforeChecksums.Where(x => !x.Key.Equals("ArmourTypes", StringComparison.OrdinalIgnoreCase)),
+			afterChecksums.Where(x => !x.Key.Equals("ArmourTypes", StringComparison.OrdinalIgnoreCase))),
 			"Repair changed another database table.");
 		Require(Apply() == 0 && after.SequenceEqual(Read()) && Equal(afterChecksums, checksums()), "Repair rerun is not a no-op.");
 		File.WriteAllText(receiptPath, JsonSerializer.Serialize(new { Status = "PASS", SourceReceipt = sourcePath,
 			SourceReceiptSha256 = SourceHash, ChangedRows = changedRows, BuilderEditRefusals = preservedBuilderEdits,
-			RollbackProbe = rollbackProbe, RerunChangedRows = 0, Before = before, After = after,
+			RollbackProbe = rollbackProbe, CorrectedBaselineRoundTripRows = roundTripRows,
+			RerunChangedRows = 0, Before = before, After = after, ChangedTables = tableChanges,
 			ChecksumsBefore = beforeChecksums, ChecksumsAfter = afterChecksums }, new JsonSerializerOptions { WriteIndented = true }));
 	}
 

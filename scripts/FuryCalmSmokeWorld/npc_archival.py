@@ -57,6 +57,8 @@ try:
         s.report['boneArmourRepair'] = {key: repair[key] for key in
                                       ['Status', 'SourceReceipt', 'SourceReceiptSha256', 'ChangedRows',
                                        'BuilderEditRefusals', 'RollbackProbe', 'RerunChangedRows']}
+        s.report['boneArmourRepair']['correctedBaselineRoundTripRows'] = repair['CorrectedBaselineRoundTripRows']
+        s.report['boneArmourRepair']['changedTables'] = repair['ChangedTables']
         s.report['boneArmourRepair']['receipt'] = str(s.runtime / 'fixture-armour-repair.json')
     s.report['archiveReferenceEvidence'] = {
         table: s.sql(f'SELECT Id,HEX(Definition) FROM {table} ORDER BY Id') for table in

@@ -67,6 +67,9 @@ public static partial class ArmageddonPreparedWorldInstaller
 		ValidateCapacity(db, bindings, errors);
 		ValidateWaterSee(db, bindings, errors);
 		ValidateEmotions(db, bindings, errors);
+		try { _ = PreservedPierceSpell(db); }
+		catch (Exception error) when (error is InvalidOperationException or System.Xml.XmlException or FormatException)
+		{ errors.Add(error.Message); }
 		try { _ = PreservedProvisionSpells(db); }
 		catch (Exception error) when (error is InvalidOperationException or System.Xml.XmlException or FormatException) { errors.Add(error.Message); }
 		return errors.AsReadOnly();

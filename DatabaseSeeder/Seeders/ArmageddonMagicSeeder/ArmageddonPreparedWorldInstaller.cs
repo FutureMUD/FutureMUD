@@ -67,6 +67,8 @@ public static partial class ArmageddonPreparedWorldInstaller
 			var spells = utilities.Identities.Where(x => bindings.Utilities.SpellSkills.ContainsKey(x.Key)).ToDictionary(x => x.Key, x => x.Value);
 			using (var db = freshContext())
 			{
+				if (PreservedPierceSpell(db) is { } retainedPierce)
+					spells.Add(ArmageddonReviewedPierceContent.Key, retainedPierce);
 				foreach (var spell in PreservedProvisionSpells(db)) spells.Add(spell.Key, spell.Value);
 				foreach (var spell in PreservedWaterSeeSpells(db)) spells.Add(spell.Key, spell.Value);
 				foreach (var spell in ArmageddonEmotionalInstaller.PreservedSpells(db)) spells.Add(spell.Key, spell.Value);
@@ -98,7 +100,7 @@ public static partial class ArmageddonPreparedWorldInstaller
 					traditions.Identities[ArmageddonReviewedPierceContent.Key + ".skill"]),
 				x => checkpoint?.Invoke(ArmageddonPierceInstaller.Module, x));
 			if (!Record(ArmageddonPierceInstaller.Module, pierce.Status, pierce.Messages, pierce.Identities)) return Result(pierce.Status);
-			spells.Add(ArmageddonReviewedPierceContent.Key, pierce.Identities[ArmageddonReviewedPierceContent.Key]);
+			spells[ArmageddonReviewedPierceContent.Key] = pierce.Identities[ArmageddonReviewedPierceContent.Key];
 			if (bindings.WaterSee is { } waterSee)
 			{
 				ArmageddonInstallResult contribution;
